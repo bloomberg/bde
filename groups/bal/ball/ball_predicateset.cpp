@@ -12,7 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
 
-#include <ball_attributecontainerlist.h>      // for testing only
+#include <ball_attributecontainerlist.h>
 #include <ball_defaultattributecontainer.h>   // for testing only
 
 #include <bslim_printer.h>
@@ -28,9 +28,9 @@ namespace ball {
                         // ------------------
 
 // CLASS DATA
-int PredicateSet::s_initialSize = 8;
-
 int PredicateSet::PredicateHash::s_hashtableSize = INT_MAX;
+
+int PredicateSet::s_initialSize = 8;
 
 // CLASS METHODS
 int PredicateSet::hash(const PredicateSet& set, int size)

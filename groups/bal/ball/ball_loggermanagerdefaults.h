@@ -204,7 +204,7 @@ class LoggerManagerDefaults {
         // Return 'true' if each of the specified 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' values is a valid default
         // severity threshold level attributes, and 'false' otherwise.  Valid
-        // severity threshold level values are in the range [0 .. 255].
+        // severity threshold level values are in the range '[0 .. 255]'.
 
     static int defaultDefaultRecordBufferSize();
         // Return the implementation-defined default-logger record-buffer size
@@ -275,9 +275,8 @@ class LoggerManagerDefaults {
         // Set the quadruplet of default severity threshold level attributes of
         // this object to the specified 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' values if each level is in the
-        // range [0 .. 255].  Return 0 on success, and a non-zero value (with
+        // range '[0 .. 255]'.  Return 0 on success, and a non-zero value (with
         // no effect on the state of this object) otherwise.
-
 
     // ACCESSORS
     int defaultRecordBufferSize() const;
@@ -313,7 +312,6 @@ class LoggerManagerDefaults {
         // negative, suppress all indentation AND format the entire output on
         // one line.  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS

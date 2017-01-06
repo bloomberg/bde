@@ -251,19 +251,19 @@ LoggerManagerDefaults::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 bool ball::operator==(const LoggerManagerDefaults& lhs,
                       const LoggerManagerDefaults& rhs)
 {
-    return
-        lhs.d_recordBufferSize       == rhs.d_recordBufferSize       &&
-        lhs.d_loggerBufferSize       == rhs.d_loggerBufferSize       &&
-        lhs.d_defaultRecordLevel     == rhs.d_defaultRecordLevel     &&
-        lhs.d_defaultPassLevel       == rhs.d_defaultPassLevel       &&
-        lhs.d_defaultTriggerLevel    == rhs.d_defaultTriggerLevel    &&
-        lhs.d_defaultTriggerAllLevel == rhs.d_defaultTriggerAllLevel;
+    return lhs.d_recordBufferSize       == rhs.d_recordBufferSize
+        && lhs.d_loggerBufferSize       == rhs.d_loggerBufferSize
+        && lhs.d_defaultRecordLevel     == rhs.d_defaultRecordLevel
+        && lhs.d_defaultPassLevel       == rhs.d_defaultPassLevel
+        && lhs.d_defaultTriggerLevel    == rhs.d_defaultTriggerLevel
+        && lhs.d_defaultTriggerAllLevel == rhs.d_defaultTriggerAllLevel;
 }
 
 bool ball::operator!=(const LoggerManagerDefaults& lhs,

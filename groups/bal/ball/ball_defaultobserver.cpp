@@ -10,13 +10,14 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_userfields.h>
 #include <ball_userfieldvalue.h>
+
 #include <bdlt_datetime.h>
 
 #include <bslmt_lockguard.h>
 
-#include <bsl_ostream.h>
-
 #include <bslstl_stringref.h>
+
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 namespace ball {

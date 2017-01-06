@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 // following inheritance hierarchy diagram shows the classes involved and their
 // methods:
 //..
-//             ,----------------------.
+//             ,-----------------------.
 //            ( ball::AsyncFileObserver )
-//             `----------------------'
+//             `-----------------------'
 //                         |              ctor
 //                         |              disableFileLogging
 //                         |              disableTimeIntervalRotation
@@ -69,9 +69,9 @@ BSLS_IDENT("$Id: $")
 //                         |              stdoutThreshold
 //                         |              getLogFormat
 //                         V
-//                  ,-------------.
+//                  ,--------------.
 //                 ( ball::Observer )
-//                  `-------------'
+//                  `--------------'
 //                                        dtor
 //                                        publish
 //                                        releaseRecords
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 // The calculation of the local time offset adds some overhead to the
 // publication of each log record.  If that is problematic, the overhead can be
 // mitigated if the owner of 'main' installs a high-performance local-time
-// offset callback for 'bdlt::CurrentTime'.  See {'bdetu_systemtime'} for
+// offset callback for 'bdlt::CurrentTime'.  See {'bsls_systemtime'} for
 // details of installing such callback and see {'baltzo_localtimeoffsetutil'}
 // for a an example facility.  Note that such callbacks can improve performance
 // for all users of 'bdlt::CurrentTime', not just logging.
@@ -215,7 +215,6 @@ BSLS_IDENT("$Id: $")
 // 'ball::AsyncFileObserver' constructor accepts optional arguments specifying
 // both the maximum length of the record queue and the behavior when the queue
 // is full.
-
 //..
 //  ball::AsyncFileObserver asyncFileObserver;
 //..
@@ -235,7 +234,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, the logging format can be optionally changed by calling the
 // 'setLogFormat' method.  The statement below outputs timestamps in ISO 8601
-// format to a log file and in 'bdet'-style (default) format to 'stdout':
+// format to a log file and in 'bdlt'-style (default) format to 'stdout':
 //..
 //  asyncFileObserver.setLogFormat("%i %p:%t %s %f:%l %c %m",
 //                                 "%d %p:%t %s %f:%l %c %m");
@@ -334,20 +333,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
-#endif
-
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -367,8 +366,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                           // =======================
                           // class AsyncFileObserver
                           // =======================
@@ -444,14 +443,15 @@ class AsyncFileObserver : public Observer {
         // Synchronously write an entry into the underlying file observer
         // indicating that the specified 'numDropped' number of records have
         // been dropped.  The behavior is undefined if this method is invoked
-        // concurrently from multiple threads (i.e., it is *not* *threadsafe*).
+        // concurrently from multiple threads (i.e., it is *not*
+        // *thread-safe*).
 
     void publishThreadEntryPoint();
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from queue and writes the
         // records referred by these shared pointers to files or 'stdout'.  The
         // behavior is undefined if this method is invoked concurrently from
-        // multiple threads (i.e., it is *not* *threadsafe*).  Publish records
+        // multiple threads (i.e., it is *not* *thread-safe*).  Publish records
         // from the record queue until signaled to stop.  This is the entry
         // point function for the publication thread.
 
@@ -533,7 +533,7 @@ class AsyncFileObserver : public Observer {
         // enqueuing them onto a record queue having the specified
         // 'maxRecordQueue' length, where an independent publication thread
         // will later write them both to a log file and possibly also to
-        // 'stdout', if the records's severities are at least as severe as the
+        // 'stdout', if the records' severities are at least as severe as the
         // specified 'stdoutThreshold', and where the timestamp attribute of
         // each published record is written in local-time if
         // 'publishInLocalTimeFlag' is 'true', and UTC otherwise.  Optionally
@@ -653,7 +653,7 @@ class AsyncFileObserver : public Observer {
         // 'referenceStartTime' indicating the *local* datetime to use as the
         // starting point for computing the periodic rotation schedule.
         // 'referenceStartTime' is interpreted using the local-time offset at
-        // the time this object was constructred.  If 'referenceStartTime' is
+        // the time this object was constructed.  If 'referenceStartTime' is
         // unspecified, the current time is used.  The behavior is undefined
         // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
         // rotation-on-time-interval rule currently in effect.  Note that
@@ -700,7 +700,6 @@ class AsyncFileObserver : public Observer {
         // record queue have been published.  If there is no publication thread
         // this operation has no effect.  Return 0 on success, and a non-zero
         // value if there is an error joining the publication thread.
-
 
     // ACCESSORS
     bool isFileLoggingEnabled() const;
@@ -752,7 +751,6 @@ class AsyncFileObserver : public Observer {
         // UTC time changes (e.g., when transitioning into or out of daylight
         // savings time).
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 
     Severity::Level stdoutThreshold() const;
         // Return the minimum severity of messages that will be logged to
@@ -895,7 +893,6 @@ int AsyncFileObserver::recordQueueLength() const
 {
     return d_recordQueue.length();
 }
-
 
 inline
 int AsyncFileObserver::rotationSize() const

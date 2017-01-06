@@ -17,14 +17,18 @@ BSLS_IDENT_RCSID(ball_attribute_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_ostream.h>
-#include <bsls_types.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
+                        // ---------------
+                        // class Attribute
+                        // ---------------
 
 // CLASS METHODS
 int Attribute::hash(const Attribute& attribute, int size)

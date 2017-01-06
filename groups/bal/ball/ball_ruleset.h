@@ -150,12 +150,15 @@ class RuleSet {
 
   private:
     // PRIVATE TYPES
-    struct RuleHash
+    struct RuleHash {
         // hash functor for 'Rule'
-    {
+
       private:
+        // CLASS DATA
         static int s_hashtableSize;              // the default hashtable size
+
       public:
+        // ACCESSORS
         int operator()(const Rule& rule) const
             // Return the hash value of the specified 'rule'.
         {
@@ -181,7 +184,7 @@ class RuleSet {
     // FRIENDS
     friend bool          operator==(const RuleSet&, const RuleSet&);
     friend bool          operator!=(const RuleSet&, const RuleSet&);
-    friend bsl::ostream& operator<<(bsl::ostream&, const RuleSet&);
+    friend bsl::ostream& operator<<(bsl::ostream&,  const RuleSet&);
 
   public:
     // CLASS METHODS
@@ -299,7 +302,6 @@ class RuleSet {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS

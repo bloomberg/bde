@@ -177,7 +177,6 @@ class ThresholdAggregate {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS

@@ -4,14 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_category_cpp,"$Id$ $CSID$")
 
+#include <ball_severity.h>    // for testing only
+
 #include <bslim_printer.h>
 
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_ostream.h>
-
-#include <ball_severity.h>                                  // for testing only
 
 namespace BloombergLP {
 namespace ball {

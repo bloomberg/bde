@@ -13,28 +13,31 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_testobserver.h>                // for testing only
 
+#include <bdlf_bind.h>
+#include <bdlf_memfn.h>
+
+#include <bdls_processutil.h>
+
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeutil.h>
+
+#include <bslma_default.h>
+#include <bslma_managedptr.h>
+
 #include <bslmt_mutex.h>
 #include <bslmt_once.h>
-#include <bslmt_readlockguard.h>
 #include <bslmt_qlock.h>
+#include <bslmt_readlockguard.h>
 #include <bslmt_rwmutex.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_writelockguard.h>
 
-#include <bdlf_bind.h>
-#include <bdlf_memfn.h>
-#include <bdls_processutil.h>
-#include <bdlt_datetime.h>
-#include <bsls_timeinterval.h>
-#include <bdlt_datetimeutil.h>
-#include <bdlt_currenttime.h>
-
-#include <bslma_default.h>
-#include <bslma_managedptr.h>
 #include <bsls_assert.h>
 #include <bsls_log.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -86,7 +89,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 // stored in a hypothetical 'int' data member
 // 'ball::LoggerManager::d_maxNumCategories' not biased by 1:
 //..
-//    if (d_maxNumCategories == 0
+//    if (0 == d_maxNumCategories
 //     || d_maxNumCategories > d_categoryManager.length()) {
 //        // there is sufficient capacity to add a new category
 //        // ...
@@ -100,7 +103,8 @@ namespace ball {
 namespace {
 
 template <class NewFunc, class OldFunc>
-NewFunc makeFunc(const OldFunc& old) {
+NewFunc makeFunc(const OldFunc& old)
+{
     return old ? NewFunc(old) : NewFunc();
 }
 
@@ -353,13 +357,12 @@ void Logger::logMessage(const Category&            category,
 
         if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
             Context triggerContext(Transmission::e_TRIGGER, 0, 1);
-            Record *marker = getRecord(
-                                         record->fixedFields().fileName(),
-                                         record->fixedFields().lineNumber());
+            Record *marker = getRecord(record->fixedFields().fileName(),
+                                       record->fixedFields().lineNumber());
 
             bsl::shared_ptr<Record> handle(marker,
-                                                &d_recordPool,
-                                                d_allocator_p);
+                                           &d_recordPool,
+                                           d_allocator_p);
 
             copyAttributesWithoutMessage(handle.get(), record->fixedFields());
 
@@ -376,11 +379,9 @@ void Logger::logMessage(const Category&            category,
             d_observer_p->publish(handle, triggerContext);
         }
         else {
-
             // Publish all records archived by *this* logger.
 
             publish(Transmission::e_TRIGGER);
-
         }
     }
 
@@ -390,13 +391,12 @@ void Logger::logMessage(const Category&            category,
 
         if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
             Context triggerContext(Transmission::e_TRIGGER, 0, 1);
-            Record *marker = getRecord(
-                                         record->fixedFields().fileName(),
-                                         record->fixedFields().lineNumber());
+            Record *marker = getRecord(record->fixedFields().fileName(),
+                                       record->fixedFields().lineNumber());
 
             bsl::shared_ptr<Record> handle(marker,
-                                                &d_recordPool,
-                                                d_allocator_p);
+                                           &d_recordPool,
+                                           d_allocator_p);
 
             copyAttributesWithoutMessage(handle.get(), record->fixedFields());
 
@@ -413,11 +413,9 @@ void Logger::logMessage(const Category&            category,
             d_observer_p->publish(handle, triggerContext);
         }
         else {
-
             // Publish all records archived by *all* loggers.
 
             d_publishAll(Transmission::e_TRIGGER_ALL);
-
         }
     }
 }
@@ -501,17 +499,12 @@ int Logger::numRecordsInUse() const
            d_recordPool.numAvailableObjects();
 }
 
-}  // close package namespace
-
-
                            // -------------------
                            // class LoggerManager
                            // -------------------
 
-// CLASS MEMBERS
-ball::LoggerManager *ball::LoggerManager::s_singleton_p = 0;
-
-namespace ball {
+// CLASS DATA
+LoggerManager *LoggerManager::s_singleton_p = 0;
 
 // PRIVATE CLASS METHODS
 void LoggerManager::initSingletonImpl(

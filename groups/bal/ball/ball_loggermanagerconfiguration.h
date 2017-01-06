@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // ball::LoggerManagerConfiguration: configuration spec for a logger manager
 //
-//@SEE_ALSO: ball_loggermanagerdefaults,
+//@SEE_ALSO: ball_loggermanagerdefaults
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
@@ -241,7 +241,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class UserFields;
@@ -258,7 +257,7 @@ class LoggerManagerConfiguration {
     // This class support *in-core* *value-semantic* operations, including
     // copy construction, assignment, and equality comparison; 'ostream'
     // printing is supported, but in a modified form to handle functors, and
-    // 'bdex' serialization cannot be supported at all.  (A precise operational
+    // BDEX serialization cannot be supported at all.  (A precise operational
     // definition of when two instances have the same (in-core) value can be
     // found in the description of 'operator==' for the class.)  This class is
     // *exception* *neutral* with no guarantee of rollback: If an exception is

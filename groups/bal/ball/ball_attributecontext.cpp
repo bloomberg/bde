@@ -6,16 +6,18 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 
 #include <ball_categorymanager.h>
 
+#include <bdlb_bitutil.h>
+#include <bdlb_print.h>
+
 #include <bdlma_concurrentpool.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_once.h>
 #include <bslmt_threadlocalvariable.h>
 
-#include <bdlb_print.h>
-#include <bdlb_bitutil.h>
-
-#include <bslma_allocator.h>
-#include <bslma_default.h>
 #include <bsls_assert.h>
 
 #include <bsl_cstdio.h>
@@ -52,11 +54,10 @@ namespace ball {
 // MANIPULATORS
 RuleSet::MaskType
 AttributeContext_RuleEvaluationCache::update(
-                               int                            sequenceNumber,
-                               RuleSet::MaskType              relevantRuleMask,
-                               const RuleSet&                 rules,
-                               const AttributeContainerList&  attributes)
-
+                                int                           sequenceNumber,
+                                RuleSet::MaskType             relevantRuleMask,
+                                const RuleSet&                rules,
+                                const AttributeContainerList& attributes)
 {
     // If the sequence number as changed, the cache is entirely out of data.
     if (d_sequenceNumber != sequenceNumber) {
@@ -72,7 +73,7 @@ AttributeContext_RuleEvaluationCache::update(
     BSLS_ASSERT(numBits == RuleSet::maxNumRules());
 
     // Get the index of the relevant rules and store it in 'i'.
-    while((i = bdlb::BitUtil::numTrailingUnsetBits(needEvaluations))
+    while ((i = bdlb::BitUtil::numTrailingUnsetBits(needEvaluations))
                                                                   != numBits) {
         const Rule *rule;
         needEvaluations &= ~(1 << i);
@@ -108,7 +109,6 @@ AttributeContext_RuleEvaluationCache::print(bsl::ostream& stream,
     bdlb::Print::indent(stream, level, spacesPerLevel);
     stream << "]" << EL;
     return stream << bsl::flush;
-
 }
 
                         // -----------------------------
@@ -131,10 +131,6 @@ AttributeContextProctor::~AttributeContextProctor()
 
 }  // close package namespace
 
-                        // ----------------------------
-                        // class ball::AttributeContext
-                        // ----------------------------
-
 namespace {
 
 // Define a thread-local variable, 'g_threadLocalContext', (on supported
@@ -148,12 +144,15 @@ BSLMT_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
 
 }  // close unnamed namespace
 
-// CLASS MEMBERS
-ball::CategoryManager *ball::AttributeContext::s_categoryManager_p = 0;
-
-bslma::Allocator      *ball::AttributeContext::s_globalAllocator_p = 0;
-
 namespace ball {
+
+                        // ----------------------
+                        // class AttributeContext
+                        // ----------------------
+
+// CLASS DATA
+CategoryManager  *AttributeContext::s_categoryManager_p = 0;
+bslma::Allocator *AttributeContext::s_globalAllocator_p = 0;
 
 // PRIVATE CREATORS
 AttributeContext::AttributeContext(bslma::Allocator *globalAllocator)
@@ -172,8 +171,8 @@ const bslmt::ThreadUtil::Key& AttributeContext::contextKey()
     static bslmt::ThreadUtil::Key s_contextKey;
     BSLMT_ONCE_DO {
         bslmt::ThreadUtil::createKey(&s_contextKey,
-                                    (bslmt::ThreadUtil::Destructor)
-                                    AttributeContext::removeContext);
+                                     (bslmt::ThreadUtil::Destructor)
+                                     AttributeContext::removeContext);
     }
     return s_contextKey;
 }
@@ -277,6 +276,7 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 
     // The 'rulesetMutex' is intentionally *not* locked before returning a
     // cached value (see implementation note at the top).
+
     if (d_ruleCache_p.isDataAvailable(
                                      s_categoryManager_p->ruleSequenceNumber(),
                                      relevantRuleMask)) {
@@ -285,6 +285,7 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 
     // We lock the mutex to ensure the rules are not modified as we evaluate
     // them.
+
     bslmt::LockGuard<bslmt::Mutex> ruleGuard(
                                          &s_categoryManager_p->rulesetMutex());
 
@@ -318,6 +319,7 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // Test on the cache outside the lock, and return if there are no active
     // rules for 'category'.  We do not lock on the 'rulesetMutex' before
     // testing the cache (see implementation notes at the top).
+
     RuleSet::MaskType activeAndRelevantRules = 0;
     if (d_ruleCache_p.isDataAvailable(
                                      s_categoryManager_p->ruleSequenceNumber(),
@@ -332,12 +334,14 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // We obtain the lock because we will need to process the rules.  Note
     // that we must again call the 'isDataAvailable' method in case the rules
     // have been modified since the lock was obtained.
+
     bslmt::LockGuard<bslmt::Mutex> ruleGuard(
                                          &s_categoryManager_p->rulesetMutex());
 
     // If the 'isDataAvailable' method returns 'true', the rule data has not
     // changed and we must have assigned 'activeAndRelevantRules' before
     // obtaining the lock.
+
     if (!d_ruleCache_p.isDataAvailable(
                                      s_categoryManager_p->ruleSequenceNumber(),
                                      relevantRuleMask)) {
@@ -355,7 +359,7 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     BSLS_ASSERT(numBits == RuleSet::maxNumRules());
 
     // Get the index of the relevant rules and store it in 'i'.
-    while((i = bdlb::BitUtil::numTrailingUnsetBits(activeAndRelevantRules))
+    while ((i = bdlb::BitUtil::numTrailingUnsetBits(activeAndRelevantRules))
                                                                   != numBits) {
         activeAndRelevantRules &= ~(1 << i);
         const Rule *rule = s_categoryManager_p->ruleSet().getRuleById(i);

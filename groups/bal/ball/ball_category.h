@@ -114,6 +114,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_bitutil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -337,10 +341,10 @@ class CategoryHolder {
         // threshold levels.  Note that these values are intentionally outside
         // the range '[0 .. 255]'.
 
-    // PUBLIC DATA MEMBERS
-    AtomicInt       d_threshold;   // threshold level
-    AtomicPointer   d_category_p;  // held category (not owned)
-    AtomicPointer   d_next_p;      // next category holder in linked list
+    // PUBLIC DATA
+    AtomicInt     d_threshold;   // threshold level
+    AtomicPointer d_category_p;  // held category (not owned)
+    AtomicPointer d_next_p;      // next category holder in linked list
 
     // CREATORS
 
@@ -351,7 +355,7 @@ class CategoryHolder {
     void reset();
         // Reset this object to its default value.  The default value is:
         //..
-        //   { BALL_UNINITIALIZED_CATEGORY, 0, 0 }
+        //  { e_UNINITIALIZED_CATEGORY, 0, 0 }
         //..
 
     void setCategory(const Category *category);

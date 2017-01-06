@@ -25,9 +25,9 @@ BSLS_IDENT_RCSID(ball_loggercategoryutil_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
 namespace ball {
 
+// STATIC HELPER FUNCTIONS
 static void setThesholdIfMatchingCategoryPrefix(
                                      Category                 *category,
                                      int                      *matchCount,

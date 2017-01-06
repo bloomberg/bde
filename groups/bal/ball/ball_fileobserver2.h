@@ -31,9 +31,9 @@ BSLS_IDENT("$Id: $")
 // file.  The following inheritance hierarchy diagram shows the classes
 // involved and their methods:
 //..
-//                ,------------------.
+//                ,-------------------.
 //               ( ball::FileObserver2 )
-//                `------------------'
+//                `-------------------'
 //                         |              ctor
 //                         |              disableFileLogging
 //                         |              disableTimeIntervalRotation
@@ -52,9 +52,9 @@ BSLS_IDENT("$Id: $")
 //                         |              rotationSize
 //                         |              localTimeOffset
 //                         V
-//                  ,-------------.
+//                  ,--------------.
 //                 ( ball::Observer )
-//                  `-------------'
+//                  `--------------'
 //                                        dtor
 //                                        publish
 //                                        releaseRecords
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // The calculation of the local time offset adds some overhead to the
 // publication of each log record.  If that is problematic, the overhead can be
 // mitigated if the owner of 'main installs a high-performance local-time
-// offset callback for 'bdlt::CurrentTime'.  See {'bdetu_systemtime'} for
+// offset callback for 'bdlt::CurrentTime'.  See {'bsls_systemtime'} for
 // details of installing such callback and see {'baltzo_localtimeoffsetutil'}
 // for a an example facility.  Note that such callbacks can improve performance
 // for all users of 'bdlt::CurrentTime', not just logging.
@@ -224,10 +224,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_severity.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
 #ifndef INCLUDED_BDLS_FDSTREAMBUF
 #include <bdls_fdstreambuf.h>
 #endif
@@ -250,6 +246,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSL_FSTREAM

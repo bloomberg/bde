@@ -44,6 +44,11 @@ namespace ball {
 //
 // ----------------------------------------------------------------------------
 
+                        // ------------------
+                        // struct PatternUtil
+                        // ------------------
+
+// CLASS METHODS
 bool PatternUtil::isValidPattern(const char *pattern)
 {
     while (*pattern) {

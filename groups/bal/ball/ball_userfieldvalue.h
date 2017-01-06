@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
-//@SEE_ALSO: ball_userfields
+//@SEE_ALSO: ball_userfields, ball_userfieldtype
 //
 //@DESCRIPTION: This component provides a value-semantic class,
 // 'ball::UserFieldValue', that represents the value of a user supplied log
@@ -424,51 +424,9 @@ void UserFieldValue::swap(UserFieldValue& other)
 
 // ACCESSORS
 inline
-bslma::Allocator *UserFieldValue::allocator() const
-{
-    return d_value.getAllocator();
-}
-
-inline
 bool UserFieldValue::isUnset() const
 {
     return d_value.isUnset();
-}
-
-inline
-ball::UserFieldType::Enum UserFieldValue::type() const
-{
-    switch (d_value.typeIndex()) {
-      case 0: {
-        BSLS_ASSERT_SAFE(d_value.isUnset());
-        return ball::UserFieldType::e_VOID;                           // RETURN
-      } break;
-      case 1: {
-        BSLS_ASSERT_SAFE(d_value.is<bsls::Types::Int64>());
-        return ball::UserFieldType::e_INT64;                          // RETURN
-      } break;
-      case 2: {
-        BSLS_ASSERT_SAFE(d_value.is<double>());
-        return ball::UserFieldType::e_DOUBLE;                         // RETURN
-      } break;
-      case 3: {
-        BSLS_ASSERT_SAFE(d_value.is<bsl::string>());
-        return ball::UserFieldType::e_STRING;                         // RETURN
-      } break;
-      case 4: {
-        BSLS_ASSERT_SAFE(d_value.is<bdlt::DatetimeTz>());
-        return ball::UserFieldType::e_DATETIMETZ;                     // RETURN
-      } break;
-      case 5: {
-        BSLS_ASSERT_SAFE(d_value.is<bsl::vector<char> >());
-        return ball::UserFieldType::e_CHAR_ARRAY;                     // RETURN
-      } break;
-      default: {
-        BSLS_ASSERT_OPT(false);
-      }
-    }
-    BSLS_ASSERT_OPT(false);
-    return ball::UserFieldType::e_INT64;
 }
 
 inline
@@ -504,6 +462,14 @@ const bsl::vector<char>& UserFieldValue::theCharArray() const
 {
     BSLS_ASSERT_SAFE(d_value.is<bsl::vector<char> >());
     return d_value.the<bsl::vector<char> >();
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *UserFieldValue::allocator() const
+{
+    return d_value.getAllocator();
 }
 
 }  // close package namespace

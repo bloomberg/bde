@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // We add a new category using 'addCategoryHierarchically':
 //..
 //     ball::LoggerCategoryUtil::addCategoryHierarchically(&lm,
-//                                                        "EQ.MARKET.NYSE");
+//                                                         "EQ.MARKET.NYSE");
 //     printAllCategories();
 //..
 // The new category with name "EQ.MARKET.NYSE" inherits its threshold levels
@@ -114,11 +114,11 @@ BSLS_IDENT("$Id: $")
 // starts with "EQ.MARKET" using 'setThresholdLevelsHierarchically':
 //..
 //     ball::LoggerCategoryUtil::setThresholdLevelsHierarchically(&lm,
-//                                                               "EQ.MARKET",
-//                                                               194,
-//                                                               98,
-//                                                               66,
-//                                                               34);
+//                                                                "EQ.MARKET",
+//                                                                194,
+//                                                                98,
+//                                                                66,
+//                                                                34);
 //     printAllCategories();
 //..
 // We will notice that the threshold levels of "EQ.MARKET" and
@@ -135,7 +135,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class LoggerManager;
@@ -150,7 +149,6 @@ struct LoggerCategoryUtil {
     // management of the categories in 'LoggerManager'.
 
     // CLASS METHODS
-
     static Category *addCategoryHierarchically(LoggerManager *loggerManager,
                                                const char    *categoryName);
         // Add, to the specified 'loggerManager', a new category having the

@@ -334,7 +334,6 @@ class RecordStringFormatter {
         //
         // Return a reference to the non-modifiable timestamp offset of this
         // record formatter.
-
 };
 
 // FREE OPERATORS
@@ -365,6 +364,7 @@ bsl::ostream& operator<<(bsl::ostream&                output,
                         // ---------------------------
                         // class RecordStringFormatter
                         // ---------------------------
+
 // MANIPULATORS
 inline
 void RecordStringFormatter::disablePublishInLocalTime()

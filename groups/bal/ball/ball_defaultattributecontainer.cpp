@@ -16,18 +16,21 @@ BSLS_IDENT_RCSID(ball_defaultattributecontainer_cpp,"$Id$ $CSID$")
 
 #include <bsl_climits.h>
 
-
 namespace BloombergLP {
-
-int ball::DefaultAttributeContainer::s_initialSize = 8;
-
-int ball::DefaultAttributeContainer::AttributeHash::s_hashtableSize = INT_MAX;
-
 namespace ball {
+
+                    // -------------------------------
+                    // class DefaultAttributeContainer
+                    // -------------------------------
+
+// CLASS DATA
+int DefaultAttributeContainer::AttributeHash::s_hashtableSize = INT_MAX;
+
+int DefaultAttributeContainer::s_initialSize = 8;
+
 // MANIPULATORS
 DefaultAttributeContainer&
-DefaultAttributeContainer::operator=(
-    const DefaultAttributeContainer& rhs)
+DefaultAttributeContainer::operator=(const DefaultAttributeContainer& rhs)
 {
     if (this != &rhs) {
         removeAllAttributes();
@@ -45,7 +48,6 @@ bool DefaultAttributeContainer::hasValue(const Attribute& value) const
 {
     return d_attributeSet.find(value) != d_attributeSet.end();
 }
-
 
 bsl::ostream& DefaultAttributeContainer::print(
                                             bsl::ostream& stream,

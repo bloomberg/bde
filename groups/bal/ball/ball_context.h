@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //            int index  = 0;
 //            int length = archive.length();
 //            ball::Context context(ball::Transmission::e_TRIGGER,
-//                                 index, length);
+//                                  index, length);
 //            while (length--) {
 //                publish(archive[length], context);
 //                context.setRecordIndexRaw(++index);
@@ -215,16 +215,16 @@ BSLS_IDENT("$Id: $")
 #include <ball_transmission.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -243,8 +243,8 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // =============
                         // class Context
                         // =============
@@ -297,7 +297,6 @@ class Context {
         // otherwise.  (See the CONSTRAINTS section of the component-level
         // documentation above for a complete specification of the constraints
         // on attribute values.)
-
 
     // CREATORS
     Context(bslma::Allocator *basicAllocator = 0);
@@ -378,7 +377,6 @@ class Context {
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
-
 };
 
 // FREE OPERATORS
@@ -413,7 +411,7 @@ Context::Context(bslma::Allocator *basicAllocator)
 , d_recordIndex(0)
 , d_sequenceLength(1)
 {
-    (void) basicAllocator;
+    (void)basicAllocator;
 }
 
 inline
@@ -425,7 +423,7 @@ Context::Context(Transmission::Cause  transmissionCause,
 , d_recordIndex(recordIndex)
 , d_sequenceLength(sequenceLength)
 {
-    (void) basicAllocator;
+    (void)basicAllocator;
 }
 
 inline
@@ -435,7 +433,7 @@ Context::Context(const Context&    original,
 , d_recordIndex(original.d_recordIndex)
 , d_sequenceLength(original.d_sequenceLength)
 {
-    (void) basicAllocator;
+    (void)basicAllocator;
 }
 
 // MANIPULATORS

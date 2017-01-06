@@ -7,11 +7,12 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_thresholdaggregate.h>
 
+#include <bdlb_bitutil.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
 
-#include <bdlb_bitutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -26,9 +27,6 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
-typedef bsl::map<const char *, int>  CategoryMap;
-
 namespace ball {
 
 namespace {
@@ -56,7 +54,6 @@ class CategoryProctor {
     bslma::Allocator *d_allocator_p;   // allocator for the category object
 
   private:
-
     // NOT IMPLEMENTED
     CategoryProctor(const CategoryProctor&);
     CategoryProctor& operator=(const CategoryProctor&);
@@ -123,14 +120,16 @@ void CategoryProctor::release()
     d_categories_p = 0;
 }
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
-// For convenience, 'CategoryMap' and 'CategoryVector' define types of
-// two 'CategoryManager' data members.
+// For convenience, 'CategoryMap' defines the type of a 'CategoryManager' data
+// member.
 
-                    // --------------------------
+typedef bsl::map<const char *, int> CategoryMap;
+
+                    // ---------------------
                     // class CategoryManager
-                    // --------------------------
+                    // ---------------------
 
 // PRIVATE MANIPULATORS
 Category *CategoryManager::addNewCategory(const char *categoryName,
@@ -423,7 +422,7 @@ int CategoryManager::removeRule(const Rule& value)
             int j = 0;
             int numBits = bdlb::BitUtil::sizeInBits(relevantRuleMask);
             BSLS_ASSERT(numBits == RuleSet::maxNumRules());
-            while((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
+            while ((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
                                                                   != numBits) {
                 relevantRuleMask =
                     bdlb::BitUtil::withBitCleared(relevantRuleMask, j);

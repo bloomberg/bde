@@ -47,10 +47,10 @@ BSLS_IDENT("$Id: $")
 // will be passed to the observer:
 //..
 //  ball::Rule rule("WEEKEND*",             // pattern
-//                 ball::Severity::OFF,     // record level
-//                 ball::Severity::INFO,    // pass-through level
-//                 ball::Severity::OFF,     // trigger level
-//                 ball::Severity::OFF);    // triggerAll level
+//                  ball::Severity::OFF,    // record level
+//                  ball::Severity::INFO,   // pass-through level
+//                  ball::Severity::OFF,    // trigger level
+//                  ball::Severity::OFF);   // triggerAll level
 //..
 // Create some predicates and then add one to the rule:
 //..
@@ -186,7 +186,7 @@ class Rule {
     static int hash(const Rule& rule, int size);
         // Return a hash value calculated from the specified 'rule' using the
         // specified 'size' as the number of slots.  The value returned is
-        // guaranteed to be in the range [0 .. size - 1].
+        // guaranteed to be in the range '[0 .. size - 1]'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Rule, bslma::UsesBslmaAllocator);
@@ -309,7 +309,6 @@ class Rule {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS

@@ -106,13 +106,15 @@ class PredicateSet {
     // set evaluates to 'true' in the context of a given attribute map.
 
     // PRIVATE TYPES
-    struct PredicateHash
+    struct PredicateHash {
         // A hash functor for 'Predicate'.
-    {
+
       private:
+        // CLASS DATA
         static int s_hashtableSize;  // default hashtable size for which the
                                      // hash value is calculated
       public:
+        // ACCESSORS
         int operator()(const Predicate& predicate) const
             // Return the hash value of the specified 'predicate'.
         {
@@ -122,7 +124,7 @@ class PredicateSet {
 
     typedef bsl::unordered_set<Predicate, PredicateHash> SetType;
 
-    // PRIVATE MEMBERS
+    // CLASS DATA
     static int s_initialSize;     // the initial size of the set
 
     // DATA
@@ -141,7 +143,7 @@ class PredicateSet {
     static int hash(const PredicateSet& set, int size);
         // Return a hash value calculated from the specified 'set' using the
         // specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range [0, size).
+        // guaranteed to be in the range '[0 .. size)'.
 
     // TYPES
     typedef SetType::const_iterator const_iterator;

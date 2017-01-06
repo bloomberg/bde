@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concrete allocator keep a count of allocated bytes.
+//@PURPOSE: Provide a concrete allocator that keeps count of allocated bytes.
 //
 //@CLASSES:
 //  ball::CountingAllocator: maximally-aligning, instrumented allocator adaptor
@@ -32,16 +32,16 @@ BSLS_IDENT("$Id: $")
 // user-resettable running sum of the total number of bytes
 // allocated (called byte count, see below).
 //..
-//   ,----------------------.
+//   ,-----------------------.
 //  ( ball::CountingAllocator )
-//   `----------------------'
+//   `-----------------------'
 //               |         ctor/dtor
 //               |         numBytesTotal
 //               |         resetNumBytesTotal
 //               V
-//       ,-----------------.
+//       ,----------------.
 //      ( bslma::Allocator )
-//       `-----------------'
+//       `----------------'
 //                       allocate
 //                       deallocate
 //..

@@ -114,7 +114,7 @@
 :      Provide a container for the context of a transmitted log record.
 :
 : 'ball_countingallocator':
-:      Provide a concrete allocator keep a count of allocated bytes.
+:      Provide a concrete allocator that keeps count of allocated bytes.
 :
 : 'ball_defaultattributecontainer':
 :      Provide a default container for storing attribute name/value pairs.
@@ -785,7 +785,7 @@
 
   using namespace BloombergLP;
 
-  int main(int argc, char* argv[])
+  int main(int argc, char *argv[])
   {
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
@@ -905,7 +905,7 @@
 
   using namespace BloombergLP;
 
-  int main(int argc, char* argv[])
+  int main(int argc, char *argv[])
   {
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
@@ -1110,7 +1110,7 @@
 
   namespace BloombergLP {
 
-  void logThisInfoMsg(const char* message);
+  void logThisInfoMsg(const char *message);
       // Log the specified 'message' at the 'ball::Severity::e_INFO' severity
       // level.  The category to which 'message' is logged is defined in
       // the implementation.  Note that this function may affect the
@@ -1129,7 +1129,7 @@
 
   namespace BloombergLP {
 
-  void logThisInfoMsg(const char* message)
+  void logThisInfoMsg(const char *message)
   {
       // Implementation Note: The uppercase symbols are macros and not
       // functions.  They do not need the terminal ';', which is provided for
@@ -1160,7 +1160,7 @@
 
   using namespace BloombergLP;
 
-  int main(int argc, char* argv[])
+  int main(int argc, char *argv[])
   {
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
@@ -1287,7 +1287,7 @@
 
   using namespace BloombergLP;
 
-  void f1(const char* message)
+  void f1(const char *message)
       // Log the specified 'message' to the "Function 1" category at 'e_INFO'
       // severity.
   {
@@ -1295,7 +1295,7 @@
       BALL_LOG_INFO << message << BALL_LOG_END;
   }
 
-  void f2(const char* message)
+  void f2(const char *message)
       // Log the specified 'message' to the "Function 2" category at 'e_WARN'
       // severity.
   {
@@ -1333,7 +1333,7 @@
       return 0;
   }
 
-  int main(int argc, char* argv[])
+  int main(int argc, char *argv[])
   {
       int verbose = argc > 1;  // allows user to control output from command
                                // line
@@ -1471,7 +1471,7 @@
   // ...
   manager.deallocateLogger(logger);  // free resources
 ..
- The last two lines free resources and are executed just before 'main' returns.
+ The last line frees resources and is executed just before 'main' returns.
 
  With this implementation choice, 'main' clearly owns 'logger's resources.  We
  now have enough information to address the question of what the consequences
@@ -1536,7 +1536,7 @@
 
   using namespace BloombergLP;
 
-  void f1(const char* message)
+  void f1(const char *message)
       // Log the specified 'message' to the "Function 1" category at 'e_INFO'
       // severity.
   {
@@ -1544,7 +1544,7 @@
       BALL_LOG_INFO << message << BALL_LOG_END;
   }
 
-  void f2(const char* message)
+  void f2(const char *message)
       // Log the specified 'message' to the "Function 2" category at 'e_WARN'
       // severity.
   {
@@ -1585,7 +1585,7 @@
       return 0;
   }
 
-  int main(int argc, char* argv[])
+  int main(int argc, char *argv[])
   {
       int verbose = argc > 1; // allows user to control output from command
                               // line
@@ -1638,7 +1638,7 @@
  output shown below, which in this example is written to 'outFile'.  Note that,
  except for the timestamps, process id, and file name, the output is the same
  as for {Example 5} above: only the 'e_WARN' records (from thread 3) are
- published, and that they are in chronological order.
+ published and they are in chronological order.
 ..
    27SEP2007_13:57:52.012 3648 3 WARN logging.m.cpp 29 Function 2 Message 0
 
@@ -1728,7 +1728,7 @@
 
   // ...
 
-  int main(int argc, char* argv[])
+  int main(int argc, char *argv[])
   {
       int verbose = argc > 1; // allows user to control output from command
                               // line

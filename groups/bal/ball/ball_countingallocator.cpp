@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(ball_countingallocator_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace ball {
 
-                        // ----------------------------
+                        // -----------------------
                         // class CountingAllocator
-                        // ----------------------------
+                        // -----------------------
 
 // CREATORS
 CountingAllocator::~CountingAllocator()

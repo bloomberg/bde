@@ -880,20 +880,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_RWMUTEX
-#include <bslmt_rwmutex.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -939,6 +939,7 @@ class Logger {
         // all loggers that are allocated by the logger manager.
 
   private:
+    // DATA
     bdlcc::ObjectPool<Record>
                           d_recordPool;         // pool of records
 
@@ -974,8 +975,8 @@ class Logger {
     friend class LoggerManager;
 
     // NOT IMPLEMENTED
-    Logger(const Logger& original);
-    Logger& operator=(const Logger& rhs);
+    Logger(const Logger&);
+    Logger& operator=(const Logger&);
 
     // PRIVATE CREATORS
     Logger(Observer                                   *observer,
@@ -1165,13 +1166,13 @@ class LoggerManager {
 
   private:
     // NOT IMPLEMENTED
-    LoggerManager(const LoggerManager& original);
-    LoggerManager& operator=(const LoggerManager& rhs);
+    LoggerManager(const LoggerManager&);
+    LoggerManager& operator=(const LoggerManager&);
 
     // CLASS DATA
     static LoggerManager  *s_singleton_p;        // singleton-enforcement
 
-    // INSTANCE DATA
+    // DATA
     Observer              *d_observer_p;         // holds (but does not own)
                                                  // observer
 
@@ -1188,8 +1189,7 @@ class LoggerManager {
                                                  // 'd_defaultThresholdsLock'
                                                  // protector
 
-    ThresholdAggregate
-                           d_defaultThresholdLevels;
+    ThresholdAggregate     d_defaultThresholdLevels;
                                                  // default threshold levels
 
     const ThresholdAggregate
@@ -1209,8 +1209,7 @@ class LoggerManager {
                                                  // one less than the current
                                                  // capacity of the registry
 
-    bsl::set<Logger *>
-                           d_loggers;            // set of *allocated* loggers
+    bsl::set<Logger *>     d_loggers;            // set of *allocated* loggers
 
     bslmt::RWMutex         d_loggersLock;        // 'd_loggers' protector
 
@@ -1650,8 +1649,8 @@ class LoggerManagerScopedGuard {
     // logger manager singleton, and, on destruction, destroys the singleton.
 
     // NOT IMPLEMENTED
-    LoggerManagerScopedGuard(const LoggerManagerScopedGuard& original);
-    LoggerManagerScopedGuard& operator=(const LoggerManagerScopedGuard& rhs);
+    LoggerManagerScopedGuard(const LoggerManagerScopedGuard&);
+    LoggerManagerScopedGuard& operator=(const LoggerManagerScopedGuard&);
 
   public:
     // CREATORS

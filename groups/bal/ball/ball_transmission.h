@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 //
 //  my_Logger::~my_Logger() { }
 //
-//  void my_Logger::publish(const char               *message,
+//  void my_Logger::publish(const char                *message,
 //                          ball::Transmission::Cause  cause)
 //  {
 //      using namespace std;
@@ -242,7 +242,6 @@ struct Transmission {
     static const char *toAscii(Transmission::Cause value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
-
 };
 
 // FREE OPERATORS

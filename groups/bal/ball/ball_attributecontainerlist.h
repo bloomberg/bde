@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attribute, ball_attributecontainer
 //
-//@AUTHOR: Henry Verschell (hverschell)
+//@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component defines a class 'ball::AttributeContainerList'
 // that provides a linked list of 'ball::AttributeContainer' object
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // minimize the amount of memory allocation required if addresses are
 // frequently added and removed from the container.  This component also
 // defines a class 'ball::AttributeContainerListIterator' (as well as the alias
-// 'ball::AttributeContainerList::iterator) that provides an stl-style iterator
+// 'ball::AttributeContainerList::iterator) that provides an STL-style iterator
 // over the addresses in a 'ball::AttributeContainer'.
 //
 ///Thread Safety
@@ -134,7 +134,7 @@ struct AttributeContainerList_Node;
               // ====================================
 
 class AttributeContainerListIterator {
-    // This class provides a stl-style iterator over a sequence of
+    // This class provides an STL-style iterator over a sequence of
     // 'AttributeContainer' object addresses.  The behavior of the 'operator*'
     // method is undefined unless the iterator is at a valid position in the
     // sequence of 'AttributeContainer' object addresses (i.e., not the "end")
@@ -153,7 +153,6 @@ class AttributeContainerListIterator {
     friend class AttributeContainerList;
 
   public:
-
     // CREATORS
     AttributeContainerListIterator();
         // Create an uninitialized iterator.
@@ -481,6 +480,7 @@ int AttributeContainerList::numContainers() const
 {
     return d_length;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

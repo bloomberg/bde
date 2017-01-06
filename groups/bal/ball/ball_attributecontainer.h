@@ -20,9 +20,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //     ball::AttributeContainer: a protocol for a collection of attributes
 //
-//@SEE_ALSO: ball_attribute, ball_attributeset
+//@SEE_ALSO: ball_attribute, ball_defaultattributecontainer
 //
-//@AUTHOR: Henry Verschell (hverschell)
+//@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component defines a protocol class,
 // 'ball::AttributeContainer', for containers of 'ball::Attribute' values.  The
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we develop a 'ball::AttributeContainer'
 // implementation specifically intended for a service offline that will perform
-// rule-based logging, governed by the service client's bloomberg "uuid",
+// rule-based logging, governed by the service client's Bloomberg "uuid",
 // "luw", and "firm number".  We define a class 'ServiceAttributes' that
 // contains three integer 'ball::Attribute' values having the names "uuid",
 // "luw", and "firmNumber".
@@ -71,9 +71,9 @@ BSLS_IDENT("$Id: $")
 // but the implementation of 'hasValue()' would be less readable.
 //..
 //      // DATA
-//      ball::Attribute d_uuid;        // bloomberg user id
-//      ball::Attribute d_luw;         // bloomberg luw
-//      ball::Attribute d_firmNumber;  // bloomberg firm number
+//      ball::Attribute d_uuid;        // Bloomberg user id
+//      ball::Attribute d_luw;         // Bloomberg luw
+//      ball::Attribute d_firmNumber;  // Bloomberg firm number
 //
 //      // ...
 //
@@ -105,7 +105,6 @@ BSLS_IDENT("$Id: $")
 //                                  int           spacesPerLevel = 4) const;
 //          // Format this object to the specified output 'stream'.
 //  };
-//
 //
 //  // CREATORS
 //  inline
@@ -168,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //      // protocol, used for testing.
 //
 //..
-// To define an stl-set (or hash set) for 'ball::Attribute' values, we must
+// To define an STL set (or hash set) for 'ball::Attribute' values, we must
 // define a comparison (or hash) operation for attribute values.  Here we
 // define a comparison functor that compares attributes by name, then by
 // value-type, and finally by value.
@@ -327,7 +326,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-
 namespace BloombergLP {
 namespace ball {
 
@@ -343,7 +341,6 @@ class AttributeContainer {
     // an attribute value is in the container.
 
   public:
-
     // CREATORS
     virtual ~AttributeContainer();
         // Destroy this object.
@@ -379,6 +376,10 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 // ============================================================================
 
 }  // close package namespace
+
+                    // ------------------------
+                    // class AttributeContainer
+                    // ------------------------
 
 // FREE OPERATORS
 inline

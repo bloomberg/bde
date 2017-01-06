@@ -207,7 +207,6 @@ struct Severity {
                                    Severity::Level value);
         // Format the specified 'value' to the specified output 'stream' and
         // return a reference to the modifiable 'stream'.
-
 };
 
 // FREE OPERATORS
