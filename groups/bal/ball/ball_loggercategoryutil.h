@@ -50,26 +50,26 @@ BSLS_IDENT("$Id: $")
 // The following code fragments illustrate basic usage of this component's
 // 'setThresholdLevelsHierarchically' and 'addCategoryHierarchically' methods.
 //
-// For convenience, we first create an auxiliary function that prints out the
-// names and threshold level values of all the categories currently in the
-// logger manager, except the default one:
+// For convenience, we first create two auxiliary functions that serve to print
+// out the names and threshold level values of all the categories currently in
+// the logger manager singleton:
 //..
-//     void printAllCategories()
-//     {
-//         ball::LoggerManager& lm = ball::LoggerManager::singleton();
-//         ball::LoggerCategoryManip manip(&lm);
-//         for (manip.advance(); manip; manip.advance()) { // skip the default
-//                                                         // category
-//             const ball::Category *category
-//                 = lm.lookupCategory(manip().categoryName());
-//             bsl::cout << "[ " << category->categoryName()
-//                       << ", " << category->recordLevel()
-//                       << ", " << category->passLevel()
-//                       << ", " << category->triggerLevel()
-//                       << ", " << category->triggerAllLevel()
-//                       << " ]" << bsl::endl;
-//         }
-//     }
+//  void printCategory(const ball::Category *category)
+//  {
+//      bsl::cout << "\t[ " << category->categoryName()
+//                << ", "   << category->recordLevel()
+//                << ", "   << category->passLevel()
+//                << ", "   << category->triggerLevel()
+//                << ", "   << category->triggerAllLevel()
+//                << " ]"   << bsl::endl;
+//  }
+//
+//  void printAllCategories()
+//  {
+//      ball::LoggerManager& lm = ball::LoggerManager::singleton();
+//      using namespace bdlf::PlaceHolders;
+//      lm.visitCategories(bdlf::BindUtil::bind(printCategory, _1));
+//  }
 //..
 // Now we initialize the logging environment by creating a test observer
 // object and a logger manager object, and set the default threshold levels of
