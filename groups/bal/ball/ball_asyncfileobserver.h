@@ -210,7 +210,7 @@ BSLS_IDENT("$Id: $")
 // observer within a 'ball' logging system.
 //
 // First we create a 'ball::AsyncFileObserver' named 'asyncFileObserver' that
-// by default has a queue of records whose maximum length is 8,192, and which
+// by default has a queue of records whose maximum length is 8192, and which
 // will drop any incoming record when that queue is full.  Note that the
 // 'ball::AsyncFileObserver' constructor accepts optional arguments specifying
 // both the maximum length of the record queue and the behavior when the queue
@@ -495,7 +495,7 @@ class AsyncFileObserver : public Observer {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.  The timestamp attribute of
         // published records is written in UTC time.  Published records are
-        // added onto the end of a queue having a maximum length of 8,192
+        // added onto the end of a queue having a maximum length of 8192
         // records, and then later published by an independent publication
         // thread.  If 'publish' is called when the record queue is full, the
         // published record is discarded (and a warning may be written to
@@ -513,7 +513,7 @@ class AsyncFileObserver : public Observer {
         // UTC time otherwise.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Published records are added onto the end
-        // of a queue having a maximum length of 8,192 records, and then later
+        // of a queue having a maximum length of 8192 records, and then later
         // published by an independent publication thread.  If 'publish' is
         // called when the record queue is full, the published record is
         // discarded (and a warning may be written to 'stderr').  Note that

@@ -204,10 +204,8 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
             bdlt::LocalTimeOffset::localTimeOffset(
                                        fixedFields.timestamp()).totalSeconds();
         offset.setTotalSeconds(localTimeOffsetInSeconds);
-    } else if (k_DISABLE_PUBLISH_IN_LOCALTIME ==
+    } else if (k_DISABLE_PUBLISH_IN_LOCALTIME !=
                                        d_timestampOffset.totalMilliseconds()) {
-        // Do not adjust 'offset'.
-    } else {
         offset = d_timestampOffset;
     }
 

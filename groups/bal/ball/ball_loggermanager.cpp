@@ -102,12 +102,6 @@ namespace ball {
 
 namespace {
 
-template <class NewFunc, class OldFunc>
-NewFunc makeFunc(const OldFunc& old)
-{
-    return old ? NewFunc(old) : NewFunc();
-}
-
 const char *filterName(
    bsl::string                                             *filteredNameBuffer,
    const char                                              *originalName,
@@ -189,10 +183,8 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
 
     if (ball::LoggerManager::isInitialized()) {
-        ball::Logger&  logger = ball::LoggerManager::singleton().getLogger();
-        ball::Record  *record = logger.getRecord(fileName, lineNumber);
-
         ball::LoggerManager& singleton = ball::LoggerManager::singleton();
+
         if (0 == category) {
             singleton.addCategory(BSLS_LOG_CATEGORY_NAME,
                                   singleton.defaultRecordThresholdLevel(),
@@ -201,6 +193,9 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                                   singleton.defaultTriggerAllThresholdLevel());
             category = singleton.lookupCategory(BSLS_LOG_CATEGORY_NAME);
         }
+
+        ball::Logger&  logger = singleton.getLogger();
+        ball::Record  *record = logger.getRecord(fileName, lineNumber);
 
         ball::RecordAttributes& attributes = record->fixedFields();
         attributes.setMessage(message);
