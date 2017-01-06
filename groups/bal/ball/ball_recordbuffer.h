@@ -232,10 +232,8 @@ BSLS_IDENT("$Id: $")
 //          }
 //          buffer.endSequence();   // unlock the buffer after traversing
 //      }
-//
 //  }
 //..
-
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -246,7 +244,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Record;
@@ -326,7 +323,6 @@ class RecordBuffer {
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

@@ -18,15 +18,14 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
 
-#include <bslmt_lockguard.h>
-#include <bslmt_threadattributes.h>
-
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdls_processutil.h>
-
 #include <bdlt_currenttime.h>
+
 #include <bslma_default.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadattributes.h>
 #include <bsls_assert.h>
 
 #include <bsl_functional.h>
@@ -45,10 +44,6 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace ball {
-
-                       // -----------------------------
-                       // class ball::AsyncFileObserver
-                       // -----------------------------
 
 namespace {
 
@@ -75,8 +70,11 @@ static void populateWarnRecord(ball::Record *record,
 
 }  // close unnamed namespace
 
+                       // -----------------------
+                       // class AsyncFileObserver
+                       // -----------------------
 
-// PRIVATE METHODS
+// PRIVATE MANIPULATORS
 void AsyncFileObserver::logDroppedMessageWarning(int numDropped)
 {
     // Log the record, unconditionally, to the file observer (i.e., without
@@ -100,8 +98,7 @@ void AsyncFileObserver::publishThreadEntryPoint()
         // Publish the next log record on the queue only if the observer is
         // not shutting down.
 
-        if (Transmission::e_END
-                == asyncRecord.d_context.transmissionCause()
+        if (Transmission::e_END == asyncRecord.d_context.transmissionCause()
             || d_shuttingDownFlag) {
             done = true;
         }
@@ -135,8 +132,8 @@ int AsyncFileObserver::startThread()
     if (bslmt::ThreadUtil::invalidHandle() == d_threadHandle) {
         bslmt::ThreadAttributes attr;
         return bslmt::ThreadUtil::create(&d_threadHandle,
-                                        attr,
-                                        d_publishThreadEntryPoint);   // RETURN
+                                         attr,
+                                         d_publishThreadEntryPoint);  // RETURN
     }
     return 0;
 }
@@ -148,8 +145,9 @@ int AsyncFileObserver::stopThread()
 
         AsyncRecord asyncRecord;
         bsl::shared_ptr<const Record> record(
-                               new (*d_allocator_p) Record(d_allocator_p),
-                               d_allocator_p);
+                                    new (*d_allocator_p) Record(d_allocator_p),
+                                    d_allocator_p);
+
         Context context(Transmission::e_END, 0, 1);
         asyncRecord.d_record  = record;
         asyncRecord.d_context = context;
@@ -170,7 +168,7 @@ int AsyncFileObserver::shutdownThread()
     // publication thread is woken up to see that 'd_shuttingDownFlag' is
     // 'true' (see implementation note).
 
-    int ret =  stopThread();
+    int ret = stopThread();
 
     // We clear the queue to remove the bogus log record appended by
     // 'stopThread'.
@@ -193,8 +191,7 @@ void AsyncFileObserver::construct()
                                    this));
     d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
     d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
-    d_droppedRecordWarning.fixedFields().setSeverity(
-                                          Severity::e_WARN);
+    d_droppedRecordWarning.fixedFields().setSeverity(Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
                                             bdls::ProcessUtil::getProcessId());
 }
@@ -224,7 +221,6 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
 {
     construct();
 }
-
 
 AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
                                      bool              publishInLocalTime,
@@ -307,8 +303,8 @@ int AsyncFileObserver::shutdownPublicationThread()
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return shutdownThread();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

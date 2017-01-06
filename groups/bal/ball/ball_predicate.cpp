@@ -1,22 +1,15 @@
 // ball_predicate.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_predicate.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_predicate_cpp,"$Id$ $CSID$")
 
-#include <bslim_printer.h>
-
 namespace BloombergLP {
-
 namespace ball {
+
+                         // ---------------
+                         // class Predicate
+                         // ---------------
 
 // ACCESSORS
 bsl::ostream& Predicate::print(bsl::ostream& stream,
@@ -29,7 +22,6 @@ bsl::ostream& Predicate::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

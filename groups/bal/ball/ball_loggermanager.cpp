@@ -1,12 +1,4 @@
 // ball_loggermanager.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_loggermanager.h>
 
 #include <bsls_ident.h>
@@ -21,28 +13,31 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_testobserver.h>                // for testing only
 
+#include <bdlf_bind.h>
+#include <bdlf_memfn.h>
+
+#include <bdls_processutil.h>
+
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeutil.h>
+
+#include <bslma_default.h>
+#include <bslma_managedptr.h>
+
 #include <bslmt_mutex.h>
 #include <bslmt_once.h>
-#include <bslmt_readlockguard.h>
 #include <bslmt_qlock.h>
+#include <bslmt_readlockguard.h>
 #include <bslmt_rwmutex.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_writelockguard.h>
 
-#include <bdlf_bind.h>
-#include <bdlf_memfn.h>
-#include <bdls_processutil.h>
-#include <bdlt_datetime.h>
-#include <bsls_timeinterval.h>
-#include <bdlt_datetimeutil.h>
-#include <bdlt_currenttime.h>
-
-#include <bslma_default.h>
-#include <bslma_managedptr.h>
 #include <bsls_assert.h>
 #include <bsls_log.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -94,7 +89,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 // stored in a hypothetical 'int' data member
 // 'ball::LoggerManager::d_maxNumCategories' not biased by 1:
 //..
-//    if (d_maxNumCategories == 0
+//    if (0 == d_maxNumCategories
 //     || d_maxNumCategories > d_categoryManager.length()) {
 //        // there is sufficient capacity to add a new category
 //        // ...
@@ -103,15 +98,9 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
-
 namespace ball {
 
 namespace {
-
-template <class NewFunc, class OldFunc>
-NewFunc makeFunc(const OldFunc& old) {
-    return old ? NewFunc(old) : NewFunc();
-}
 
 const char *filterName(
    bsl::string                                             *filteredNameBuffer,
@@ -157,7 +146,7 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
     return category.maxLevel() >= severity;
 }
 
-inline static 
+inline static
 ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
     // Return the 'ball' log severity equivalent to the specified 'bsls' log
     // 'severity'.
@@ -194,10 +183,8 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
 
     if (ball::LoggerManager::isInitialized()) {
-        ball::Logger&  logger = ball::LoggerManager::singleton().getLogger();
-        ball::Record  *record = logger.getRecord(fileName, lineNumber);
-
         ball::LoggerManager& singleton = ball::LoggerManager::singleton();
+
         if (0 == category) {
             singleton.addCategory(BSLS_LOG_CATEGORY_NAME,
                                   singleton.defaultRecordThresholdLevel(),
@@ -206,6 +193,9 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                                   singleton.defaultTriggerAllThresholdLevel());
             category = singleton.lookupCategory(BSLS_LOG_CATEGORY_NAME);
         }
+
+        ball::Logger&  logger = singleton.getLogger();
+        ball::Record  *record = logger.getRecord(fileName, lineNumber);
 
         ball::RecordAttributes& attributes = record->fixedFields();
         attributes.setMessage(message);
@@ -232,9 +222,8 @@ const char *const TRIGGER_ALL_END =
 void copyAttributesWithoutMessage(ball::Record                  *record,
                                   const ball::RecordAttributes&  srcAttribute)
     // Load into the specified 'record' all fixed fields except 'message',
-    // 'fileName' and 'lineNumber' from the specified 'srcAttribute'.
+    // 'fileName', and 'lineNumber' from the specified 'srcAttribute'.
 {
-
     record->fixedFields().setTimestamp(srcAttribute.timestamp());
     record->fixedFields().setProcessID(srcAttribute.processID());
     record->fixedFields().setThreadID(srcAttribute.threadID());
@@ -363,13 +352,12 @@ void Logger::logMessage(const Category&            category,
 
         if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
             Context triggerContext(Transmission::e_TRIGGER, 0, 1);
-            Record *marker = getRecord(
-                                         record->fixedFields().fileName(),
-                                         record->fixedFields().lineNumber());
+            Record *marker = getRecord(record->fixedFields().fileName(),
+                                       record->fixedFields().lineNumber());
 
             bsl::shared_ptr<Record> handle(marker,
-                                                &d_recordPool,
-                                                d_allocator_p);
+                                           &d_recordPool,
+                                           d_allocator_p);
 
             copyAttributesWithoutMessage(handle.get(), record->fixedFields());
 
@@ -386,11 +374,9 @@ void Logger::logMessage(const Category&            category,
             d_observer_p->publish(handle, triggerContext);
         }
         else {
-
             // Publish all records archived by *this* logger.
 
             publish(Transmission::e_TRIGGER);
-
         }
     }
 
@@ -400,13 +386,12 @@ void Logger::logMessage(const Category&            category,
 
         if (Config::e_BEGIN_END_MARKERS == d_triggerMarkers) {
             Context triggerContext(Transmission::e_TRIGGER, 0, 1);
-            Record *marker = getRecord(
-                                         record->fixedFields().fileName(),
-                                         record->fixedFields().lineNumber());
+            Record *marker = getRecord(record->fixedFields().fileName(),
+                                       record->fixedFields().lineNumber());
 
             bsl::shared_ptr<Record> handle(marker,
-                                                &d_recordPool,
-                                                d_allocator_p);
+                                           &d_recordPool,
+                                           d_allocator_p);
 
             copyAttributesWithoutMessage(handle.get(), record->fixedFields());
 
@@ -423,11 +408,9 @@ void Logger::logMessage(const Category&            category,
             d_observer_p->publish(handle, triggerContext);
         }
         else {
-
             // Publish all records archived by *all* loggers.
 
             d_publishAll(Transmission::e_TRIGGER_ALL);
-
         }
     }
 }
@@ -504,22 +487,19 @@ int Logger::numRecordsInUse() const
     return d_recordPool.numObjects() -
            d_recordPool.numAvailableObjects();
 }
-}  // close package namespace
 
+                           // -------------------
+                           // class LoggerManager
+                           // -------------------
 
-                           // ------------------------
-                           // class ball::LoggerManager
-                           // ------------------------
+// CLASS DATA
+LoggerManager *LoggerManager::s_singleton_p = 0;
 
-// CLASS MEMBERS
-ball::LoggerManager *ball::LoggerManager::s_singleton_p = 0;
-
-namespace ball {
 // PRIVATE CLASS METHODS
 void LoggerManager::initSingletonImpl(
-                 Observer                          *observer,
-                 const LoggerManagerConfiguration&  configuration,
-                 bslma::Allocator                  *globalAllocator)
+                            Observer                          *observer,
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
 {
     BSLS_ASSERT(observer);
 
@@ -529,11 +509,10 @@ void LoggerManager::initSingletonImpl(
         bslma::Allocator *allocator =
                               bslma::Default::globalAllocator(globalAllocator);
 
-
         LoggerManager *singleton =  new (*allocator) LoggerManager(
-                                                                configuration,
-                                                                observer,
-                                                                allocator);
+                                                                 configuration,
+                                                                 observer,
+                                                                 allocator);
         AttributeContext::initialize(&singleton->d_categoryManager,
                                      bslma::Default::globalAllocator(0));
 
@@ -544,7 +523,6 @@ void LoggerManager::initSingletonImpl(
 
         bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
-
     }
     else {
         LoggerManager::singleton().getLogger().
@@ -559,10 +537,10 @@ void LoggerManager::initSingletonImpl(
 // CLASS METHODS
 void
 LoggerManager::createLoggerManager(
-                        bslma::ManagedPtr<LoggerManager>  *manager,
-                        Observer                          *observer,
-                        const LoggerManagerConfiguration&  configuration,
-                        bslma::Allocator                  *basicAllocator)
+                             bslma::ManagedPtr<LoggerManager>  *manager,
+                             Observer                          *observer,
+                             const LoggerManagerConfiguration&  configuration,
+                             bslma::Allocator                  *basicAllocator)
 {
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
 
@@ -580,15 +558,13 @@ LoggerManager& LoggerManager::initSingleton(Observer         *observer,
 }
 
 LoggerManager& LoggerManager::initSingleton(
-                            Observer                          *observer,
-                            const LoggerManagerConfiguration&  configuration,
-                            bslma::Allocator                  *basicAllocator)
+                             Observer                          *observer,
+                             const LoggerManagerConfiguration&  configuration,
+                             bslma::Allocator                  *basicAllocator)
 {
     initSingletonImpl(observer, configuration, basicAllocator);
     return *s_singleton_p;
 }
-
-
 
 void LoggerManager::shutDownSingleton()
 {
@@ -700,7 +676,7 @@ void LoggerManager::publishAllImp(Transmission::Cause cause)
 }
 
 void LoggerManager::constructObject(
-                          const LoggerManagerConfiguration& configuration)
+                               const LoggerManagerConfiguration& configuration)
 {
     BSLS_ASSERT(0 == d_logger_p);
     BSLS_ASSERT(0 == d_defaultCategory_p);
@@ -766,7 +742,6 @@ LoggerManager::LoggerManager(
 
     constructObject(configuration);
 }
-
 
 LoggerManager::~LoggerManager()
 {
@@ -1040,9 +1015,9 @@ Category *LoggerManager::setCategory(const char *categoryName,
     BSLS_ASSERT(categoryName);
 
     if (!Category::areValidThresholdLevels(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel)) {
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel)) {
         return 0;                                                     // RETURN
     }
 
@@ -1094,9 +1069,9 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
     enum { BALL_SUCCESS = 0, BALL_FAILURE = -1 };
 
     if (!Category::areValidThresholdLevels(recordLevel,
-                                                passLevel,
-                                                triggerLevel,
-                                                triggerAllLevel)) {
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel)) {
         return BALL_FAILURE;                                          // RETURN
     }
 
@@ -1104,7 +1079,6 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
                                        passLevel,
                                        triggerLevel,
                                        triggerAllLevel);
-
     return BALL_SUCCESS;
 }
 
@@ -1113,8 +1087,7 @@ void LoggerManager::resetDefaultThresholdLevels()
     d_defaultThresholdLevels = d_factoryThresholdLevels;
 }
 
-void LoggerManager::setCategoryThresholdsToCurrentDefaults(
-                                                       Category *category)
+void LoggerManager::setCategoryThresholdsToCurrentDefaults(Category *category)
 {
     category->setLevels(d_defaultThresholdLevels.recordLevel(),
                         d_defaultThresholdLevels.passLevel(),
@@ -1122,8 +1095,7 @@ void LoggerManager::setCategoryThresholdsToCurrentDefaults(
                         d_defaultThresholdLevels.triggerAllLevel());
 }
 
-void LoggerManager::setCategoryThresholdsToFactoryDefaults(
-                                                       Category *category)
+void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
 {
     category->setLevels(d_factoryThresholdLevels.recordLevel(),
                         d_factoryThresholdLevels.passLevel(),
@@ -1263,8 +1235,8 @@ bool LoggerManager::isCategoryEnabled(const Category *category,
     }
     return category->maxLevel() >= severity;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

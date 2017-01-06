@@ -183,8 +183,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                       // =====================
                       // struct Administration
                       // =====================
@@ -208,11 +208,10 @@ struct Administration {
         // respectively, if (1) 'categoryName' is not present in the category
         // registry, (2) the number of categories in the registry is less than
         // the registry capacity, and (3) each of the level values is in the
-        // range [0 .. 255].  Return 0 on success, and a non-zero value
+        // range '[0 .. 255]'.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined unless the logger manager
         // singleton has been initialized and 'categoryName' is
         // null-terminated.
-
 
     static int setAllThresholdLevels(int recordLevel,
                                      int passLevel,
@@ -222,10 +221,9 @@ struct Administration {
         // currently existing categories to the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' values,
         // respectively, if each of the level values is in the range
-        // [0 .. 255].  Return 0 on success, and a negative value otherwise
+        // '[0 .. 255]'.  Return 0 on success, and a negative value otherwise
         // (with no effect on the default threshold levels).  The behavior is
         // undefined unless the logger manager singleton has been initialized.
-
 
     static int setDefaultThresholdLevels(int recordLevel,
                                          int passLevel,
@@ -234,7 +232,7 @@ struct Administration {
         // Set the default threshold levels to the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' values,
         // respectively, if each of the level values is in the range
-        // [0 .. 255].  Return 0 on success, and a negative value otherwise
+        // '[0 .. 255]'.  Return 0 on success, and a negative value otherwise
         // (with no effect on the default threshold levels).  The behavior is
         // undefined unless the logger manager singleton has been initialized.
 
@@ -247,7 +245,7 @@ struct Administration {
         // logger manager singleton whose name matches the specified
         // 'regularExpression' to the specified 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' values, respectively, if each
-        // of the threshold values is in the range [0 .. 255].  Return the
+        // of the threshold values is in the range '[0 .. 255]'.  Return the
         // number of categories whose threshold levels were set, or a negative
         // value if the threshold values were invalid.  The behavior is
         // undefined unless the logger manager singleton has been initialized
@@ -320,16 +318,10 @@ struct Administration {
         // categories exceeds 'length'; however, subsequent attempts to add
         // categories to the registry will fail.  The behavior is undefined
         // unless the logger manager singleton has been initialized and
-        // 0 <= length.
+        // '0 <= length'.
 };
+
 }  // close package namespace
-
-// ============================================================================
-//                              INLINE DEFINITIONS
-// ============================================================================
-
-// NONE BY DESIGN
-
 }  // close enterprise namespace
 
 #endif

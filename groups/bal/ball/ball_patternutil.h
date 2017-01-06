@@ -15,7 +15,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a utility class for string pattern matching.
 //
 //@CLASSES:
@@ -73,11 +72,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
-                        // =================
-                        // class PatternUtil
-                        // =================
+
+                        // ==================
+                        // struct PatternUtil
+                        // ==================
 
 struct PatternUtil {
     // This utility class provides functions relating to pattern matching for
@@ -90,11 +89,11 @@ struct PatternUtil {
         // invalid.  There are two types of escape sequences that are allowed
         // in 'pattern'.  (See the function-level documentation of
         // 'PatternUtil::isValidPattern' for the definition of invalid
-        // patterns.)  A '\*' escape sequence in 'pattern' matches a single
-        // '*' in 'inputString'.  A '\\' escape sequence in 'pattern' matches
-        // a single '\' in 'inputString'.  If 'pattern' ends with an unescaped
-        // '*', then 'pattern' matches 'inputString' if the string indicated
-        // by 'pattern' (after escape sequence processing) with the final '*'
+        // patterns.)  A '\*' escape sequence in 'pattern' matches a single '*'
+        // in 'inputString'.  A '\\' escape sequence in 'pattern' matches a
+        // single '\' in 'inputString'.  If 'pattern' ends with an unescaped
+        // '*', then 'pattern' matches 'inputString' if the string indicated by
+        // 'pattern' (after escape sequence processing) with the final '*'
         // removed is a prefix of 'inputString'.  Otherwise 'pattern' matches
         // 'inputString' only if the string indicated by 'pattern' (after
         // escape sequence processing) and 'inputString' are the same.  The
@@ -110,7 +109,6 @@ struct PatternUtil {
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

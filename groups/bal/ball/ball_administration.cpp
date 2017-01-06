@@ -1,12 +1,4 @@
 // ball_administration.cpp                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_administration.h>
 
 #include <bsls_ident.h>
@@ -22,14 +14,13 @@ BSLS_IDENT_RCSID(ball_administration_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-
 namespace ball {
-                      // --------------------------
+
+                      // ---------------------
                       // struct Administration
-                      // --------------------------
+                      // ---------------------
 
 // CLASS METHODS
-
 int Administration::addCategory(const char *categoryName,
                                 int         recordLevel,
                                 int         passLevel,
@@ -61,9 +52,9 @@ int Administration::setAllThresholdLevels(int recordLevel,
                        triggerLevel,
                        triggerAllLevel);
 
-    // 'setThresholdLevels' is documented to only return an error status if
-    // the thresholds are invalid (in which case 'setDefaultThresholdLevels'
-    // will have returned an error.
+    // 'setThresholdLevels' is documented to only return an error status if the
+    // thresholds are invalid (in which case 'setDefaultThresholdLevels' will
+    // have returned an error.
 
     BSLS_ASSERT(0 <= rc);
 
@@ -88,13 +79,12 @@ int Administration::setThresholdLevels(const char *regularExpression,
                                        int         triggerLevel,
                                        int         triggerAllLevel)
 {
-    return LoggerCategoryUtil::setThresholdLevels(
-                                              &LoggerManager::singleton(),
-                                              regularExpression,
-                                              recordLevel,
-                                              passLevel,
-                                              triggerLevel,
-                                              triggerAllLevel);
+    return LoggerCategoryUtil::setThresholdLevels(&LoggerManager::singleton(),
+                                                  regularExpression,
+                                                  recordLevel,
+                                                  passLevel,
+                                                  triggerLevel,
+                                                  triggerAllLevel);
 }
 
 void Administration::resetDefaultThresholdLevels()
@@ -168,8 +158,8 @@ void Administration::setMaxNumCategories(int length)
 {
     LoggerManager::singleton().setMaxNumCategories(length);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -145,8 +145,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
 namespace ball {
 
 class Record;
@@ -157,8 +155,8 @@ class Context;
                         // =====================
 
 class ObserverAdapter : public Observer {
-    // This class aids in the implementation of the 'Observer' protocol
-    // by allowing clients to implement that protocol by implementing a single
+    // This class aids in the implementation of the 'Observer' protocol by
+    // allowing clients to implement that protocol by implementing a single
     // method signature: 'publish(const Record&, const Context&)'.
 
   public:
@@ -196,9 +194,8 @@ class ObserverAdapter : public Observer {
 
 // MANIPULATORS
 inline
-void ObserverAdapter::publish(
-                            const bsl::shared_ptr<const Record>& record,
-                            const Context&                       context)
+void ObserverAdapter::publish(const bsl::shared_ptr<const Record>& record,
+                              const Context&                       context)
 {
     publish(*record, context);
 }
@@ -209,7 +206,6 @@ void ObserverAdapter::releaseRecords()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

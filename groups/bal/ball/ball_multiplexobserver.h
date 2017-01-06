@@ -136,6 +136,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_observer.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_READLOCKGUARD
 #include <bslmt_readlockguard.h>
 #endif
@@ -146,10 +150,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMT_WRITELOCKGUARD
 #include <bslmt_writelockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -165,7 +165,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Record;
@@ -184,10 +183,10 @@ class MultiplexObserver : public Observer {
     // each registered observer.
 
     // DATA
-    bsl::set<Observer *>    d_observerSet;  // observer registry
+    bsl::set<Observer *>   d_observerSet;  // observer registry
 
-    mutable bslmt::RWMutex  d_rwMutex;      // protects concurrent access to
-                                            // 'd_observerSet'
+    mutable bslmt::RWMutex d_rwMutex;      // protects concurrent access to
+                                           // 'd_observerSet'
 
     // NOT IMPLEMENTED
     MultiplexObserver(const MultiplexObserver&);
@@ -207,16 +206,15 @@ class MultiplexObserver : public Observer {
         // if any.
 
     // MANIPULATORS
-    virtual void publish(const Record&  record,
-                         const Context& context);
+    virtual void publish(const Record& record, const Context& context);
         // Process the specified log 'record' having the specified publishing
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
         //
         // DEPRECATED: use the alternative 'publish' overload instead.
 
-    virtual void publish(const bsl::shared_ptr<const Record>&  record,
-                         const Context&                        context);
+    virtual void publish(const bsl::shared_ptr<const Record>& record,
+                         const Context&                       context);
         // Process the specified log 'record' having the specified publishing
         // 'context'.  This concrete publish implementations processes the
         // 'record' by forwarding 'record' and 'context' to each of the
@@ -228,7 +226,7 @@ class MultiplexObserver : public Observer {
         // implementation processes 'releaseRecords' by calling
         // 'releaseRecords' on each of the registered observers.  Note that
         // this operation should be called if resources underlying the
-        // previously provided shared-pointers must be released.
+        // previously provided shared pointers must be released.
 
     int registerObserver(Observer *observer);
         // Add the specified 'observer' to the registry of this multiplexing

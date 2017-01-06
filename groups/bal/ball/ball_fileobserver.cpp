@@ -15,13 +15,11 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <ball_context.h>
 #include <ball_record.h>
 
-#ifdef FOR_TESTING_ONLY
 #include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
-#endif
 
 #include <bslmt_lockguard.h>
 
@@ -29,9 +27,7 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_sstream.h>
 
-
 namespace BloombergLP {
-
 namespace ball {
 
 namespace {
@@ -192,7 +188,7 @@ void FileObserver::enablePublishInLocalTime()
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
-void FileObserver::publish(const Record&  record, const Context& context)
+void FileObserver::publish(const Record& record, const Context& context)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
@@ -259,7 +255,6 @@ void FileObserver::getLogFormat(const char **logFileFormat,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

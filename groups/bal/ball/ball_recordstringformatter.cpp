@@ -7,10 +7,9 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 ///Implementation Notes
 ///--------------------
-// Using the insertion operator (operator <<) with an 'ostream' introduces
+// Using the insertion operator ('operator<<') with an 'ostream' introduces
 // significant performance overhead.  For this reason, the 'operator()' method
 // is implemented by writing the formatted string to a buffer before inserting
 // to a stream.
@@ -23,8 +22,10 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-#include <ball_userfieldvalue.h>
 #include <ball_userfields.h>
+#include <ball_userfieldvalue.h>
+
+#include <bdlb_print.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -33,7 +34,6 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdlt_localtimeoffset.h>
 #include <bdlt_iso8601util.h>
 #include <bdlt_iso8601utilconfiguration.h>
-#include <bdlb_print.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -57,7 +57,7 @@ const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 
 namespace BloombergLP {
 
-
+// STATIC HELPER FUNCTIONS
 static void appendToString(bsl::string *result, int value)
     // Convert the specified 'value' into ASCII characters and append it to the
     // specified 'result.
@@ -96,13 +96,11 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
     *result += buffer;
 }
 
-                        // --------------------------------
-                        // class ball::RecordStringFormatter
-                        // --------------------------------
-
-
 namespace ball {
 
+                        // ---------------------------
+                        // class RecordStringFormatter
+                        // ---------------------------
 
 // CLASS DATA
 const int RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
@@ -111,7 +109,6 @@ const int RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
 // Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should not
 // appear in practice.  Real values are (always?) less than one day (plus or
 // minus).
-
 
 // CREATORS
 RecordStringFormatter::RecordStringFormatter(bslma::Allocator *basicAllocator)
@@ -181,10 +178,6 @@ RecordStringFormatter::RecordStringFormatter(
 {
 }
 
-RecordStringFormatter::~RecordStringFormatter()
-{
-}
-
 // MANIPULATORS
 RecordStringFormatter& RecordStringFormatter::operator=(
                                               const RecordStringFormatter& rhs)
@@ -211,10 +204,8 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
             bdlt::LocalTimeOffset::localTimeOffset(
                                        fixedFields.timestamp()).totalSeconds();
         offset.setTotalSeconds(localTimeOffsetInSeconds);
-    } else if(k_DISABLE_PUBLISH_IN_LOCALTIME ==
+    } else if (k_DISABLE_PUBLISH_IN_LOCALTIME !=
                                        d_timestampOffset.totalMilliseconds()) {
-        // Do not adjust 'offset'.
-    } else {
         offset = d_timestampOffset;
     }
 
@@ -417,8 +408,8 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
 
     stream.write(output.c_str(), output.size());
     stream.flush();
-
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

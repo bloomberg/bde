@@ -7,17 +7,22 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <ball_transmission.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
-#include <bsl_cstdlib.h>                       // atoi()
-#include <bsl_cstring.h>                       // strcmp(), memcmp(), memcpy()
+
+#include <bslim_testutil.h>
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+
+#include <bsl_cstdlib.h>  // atoi()
+#include <bsl_cstring.h>  // strcmp(), memcmp(), memcpy()
 
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -39,44 +44,69 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::Transmission  Class;
+typedef ball::Transmission Class;
 typedef Class::Cause       Enum;
 
-const int NUM_ENUMS = Class::e_LENGTH;
+enum { NUM_ENUMS = Class::e_LENGTH };
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -92,7 +122,7 @@ class my_Logger {
     ~my_Logger();
     void publish(const char *message, ball::Transmission::Cause cause);
 
-    // ...
+  // ...
 };
 
 // my_logger.cpp
@@ -104,8 +134,6 @@ my_Logger::~my_Logger() { }
 void my_Logger::publish(const char                *message,
                         ball::Transmission::Cause  cause)
 {
-using namespace bsl;  // automatically added by script
-
     switch (cause) {
       case ball::Transmission::e_PASSTHROUGH: {
         d_os << ball::Transmission::toAscii(cause) << ":\t" << message << endl;
@@ -130,10 +158,12 @@ using namespace bsl;  // automatically added by script
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
+
+    (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -167,8 +197,11 @@ int main(int argc, char *argv[])
 
         ball::Transmission::Cause cause = ball::Transmission::e_TRIGGER_ALL;
         const char *asciiCause = ball::Transmission::toAscii(cause);
+
         ASSERT(0 == strcmp(asciiCause, "TRIGGER_ALL"));
+
         out << cause;
+
         ASSERT(0 == strncmp(buf, "TRIGGER_ALL", 11));
 
         if (veryVerbose) { out << ends; cout << buf << endl; }
@@ -192,7 +225,6 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { out << ends; cout << buf << endl; }
       } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST
@@ -240,7 +272,7 @@ int main(int argc, char *argv[])
             { Class::e_MANUAL_PUBLISH_ALL,   "MANUAL_PUBLISH_ALL"  },
         };
 
-        const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
+        enum { DATA_LENGTH = sizeof DATA / sizeof *DATA };
 
         const char *const UNKNOWN_FMT = "(* UNKNOWN *)";
 
@@ -248,13 +280,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify table length is correct." << endl;
 
-        ASSERT(DATA_LENGTH == NUM_ENUMS);
+        ASSERT((int)DATA_LENGTH == (int)NUM_ENUMS);
 
         if (verbose)
             cout << "\nVerify enumerator values are sequential." << endl;
 
         for (i = 0; i < DATA_LENGTH; ++i) {
-            LOOP_ASSERT(i, DATA[i].d_enum == i);
+            ASSERTV(i, DATA[i].d_enum == i);
         }
 
         if (verbose) cout << "\nVerify the toAscii function." << endl;
@@ -267,9 +299,9 @@ int main(int argc, char *argv[])
             const char *const ACT = Class::toAscii(Enum(i));
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << ACT << endl <<endl;
 
-            LOOP_ASSERT(i, 0 == strcmp(FMT, ACT));
+            ASSERTV(i, 0 == strcmp(FMT, ACT));
             for (int j = 0; j < i; ++j) {  // Make sure ALL strings are unique.
-                LOOP2_ASSERT(i, j, 0 != strcmp(DATA[j].d_ascii, FMT));
+                ASSERTV(i, j, 0 != strcmp(DATA[j].d_ascii, FMT));
             }
         }
 
@@ -294,12 +326,11 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
             const int SZ = strlen(FMT) + 1;
-            LOOP_ASSERT(i, SZ < SIZE);  // Check buffer is large enough.
-            LOOP_ASSERT(i, XX == buf[SIZE - 1]);  // Check for overrun.
-            LOOP_ASSERT(i, 0 == memcmp(buf, FMT, SZ));
-            LOOP_ASSERT(i, 0 == memcmp(buf + SZ, CTRL_BUF + SZ, SIZE - SZ));
+            ASSERTV(i, SZ < SIZE);            // Check buffer is large enough.
+            ASSERTV(i, XX == buf[SIZE - 1]);  // Check for overrun.
+            ASSERTV(i, 0 == memcmp(buf, FMT, SZ));
+            ASSERTV(i, 0 == memcmp(buf + SZ, CTRL_BUF + SZ, SIZE - SZ));
         }
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

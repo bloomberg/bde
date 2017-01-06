@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // meaning that the test observer may be used to log records from multiple
 // threads.  However, the 'ball::TestObserver' accessors 'lastPublished' method
 // and 'lastPublishedContext' provide references to internal data structures
-// (for backwards compatibilty) and are therefore *not* *thread-safe*.
+// (for backwards compatibility) and are therefore *not* *thread-safe*.
 //
 ///Verbose Mode
 ///------------
@@ -142,6 +142,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_record.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
 #endif
@@ -154,10 +158,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
 #endif
@@ -167,8 +167,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ==================
                          // class TestObserver
                          // ==================
@@ -187,8 +187,8 @@ class TestObserver : public Observer {
     // argument.  A subsequent call to 'setVerbose' with a zero argument will
     // restore the default behavior of 'publish'.
 
-    typedef bsls::AtomicOperations                       AtomicOps;
-    typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;
+    typedef bsls::AtomicOperations                   AtomicOps;
+    typedef bsls::AtomicOperations::AtomicTypes::Int AtomicInt;
 
     // CLASS DATA
     static AtomicInt     s_count;        // number of instances created
@@ -223,8 +223,7 @@ class TestObserver : public Observer {
         // created since this process has begun.
 
     // CREATORS
-    TestObserver(bsl::ostream&     stream,
-                 bslma::Allocator *basicAllocator = 0);
+    TestObserver(bsl::ostream& stream, bslma::Allocator *basicAllocator = 0);
         // Create a test observer having a unique integer identifier, whose
         // 'publish' method will send it's output (if any) to the specified
         // 'stream'.  Optionally specify a 'basicAllocator' used to supply
@@ -237,8 +236,7 @@ class TestObserver : public Observer {
         // Destroy this test observer.
 
     // MANIPULATORS
-    virtual void publish(const Record&  record,
-                         const Context& context);
+    virtual void publish(const Record& record, const Context& context);
         // Store as the most recently published data the specified log 'record'
         // and publishing 'context'.  If this test observer is in verbose mode,
         // print an appropriate diagnostic message to the stream specified at
@@ -341,7 +339,6 @@ const Context& TestObserver::lastPublishedContext() const
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

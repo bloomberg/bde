@@ -1,32 +1,24 @@
 // ball_severityutil.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_severityutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_severityutil_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
 #include <bdlb_string.h>
+
+#include <bsls_assert.h>
 
 #include <bsl_cstring.h>   // 'strcmp'
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // -------------------
                         // struct SeverityUtil
                         // -------------------
 
 // CLASS METHODS
-int SeverityUtil::fromAsciiCaseless(Severity::Level *level,
-                                    const char      *name)
+int SeverityUtil::fromAsciiCaseless(Severity::Level *level, const char *name)
 {
     BSLS_ASSERT(level);
     BSLS_ASSERT(name);
@@ -76,8 +68,8 @@ bool SeverityUtil::isValidNameCaseless(const char *name)
         || bdlb::String::areEqualCaseless("DEBUG", 5, name)
         || bdlb::String::areEqualCaseless("TRACE", 5, name);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

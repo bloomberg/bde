@@ -79,8 +79,8 @@
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // ===============================
                     // class ScopedAttribute_Container
                     // ===============================
@@ -112,7 +112,6 @@ class ScopedAttribute_Container : public AttributeContainer {
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0
         // or unspecified, the currently installed default allocator is used.
 
-
     virtual ~ScopedAttribute_Container();
         // Destroy this object;
 
@@ -140,8 +139,8 @@ class ScopedAttribute_Container : public AttributeContainer {
                          // =====================
 
 class ScopedAttribute {
-    // Provides a scoped guard that sets BALL attributes for "serviceId" and
-    // "uuid" in the current thread.
+    // This class provides a scoped guard that sets a single BALL attribute in
+    // the current thread.
 
     // DATA
     ScopedAttribute_Container        d_container;  // contains the attribute
@@ -173,7 +172,6 @@ class ScopedAttribute {
     ~ScopedAttribute();
         // Remove the attributes managed by this object from the BALL system,
         // and destroy this object.
-
 };
 
 // ============================================================================
@@ -199,7 +197,7 @@ ScopedAttribute_Container::ScopedAttribute_Container(
                                             const char         *name,
                                             int                 value,
                                             bslma::Allocator   *basicAllocator)
-    : d_attribute(name, value, basicAllocator)
+: d_attribute(name, value, basicAllocator)
 {
 }
 
@@ -258,7 +256,6 @@ ScopedAttribute::~ScopedAttribute()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

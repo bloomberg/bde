@@ -7,30 +7,36 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <ball_recordattributes.h>
 
-#include <bdlma_bufferedsequentialallocator.h>  // for testing only
+#include <bslim_testutil.h>
+
+#include <bdlma_bufferedsequentialallocator.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
-#include <bdlt_datetimeutil.h>                     // for testing only
-#include <bdlt_epochutil.h>                        // for testing only
+#include <bdlt_datetimeutil.h>
+#include <bdlt_epochutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bslmf_assert.h>
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
+#include <bsl_iostream.h>
+#include <bsl_new.h>          // placement 'new' syntax
+
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>     // getpid()
+#include <unistd.h>           // getpid()
 #endif
 
-#include <bsl_new.h>          // placement 'new' syntax
-#include <bsl_iostream.h>
-
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -93,61 +99,60 @@ using namespace bsl;  // automatically added by script
 // [ 5] USAGE EXAMPLE 1
 // [ 6] USAGE EXAMPLE 2
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -156,7 +161,7 @@ void aSsErT(int c, const char *s, int i)
 typedef ball::RecordAttributes Obj;
 
 struct my_RecordAttributes {
-    bdlt::Datetime        timestamp;
+    bdlt::Datetime       timestamp;
     int                  processID;
     bsls::Types::Uint64  threadID;
     const char          *fileName;
@@ -190,7 +195,13 @@ my_TestMessage testMsgs[] = {
     {"abc\0def\0ghi", 3, 11},
 };
 
-const int NUM_TEST_MSGS = sizeof(testMsgs) / sizeof(testMsgs[0]);
+enum { NUM_TEST_MSGS = sizeof(testMsgs) / sizeof(testMsgs[0]) };
+
+// ============================================================================
+//                                 TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 
 //=============================================================================
 //                             USAGE EXAMPLE 2
@@ -232,7 +243,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Information& information)
 }
 
 void streamInformationIntoMessageAttribute(ball::RecordAttributes& attributes,
-                                           const Information& information)
+                                           const Information&      information)
 {
     attributes.clearMessage();
     bsl::ostream os(&attributes.messageStreamBuf());
@@ -256,7 +267,7 @@ using namespace bsl;  // automatically added by script
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-void initRecordAttributes(ball::RecordAttributes&     lhs,
+void initRecordAttributes(ball::RecordAttributes&    lhs,
                           const my_RecordAttributes& rhs)
 {
     lhs.setTimestamp(rhs.timestamp);
@@ -303,10 +314,10 @@ void initRecordAttributes(ball::RecordAttributes&     lhs,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -400,23 +411,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Initialization Constructor Test" << endl
                                   << "===============================" << endl;
 
-        const char         *DEFAULT_CATEGORY   = "";
-        const char         *DEFAULT_FILENAME   = "";
-        const int           DEFAULT_LINENUMBER = 0;
-        const char         *DEFAULT_MESSAGE    = "";
-        const int           DEFAULT_PROCESSID  = 0;
-        const int           DEFAULT_SEVERITY   = 0;
-        const int           DEFAULT_THREADID   = 0;
-        const bdlt::Datetime DEFAULT_TIMESTAMP;
+        const char           *DEFAULT_CATEGORY   = "";
+        const char           *DEFAULT_FILENAME   = "";
+        const int             DEFAULT_LINENUMBER = 0;
+        const char           *DEFAULT_MESSAGE    = "";
+        const int             DEFAULT_PROCESSID  = 0;
+        const int             DEFAULT_SEVERITY   = 0;
+        const int             DEFAULT_THREADID   = 0;
+        const bdlt::Datetime  DEFAULT_TIMESTAMP;
 
-        const char         *OTHER_CATEGORY   = "category";
-        const char         *OTHER_FILENAME   = "filename.cpp";
-        const int           OTHER_LINENUMBER = L_;
-        const char         *OTHER_MESSAGE    = "message";
-        const int           OTHER_PROCESSID  = 13248;
-        const int           OTHER_SEVERITY   = 128;
-        const int           OTHER_THREADID   = 19;
-        bdlt::Datetime      OTHER_TIMESTAMP  =
+        const char     *OTHER_CATEGORY   = "category";
+        const char     *OTHER_FILENAME   = "filename.cpp";
+        const int       OTHER_LINENUMBER = L_;
+        const char     *OTHER_MESSAGE    = "message";
+        const int       OTHER_PROCESSID  = 13248;
+        const int       OTHER_SEVERITY   = 128;
+        const int       OTHER_THREADID   = 19;
+        bdlt::Datetime  OTHER_TIMESTAMP  =
                             bdlt::EpochUtil::convertFromTimeT(time(0));  // now
 
         {
@@ -431,7 +442,7 @@ int main(int argc, char *argv[])
                    DEFAULT_SEVERITY,
                    DEFAULT_MESSAGE);
             const Obj& Y = mY;
-            if (veryVeryVerbose) { T_(); P(X);  T_(); P(Y); }
+            if (veryVeryVerbose) { T_ P(X);  T_ P(Y); }
 
             ASSERT(1 == (X == X));          ASSERT(0 == (X != X));
             ASSERT(1 == (X == Y));          ASSERT(0 == (X != Y));
@@ -457,7 +468,7 @@ int main(int argc, char *argv[])
                    OTHER_SEVERITY,
                    OTHER_MESSAGE);
             const Obj& Y = mY;
-            if (veryVeryVerbose) { T_(); P(X);  T_(); P(Y); }
+            if (veryVeryVerbose) { T_ P(X);  T_ P(Y); }
 
             ASSERT(1 == (X == X));          ASSERT(0 == (X != X));
             ASSERT(1 == (X == Y));          ASSERT(0 == (X != Y));
@@ -523,23 +534,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Basic Attribute Test" << endl
                                   << "====================" << endl;
 
-        const char         *DEFAULT_CATEGORY   = "";
-        const char         *DEFAULT_FILENAME   = "";
-        const int           DEFAULT_LINENUMBER = 0;
-        const char         *DEFAULT_MESSAGE    = "";
-        const int           DEFAULT_PROCESSID  = 0;
-        const int           DEFAULT_SEVERITY   = 0;
-        const int           DEFAULT_THREADID   = 0;
-        const bdlt::Datetime DEFAULT_TIMESTAMP;
+        const char           *DEFAULT_CATEGORY   = "";
+        const char           *DEFAULT_FILENAME   = "";
+        const int             DEFAULT_LINENUMBER = 0;
+        const char           *DEFAULT_MESSAGE    = "";
+        const int             DEFAULT_PROCESSID  = 0;
+        const int             DEFAULT_SEVERITY   = 0;
+        const int             DEFAULT_THREADID   = 0;
+        const bdlt::Datetime  DEFAULT_TIMESTAMP;
 
-        const char         *OTHER_CATEGORY   = "category";
-        const char         *OTHER_FILENAME   = "filename.cpp";
-        const int           OTHER_LINENUMBER = L_;
-        const char         *OTHER_MESSAGE    = "message";
-        const int           OTHER_PROCESSID  = 13248;
-        const int           OTHER_SEVERITY   = 128;
-        const int           OTHER_THREADID   = 19;
-        bdlt::Datetime      OTHER_TIMESTAMP  =
+        const char     *OTHER_CATEGORY   = "category";
+        const char     *OTHER_FILENAME   = "filename.cpp";
+        const int       OTHER_LINENUMBER = L_;
+        const char     *OTHER_MESSAGE    = "message";
+        const int       OTHER_PROCESSID  = 13248;
+        const int       OTHER_SEVERITY   = 128;
+        const int       OTHER_THREADID   = 19;
+        bdlt::Datetime  OTHER_TIMESTAMP  =
                             bdlt::EpochUtil::convertFromTimeT(time(0));  // now
 
         Obj mX;  const Obj& X = mX;
@@ -600,7 +611,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -624,7 +636,7 @@ int main(int argc, char *argv[])
              cout << "\tTesting 'setMessage' and 'message'" << endl;
         }
         {
-            for (int i = 0;i < NUM_TEST_MSGS; ++i) {
+            for (int i = 0; i < NUM_TEST_MSGS; ++i) {
                 Obj mA;
                 ASSERT(0 == strcmp("", mA.message()));
                 mA.setMessage(testMsgs[i].msg);
@@ -637,7 +649,7 @@ int main(int argc, char *argv[])
         }
         {
             bslstl::StringRef emptyMsgRef("", 0);
-            for (int i = 0;i < NUM_TEST_MSGS; ++i) {
+            for (int i = 0; i < NUM_TEST_MSGS; ++i) {
                 Obj mA;
                 bslstl::StringRef testMsgRef(testMsgs[i].msg,
                                              testMsgs[i].len2);
@@ -722,7 +734,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -759,7 +772,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -796,7 +810,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -833,7 +848,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -870,7 +886,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -907,7 +924,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -944,7 +962,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y == Z));          ASSERT(0 == (Y != Z));
         {
             Obj C(X);
-            ASSERT(C == X == 1);        ASSERT(C != X == 0);
+            ASSERT(  C == X);
+            ASSERT(!(C != X));
         }
 
         mY = X;
@@ -1115,7 +1134,7 @@ int main(int argc, char *argv[])
                 },
             };
 #undef NL
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             const int SIZE = 1024; // Must be big enough to hold output string.
             const char Z1  = (char) 0xFF;  // Value 1 used for an unset char.
@@ -1137,7 +1156,6 @@ int main(int argc, char *argv[])
             mX.setThreadID(19);
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
-//                const int         LINE = DATA[ti].d_lineNum; // unused
                 const int         IND  = DATA[ti].d_indent;
                 const int         SPL  = DATA[ti].d_spaces;
                 const char *const FMT  = DATA[ti].d_fmt_p;
@@ -1158,9 +1176,9 @@ int main(int argc, char *argv[])
                 const int SZ = strlen(FMT) + 3;  // Count in the two '\0'.
                 const int REST = SIZE - SZ;
 
-                LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
+                ASSERTV(ti, SZ < SIZE);  // Check buffer is large enough.
+                ASSERTV(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
+                ASSERTV(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
 
                 // Verify 'buf1' and 'buf2' have same conetents as 'FMT', if
                 // ignore the '\0's in the middle of 'buf1' and 'buf2'.
@@ -1168,30 +1186,30 @@ int main(int argc, char *argv[])
                 const char *p1 = FMT;
                 const char *p2 = buf1;
                 int tj, tk;
-                for (tj = 0, tk = 0;tj < strlen(FMT); ++tj, ++tk) {
+                for (tj = 0, tk = 0; tj < strlen(FMT); ++tj, ++tk) {
                     if (0 == p2[tk]) {  // Skip '\0' in the middle.
                         ++tk;
                     }
-                    LOOP2_ASSERT(tj, tk, p1[tj] == p2[tk]);
+                    ASSERTV(tj, tk, p1[tj] == p2[tk]);
                 }
-                LOOP_ASSERT(tj, 0 == p1[tj]);
-                LOOP_ASSERT(tk, 0 == p2[tk]);
+                ASSERTV(tj, 0 == p1[tj]);
+                ASSERTV(tk, 0 == p2[tk]);
 
                 p1 = FMT;
                 p2 = buf2;
-                for (tj = 0, tk = 0;tj < strlen(FMT); ++tj, ++tk) {
+                for (tj = 0, tk = 0; tj < strlen(FMT); ++tj, ++tk) {
                     if (0 == p2[tk]) {  // Skip '\0' in the middle.
                         ++tk;
                     }
-                    LOOP2_ASSERT(tj, tk, p1[tj] == p2[tk]);
+                    ASSERTV(tj, tk, p1[tj] == p2[tk]);
                 }
-                LOOP_ASSERT(tj, 0 == p1[tj]);
-                LOOP_ASSERT(tk, 0 == p2[tk]);
+                ASSERTV(tj, 0 == p1[tj]);
+                ASSERTV(tk, 0 == p2[tk]);
 
                 // Verify the rest parts of 'buf1' and 'buf2' are untouched.
 
-                LOOP_ASSERT(ti,  0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
-                LOOP_ASSERT(ti,  0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                ASSERTV(ti,  0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                ASSERTV(ti,  0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }
         }
 
@@ -1261,7 +1279,7 @@ int main(int argc, char *argv[])
                               << endl;
 
         Obj mX1(&testAllocator);                const Obj& X1 = mX1;
-        if (veryVeryVerbose) { T_(); P(X1); }
+        if (veryVeryVerbose) { T_ P(X1); }
 
         if (veryVerbose) cout << "\ta. Try equality operators -- x1 <op> x1."
                               << endl;
@@ -1273,7 +1291,7 @@ int main(int argc, char *argv[])
             cout << "\n 2. Create a second object x2 (copy from x1)" << endl;
 
         Obj mX2(X1, &testAllocator);            const Obj& X2 = mX2;
-        if (veryVeryVerbose) { T_(); P(X2); }
+        if (veryVeryVerbose) { T_ P(X2); }
 
         if (veryVerbose) {
             cout << "\ta. Try equality operators -- x2 <op> x1, x2."
@@ -1288,8 +1306,8 @@ int main(int argc, char *argv[])
 
         mX1.setProcessID(12345);                mX2.setProcessID(12345);
         mX1.setThreadID(678);                   mX2.setThreadID(678);
-        if (veryVeryVerbose) { T_(); P(X1); }
-        if (veryVeryVerbose) { T_(); P(X2); }
+        if (veryVeryVerbose) { T_ P(X1); }
+        if (veryVeryVerbose) { T_ P(X2); }
 
         if (veryVerbose) {
             cout << "\ta. Try equality operators -- x2 <op> x1, x2."
@@ -1304,7 +1322,7 @@ int main(int argc, char *argv[])
 
         mX1.setLineNumber(L_);
         mX1.setSeverity(1);
-        if (veryVeryVerbose) { T_(); P(X1); }
+        if (veryVeryVerbose) { T_ P(X1); }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (veryVerbose) cout << "\n 5. Set lineNumber and severity for x2."
@@ -1312,7 +1330,7 @@ int main(int argc, char *argv[])
 
         mX2.setLineNumber(L_);
         mX2.setSeverity(1);
-        if (veryVeryVerbose) { T_(); P(X2); }
+        if (veryVeryVerbose) { T_ P(X2); }
 
         if (veryVerbose) cout << "\ta. Try equality operators -- x2 <op> x1"
                                  " (should be different)" << endl;
@@ -1327,8 +1345,8 @@ int main(int argc, char *argv[])
 
         mX1.setTimestamp(TIMESTAMP);
         mX2.setTimestamp(TIMESTAMP);
-        if (veryVeryVerbose) { T_(); P(X1); }
-        if (veryVeryVerbose) { T_(); P(X2); }
+        if (veryVeryVerbose) { T_ P(X1); }
+        if (veryVeryVerbose) { T_ P(X2); }
 
         if (veryVerbose) cout << "\ta. Try equality operators -- x2 <op> x1"
                                  " (should be different)" << endl;
@@ -1339,13 +1357,13 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             cout << "\n 7. Create a third object x3 (explicit ctor)." << endl;
 
-        const char   *CATEGORY   = "Bonds";
-        const char   *FILENAME   = "bondmarket.cpp";
-        const int     LINENUMBER = L_;
-        const char   *MESSAGE    = "Bond market is closed.";
-        const int     PROCESSID  = 234178;
-        const int     SEVERITY   = 128;
-        const int     THREADID   = 15;
+        const char *CATEGORY   = "Bonds";
+        const char *FILENAME   = "bondmarket.cpp";
+        const int   LINENUMBER = L_;
+        const char *MESSAGE    = "Bond market is closed.";
+        const int   PROCESSID  = 234178;
+        const int   SEVERITY   = 128;
+        const int   THREADID   = 15;
 
         Obj mX3(TIMESTAMP,
                 PROCESSID,
@@ -1357,7 +1375,7 @@ int main(int argc, char *argv[])
                 MESSAGE,
                 &testAllocator);
         const Obj& X3 = mX3;
-        if (veryVeryVerbose) { T_(); P(X3); }
+        if (veryVeryVerbose) { T_ P(X3); }
 
         if (veryVerbose) cout << "\ta. Validate getter functions." << endl;
 
@@ -1380,7 +1398,7 @@ int main(int argc, char *argv[])
             cout << "\n 8. Create a fourth object x4 (copy of x3)." << endl;
 
         Obj mX4(X3, &testAllocator);            const Obj& X4 = mX4;
-        if (veryVeryVerbose) { T_(); P(X4); }
+        if (veryVeryVerbose) { T_ P(X4); }
 
         if (veryVerbose) {
             cout << "\ta. Try equality operators -- x4 <op> x4, x3."
@@ -1400,7 +1418,7 @@ int main(int argc, char *argv[])
         mX3.setCategory(CAT);
         mX3.setFileName(FN);
         mX3.setMessage(MSG);
-        if (veryVeryVerbose) { T_(); P(X3); }
+        if (veryVeryVerbose) { T_ P(X3); }
 
         if (veryVerbose) cout << "\ta. Validate setters with getters" << endl;
 
@@ -1412,9 +1430,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\n 10. Assign x2 = x1, x3 = x4." << endl;
 
         mX2 = X1;
-        if (veryVeryVerbose) { T_(); P(X2); }
+        if (veryVeryVerbose) { T_ P(X2); }
         mX3 = X4;
-        if (veryVeryVerbose) { T_(); P(X3); }
+        if (veryVeryVerbose) { T_ P(X3); }
 
         if (veryVerbose)
             cout << "\ta. Verify equality -- x2 <op> x1, x3 <op> x4." << endl;
@@ -1426,7 +1444,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\n 11. Assign x4 = x4." << endl;
 
         mX4 = X4;
-        if (veryVeryVerbose) { T_(); P(X4); }
+        if (veryVeryVerbose) { T_ P(X4); }
 
         if (veryVerbose) cout << "\ta. Verify identify -- x4 <op> x3. "
                                  "(x4 == x3 from previous step)" << endl;

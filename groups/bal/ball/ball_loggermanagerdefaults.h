@@ -144,8 +144,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
+                         // ===========================
+                         // class LoggerManagerDefaults
+                         // ===========================
+
 class LoggerManagerDefaults {
     // This class provides constrained configuration parameters for a logger
     // manager.  The constraints are maintained as class invariants; it is not
@@ -163,6 +167,7 @@ class LoggerManagerDefaults {
     // both source and destination) is supported in all cases.
 
   private:
+    // DATA
     int d_recordBufferSize; // size of default logger's record buffer
     int d_loggerBufferSize; // size of logger "scratchpad" buffer (for macros)
 
@@ -172,6 +177,7 @@ class LoggerManagerDefaults {
     int d_defaultTriggerAllLevel;
         // constrained set of default threshold levels for logger manager
 
+    // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&,
                                     const LoggerManagerDefaults&);
     friend bool operator==(const LoggerManagerDefaults&,
@@ -196,7 +202,7 @@ class LoggerManagerDefaults {
         // Return 'true' if each of the specified 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' values is a valid default
         // severity threshold level attributes, and 'false' otherwise.  Valid
-        // severity threshold level values are in the range [0 .. 255].
+        // severity threshold level values are in the range '[0 .. 255]'.
 
     static int defaultDefaultRecordBufferSize();
         // Return the implementation-defined default-logger record-buffer size
@@ -222,7 +228,6 @@ class LoggerManagerDefaults {
         // Return the implementation-defined default trigger-all threshold
         // value for this class.
 
-
     // CREATORS
     LoggerManagerDefaults();
         // Create a logger manager default-values constrained-attribute object
@@ -237,8 +242,7 @@ class LoggerManagerDefaults {
         // object.
 
     // MANIPULATORS
-    LoggerManagerDefaults&
-    operator=(const LoggerManagerDefaults& rhs);
+    LoggerManagerDefaults& operator=(const LoggerManagerDefaults& rhs);
         // Assign to this logger manager default-values constrained-attribute
         // object the value of the specified 'rhs' object.
 
@@ -269,9 +273,8 @@ class LoggerManagerDefaults {
         // Set the quadruplet of default severity threshold level attributes of
         // this object to the specified 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' values if each level is in the
-        // range [0 .. 255].  Return 0 on success, and a non-zero value (with
+        // range '[0 .. 255]'.  Return 0 on success, and a non-zero value (with
         // no effect on the state of this object) otherwise.
-
 
     // ACCESSORS
     int defaultRecordBufferSize() const;
@@ -286,8 +289,7 @@ class LoggerManagerDefaults {
         // Return the default record threshold level attribute of this object.
 
     int defaultPassLevel() const;
-        // Return the default pass threshold level attribute of this
-        // object.
+        // Return the default pass threshold level attribute of this object.
 
     int defaultTriggerLevel() const;
         // Return the default trigger threshold level attribute of this object.
@@ -308,7 +310,6 @@ class LoggerManagerDefaults {
         // negative, suppress all indentation AND format the entire output on
         // one line.  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS
@@ -325,18 +326,12 @@ bool operator!=(const LoggerManagerDefaults& lhs,
     // not have the same value if one or more respective attributes differ in
     // values.
 
-bsl::ostream& operator<<(bsl::ostream&                     stream,
+bsl::ostream& operator<<(bsl::ostream&                stream,
                          const LoggerManagerDefaults& defaults);
     // Write the specified 'defaults' object to the specified output 'stream'
     // in a reasonable multi-line format.
 
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

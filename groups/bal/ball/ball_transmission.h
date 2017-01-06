@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 //
 //  my_Logger::~my_Logger() { }
 //
-//  void my_Logger::publish(const char               *message,
+//  void my_Logger::publish(const char                *message,
 //                          ball::Transmission::Cause  cause)
 //  {
 //      using namespace std;
@@ -174,11 +174,11 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
-
 namespace ball {
-                        // ========================
+
+                        // ===================
                         // struct Transmission
-                        // ========================
+                        // ===================
 
 struct Transmission {
     // This struct provides a namespace for enumerating the causes of the
@@ -218,7 +218,6 @@ struct Transmission {
     static const char *toAscii(Transmission::Cause value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
-
 };
 
 // FREE OPERATORS
@@ -230,9 +229,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------
+                        // -------------------
                         // struct Transmission
-                        // ------------------------
+                        // -------------------
 
 // CLASS METHODS
 inline
@@ -247,8 +246,7 @@ bsl::ostream& Transmission::streamOut(bsl::ostream&       stream,
 
 // FREE OPERATORS
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&       stream,
-                               Transmission::Cause rhs)
+bsl::ostream& ball::operator<<(bsl::ostream& stream, Transmission::Cause rhs)
 {
     return Transmission::streamOut(stream, rhs);
 }

@@ -77,7 +77,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class Context;
@@ -114,8 +113,7 @@ class DefaultObserver : public Observer {
         // Destroy this default observer.
 
     // MANIPULATORS
-    virtual void publish(const Record&  record,
-                         const Context& context);
+    virtual void publish(const Record& record, const Context& context);
         // Process the specified log 'record' having the specified publishing
         // 'context'.
         //
@@ -141,7 +139,6 @@ DefaultObserver::DefaultObserver(bsl::ostream *stream)
 
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

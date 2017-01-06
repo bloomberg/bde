@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <ball_defaultobserver.h>
 
 #include <ball_context.h>                      // for testing only
@@ -17,7 +16,8 @@
 
 #include <bdlt_datetime.h>                     // for testing only
 #include <bdlt_epochutil.h>                    // for testing only
-#include <bdls_testutil.h>
+
+#include <bslim_testutil.h>
 
 #include <bsls_platform.h>                     // for testing only
 
@@ -36,7 +36,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -79,23 +79,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -107,6 +107,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -114,47 +115,46 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::DefaultObserver Obj;
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-//    int veryVerbose = argc > 3; // not used
-    int veryVeryVerbose = argc > 4;
+    const int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose             = argc > 2;
+    const bool veryVerbose         = argc > 3;
+    const bool veryVeryVerbose     = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;      // Supress compiler warning.
+    (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Example" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
         {
             ball::DefaultObserver defaultObserver(&bsl::cout);
@@ -169,24 +169,22 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   We want to exercise basic functionality.
-
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
         // Plan:
-        //   TBD - fill
-        //   Note: The ad-hoc tests provided here are repeated for the
-        //   deprecated c'tor taking an 'ostream&' and for the c'tor taking
-        //   the proper 'ostream*'.  The use of 'cout' in production testing
-        //   is not actually permitted.
         //
         // Testing:
-        //   This "test" *exercises* basic functionality, but *tests* nothing.
-
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
 
 
         if (verbose) cout << "Publish a single message." << endl;
@@ -194,16 +192,14 @@ int main(int argc, char *argv[])
             Obj X(&bsl::cout);
 
             ball::RecordAttributes fixed;
-            ball::UserFields  userValues;
+            ball::UserFields       userValues;
 
             bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixed.setTimestamp(now);
             fixed.setProcessID(100);
             fixed.setThreadID(0);
             X.publish(ball::Record(fixed, userValues),
-                      ball::Context(ball::Transmission::e_PASSTHROUGH,
-                                               0,
-                                               1));
+                      ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
         }
 
         if (verbose) cout << "Publish a sequence of three messages." << endl;
@@ -222,8 +218,8 @@ int main(int argc, char *argv[])
                 fixed.setThreadID(31 + n);
                 X.publish(ball::Record(fixed, userValues),
                           ball::Context(ball::Transmission::e_TRIGGER,
-                                       n,
-                                       NUM_MESSAGES));
+                                        n,
+                                        NUM_MESSAGES));
             }
         }
       } break;

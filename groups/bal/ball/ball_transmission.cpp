@@ -1,12 +1,4 @@
 // ball_transmission.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_transmission.h>
 
 #include <bsls_ident.h>
@@ -15,32 +7,32 @@ BSLS_IDENT_RCSID(ball_transmission_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
 
+                        // ------------------
+                        // class Transmission
+                        // ------------------
+
 // PRIVATE CLASS METHODS
-void Transmission::print(bsl::ostream&       stream,
-                         Transmission::Cause value)
+void Transmission::print(bsl::ostream& stream, Transmission::Cause value)
 {
     stream << Transmission::toAscii(value);
 }
 
 // CLASS METHODS
-
 const char *Transmission::toAscii(Transmission::Cause value)
 {
-    switch(value) {
+    switch (value) {
       case(e_PASSTHROUGH)       : return "PASSTHROUGH";
       case(e_TRIGGER)           : return "TRIGGER";
       case(e_TRIGGER_ALL)       : return "TRIGGER_ALL";
       case(e_MANUAL_PUBLISH)    : return "MANUAL_PUBLISH";
       case(e_MANUAL_PUBLISH_ALL): return "MANUAL_PUBLISH_ALL";
-      default: return "(* UNKNOWN *)";
+      default                   : return "(* UNKNOWN *)";
     }
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

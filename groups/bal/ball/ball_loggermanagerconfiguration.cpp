@@ -1,12 +1,4 @@
 // ball_loggermanagerconfiguration.cpp                                -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_loggermanagerconfiguration.h>
 
 #include <bsls_ident.h>
@@ -20,8 +12,8 @@ BSLS_IDENT_RCSID(ball_loggermanagerconfiguration_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // --------------------------------
                     // class LoggerManagerConfiguration
                     // --------------------------------
@@ -91,10 +83,6 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
 {
 }
 
-LoggerManagerConfiguration::~LoggerManagerConfiguration()
-{
-}
-
 // MANIPULATORS
 LoggerManagerConfiguration&
 LoggerManagerConfiguration::operator=(const LoggerManagerConfiguration& rhs)
@@ -110,7 +98,7 @@ LoggerManagerConfiguration::operator=(const LoggerManagerConfiguration& rhs)
 }
 
 void LoggerManagerConfiguration::setDefaultValues(
-                                    const LoggerManagerDefaults& defaults)
+                                         const LoggerManagerDefaults& defaults)
 {
     d_defaults = defaults;
 }
@@ -124,7 +112,6 @@ int LoggerManagerConfiguration::setDefaultLoggerBufferSizeIfValid(int numBytes)
 {
     return d_defaults.setDefaultLoggerBufferSizeIfValid(numBytes);
 }
-
 
 int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(int passLevel)
 {
@@ -157,7 +144,7 @@ void LoggerManagerConfiguration::setCategoryNameFilterCallback(
 }
 
 void LoggerManagerConfiguration::setDefaultThresholdLevelsCallback(
-                        const DefaultThresholdLevelsCallback& thresholdsCb)
+                            const DefaultThresholdLevelsCallback& thresholdsCb)
 {
     d_defaultThresholdsCb = thresholdsCb;
 }
@@ -173,8 +160,7 @@ void LoggerManagerConfiguration::setTriggerMarkers(TriggerMarkers value)
 }
 
 // ACCESSORS
-const LoggerManagerDefaults&
-LoggerManagerConfiguration::defaults() const
+const LoggerManagerDefaults& LoggerManagerConfiguration::defaults() const
 {
     return d_defaults;
 }
@@ -326,7 +312,6 @@ bsl::ostream& ball::operator<<(
 }
 
 }  // close enterprise namespace
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

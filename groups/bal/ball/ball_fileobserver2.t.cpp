@@ -29,16 +29,14 @@
 #include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
 
-#include <bdlt_date.h>
-#include <bdlt_datetime.h>
-#include <bdlt_datetimeinterval.h>
-
-#include <bdlt_currenttime.h>
 #include <bslim_testutil.h>
 
 #include <bslstl_stringref.h>
@@ -145,7 +143,21 @@ void aSsErT(bool condition, const char *message, int line)
     }
 }
 
+void aSsErT2(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cerr << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
+    }
+}
+
 }  // close unnamed namespace
+
+#define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
@@ -169,30 +181,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                     ASSERT2 (for cerr reporting)
-// ----------------------------------------------------------------------------
-
-static void aSsErT2(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
-    }
-}
-
-#define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
-
-//-----------------------------------------------------------------------------
-
 //=============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0;
+static bool verbose = 0;
+static bool veryVerbose = 0;
+static bool veryVeryVerbose = 0;
+static bool veryVeryVeryVerbose = 0;
 
 typedef ball::FileObserver2  Obj;
 typedef bdls::FilesystemUtil FileUtil;
@@ -489,6 +484,9 @@ class ReentrantRotationCallback {
 void ReentrantRotationCallback::operator()(int                status,
                                            const bsl::string& rotatedFileName)
 {
+    (void)status;           // Suppress compiler warning.
+    (void)rotatedFileName;
+
     d_observer_p->disableFileLogging();
 }
 
@@ -608,6 +606,8 @@ int TestLocalTimeOffsetCallback::s_loadCount                = 0;
 bsls::TimeInterval TestLocalTimeOffsetCallback::loadLocalTimeOffset(
                                             const bdlt::Datetime&  utcDatetime)
 {
+    (void)utcDatetime;  // Supress compiler warning.
+
     ++s_loadCount;
     return bsls::TimeInterval(s_localTimeOffsetInSeconds);
 }
@@ -2727,7 +2727,7 @@ int main(int argc, char *argv[])
                     ASSERT(1024 < getFileSize(globbuf.gl_pathv[i + 2]));
                 }
 
-                int oldNumFiles = globbuf.gl_pathc;
+                int oldNumFiles = (int)globbuf.gl_pathc;
                 globfree(&globbuf);
 
                 ASSERT(1 == X.rotationSize());

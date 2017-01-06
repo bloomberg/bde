@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //    void *workerThread(void *arg)
 //    {
 //        int id = (int)arg; // thread id
-//        for(int i = 0; i < NUM_ITERATIONS; ++i){
+//        for (int i = 0; i < NUM_ITERATIONS; ++i) {
 //            ball::Record *record =
 //                          new (*basicAllocator) ball::Record(basicAllocator);
 //
@@ -173,8 +173,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                           // ===========================
                           // class FixedSizeRecordBuffer
                           // ===========================
@@ -206,15 +206,13 @@ class FixedSizeRecordBuffer: public RecordBuffer {
                                                  // current sum of sizes of
                                                  // contained records
 
-    // Implementation note:  The order of the following data members is
+    // Implementation note: The order of the following data members is
     // required to ensure proper initialization order.
 
     CountingAllocator             d_allocator;   // allocator for 'd_deque'
 
     bsl::deque<bsl::shared_ptr<Record> >
                                   d_deque;       // deque of record handles
-
-
 
     // NOT IMPLEMENTED
     FixedSizeRecordBuffer(const FixedSizeRecordBuffer&);
@@ -360,8 +358,8 @@ int FixedSizeRecordBuffer::length() const
     bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
     return static_cast<int>(d_deque.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

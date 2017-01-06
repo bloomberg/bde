@@ -75,6 +75,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldvalue.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -227,8 +231,7 @@ bool operator!=(const UserFields& lhs, const UserFields& rhs);
     // any element in 'lhs' has a different value from the corresponding
     // element at the same index in 'rhs'.
 
-bsl::ostream& operator<<(bsl::ostream&     stream,
-                         const UserFields& object);
+bsl::ostream& operator<<(bsl::ostream& stream, const UserFields& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -388,8 +391,7 @@ bool ball::operator!=(const UserFields& lhs, const UserFields& rhs)
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&     stream,
-                               const UserFields& object)
+bsl::ostream& ball::operator<<(bsl::ostream& stream, const UserFields& object)
 {
     return object.print(stream, 0, -1);
 }

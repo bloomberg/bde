@@ -15,7 +15,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a suite of useful logger manager functor payloads.
 //
 //@CLASSES
@@ -25,18 +24,18 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a suite of pure procedures, each of
 // which may be used as the function body "payload" of one of the various
-// 'bdef' functors used as callbacks in the 'ball_loggermanager' component.
-// Each function provides a specific customization or convenience enhancement
-// to the basic logger functionality.
+// 'bsl::function' functors used as callbacks in the 'ball_loggermanager'
+// component.  Each function provides a specific customization or convenience
+// enhancement to the basic logger functionality.
 //
-// Functions in this component have at most nine parameters and match one of
-// the four signatures:
+// Functions in this component have at most six parameters and match one of
+// the three signatures:
 //..
 //    (ball::UserFields *)
 //    (ball::Transmission::Cause)
-//    (int *, int *, int *, int *, const char *)
+//    (int *, int *, int *, int *, const char *, char)
 //..
-// These signatures match the five 'typedef' definitions used in the
+// These signatures match the 'typedef' definitions used in the
 // 'ball_loggermanager' component, as shown below.  Note that
 // 'ball::LoggerManager::PublishAllCallback' is just an alias for
 // 'ball::Logger::PublishAllCallback', which is itself an alias for a
@@ -261,16 +260,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // ============================
                     // struct LoggerFunctorPayloads
                     // ============================
 
 struct LoggerFunctorPayloads {
     // This 'struct' provides a namespace for a suite of utility functions,
-    // each of which may be used as function body for an appropriate 'bdef'
-    // callback functor within 'ball_loggermanager'.
+    // each of which may be used as function body for an appropriate
+    // 'bsl::function' callback functor within 'ball_loggermanager'.
 
     // CLASS METHODS
     static
@@ -289,8 +288,8 @@ struct LoggerFunctorPayloads {
         // to define hierarchical category names.  The behavior is undefined
         // unless the 'LoggerManager' singleton has been initialized.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

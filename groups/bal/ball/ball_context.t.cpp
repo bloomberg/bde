@@ -7,29 +7,28 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <ball_context.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
 #include <bsls_platform.h>                      // for testing only
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bsl_climits.h>      // INT_MAX
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
-
-#include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
+#include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_string.h>
 #include <bsl_strstream.h>
 #include <bsl_vector.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>     // getpid()
+#include <unistd.h>           // getpid()
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -39,7 +38,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -99,23 +98,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -145,9 +144,9 @@ const ball::Transmission::Cause CAUSE[] = {
 const int INDEX[]  = { 0, 1, 8, 98,  99, 9998, INT_MAX-1 };
 const int LENGTH[] = { 1, 2, 9, 99, 100, 9999, INT_MAX };
 
-const int NUM_CAUSE  = sizeof CAUSE / sizeof *CAUSE;
-const int NUM_INDEX  = sizeof INDEX / sizeof *INDEX;
-const int NUM_LENGTH = sizeof LENGTH / sizeof *LENGTH;
+enum { NUM_CAUSE  = sizeof CAUSE / sizeof *CAUSE };
+enum { NUM_INDEX  = sizeof INDEX / sizeof *INDEX };
+enum { NUM_LENGTH = sizeof LENGTH / sizeof *LENGTH };
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -158,7 +157,7 @@ const int NUM_LENGTH = sizeof LENGTH / sizeof *LENGTH;
 class my_Logger {
 
     bsl::vector<bsl::string> archive;  // log message archive
-    ostream& d_os;
+    ostream&                 d_os;
 
     // NOT IMPLEMENTED
     my_Logger(const my_Logger&);
@@ -237,51 +236,59 @@ void my_Logger::logMessage(const bsl::string& message, Severity severity)
 }
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    const int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose             = argc > 2;
+    const bool veryVerbose         = argc > 3;
+    const bool veryVeryVerbose     = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Example" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&ta);
 
         char buf[1024];  memset(buf, 0xff, sizeof buf);  // Scribble on buffer
+
         bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-        bsl::ostream out(&obuf);
+        bsl::ostream                out(&obuf);
 
         my_Logger   logger(out);
         bsl::string message;
@@ -309,30 +316,37 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Constraints Test" << endl
                                   << "================" << endl;
 
-        ASSERT(NUM_INDEX == NUM_LENGTH);
+        ASSERT((int)NUM_INDEX == (int)NUM_LENGTH);
 
         if (veryVerbose) cout << "\n\tPASSTHROUGH." << endl;
+
         if (veryVerbose) cout << "\t\tValid attributes." << endl;
         {
             ASSERT(1 == Obj::isValid(CAUSE[0], INDEX[0], LENGTH[0]));
 
             Obj mX(CAUSE[0], INDEX[0], LENGTH[0]);  const Obj& X = mX;
-            if (veryVeryVerbose) { T_; T_; P(X); }
+
+            if (veryVeryVerbose) { T_ T_ P(X); }
+
             ASSERT( CAUSE[0] == X.transmissionCause());
             ASSERT( INDEX[0] == X.recordIndex());
             ASSERT(LENGTH[0] == X.sequenceLength());
 
             Obj mY;  const Obj& Y = mY;
             mY.setAttributesRaw(CAUSE[1], INDEX[1], LENGTH[1]);
+
             ASSERT( CAUSE[0] != Y.transmissionCause());
             ASSERT( INDEX[0] != Y.recordIndex());
             ASSERT(LENGTH[0] != Y.sequenceLength());
             ASSERT(0 == mY.setAttributes(CAUSE[0], INDEX[0], LENGTH[0]));
-            if (veryVeryVerbose) { T_; T_; P(Y); }
+
+            if (veryVeryVerbose) { T_ T_ P(Y); }
+
             ASSERT( CAUSE[0] == Y.transmissionCause());
             ASSERT( INDEX[0] == Y.recordIndex());
             ASSERT(LENGTH[0] == Y.sequenceLength());
         }
+
         if (veryVerbose) cout << "\t\tInvalid attributes." << endl;
         {
             const ball::Transmission::Cause C = CAUSE[0];
@@ -342,11 +356,14 @@ int main(int argc, char *argv[])
                     const int I = INDEX[tind];
                     // Lone valid combination.
                     if (0 == tlen && 0 == tind) continue;
-                    if (veryVeryVerbose) { T_; T_; P_(C); P_(I); P(L); }
+
+                    if (veryVeryVerbose) { T_ T_ P_(C) P_(I) P(L); }
+
                     ASSERT(0 == Obj::isValid(C, I, L));
 
                     Obj mX;  const Obj& X = mX;
                     mX.setAttributesRaw(CAUSE[1], INDEX[1], LENGTH[1]);
+
                     ASSERT( CAUSE[1] == X.transmissionCause());
                     ASSERT( INDEX[1] == X.recordIndex());
                     ASSERT(LENGTH[1] == X.sequenceLength());
@@ -368,24 +385,28 @@ int main(int argc, char *argv[])
                     const int L = LENGTH[tlen];
                     for (int tind = 0; tind <= tlen; ++tind) {
                         const int I = INDEX[tind];
-                        if (veryVeryVerbose) {
-                            T_; T_; P_(C); P_(I); P(L);
-                        }
+
+                        if (veryVeryVerbose) { T_ T_ P_(C) P_(I) P(L); }
+
                         ASSERT(1 == Obj::isValid(C, I, L));
 
                         Obj mX(C, I, L);  const Obj& X = mX;
-                        if (veryVeryVerbose) { T_; T_; P(X); }
+                        if (veryVeryVerbose) { T_ T_ P(X); }
+
                         ASSERT(C == X.transmissionCause());
                         ASSERT(I == X.recordIndex());
                         ASSERT(L == X.sequenceLength());
 
                         Obj mY;  const Obj& Y = mY;
                         mY.setAttributesRaw(CAUSE[0], INDEX[0], LENGTH[0]);
+
                         ASSERT( CAUSE[0] == Y.transmissionCause());
                         ASSERT( INDEX[0] == Y.recordIndex());
                         ASSERT(LENGTH[0] == Y.sequenceLength());
                         ASSERT(0 == mY.setAttributes(C, I, L));
-                        if (veryVeryVerbose) { T_; T_; P(Y); }
+
+                        if (veryVeryVerbose) { T_ T_ P(Y); }
+
                         ASSERT(C == Y.transmissionCause());
                         ASSERT(I == Y.recordIndex());
                         ASSERT(L == Y.sequenceLength());
@@ -393,6 +414,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
         if (veryVerbose) cout << "\t\tInvalid attributes." << endl;
         {
             for (int tc = 1; tc < NUM_CAUSE; ++tc) {  // skip PASSTHROUGH
@@ -401,13 +423,14 @@ int main(int argc, char *argv[])
                     const int L = LENGTH[tlen];
                     for (int tind = tlen + 1; tind < NUM_INDEX; ++tind) {
                         const int I = INDEX[tind];
-                        if (veryVeryVerbose) {
-                            T_; T_; P_(C); P_(I); P(L);
-                        }
+
+                        if (veryVeryVerbose) { T_ T_ P_(C) P_(I) P(L); }
+
                         ASSERT(0 == Obj::isValid(C, I, L));
 
                         Obj mY;  const Obj& Y = mY;
                         mY.setAttributesRaw(CAUSE[0], INDEX[0], LENGTH[0]);
+
                         ASSERT( CAUSE[0] == Y.transmissionCause());
                         ASSERT( INDEX[0] == Y.recordIndex());
                         ASSERT(LENGTH[0] == Y.sequenceLength());
@@ -445,8 +468,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Basic Attribute Test" << endl
                                   << "====================" << endl;
 
-        Obj mX1, mY1; const Obj& X1 = mX1; const Obj& Y1 = mY1;
-        Obj mZ1; const Obj& Z1 = mZ1; // Z1 is the control
+        Obj mX1;  const Obj& X1 = mX1;
+        Obj mY1;  const Obj& Y1 = mY1;
+        Obj mZ1;  const Obj& Z1 = mZ1; // Z1 is the control
+
         if (veryVeryVerbose) { P(X1); }
 
         if (veryVerbose) cout << "\n Check default ctor. " << endl;
@@ -581,8 +606,10 @@ int main(int argc, char *argv[])
         char buf[1024];
         {
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream o(&obuf);
+            bsl::ostream                o(&obuf);
+
             o << X1 << ends;
+
             if (veryVeryVerbose) cout << "X1 buf:\n" << buf << endl;
             bsl::string s = "[ PASSTHROUGH 0 1 ]";
             if (veryVeryVerbose) cout << "Expected:\n" << s << endl;
@@ -590,8 +617,10 @@ int main(int argc, char *argv[])
         }
         {
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream o(&obuf);
+            bsl::ostream                o(&obuf);
+
             o << Y1 << ends;
+
             if (veryVeryVerbose) cout << "Y1 buf:\n" << buf << endl;
             bsl::string s = "[ TRIGGER 8 9 ]";
             if (veryVeryVerbose) cout << "Expected:\n" << s << endl;
@@ -663,7 +692,7 @@ int main(int argc, char *argv[])
                                                 "   ]"              NL       },
             };
 #undef NL
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             const int SIZE = 128;  // Must be big enough to hold output string.
             const char Z1  = (char) 0xFF;  // Value 1 used for an unset char.
@@ -678,7 +707,6 @@ int main(int argc, char *argv[])
             mX.setAttributesRaw(CAUSE[0], INDEX[0], LENGTH[0]);
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
-//                const int         LINE = DATA[ti].d_lineNum; // unused
                 const int         IND  = DATA[ti].d_indent;
                 const int         SPL  = DATA[ti].d_spaces;
                 const char *const FMT  = DATA[ti].d_fmt_p;
@@ -688,23 +716,31 @@ int main(int argc, char *argv[])
                 memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
 
                 if (veryVerbose) cout << "EXPECTED FORMAT:" << endl<<FMT<<endl;
+
                 bdlsb::FixedMemOutStreamBuf obuf1(buf1, SIZE);
-                bsl::ostream out1(&obuf1);
+                bsl::ostream                out1(&obuf1);
+
                 X.print(out1, IND, SPL) << ends;
+
                 bdlsb::FixedMemOutStreamBuf obuf2(buf2, SIZE);
-                bsl::ostream out2(&obuf2);
+                bsl::ostream                out2(&obuf2);
+
                 X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) cout << "ACTUAL FORMAT:" << endl<<buf1<<endl;
+
+                if (veryVerbose) {
+                    cout << "ACTUAL FORMAT:" << endl << buf1 << endl;
+                }
 
                 const int SZ = strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
-                LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(buf1, FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(buf2, FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
-                LOOP_ASSERT(ti, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+
+                ASSERTV(ti, SZ < SIZE);  // Check buffer is large enough.
+                ASSERTV(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
+                ASSERTV(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
+                ASSERTV(ti, 0 == strcmp(buf1, FMT));
+                ASSERTV(ti, 0 == strcmp(buf2, FMT));
+                ASSERTV(ti, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                ASSERTV(ti, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
             }
         }
       } break;
@@ -713,6 +749,16 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    ASSERTV(defaultAllocator.numBlocksTotal(),
+            0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

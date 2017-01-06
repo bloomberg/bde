@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //         ball::AttributeContext: thread-local list of attribute containers
 //  ball::AttributeContextProctor: proctor for deleting and attribute context
 //
-//@SEE_ALSO: ball_attributeset
+//@SEE_ALSO: ball_attributecontainer
 //
 //@DESCRIPTION: This component provides a mechanism, 'ball::AttributeContext'
 // to store attributes in thread local storage, and to evaluate rules
@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 ///Active Rules
 ///------------
 // The 'hasRelevantActiveRules()' method, returns 'true' if there is at least
-// on relevant and active rule (in the global set of rules) that might modify
+// one relevant and active rule (in the global set of rules) that might modify
 // the logging thresholds of the supplied 'category'.  A rule is "relevant" if
 // the rule's pattern matches the category's name, and a rule is "active" if
 // all the predicates defined for that rule are satisfied by the current
@@ -252,7 +252,7 @@ BSLS_IDENT("$Id: $")
 // Finally, we add an attribute to the current thread's attribute context (as
 // we did in the first example, "Managing Attributes").  Note that we keep an
 // iterator referring to the added attributes so that we can remove them before
-// 'attributest' goes out of scope and is destroyed.  Also note that the class
+// 'attributes' goes out of scope and is destroyed.  Also note that the class
 // 'AttributeSet' is defined in the component documentation for
 // 'ball_attributecontainer'.
 //..
@@ -269,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //  assert(true == context->hasRelevantActiveRules(cat1));
 //..
 // Now when we call 'determineThresholdLevels()', it will again return the
-// maximum threshold level from 'cat1' an 'myRule'.
+// maximum threshold level from 'cat1' and 'myRule'.
 //..
 //  context->determineThresholdLevels(&thresholdLevels, cat1);
 //  assert(128 == thresholdLevels.recordLevel());
@@ -297,12 +297,12 @@ BSLS_IDENT("$Id: $")
 #include <ball_ruleset.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -315,9 +315,9 @@ namespace ball {
 class Category;
 class CategoryManager;
 
-             // ===============================================
+             // ==========================================
              // class AttributeContext_RuleEvaluationCache
-             // ===============================================
+             // ==========================================
 
 class AttributeContext_RuleEvaluationCache {
     // This is an implementation type of 'AttributeContext' and should not be
@@ -339,6 +339,7 @@ class AttributeContext_RuleEvaluationCache {
     // order to ensure the relevant rules have been evaluated and that those
     // evaluations are up-to-date.
 
+    // DATA
     RuleSet::MaskType d_evalMask;       // set of bits, each of which
                                         // indicates whether the corresponding
                                         // rule has been evaluated and cached
@@ -357,11 +358,11 @@ class AttributeContext_RuleEvaluationCache {
 
     // NOT IMPLEMENTED
     AttributeContext_RuleEvaluationCache(
-                             const AttributeContext_RuleEvaluationCache&);
+                                  const AttributeContext_RuleEvaluationCache&);
     AttributeContext_RuleEvaluationCache& operator=(
-                             const AttributeContext_RuleEvaluationCache&);
-  public:
+                                  const AttributeContext_RuleEvaluationCache&);
 
+  public:
     // CREATORS
     AttributeContext_RuleEvaluationCache();
         // Create an empty rule evaluation cache.
@@ -483,7 +484,6 @@ class AttributeContext {
     // practice, 'initialize()' is called by the singleton 'LoggerManager'
     // object when the logger manager is initialized.
 
-
     // PRIVATE TYPES
     typedef AttributeContext_RuleEvaluationCache RuleEvaluationCache;
 
@@ -511,8 +511,8 @@ class AttributeContext {
     friend class AttributeContextProctor;
 
     // NOT IMPLEMENTED
-    AttributeContext(const AttributeContext& );
-    AttributeContext& operator=(const AttributeContext& );
+    AttributeContext(const AttributeContext&);
+    AttributeContext& operator=(const AttributeContext&);
 
     // PRIVATE CLASS METHODS
     static const bslmt::ThreadUtil::Key& contextKey();
@@ -542,7 +542,6 @@ class AttributeContext {
         // Destroy this object.
 
   public:
-
     // PUBLIC TYPES
     typedef AttributeContainerList::iterator iterator;
 
@@ -673,6 +672,7 @@ class AttributeContextProctor {
     // NOT IMPLEMENTED
     AttributeContextProctor(const AttributeContextProctor&);
     AttributeContextProctor& operator=(const AttributeContextProctor&);
+
   public:
     // CREATORS
     explicit AttributeContextProctor();
@@ -693,8 +693,7 @@ class AttributeContextProctor {
 
 // CREATORS
 inline
-AttributeContext_RuleEvaluationCache::
-AttributeContext_RuleEvaluationCache()
+AttributeContext_RuleEvaluationCache::AttributeContext_RuleEvaluationCache()
 : d_evalMask(0)
 , d_resultMask(0)
 , d_sequenceNumber(-1)
@@ -713,8 +712,8 @@ void AttributeContext_RuleEvaluationCache::clear()
 // ACCESSORS
 inline
 bool AttributeContext_RuleEvaluationCache::isDataAvailable(
-                                    int               sequenceNumber,
-                                    RuleSet::MaskType relevantRulesMask) const
+                                     int               sequenceNumber,
+                                     RuleSet::MaskType relevantRulesMask) const
 {
     return sequenceNumber    == d_sequenceNumber
         && relevantRulesMask == (relevantRulesMask & d_evalMask);
@@ -786,7 +785,6 @@ bsl::ostream& ball::operator<<(
 {
     return cache.print(stream, 0, -1);
 }
-
 
 inline
 bsl::ostream& ball::operator<<(bsl::ostream&           stream,

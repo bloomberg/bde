@@ -1,12 +1,4 @@
 // ball_severity.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_severity.h>
 
 #include <bsls_ident.h>
@@ -17,10 +9,13 @@ BSLS_IDENT_RCSID(ball_severity_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
-// PRIVATE CLASS METHODS
 
+                        // --------------
+                        // class Severity
+                        // --------------
+
+// PRIVATE CLASS METHODS
 void Severity::print(bsl::ostream& stream, Severity::Level value)
 {
     stream << Severity::toAscii(value);
@@ -31,7 +26,7 @@ int Severity::fromAscii(Severity::Level *level,
                         const char      *string,
                         int              stringLength)
 {
-    switch(stringLength) {
+    switch (stringLength) {
       case 3: {
         if ('o' == (string[0] | 0x20)
          && 'f' == (string[1] | 0x20)
@@ -41,7 +36,7 @@ int Severity::fromAscii(Severity::Level *level,
         }
       } break;
       case 4: {
-        switch(bdlb::CharType::toUpper(string[0])) {
+        switch (bdlb::CharType::toUpper(string[0])) {
           case 'I': {
             if ('n' == (string[1] | 0x20)
              && 'f' == (string[2] | 0x20)
@@ -61,7 +56,7 @@ int Severity::fromAscii(Severity::Level *level,
         }
       } break;
       case 5: {
-            switch(bdlb::CharType::toUpper(string[0])) {
+            switch (bdlb::CharType::toUpper(string[0])) {
               case 'D': {
                 if ('e' == (string[1] | 0x20)
                  && 'b' == (string[2] | 0x20)
@@ -107,7 +102,7 @@ int Severity::fromAscii(Severity::Level *level,
 
 const char *Severity::toAscii(Severity::Level value)
 {
-    switch(value) {
+    switch (value) {
       case   0: return "OFF";
       case  32: return "FATAL";
       case  64: return "ERROR";
@@ -120,7 +115,6 @@ const char *Severity::toAscii(Severity::Level value)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

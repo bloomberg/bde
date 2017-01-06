@@ -155,16 +155,18 @@ class Record {
     // ACCESSORS
     const RecordAttributes& fixedFields() const { return d_fields; }
 };
+
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream& stream, const Record& rhs);
+
 }  // close package namespace
 
 // FREE OPERATORS
-namespace ball {
-bsl::ostream& operator<<(bsl::ostream& stream, const Record& rhs)
+bsl::ostream& ball::operator<<(bsl::ostream& stream, const Record& rhs)
 {
     stream << rhs.fixedFields().severity();
     return stream;
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
@@ -223,20 +225,20 @@ void my_DummyDeleter::deleteObject(ball::Record *)
         // This class provides a thread-safe implementation of the
         // 'ball::RecordBuffer' protocol.  This implementation employs a
         // vector to hold an unlimited number of record handles.
-//
+
         mutable bslmt::RecursiveMutex d_mutex; // thread safety provider (see
                                 // the implementation notes for the
                                 // justification for using recursive mutex
                                 // rather a plain mutex)
-//
+
         bsl::vector<bsl::shared_ptr<ball::Record> >
                            d_buffer; // buffer of record handles
-//
+
       private:
         // NOT IMPLEMENTED
         my_RecordBuffer(const my_RecordBuffer&);
         my_RecordBuffer& operator=(const my_RecordBuffer&);
-//
+
       public:
         // CREATORS
         my_RecordBuffer();
@@ -247,9 +249,8 @@ void my_DummyDeleter::deleteObject(ball::Record *)
         virtual void endSequence();
         virtual void popBack();
         virtual void popFront();
-        virtual int pushBack(const bsl::shared_ptr<ball::Record>& handle);
-        virtual int pushFront(
-                     const bsl::shared_ptr<ball::Record>& handle);
+        virtual int  pushBack(const bsl::shared_ptr<ball::Record>& handle);
+        virtual int  pushFront(const bsl::shared_ptr<ball::Record>& handle);
         virtual void removeAll();
 
         // ACCESSORS
@@ -390,7 +391,6 @@ void my_DummyDeleter::deleteObject(ball::Record *)
             }
             buffer.endSequence();   // unlock the buffer after traversing
         }
-//
     }
 //..
 

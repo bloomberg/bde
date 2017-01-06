@@ -45,10 +45,10 @@ BSLS_IDENT("$Id: $")
 // will be passed to the observer:
 //..
 //  ball::Rule rule("WEEKEND*",             // pattern
-//                 ball::Severity::OFF,     // record level
-//                 ball::Severity::INFO,    // pass-through level
-//                 ball::Severity::OFF,     // trigger level
-//                 ball::Severity::OFF);    // triggerAll level
+//                  ball::Severity::OFF,    // record level
+//                  ball::Severity::INFO,   // pass-through level
+//                  ball::Severity::OFF,    // trigger level
+//                  ball::Severity::OFF);   // triggerAll level
 //..
 // Create some predicates and then add one to the rule:
 //..
@@ -132,14 +132,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class AttributeContainerList;
 
-                       // ==========
-                       // class Rule
-                       // ==========
+                        // ==========
+                        // class Rule
+                        // ==========
 
 class Rule {
     // This class defines a value-semantic object that holds a pattern, four
@@ -170,7 +169,7 @@ class Rule {
     PredicateSet       d_predicateSet;  // set of predicates
 
     mutable int        d_hashValue;     // the cached hash value; < 0 means
-                                         // it's invalid
+                                        // it's invalid
 
     mutable int        d_hashSize;      // the number of slots from which
                                         // 'd_hashValue' was calculated
@@ -185,7 +184,7 @@ class Rule {
     static int hash(const Rule& rule, int size);
         // Return a hash value calculated from the specified 'rule' using the
         // specified 'size' as the number of slots.  The value returned is
-        // guaranteed to be in the range [0 .. size - 1].
+        // guaranteed to be in the range '[0 .. size - 1]'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Rule, bslma::UsesBslmaAllocator);
@@ -199,12 +198,12 @@ class Rule {
         // 'Rule' object does not have any predicates.
 
     // CREATORS
-    Rule(const bslstl::StringRef& pattern,
-         int                      recordLevel,
-         int                      passLevel,
-         int                      triggerLevel,
-         int                      triggerAllLevel,
-         bslma::Allocator        *basicAllocator = 0);
+    Rule(const bslstl::StringRef&  pattern,
+         int                       recordLevel,
+         int                       passLevel,
+         int                       triggerLevel,
+         int                       triggerAllLevel,
+         bslma::Allocator         *basicAllocator = 0);
         // Create a 'Rule' object whose pattern is the specified 'pattern' and
         // whose thresholds levels are the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' respectively.
@@ -214,14 +213,13 @@ class Rule {
         // threshold level values is not in the range [0 .. 255].  Note that a
         // newly created 'Rule' object does not have any predicates.
 
-    Rule(const Rule&       original,
-         bslma::Allocator *basicAllocator = 0);
+    Rule(const Rule& original, bslma::Allocator *basicAllocator = 0);
         // Create a 'Rule' object that has the same value as that of the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
-    ~Rule();
+    //! ~Rule() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -309,7 +307,6 @@ class Rule {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS
@@ -333,9 +330,9 @@ bsl::ostream& operator<<(bsl::ostream& output, const Rule& rule);
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                       // ----------
-                       // class Rule
-                       // ----------
+                        // ----------
+                        // class Rule
+                        // ----------
 
 // CREATORS
 inline
@@ -364,18 +361,12 @@ Rule::Rule(const bslstl::StringRef&  pattern,
 }
 
 inline
-Rule::Rule(const Rule&       original,
-           bslma::Allocator *basicAllocator)
+Rule::Rule(const Rule& original, bslma::Allocator *basicAllocator)
 : d_pattern(original.d_pattern, basicAllocator)
 , d_thresholds(original.d_thresholds)
-, d_predicateSet(original.d_predicateSet)
+, d_predicateSet(original.d_predicateSet, basicAllocator)
 , d_hashValue(original.d_hashValue)
 , d_hashSize(0)
-{
-}
-
-inline
-Rule::~Rule()
 {
 }
 

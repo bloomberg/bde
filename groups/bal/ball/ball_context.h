@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 //        my_Logger& operator=(const my_Logger&);
 //
 //        // PRIVATE MANIPULATORS
-//        void publish(const bsl::string&  message,
+//        void publish(const bsl::string&   message,
 //                     const ball::Context& context);
 //
 //      public:
@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 //    // my_Logger.cpp
 //
 //    // PRIVATE MANIPULATORS
-//    void my_Logger::publish(const bsl::string&  message,
+//    void my_Logger::publish(const bsl::string&   message,
 //                            const ball::Context& context)
 //    {
 //        using namespace std;
@@ -159,16 +159,14 @@ BSLS_IDENT("$Id: $")
 //            // Do nothing beyond archiving the message.
 //          } break;
 //          case WARN: {
-//            ball::Context context(ball::Transmission::e_PASSTHROUGH,
-//                                  0,
-//                                  1);
+//            ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 //            publish(message, context);
 //          } break;
 //          case ERROR: {
 //            int index  = 0;
 //            int length = archive.length();
 //            ball::Context context(ball::Transmission::e_TRIGGER,
-//                                 index, length);
+//                                  index, length);
 //            while (length--) {
 //                publish(archive[length], context);
 //                context.setRecordIndexRaw(++index);
@@ -215,16 +213,16 @@ BSLS_IDENT("$Id: $")
 #include <ball_transmission.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -237,8 +235,8 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // =============
                         // class Context
                         // =============
@@ -292,13 +290,12 @@ class Context {
         // documentation above for a complete specification of the constraints
         // on attribute values.)
 
-
     // CREATORS
     Context(bslma::Allocator *basicAllocator = 0);
         // Create a context object with all attributes having default values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // used.  Note that 'basicAllocator' is currently ignored.
 
     Context(Transmission::Cause  transmissionCause,
             int                  recordIndex,
@@ -308,15 +305,16 @@ class Context {
         // 'transmissionCause', 'recordIndex', and 'sequenceLength' values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if the resulting attribute values
-        // are incompatible.
+        // used.  The behavior is undefined unless the resulting attribute
+        // values are compatible.  Note that 'basicAllocator' is currently
+        // ignored.
 
-    Context(const Context&    original,
-            bslma::Allocator *basicAllocator = 0);
+    Context(const Context& original, bslma::Allocator *basicAllocator = 0);
         // Create a context object having the value of the specified 'original'
         // context object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // default allocator is used.  Note that 'basicAllocator' is currently
+        // ignored.
 
     // ~Context();
         // Destroy this context object.  Note that this trivial destructor is
@@ -372,7 +370,6 @@ class Context {
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
-
 };
 
 // FREE OPERATORS
@@ -402,34 +399,30 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Context& rhs);
 
 // CREATORS
 inline
-Context::Context(bslma::Allocator *basicAllocator)
+Context::Context(bslma::Allocator *)
 : d_transmissionCause(Transmission::e_PASSTHROUGH)
 , d_recordIndex(0)
 , d_sequenceLength(1)
 {
-    (void) basicAllocator;
 }
 
 inline
 Context::Context(Transmission::Cause  transmissionCause,
                  int                  recordIndex,
                  int                  sequenceLength,
-                 bslma::Allocator    *basicAllocator)
+                 bslma::Allocator    *)
 : d_transmissionCause(transmissionCause)
 , d_recordIndex(recordIndex)
 , d_sequenceLength(sequenceLength)
 {
-    (void) basicAllocator;
 }
 
 inline
-Context::Context(const Context&    original,
-                 bslma::Allocator *basicAllocator)
+Context::Context(const Context& original, bslma::Allocator *)
 : d_transmissionCause(original.d_transmissionCause)
 , d_recordIndex(original.d_recordIndex)
 , d_sequenceLength(original.d_sequenceLength)
 {
-    (void) basicAllocator;
 }
 
 // MANIPULATORS

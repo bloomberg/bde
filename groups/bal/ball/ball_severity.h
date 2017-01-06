@@ -107,11 +107,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-
-
 namespace BloombergLP {
-
 namespace ball {
+
                         // ===============
                         // struct Severity
                         // ===============
@@ -161,7 +159,6 @@ struct Severity {
                                    Severity::Level value);
         // Format the specified 'value' to the specified output 'stream' and
         // return a reference to the modifiable 'stream'.
-
 };
 
 // FREE OPERATORS
@@ -179,8 +176,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, Severity::Level rhs);
 
 // CLASS METHODS
 inline
-bsl::ostream& Severity::streamOut(bsl::ostream&   stream,
-                                  Severity::Level value)
+bsl::ostream& Severity::streamOut(bsl::ostream& stream, Severity::Level value)
 {
     print(stream, value);
     return stream;

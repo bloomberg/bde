@@ -88,8 +88,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // ===================
                         // struct SeverityUtil
                         // ===================
@@ -99,8 +99,7 @@ struct SeverityUtil {
     // 'Severity::Level' enumeration.
 
     // CLASS METHODS
-    static int fromAsciiCaseless(Severity::Level *level,
-                                 const char      *name);
+    static int fromAsciiCaseless(Severity::Level *level, const char *name);
         // Load into the specified 'level' the value of the 'Severity::Level'
         // enumerator corresponding to the specified 'name' (without regard to
         // the case of the characters in 'name').  Return 0 on success, and a
@@ -129,7 +128,6 @@ struct SeverityUtil {
 
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

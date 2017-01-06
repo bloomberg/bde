@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // ball::LoggerManagerConfiguration: configuration spec for a logger manager
 //
-//@SEE_ALSO: ball_loggermanagerdefaults,
+//@SEE_ALSO: ball_loggermanagerdefaults
 //
 //@DESCRIPTION:  This component provides a constrained-attribute class that
 // contains a set of attributes (objects and parameters) of particular use to
@@ -239,7 +239,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class UserFields;
@@ -256,7 +255,7 @@ class LoggerManagerConfiguration {
     // This class support *in-core* *value-semantic* operations, including
     // copy construction, assignment, and equality comparison; 'ostream'
     // printing is supported, but in a modified form to handle functors, and
-    // 'bdex' serialization cannot be supported at all.  (A precise operational
+    // BDEX serialization cannot be supported at all.  (A precise operational
     // definition of when two instances have the same (in-core) value can be
     // found in the description of 'operator==' for the class.)  This class is
     // *exception* *neutral* with no guarantee of rollback: If an exception is
@@ -388,13 +387,12 @@ class LoggerManagerConfiguration {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    ~LoggerManagerConfiguration();
-        // Destroy this logger manager configuration constrained-attribute
-        // object.
+    //! ~LoggerManagerConfiguration() = default;
+        // Destroy this object.
 
     // MANIPULATORS
-    LoggerManagerConfiguration&
-                         operator=(const LoggerManagerConfiguration& rhs);
+    LoggerManagerConfiguration& operator=(
+                                        const LoggerManagerConfiguration& rhs);
         // Assign to this logger manager configuration constrained-attribute
         // object the in-core value of the specified 'rhs' object.
 
@@ -549,10 +547,6 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     // Write a reasonable representation of the specified 'configuration'
     // object to the specified output 'stream', indicating whether the
     // contained functors are or are not "null".
-
-// ============================================================================
-//                              INLINE DEFINITIONS
-// ============================================================================
 
 }  // close package namespace
 }  // close enterprise namespace

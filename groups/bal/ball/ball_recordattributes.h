@@ -33,28 +33,28 @@ BSLS_IDENT("$Id: $")
 // table:
 //..
 //     Attribute        Type               Description               Default
-//     ----------   -------------   ------------------------------   -------
-//     timestamp    bdlt::Datetime   creation date and time           (*Note*)
-//     processID    int             process id of creator              0
-//     threadID     Uint64          thread id of creator               0
-//     fileName     string          file where created  (__FILE__)     ""
-//     lineNumber   int             line number in file (__LINE__)     0
-//     category     string          category of logged record          ""
-//     severity     int             severity of logged record          0
-//     message      string          log message text                   ""
+//     ----------   -------------   ------------------------------   --------
+//     timestamp    bdlt::Datetime  creation date and time           (*Note*)
+//     processID    int             process id of creator            0
+//     threadID     Uint64          thread id of creator             0
+//     fileName     string          file where created  (__FILE__)   ""
+//     lineNumber   int             line number in file (__LINE__)   0
+//     category     string          category of logged record        ""
+//     severity     int             severity of logged record        0
+//     message      string          log message text                 ""
 //..
 // *Note*: The default value given to the timestamp attribute is implementation
-// defined.  (See the 'bdet_datetime' component-level documentation for more
+// defined.  (See the 'bdlt_datetime' component-level documentation for more
 // information.)
 //
 // For each attribute, there is a method to access its value and a method to
 // change its value.  E.g., for the timestamp attribute, there is the
-// 'timestamp' accessor and the 'setTimestamp' manipulator.  The class
-// also provides the ability to stream an object (whose class must support
-// the 'operator<<') into the message attribute using 'messageStreamBuf'
-// method (see the usage example-2).  The default values listed in the
-// table above are the values given to the respective attributes by
-// the default constructor of 'ball::RecordAttributes'.
+// 'timestamp' accessor and the 'setTimestamp' manipulator.  The class also
+// provides the ability to stream an object (whose class must support the
+// 'operator<<') into the message attribute using 'messageStreamBuf' method
+// (see the usage example-2).  The default values listed in the table above are
+// the values given to the respective attributes by the default constructor of
+// 'ball::RecordAttributes'.
 //
 ///Usage
 ///-----
@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 // For the purposes of this illustration, we'll simply format and stream
 // selected attributes to a specified 'ostream' using the following function:
 //..
-//      void printMessage(ostream&                     stream,
+//      void printMessage(ostream&                      stream,
 //                        const ball::RecordAttributes& attributes)
 //      {
 //          using namespace std;
@@ -124,8 +124,8 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Streaming Data Into a Message Attribute
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Following example demonstrates how an object of a class supporting 'ostream'
-// operation ('operator<<') can be streamed into the message
-// attribute.  Suppose we want to stream objects of following class.
+// operation ('operator<<') can be streamed into the message attribute.
+// Suppose we want to stream objects of the following class.
 //..
 //    class Information
 //    {
@@ -139,10 +139,10 @@ BSLS_IDENT("$Id: $")
 //        const bsl::string& contents() const;
 //    };
 //..
-// The component containing the 'Information' must provide 'operator<<'.
-// Here is a possible implementation.
+// The component containing the 'Information' must provide 'operator<<'.  Here
+// is a possible implementation.
 //..
-//    bsl::ostream& operator<<(bsl::ostream& stream,
+//    bsl::ostream& operator<<(bsl::ostream&      stream,
 //                             const Information& information)
 //    {
 //        stream << information.heading() << endl;
@@ -155,8 +155,8 @@ BSLS_IDENT("$Id: $")
 // attribute of a 'ball::RecordAttributes' object.
 //..
 //    void streamInformationIntoMessageAttribute(
-//                                          ball::RecordAttributes& attributes,
-//                                          const Information&     information)
+//                                         ball::RecordAttributes& attributes,
+//                                         const Information&      information)
 //    {
 //        // First clear the message attributes.
 //        attributes.clearMessage();
@@ -164,7 +164,7 @@ BSLS_IDENT("$Id: $")
 //        // Create an 'ostream' from message stream buffer.
 //        bsl::ostream os(&attributes.messageStreamBuf());
 //
-//        // Now stream the information object into the created ostream,
+//        // Now stream the information object into the created ostream.
 //        // This will set the message attribute of 'attributes' to the
 //        // streamed contents.
 //        os << information;
@@ -187,12 +187,20 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -214,11 +222,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
-                        // ===========================
+
+                        // ======================
                         // class RecordAttributes
-                        // ===========================
+                        // ======================
 
 class RecordAttributes {
     // This class provides a container for a fixed set of attributes
@@ -242,7 +250,7 @@ class RecordAttributes {
     typedef bsls::Types::Uint64 Uint64;
 
     // DATA
-    bdlt::Datetime    d_timestamp;    // creation date and time
+    bdlt::Datetime   d_timestamp;    // creation date and time
     int              d_processID;    // process id of creator
     Uint64           d_threadID;     // thread id of creator
     bsl::string      d_fileName;     // name of file where created (__FILE__)
@@ -250,32 +258,33 @@ class RecordAttributes {
     bsl::string      d_category;     // category of log record
     int              d_severity;     // severity of log record
 
-    bdlsb::MemOutStreamBuf
-                     d_messageStreamBuf;
-                                     // stream buffer associated with the
-                                     // message attribute
+    bdlsb::MemOutStreamBuf d_messageStreamBuf;  // stream buffer associated
+                                                // with the message attribute
 
     // FRIENDS
-    friend bool operator==(const RecordAttributes&,
-                           const RecordAttributes&);
+    friend bool operator==(const RecordAttributes&, const RecordAttributes&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(RecordAttributes,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    RecordAttributes(bslma::Allocator *basicAllocator = 0);
+    explicit RecordAttributes(bslma::Allocator *basicAllocator = 0);
         // Create a record attributes object with all attributes having default
         // values.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     RecordAttributes(const bdlt::Datetime&  timestamp,
-                          int                   processID,
-                          bsls::Types::Uint64   threadID,
-                          const char           *fileName,
-                          int                   lineNumber,
-                          const char           *category,
-                          int                   severity,
-                          const char           *message,
-                          bslma::Allocator     *basicAllocator = 0);
+                     int                    processID,
+                     bsls::Types::Uint64    threadID,
+                     const char            *fileName,
+                     int                    lineNumber,
+                     const char            *category,
+                     int                    severity,
+                     const char            *message,
+                     bslma::Allocator      *basicAllocator = 0);
         // Create a record attributes object having the specified 'timestamp',
         // 'processID', 'threadID', 'fileName', 'lineNumber', 'category',
         // 'severity' and 'message' values, respectively.  Optionally specify a
@@ -284,13 +293,13 @@ class RecordAttributes {
         // undefined if any 'const char *' argument is null.
 
     RecordAttributes(const RecordAttributes&  original,
-                          bslma::Allocator             *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
         // Create a record attributes object having the value of the specified
         // 'original' record attributes object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    ~RecordAttributes();
+    //! ~RecordAttributes() = default;
         // Destroy this record attributes object.
 
     // MANIPULATORS
@@ -299,8 +308,8 @@ class RecordAttributes {
         // 'rhs' record attributes object.
 
     void clearMessage();
-        // Set the message attribute of this record attributes object to
-        // empty string.
+        // Set the message attribute of this record attributes object to empty
+        // string.
 
     bdlsb::MemOutStreamBuf& messageStreamBuf();
         // Return a reference to the modifiable stream buffer associated with
@@ -390,40 +399,31 @@ class RecordAttributes {
 };
 
 // FREE OPERATORS
-bool operator==(const RecordAttributes& lhs,
-                const RecordAttributes& rhs);
+bool operator==(const RecordAttributes& lhs, const RecordAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' record attributes objects
     // have the same value, and 'false' otherwise.  Two record attributes
     // objects have the same value if each respective pair of attributes have
     // the same value.
 
 inline
-bool operator!=(const RecordAttributes& lhs,
-               const RecordAttributes& rhs);
+bool operator!=(const RecordAttributes& lhs, const RecordAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' record attributes objects
     // do not have the same value, and 'false' otherwise.  Two record
     // attributes objects do not have the same value if one or more respective
     // attributes differ in value.
 
 inline
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const RecordAttributes& attributes);
-    // Format the members of the specified 'attributes' to the specified
-    // output 'stream' and return a reference to the modifiable 'stream'.
+bsl::ostream& operator<<(bsl::ostream& stream, const RecordAttributes& object);
+    // Format the members of the specified 'object' to the specified output
+    // 'stream' and return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
+                        // ----------------------
                         // class RecordAttributes
-                        // ---------------------------
-
-// CREATORS
-inline
-RecordAttributes::~RecordAttributes()
-{
-}
+                        // ----------------------
 
 // MANIPULATORS
 inline
@@ -533,17 +533,16 @@ const bdlt::Datetime& RecordAttributes::timestamp() const
 
 // FREE OPERATORS
 inline
-bool ball::operator!=(const RecordAttributes& lhs,
-                const RecordAttributes& rhs)
+bool ball::operator!=(const RecordAttributes& lhs, const RecordAttributes& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&                stream,
-                         const RecordAttributes& rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&           stream,
+                               const RecordAttributes& object)
 {
-    return rhs.print(stream, 0, -1);
+    return object.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace

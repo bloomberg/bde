@@ -18,11 +18,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a manager of named categories each having "thresholds".
 //
 //@CLASSES:
-//              ball::Category: container for name and threshold levels
-//        ball::CategoryHolder: holder of a category and its maximum level
-//       ball::CategoryManager: manager of category registry
-//
-// (*) Indicates that the class is deprecated.  See "Deprecation Notice" below.
+//  ball::CategoryManager: manager of category registry
 //
 //@SEE_ALSO: ball_loggermanager, ball_loggercategoryutil
 //
@@ -47,35 +43,11 @@ BSLS_IDENT("$Id: $")
 // direct access to the name and threshold levels of a given category, and a
 // single manipulator to set the four threshold levels levels.
 //
-// This component also provides an iterator ('ball::CategoryManagerIter')
-// and a manipulator ('ball::CategoryManagerManip') that give read-only and
-// modifiable access, respectively, to the categories in the registry
-// maintained by 'ball::CategoryManager'.
-//
-///Deprecation Notice
-///------------------
-// The classes 'ball::CategoryManagerIter' and 'ball::CategoryManagerManip'
-// are deprecated in favor of indexed access to categories via the member
-// operation 'ball::CategoryManager::operator[]()'.  Such iterator and
-// manipulator objects are uncooperative in a multi-threaded environment.  In
-// particular, the existence of either a 'ball::CategoryManagerIter' or a
-// 'ball::CategoryManagerManip' object requires that write access to the
-// associated category manager is blocked until the object is destroyed.
-// Otherwise, the object might become invalid if the category manager state
-// changes.  Indexed access to the category manager does not have this
-// constraint since each successful access returns an object reference that
-// is guaranteed to be valid for the lifetime of the category manager.
-//
 ///Thread Safety
 ///-------------
 // 'ball::Category' and 'ball::CategoryManager' are *thread-safe*, meaning
 // that any operation on the same instance can be safely invoked from any
 // thread concurrently with any other operation.
-//
-// 'ball::CategoryManagerIter' and 'ball::CategoryManagerManip' are const
-// thread-safe,  meaning that accessors may be invoked concurrently from
-// different threads, but it is not safe to access or modify an object in one
-// thread while another thread modifies the same object.
 //
 ///Usage
 ///-----
@@ -199,18 +171,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_thresholdaggregate.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
-#include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READERWRITERLOCK
-#include <bslmt_readerwriterlock.h>
-#endif
-
 #ifndef INCLUDED_BDLB_CSTRINGLESS
 #include <bdlb_cstringless.h>
 #endif
@@ -221,6 +181,18 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+#include <bslmt_readerwriterlock.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -240,7 +212,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
                         // =====================
@@ -255,29 +226,29 @@ class CategoryManager {
 
     // DATA
     bsl::map<const char *, int, bdlb::CStringLess>
-                                    d_registry;      // mapping names to
-                                                     // indices in
-                                                     // 'd_categories'
+                                     d_registry;      // mapping names to
+                                                      // indices in
+                                                      // 'd_categories'
 
-    volatile int                    d_ruleSequenceNum;
-                                                     // sequence number
-                                                     // indicating the number
-                                                     // of rule changes
+    volatile int                     d_ruleSequenceNum;
+                                                      // sequence number
+                                                      // indicating the number
+                                                      // of rule changes
 
-    RuleSet                    d_ruleSet;       // rule set that contains
-                                                     // all registered rules
+    RuleSet                          d_ruleSet;       // rule set that contains
+                                                      // all registered rules
 
     bslmt::Mutex                     d_ruleSetMutex;  // serialize access to
-                                                     // 'd_ruleset'
+                                                      // 'd_ruleset'
 
-    bsl::vector<Category *>    d_categories;    // providing random-access
-                                                     // to categories
+    bsl::vector<Category *>          d_categories;    // providing random
+                                                      // access to categories
 
     mutable bslmt::ReaderWriterLock  d_registryLock;  // ensuring MT-safety of
-                                                     // category map
+                                                      // category map
 
-    bslma::Allocator               *d_allocator_p;   // memory allocator (held,
-                                                     // not owned)
+    bslma::Allocator                *d_allocator_p;   // memory allocator
+                                                      // (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -286,12 +257,12 @@ class CategoryManager {
 
     // PRIVATE MANIPULATORS
     Category *addNewCategory(const char *categoryName,
-                                  int         recordLevel,
-                                  int         passLevel,
-                                  int         triggerLevel,
-                                  int         triggerAllLevel);
+                             int         recordLevel,
+                             int         passLevel,
+                             int         triggerLevel,
+                             int         triggerAllLevel);
         // Add to the registry of this category manager a category having the
-        // specified 'categoryName' and the specified 'recordLevel,
+        // specified 'categoryName' and the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
         // respectively.  Return the address of the newly-created, modifiable
         // category.  The behavior is undefined unless 'categoryName' is
@@ -302,7 +273,7 @@ class CategoryManager {
 
   public:
     // CREATORS
-    CategoryManager(bslma::Allocator *basicAllocator = 0);
+    explicit CategoryManager(bslma::Allocator *basicAllocator = 0);
         // Create a category manager.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
@@ -322,7 +293,7 @@ class CategoryManager {
                           int         triggerLevel,
                           int         triggerAllLevel);
         // Add to the registry of this category manager a category having the
-        // specified 'categoryName' and the specified 'recordLevel,
+        // specified 'categoryName' and the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
         // respectively, if there is no category having 'categoryName' and each
         // of the specified threshold values is in the range '[0 .. 255]'.
@@ -338,7 +309,7 @@ class CategoryManager {
                           int             triggerLevel,
                           int             triggerAllLevel);
         // Add to the registry of this category manager a category having the
-        // specified 'categoryName' and the specified 'recordLevel,
+        // specified 'categoryName' and the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
         // respectively, if there is no category having 'categoryName' and each
         // of the specified threshold values is in the range '[0 .. 255]'.
@@ -352,12 +323,12 @@ class CategoryManager {
 
     Category *lookupCategory(const char *categoryName);
         // Return the address of the modifiable category having the specified
-        // 'categoryName' in the registry of this category manager, or 0 if
-        // no such category exists.  The behavior is undefined unless
+        // 'categoryName' in the registry of this category manager, or 0 if no
+        // such category exists.  The behavior is undefined unless
         // 'categoryName' is null-terminated.
 
     Category *lookupCategory(CategoryHolder *categoryHolder,
-                                  const char          *categoryName);
+                             const char     *categoryName);
         // Return the address of the modifiable category having the specified
         // 'categoryName' in the registry of this category manager, or 0 if no
         // such category exists.  If a category is returned and the specified
@@ -368,15 +339,15 @@ class CategoryManager {
 
     void resetCategoryHolders();
         // Reset the category holders to which all categories in the registry
-        // of this category manager are linked to their default value.  See
-        // the function-level documentation of 'CategoryHolder::reset()'
-        // for further information on the default value of category holders.
+        // of this category manager are linked to their default value.  See the
+        // function-level documentation of 'CategoryHolder::reset()' for
+        // further information on the default value of category holders.
 
     Category *setThresholdLevels(const char *categoryName,
-                                      int         recordLevel,
-                                      int         passLevel,
-                                      int         triggerLevel,
-                                      int         triggerAllLevel);
+                                 int         recordLevel,
+                                 int         passLevel,
+                                 int         triggerLevel,
+                                 int         triggerAllLevel);
         // Set the threshold levels of the category having the specified
         // 'categoryName' in the registry of this category manager to the
         // specified 'recordLevel', 'passLevel', 'triggerLevel', and
@@ -384,7 +355,7 @@ class CategoryManager {
         // 'categoryName' exists and each of the specified threshold values is
         // in the range '[0 .. 255]'.  Otherwise, add to the registry a
         // category having the specified 'categoryName' and the specified
-        // 'recordLevel, 'passLevel', 'triggerLevel', and 'triggerAllLevel'
+        // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
         // threshold values, respectively, if there is no category having
         // 'categoryName' and each of the specified threshold values is in the
         // range '[0 .. 255]'.  Return the address of the (possibly
@@ -398,10 +369,10 @@ class CategoryManager {
         // and 0 if a rule with the same value is already present).
 
     int addRules(const RuleSet& ruleSet);
-        // Add each rule in the specified 'ruleSet' to the set of
-        // (unique) rules maintained by this object.  Return the number of
-        // rules added.  Note that each rule having the same value as an
-        // existing rule will be ignored.
+        // Add each rule in the specified 'ruleSet' to the set of (unique)
+        // rules maintained by this object.  Return the number of rules added.
+        // Note that each rule having the same value as an existing rule will
+        // be ignored.
 
     int removeRule(const Rule& rule);
         // Remove the specified 'rule' from the set of (unique) rules
@@ -410,20 +381,19 @@ class CategoryManager {
         // found).
 
     int removeRules(const RuleSet& ruleSet);
-        // Remove each rule in the specified 'ruleSet' from the set of
-        // rules maintained by this object.  Return the number of rules
-        // removed.
+        // Remove each rule in the specified 'ruleSet' from the set of rules
+        // maintained by this object.  Return the number of rules removed.
 
     void removeAllRules();
         // Remove every rule from the set of rules maintained by this object.
 
     bslmt::Mutex& rulesetMutex();
         // Return a reference to the modifiable mutex that is used to guard
-        // against concurrent accesses to the rule set.  A lock to the
-        // returned mutex should be acquired before accessing the properties
-        // of 'ruleSet()'.  The behavior is undefined if a lock is acquired
-        // and any of the rule methods on this object (other than 'ruleSet()')
-        // are called.
+        // against concurrent accesses to the rule set.  A lock to the returned
+        // mutex should be acquired before accessing the properties of
+        // 'ruleSet()'.  The behavior is undefined if a lock is acquired and
+        // any of the rule methods on this object (other than 'ruleSet()') are
+        // called.
 
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor);
@@ -555,7 +525,6 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor) const
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

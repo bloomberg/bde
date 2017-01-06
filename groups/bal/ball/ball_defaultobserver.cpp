@@ -1,12 +1,4 @@
 // ball_defaultobserver.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_defaultobserver.h>
 
 #include <bsls_ident.h>
@@ -18,19 +10,18 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_userfields.h>
 #include <ball_userfieldvalue.h>
+
 #include <bdlt_datetime.h>
 
 #include <bslmt_lockguard.h>
 
-
+#include <bslstl_stringref.h>
 
 #include <bsl_ostream.h>
 
-#include <bslstl_stringref.h>
-
 namespace BloombergLP {
-
 namespace ball {
+
                            // ---------------------
                            // class DefaultObserver
                            // ---------------------
@@ -41,15 +32,14 @@ DefaultObserver::~DefaultObserver()
 }
 
 // MANIPULATORS
-void DefaultObserver::publish(const Record&  record, const Context&)
+void DefaultObserver::publish(const Record& record, const Context&)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     const RecordAttributes& fixedFields = record.fixedFields();
 
     // convert the severity level to ASCII value for publishing
-    Severity::Level severityLevel =
-                                  (Severity::Level)fixedFields.severity();
+    Severity::Level severityLevel = (Severity::Level)fixedFields.severity();
 
     *d_stream << '\n';
 
@@ -78,6 +68,7 @@ void DefaultObserver::publish(const Record&  record, const Context&)
 
     const ball::UserFields& customFields = record.customFields();
     const int numCustomFields = customFields.length();
+
     for (int i = 0; i < numCustomFields; ++i) {
         *d_stream << customFields[i] << ' ';
     }
@@ -86,7 +77,6 @@ void DefaultObserver::publish(const Record&  record, const Context&)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

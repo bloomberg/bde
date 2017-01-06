@@ -44,19 +44,19 @@ BSLS_IDENT("$Id: $")
 // log records will be passed to the observer:
 //..
 //  ball::Rule rule1("WEEKEND*",               // pattern
-//                  ball::Severity::e_OFF,     // record level
-//                  ball::Severity::e_INFO,    // pass-through level
-//                  ball::Severity::e_OFF,     // trigger level
-//                  ball::Severity::e_OFF);    // triggerAll level
+//                   ball::Severity::e_OFF,    // record level
+//                   ball::Severity::e_INFO,   // pass-through level
+//                   ball::Severity::e_OFF,    // trigger level
+//                   ball::Severity::e_OFF);   // triggerAll level
 //..
 // Next, we create another rule having a different pattern, but the same
 // threshold levels:
 //..
 //  ball::Rule rule2("WEEKDAY*",               // pattern
-//                  ball::Severity::e_OFF,     // record level
-//                  ball::Severity::e_INFO,    // pass-through level
-//                  ball::Severity::e_OFF,     // trigger level
-//                  ball::Severity::e_OFF);    // triggerAll level
+//                   ball::Severity::e_OFF,    // record level
+//                   ball::Severity::e_INFO,   // pass-through level
+//                   ball::Severity::e_OFF,    // trigger level
+//                   ball::Severity::e_OFF);   // triggerAll level
 //..
 // We then create a 'ball::RuleSet' object, add the two rules, and verify that
 // rules were added correctly:
@@ -117,8 +117,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                           // =============
                           // class RuleSet
                           // =============
@@ -144,12 +144,15 @@ class RuleSet {
 
   private:
     // PRIVATE TYPES
-    struct RuleHash
+    struct RuleHash {
         // hash functor for 'Rule'
-    {
+
       private:
+        // CLASS DATA
         static int s_hashtableSize;              // the default hashtable size
+
       public:
+        // ACCESSORS
         int operator()(const Rule& rule) const
             // Return the hash value of the specified 'rule'.
         {
@@ -162,8 +165,7 @@ class RuleSet {
     // DATA
     HashtableType              d_ruleHashtable;  // the hash table that
                                                  // manages all the rules
-                                                 // maintained by this rule
-                                                 // set
+                                                 // maintained by this rule set
 
     bsl::vector<const Rule *>  d_ruleAddresses;  // secondary map between ids
                                                  // and the addresses of rules
@@ -174,9 +176,9 @@ class RuleSet {
     int                        d_numPredicates;  // total number of predicates
 
     // FRIENDS
-    friend bool operator==(const RuleSet&,    const RuleSet&);
-    friend bool operator!=(const RuleSet&,    const RuleSet&);
-    friend bsl::ostream& operator<<(bsl::ostream&, const RuleSet&);
+    friend bool          operator==(const RuleSet&, const RuleSet&);
+    friend bool          operator!=(const RuleSet&, const RuleSet&);
+    friend bsl::ostream& operator<<(bsl::ostream&,  const RuleSet&);
 
   public:
     // CLASS METHODS
@@ -202,21 +204,19 @@ class RuleSet {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(RuleSet, bslma::UsesBslmaAllocator);
 
-
     // CREATORS
     explicit RuleSet(bslma::Allocator *basicAllocator = 0);
         // Create an empty rule set.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
-    RuleSet(const RuleSet&    original,
-            bslma::Allocator *basicAllocator = 0);
+    RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator = 0);
         // Create a 'RuleSet' object having the same value as that of the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
-    ~RuleSet();
+    //! ~RuleSet() = default;
         // Destroy this rule set.
 
     // MANIPULATOR
@@ -296,7 +296,6 @@ class RuleSet {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS

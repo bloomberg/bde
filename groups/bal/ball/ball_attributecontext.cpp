@@ -1,12 +1,4 @@
 // ball_attributecontext.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_attributecontext.h>
 
 #include <bsls_ident.h>
@@ -14,28 +6,31 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 
 #include <ball_categorymanager.h>
 
+#include <bdlb_bitutil.h>
+#include <bdlb_print.h>
+
 #include <bdlma_concurrentpool.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_once.h>
 #include <bslmt_threadlocalvariable.h>
 
-#include <bdlb_print.h>
-#include <bdlb_bitutil.h>
-
-#include <bslma_allocator.h>
-#include <bslma_default.h>
 #include <bsls_assert.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_ostream.h>
 
-
-
-namespace BloombergLP {
-
-namespace ball {
-// Implementation Note: The 'AttributeContext' makes uses a cache of rule
-// evaluations ('AttributeContext_RuleEvaluationCache') when evaluating the
+//=============================================================================
+//                           IMPLEMENTATION NOTES
+//-----------------------------------------------------------------------------
+//
+///Rule evaluations cache
+///----------------------
+// The 'AttributeContext' uses a cache of rule evaluations
+// ('AttributeContext_RuleEvaluationCache') when evaluating the
 // 'hasRelevantActiveRules' and the 'getThresholdLevels' methods for a
 // category.  When accessing this cache, the singleton rule mutex,
 // 's_categoryManager_p->_ruleMutex()', is intentionally *not* locked.  For
@@ -49,6 +44,9 @@ namespace ball {
 // would need to be held outside of this component (until the message was
 // actually written to the log).
 
+namespace BloombergLP {
+namespace ball {
+
                // ------------------------------------------
                // class AttributeContext_RuleEvaluationCache
                // ------------------------------------------
@@ -56,11 +54,10 @@ namespace ball {
 // MANIPULATORS
 RuleSet::MaskType
 AttributeContext_RuleEvaluationCache::update(
-                               int                            sequenceNumber,
-                               RuleSet::MaskType              relevantRuleMask,
-                               const RuleSet&                 rules,
-                               const AttributeContainerList&  attributes)
-
+                                int                           sequenceNumber,
+                                RuleSet::MaskType             relevantRuleMask,
+                                const RuleSet&                rules,
+                                const AttributeContainerList& attributes)
 {
     // If the sequence number as changed, the cache is entirely out of data.
     if (d_sequenceNumber != sequenceNumber) {
@@ -76,7 +73,7 @@ AttributeContext_RuleEvaluationCache::update(
     BSLS_ASSERT(numBits == RuleSet::maxNumRules());
 
     // Get the index of the relevant rules and store it in 'i'.
-    while((i = bdlb::BitUtil::numTrailingUnsetBits(needEvaluations))
+    while ((i = bdlb::BitUtil::numTrailingUnsetBits(needEvaluations))
                                                                   != numBits) {
         const Rule *rule;
         needEvaluations &= ~(1 << i);
@@ -93,10 +90,9 @@ AttributeContext_RuleEvaluationCache::update(
 
 // ACCESSORS
 bsl::ostream&
-AttributeContext_RuleEvaluationCache::print(
-                                           bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+AttributeContext_RuleEvaluationCache::print(bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     char EL = (spacesPerLevel < 0) ? ' ' : '\n';
 
@@ -113,7 +109,6 @@ AttributeContext_RuleEvaluationCache::print(
     bdlb::Print::indent(stream, level, spacesPerLevel);
     stream << "]" << EL;
     return stream << bsl::flush;
-
 }
 
                         // -----------------------------
@@ -123,22 +118,18 @@ AttributeContext_RuleEvaluationCache::print(
 // CREATORS
 AttributeContextProctor::~AttributeContextProctor()
 {
-    const bslmt::ThreadUtil::Key& contextKey =
-                                           AttributeContext::contextKey();
+    const bslmt::ThreadUtil::Key& contextKey = AttributeContext::contextKey();
 
     AttributeContext *context = (AttributeContext*)
-                                  bslmt::ThreadUtil::getSpecific(contextKey);
+                                    bslmt::ThreadUtil::getSpecific(contextKey);
 
     if (context) {
         AttributeContext::removeContext(context);
         bslmt::ThreadUtil::setSpecific(contextKey, 0);
     }
 }
-}  // close package namespace
 
-                        // ----------------------------
-                        // class ball::AttributeContext
-                        // ----------------------------
+}  // close package namespace
 
 namespace {
 
@@ -153,12 +144,15 @@ BSLMT_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
 
 }  // close unnamed namespace
 
-// CLASS MEMBERS
-ball::CategoryManager *ball::AttributeContext::s_categoryManager_p = 0;
-
-bslma::Allocator      *ball::AttributeContext::s_globalAllocator_p = 0;
-
 namespace ball {
+
+                        // ----------------------
+                        // class AttributeContext
+                        // ----------------------
+
+// CLASS DATA
+CategoryManager  *AttributeContext::s_categoryManager_p = 0;
+bslma::Allocator *AttributeContext::s_globalAllocator_p = 0;
 
 // PRIVATE CREATORS
 AttributeContext::AttributeContext(bslma::Allocator *globalAllocator)
@@ -177,17 +171,16 @@ const bslmt::ThreadUtil::Key& AttributeContext::contextKey()
     static bslmt::ThreadUtil::Key s_contextKey;
     BSLMT_ONCE_DO {
         bslmt::ThreadUtil::createKey(&s_contextKey,
-                                    (bslmt::ThreadUtil::Destructor)
-                                    AttributeContext::removeContext);
+                                     (bslmt::ThreadUtil::Destructor)
+                                     AttributeContext::removeContext);
     }
     return s_contextKey;
-
 }
 
 void AttributeContext::removeContext(void *arg)
 {
 #ifdef BSLMT_THREAD_LOCAL_VARIABLE
-        g_threadLocalContext = 0;
+    g_threadLocalContext = 0;
 #endif
 
     AttributeContext *context = (AttributeContext*)arg;
@@ -237,8 +230,8 @@ AttributeContext *AttributeContext::getContext()
 
     bslma::Allocator *allocator =
                           bslma::Default::globalAllocator(s_globalAllocator_p);
-    AttributeContext *context =
-                            new (*allocator) AttributeContext(allocator);
+    AttributeContext *context = new (*allocator) AttributeContext(allocator);
+
     if (0 != bslmt::ThreadUtil::setSpecific(contextKey(), context)) {
         bsl::fprintf(stderr,
                      "Failed to add 'AttributeContext' to thread "
@@ -253,7 +246,7 @@ AttributeContext *AttributeContext::getContext()
     const bslmt::ThreadUtil::Key& key = contextKey();
 
     AttributeContext *context =
-        (AttributeContext*)bslmt::ThreadUtil::getSpecific(key);
+                        (AttributeContext*)bslmt::ThreadUtil::getSpecific(key);
 
     if (!context) {
         bslma::Allocator *allocator =
@@ -283,16 +276,18 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 
     // The 'rulesetMutex' is intentionally *not* locked before returning a
     // cached value (see implementation note at the top).
+
     if (d_ruleCache_p.isDataAvailable(
-                                  s_categoryManager_p->ruleSequenceNumber(),
-                                  relevantRuleMask)) {
+                                     s_categoryManager_p->ruleSequenceNumber(),
+                                     relevantRuleMask)) {
         return relevantRuleMask & d_ruleCache_p.knownActiveRules();   // RETURN
     }
 
     // We lock the mutex to ensure the rules are not modified as we evaluate
     // them.
+
     bslmt::LockGuard<bslmt::Mutex> ruleGuard(
-                                        &s_categoryManager_p->rulesetMutex());
+                                         &s_categoryManager_p->rulesetMutex());
 
     return relevantRuleMask &
            d_ruleCache_p.update(s_categoryManager_p->ruleSequenceNumber(),
@@ -321,13 +316,14 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
         return;                                                       // RETURN
     }
 
-    // test on the cache outside the lock, and return if there are no active
+    // Test on the cache outside the lock, and return if there are no active
     // rules for 'category'.  We do not lock on the 'rulesetMutex' before
     // testing the cache (see implementation notes at the top).
+
     RuleSet::MaskType activeAndRelevantRules = 0;
     if (d_ruleCache_p.isDataAvailable(
-                                    s_categoryManager_p->ruleSequenceNumber(),
-                                    relevantRuleMask)) {
+                                     s_categoryManager_p->ruleSequenceNumber(),
+                                     relevantRuleMask)) {
         activeAndRelevantRules = d_ruleCache_p.knownActiveRules() &
                                  relevantRuleMask;
         if (!activeAndRelevantRules) {
@@ -338,22 +334,24 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // We obtain the lock because we will need to process the rules.  Note
     // that we must again call the 'isDataAvailable' method in case the rules
     // have been modified since the lock was obtained.
+
     bslmt::LockGuard<bslmt::Mutex> ruleGuard(
-                                        &s_categoryManager_p->rulesetMutex());
+                                         &s_categoryManager_p->rulesetMutex());
 
     // If the 'isDataAvailable' method returns 'true', the rule data has not
     // changed and we must have assigned 'activeAndRelevantRules' before
     // obtaining the lock.
+
     if (!d_ruleCache_p.isDataAvailable(
-                                  s_categoryManager_p->ruleSequenceNumber(),
-                                  relevantRuleMask)) {
+                                     s_categoryManager_p->ruleSequenceNumber(),
+                                     relevantRuleMask)) {
           activeAndRelevantRules =
                  relevantRuleMask &
                  d_ruleCache_p.update(
-                                    s_categoryManager_p->ruleSequenceNumber(),
-                                    relevantRuleMask,
-                                    s_categoryManager_p->ruleSet(),
-                                    d_containerList);
+                                     s_categoryManager_p->ruleSequenceNumber(),
+                                     relevantRuleMask,
+                                     s_categoryManager_p->ruleSet(),
+                                     d_containerList);
     }
 
     int i;
@@ -361,7 +359,7 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     BSLS_ASSERT(numBits == RuleSet::maxNumRules());
 
     // Get the index of the relevant rules and store it in 'i'.
-    while((i = bdlb::BitUtil::numTrailingUnsetBits(activeAndRelevantRules))
+    while ((i = bdlb::BitUtil::numTrailingUnsetBits(activeAndRelevantRules))
                                                                   != numBits) {
         activeAndRelevantRules &= ~(1 << i);
         const Rule *rule = s_categoryManager_p->ruleSet().getRuleById(i);
@@ -400,8 +398,8 @@ bsl::ostream& AttributeContext::print(bsl::ostream& stream,
     stream << "]" << EL;
     return stream << bsl::flush;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -19,11 +19,11 @@ BSLS_IDENT_RCSID(ball_recordattributes_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
-                        // ---------------------------
+
+                        // ----------------------
                         // class RecordAttributes
-                        // ---------------------------
+                        // ----------------------
 
 // CREATORS
 RecordAttributes::RecordAttributes(bslma::Allocator *basicAllocator)
@@ -38,16 +38,15 @@ RecordAttributes::RecordAttributes(bslma::Allocator *basicAllocator)
 {
 }
 
-RecordAttributes::RecordAttributes(
-                                          const bdlt::Datetime&  timestamp,
-                                          int                   processID,
-                                          bsls::Types::Uint64   threadID,
-                                          const char           *fileName,
-                                          int                   lineNumber,
-                                          const char           *category,
-                                          int                   severity,
-                                          const char           *message,
-                                          bslma::Allocator     *basicAllocator)
+RecordAttributes::RecordAttributes(const bdlt::Datetime&  timestamp,
+                                   int                    processID,
+                                   bsls::Types::Uint64    threadID,
+                                   const char            *fileName,
+                                   int                    lineNumber,
+                                   const char            *category,
+                                   int                    severity,
+                                   const char            *message,
+                                   bslma::Allocator      *basicAllocator)
 : d_timestamp(timestamp)
 , d_processID(processID)
 , d_threadID(threadID)
@@ -60,9 +59,8 @@ RecordAttributes::RecordAttributes(
     setMessage(message);
 }
 
-RecordAttributes::RecordAttributes(
-                                  const RecordAttributes&  original,
-                                  bslma::Allocator             *basicAllocator)
+RecordAttributes::RecordAttributes(const RecordAttributes&  original,
+                                   bslma::Allocator        *basicAllocator)
 : d_timestamp(original.d_timestamp)
 , d_processID(original.d_processID)
 , d_threadID(original.d_threadID)
@@ -87,8 +85,7 @@ void RecordAttributes::setMessage(const char *message)
     }
 }
 
-RecordAttributes& RecordAttributes::operator=(
-                                              const RecordAttributes& rhs)
+RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
 {
     if (this != &rhs) {
         d_timestamp  = rhs.d_timestamp;
@@ -132,8 +129,8 @@ bslstl::StringRef RecordAttributes::messageRef() const
 }
 
 bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     if (0 <= spacesPerLevel) {
         bdlb::Print::indent(stream, level, spacesPerLevel);
@@ -239,11 +236,11 @@ bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
 
     return stream << bsl::flush;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bool ball::operator==(const RecordAttributes& lhs,
-                const RecordAttributes& rhs)
+bool ball::operator==(const RecordAttributes& lhs, const RecordAttributes& rhs)
 {
     return lhs.d_timestamp  == rhs.d_timestamp
         && lhs.d_processID  == rhs.d_processID

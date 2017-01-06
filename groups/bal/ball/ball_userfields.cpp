@@ -8,7 +8,6 @@ BSLS_IDENT_RCSID(ball_userfields_cpp,"$Id$ $CSID$")
 
 #include <bsl_ostream.h>
 
-
 namespace BloombergLP {
 namespace ball {
 
