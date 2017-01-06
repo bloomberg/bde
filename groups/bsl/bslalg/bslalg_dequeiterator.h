@@ -151,9 +151,9 @@ class DequeIterator {
     }
 
     friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'rhs' iterator points to an element
+        // Return 'true' if the specified 'lhs' iterator points to an element
         // in a previous block or in a previous position in the same block as
-        // the specified 'lhs' iterator, and 'false' otherwise.
+        // the specified 'rhs' iterator, and 'false' otherwise.
     {
         if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
             return lhs.d_value_p < rhs.d_value_p;                     // RETURN
@@ -300,8 +300,8 @@ class DequeIterator<VALUE_TYPE, 1> {
     }
 
     friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'rhs' iterator points to an element
-        // in a previous position within the same block as the specified 'lhs'
+        // Return 'true' if the specified 'lhs' iterator points to an element
+        // in a previous position within the same block as the specified 'rhs'
         // iterator, and 'false' otherwise.
     {
         return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
