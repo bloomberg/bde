@@ -62,8 +62,8 @@ int FixedSizeRecordBuffer::pushBack(const bsl::shared_ptr<Record>& handle)
     }
 
     int returnValue = 0;
-    d_deque.push_back(handle); // This operation may cause 'd_deque' to grow,
-                               // so test again.
+    d_deque.push_back(handle);  // This operation may cause 'd_deque' to grow,
+                                // so test again.
 
     if (size + static_cast<int>(d_allocator.numBytesTotal()) >
                                                               d_maxTotalSize) {
@@ -76,7 +76,7 @@ int FixedSizeRecordBuffer::pushBack(const bsl::shared_ptr<Record>& handle)
         d_currentTotalSize += size;
     }
 
-    while(d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
+    while (d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
                                                               d_maxTotalSize) {
         d_currentTotalSize -= static_cast<int>(
                                        (d_deque.front())->numAllocatedBytes());
@@ -101,8 +101,8 @@ int FixedSizeRecordBuffer::pushFront(const bsl::shared_ptr<Record>& handle)
     }
 
     int returnValue = 0;
-    d_deque.push_front(handle); // This operation may cause 'd_deque' to grow,
-                                // so test again.
+    d_deque.push_front(handle);  // This operation may cause 'd_deque' to grow,
+                                 // so test again.
 
     if (size + static_cast<int>(d_allocator.numBytesTotal()) >
                                                               d_maxTotalSize) {
@@ -115,7 +115,7 @@ int FixedSizeRecordBuffer::pushFront(const bsl::shared_ptr<Record>& handle)
         d_currentTotalSize += size;
     }
 
-    while(d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
+    while (d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
                                                               d_maxTotalSize) {
         d_currentTotalSize -= static_cast<int>(
                                         (d_deque.back())->numAllocatedBytes());

@@ -26,7 +26,7 @@ int Severity::fromAscii(Severity::Level *level,
                         const char      *string,
                         int              stringLength)
 {
-    switch(stringLength) {
+    switch (stringLength) {
       case 3: {
         if ('o' == (string[0] | 0x20)
          && 'f' == (string[1] | 0x20)
@@ -36,7 +36,7 @@ int Severity::fromAscii(Severity::Level *level,
         }
       } break;
       case 4: {
-        switch(bdlb::CharType::toUpper(string[0])) {
+        switch (bdlb::CharType::toUpper(string[0])) {
           case 'I': {
             if ('n' == (string[1] | 0x20)
              && 'f' == (string[2] | 0x20)
@@ -66,7 +66,7 @@ int Severity::fromAscii(Severity::Level *level,
         }
       } break;
       case 5: {
-            switch(bdlb::CharType::toUpper(string[0])) {
+            switch (bdlb::CharType::toUpper(string[0])) {
               case 'D': {
                 if ('e' == (string[1] | 0x20)
                  && 'b' == (string[2] | 0x20)
@@ -112,7 +112,7 @@ int Severity::fromAscii(Severity::Level *level,
 
 const char *Severity::toAscii(Severity::Level value)
 {
-    switch(value) {
+    switch (value) {
       case   0: return "OFF";
       case  32: return "FATAL";
       case  64: return "ERROR";

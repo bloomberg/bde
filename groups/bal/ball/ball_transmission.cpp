@@ -22,7 +22,7 @@ void Transmission::print(bsl::ostream& stream, Transmission::Cause value)
 // CLASS METHODS
 const char *Transmission::toAscii(Transmission::Cause value)
 {
-    switch(value) {
+    switch (value) {
       case(e_PASSTHROUGH)       : return "PASSTHROUGH";
       case(e_TRIGGER)           : return "TRIGGER";
       case(e_TRIGGER_ALL)       : return "TRIGGER_ALL";

@@ -4,10 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_scopedattributes_cpp,"$Id$ $CSID$")
 
-namespace BloombergLP {
-
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

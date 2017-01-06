@@ -25,8 +25,7 @@ namespace ball {
                         // ------------------------
 
 // CLASS METHODS
-int ThresholdAggregate::hash(const ThresholdAggregate& aggregate,
-                             int                       size)
+int ThresholdAggregate::hash(const ThresholdAggregate& aggregate, int size)
 {
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     int value = (aggregate.recordLevel()  << 24)

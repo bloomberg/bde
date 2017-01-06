@@ -76,9 +76,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
-                        // =================
-                        // class PatternUtil
-                        // =================
+                        // ==================
+                        // struct PatternUtil
+                        // ==================
 
 struct PatternUtil {
     // This utility class provides functions relating to pattern matching for

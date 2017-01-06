@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //    void *workerThread(void *arg)
 //    {
 //        int id = (int)arg; // thread id
-//        for(int i = 0; i < NUM_ITERATIONS; ++i){
+//        for (int i = 0; i < NUM_ITERATIONS; ++i) {
 //            ball::Record *record =
 //                          new (*basicAllocator) ball::Record(basicAllocator);
 //
@@ -208,15 +208,13 @@ class FixedSizeRecordBuffer: public RecordBuffer {
                                                  // current sum of sizes of
                                                  // contained records
 
-    // Implementation note:  The order of the following data members is
+    // Implementation note: The order of the following data members is
     // required to ensure proper initialization order.
 
     CountingAllocator             d_allocator;   // allocator for 'd_deque'
 
     bsl::deque<bsl::shared_ptr<Record> >
                                   d_deque;       // deque of record handles
-
-
 
     // NOT IMPLEMENTED
     FixedSizeRecordBuffer(const FixedSizeRecordBuffer&);

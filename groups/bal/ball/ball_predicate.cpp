@@ -4,10 +4,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_predicate_cpp,"$Id$ $CSID$")
 
-#include <bslim_printer.h>
-
 namespace BloombergLP {
 namespace ball {
+
+                         // ---------------
+                         // class Predicate
+                         // ---------------
 
 // ACCESSORS
 bsl::ostream& Predicate::print(bsl::ostream& stream,

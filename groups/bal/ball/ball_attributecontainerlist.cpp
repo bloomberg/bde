@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_attributecontainerlist_cpp,"$Id$ $CSID$")
 
-#include <ball_attribute.h>           // for testing
-#include <ball_attributecontainer.h>
+#include <ball_attribute.h>           // for testing only
+#include <ball_attributecontainer.h>  // for testing only
 
 #include <bdlb_print.h>
 
@@ -48,7 +48,7 @@ AttributeContainerList& AttributeContainerList::operator=(
                                              const AttributeContainerList& rhs)
 {
     if (&rhs != this) {
-        // This could be made more efficient (by not using 'removeAll()' but
+        // This could be made more efficient (by not using 'removeAll'), but
         // this is easier - this operation should not be called in practice.
 
         // Move all the elements to the free list.

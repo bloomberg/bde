@@ -130,7 +130,7 @@ struct SeverityUtil {
         //
         // DEPRECATED: Use 'fromAsciiCaseless'.  Note that this method
         // provides backwards compatibility for clients of the deprecated
-        // 'ballu::Severity'.
+        // 'baelu_Severity'.
 
     static bool isValidName(const char *name);
         // Return 'true' if the specified 'name' corresponds to an enumerator
@@ -141,7 +141,7 @@ struct SeverityUtil {
         //
         // DEPRECATED: Use 'isValidNameCaseless'.  Note that this method
         // provides backwards compatibility for clients of the deprecated
-        // 'ballu::Severity'.
+        // 'baelu_Severity'.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 

@@ -4,8 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_severityutil_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
 #include <bdlb_string.h>
+
+#include <bsls_assert.h>
 
 #include <bsl_cstring.h>   // 'strcmp'
 

@@ -391,7 +391,6 @@ void my_DummyDeleter::deleteObject(ball::Record *)
             }
             buffer.endSequence();   // unlock the buffer after traversing
         }
-//
     }
 //..
 

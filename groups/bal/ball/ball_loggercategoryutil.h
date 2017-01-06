@@ -50,26 +50,26 @@ BSLS_IDENT("$Id: $")
 // The following code fragments illustrate basic usage of this component's
 // 'setThresholdLevelsHierarchically' and 'addCategoryHierarchically' methods.
 //
-// For convenience, we first create an auxiliary function that prints out the
-// names and threshold level values of all the categories currently in the
-// logger manager, except the default one:
+// For convenience, we first create two auxiliary functions that serve to print
+// out the names and threshold level values of all the categories currently in
+// the logger manager singleton:
 //..
-//     void printAllCategories()
-//     {
-//         ball::LoggerManager& lm = ball::LoggerManager::singleton();
-//         ball::LoggerCategoryManip manip(&lm);
-//         for (manip.advance(); manip; manip.advance()) { // skip the default
-//                                                         // category
-//             const ball::Category *category
-//                 = lm.lookupCategory(manip().categoryName());
-//             bsl::cout << "[ " << category->categoryName()
-//                       << ", " << category->recordLevel()
-//                       << ", " << category->passLevel()
-//                       << ", " << category->triggerLevel()
-//                       << ", " << category->triggerAllLevel()
-//                       << " ]" << bsl::endl;
-//         }
-//     }
+//  void printCategory(const ball::Category *category)
+//  {
+//      bsl::cout << "\t[ " << category->categoryName()
+//                << ", "   << category->recordLevel()
+//                << ", "   << category->passLevel()
+//                << ", "   << category->triggerLevel()
+//                << ", "   << category->triggerAllLevel()
+//                << " ]"   << bsl::endl;
+//  }
+//
+//  void printAllCategories()
+//  {
+//      ball::LoggerManager& lm = ball::LoggerManager::singleton();
+//      using namespace bdlf::PlaceHolders;
+//      lm.visitCategories(bdlf::BindUtil::bind(printCategory, _1));
+//  }
 //..
 // Now we initialize the logging environment by creating a test observer
 // object and a logger manager object, and set the default threshold levels of
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // We add a new category using 'addCategoryHierarchically':
 //..
 //     ball::LoggerCategoryUtil::addCategoryHierarchically(&lm,
-//                                                        "EQ.MARKET.NYSE");
+//                                                         "EQ.MARKET.NYSE");
 //     printAllCategories();
 //..
 // The new category with name "EQ.MARKET.NYSE" inherits its threshold levels
@@ -114,11 +114,11 @@ BSLS_IDENT("$Id: $")
 // starts with "EQ.MARKET" using 'setThresholdLevelsHierarchically':
 //..
 //     ball::LoggerCategoryUtil::setThresholdLevelsHierarchically(&lm,
-//                                                               "EQ.MARKET",
-//                                                               194,
-//                                                               98,
-//                                                               66,
-//                                                               34);
+//                                                                "EQ.MARKET",
+//                                                                194,
+//                                                                98,
+//                                                                66,
+//                                                                34);
 //     printAllCategories();
 //..
 // We will notice that the threshold levels of "EQ.MARKET" and
@@ -135,7 +135,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class LoggerManager;
@@ -150,7 +149,6 @@ struct LoggerCategoryUtil {
     // management of the categories in 'LoggerManager'.
 
     // CLASS METHODS
-
     static Category *addCategoryHierarchically(LoggerManager *loggerManager,
                                                const char    *categoryName);
         // Add, to the specified 'loggerManager', a new category having the

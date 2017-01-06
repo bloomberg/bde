@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Installing an 'ball::AttributeContanier'
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Installing a 'ball::AttributeContainer'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following code fragment, we will use a 'ball::ScopedAttributes' to
 // install a 'ball::AttributeContainer' in the current context.
 //
@@ -112,7 +112,8 @@ class ScopedAttributes {
     // that the 'AttributeContainer' supplied at construction must remain valid
     // and *unmodified* for the lifetime of this object.
 
-    const AttributeContext::iterator  d_it;  // refers to attributes
+    // DATA
+    const AttributeContext::iterator d_it;  // refers to attributes
 
     // NOT IMPLEMENTED
     ScopedAttributes(const ScopedAttributes&);
@@ -120,7 +121,7 @@ class ScopedAttributes {
 
   public:
     // CREATORS
-    ScopedAttributes(const AttributeContainer* attributes);
+    ScopedAttributes(const AttributeContainer *attributes);
         // Create a 'ScopedAttributes' object having the specified
         // 'attributes'.  Note that 'attributes' must remain valid and
         // *unmodified* for the lifetime of this object.
@@ -139,7 +140,7 @@ class ScopedAttributes {
 
 // CREATORS
 inline
-ScopedAttributes::ScopedAttributes(const AttributeContainer* attributes)
+ScopedAttributes::ScopedAttributes(const AttributeContainer *attributes)
 : d_it(AttributeContext::getContext()->addAttributes(attributes))
 {
 }

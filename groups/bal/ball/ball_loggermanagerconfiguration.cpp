@@ -113,7 +113,6 @@ int LoggerManagerConfiguration::setDefaultLoggerBufferSizeIfValid(int numBytes)
     return d_defaults.setDefaultLoggerBufferSizeIfValid(numBytes);
 }
 
-
 int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(int passLevel)
 {
     return d_defaults.setDefaultThresholdLevelsIfValid(passLevel);
@@ -313,7 +312,6 @@ bsl::ostream& ball::operator<<(
 }
 
 }  // close enterprise namespace
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

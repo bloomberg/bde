@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //     message      string          log message text                 ""
 //..
 // *Note*: The default value given to the timestamp attribute is implementation
-// defined.  (See the 'bdet_datetime' component-level documentation for more
+// defined.  (See the 'bdlt_datetime' component-level documentation for more
 // information.)
 //
 // For each attribute, there is a method to access its value and a method to
@@ -197,12 +197,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS

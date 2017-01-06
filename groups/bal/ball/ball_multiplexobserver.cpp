@@ -15,6 +15,7 @@ BSLS_IDENT_RCSID(ball_multiplexobserver_cpp,"$Id$ $CSID$")
 #include <ball_countingallocator.h>      // for testing only
 #include <ball_defaultobserver.h>        // for testing only
 #include <ball_testobserver.h>           // for testing only
+
 #include <bsls_assert.h>
 
 #include <bsl_iostream.h>                // for warning print only

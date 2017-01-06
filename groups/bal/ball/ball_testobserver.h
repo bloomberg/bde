@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // meaning that the test observer may be used to log records from multiple
 // threads.  However, the 'ball::TestObserver' accessors 'lastPublished' method
 // and 'lastPublishedContext' provide references to internal data structures
-// (for backwards compatibilty) and are therefore *not* *thread-safe*.
+// (for backwards compatibility) and are therefore *not* *thread-safe*.
 //
 ///Verbose Mode
 ///------------
@@ -144,6 +144,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_record.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
 #endif
@@ -154,10 +158,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS

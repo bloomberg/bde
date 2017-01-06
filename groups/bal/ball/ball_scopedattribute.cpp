@@ -9,6 +9,9 @@
 
 #include <ball_scopedattribute.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(ball_scopedattribute_cpp,"$Id$ $CSID$")
+
 #include <bdlb_print.h>
 
 #include <bsl_ostream.h>

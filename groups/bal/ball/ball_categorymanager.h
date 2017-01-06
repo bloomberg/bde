@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanager, ball_loggercategoryutil
 //
-//@AUTHOR: Hong Shi (hshi2), Mike Verschell (hverschell)
+//@AUTHOR: Hong Shi (hshi2), Mike Verschell (hversche)
 //
 //@DESCRIPTION: This component provides a registry for category information and
 // functions to manage the registry and its members.  By "category" we mean a
@@ -173,18 +173,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_thresholdaggregate.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
-#include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READERWRITERLOCK
-#include <bslmt_readerwriterlock.h>
-#endif
-
 #ifndef INCLUDED_BDLB_CSTRINGLESS
 #include <bdlb_cstringless.h>
 #endif
@@ -195,6 +183,18 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+#include <bslmt_readerwriterlock.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -214,7 +214,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
                         // =====================
