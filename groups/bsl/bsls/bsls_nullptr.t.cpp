@@ -70,10 +70,13 @@ static void aSsErT(bool b, const char *s, int i)
 //     http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#903
 
 #if __cplusplus >= 201103L \
-   || (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)
-    // Note that Clang will pick up a fix for this standard issue when
-    // Clang 3.4 is released.  This conversion is merely a warning in earlier
-    // versions of Clang.
+   || (defined(BSLS_PLATFORM_CMP_GNU) &&       \
+       defined(__GXX_EXPERIMENTAL_CXX0X__) &&  \
+       BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)
+    // Note that although we do not support C++11 experimental features such as
+    // 'nullptr' in the BDE libraries for gcc prior to release 4.8, defect
+    // reports are still applied by the compiler that will affect results in
+    // this test driver if the user enables the experimental C++0x build mode.
 
 # define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903
 #endif
@@ -333,8 +336,7 @@ int main(int argc, char *argv[])
         // null-pointer literal.  Allow these to produce the results expected
         // for such platforms.
 
-#if defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)     \
- && defined(BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903)
+#if defined(BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903)
         ASSERT(!Local::isNullPointer(s_cZero));
         ASSERT(!Local::isNullPointer(cZero));
 #else
@@ -421,8 +423,13 @@ int main(int argc, char *argv[])
         ASSERT(Local::isNullPointer(0));
         ASSERT(Local::isNullPointer(NULL));
         ASSERT(Local::isNullPointer(false));
+# if defined(BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903)
+        ASSERT(!Local::isNullPointer(s_cZero));
+        ASSERT(!Local::isNullPointer(cZero));
+# else
         ASSERT(Local::isNullPointer(s_cZero));
         ASSERT(Local::isNullPointer(cZero));
+# endif
         ASSERT(Local::isNullPointer(1-1));
         ASSERT(Local::isNullPointer(0*1));
 

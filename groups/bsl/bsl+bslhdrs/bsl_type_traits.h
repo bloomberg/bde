@@ -147,7 +147,9 @@ namespace bsl {
     using native_std::is_nothrow_assignable;
     using native_std::is_nothrow_copy_assignable;
     using native_std::is_nothrow_move_assignable;
+# if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40800
     using native_std::is_nothrow_destructible;
+# endif
 #endif
     using native_std::has_virtual_destructor;
 
