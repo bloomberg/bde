@@ -363,8 +363,8 @@ class Cache {
                                                                   MapType;
         // Hash map type.
 
-    typedef bslmt::ReaderWriterMutex                              LockType;
-    // typedef bslmt::ReaderWriterLock                              LockType;
+    // typedef bslmt::ReaderWriterMutex                              LockType;
+    typedef bslmt::ReaderWriterLock                              LockType;
 
     // DATA
     bslma::Allocator                *d_allocator_p;  // memory allocator (held,
@@ -725,7 +725,7 @@ int Cache<KeyType, ValueType, Hash, Equal>::tryGetValue(
     //     d_rwlock.lockReadReserveWrite();
     // }
 
-    // bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock, prelocked);
+    // bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     typename MapType::iterator mapItr = d_map.find(key);
