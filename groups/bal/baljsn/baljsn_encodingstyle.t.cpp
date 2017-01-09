@@ -148,38 +148,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-///Usage
-///-----
-// In this section we show intended usage of this component.
-//
-///Example 1: Basic Syntax
-///- - - - - - - - - - - -
-// The following snippets of code provide a simple illustration of
-// 'baljsn::EncodingStyle' usage.
-//
-// First, we create a variable 'value' of type
-// 'baljsn::EncodingStyle::Enum' and initialize it with the enumerator
-// value 'baljsn::EncodingStyle::e_COMPACT':
-//..
-   baljsn::EncodingStyle::Value value =
-                                  baljsn::EncodingStyle::e_COMPACT;
-//..
-// Next, we store a pointer to its ASCII representation in a variable
-// 'asciiValue' of type 'const char *':
-//..
-   const char *asciiValue = baljsn::EncodingStyle::toString(value);
-   ASSERT(0 == bsl::strcmp(asciiValue, "COMPACT"));
-//..
-// Finally, we print 'value' to 'bsl::cout'.
-//..
-if (veryVerbose)
-   bsl::cout << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
-// COMPACT
-//..
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

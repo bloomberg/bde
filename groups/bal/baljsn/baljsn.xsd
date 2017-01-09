@@ -31,7 +31,18 @@
         style is 'PRETTY', then the 'InitialIndentLevel' and 'SpacesPerLevel'
         parameters are used to specify the formatting of the output.  Note
         that 'InitialIndentLevel' and 'SpacesPerLevel' are ignored when
-        'EncodingStyle' is COMPACT (this is the default).
+        'EncodingStyle' is COMPACT (this is the default).  The
+        'encodeEmptyArrays' and 'encodeNullElements' encode empty array
+        and null elements respectively.  By default empty array and null
+        elements are not encoded.  The 'encodeInfAndNaNAsStrings' attribute
+        provides users the option to encode 'Infinity' and 'NaN' floating point
+        values as strings.  These values do not have a valid JSON
+        representation and by default such value will result in an encoding
+        error.  The 'datetimeFractionalSecondPrecision' specifies the precision
+        of milliseconds printed with date time values.  By default a precision
+        of '3' decimal places is used.  The 'maxFloatPrecision' and
+        'maxDoublePrecision' attributes allow specifying the maximum precision
+        for 'float' and 'double' values.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -62,7 +73,7 @@
                   bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            encoding style (see component-level doc)
+            encoding style used to encode values
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -72,7 +83,7 @@
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            Option specifying if empty arrays should be encoded.
+            option specifying if empty arrays should be encoded
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -82,7 +93,7 @@
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            Option specifying if null elements should be encoded.
+            option specifying if null elements should be encoded
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -92,13 +103,14 @@
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            JSON does not provide a way to encode these values as they are not
-            numbers.  This option provides a way to encode these values.
-            Although the resulting output is a valid JSON document, decoders
-            expecting floating point numbers to be encoded only as numbers
-            will fail to decode.  Users of this option must therefore exercise
-            caution and ensure that if this option is used then the parser
-            decoding the generated JSON can handle doubles as strings.
+            option specifying a way to encode 'infinity' and 'NaN' floating
+            point values.  JSON does not provide a way to encode these values
+            as they are not numbers.  Although the resulting output is a valid
+            JSON document, decoders expecting floating point numbers to be
+            encoded only as numbers will fail to decode.  Users of this option
+            must therefore exercise caution and ensure that if this option is
+            used then the parser decoding the generated JSON can handle doubles
+            as strings.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -108,8 +120,8 @@
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            option specifying the number of decimal places used for seconds
-            when encoding 'Datetime' and 'DatetimeTz' values.
+            option specifying the number of decimal places used for
+            milliseconds when encoding 'Datetime' and 'DatetimeTz' values
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -120,7 +132,7 @@
         <xs:annotation>
           <xs:documentation>
             option specifying the maximum number of decimal places used to
-            encode each 'float' value.
+            encode each 'float' value
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -131,7 +143,7 @@
         <xs:annotation>
           <xs:documentation>
             option specifying the maximum number of decimal places used to
-            encode each 'double' value.
+            encode each 'double' value
           </xs:documentation>
         </xs:annotation>
       </xs:element>
