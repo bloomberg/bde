@@ -57,13 +57,13 @@ bsl::string describeWin32Error(DWORD lastError)
 {
     enum {ERROR_BUFFER_SIZE=128};
     char errorBuffer[ERROR_BUFFER_SIZE];
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-                  0,
-                  lastError,
-                  LANG_SYSTEM_DEFAULT,
-                  errorBuffer,
-                  ERROR_BUFFER_SIZE,
-                  0);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
+                   0,
+                   lastError,
+                   LANG_SYSTEM_DEFAULT,
+                   errorBuffer,
+                   ERROR_BUFFER_SIZE,
+                   0);
     errorBuffer[bsl::strlen(errorBuffer) - 1] = 0;
     return bsl::string(errorBuffer);
 }
@@ -89,7 +89,24 @@ namespace balb {
 
 int PipeControlChannel::sendEmptyMessage()
 {
-    return bdls::PipeUtil::send(d_pipeName, "\n");
+    HANDLE pipe;
+    if (!WaitNamedPipeA(d_pipeName.data(), NMPWAIT_USE_DEFAULT_WAIT)) {
+        return -1;
+    }
+    pipe = CreateFileA(d_pipeName.data(), GENERIC_WRITE, 0, NULL,
+                       OPEN_EXISTING, 0, NULL);
+    if (INVALID_HANDLE_VALUE == pipe) {
+        return 1;
+    }
+
+    DWORD mode = PIPE_READMODE_MESSAGE;
+    SetNamedPipeHandleState(pipe, &mode, NULL, NULL);
+
+    DWORD dummy;
+    bool result = WriteFile(pipe, "\n", 1, &dummy, 0);
+    CloseHandle(pipe);
+    return result ? 0 : 2;
+
 }
 
 int PipeControlChannel::readNamedPipe()
@@ -105,7 +122,7 @@ int PipeControlChannel::readNamedPipe()
 
         DWORD lastError = GetLastError();
         if (lastError != ERROR_PIPE_CONNECTED && lastError != ERROR_NO_DATA) {
-            BSLS_LOG_TRACE("Failed to connect to named pipe '%s'", 
+            BSLS_LOG_TRACE("Failed to connect to named pipe '%s'",
                            d_pipeName.c_str());
             return -1;
         }
@@ -160,14 +177,14 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
     }
 
     d_impl.d_windows.d_handle =
-        CreateNamedPipe(pipeName.c_str(),
-                        PIPE_ACCESS_INBOUND,
-                        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-                        PIPE_UNLIMITED_INSTANCES,
-                        MAX_PIPE_BUFFER_LEN,
-                        MAX_PIPE_BUFFER_LEN,
-                        2000, // default timeout in ms for pipe operations
-                        NULL);
+        CreateNamedPipeA(pipeName.c_str(),
+                         PIPE_ACCESS_INBOUND,
+                         PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
+                         PIPE_UNLIMITED_INSTANCES,
+                         MAX_PIPE_BUFFER_LEN,
+                         MAX_PIPE_BUFFER_LEN,
+                         2000, // default timeout in ms for pipe operations
+                         NULL);
 
     if (INVALID_HANDLE_VALUE == d_impl.d_windows.d_handle) {
         BSLS_LOG_TRACE("Failed to create named pipe '%s': %s",
@@ -261,7 +278,7 @@ int PipeControlChannel::readNamedPipe()
                 continue;
             }
             BSLS_LOG_ERROR("Failed to poll pipe '%s', rc = %d, errno = %d: %s",
-                           d_pipeName.c_str(), rc, savedErrno, 
+                           d_pipeName.c_str(), rc, savedErrno,
                            bsl::strerror(savedErrno));
             return -1;                                                // RETURN
         }
@@ -269,7 +286,7 @@ int PipeControlChannel::readNamedPipe()
         if ((fds.revents & POLLERR) || (fds.revents & POLLNVAL)) {
             BSLS_LOG_TRACE("Polled POLLERROR or POLLINVAL from file "
                            "descriptor of pipe '%s', errno = %d: %s",
-                           d_pipeName.c_str(), savedErrno, 
+                           d_pipeName.c_str(), savedErrno,
                            bsl::strerror(savedErrno));
             return -1;                                                // RETURN
         }
@@ -290,12 +307,12 @@ int PipeControlChannel::readNamedPipe()
             }
             else if (0 > bytesRead) {
                 BSLS_LOG_ERROR("Failed to read from pipe '%s', errno = %d: %s",
-                               d_pipeName.c_str(), savedErrno, 
+                               d_pipeName.c_str(), savedErrno,
                                bsl::strerror(savedErrno));
                 return -1;                                            // RETURN
             }
             else {
-                if (bsls::Log::severityThreshold() >= 
+                if (bsls::Log::severityThreshold() >=
                     bsls::LogSeverity::e_TRACE) {
                     bsl::string readBytes(buffer, buffer + bytesRead);
                     BSLS_LOG_TRACE("Read data from pipe: '%s'",
@@ -402,7 +419,7 @@ PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
 , d_pipeName(bslma::Default::allocator(basicAllocator))
 , d_buffer(bslma::Default::allocator(basicAllocator))
 , d_thread(bslmt::ThreadUtil::invalidHandle())
-, d_isRunningFlag(false)
+, d_backgroundState(e_STOPPED)
 , d_isPipeOpen(false)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -423,14 +440,15 @@ PipeControlChannel::~PipeControlChannel()
 
 void PipeControlChannel::backgroundProcessor()
 {
-    while (d_isRunningFlag) {
-        if (0 != readNamedPipe()) {          
+    while (d_backgroundState == e_RUNNING) {
+        if (0 != readNamedPipe()) {
             BSLS_LOG_WARN("Error processing M-trap: unable to read from named"
                           " pipe '%s'", d_pipeName.c_str());
             return;                                                   // RETURN
         }
     }
 
+    d_backgroundState = e_STOPPED;
     BSLS_LOG_TRACE("The background thread has stopped");
 }
 
@@ -438,7 +456,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
 {
 
 // BSLS_ASSERT(!d_isRunningFlag); // TBD: DOES createNamedPipe FAIL???
-    if (d_isRunningFlag) {
+    if (d_backgroundState == e_RUNNING) {
         return 2;                                                     // RETURN
     }
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -455,15 +473,16 @@ int PipeControlChannel::start(const bsl::string& pipeName)
         return 1;                                                    // RETURN
     }
 
-    d_pipeName      = pipeName;
-    d_isRunningFlag = d_isPipeOpen = true;
+    d_pipeName        = pipeName;
+    d_backgroundState = e_RUNNING;
+    d_isPipeOpen      = true;
 
     int rc = bslmt::ThreadUtil::create(
          &d_thread,
          bdlf::BindUtil::bind(&PipeControlChannel::backgroundProcessor, this));
     if (rc != 0) {
         BSLS_LOG_ERROR("Cannot create processing thread, rc = %d", rc);
-        d_isRunningFlag = false;
+        d_backgroundState = e_STOPPED;
         return rc;                                                    // RETURN
     }
 
@@ -472,14 +491,15 @@ int PipeControlChannel::start(const bsl::string& pipeName)
 
 void PipeControlChannel::shutdown()
 {
-    if (!d_isRunningFlag) {
+    if (d_backgroundState != e_RUNNING) {
         return;                                                       // RETURN
     }
+
+    d_backgroundState = e_SHUTDOWN;
 
     if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
         // thread perform a synchronous shutdown.
-        d_isRunningFlag = false;
         return;                                                       // RETURN
     }
 
@@ -488,12 +508,10 @@ void PipeControlChannel::shutdown()
     // more reads and b) unblocking the background thread by sending an "empty"
     // message to the named pipe.
 
-    d_isRunningFlag = false;
-
-    int rc = sendEmptyMessage();
-    if (0 != rc) {
-        BSLS_LOG_ERROR("Failed to properly close named pipe '%s': rc = ",
-                       d_pipeName.c_str(), rc);
+    while (d_backgroundState != e_STOPPED) {
+        if (sendEmptyMessage() > 0) {  // Fatal errors
+            break;                                                     // BREAK
+        }
     }
 }
 
@@ -502,7 +520,7 @@ void PipeControlChannel::dispatchMessageUpTo(
 {
     bslstl::StringRef stringRef(&(*d_buffer.begin()),
                                 static_cast<int>(iter - d_buffer.begin()));
-    BSLS_LOG_TRACE("Assembled complete message '%s'", 
+    BSLS_LOG_TRACE("Assembled complete message '%s'",
                    ((bsl::string)stringRef).c_str());
 
     if (!stringRef.isEmpty()) {
@@ -518,7 +536,7 @@ void PipeControlChannel::stop()
         d_thread = bslmt::ThreadUtil::invalidHandle();
     }
 
-    d_isRunningFlag = false;
+    d_backgroundState = e_STOPPED;
 
     if (d_isPipeOpen) {
         destroyNamedPipe();
@@ -526,12 +544,12 @@ void PipeControlChannel::stop()
         d_isPipeOpen = false;
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

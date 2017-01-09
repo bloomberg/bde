@@ -161,6 +161,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -202,13 +206,20 @@ class PipeControlChannel {
         // pipe, without the terminating newline character.
 
   private:
+    // TYPES
+    enum BackgroundState {
+        e_STOPPED,
+        e_RUNNING,
+        e_SHUTDOWN
+    };
+
     // INSTANCE DATA
-    ControlCallback          d_callback;      // Callback for control messages
-    bsl::string              d_pipeName;      // full path name of pipe
-    bsl::vector<char>        d_buffer;        // message buffer
-    bslmt::ThreadUtil::Handle d_thread;        // background processing thread
-    bool                     d_isRunningFlag; // true if the channel is running
-    bool                     d_isPipeOpen;    // true if the pipe is still open
+    ControlCallback           d_callback;     // callback for control messages
+    bsl::string               d_pipeName;     // full path name of pipe
+    bsl::vector<char>         d_buffer;       // message buffer
+    bslmt::ThreadUtil::Handle d_thread;       // background processing thread
+    bsls::AtomicInt           d_backgroundState; // the background thread state
+    bool                      d_isPipeOpen;   // true if the pipe is still open
 
     union {
         struct {
@@ -303,7 +314,7 @@ const bsl::string& PipeControlChannel::pipeName() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
