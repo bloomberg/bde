@@ -98,6 +98,9 @@ struct RawLeapInfo64 {
 
 BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
 
+const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488;
+    // Transition time value, added by Zone Info Compiler by default.
+
 }  // close unnamed namespace
 
 static
@@ -471,6 +474,12 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
         if (i > 0 && transitions[i - 1] >= transitions[i]) {
             BSLS_LOG_ERROR("Transition time is not in ascending order.");
             return -32;                                               // RETURN
+        }
+
+        if ((transitions[i] < firstTransitionTime) &&
+            (transitions[i] != MINIMUM_ZIC_TRANSITION)) {
+            BSLS_LOG_WARN("Minimal value, other than ZIC default transition, "
+                          "is presented.");
         }
 
         const int curDescriptorIndex = localTimeIndices[i];
