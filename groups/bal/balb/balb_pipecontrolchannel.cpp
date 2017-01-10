@@ -38,6 +38,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 //#define NOMINMAX
 #include <windows.h>
 #include <winerror.h>
+#include <bdlde_charconvertutf16.h>
 #else
 #include <bsl_c_errno.h>
 #include <fcntl.h>
@@ -55,7 +56,7 @@ namespace {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 bsl::string describeWin32Error(DWORD lastError)
 {
-    enum {ERROR_BUFFER_SIZE=128};
+    enum { ERROR_BUFFER_SIZE = 128 };
     char errorBuffer[ERROR_BUFFER_SIZE];
     FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,
                    0,
@@ -89,14 +90,22 @@ namespace balb {
 
 int PipeControlChannel::sendEmptyMessage()
 {
+
+    bsl::wstring wPipeName;
+
+    if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, d_pipeName)) {
+        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        return 1;                                                     // RETURN
+    }
+
     HANDLE pipe;
-    if (!WaitNamedPipeA(d_pipeName.data(), NMPWAIT_USE_DEFAULT_WAIT)) {
+    if (!WaitNamedPipeW(wPipeName.c_str(), NMPWAIT_USE_DEFAULT_WAIT)) {
         return -1;
     }
-    pipe = CreateFileA(d_pipeName.data(), GENERIC_WRITE, 0, NULL,
+    pipe = CreateFileW(wPipeName.c_str(), GENERIC_WRITE, 0, NULL,
                        OPEN_EXISTING, 0, NULL);
     if (INVALID_HANDLE_VALUE == pipe) {
-        return 1;
+        return 2;
     }
 
     DWORD mode = PIPE_READMODE_MESSAGE;
@@ -105,7 +114,7 @@ int PipeControlChannel::sendEmptyMessage()
     DWORD dummy;
     bool result = WriteFile(pipe, "\n", 1, &dummy, 0);
     CloseHandle(pipe);
-    return result ? 0 : 2;
+    return result ? 0 : 3;
 
 }
 
@@ -176,8 +185,15 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         return -2;
     }
 
+    bsl::wstring wPipeName;
+
+    if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
+        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        return -3;                                                    // RETURN
+    }
+
     d_impl.d_windows.d_handle =
-        CreateNamedPipeA(pipeName.c_str(),
+        CreateNamedPipeW(wPipeName.c_str(),
                          PIPE_ACCESS_INBOUND,
                          PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
                          PIPE_UNLIMITED_INSTANCES,
@@ -495,7 +511,7 @@ void PipeControlChannel::shutdown()
         return;                                                       // RETURN
     }
 
-    d_backgroundState = e_SHUTDOWN;
+    d_backgroundState = e_STOPPING;
 
     if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
