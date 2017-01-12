@@ -310,13 +310,13 @@ void EventScheduler::stop()
 
 void
 EventScheduler::scheduleEvent(EventHandle                  *event,
-                              const bsls::TimeInterval&     time,
+                              const bsls::TimeInterval&     epochTime,
                               const bsl::function<void()>&  callback)
 {
     bool newTop;
 
     d_eventQueue.addR(&event->d_handle,
-                      time.totalMicroseconds(),
+                      epochTime.totalMicroseconds(),
                       callback,
                       &newTop);
 
@@ -327,13 +327,13 @@ EventScheduler::scheduleEvent(EventHandle                  *event,
 }
 
 void EventScheduler::scheduleEventRaw(Event                        **event,
-                                      const bsls::TimeInterval&      time,
+                                      const bsls::TimeInterval&      epochTime,
                                       const bsl::function<void()>&   callback)
 {
     bool newTop;
 
     d_eventQueue.addRawR((EventQueue::Pair **)event,
-                         time.totalMicroseconds(),
+                         epochTime.totalMicroseconds(),
                          callback,
                          &newTop);
 
@@ -344,14 +344,15 @@ void EventScheduler::scheduleEventRaw(Event                        **event,
 }
 
 void
-EventScheduler::scheduleRecurringEvent(RecurringEventHandle         *event,
-                                       const bsls::TimeInterval&     interval,
-                                       const bsl::function<void()>&  callback,
-                                       const bsls::TimeInterval&     startTime)
+EventScheduler::scheduleRecurringEvent(
+                                  RecurringEventHandle         *event,
+                                  const bsls::TimeInterval&     interval,
+                                  const bsl::function<void()>&  callback,
+                                  const bsls::TimeInterval&     startEpochTime)
 {
     BSLS_ASSERT(0 != interval);
 
-    bsls::Types::Int64 stime(startTime.totalMicroseconds());
+    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
     if (0 == stime) {
         stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
     }
@@ -373,14 +374,14 @@ EventScheduler::scheduleRecurringEvent(RecurringEventHandle         *event,
 
 void
 EventScheduler::scheduleRecurringEventRaw(
-                                      RecurringEvent               **event,
-                                      const bsls::TimeInterval&      interval,
-                                      const bsl::function<void()>&   callback,
-                                      const bsls::TimeInterval&      startTime)
+                                 RecurringEvent               **event,
+                                 const bsls::TimeInterval&      interval,
+                                 const bsl::function<void()>&   callback,
+                                 const bsls::TimeInterval&      startEpochTime)
 {
     BSLS_ASSERT(0 != interval);
 
-    bsls::Types::Int64 stime(startTime.totalMicroseconds());
+    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
     if (0 == stime) {
         stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
     }
@@ -513,7 +514,7 @@ int EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
 }
 
 int EventScheduler::rescheduleEvent(const Event               *handle,
-                                    const bsls::TimeInterval&  newTime)
+                                    const bsls::TimeInterval&  newEpochTime)
 {
     const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
                                        reinterpret_cast<const void *>(handle));
@@ -521,7 +522,9 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
     bool isNewTop;
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    int ret = d_eventQueue.updateR(h, newTime.totalMicroseconds(), &isNewTop);
+    int ret = d_eventQueue.updateR(h,
+                                   newEpochTime.totalMicroseconds(),
+                                   &isNewTop);
 
     if (0 == ret && isNewTop) {
         d_queueCondition.signal();
@@ -529,8 +532,9 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
     return ret;
 }
 
-int EventScheduler::rescheduleEventAndWait(const Event               *handle,
-                                           const bsls::TimeInterval&  newTime)
+int EventScheduler::rescheduleEventAndWait(
+                                       const Event               *handle,
+                                       const bsls::TimeInterval&  newEpochTime)
 {
     BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                             d_dispatcherThread));
@@ -542,7 +546,9 @@ int EventScheduler::rescheduleEventAndWait(const Event               *handle,
     {
         bool isNewTop;
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        ret = d_eventQueue.updateR(h, newTime.totalMicroseconds(), &isNewTop);
+        ret = d_eventQueue.updateR(h,
+                                   newEpochTime.totalMicroseconds(),
+                                   &isNewTop);
 
         if (0 == ret) {
             if (isNewTop) {
@@ -671,11 +677,10 @@ bsls::TimeInterval EventSchedulerTestTimeSource::now()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
