@@ -15,7 +15,10 @@
 #include <bdlf_placeholder.h>
 
 #include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_mutex.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 
 #include <bdls_pipeutil.h>
 
@@ -264,6 +267,32 @@ void onSigPipe(int) {
     BSLS_LOG_WARN("SIGPIPE received");
 }
 
+void myCallback(bslmt::Condition         *condition,
+                bsls::AtomicBool         *conditionFlag,
+                const bslstl::StringRef&  msg)
+{
+    if (verbose) {
+        bsl::cout << "Received message: " << msg << bsl::endl;
+    }
+    *conditionFlag = true;
+    condition->signal();
+    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0, 200000000));  // 0.2 seconds
+}
+
+void sendHello(const char *pipeName)
+{
+    // Allow time for the condition.wait() to be reached (see 'main')
+    bslmt::ThreadUtil::sleep(bsls::TimeInterval(2, 0));
+
+    bsl::ofstream pipe(pipeName);
+    ASSERT(pipe.is_open());
+    if (!pipe.is_open()) { // Avoiding waiting forever
+        abort();                                                       // ABORT
+    }
+
+    pipe << "Hello pipe" << endl;
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -291,6 +320,76 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // 'shutdown' DOES NOT DEADLOCK ON WINDOWS
+        //
+        // Concerns:
+        //   The 'sendEmptyMessage' function does not deadlock during shutdown.
+        //
+        // Plan:
+        //: Create a 'baea_PipeControlChannel' with a callback that triggers a
+        //: condition variable then waits 200 milliseconds.  Next create a
+        //: thread that (after a 2 seconds) wait will send data to the pipe.
+        //: Then wait on the condition variable.  Once the condition is
+        //: triggered the main thread is going to destroy the
+        //: 'baea_PipeControlChannel', which opens up a window of opportunity
+        //: to the tested (regression) race condition to occur.  The test case
+        //: has been tested using the unfixed code (on Windows) and the
+        //: deadlock occurs.
+        //:
+        //: The tested regression: The 'shutdown' function sets the
+        //: 'd_isRunningFlag' to 'false' while the background thread is still
+        //: (in our test case sleeping) in the user callback.  Once the
+        //: background thread returns from the user callback it can "see" that
+        //: that the 'd_isRunningFlag' is 'false' and stops reading from the
+        //: pipe.  This causes the send function to block forever, waiting for
+        //: a reader to show up.
+        //:
+        //: The fix: The code was fixed by introducing a critical section (in
+        //: the 'readNamedPipe' function) around the code that reads from the
+        //: pipe and runs the user callback, using the already existing
+        //: 'd_mutex' member.  A mutex lock is also introduced into the
+        //: 'backgroundProcessor' function to protect the reading of the
+        //: 'd_isRunningFlag', as it may be written to (from within 'shutdown')
+        //: from another thread, therefore reading it without synchronization
+        //: is undefined behavior.
+        //
+        // Testing:
+        //   shutdown
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "'shutdown' DOES NOT DEADLOCK ON WINDOWS" << endl
+                 << "=======================================" << endl;
+        }
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+        if (verbose) {
+            cout << "Skipping test case 11 on non-Windows OS..." << endl;
+        }
+#else
+        const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest11";
+        bslmt::Mutex mutex;
+        bslmt::Condition condition;
+        bsls::AtomicBool conditionFlag(false);
+        balb::PipeControlChannel pipeChannel(
+                                bdlf::BindUtil::bind(&myCallback,
+                                                    &condition,
+                                                    &conditionFlag,
+                                                    bdlf::PlaceHolders::_1));
+
+        pipeChannel.start(PIPE_NAME);
+        bslmt::ThreadUtil::Handle thread;
+        int rc = bslmt::ThreadUtil::create(&thread, bdlf::BindUtil::bind(
+                                                      &sendHello, PIPE_NAME));
+        ASSERT(rc == 0);
+        if (rc != 0) {
+            break;                                                     // BREAK
+        }
+        condition.wait(&mutex);
+#endif
+      } break;
       case -10: {
         // --------------------------------------------------------------------
         // Child process for case 10
@@ -749,7 +848,6 @@ int main(int argc, char *argv[])
                 loadData(&message, messageLength);
 
                 bslmt::Barrier  barrier(2);
-                bsls::AtomicInt numWrites(0);
 
                 balb::PipeControlChannel channel(bdlf::BindUtil::bind(
                                                         &verifyPayload,
@@ -1055,7 +1153,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

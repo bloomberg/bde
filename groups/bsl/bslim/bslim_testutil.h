@@ -12,6 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
+//  BSLIM_TESTUTIL_ASSERT(X): record and print error if '!X'
 //  BSLIM_TESTUTIL_LOOP_ASSERT(I, X): print arguments if '!X'
 //  BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, X): print arguments if '!X'
 //  BSLIM_TESTUTIL_LOOP3_ASSERT(I, J, K, X): print arguments if '!X'

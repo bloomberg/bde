@@ -50,6 +50,39 @@ BSLS_IDENT("$Id: $")
 // each message.  This trailing newline is stripped from the message before
 // the message is passed to the control callback.
 //
+///Platform-Specific Pipe Name Encoding Caveats
+///--------------------------------------------
+// Pipe-name encodings have the following caveats for the following operating
+// systems:
+//
+//: o On Windows, methods of 'balb::PipeControlChannel' that take or return a
+//:   pipe name as 'bsl::string' (or a reference to it) type assume that the
+//:   name is encoded in UTF-8.  The routines attempt to convert the name to a
+//:   UTF-16 'wchar_t' string via 'bdlde::CharConvertUtf16::utf8ToUtf16', and
+//:   if the conversion succeeds, call the Windows wide-character 'W' APIs with
+//:   the UTF-16 name.  If the conversion fails, the method fails.
+//:
+//:   o Narrow-character pipe names in other encodings, containing characters
+//:     with values in the range 128 - 255, will likely result in pipes being
+//:     created with names that appear garbled if the conversion from UTF-8 to
+//:     UTF-16 happens to succeed.
+//:
+//:   o Neither 'utf8ToUtf16' nor the Windows 'W' APIs do any normalization of
+//:     the UTF-16 strings resulting from UTF-8 conversion, and it is therefore
+//:     possible to have sets of pipe names that have the same visual
+//:     representation but are treated as different names by the system.
+//:
+//: o On Posix, a pipe name supplied to methods of 'balb::PipeControlChannel'
+//:   as 'bsl::string' type is passed unchanged to the underlying system file
+//:   APIs.  Because the pipe names are passed unchanged,
+//:   'balb::PipeControlChannel' methods will work correctly on Posix with any
+//:   encoding, but will *interoperate* only with processes that use the same
+//:   encoding as the current process.
+//:
+//: o For compatibility with most modern Posix installs, and consistency with
+//:   this component's Windows API, best practice is to encode all pipe names
+//:   in UTF-8.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -159,6 +192,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -200,13 +237,20 @@ class PipeControlChannel {
         // pipe, without the terminating newline character.
 
   private:
+    // TYPES
+    enum BackgroundThreadState {
+        e_STOPPED,  // The background thread is not running or about to exit.
+        e_RUNNING,  // The background thread is running normally.
+        e_STOPPING  // The background thread is requested to stop.
+    };
+
     // INSTANCE DATA
-    ControlCallback          d_callback;      // Callback for control messages
-    bsl::string              d_pipeName;      // full path name of pipe
-    bsl::vector<char>        d_buffer;        // message buffer
-    bslmt::ThreadUtil::Handle d_thread;        // background processing thread
-    bool                     d_isRunningFlag; // true if the channel is running
-    bool                     d_isPipeOpen;    // true if the pipe is still open
+    ControlCallback           d_callback;     // callback for control messages
+    bsl::string               d_pipeName;     // full path name of pipe
+    bsl::vector<char>         d_buffer;       // message buffer
+    bslmt::ThreadUtil::Handle d_thread;       // background processing thread
+    bsls::AtomicInt           d_backgroundState; // the background thread state
+    bool                      d_isPipeOpen;   // true if the pipe is still open
 
     union {
         struct {
@@ -241,8 +285,10 @@ class PipeControlChannel {
         // Return 0 on success, and a non-zero value otherwise.
 
     int sendEmptyMessage();
-        // Writes a '\n' character, only, to the pipe.  Used to unblock the
-        // reading thread so it can detect a shutdown condition.
+        // Writes a '\n' character, only, to the pipe.  Returns 0 on success, a
+        // value greater than 0 on error, and a value less than 0 in case of a
+        // timeout.  Used to unblock the reading thread so it can detect a
+        // shutdown condition.
 
   private:
     // NOT IMPLEMENTED
@@ -301,7 +347,7 @@ const bsl::string& PipeControlChannel::pipeName() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
