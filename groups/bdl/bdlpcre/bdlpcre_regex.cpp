@@ -15,6 +15,8 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 #include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
 
+#include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_exceptionutil.h>
 
@@ -23,6 +25,7 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 #include <bsl_utility.h>    // bsl::pair
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
+
 extern "C" {
 
 void *bdlpcre_malloc(size_t size, void* context)
@@ -82,15 +85,72 @@ enum {
 bsls::AtomicOperations::AtomicTypes::Int RegEx::s_depthLimit = {10000000};
 
 // PRIVATE ACCESSORS
-int RegEx::privateMatch(const char *subject,
-                        size_t      subjectLength,
-                        size_t      subjectOffset,
-                        bool        skipValidation) const
+int RegEx::acquireMatchContext(RegEx::RegEx_MatchContext *matchContext) const
 {
-    BSLS_ASSERT(subject || 0 == subjectLength);
-    BSLS_ASSERT(subjectOffset <= subjectLength);
-    BSLS_ASSERT(isPrepared());
+    if (d_mainThreadId == bslmt::ThreadUtil::selfIdAsUint64()) {
+        *matchContext = d_mainMatchContext;
+        return k_SUCCESS;                                             // RETURN
+    }
 
+    // Match Data
+    matchContext->d_matchData_p = pcre2_match_data_create_from_pattern(
+                                                               d_patternCode_p,
+                                                               0);
+
+    if (0 == matchContext->d_matchData_p) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    // Match context
+    matchContext->d_matchContext_p =
+                                  pcre2_match_context_create(d_pcre2Context_p);
+    if (0 == matchContext->d_matchContext_p) {
+        pcre2_match_data_free(matchContext->d_matchData_p);
+        return k_FAILURE;                                             // RETURN
+    }
+
+    pcre2_set_match_limit(matchContext->d_matchContext_p, d_depthLimit);
+
+    // Jit stack
+    matchContext->d_jitStack_p = 0;
+    if (d_jitStackSize) {
+        if (d_flags & k_FLAG_JIT && isJitAvailable()) {
+            matchContext->d_jitStack_p = pcre2_jit_stack_create(
+                                                             d_jitStackSize,
+                                                             d_jitStackSize,
+                                                             d_pcre2Context_p);
+            if (0 == matchContext->d_jitStack_p) {
+                pcre2_match_context_free(matchContext->d_matchContext_p);
+                pcre2_match_data_free(matchContext->d_matchData_p);
+                return k_FAILURE;                                     // RETURN
+            }
+            pcre2_jit_stack_assign(matchContext->d_matchContext_p,
+                                   0,
+                                   matchContext->d_jitStack_p);
+        }
+    }
+
+    return k_SUCCESS;
+}
+
+void RegEx::releaseMatchContext(RegEx::RegEx_MatchContext *matchContext) const
+{
+
+    if (d_mainThreadId == bslmt::ThreadUtil::selfIdAsUint64()) {
+        return;                                                       // RETURN
+    }
+
+    pcre2_match_data_free(matchContext->d_matchData_p);
+    pcre2_jit_stack_free(matchContext->d_jitStack_p);
+    pcre2_match_context_free(matchContext->d_matchContext_p);
+}
+
+int RegEx::privateMatch(const char         *subject,
+                        size_t              subjectLength,
+                        size_t              subjectOffset,
+                        bool                skipValidation,
+                        RegEx_MatchContext *matchContext) const
+{
     int result = k_SUCCESS;
 
     const unsigned char* actualSubject =
@@ -105,16 +165,16 @@ int RegEx::privateMatch(const char *subject,
                                           subjectLength,
                                           subjectOffset,
                                           0,
-                                          d_matchData_p,
-                                          d_matchContext_p);
+                                          matchContext->d_matchData_p,
+                                          matchContext->d_matchContext_p);
         } else {
             returnValue = pcre2_match(d_patternCode_p,
                                       actualSubject,
                                       subjectLength,
                                       subjectOffset,
                                       PCRE2_NO_UTF_CHECK,
-                                      d_matchData_p,
-                                      d_matchContext_p);
+                                      matchContext->d_matchData_p,
+                                      matchContext->d_matchContext_p);
         }
 
     } else {
@@ -123,8 +183,8 @@ int RegEx::privateMatch(const char *subject,
                           subjectLength,
                           subjectOffset,
                           0,
-                          d_matchData_p,
-                          d_matchContext_p);
+                          matchContext->d_matchData_p,
+                          matchContext->d_matchContext_p);
     }
 
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
@@ -138,13 +198,13 @@ int RegEx::privateMatch(const char *subject,
     return result;
 }
 
-
-void RegEx::extractMatchResult(bsl::pair<size_t, size_t> *result) const
+void RegEx::extractMatchResult(pcre2_match_data          *matchData,
+                               bsl::pair<size_t, size_t> *result) const
 {
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
+    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
 
     BSLS_ASSERT(1 <= ovectorCount);
     (void)ovectorCount;
@@ -154,13 +214,14 @@ void RegEx::extractMatchResult(bsl::pair<size_t, size_t> *result) const
     *result = bsl::make_pair(offset, length);
 }
 
-void RegEx::extractMatchResult(bslstl::StringRef *result,
+void RegEx::extractMatchResult(pcre2_match_data  *matchData,
+                               bslstl::StringRef *result,
                                const char        *subject) const
 {
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
+    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
     (void)ovectorCount;
 
     BSLS_ASSERT(1 <= ovectorCount);
@@ -175,12 +236,13 @@ void RegEx::extractMatchResult(bslstl::StringRef *result,
 }
 
 void RegEx::extractMatchResult(
+                         pcre2_match_data                        *matchData,
                          bsl::vector<bsl::pair<size_t, size_t> > *result) const
 {
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
+    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
 
     result->resize(ovectorCount);
 
@@ -191,13 +253,14 @@ void RegEx::extractMatchResult(
     }
 }
 
-void RegEx::extractMatchResult(bsl::vector<bslstl::StringRef> *result,
+void RegEx::extractMatchResult(pcre2_match_data               *matchData,
+                               bsl::vector<bslstl::StringRef> *result,
                                const char                     *subject) const
 {
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
+    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
 
     result->resize(ovectorCount);
 
@@ -231,10 +294,7 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
 , d_pattern(basicAllocator)
 , d_pcre2Context_p(0)
 , d_compileContext_p(0)
-, d_matchContext_p(0)
-, d_jitStack_p(0)
 , d_patternCode_p(0)
-, d_matchData_p(0)
 , d_depthLimit(RegEx::defaultDepthLimit())
 , d_jitStackSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -249,11 +309,9 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
     d_compileContext_p = pcre2_compile_context_create(d_pcre2Context_p);
     BSLS_ASSERT(0 != d_compileContext_p);
 
-    // Pre-create match context
-    d_matchContext_p = pcre2_match_context_create(d_pcre2Context_p);
-    BSLS_ASSERT(0 != d_matchContext_p);
-
-    pcre2_set_match_limit(d_matchContext_p, d_depthLimit);
+    d_mainMatchContext.d_matchData_p    = 0;
+    d_mainMatchContext.d_matchContext_p = 0;
+    d_mainMatchContext.d_jitStack_p     = 0;
 }
 
 // MANIPULATORS
@@ -261,11 +319,10 @@ void RegEx::clear()
 {
     if (isPrepared()) {
         pcre2_code_free(d_patternCode_p);
-        pcre2_match_data_free(d_matchData_p);
-        pcre2_jit_stack_free(d_jitStack_p);
+        pcre2_jit_stack_free(d_mainMatchContext.d_jitStack_p);
+        pcre2_match_context_free(d_mainMatchContext.d_matchContext_p);
+        pcre2_match_data_free(d_mainMatchContext.d_matchData_p);
         d_patternCode_p = 0;
-        d_matchData_p   = 0;
-        d_jitStack_p    = 0;
         d_flags         = 0;
         d_jitStackSize  = 0;
         d_pattern.clear();
@@ -343,7 +400,7 @@ int RegEx::prepare(bsl::string *errorMessage,
         if (0 != pcre2_jit_compile(patternCode, PCRE2_JIT_COMPLETE)) {
             pcre2_code_free(patternCode);
             if (errorMessage) {
-                errorMessage->assign("JIT compilation has failed");
+                errorMessage->assign("JIT compilation failed.");
             }
             if (errorOffset) {
                 *errorOffset = 0;
@@ -352,13 +409,17 @@ int RegEx::prepare(bsl::string *errorMessage,
         }
     }
 
-    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
-                                                               patternCode, 0);
+    // Allocate match buffers for the main thread
 
-    if (0 == matchData) {
+    // Match Data
+    d_mainMatchContext.d_matchData_p = pcre2_match_data_create_from_pattern(
+                                                                   patternCode,
+                                                                   0);
+
+    if (0 == d_mainMatchContext.d_matchData_p) {
         pcre2_code_free(patternCode);
         if (errorMessage) {
-            errorMessage->assign("Out of memory.");
+            errorMessage->assign("Unable to create match data.");
         }
         if (errorOffset) {
             *errorOffset = 0;
@@ -366,13 +427,34 @@ int RegEx::prepare(bsl::string *errorMessage,
         return k_FAILURE;                                             // RETURN
     }
 
-    if (flags & k_FLAG_JIT && isJitAvailable()) {
-        if (jitStackSize) {
-            d_jitStack_p = pcre2_jit_stack_create(jitStackSize,
-                                                  jitStackSize,
-                                                  d_pcre2Context_p);
-            if (0 == d_jitStack_p) {
-                pcre2_match_data_free(matchData);
+
+    // Match context
+    d_mainMatchContext.d_matchContext_p =
+                                  pcre2_match_context_create(d_pcre2Context_p);
+    if (0 == d_mainMatchContext.d_matchContext_p) {
+        pcre2_match_data_free(d_mainMatchContext.d_matchData_p);
+        pcre2_code_free(patternCode);
+        if (errorMessage) {
+            errorMessage->assign("Unable to create match context.");
+        }
+        if (errorOffset) {
+            *errorOffset = 0;
+        }
+        return k_FAILURE;                                     // RETURN
+    }
+
+    pcre2_set_match_limit(d_mainMatchContext.d_matchContext_p, d_depthLimit);
+
+    // Jit stack
+    if (jitStackSize) {
+        if (flags & k_FLAG_JIT && isJitAvailable()) {
+            d_mainMatchContext.d_jitStack_p = pcre2_jit_stack_create(
+                                                             jitStackSize,
+                                                             jitStackSize,
+                                                             d_pcre2Context_p);
+            if (0 == d_mainMatchContext.d_jitStack_p) {
+                pcre2_match_context_free(d_mainMatchContext.d_matchContext_p);
+                pcre2_match_data_free(d_mainMatchContext.d_matchData_p);
                 pcre2_code_free(patternCode);
                 if (errorMessage) {
                     errorMessage->assign("Unable to create JIT stack.");
@@ -382,18 +464,21 @@ int RegEx::prepare(bsl::string *errorMessage,
                 }
                 return k_FAILURE;                                     // RETURN
             }
-            d_jitStackSize = jitStackSize;
-        }
 
-        pcre2_jit_stack_assign(d_matchContext_p, 0, d_jitStack_p);
+            d_jitStackSize = jitStackSize;
+
+            pcre2_jit_stack_assign(d_mainMatchContext.d_matchContext_p,
+                                   0,
+                                   d_mainMatchContext.d_jitStack_p);
+        }
     }
 
     // Set the data members and set the object to the "prepared" state.
 
     d_pattern       = pattern;
     d_patternCode_p = patternCode;
-    d_matchData_p   = matchData;
     d_flags         = flags;
+    d_mainThreadId  = bslmt::ThreadUtil::selfIdAsUint64();
 
     return k_SUCCESS;
 }
@@ -403,7 +488,25 @@ int RegEx::match(const char *subject,
                  size_t      subjectLength,
                  size_t      subjectOffset) const
 {
-    return privateMatch(subject, subjectLength, subjectOffset, false);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    int matchResult = privateMatch(subject,
+                                   subjectLength,
+                                   subjectOffset,
+                                   false,
+                                   &matchContext);
+
+    releaseMatchContext(&matchContext);
+
+    return matchResult;
 }
 
 int RegEx::match(bsl::pair<size_t, size_t> *result,
@@ -412,19 +515,29 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
                  size_t                     subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result);
     }
 
-    extractMatchResult(result);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::match(bslstl::StringRef *result,
@@ -433,19 +546,29 @@ int RegEx::match(bslstl::StringRef *result,
                  size_t             subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result, subject);
     }
 
-    extractMatchResult(result, subject);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
@@ -454,19 +577,29 @@ int RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
                  size_t                                   subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result);
     }
 
-    extractMatchResult(result);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::match(bsl::vector<bslstl::StringRef> *result,
@@ -475,26 +608,54 @@ int RegEx::match(bsl::vector<bslstl::StringRef> *result,
                  size_t                          subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result, subject);
     }
 
-    extractMatchResult(result, subject);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::matchRaw(const char *subject,
                     size_t      subjectLength,
                     size_t      subjectOffset) const
 {
-    return privateMatch(subject, subjectLength, subjectOffset, true);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    int matchResult = privateMatch(subject,
+                                   subjectLength,
+                                   subjectOffset,
+                                   true,
+                                   &matchContext);
+
+    releaseMatchContext(&matchContext);
+
+    return matchResult;
 }
 
 int RegEx::matchRaw(bsl::pair<size_t, size_t> *result,
@@ -503,19 +664,29 @@ int RegEx::matchRaw(bsl::pair<size_t, size_t> *result,
                     size_t                     subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result);
     }
 
-    extractMatchResult(result);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::matchRaw(bslstl::StringRef *result,
@@ -524,19 +695,29 @@ int RegEx::matchRaw(bslstl::StringRef *result,
                     size_t             subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result, subject);
     }
 
-    extractMatchResult(result, subject);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::matchRaw(
@@ -546,19 +727,29 @@ int RegEx::matchRaw(
                   size_t                                   subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result);
     }
 
-    extractMatchResult(result);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::matchRaw(bsl::vector<bslstl::StringRef> *result,
@@ -567,19 +758,29 @@ int RegEx::matchRaw(bsl::vector<bslstl::StringRef> *result,
                     size_t                          subjectOffset) const
 {
     BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContext matchContext;
+
+    if (0 != acquireMatchContext(&matchContext)) {
+        return k_FAILURE;                                             // RETURN
+    }
 
     int matchResult = privateMatch(subject,
                                    subjectLength,
                                    subjectOffset,
-                                   true);
+                                   true,
+                                   &matchContext);
 
-    if (k_SUCCESS != matchResult) {
-        return matchResult;                                           // RETURN
+    if (k_SUCCESS == matchResult) {
+        extractMatchResult(matchContext.d_matchData_p, result, subject);
     }
 
-    extractMatchResult(result, subject);
+    releaseMatchContext(&matchContext);
 
-    return k_SUCCESS;
+    return matchResult;
 }
 
 int RegEx::numSubpatterns() const
