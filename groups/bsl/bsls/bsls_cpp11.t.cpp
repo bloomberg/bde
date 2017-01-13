@@ -100,8 +100,8 @@ namespace
       // 'noexcept(expr-with-commas)'
 
     void throws5() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-                                                BSLS_CPP11_PROVISIONALLY_FALSE) 
-                                                                  {} 
+                                                BSLS_CPP11_PROVISIONALLY_FALSE)
+                                                                  {}
 }  // close unnamed namespace
 
 //=============================================================================
@@ -178,12 +178,12 @@ int main(int argc, char *argv[])
         struct FinalFunctionBase
         {
             virtual int f() { return 0; }
-                // Returns a value associated with the the class's type.
+                // Returns a value associated with the class's type.
         };
         struct FinalFunctionDerived: FinalFunctionBase
         {
             int f() BSLS_CPP11_FINAL
-                // Returns a value associated with the the class's type.
+                // Returns a value associated with the class's type.
             { return 1; }
         };
         struct FinalFunctionFailure: FinalFunctionDerived
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL) \
  || defined(FAIL_USAGE_FINAL_FUNCTION)
             int f()
-                // Returns a value associated with the the class's type.
+                // Returns a value associated with the class's type.
             { return 2; }
 #endif
         };

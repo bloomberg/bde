@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise copyable.
 //
+//@DEPRECATED: Use 'bslmf_istriviallycopyable' instead.
+//
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
 //
@@ -17,31 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitBitwiseCopyable'.  An object of a 'TYPE' that has the
-// bit-wise copyable trait can be copied either by invoking the copy
-// constructor or by copying the footprint (i.e., the 'sizeof(TYPE)' bytes at
-// the object address) using 'memcpy'.
-//
-// Note also that this type is a synonym for having a trivial destructor, as in
-// almost every case a bitwise copyable class does not need to perform any
-// operation on destruction.  It is possible to write types that are
-// operationally bitwise copyable (i.e., copy constructor can be implemented in
-// terms of 'memcpy') but have a non-trivial destructor, but most examples of
-// such types are contrived.  In any case, this trait should not be attached to
-// such types.
-//
-// This component is used by various 'bslalg' components for providing
-// optimized primitives for types that have the bit-wise copyable trait.  The
-// major benefit of this trait is not for a single object but for an array of
-// such types, as a loop can be replaced by a single call to 'memcpy'.
-//
-///What Constitutes Bit-Wise Copyability?
-///--------------------------------------
-// TBD: A short guide on when to attach this trait to a class should follow.
-//
-///Usage
-///-----
-// TBD
+// 'bslalg::TypeTraitBitwiseCopyable', which allows the trait
+// 'bsl::is_trivially_copyable' to be declared using the (deprecated)
+// 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslmf_istriviallycopyable'
+// component for details of this trait.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -49,6 +30,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 namespace BloombergLP {

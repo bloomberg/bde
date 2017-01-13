@@ -57,7 +57,22 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 
 #endif
 
-#define BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR 0
+#define BTLSO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR 0
+
+#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+// Some cases are customized for Darwin and HPUX: dispatching immediately after
+// writing to the control socket of a pair does not return the read event, so we
+// sleep before invoking dispatch. Note that simply increasing the timeout
+// to dispatch is not effective in cases where there are two events registered
+// for the same socket, as the write event will cause poll() to return
+// immediately whether or not a read event is available yet.  The
+// PRE_DISPATCH_SLEEP macro is used to implement this extra sleep for these
+// platforms.
+
+# define PRE_DISPATCH_SLEEP " S40; "
+#else
+# define PRE_DISPATCH_SLEEP
+#endif
 
 namespace BloombergLP {
 
@@ -117,27 +132,19 @@ struct ThreadInfo{
 
 typedef btlso::EventManagerTestPair SocketPair;
 
-static void genericCb(btlso::EventType::Type  event,
-                      int                     fd,
-                      int                     bytes,
-                      btlso::EventManager    *mX,
-                      SocketPair             *fds,
-                      const char             *cbScript,
-                      int                     flags);
-
 static int ggHelper(btlso::EventManager         *mX,
                     btlso::EventManagerTestPair *fds,
                     const char                  *test,
                     int                          flags);
 
 extern "C"
-void bteso_eventmanagertester_nullFunctor()
+void btlso_eventmanagertester_nullFunctor()
 {
 }
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 extern "C"
-void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
+void* btlso_eventmanagertester_threadSignalGenerator(void *arg)
     // Generate signal 'SIGSYS' and deliver it to a thread specified in 'arg'.
     // Note the test can only work on UNIX platforms since window doesn't
     // support signal operations.
@@ -325,6 +332,14 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode = 0)
                 return 0;                                             // RETURN
             }
         }
+        else {
+            // check whether we've run past the end of a valid script. We don't
+            // use any extended ASCII in scripts (and note, if the caller is
+            // using a test allocator, it will scribble erased memory with
+            // bytes in the extended range)
+            BSLS_ASSERT(*cbCmd > 0 && *cbCmd < 0x7f);
+        }
+
         ++cbCmd;
     }
     while (' ' == *cbCmd || '\t' == *cbCmd) {
@@ -333,15 +348,62 @@ static const char *getNextCbCommand(const char *cbCmd, int *errCode = 0)
     return cbCmd;
 }
 
+// Some event manager implementations may allocate callbacks using a pool
+// allocator or some similar mechanism. That can avoid the "scribbling" of
+// deallocated objects that test allocators perform, avoiding tests that would
+// detect the reuse of callback objects after deletion. To make such tests
+// effective, provide a wrapper layer for callbacks that scribbles itself on
+// deletion.
+class CbWrapper {
+
+    typedef EventManager::Callback Callback;
+    bsls::ObjectBuffer<Callback> d_callback;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CbWrapper,
+                                   bslma::UsesBslmaAllocator);
+
+    CbWrapper(const CbWrapper&  other,
+                         bslma::Allocator *basicAllocator = 0)
+    {
+        new (d_callback.buffer())
+            Callback(bsl::allocator_arg_t(),
+                     bslma::Default::allocator(basicAllocator),
+                     other.d_callback.object());
+    }
+
+    CbWrapper(const EventManager::Callback&  callback,
+                         bslma::Allocator              *basicAllocator = 0)
+    {
+        new (d_callback.buffer())
+            Callback(bsl::allocator_arg_t(),
+                     bslma::Default::allocator(basicAllocator),
+                     callback);
+    }
+
+    ~CbWrapper() {
+        d_callback.object().~Callback();
+        bsl::memset(d_callback.buffer(), 0xE1, sizeof(d_callback));
+    }
+
+    void operator()() {
+        d_callback.object()();
+    }
+};
+
 static void
 genericCb(btlso::EventType::Type  event,
           int                     fd,
           int                     bytes,
           btlso::EventManager    *mX,
           SocketPair             *fds,
-          const char             *cbScript,
+          const bsl::string      &cbScript,
           int                     flags)
     // This generic callback function performs 'event' specific action.
+    // Implementation note: 'cbScript' is passed as const bsl::string&
+    // deliberately in order to test the handling of functors with complex
+    // bound arguments.
 {
     if (0 > bytes) {
         if (flags & btlso::EventManagerTester::k_ABORT) {
@@ -428,9 +490,15 @@ genericCb(btlso::EventType::Type  event,
 
     // If a callback script has been specified, then execute them here by
     // invoking ggHelper().
+    const char *cbScriptPtr = cbScript.empty() ? 0 : &cbScript[0];
+    while (cbScriptPtr) {
+        if (flags & btlso::EventManagerTester::k_VERY_VERY_VERBOSE) {
+            bsl::printf("Generic callback: executing script %s\n",
+                        cbScriptPtr);
+            bsl::fflush(stdout);
+        }
 
-    while (cbScript) {
-        int ret = ggHelper(mX, fds, cbScript, flags);
+        int ret = ggHelper(mX, fds, cbScriptPtr, flags);
 
         if (flags & btlso::EventManagerTester::k_ABORT) {
             BSLS_ASSERT(e_SUCCESS == ret);
@@ -445,10 +513,10 @@ genericCb(btlso::EventType::Type  event,
         }
 
         int errCode = 0;
-        cbScript = getNextCbCommand(cbScript, &errCode);
+        cbScriptPtr = getNextCbCommand(cbScriptPtr, &errCode);
 
-        if (!cbScript) {  // Verify it's the end of script:
-                          // make sure it's not due to any invalid command.
+        if (!cbScriptPtr) {  // Verify it's the end of script:
+                             // make sure it's not due to any invalid command.
             if (e_FAIL == errCode) {
                 bsl::puts("Script command is invalid in callback function.");
                 bsl::fflush(stdout);
@@ -532,6 +600,9 @@ static int ggHelper(btlso::EventManager         *mX,
         }
 
         // Create a callback object.
+        // Make a copy of the script, if any, to force the bound functor
+        // to contain an allocated object
+        bsl::string script = cbScript ? cbScript : "";
 
         btlso::EventManager::Callback cb;
         switch (d) {
@@ -542,12 +613,12 @@ static int ggHelper(btlso::EventManager         *mX,
                                       bytes,
                                       mX,
                                       fds,
-                                      cbScript,
+                                      script,
                                       flags);
 
             mX->registerSocketEvent(fds[fd].observedFd(),
                                     btlso::EventType::e_READ,
-                                    cb);
+                                    CbWrapper(cb));
           } break;
           case 'w': {
             cb = bdlf::BindUtil::bind(&genericCb,
@@ -556,7 +627,7 @@ static int ggHelper(btlso::EventManager         *mX,
                                       bytes,
                                       mX,
                                       fds,
-                                      cbScript,
+                                      script,
                                       flags);
 
             mX->registerSocketEvent(fds[fd].observedFd(),
@@ -571,7 +642,7 @@ static int ggHelper(btlso::EventManager         *mX,
                                       bytes,
                                       mX,
                                       fds,
-                                      cbScript,
+                                      script,
                                       flags);
 
             mX->registerSocketEvent(fds[fd].observedFd(),
@@ -586,7 +657,7 @@ static int ggHelper(btlso::EventManager         *mX,
                                       bytes,
                                       mX,
                                       fds,
-                                      cbScript,
+                                      script,
                                       flags);
 
             mX->registerSocketEvent(fds[fd].observedFd(),
@@ -1025,6 +1096,11 @@ EventManagerTester::testDeregisterSocket(EventManager *mX, int flags)
       {L_, "-a; +0a; T1; -0; E0; T0; +0a; E0a; T1"                      },
       {L_, "-a; +0c; T1; -0; E0; T0; +0c; E0c; T1"                      },
 
+      // One socket event
+      {L_, "-a; +0r64; W0,64; Dn,1; -0; E0"                             },
+      // One socket event: has an allocated callback and deregisters itself
+      {L_, "-a; +0r8,{-0; +1r}; W0,8; Dn,1; -a; E0"                     },
+
         // Test the event manager when two socket events exist.
         // The two socket events are for the same socket handle.
       {L_, "-a; +0w; +0r; T2; -0; E0; T0; +0r; E0r; T1; -0; T0"         },
@@ -1246,14 +1322,17 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             // The two socket events are for the same socket handle.
           {L_, "-a; +0w64; +0r24; Dn,1; -0w; Di500,0; -0r; T0"              },
           {L_, "-a; +0r24; +0w64; Dn,1; -0w; Di500,0; -0r; T0"              },
-          {L_, "-a; +0w64; +0r24; W0,64; Dn,2; -0w; Di,1; -0r; T0"          },
+          {L_, "-a; +0w64; +0r24; W0,64; " PRE_DISPATCH_SLEEP
+               "Dn,2; -0w; Di,1; -0r; T0"          },
 
             // The two socket events are for different socket handles.
-          {L_, "-a; +0w64; +1w24; W0,64; Dn,2; -0w; Di500,1; T1"            },
+          {L_, "-a; +0w64; +1w24; W0,64; " PRE_DISPATCH_SLEEP
+               "Dn,2; -0w; Di500,1; T1"            },
           {L_, "-a; +0w64; +1r24; W0,64; Dn,1; -0w; Di500,0; T1"            },
           {L_, "-a; +0w64; +1a;   W0,64; Dn,1; -0w; Di500,0; T1"            },
 
-          {L_, "-a; +0r64; +1w24; W0,64; Dn,2; -1w; Di500,0; T1"            },
+          {L_, "-a; +0r64; +1w24; W0,64; " PRE_DISPATCH_SLEEP
+               "Dn,2; -1w; Di500,0; T1"            },
           {L_, "-a; +0r64; +1r24; W0,64; Dn,1; -0r; Di500,0; T1"            },
           {L_, "-a; +0r64; +1a;   W0,64; Dn,1; -0r; Di500,0; T1"            },
 
@@ -1265,8 +1344,10 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
 
             // Test the event manager when a test script need to be executed in
             // the user-installed callback function.
-          {L_, "-a; +0r24,{-a}; +0w64; W0,64; T2; Dn,1; E0; T0"             },
-          {L_, "-a; +0r24,{-a}; +1r64; W0,64; T2; Dn,1; E0; E1; T0"         },
+          {L_, "-a; +0r24,{-a}; +0w64; W0,64; T2; " PRE_DISPATCH_SLEEP
+               "Dn,1; E0; T0"                                               },
+          {L_, "-a; +0r24,{-a}; +1r64; W0,64; T2; " PRE_DISPATCH_SLEEP
+               "Dn,1; E0; E1; T0"                                           },
 
             // The following tests cannot be in a black-box test since
             // the order of iteration is undefined
@@ -1380,7 +1461,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             int ret = bslmt::ThreadUtil::create(
                                &threadHandle[i],
                                attributes,
-                               &bteso_eventmanagertester_threadSignalGenerator,
+                               &btlso_eventmanagertester_threadSignalGenerator,
                                &threadInfo);
             if (0 != ret) {
                 bsl::printf("bslmt::ThreadUtil::create() call at line %d "
@@ -1400,7 +1481,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             }
 
             int bytes = 1;
-            const char *cbScript = 0;  // dummy argument.
+            const char *cbScript = "";
             EventManager::Callback readCb(
                    bdlf::BindUtil::bind(&genericCb,
                                         EventType::e_READ,
@@ -1481,7 +1562,7 @@ EventManagerTester::testDispatchPerformance(EventManager *mX,
     enum { k_NUM_MEASUREMENTS = 10 };
 #endif
     int         fails = 0, i = 0;
-    const char *cbScript = 0;  // dummy argument.
+    const char *cbScript = "";
 
     if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("TESTING BUSY 'dispatch()' capacity\n"
@@ -1628,7 +1709,7 @@ EventManagerTester::testDispatchPerformance(EventManager *mX,
             socketPairs[i].setControlBufferOptions(k_BUF_LEN, 1);
 
             if ('N' == reads) {
-                readCb[i] = &bteso_eventmanagertester_nullFunctor;
+                readCb[i] = &btlso_eventmanagertester_nullFunctor;
             }
             else {
                 readCb[i] = bdlf::BindUtil::bind(&genericCb,
@@ -1811,7 +1892,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX, int flags)
 
     BSLS_ASSERT_OPT(numSockets >= 10);
 
-    EventManager::Callback nullCb = &bteso_eventmanagertester_nullFunctor;
+    EventManager::Callback nullCb = &btlso_eventmanagertester_nullFunctor;
 
     bslma::TestAllocator testAllocator(
                               flags & EventManagerTester::k_VERY_VERY_VERBOSE);
@@ -1825,7 +1906,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX, int flags)
         bslalg::ScalarPrimitives::defaultConstruct(&socket[ii + 1],
                                                    &testAllocator);
 
-#if BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
+#if BTLSO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         // We found creating 40,000 sockets in the -1 and -2 cases of
         // defaulteventmanager_*.t.cpp would crash ibm7.  If we create them
         // this way it will be OK, though some test drivers may complain in
@@ -1896,7 +1977,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX, int flags)
 EventManagerTestPair::EventManagerTestPair(int verboseFlag)
 : d_verboseFlag(verboseFlag)
 {
-#if BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
+#if BTLSO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
     // We found creating 40,000 sockets in the -1 and -2 cases of
     // defaulteventmanager_*.t.cpp would crash ibm7.  Allegedly, if we create
     // them this way it will be OK, though some test drivers may complain in
@@ -1937,7 +2018,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
             bsl::printf("T%llu: setBlockingMode (%d): %d\n",
                         bslmt::ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
-#if !BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
+#if !BTLSO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         rc |= SocketOptUtil::setOption(d_fds[0],
                                        SocketOptUtil::k_TCPLEVEL,
                                        SocketOptUtil::k_TCPNODELAY, 1);
@@ -1960,14 +2041,15 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
                 bsl::printf("T%llu: Closing %d\n",
                             bslmt::ThreadUtil::selfIdAsUint64(),
                             d_fds[1]);
-                SocketImpUtil::close(d_fds[1]);
             }
+            SocketImpUtil::close(d_fds[1]);
+
             if (d_verboseFlag) {
                 bsl::printf("T%llu: Closing %d\n",
                             bslmt::ThreadUtil::selfIdAsUint64(),
                             d_fds[0]);
-                SocketImpUtil::close(d_fds[0]);
             }
+            SocketImpUtil::close(d_fds[0]);
             d_validFlag = -1;
         }
         else {
@@ -1981,13 +2063,14 @@ EventManagerTestPair::~EventManagerTestPair()
     if (d_verboseFlag) {
         bsl::printf("T%llu: Closing %d\n", bslmt::ThreadUtil::selfIdAsUint64(),
                     d_fds[1]);
-        SocketImpUtil::close(d_fds[1]);
     }
+    SocketImpUtil::close(d_fds[1]);
+
     if (d_verboseFlag) {
         bsl::printf("T%llu: Closing %d\n", bslmt::ThreadUtil::selfIdAsUint64(),
                     d_fds[0]);
-        SocketImpUtil::close(d_fds[0]);
     }
+    SocketImpUtil::close(d_fds[0]);
 }
 
 int

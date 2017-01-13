@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to help with testing templates.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsltf::TemplateTestFacility: namespace for template-testing utilities
 //

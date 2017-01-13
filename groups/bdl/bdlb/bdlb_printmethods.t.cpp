@@ -10,10 +10,7 @@
 #include <bdlb_printmethods.h>
 
 #include <bslim_testutil.h>
-
-#include <bslalg_typetraits.h>
 #include <bslmf_assert.h>
-#include <bslalg_hastrait.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_timeinterval.h>
 
@@ -43,7 +40,7 @@ using namespace bsl;  // automatically added by script
 //: o Then test the generic print method to make sure it uses the trait
 //:   detector correctly and calls the correct print implementation method [8].
 //: o Then test 'bsl::vector' '<<' output stream operator to make sure it
-//:   successfully calls the the print method to print on a single line and
+//:   successfully calls the print method to print on a single line and
 //:   suppress indentation [9]
 //: o Finally, test the usage example to make sure it compiles and runs [10].
 // ----------------------------------------------------------------------------
@@ -446,47 +443,46 @@ class TestType_PrintMethod {
 class TestType_PrintMethod_StlIterators {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bdlb::TypeTraitHasPrintMethod' and
-    // 'bslalg::TypeTraitHasStlIterators'.  Note that the traits just need to
-    // be declared but the functionality does not need to be implemented,
-    // because they will not be used at run-time.
+    // 'bslalg::HasStlIterators'.  Note that the traits just need to be
+    // declared but the functionality does not need to be implemented, because
+    // they will not be used at run-time.
 };
 
 class TestType_PrintMethod_Pair {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bdlb::TypeTraitHasPrintMethod' and
-    // 'bslalg::TypeTraitPair'.  Note that the traits just need to be declared
-    // but the functionality does not need to be implemented, because they will
-    // not be used at run-time in this test driver.
+    // type declares 'bdlb::TypeTraitHasPrintMethod' and 'bslmf::IsPair'.  Note
+    // that the traits just need to be declared but the functionality does not
+    // need to be implemented, because they will not be used at run-time in
+    // this test driver.
 };
 
 class TestType_PrintMethod_StlIterators_Pair {
     // This type is used for testing the trait detection meta-function.  This
     // type declares 'bdlb::TypeTraitHasPrintMethod',
-    // 'bslalg::TypeTraitHasStlIterators', and 'bslalg::TypeTraitPair'.  Note
-    // that the traits just need to be declared but the functionality does not
-    // need to be implemented, because they will not be used at run-time.
-};
-
-class TestType_StlIterators {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg::TypeTraitHasStlIterators'.  Note that the traits
+    // 'bslalg::HasStlIterators', and 'bslmf::IsPair'.  Note that the traits
     // just need to be declared but the functionality does not need to be
     // implemented, because they will not be used at run-time.
 };
 
+class TestType_StlIterators {
+    // This type is used for testing the trait detection meta-function.  This
+    // type declares 'bslalg::HasStlIterators'.  Note that the traits just need
+    // to be declared but the functionality does not need to be implemented,
+    // because they will not be used at run-time.
+};
+
 class TestType_StlIterators_Pair {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg::TypeTraitHasStlIterators' and
-    // 'bslalg::TypeTraitPair'.  Note that the traits just need to be declared
-    // but the functionality does not need to be implemented, because they will
-    // not be used at run-time.
+    // type declares 'bslalg::HasStlIterators' and 'bslmf::IsPair'.  Note that
+    // the traits just need to be declared but the functionality does not need
+    // to be implemented, because they will not be used at run-time.
 };
 
 class TestType_Pair {
     // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg::TypeTraitPair'.  Note that the traits just need
-    // to be declared but the functionality does not need to be implemented,
-    // because they will not be used at run-time.
+    // type declares 'bslmf::IsPair'.  Note that the traits just need to be
+    // declared but the functionality does not need to be implemented, because
+    // they will not be used at run-time.
 };
 
 class TestType_NoTraits {
@@ -547,7 +543,7 @@ class MyDate
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MyDate, bdlb::TypeTraitHasPrintMethod);
+    BSLMF_NESTED_TRAIT_DECLARATION(MyDate, bdlb::HasPrintMethod);
 
     // CREATOR
     MyDate();
@@ -606,7 +602,7 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(MyWrapper, bdlb::TypeTraitHasPrintMethod);
+        BSLMF_NESTED_TRAIT_DECLARATION(MyWrapper, bdlb::HasPrintMethod);
 
         // CREATORS
         MyWrapper(): d_obj() {};
@@ -688,8 +684,8 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
         ASSERT("0\n" == oss3.str());
     }
 //..
-// See the {'bslalg_typetraits'} component for more information about
-// declaring traits for user-defined classes.
+// See the {'bslmf_nestedtraitdeclaration'} component for more information
+// about declaring traits for user-defined classes.
 
 // ============================================================================
 //                               MAIN PROGRAM

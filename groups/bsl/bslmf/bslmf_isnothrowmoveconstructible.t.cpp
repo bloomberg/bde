@@ -6,10 +6,12 @@
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addpointer.h>
 #include <bslmf_addvolatile.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_cpp11.h>
+#include <bsls_nullptr.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -174,12 +176,15 @@ struct UserDefinedNothrowTestType {
     // This user-defined type, which is marked to have a nothrow move
     // constructor using template specialization (below), is used for testing.
 
+    // CREATORS
     UserDefinedNothrowTestType() {}
-    UserDefinedNothrowTestType(const UserDefinedNothrowTestType&) {}
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    UserDefinedNothrowTestType(UserDefinedNothrowTestType&&)
-                                                         BSLS_CPP11_NOEXCEPT {}
-#endif
+    UserDefinedNothrowTestType(const UserDefinedNothrowTestType& original)
+    {
+        (void) original;
+    }
+    UserDefinedNothrowTestType(bslmf::MovableRef<UserDefinedNothrowTestType>)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -193,12 +198,15 @@ struct UserDefinedNothrowTestType2 {
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedNothrowTestType2,
                                    bsl::is_nothrow_move_constructible);
 
+    // CREATORS
     UserDefinedNothrowTestType2() {}
-    UserDefinedNothrowTestType2(const UserDefinedNothrowTestType2&) {}
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    UserDefinedNothrowTestType2(UserDefinedNothrowTestType2&&)
-                                                        BSLS_CPP11_NOEXCEPT {}
-#endif
+    UserDefinedNothrowTestType2(const UserDefinedNothrowTestType2& original)
+    {
+        (void) original;
+    }
+    UserDefinedNothrowTestType2(bslmf::MovableRef<UserDefinedNothrowTestType2>)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
@@ -207,11 +215,16 @@ struct UserDefinedNothrowTestType2 {
 struct UserDefinedThrowTestType {
     // This user-defined type, which is not marked to be 'nothrow' move
     // constructible, is used for testing.
+
+    // CREATORS
     UserDefinedThrowTestType() {}
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    UserDefinedThrowTestType(UserDefinedThrowTestType&&) {}
-#endif
-    UserDefinedThrowTestType(const UserDefinedThrowTestType&) {}
+    UserDefinedThrowTestType(
+                       bslmf::MovableRef<UserDefinedThrowTestType>) // IMPLICIT
+    {}
+    UserDefinedThrowTestType(const UserDefinedThrowTestType& original)
+    {
+        (void) original;
+    }
 };
 
 enum EnumTestType {
@@ -331,7 +344,7 @@ int main(int argc, char *argv[])
         //:  4 The meta-function returns 'false' for cv-qualified 'void' types.
         //:
         //:  5 The meta-function returns 'false' for function types.
-        //
+        //:
         //:  6 The meta-function returns 'true' for pointer types.
         //:
         //:  7 The meta-function returns 'false' for reference types.
@@ -366,6 +379,12 @@ int main(int argc, char *argv[])
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(int,  true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char, true);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(long double, true);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(bsl::nullptr_t, true);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(char16_t, true);
+#endif
 
         // C-2
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(EnumTestType, true);
@@ -402,8 +421,8 @@ int main(int argc, char *argv[])
         ASSERT(!bsl::is_nothrow_move_constructible<
                                                 int(float, double...)>::value);
 #if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
-        ASSERT(bsl::is_nothrow_move_constructible<void(&)()>::value);
-        ASSERT(bsl::is_nothrow_move_constructible<
+        ASSERT( bsl::is_nothrow_move_constructible<void(&)()>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<
                                              int(&)(float, double...)>::value);
 #endif
 #endif

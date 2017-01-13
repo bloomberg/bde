@@ -21,6 +21,8 @@
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_timedsemaphore.h>
+#include <bslmt_semaphore.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -204,7 +206,7 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-typedef bdlmt::EventScheduler                Obj;
+typedef bdlmt::EventScheduler              Obj;
 typedef Obj::EventHandle                   EventHandle;
 typedef Obj::RecurringEvent                RecurringEvent;
 typedef Obj::Event                         Event;
@@ -1239,6 +1241,117 @@ void *workerThread10(void *arg)
 // ----------------------------------------------------------------------------
 
 namespace EVENTSCHEDULER_TEST_CASE_9 {
+
+void postSema(bslmt::TimedSemaphore *sema)
+  // Invoke 'sema->post()'.  This method is necessary because 'post' is
+  // overloaded and thus cannot be bound directly
+{
+    sema->post();
+}
+    
+void waitStopAndSignal(bslmt::Barrier        *barrier,
+                       Obj                   *mX,
+                       bslmt::TimedSemaphore *sema)
+  // Wait on the specified 'barrier', invoke 'stop' on the specified 'mX'
+  // scheduler, and finally 'post' on the specified 'sema'.
+{
+    barrier->wait();
+    if (veryVerbose) {
+        ET("Invoking stop");
+    }
+    mX->stop();
+    if (veryVerbose) {
+        ET("Stopped, posting sema");
+    }
+    sema->post();
+}
+
+void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
+  // Wait on the specified 'barrier', then invoke 'mX->start()'. 
+{
+    barrier->wait();
+    if (veryVerbose) {
+        ET("Invoking start");
+    }
+    mX->start();
+    if (veryVerbose) {
+        ET("Started");
+    }
+}
+    
+void startStopConcurrencyTest()
+{
+    // This test tries to expose a vulnerability in a particular implementation
+    // of 'stop' and 'start' (white-box testing).  Specifically, if 'start' is
+    // executed while 'stop' is trying to join (and shut down) a dispatcher
+    // thread that's busy executing an event, it will start a second dispatcher
+    // thread with the result that there can be two dispatcher threads running.
+    //
+    // To expose this issue, block the scheduler's dispatcher thread using
+    // a job that waits on a semaphore, and from another thread, stop it.
+    // At that point, starting it will (in the current implementation)
+    // corrupt the scheduler's state, the most likely manifestation of which
+    // will be that it can no longer be stopped.
+
+    bslma::TestAllocator ta(veryVeryVerbose);
+    Obj x(bsls::SystemClockType::e_MONOTONIC, &ta);
+
+    ASSERT(0 == x.start());
+
+    bslmt::Semaphore sema;
+    x.scheduleEvent(bsls::SystemTime::nowMonotonicClock(),
+                    bdlf::MemFnUtil::memFn(&bslmt::Semaphore::wait, &sema));
+
+    // From another thread, invoke stop, then signal another semaphore.
+    bslmt::ThreadUtil::Handle stopThread;
+    bslmt::TimedSemaphore stopSema(bsls::SystemClockType::e_MONOTONIC);
+    bslmt::Barrier syncBarrier(2);
+    bslmt::ThreadUtil::create(&stopThread,
+                              bdlf::BindUtil::bind(&waitStopAndSignal,
+                                                   &syncBarrier,
+                                                   &x,
+                                                   &stopSema));
+    syncBarrier.wait();
+
+    // From another thread, invoke start().  (stop() is blocked at this point,
+    // and future implementations might block start() if stop() is running)
+    bslmt::ThreadUtil::Handle startThread;
+    bslmt::ThreadUtil::create(&startThread,
+                              bdlf::BindUtil::bind(&waitAndStart, &x,
+                                                   &syncBarrier));
+
+    // Ensure that the 'start' thread has launched
+    syncBarrier.wait();
+    
+    // Release the scheduled event so that the dispatcher thread can complete
+    if (veryVerbose) {
+        ET("Releasing dispatcher");
+    }
+    sema.post();
+    
+    // Finish 'start'ing
+    bslmt::ThreadUtil::join(startThread);
+
+    // 'stop' should be able to finish without any problem now. If it takes
+    // anything approaching a second, it's deadlocked.
+    
+    int rc = stopSema.timedWait(
+                          bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+    ASSERT(0 == rc);
+
+    // Now submit a job to be executed
+    bslmt::TimedSemaphore jobSema(bsls::SystemClockType::e_MONOTONIC);
+    x.scheduleEvent(bsls::SystemTime::nowMonotonicClock(),
+                    bdlf::BindUtil::bind(&postSema, &jobSema));
+
+    // Job should have been executed
+    rc = jobSema.timedWait(bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+    ASSERT(0 == rc);
+    
+    // all done; cleanup
+    x.stop();
+    bslmt::ThreadUtil::join(stopThread);
+}    
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_9
 
@@ -3323,6 +3436,9 @@ int main(int argc, char *argv[])
         //   That it is possible to restart the scheduler after stopping
         //   it.
         //
+        //   That invoking 'start' concurrently with 'stop' does not adversely
+        //   affect processing of events
+        //
         //   That invoking 'stop' work correctly even when the dispatcher
         //   is blocked waiting for any callback to be scheduled.
         //
@@ -3339,6 +3455,10 @@ int main(int argc, char *argv[])
         //   still in good state (this is done by starting the scheduler,
         //   scheduling an event and verifying that it is executed as
         //   expected).
+        //
+        //   Invoke 'startStopConcurrencyTest' (see function-level doc for
+        //   plan). This tests for a race condition and doesn't catch it
+        //   every time, so run it a few times.
         //
         //   Restart scheduler after stopping and make sure that the
         //   scheduler is still in good state (this is done by starting
@@ -3415,6 +3535,15 @@ int main(int argc, char *argv[])
           makeSureTestObjectIsExecuted(testObj, mT, 100);
           ASSERT( 1 == testObj.numExecuted() );
           x.stop();
+        }
+
+        if (veryVerbose) {
+            cout << "Start/stop concurrency test\n";
+        }
+        enum { NUM_START_STOP_TESTS = 2 };
+
+        for (int i = 0; i < NUM_START_STOP_TESTS; ++i) {
+            startStopConcurrencyTest();
         }
 
         {

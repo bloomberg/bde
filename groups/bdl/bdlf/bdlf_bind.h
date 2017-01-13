@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void bindTest(bslma::Allocator *allocator = 0) {
 //      bdlf::BindUtil::bind(&invocable,         // bound functor and
-//                          10, 14, someString) // bound arguments
+//                           10, 14, someString) // bound arguments
 //..
 // and the binder declared above can be passed invocation arguments directly,
 // as follows (here we specify zero invocation arguments since all the bound
@@ -918,12 +918,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_RESULTTYPE
+#include <bslmf_resulttype.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_VOIDTYPE
+#include <bslmf_voidtype.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -4626,10 +4634,57 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,1> {
 };
 
 template <class FUNC>
+struct Bind_OneResultTypeOrAnother {
+    // Define the type variable 'type' to be 'FUNC::result_type' if that exists
+    // and 'FUNC::ResultType' otherwise.  Additionally, for C++11 and above,
+    // if 'FUNC' has an 'operator()' member (such as lambda functions), define
+    // 'type' to be the return type of that operator.
+
+  private:
+    template <class T, class U = void>
+    struct Result {
+        // This class declares a 'type' member to be the same as the one
+        // 'bslmf::ResultType' produces.
+
+        typedef typename bslmf::ResultType<T>::type type;
+    };
+
+#if __cplusplus >= 201103
+    template <class T>
+    struct Return : public Return<decltype(&T::operator())> {
+        // The general version of this class inherits from its specialization.
+    };
+
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> {
+        // The specialized form of the 'Return' class defines a 'type' member
+        // as the return type of the member function parameter.
+
+        typedef RETURN_T type;
+    };
+
+    template <class T>
+    struct Result<T,
+                  typename bslmf::VoidType<decltype(&T::operator())>::type> {
+        // This is a specialization of 'Result' above.  If the 'T' parameter
+        // has a single unique 'operator()' member, then 'Result<T, void>'
+        // prefers this specialization over the general template.  This class
+        // declares a 'type' member as the return type of 'T::operator()'.
+
+        typedef typename Return<T>::type type;
+    };
+#endif
+
+  public:
+    typedef typename Result<FUNC, void>::type type;
+};
+
+template <class FUNC>
 struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     // Function traits for function objects that are passed by value without
-    // explicit result type specification.  The result type is determined to
-    // the 'typename FUNC::ResultType'.
+    // explicit result type specification.  The result type is determined by
+    // either 'typename FUNC::result_type' or 'typename FUNC::ResultType', with
+    // the former taking precedence if both are defined.
 
     // ENUMERATIONS
     enum {
@@ -4638,15 +4693,15 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     };
 
     // PUBLIC TYPES
-    typedef FUNC                      Type;
-    typedef FUNC                      WrapperType;
-    typedef typename FUNC::ResultType ResultType;
+    typedef FUNC                                             Type;
+    typedef FUNC                                             WrapperType;
+    typedef typename Bind_OneResultTypeOrAnother<FUNC>::type ResultType;
 };
 
 template <class PROTO>
 struct Bind_FuncTraitsImp<bslmf::Nil,bsl::function<PROTO>,0,0,0> {
     // Function traits for bsl::function objects that are passed by value.  The
-    // result type is determined to the 'bsl::function<PROTO>::result_type'.
+    // result type is determined by 'bsl::function<PROTO>::result_type'.
 
     // ENUMERATIONS
     enum {
@@ -4663,7 +4718,8 @@ struct Bind_FuncTraitsImp<bslmf::Nil,bsl::function<PROTO>,0,0,0> {
 template <class FUNC>
 struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     // Function traits for objects passed by pointer with no explicit return
-    // type.  The object is assumed to have a 'ResultType' type definition.
+    // type.  The object is assumed to have a 'result_type' or 'ResultType'
+    // type definition, with the former taking precedence if both are defined.
 
     // ENUMERATIONS
     enum {
@@ -4672,9 +4728,9 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     };
 
     // PUBLIC TYPES
-    typedef FUNC                      Type;
-    typedef FUNC*                     WrapperType;
-    typedef typename FUNC::ResultType ResultType;
+    typedef FUNC                                              Type;
+    typedef FUNC                                             *WrapperType;
+    typedef typename Bind_OneResultTypeOrAnother<FUNC>::type  ResultType;
 };
 
 template <class PROTO>
@@ -4808,7 +4864,7 @@ struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
     // 'BindWrapper' object passed recursively as a bound argument.  The value
     // is not important, as long as it is out of range.  This makes sure that a
     // binder with a nested 'BindWrapper' object is treated as non-explicit, in
-    // the same way as if the the nested binder was of type 'Bind'.
+    // the same way as if the nested binder was of type 'Bind'.
 
     enum {
         k_VaL = 1 << 24

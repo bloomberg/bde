@@ -179,7 +179,7 @@ const char *PATTERNS[] = {
     "e\\\\q",
 };
 
-const int NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS;
+enum { NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS };
 
 static const struct {
     int d_recordLevel;     // record level
@@ -207,14 +207,14 @@ static const struct {
     {  255,      255,      255,      255,     },
 };
 
-const int NUM_LEVELS = sizeof LEVELS / sizeof *LEVELS;
+enum { NUM_LEVELS = sizeof LEVELS / sizeof *LEVELS };
 
 const ball::Predicate PREDICATES[] =
 {
     P1, P2, P3, P4, P5, P6, P7, P8, P9
 };
 
-const int NUM_PREDICATES = sizeof PREDICATES / sizeof *PREDICATES;
+enum { NUM_PREDICATES = sizeof PREDICATES / sizeof *PREDICATES };
 
 //=============================================================================
 //       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING
@@ -284,12 +284,11 @@ static Obj& gg(Obj *obj, const char *spec)
 bool compareText(bslstl::StringRef lhs,
                  bslstl::StringRef rhs,
                  bsl::ostream&     errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the
-    // specified' rhs' and 'false' otherwise.  Optionally specify a
-    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
-    // description of how the two strings differ will be written.  If
-    // 'errorStream' is not supplied, 'stdout' will be used to report an error
-    // description.
+    // Return 'true' if the specified 'lhs' has the same value as the specified
+    // 'rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
+    // which, if 'lhs' and 'rhs' are not the same, a description of how the two
+    // strings differ will be written.  If 'errorStream' is not supplied,
+    // 'stdout' will be used to report an error description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -334,9 +333,9 @@ bool compareText(bslstl::StringRef lhs,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -458,18 +457,17 @@ int main(int argc, char *argv[])
             {  L_,    "pG",   "e\\q",            1              },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; i++) {
-
             int LINE = DATA[i].d_line;
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+            ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
 
             if (veryVerbose) { P_(X); P(DATA[i].d_input); }
 
-            LOOP_ASSERT(LINE, DATA[i].d_result == X.isMatch(DATA[i].d_input));
+            ASSERTV(LINE, DATA[i].d_result == X.isMatch(DATA[i].d_input));
         }
 
       } break;
@@ -596,19 +594,22 @@ int main(int argc, char *argv[])
             {  L_,    "pDLDPAPBPCPDPEPFPGPH",  1610612741,   1516973101  },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             int LINE = DATA[i].d_line;
+
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+
+            ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+
             int hash = Obj::hash(X, DATA[i].d_size);
             if (veryVerbose) {
                 cout << DATA[i].d_spec
                      << " , " << DATA[i].d_size
                      << " ---> " << hash << endl;
             }
-            LOOP_ASSERT(i, DATA[i].d_hash == hash);
+            ASSERTV(i, DATA[i].d_hash == hash);
         }
       } break;
       case 13: {
@@ -658,44 +659,44 @@ int main(int argc, char *argv[])
                                     *d_attributeSet; // attribute set
             bool                     d_result;       // expected result
         } DATA[] = {
-            // line   rule                      attributeSet   expected
-            // ----   ------------              ------------   --------
-            {  L_,    "",                       &AS1,          1           },
-            {  L_,    "",                       &AS5,          1           },
-            {  L_,    "PA",                     &AS1,          0           },
-            {  L_,    "PA",                     &AS2,          1           },
-            {  L_,    "PB",                     &AS2,          0           },
-            {  L_,    "PAPB",                   &AS2,          0           },
-            {  L_,    "PAPB",                   &AS3,          1           },
-            {  L_,    "PA",                     &AS3,          1           },
-            {  L_,    "PB",                     &AS3,          1           },
-            {  L_,    "PAPBPC",                 &AS4,          1           },
-            {  L_,    "PAPBPCPD",               &AS4,          0           },
-            {  L_,    "PDPEPFPG",               &AS5,          1           },
-            {  L_,    "PDPEPFPGPH",             &AS5,          0           },
-            {  L_,    "PDPEPFPGPHPI",           &AS6,          1           },
-            {  L_,    "PCPDPEPFPGPHPI",         &AS6,          0           },
+            // line  rule               attributeSet   expected
+            // ----  ------------       ------------   --------
+            {  L_,   "",                &AS1,          1         },
+            {  L_,   "",                &AS5,          1         },
+            {  L_,   "PA",              &AS1,          0         },
+            {  L_,   "PA",              &AS2,          1         },
+            {  L_,   "PB",              &AS2,          0         },
+            {  L_,   "PAPB",            &AS2,          0         },
+            {  L_,   "PAPB",            &AS3,          1         },
+            {  L_,   "PA",              &AS3,          1         },
+            {  L_,   "PB",              &AS3,          1         },
+            {  L_,   "PAPBPC",          &AS4,          1         },
+            {  L_,   "PAPBPCPD",        &AS4,          0         },
+            {  L_,   "PDPEPFPG",        &AS5,          1         },
+            {  L_,   "PDPEPFPGPH",      &AS5,          0         },
+            {  L_,   "PDPEPFPGPHPI",    &AS6,          1         },
+            {  L_,   "PCPDPEPFPGPHPI",  &AS6,          0         },
 
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             int LINE = DATA[i].d_line;
+
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+
+            ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
 
             const AttributeSet *Y = DATA[i].d_attributeSet;
             ball::AttributeContainerList list;
             const ball::AttributeContainerList& LIST = list;;
             list.pushFront(Y);
 
-            if (veryVerbose) { P_(X); P(Y); }
+            if (veryVerbose) { P_(X) P(Y); }
 
-            LOOP_ASSERT(LINE, X.evaluate(LIST) == DATA[i].d_result);
-
+            ASSERTV(LINE, X.evaluate(LIST) == DATA[i].d_result);
         }
-
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -735,31 +736,31 @@ int main(int argc, char *argv[])
             "PAPBPCPDPEPFPGPHPI",
         };
 
-        const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+        enum { NUM_SPECS = sizeof SPECS / sizeof *SPECS };
 
         for (int i = 0; i < NUM_SPECS; ++i) {
-        for (int j = 0; j < NUM_SPECS; ++j) {
+            for (int j = 0; j < NUM_SPECS; ++j) {
 
-            if (veryVerbose) { P_(i); P_(j); P_(SPECS[i]); P(SPECS[j]); }
+                if (veryVerbose) { P_(i) P_(j) P_(SPECS[i]) P(SPECS[j]); }
 
-            Obj mX; const Obj& X = mX;
-            LOOP2_ASSERT(i, j, &mX == &gg(&mX, SPECS[i]));
+                Obj mX; const Obj& X = mX;
+                ASSERTV(i, j, &mX == &gg(&mX, SPECS[i]));
 
-            Obj mY; const Obj& Y = mY;
-            LOOP2_ASSERT(i, j, &mY == &gg(&mY, SPECS[j]));
+                Obj mY; const Obj& Y = mY;
+                ASSERTV(i, j, &mY == &gg(&mY, SPECS[j]));
 
-            mX.removeAllPredicates();
+                mX.removeAllPredicates();
 
-            LOOP2_ASSERT(i, j, 0 == X.numPredicates());
-            for (ball::PredicateSet::const_iterator iter = Y.begin();
-                 iter != Y.end();
-                 ++iter) {
-                LOOP2_ASSERT(i, j, false == X.hasPredicate(*iter));
+                ASSERTV(i, j, 0 == X.numPredicates());
+                for (ball::PredicateSet::const_iterator iter = Y.begin();
+                        iter != Y.end();
+                        ++iter) {
+                    ASSERTV(i, j, false == X.hasPredicate(*iter));
+                }
+
+                ASSERTV(i, j, &mX == &gg(&mX, SPECS[j]));
+                ASSERTV(i, j, X == Y);
             }
-
-            LOOP2_ASSERT(i, j, &mX == &gg(&mX, SPECS[j]));
-            LOOP2_ASSERT(i, j, X == Y);
-        }
         }
 
       } break;
@@ -787,7 +788,7 @@ int main(int argc, char *argv[])
                           << "\n=================================" << endl;
 
         const ball::Predicate PREDS[] = { P1, P2, P3, P4, P5, P6, P7, P8, P8 };
-        const int NUM_PREDS = sizeof PREDS / sizeof *PREDS;
+        enum { NUM_PREDS = sizeof PREDS / sizeof *PREDS };
 
         int isPresentFlags[NUM_PREDS];
 
@@ -796,12 +797,12 @@ int main(int argc, char *argv[])
 
             int j, length;
             for (j = 0; j < i; ++j) {
-                LOOP2_ASSERT(i, j, 1 == mX.addPredicate(PREDS[j]));
-                LOOP2_ASSERT(i, j, X.hasPredicate(PREDS[j]));
+                ASSERTV(i, j, 1 == mX.addPredicate(PREDS[j]));
+                ASSERTV(i, j, X.hasPredicate(PREDS[j]));
                 isPresentFlags[j] = 0;
             }
 
-            LOOP_ASSERT(i, j == X.numPredicates());
+            ASSERTV(i, j == X.numPredicates());
 
             length = 0;
             for (ball::PredicateSet::const_iterator iter = X.begin();
@@ -814,10 +815,10 @@ int main(int argc, char *argv[])
                 }
             }
 
-            LOOP_ASSERT(i, length == X.numPredicates());
+            ASSERTV(i, length == X.numPredicates());
 
             for (j = 0; j < i; ++j) {
-                LOOP2_ASSERT(i, j, 1 == isPresentFlags[j]);
+                ASSERTV(i, j, 1 == isPresentFlags[j]);
             }
         }
 
@@ -841,36 +842,40 @@ int main(int argc, char *argv[])
                           << "\n===================================" << endl;
 
         for (int i = 0; i < NUM_PATTERNS; ++i) {
-        for (int j = 0; j < NUM_LEVELS; ++j) {
-            if (veryVerbose) {
-                P_(i);
-                P_(j);
-                P_(PATTERNS[i]);
-                P_(LEVELS[j].d_recordLevel);
-                P_(LEVELS[j].d_passLevel);
-                P_(LEVELS[j].d_triggerLevel);
-                P(LEVELS[j].d_triggerAllLevel);
-            }
+            for (int j = 0; j < NUM_LEVELS; ++j) {
+                const int RECORD_LEVEL      = LEVELS[j].d_recordLevel;
+                const int PASS_LEVEL        = LEVELS[j].d_passLevel;
+                const int TRIGGER_LEVEL     = LEVELS[j].d_triggerLevel;
+                const int TRIGGER_ALL_LEVEL = LEVELS[j].d_triggerAllLevel;
 
-            const Obj X(PATTERNS[i],
+                if (veryVerbose) {
+                    P_(i);
+                    P_(j);
+                    P_(PATTERNS[i]);
+                    P_(RECORD_LEVEL);
+                    P_(PASS_LEVEL);
+                    P_(TRIGGER_LEVEL);
+                    P(TRIGGER_ALL_LEVEL);
+                }
+
+                const Obj X(PATTERNS[i],
                         LEVELS[j].d_recordLevel,
                         LEVELS[j].d_passLevel,
                         LEVELS[j].d_triggerLevel,
                         LEVELS[j].d_triggerAllLevel);
 
-            LOOP2_ASSERT(i, j, 0 == strcmp(PATTERNS[i], X.pattern()));
-            LOOP2_ASSERT(i, j, LEVELS[j].d_recordLevel  == X.recordLevel());
-            LOOP2_ASSERT(i, j, LEVELS[j].d_passLevel    == X.passLevel());
-            LOOP2_ASSERT(i, j, LEVELS[j].d_triggerLevel == X.triggerLevel());
-            LOOP2_ASSERT(i, j, LEVELS[j].d_triggerAllLevel
-                                                       == X.triggerAllLevel());
+                ASSERTV(i, j, 0 == strcmp(PATTERNS[i], X.pattern()));
 
-        }
+                ASSERTV(i, j, RECORD_LEVEL      == X.recordLevel());
+                ASSERTV(i, j, PASS_LEVEL        == X.passLevel());
+                ASSERTV(i, j, TRIGGER_LEVEL     == X.triggerLevel());
+                ASSERTV(i, j, TRIGGER_ALL_LEVEL == X.triggerAllLevel());
+            }
         }
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
+        // TESTING ASSIGNMENT OPERATOR
         //   Any value must be assignable to an object having any initial value
         //   without affecting the rhs operand value.  Also, any object must be
         //   assignable to itself.
@@ -924,7 +929,7 @@ int main(int argc, char *argv[])
             {  L_,    "pDLDPAPBPCPDPEPFPGPH",      },
          };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int LINE1 = DATA[i].d_line;
@@ -940,19 +945,19 @@ int main(int argc, char *argv[])
                 }
 
                 Obj mX(VA); const Obj& X = mX;
-                LOOP_ASSERT(LINE1, &mX == &gg(&mX, DATA[i].d_spec));
+                ASSERTV(LINE1, &mX == &gg(&mX, DATA[i].d_spec));
 
                 Obj mY(VA); const Obj& Y = mY;
-                LOOP_ASSERT(LINE2, &mY == &gg(&mY, DATA[j].d_spec));
+                ASSERTV(LINE2, &mY == &gg(&mY, DATA[j].d_spec));
 
                 Obj mW(Y); const Obj& W = mW;
 
                 mX = Y;
 
-                LOOP2_ASSERT(LINE1, LINE2, Y == W);
-                LOOP2_ASSERT(LINE1, LINE2, W == Y);
-                LOOP2_ASSERT(LINE1, LINE2, X == W);
-                LOOP2_ASSERT(LINE1, LINE2, W == X);
+                ASSERTV(LINE1, LINE2, Y == W);
+                ASSERTV(LINE1, LINE2, W == Y);
+                ASSERTV(LINE1, LINE2, X == W);
+                ASSERTV(LINE1, LINE2, W == X);
             }
         }
 
@@ -965,16 +970,15 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P_(LINE); P_(DATA[i].d_spec); }
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+            ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
 
             Obj mW(X); const Obj& W = mW;
 
             mX = X;
 
-            LOOP_ASSERT(LINE, X == W);
-            LOOP_ASSERT(LINE, W == X);
+            ASSERTV(LINE, X == W);
+            ASSERTV(LINE, W == X);
         }
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -985,7 +989,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR:
+        // TESTING COPY CONSTRUCTOR
         //   Any value must be able to be copy constructed without affecting
         //   its argument.
         //
@@ -1037,27 +1041,27 @@ int main(int argc, char *argv[])
             {  L_,    "pDLDPAPBPCPDPEPFPGPH",      },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int LINE = DATA[i].d_line;
 
-            if (veryVerbose) { P_(LINE); P(DATA[i].d_spec); }
+            if (veryVerbose) { P_(LINE) P(DATA[i].d_spec); }
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+            ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
 
             Obj mW(VA); const Obj& W = mW;
-            LOOP_ASSERT(LINE, &mW == &gg(&mW, DATA[i].d_spec));
+            ASSERTV(LINE, &mW == &gg(&mW, DATA[i].d_spec));
 
             // construct y without an allocator
             {
                 Obj mY(X); const Obj& Y = mY;
 
-                LOOP_ASSERT(LINE, Y == W);
-                LOOP_ASSERT(LINE, W == Y);
-                LOOP_ASSERT(LINE, X == W);
-                LOOP_ASSERT(LINE, W == X);
+                ASSERTV(LINE, Y == W);
+                ASSERTV(LINE, W == Y);
+                ASSERTV(LINE, X == W);
+                ASSERTV(LINE, W == X);
             }
 
             // construct y with an allocator but no exception
@@ -1065,10 +1069,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator testAllocatorY(veryVeryVerbose);
                 Obj mY(X, &testAllocatorY); const Obj& Y = mY;
 
-                LOOP_ASSERT(LINE, Y == W);
-                LOOP_ASSERT(LINE, W == Y);
-                LOOP_ASSERT(LINE, X == W);
-                LOOP_ASSERT(LINE, W == X);
+                ASSERTV(LINE, Y == W);
+                ASSERTV(LINE, W == Y);
+                ASSERTV(LINE, X == W);
+                ASSERTV(LINE, W == X);
             }
 
             // construct y with an allocator and exceptions
@@ -1078,18 +1082,17 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mY(X, &testAllocatorY); const Obj& Y = mY;
 
-                    LOOP_ASSERT(LINE, Y == W);
-                    LOOP_ASSERT(LINE, W == Y);
-                    LOOP_ASSERT(LINE, X == W);
-                    LOOP_ASSERT(LINE, W == X);
+                    ASSERTV(LINE, Y == W);
+                    ASSERTV(LINE, W == Y);
+                    ASSERTV(LINE, X == W);
+                    ASSERTV(LINE, W == X);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS:
+        // TESTING EQUALITY OPERATORS
         //   Any subtle variation in value must be detected by the equality
         //   operators.
         //
@@ -1145,7 +1148,7 @@ int main(int argc, char *argv[])
             {  L_,    "pDLDPAPBPCPDPEPFPGPH",      },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting Equality Operators"
                           << "\n==========================" << endl;
@@ -1157,7 +1160,8 @@ int main(int argc, char *argv[])
             const int LINE1 = DATA[i].d_line;
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE1, &mX == &gg(&mX, DATA[i].d_spec));
+            ASSERTV(LINE1, &mX == &gg(&mX, DATA[i].d_spec));
+
             for (int j = 0; j < NUM_DATA; ++j) {
                 const int LINE2 = DATA[j].d_line;
 
@@ -1169,7 +1173,7 @@ int main(int argc, char *argv[])
                 }
 
                 Obj mY(VA); const Obj& Y = mY;
-                LOOP_ASSERT(LINE1, &mY == &gg(&mY, DATA[j].d_spec));
+                ASSERTV(LINE1, &mY == &gg(&mY, DATA[j].d_spec));
 
                 ASSERT((i == j) == (X == Y));
                 ASSERT((i != j) == (X != Y));
@@ -1205,7 +1209,7 @@ int main(int argc, char *argv[])
             {  L_,    "pDLDPAPBPCPDPEPFPGPH","pDLDPHPGPFPEPDPCPBPA"      },
         };
 
-        const int NUM_TDATA = sizeof TDATA / sizeof *TDATA;
+        enum { NUM_TDATA = sizeof TDATA / sizeof *TDATA };
 
         if (verbose) cout <<
             "\nCompare each pair of values (u, v) in T." << endl;
@@ -1214,10 +1218,10 @@ int main(int argc, char *argv[])
             const int LINE = TDATA[i].d_line;
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, TDATA[i].d_spec1));
+            ASSERTV(LINE, &mX == &gg(&mX, TDATA[i].d_spec1));
 
             Obj mY(VA); const Obj& Y = mY;
-            LOOP_ASSERT(LINE, &mY == &gg(&mY, TDATA[i].d_spec2));
+            ASSERTV(LINE, &mY == &gg(&mY, TDATA[i].d_spec2));
 
             if (veryVerbose) {
                 P_(LINE);
@@ -1228,11 +1232,10 @@ int main(int argc, char *argv[])
             ASSERT(1 == (X == Y));
             ASSERT(0 == (X != Y));
         }
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print':
+        // TESTING 'operator<<' AND 'print'
         //   The output operator and 'print' method should print out the value
         //   of objects in the expected format.
         //
@@ -1254,9 +1257,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
 
         static const struct {
-            int         d_line;            // line number
-            const char *d_spec;            // spec
-            const char *d_output;          // expected output format
+            int         d_line;    // line number
+            const char *d_spec;    // spec
+            const char *d_output;  // expected output format
         } DATA[] = {
   // line   spec          expected output
   // ----   ----          ---------------
@@ -1268,17 +1271,17 @@ int main(int argc, char *argv[])
                            "predicateSet = [  [ \"A\" = 1 ] ] ]" },
        };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int LINE = DATA[i].d_line;
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, DATA[i].d_spec));
+            ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
 
             ostringstream os;
             os << X;
-            LOOP_ASSERT(LINE, compareText(os.str(), DATA[i].d_output));
+            ASSERTV(LINE, compareText(os.str(), DATA[i].d_output));
 
             if (veryVerbose) {
                 P_(LINE);
@@ -1296,22 +1299,22 @@ int main(int argc, char *argv[])
            const char  *d_output;          // expected output format
         } PDATA[] = {
             // line spec     level space expected
-            // ---- ----     ----- ----- -----------------------
-            {  L_,  "pELEPC", 1,   2,   "  [\n"
-                                        "    pattern = \"eq\\\\\"\n"
-                                        "    thresholds = [\n"
-                                        "      0\n"
-                                        "      0\n"
-                                        "      0\n"
-                                        "      1\n"
-                                        "    ]\n"
-                                        "    predicateSet = [\n"
-                                        "              [ \"A\" = 1 ]\n"
-                                        "    ]\n"
-                                        "  ]\n"  },
+            // ---- ----     ----- ----- -------------------------------
+            {  L_,  "pELEPC", 1,   2,    "  [\n"
+                                         "    pattern = \"eq\\\\\"\n"
+                                         "    thresholds = [\n"
+                                         "      0\n"
+                                         "      0\n"
+                                         "      0\n"
+                                         "      1\n"
+                                         "    ]\n"
+                                         "    predicateSet = [\n"
+                                         "              [ \"A\" = 1 ]\n"
+                                         "    ]\n"
+                                         "  ]\n"  },
         };
 
-        const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
+        enum { NUM_PDATA = sizeof PDATA / sizeof *PDATA };
 
         if (verbose) cout << "\nTesting 'print'." << endl;
 
@@ -1319,7 +1322,7 @@ int main(int argc, char *argv[])
             int LINE = PDATA[i].d_line;
 
             Obj mX(VA); const Obj& X = mX;
-            LOOP_ASSERT(LINE, &mX == &gg(&mX, PDATA[i].d_spec));
+            ASSERTV(LINE, &mX == &gg(&mX, PDATA[i].d_spec));
 
             ostringstream os;
             X.print(os, PDATA[i].d_level, PDATA[i].d_spacesPerLevel);
@@ -1331,9 +1334,8 @@ int main(int argc, char *argv[])
                 P_(os.str()); cout << endl;
             }
 
-            LOOP_ASSERT(LINE, compareText(os.str(), PDATA[i].d_output));
+            ASSERTV(LINE, compareText(os.str(), PDATA[i].d_output));
         }
-
      } break;
      case 4: {
         // --------------------------------------------------------------------
@@ -1365,42 +1367,42 @@ int main(int argc, char *argv[])
                           << "=======================" << endl;
 
         for (int i = 0; i < NUM_PATTERNS; ++i) {
-        for (int j = 0; j < NUM_LEVELS; ++j) {
-        for (int k = 0; k < NUM_PREDICATES; ++k) {
-            bsl::string spec;
-            spec += 'p';
-            spec += (char)i + 'A';     // set the pattern
-            spec += 'L';
-            spec += (char)j + 'A';     // the the threshold levels
-            spec += 'P';
-            spec += (char)k + 'A';     // add a predicate
+            for (int j = 0; j < NUM_LEVELS; ++j) {
+                for (int k = 0; k < NUM_PREDICATES; ++k) {
+                    const int RECORD_LEVEL      = LEVELS[j].d_recordLevel;
+                    const int PASS_LEVEL        = LEVELS[j].d_passLevel;
+                    const int TRIGGER_LEVEL     = LEVELS[j].d_triggerLevel;
+                    const int TRIGGER_ALL_LEVEL = LEVELS[j].d_triggerAllLevel;
 
-            Obj mX(VA); const Obj& X = mX;
-            LOOP3_ASSERT(i, j, k, &mX == &gg(&mX, spec.c_str()));
+                    bsl::string spec;
+                    spec += 'p';
+                    spec += (char)(i + 'A');  // set the pattern
+                    spec += 'L';
+                    spec += (char)(j + 'A');  // the threshold levels
+                    spec += 'P';
+                    spec += (char)(k + 'A');  // add a predicate
 
-            if (veryVerbose) { P_(i); P_(j); P_(k); P_(spec); P(X); }
+                    Obj mX(VA); const Obj& X = mX;
+                    ASSERTV(i, j, k, &mX == &gg(&mX, spec.c_str()));
 
-            LOOP3_ASSERT(i, j, k, 0 == strcmp(X.pattern(), PATTERNS[i]));
+                    if (veryVerbose) { P_(i) P_(j) P_(k) P_(spec) P(X); }
 
-            LOOP3_ASSERT(i, j, k,
-                         X.recordLevel()     == LEVELS[j].d_recordLevel);
-            LOOP3_ASSERT(i, j, k,
-                         X.passLevel()       == LEVELS[j].d_passLevel);
-            LOOP3_ASSERT(i, j, k,
-                         X.triggerLevel()    == LEVELS[j].d_triggerLevel);
-            LOOP3_ASSERT(i, j, k,
-                         X.triggerAllLevel() == LEVELS[j].d_triggerAllLevel);
+                    ASSERTV(i, j, k, 0 == strcmp(X.pattern(), PATTERNS[i]));
 
-            LOOP3_ASSERT(i, j, k, X.numPredicates() == 1);
-            LOOP3_ASSERT(i, j, k, X.hasPredicate(PREDICATES[k]));
+                    ASSERTV(i, j, k, RECORD_LEVEL      == X.recordLevel());
+                    ASSERTV(i, j, k, PASS_LEVEL        == X.passLevel());
+                    ASSERTV(i, j, k, TRIGGER_LEVEL     == X.triggerLevel());
+                    ASSERTV(i, j, k, TRIGGER_ALL_LEVEL == X.triggerAllLevel());
+
+                    ASSERTV(i, j, k, X.numPredicates() == 1);
+                    ASSERTV(i, j, k, X.hasPredicate(PREDICATES[k]));
+                }
+            }
         }
-        }
-        }
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'GG'
+        // TESTING GENERATOR FUNCTIONS 'gg'
         //   The 'gg' function should create objects having the expected value
         //   and return a reference to its first argument.
         //
@@ -1420,42 +1422,42 @@ int main(int argc, char *argv[])
             << "================================" << endl;
 
         for (int i = 0; i < NUM_PATTERNS; ++i) {
-        for (int j = 0; j < NUM_LEVELS; ++j) {
-        for (int k = 0; k < NUM_PREDICATES; ++k) {
-            bsl::string spec;
-            spec += 'p';
-            spec += (char)i + 'A';     // set the pattern
-            spec += 'L';
-            spec += (char)j + 'A';     // the the threshold levels
-            spec += 'P';
-            spec += (char)k + 'A';     // add a predicate
+            for (int j = 0; j < NUM_LEVELS; ++j) {
+                for (int k = 0; k < NUM_PREDICATES; ++k) {
+                    const int RECORD_LEVEL      = LEVELS[j].d_recordLevel;
+                    const int PASS_LEVEL        = LEVELS[j].d_passLevel;
+                    const int TRIGGER_LEVEL     = LEVELS[j].d_triggerLevel;
+                    const int TRIGGER_ALL_LEVEL = LEVELS[j].d_triggerAllLevel;
 
-            Obj mX(VA); const Obj& X = mX;
-            LOOP3_ASSERT(i, j, k, &mX == &gg(&mX, spec.c_str()));
+                    bsl::string spec;
+                    spec += 'p';
+                    spec += (char)(i + 'A');  // set the pattern
+                    spec += 'L';
+                    spec += (char)(j + 'A');  // the threshold levels
+                    spec += 'P';
+                    spec += (char)(k + 'A');  // add a predicate
 
-            if (veryVerbose) { P_(i); P_(j); P_(k); P_(spec); P(X); }
+                    Obj mX(VA); const Obj& X = mX;
+                    ASSERTV(i, j, k, &mX == &gg(&mX, spec.c_str()));
 
-            LOOP3_ASSERT(i, j, k, 0 == strcmp(X.pattern(), PATTERNS[i]));
+                    if (veryVerbose) { P_(i); P_(j); P_(k); P_(spec); P(X); }
 
-            LOOP3_ASSERT(i, j, k,
-                         X.recordLevel()     == LEVELS[j].d_recordLevel);
-            LOOP3_ASSERT(i, j, k,
-                         X.passLevel()       == LEVELS[j].d_passLevel);
-            LOOP3_ASSERT(i, j, k,
-                         X.triggerLevel()    == LEVELS[j].d_triggerLevel);
-            LOOP3_ASSERT(i, j, k,
-                         X.triggerAllLevel() == LEVELS[j].d_triggerAllLevel);
+                    ASSERTV(i, j, k, 0 == strcmp(X.pattern(), PATTERNS[i]));
 
-            LOOP3_ASSERT(i, j, k, X.numPredicates() == 1);
-            LOOP3_ASSERT(i, j, k, X.hasPredicate(PREDICATES[k]));
+                    ASSERTV(i, j, k, RECORD_LEVEL      == X.recordLevel());
+                    ASSERTV(i, j, k, PASS_LEVEL        == X.passLevel());
+                    ASSERTV(i, j, k, TRIGGER_LEVEL     == X.triggerLevel());
+                    ASSERTV(i, j, k, TRIGGER_ALL_LEVEL == X.triggerAllLevel());
+
+                    ASSERTV(i, j, k, X.numPredicates() == 1);
+                    ASSERTV(i, j, k, X.hasPredicate(PREDICATES[k]));
+                }
+            }
         }
-        }
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
+        // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
         //   Primary manipulators should correctly set the object to the
         //   specified value.
         //
@@ -1682,7 +1684,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
        // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   Exercise a broad cross-section of value-semantic functionality
         //   before beginning testing in earnest.  Probe that functionality
         //   systematically and incrementally to discover basic errors in

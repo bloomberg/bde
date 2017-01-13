@@ -571,12 +571,16 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_constructorproxy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -738,8 +742,7 @@ class HashTable {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(HashTable,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(HashTable, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit HashTable(bsls::Types::Int64  capacityHint,

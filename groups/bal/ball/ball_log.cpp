@@ -13,11 +13,11 @@
 BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 
 #include <ball_administration.h>              // for testing only
+#include <ball_attribute.h>                   // for testing only
 #include <ball_attributecontainer.h>          // for testing only
 #include <ball_attributecontext.h>
-#include <ball_attribute.h>                   // for testing only
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_defaultattributecontainer.h>
+#include <ball_defaultobserver.h>             // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_record.h>
 #include <ball_testobserver.h>                // for testing only
@@ -31,22 +31,20 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 #include <bsl_new.h>
 #include <bsl_ostream.h>
 #include <bsl_cstdio.h>
+
 #include <stdio.h>  // *NOT* <bsl_cstdio.h>, which does not declare 'vsnprintf'
 
 // See the end of this file for implementation notes.
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ----------
                          // struct Log
                          // ----------
 
 // CLASS METHODS
-int Log::format(char        *buffer,
-                bsl::size_t  numBytes,
-                const char  *format,
-                             ...)
+int Log::format(char *buffer, bsl::size_t numBytes, const char *format, ...)
 {
     bsl::va_list args;
     va_start(args, format);
@@ -64,13 +62,10 @@ int Log::format(char        *buffer,
     return (signed)numBytes <= status ? -1 : status;
 }
 
-Record *Log::getRecord(const Category *category,
-                       const char     *file,
-                       int             line)
+Record *Log::getRecord(const Category *category, const char *file, int line)
 {
     if (category) {
-        return LoggerManager::singleton().getLogger().getRecord(file,
-                                                                     line);
+        return LoggerManager::singleton().getLogger().getRecord(file, line);
                                                                       // RETURN
     }
     else {
@@ -105,8 +100,8 @@ void Log::logMessage(const Category *category,
 
     if (category) {
         LoggerManager::singleton().getLogger().logMessage(*category,
-                                                               severity,
-                                                               record);
+                                                          severity,
+                                                          record);
     }
     else {
         LoggerManager::logMessage(severity, record);
@@ -137,8 +132,8 @@ const Category *Log::setCategory(const char *categoryName)
     BSLS_ASSERT(categoryName);
 
     return LoggerManager::isInitialized()
-         ? LoggerManager::singleton().setCategory(categoryName)
-         : 0;
+           ? LoggerManager::singleton().setCategory(categoryName)
+           : 0;
 }
 
 void Log::setCategory(CategoryHolder *categoryHolder,
@@ -147,20 +142,17 @@ void Log::setCategory(CategoryHolder *categoryHolder,
     BSLS_ASSERT(categoryName);
 
     if (LoggerManager::isInitialized()) {
-        LoggerManager::singleton().setCategory(categoryHolder,
-                                               categoryName);
+        LoggerManager::singleton().setCategory(categoryHolder, categoryName);
     }
 }
 
-bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
-                            int                   severity)
+bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder, int severity)
 {
     BSLS_ASSERT(categoryHolder);
 
-    if (CategoryHolder::e_UNINITIALIZED_CATEGORY ==
-                                              categoryHolder->threshold() ||
-        !LoggerManager::isInitialized()                                   ||
-        !categoryHolder->category()) {
+    if (CategoryHolder::e_UNINITIALIZED_CATEGORY == categoryHolder->threshold()
+        || !LoggerManager::isInitialized()
+        || !categoryHolder->category()) {
 
         // If the category is uninitialized (i.e., the category holder is
         // uninitialized, or the logger manager is uninitialized, or the
@@ -171,8 +163,8 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder,
     }
 
     return LoggerManager::singleton().isCategoryEnabled(
-                                                   categoryHolder->category(),
-                                                   severity);
+                                                    categoryHolder->category(),
+                                                    severity);
 }
 
                      // ----------------
@@ -222,7 +214,6 @@ Log_Formatter::~Log_Formatter()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 ///IMPLEMENTATION NOTES

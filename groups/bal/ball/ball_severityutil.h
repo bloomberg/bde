@@ -90,8 +90,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // ===================
                         // struct SeverityUtil
                         // ===================
@@ -101,8 +101,7 @@ struct SeverityUtil {
     // 'Severity::Level' enumeration.
 
     // CLASS METHODS
-    static int fromAsciiCaseless(Severity::Level *level,
-                                 const char      *name);
+    static int fromAsciiCaseless(Severity::Level *level, const char *name);
         // Load into the specified 'level' the value of the 'Severity::Level'
         // enumerator corresponding to the specified 'name' (without regard to
         // the case of the characters in 'name').  Return 0 on success, and a
@@ -131,7 +130,7 @@ struct SeverityUtil {
         //
         // DEPRECATED: Use 'fromAsciiCaseless'.  Note that this method
         // provides backwards compatibility for clients of the deprecated
-        // 'ballu::Severity'.
+        // 'baelu_Severity'.
 
     static bool isValidName(const char *name);
         // Return 'true' if the specified 'name' corresponds to an enumerator
@@ -142,7 +141,7 @@ struct SeverityUtil {
         //
         // DEPRECATED: Use 'isValidNameCaseless'.  Note that this method
         // provides backwards compatibility for clients of the deprecated
-        // 'ballu::Severity'.
+        // 'baelu_Severity'.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
@@ -157,8 +156,7 @@ struct SeverityUtil {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // CLASS METHODS
 inline
-int SeverityUtil::fromAscii(Severity::Level *level,
-                            const char      *name)
+int SeverityUtil::fromAscii(Severity::Level *level, const char *name)
 {
     return fromAsciiCaseless(level, name);
 }
@@ -171,7 +169,6 @@ bool SeverityUtil::isValidName(const char *name)
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif

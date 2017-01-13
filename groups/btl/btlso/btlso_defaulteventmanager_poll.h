@@ -269,6 +269,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_event.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_EVENTCALLBACKREGISTRY
+#include <btlso_eventcallbackregistry.h>
+#endif
+
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
@@ -314,6 +318,12 @@ BSLS_IDENT("$Id: $")
     || defined(BSLS_PLATFORM_OS_DARWIN)
 
 #ifndef INCLUDED_SYS_POLL
+#ifndef events
+#define BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_EVENTS
+#endif
+#ifndef revents
+#define BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_REVENTS
+#endif
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
 #endif
@@ -338,27 +348,40 @@ class DefaultEventManager<Platform::POLL> : public EventManager {
     // integral template parameter, implements the 'EventManager' and uses the
     // 'poll' system call as its polling mechanism.
 
+    // TYPES
+    typedef bsl::unordered_map<int, bsl::pair<int, uint32_t> > IndexMap;
+    typedef bsl::vector<bsl::pair<int, uint32_t> > SignaledArray;
+
     // DATA
     bsl::vector<struct ::pollfd>  d_pollFds;       // array of 'pollfd'
                                                    // structures for each
                                                    // registered socket handle
 
-    bsl::unordered_map<Event, EventManager::Callback, EventHash>
-                                  d_callbacks;     // container of registered
+    EventCallbackRegistry         d_callbacks;     // container of registered
                                                    // socket events and
                                                    // associated callbacks
 
-    bsl::unordered_map<int,int>   d_index;         // map of socket handles to
-                                                   // the associated indexes in
-                                                   // 'd_pollFds'
+    IndexMap                      d_index;         // map of fds to associated
+                                                   // indexes in 'd_pollFds'
+                                                   // and registered event mask
 
     TimeMetrics                  *d_timeMetric_p;  // metrics to use for
                                                    // reporting percent-busy
                                                    // statistics
 
-    bsl::vector<struct ::pollfd>  d_signaled;      // array of 'pollfd'
-                                                   // structures indicating
-                                                   // pending IO operations
+    SignaledArray                 d_signaledFds;   // array of file descriptors
+                                                   // with pending IO, along
+                                                   // with event bitmask
+
+    // PRIVATE MANIPULATORS
+    int dispatchCallbacks();
+        // For each 'pollfd' object in 'd_pollFds', invoke any appropriate
+        // registered callbacks to handle the events signalled in the
+        // 'revents' field.  Return the number of callbacks invoked.
+
+    void removeFdAtIndex(int index);
+        // Remove the file descriptor at the specified 'index' from d_pollFds
+        // and from d_index.
 
   public:
     // TRAITS
@@ -398,7 +421,8 @@ class DefaultEventManager<Platform::POLL> : public EventManager {
         // callbacks are invoked in the same thread that invokes 'dispatch',
         // and the order of invocation, relative to the order of registration,
         // is unspecified.  Also note that -1 is never returned unless 'flags'
-        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.  The behavior is undefined
+        // if invoked from within a socket callback of this event manager.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -416,7 +440,8 @@ class DefaultEventManager<Platform::POLL> : public EventManager {
         // thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'flags' contains
-        // 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT'.  The behavior is undefined
+        // if invoked from within a socket callback of this event manager.
 
     int registerSocketEvent(const SocketHandle::Handle&   handle,
                             const EventType::Type         event,
@@ -488,6 +513,15 @@ bool DefaultEventManager<Platform::POLL>::hasLimitedSocketCapacity() const
 }  // close package namespace
 
 }  // close enterprise namespace
+
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_EVENTS
+#undef events
+#undef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_EVENTS
+#endif
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_REVENTS
+#undef revents
+#undef BTLSO_DEFAULTEVENTMANAGER_POLL_UNDEF_REVENTS
+#endif
 
 #endif // BSLS_PLATFORM_OS_SOLARIS
        // || BSLS_PLATFORM_OS_LINUX || BSLS_PLATFORM_OS_AIX

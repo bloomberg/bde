@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a hash-container with support for duplicate values.
 //
-//@REVIEW_FOR_MASTER: test new methods, review comments
-//
 //@CLASSES:
 //   bslstl::HashTable : hashed-table container for user-supplied object types
 //
@@ -842,11 +840,11 @@ BSLS_IDENT("$Id: $")
 //                                                                       const;
 //          // Return a pair of iterators providing non-modifiable access to
 //          // the sequence of 'value_type' objects in this container matching
-//          // the specified 'key', where the the first iterator is positioned
-//          // at the start of the sequence and the second iterator is
-//          // positioned one past the end of the sequence.  If this container
-//          // contains no 'value_type' objects matching 'key', then the two
-//          // returned iterators will have the same value.
+//          // the specified 'key', where the first iterator is positioned at
+//          // the start of the sequence and the second iterator is positioned
+//          // one past the end of the sequence.  If this container contains no
+//          // 'value_type' objects matching 'key', then the two returned
+//          // iterators will have the same value.
 //  };
 //..
 // Then, we implement the methods 'MyHashedMultiMap'.  The construct need
@@ -2893,15 +2891,15 @@ class HashTable {
     void reserveForNumElements(SizeType numElements);
         // Re-organize this hash-table to have a sufficient number of buckets
         // to accommodate at least the specified 'numElements' without
-        // exceeding the 'maxLoadFactor', and ensure that that there are
-        // sufficient nodes pre-allocated in this object's node pool.  If this
-        // function tries to allocate a number of buckets larger than can be
-        // represented by this hash table's 'SizeType', a 'std::length_error'
-        // exception is thrown.  This operation provides the strong exception
-        // guarantee (see {'bsldoc_glossary'}) unless the 'hasher' throws, in
-        // which case this operation provides the basic exception guarantee,
-        // leaving the hash-table in a valid, but otherwise unspecified (and
-        // potentially empty), state.
+        // exceeding the 'maxLoadFactor', and ensure that there are sufficient
+        // nodes pre-allocated in this object's node pool.  If this function
+        // tries to allocate a number of buckets larger than can be represented
+        // by this hash table's 'SizeType', a 'std::length_error' exception is
+        // thrown.  This operation provides the strong exception guarantee (see
+        // {'bsldoc_glossary'}) unless the 'hasher' throws, in which case this
+        // operation provides the basic exception guarantee, leaving the
+        // hash-table in a valid, but otherwise unspecified (and potentially
+        // empty), state.
 
     void setMaxLoadFactor(float newMaxLoadFactor);
         // Set the maximum load factor permitted by this hash table to the

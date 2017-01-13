@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient allocation of memory blocks for a specific type.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslstl::SimplePool: memory manager that allocates memory blocks for a type
 //

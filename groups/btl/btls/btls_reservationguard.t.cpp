@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
 // the same leaky bucket.  If every thread simply checks for overflowing of the
 // leaky bucket, send data, and then submit to the leaky bucket, then the rate
 // of data usage may exceed the limits imposed by the leaky bucket due to race
-// conditions.  We can avoid the this issue by reserving the amount of data
+// conditions.  We can avoid this issue by reserving the amount of data
 // immediately after checking whether the leaky bucket has overflown and submit
 // the reserved amount after the data has been sent.  However, this process
 // could lead to the loss of the reserved units (effectively decreasing the

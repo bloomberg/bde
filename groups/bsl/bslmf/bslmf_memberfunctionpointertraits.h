@@ -149,10 +149,10 @@ class MemberFunctionPointerTraits_ClassType {
     // 'MemberFunctionPointerTraits_Imp' based on cv-qualification of the
     // member-function pointer.
 
-    typedef bslmf_Tag<0> NonCVTag;    // non-const, non-volatile member func
-    typedef bslmf_Tag<1> ConstTag;    // const member func
-    typedef bslmf_Tag<2> VolTag;      // volatile member func
-    typedef bslmf_Tag<3> ConstVolTag; // const volatile member func
+    typedef Tag<0> NonCVTag;    // non-const, non-volatile member func
+    typedef Tag<1> ConstTag;    // const member func
+    typedef Tag<2> VolTag;      // volatile member func
+    typedef Tag<3> ConstVolTag; // const volatile member func
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS...));
     static ConstTag test(BSLMF_RETURN(TYPE::*)(ARGS...) const);
@@ -162,8 +162,8 @@ class MemberFunctionPointerTraits_ClassType {
   public:
     // TYPES
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -264,10 +264,10 @@ class MemberFunctionPointerTraits_ClassType;
 template <class PROTOTYPE, class BSLMF_RETURN, class TYPE>
 class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)());
     static ConstTag test(BSLMF_RETURN(TYPE::*)() const);
@@ -276,8 +276,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE> {
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -291,10 +291,10 @@ template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class ARGS_01>
 class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_01> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01));
     static ConstTag test(BSLMF_RETURN(TYPE::*)(ARGS_01) const);
@@ -303,8 +303,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -320,10 +320,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_01,
                                                                      ARGS_02> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02));
@@ -336,8 +336,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -355,10 +355,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_02,
                                                                      ARGS_03> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -375,8 +375,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -396,10 +396,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_03,
                                                                      ARGS_04> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -420,8 +420,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -443,10 +443,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_04,
                                                                      ARGS_05> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -471,8 +471,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -496,10 +496,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_05,
                                                                      ARGS_06> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -528,8 +528,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -555,10 +555,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_06,
                                                                      ARGS_07> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -591,8 +591,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -620,10 +620,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_07,
                                                                      ARGS_08> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -660,8 +660,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -691,10 +691,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_08,
                                                                      ARGS_09> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -735,8 +735,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -768,10 +768,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_09,
                                                                      ARGS_10> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -816,8 +816,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -851,10 +851,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_10,
                                                                      ARGS_11> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -903,8 +903,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -940,10 +940,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_11,
                                                                      ARGS_12> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -996,8 +996,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -1035,10 +1035,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_12,
                                                                      ARGS_13> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -1095,8 +1095,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -1136,10 +1136,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
                                                                      ARGS_13,
                                                                      ARGS_14> {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS_01,
                                                ARGS_02,
@@ -1200,8 +1200,8 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;
@@ -1216,10 +1216,10 @@ class MemberFunctionPointerTraits_ClassType<PROTOTYPE, BSLMF_RETURN, TYPE,
 template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class...ARGS>
 class MemberFunctionPointerTraits_ClassType {
 
-    typedef bslmf_Tag<0> NonCVTag;
-    typedef bslmf_Tag<1> ConstTag;
-    typedef bslmf_Tag<2> VolTag;
-    typedef bslmf_Tag<3> ConstVolTag;
+    typedef Tag<0> NonCVTag;
+    typedef Tag<1> ConstTag;
+    typedef Tag<2> VolTag;
+    typedef Tag<3> ConstVolTag;
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS...));
     static ConstTag test(BSLMF_RETURN(TYPE::*)(ARGS...) const);
@@ -1228,8 +1228,8 @@ class MemberFunctionPointerTraits_ClassType {
 
   public:
     enum {
-        IS_CONST    = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 1) != 0,
-        IS_VOLATILE = (BSLMF_TAG_TO_UINT(test((PROTOTYPE)0)) & 2) != 0
+        IS_CONST    = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 1) != 0,
+        IS_VOLATILE = (BSLMF_TAG_TO_UINT((test)((PROTOTYPE)0)) & 2) != 0
     };
 
     typedef typename If<IS_CONST, const TYPE, TYPE>::Type CType;

@@ -545,8 +545,12 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
@@ -576,6 +580,14 @@ BSLS_IDENT("$Id$")
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 
                // Portable decimal floating-point literal support
@@ -625,8 +637,8 @@ class Decimal_Type32 {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Decimal_Type32,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type32, bsl::is_trivially_copyable);
+
 
     // CREATORS
     Decimal_Type32();
@@ -813,7 +825,7 @@ bool operator!=(Decimal32 lhs, Decimal32 rhs);
     // not have the same value if:
     //
     //: o both are NaN, or
-    //: o one is zero (positive or negative) and the is not, or
+    //: o one is zero (positive or negative) and the other is not, or
     //: o one is positive infinity and the other is not, or
     //: o one is negative infinity and the other is not, or
     //: o both have the value of a real number that are not equal, regardless
@@ -984,8 +996,8 @@ class Decimal_Type64 {
 
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Decimal_Type64,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type64, bsl::is_trivially_copyable);
+
 
     // CREATORS
     Decimal_Type64();
@@ -2176,8 +2188,8 @@ class Decimal_Type128 {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Decimal_Type128,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type128,
+                                   bsl::is_trivially_copyable);
 
     // CREATORS
     Decimal_Type128();
@@ -4151,7 +4163,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32>
         // 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +0.000001E-95)
 
     static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
+        // Return the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal32' type.
 
     static BloombergLP::bdldfp::Decimal32 quiet_NaN() BSLS_NOTHROW_SPEC;
@@ -4199,7 +4211,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64>
         // +0.000000000000001e-383)
 
     static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
+        // Return the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal64' type.
 
     static BloombergLP::bdldfp::Decimal64 quiet_NaN() BSLS_NOTHROW_SPEC;
@@ -4250,7 +4262,7 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128>
         // +0.000000000000000000000000000000001e-6143)
 
     static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
+        // Return the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal128' type.
 
     static BloombergLP::bdldfp::Decimal128 quiet_NaN() BSLS_NOTHROW_SPEC;

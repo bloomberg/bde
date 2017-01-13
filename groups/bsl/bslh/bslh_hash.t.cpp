@@ -1,20 +1,13 @@
 // bslh_hash.t.cpp                                                    -*-C++-*-
 #include <bslh_hash.h>
-#include <bslh_defaulthashalgorithm.h>
 #include <bslh_defaultseededhashalgorithm.h>
 #include <bslh_siphashalgorithm.h>
 #include <bslh_spookyhashalgorithm.h>
-
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_issame.h>
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_istriviallydefaultconstructible.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <limits>

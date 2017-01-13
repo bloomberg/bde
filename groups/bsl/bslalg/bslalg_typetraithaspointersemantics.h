@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as having pointer semantics.
 //
+//@DEPRECATED: Use 'bslmf_haspointersemantics' instead.
+//
 //@CLASSES:
 //  bslalg::TypeTraitHasPointerSemantics: has pointer semantics
 //
@@ -17,14 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitHasPointerSemantics'.  A type with this trait is said to
-// have "pointer semantics".  That is the type behaves as if it were a
-// fundamental pointer type.  The type must define(at a minimum) 'operator*'
-// and 'operator->'.
-//
-///Usage
-///-----
-// TBD
+// 'bslalg::TypeTraitHasPointerSemantics', which allows the trait
+// 'bslmf::HasPointerSemantics' to be declared using the (deprecated)
+// 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslmf_haspointersemantics'
+// component for details of this trait.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

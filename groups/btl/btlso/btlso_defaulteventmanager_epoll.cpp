@@ -14,15 +14,18 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
+#include <btlso_eventmanagertester.h>   // for testing only
 #include <btlso_flag.h>
 #include <btlso_socketimputil.h>
-
+#include <btlso_socketoptutil.h>        // for testing only
 #include <btlso_timemetrics.h>
 
-#include <bsls_timeinterval.h>
+#include <bdlb_bitutil.h>
+#include <bdlb_bitmaskutil.h>
+#include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 
-#include <bsls_assert.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_functional.h>
@@ -82,24 +85,57 @@ int sleep(int                       *resultErrno,
     return 0;
 }
 
-int translateEventToMask(btlso::EventType::Type event)
-{
-    switch (event) {
-      case btlso::EventType::e_ACCEPT:                          // FALL THROUGH
-      case btlso::EventType::e_READ: {
-        return EPOLLIN;                                               // RETURN
-      } break;
-      case btlso::EventType::e_CONNECT:                         // FALL THROUGH
-      case btlso::EventType::e_WRITE: {
-        return EPOLLOUT;                                              // RETURN
-      } break;
-      default: {
-        BSLS_ASSERT("Invalid event (must be unreachable)" && 0);
+const uint32_t k_POLLIN_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_READ) |
+                                 bdlb::BitMaskUtil::eq(EventType::e_ACCEPT);
 
-        return -1;                                                    // RETURN
-      } break;
-    }
+const uint32_t k_POLLOUT_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_WRITE) |
+                                  bdlb::BitMaskUtil::eq(EventType::e_CONNECT);
+static
+struct epoll_event makeEvent(uint32_t eventMask, int fd)
+{
+    // Return an epoll_event structure with a mask having EPOLLIN set if READ
+    // or ACCEPT is set in 'eventMask', and EPOLLOUT set if WRITE or CONNECT
+    // is set in 'eventMask'. Assert that if multiple events are registered,
+    // they are READ and WRITE.
+    //
+    // The 'data' portion of the event is a 64-bit-wide union.  One of its
+    // fields is "fd", an int, but we also want to store the original
+    // 'eventMask'.  Store the fd in the lower 32 bits of the 'data' union
+    // and the 'eventMask' in the upper 32 bits.  (Thus, 'data.fd' does *not*
+    // contain the fd.)
+
+    int pollinEvents =
+        bdlb::BitUtil::numBitsSet(eventMask & k_POLLIN_EVENTS);
+    int polloutEvents =
+        bdlb::BitUtil::numBitsSet(eventMask & k_POLLOUT_EVENTS);
+    BSLS_ASSERT(2 > pollinEvents);
+    BSLS_ASSERT(2 > polloutEvents);
+    BSLS_ASSERT(!(pollinEvents && polloutEvents) ||
+                (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ) &&
+                 eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)));
+
+    struct epoll_event result;
+    result.events = (EPOLLIN * pollinEvents) | (EPOLLOUT * polloutEvents);
+    result.data.u64 = (uint64_t)eventMask << 32 | fd;
+    return result;
 }
+
+struct RemoveVisitor {
+    int d_epollFd;
+
+    RemoveVisitor(int epollFd)
+    : d_epollFd(epollFd)
+    {
+    }
+
+    void operator()(const SocketHandle::Handle& handle) {
+        struct epoll_event event = { 0, { 0 } };
+        int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, handle, &event);
+        // epoll removes closed file descriptors automatically.
+
+        BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
+    }
+};
 
 }  // close unnamed namespace
 
@@ -111,79 +147,44 @@ typedef btlso::DefaultEventManager<btlso::Platform::EPOLL> EventManagerName;
     // Alias for brevity.
 
 // PRIVATE MANIPULATORS
-int EventManagerName::dispatchCallbacks(
-                             const bsl::vector<struct ::epoll_event>& signaled,
-                             int                                      numReady)
+int EventManagerName::dispatchCallbacks(int numReady)
 {
     int numCallbacks = 0;
 
-    // Letting people know that we're executing user-callbacks.
-
-    d_isInvokingCb = (0 != numReady);
-
     for (int i = 0; i < numReady; ++i) {
-        const struct ::epoll_event *curEvent = &signaled[i];
+        const struct ::epoll_event *curEvent = &d_signaled[i];
 
         BSLS_ASSERT(curEvent);
         BSLS_ASSERT(curEvent->events);
 
-        EventMap::value_type *info = (EventMap::value_type *)
-                                                            curEvent->data.ptr;
-        HandleEvents *events = &info->second;
-
-        // If true, this means that a callback executed during this
-        // 'dispatchCallbacks' run removed this handle.
-
-        if (!events->d_isValid) {
-            BSLS_ASSERT(!d_entriesBeingRemoved.empty());
-            BSLS_ASSERT(0 != i);
-            continue;
-        }
+        uint32_t eventMask = (uint32_t)(curEvent->data.u64 >> 32);
+        int fd = (int)(curEvent->data.u64 & 0xFFFFFFFF);
 
         // Read/Accept.
 
-        if (curEvent->events & (EPOLLIN | EPOLLERR | EPOLLHUP)
-         && events->d_readCallback) {
-            events->d_readCallback.operator()();
-            ++numCallbacks;
-
-            // Need to recheck the valid bit, the previous callback could have
-            // un-registered it.
-
-            if (!events->d_isValid) {
-                BSLS_ASSERT(!d_entriesBeingRemoved.empty());
-                continue;
+        if (curEvent->events & (EPOLLIN | EPOLLERR | EPOLLHUP)) {
+            if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ)) {
+                numCallbacks += !d_callbacks.invoke(Event(fd,
+                                                          EventType::e_READ));
+            } else {
+                numCallbacks += !d_callbacks.invoke(Event(fd,
+                                                          EventType::e_ACCEPT));
             }
         }
 
         // Write/Connect.
 
-        if (curEvent->events & (EPOLLOUT | EPOLLERR | EPOLLHUP)
-         && events->d_writeCallback) {
-            info->second.d_writeCallback.operator()();
-            ++numCallbacks;
+        if (curEvent->events & EPOLLOUT) {
+            if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)) {
+                numCallbacks += !d_callbacks.invoke(Event(fd,
+                                                          EventType::e_WRITE));
+            } else {
+                numCallbacks += !d_callbacks.invoke(
+                                               Event(fd, EventType::e_CONNECT));
+            }
         }
     }
 
-    d_isInvokingCb = false;
-
-    // We're going to remove from the map any event that was de-registered
-    // during a callback.  Not removing them when we're in the for loop allows
-    // up to use directly the pointer returned in the epoll data.
-
-    bsl::vector<EventMap::iterator>::const_iterator it;
-    for (it = d_entriesBeingRemoved.begin();
-         d_entriesBeingRemoved.end() != it;
-         ++it) {
-        if ((*it)->second.d_isValid) {
-            // Item was first removed, then registered again.  We do not have
-            // anything to do.
-
-            continue;
-        }
-        d_events.erase(*it);
-    }
-    d_entriesBeingRemoved.clear();
     return numCallbacks;
 }
 
@@ -223,7 +224,7 @@ int EventManagerName::dispatchImp(int                       flags,
                 }
             }
 
-            d_signaled.resize(d_events.size());
+            d_signaled.resize(d_callbacks.numSockets());
             if (d_signaled.empty()) {
                 // No fds to wait for.  We'll just sleep if there is a timeout.
 
@@ -276,7 +277,9 @@ int EventManagerName::dispatchImp(int                       flags,
                      : -2
                    : 0;                                               // RETURN
         }
-        numCallbacks += dispatchCallbacks(d_signaled, numReady);
+
+        BSLS_ASSERT(numReady <= static_cast<int>(d_signaled.size()));
+        numCallbacks += dispatchCallbacks(numReady);
         if (timeout) {
             now = bdlt::CurrentTime::now();
         }
@@ -301,11 +304,9 @@ EventManagerName::DefaultEventManager(btlso::TimeMetrics *timeMetric,
                                       bslma::Allocator   *basicAllocator)
 : d_epollFd(-1)
 , d_signaled(basicAllocator)
-, d_isInvokingCb(false)
 , d_timeMetric_p(timeMetric)
-, d_events(128, bsl::hash<int>(), bsl::equal_to<int>(), basicAllocator)
-, d_entriesBeingRemoved(basicAllocator)
-, d_numEvents(0)
+, d_callbacks(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_epollFd = epoll_create(128);
     if (-1 == d_epollFd) {
@@ -323,81 +324,24 @@ EventManagerName::~DefaultEventManager()
 // MANIPULATORS
 void EventManagerName::deregisterAll()
 {
-    d_numEvents = 0;
-    d_entriesBeingRemoved.reserve(d_events.size());
-    for (EventMap::iterator it = d_events.begin();
-         d_events.end() != it;
-         ++it) {
-
-        if (!it->second.d_isValid) {
-            continue;
-        }
-        struct epoll_event event = { 0, { 0 } };
-        int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, it->first, &event);
-
-        // epoll removes closed file descriptors automatically.
-
-        (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
-
-        it->second.d_isValid = false;
-        it->second.d_mask = 0;
-        it->second.d_writeCallback = btlso::EventManager::Callback();
-        it->second.d_readCallback = btlso::EventManager::Callback();
-        d_entriesBeingRemoved.push_back(it);
-    }
-
-    // If we're in a user-specified callback, we'll clean up in
-    // 'dispatchCallbacks'.  That keeps every pointer in events data inside
-    // 'd_signaled' valid.
-
-    if (!d_isInvokingCb) {
-        d_events.clear();
-        d_signaled.clear();
-        d_entriesBeingRemoved.clear();
-    }
+    RemoveVisitor visitor(d_epollFd);
+    d_callbacks.visitSockets(&visitor);
+    d_callbacks.removeAll();
 }
 
 void EventManagerName::deregisterSocketEvent(
                                      const btlso::SocketHandle::Handle& handle,
                                      btlso::EventType::Type             event)
 {
-    EventMap::iterator it = d_events.find(handle);
+    Event handleEvent(handle, event);
 
-    if (d_events.end() == it || !it->second.d_isValid) {
-        // Should really be an assert.
-
+    if (!d_callbacks.remove(handleEvent)) {
         return;                                                       // RETURN
     }
-    HandleEvents *regEvents = &it->second;
 
-    // Reset callbacks.
-
-    if (btlso::EventType::e_READ == event
-     || btlso::EventType::e_ACCEPT == event) {
-
-        if (!(regEvents->d_readCallback
-         && event == regEvents->d_readEventType)) {
-            return ;                                                  // RETURN
-        }
-        regEvents->d_readCallback = btlso::EventManager::Callback();
-    }
-    else {
-        if (!(regEvents->d_writeCallback
-         && event == regEvents->d_writeEventType)) {
-            return;                                                   // RETURN
-        }
-        regEvents->d_writeCallback = btlso::EventManager::Callback();
-    }
-    --d_numEvents;
-
-    int pollEvent = translateEventToMask(event);
-    BSLS_ASSERT(regEvents->d_mask & pollEvent);
-
-    // Clear the corresponding event bit to get the new event mask.
-
-    const int newMask = (regEvents->d_mask ^ pollEvent);
+    uint32_t newMask = d_callbacks.getRegisteredEventMask(handle);
     if (0 == newMask) {
-        // There is no more event to monitor for this handle.  Remove it from
+        // There are no more events to monitor for this handle.  Remove it from
         // epoll.
 
         struct epoll_event epollEvent = { 0, { 0 } };
@@ -405,35 +349,13 @@ void EventManagerName::deregisterSocketEvent(
 
         // epoll removes closed file descriptors automatically.
 
-        (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
-
-        if (d_isInvokingCb) {
-            // This method has been invoked in a user-callback from
-            // 'dispatchCallbacks'.  We can't remove the HandleEvent from
-            // d_events, otherwise it would potentially invalidate the data
-            // member of an epoll_event in 'd_signaled'.  We'll just add it to
-            // 'd_entriesBeingRemoved' and 'dispatchCallbacks' will clean it up
-            // when it is done.  For now, we'll just mark this as invalid and
-            // reset the state of the event.
-
-            it->second.d_isValid = false;
-            it->second.d_mask = 0;
-            d_entriesBeingRemoved.push_back(it);
-        }
-        else {
-            d_events.erase(it);
-        }
+        (void) ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
         return;                                                       // RETURN
     }
 
-    // We're still interested in another event for this fd.  Let's just remove
-    // 'event' from the set we're monitoring with epoll.
-
-    regEvents->d_mask = newMask;
-
-    struct epoll_event epollEvent = { 0, { 0 } };
-    epollEvent.events = newMask;
-    epollEvent.data.ptr = (void *) &*it;
+    // We're still interested in another event for this fd.  Send the new mask
+    // to epoll.
+    struct epoll_event epollEvent = makeEvent(newMask, handle);
 
     int ret = epoll_ctl(d_epollFd, EPOLL_CTL_MOD, handle, &epollEvent);
     (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
@@ -442,41 +364,13 @@ void EventManagerName::deregisterSocketEvent(
 int EventManagerName::deregisterSocket(
                                      const btlso::SocketHandle::Handle& handle)
 {
-    EventMap::iterator it = d_events.find(handle);
-    if (d_events.end() == it || !it->second.d_isValid) {
-        return 0;                                                     // RETURN
-    }
-
-    int numEvents = it->second.d_readCallback ? 1 : 0;
-    numEvents += it->second.d_writeCallback ? 1 : 0;
-    BSLS_ASSERT(numEvents);
-
+    int numEvents = d_callbacks.removeSocket(handle);
     struct epoll_event epollEvent = { 0, { 0 } };
     int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, handle, &epollEvent);
 
     // epoll removes closed file descriptors automatically.
 
     (void)ret; BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
-
-    if (d_isInvokingCb) {
-        // This method has been invoked in a user-callback from
-        // 'dispatchCallbacks'.  We can't remove the HandleEvent from d_events,
-        // otherwise it would potentially invalidate the data member of an
-        // epoll_event in 'd_signaled'.  We'll just add it to
-        // 'd_entriesBeingRemoved' and 'dispatchCallbacks' will clean it up
-        // when it is done.  For now, we'll just mark this as invalid and reset
-        // the state of the event.
-
-        it->second.d_isValid = false;
-        it->second.d_mask = 0;
-        it->second.d_writeCallback = btlso::EventManager::Callback();
-        it->second.d_readCallback = btlso::EventManager::Callback();
-        d_entriesBeingRemoved.push_back(it);
-    }
-    else {
-        d_events.erase(it);
-    }
-    d_numEvents -= numEvents;
 
     return numEvents;
 }
@@ -504,172 +398,55 @@ int EventManagerName::registerSocketEvent(
                                  const btlso::EventType::Type         event,
                                  const btlso::EventManager::Callback& callback)
 {
-    EventMap::iterator it = d_events.find(handle);
+    Event handleEvent(handle, event);
 
-    if (d_events.end() == it) {
-        bsl::pair<EventMap::iterator, bool> ret = d_events.insert(
-                                       bsl::make_pair(handle, HandleEvents()));
-        BSLS_ASSERT(ret.second);
-        it = ret.first;
-
-        // Set initial state.
-
-        it->second.d_mask = 0;
-        it->second.d_isValid = true;
-    }
-
-    // Register the callback and event type.
-
-    HandleEvents                  *regEvents = &it->second;
-    btlso::EventManager::Callback *modifiedCallback = 0;
-
-    if (btlso::EventType::e_READ == event
-     || btlso::EventType::e_ACCEPT == event) {
-
-        BSLS_ASSERT(!it->second.d_isValid
-                 || !regEvents->d_readCallback
-                 || event == regEvents->d_readEventType);
-
-        regEvents->d_readCallback  = callback;
-        regEvents->d_readEventType = event;
-        modifiedCallback = &regEvents->d_readCallback;
-    }
-    else {
-        BSLS_ASSERT(!it->second.d_isValid
-                 || !regEvents->d_writeCallback
-                 || event == regEvents->d_writeEventType);
-
-        regEvents->d_writeCallback  = callback;
-        regEvents->d_writeEventType = event;
-        modifiedCallback = &regEvents->d_writeCallback;
-    }
-
-    const int newMask = regEvents->d_mask | translateEventToMask(event);
-    BSLS_ASSERT(0 != newMask);
-    bool wasRevalidated = false;
-    if (!it->second.d_isValid) {
-        // We are being called from an user-specified callback in
-        // 'dispatchCallbacks'.  This handle was deregistered during a
-        // previous callback and is being registered again.  We have to
-        // revalidate it.
-
-        it->second.d_isValid = true;
-        wasRevalidated = true;
-        BSLS_ASSERT(0 == it->second.d_mask);
-        BSLS_ASSERT(d_isInvokingCb);
-    }
-    else if (newMask == regEvents->d_mask) {
-        // We just updated the callback.
-
+    uint32_t eventMask = d_callbacks.registerCallback(handleEvent, callback);
+    if (0 == eventMask) {
+        // Event was already registered; we simply changed the callback
         return 0;                                                     // RETURN
     }
-    ++d_numEvents;
 
-    // Assert that if two events are registered at the same, they can
-    // only READ and WRITE.
+    // Otherwise, get the new epoll mask for the socket.
+    struct epoll_event epollEvent = makeEvent(eventMask, handle);
 
-    BSLS_ASSERT(0 == (newMask & (newMask - 1)) // only 1 bit set
-             || (btlso::EventType::e_READ == regEvents->d_readEventType
-              && btlso::EventType::e_WRITE == regEvents->d_writeEventType));
-
-    struct epoll_event epollEvent = { 0, { 0 } };
-    epollEvent.events = newMask;
-    epollEvent.data.ptr = (void *) &*it;
-
-    int epollCmd = EPOLL_CTL_MOD;
-    if (0 == regEvents->d_mask) {
-        // This socket handle is not registered with epoll.
-
-        epollCmd = EPOLL_CTL_ADD;
-    }
-    const int oldMask = regEvents->d_mask;
-    regEvents->d_mask = newMask;
+    // If there is 1 event registered now, it was the first one for this socket
+    // (otherwise, we would have replaced the callback and returned already).
+    // In that case, the command is EPOLL_CTL_ADD. Otherwise, we are
+    // adding a second event and the command is EPOLL_CTL_MOD.
+    int epollCmd = 1 == bdlb::BitUtil::numBitsSet(eventMask)
+        ? EPOLL_CTL_ADD
+        : EPOLL_CTL_MOD;
 
     const int ret = epoll_ctl(d_epollFd, epollCmd, handle, &epollEvent);
     BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
 
     if (0 == ret) {
-
-        if (wasRevalidated) {
-            // We successfully re-registered an entry of this socket handle
-            // that is still in 'd_entriesBeingRemoved'.  Remove it from
-            // 'd_entriesBeingRemoved'.
-
-            BSLS_ASSERT(d_isInvokingCb);
-            bsl::vector<EventMap::iterator>::iterator v_it;
-            for (v_it  = d_entriesBeingRemoved.begin();
-                 v_it != d_entriesBeingRemoved.end()  ; ++v_it) {
-
-                if (*v_it == it) {
-                    d_entriesBeingRemoved.erase(v_it);
-                    break;
-                }
-            }
-        }
         return 0;                                                     // RETURN
     }
-    regEvents->d_mask = oldMask;
-    *modifiedCallback = btlso::EventManager::Callback();
-    --d_numEvents;
-    if (oldMask) {
-        // There are other events registered at this point.  Leave the entry.
 
-        return -1;                                                    // RETURN
-    }
-
-    if (wasRevalidated) {
-        BSLS_ASSERT(d_isInvokingCb);
-        it->second.d_isValid = false;
-        return -2;                                                    // RETURN
-    }
-
-    // This was a completely new entry, nobody could have seen it.  We can
-    // simply remove it.
-
-    d_events.erase(it);
-    return -3;
+    // Otherwise, there's been an error; deregister the event.
+    d_callbacks.remove(handleEvent);
+    return -1;
 }
 
 // ACCESSORS
 int EventManagerName::numSocketEvents(
                                const btlso::SocketHandle::Handle& handle) const
 {
-    EventMap::const_iterator it = d_events.find(handle);
-    if (d_events.end() == it || !it->second.d_isValid) {
-        return 0;                                                     // RETURN
-    }
-    const int numEvents = it->second.d_readCallback ? 1 : 0;
-    return numEvents + (it->second.d_writeCallback ? 1 : 0);
+    return bdlb::BitUtil::numBitsSet(
+                                  d_callbacks.getRegisteredEventMask(handle));
 }
 
 int EventManagerName::numEvents() const
 {
-    return d_numEvents;
+    return d_callbacks.numCallbacks();
 }
 
 int EventManagerName::isRegistered(
                                 const btlso::SocketHandle::Handle& handle,
                                 const btlso::EventType::Type       event) const
 {
-    EventMap::const_iterator it = d_events.find(handle);
-
-    if (d_events.end() == it || !it->second.d_isValid) {
-        return 0;                                                     // RETURN
-    }
-
-    const HandleEvents& regEvents = it->second;
-
-    if (regEvents.d_readCallback
-     && event == regEvents.d_readEventType) {
-        return 1;                                                     // RETURN
-    }
-
-    if (regEvents.d_writeCallback
-     && event == regEvents.d_writeEventType) {
-        return 1;                                                     // RETURN
-    }
-
-    return 0;
+    return d_callbacks.contains(Event(handle, event));
 }
 
 }  // close package namespace

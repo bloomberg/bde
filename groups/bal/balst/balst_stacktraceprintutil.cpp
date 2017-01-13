@@ -12,12 +12,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balst_stacktraceprintutil_cpp,"$Id$ $CSID$")
 
-#include <balst_stackaddressutil.h>
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_stackaddressutil.h>
 
 #include <bsl_iostream.h>
 
@@ -42,7 +42,7 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
 
     enum {
         k_DEFAULT_MAX_FRAMES = 1024,
-        k_IGNORE_FRAMES      = StackAddressUtil::k_IGNORE_FRAMES
+        k_IGNORE_FRAMES      = bsls::StackAddressUtil::k_IGNORE_FRAMES + 1
     };
 
     if (maxFrames < 0) {
@@ -55,13 +55,13 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
 
     maxFrames += k_IGNORE_FRAMES;
 
-    StackTrace st;
+    StackTrace st;    // defaults to using its own heap bypass allocator
 
     void **addresses = static_cast<void **>(st.allocator()->allocate(
                                                   maxFrames * sizeof(void *)));
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
-    int numAddresses = StackAddressUtil::getStackAddresses(addresses,
-                                                           maxFrames);
+    int numAddresses = bsls::StackAddressUtil::getStackAddresses(addresses,
+                                                                 maxFrames);
 #else
     int numAddresses = 0;
 #endif

@@ -80,8 +80,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
@@ -100,9 +100,13 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
-#include <bdlat_bdeatoverrides.h>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
 #endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDESi
 
 namespace BloombergLP {
 

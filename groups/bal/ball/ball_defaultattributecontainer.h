@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attributecontainer
 //
-//@AUTHOR: Gang Chen (gchen20), Mike Verschell (hverschell)
+//@AUTHOR: Gang Chen (gchen20), Mike Verschell (hversche)
 //
 //@DESCRIPTION: This component provides a default implementation of the
 // 'ball::AttributeContainer' protocol, 'ball::DefaultAttributeContainer'
@@ -127,8 +127,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                     // ===============================
                     // class DefaultAttributeContainer
                     // ===============================
@@ -138,13 +138,15 @@ class DefaultAttributeContainer : public AttributeContainer {
     // attributes values.
 
     // PRIVATE TYPES
-    struct AttributeHash
-        // A hash functor for 'Attribute'
-    {
+    struct AttributeHash {
+        // A hash functor for 'Attribute'.
+
       private:
+        // CLASS DATA
         static int s_hashtableSize;  // default hashtable size for which the
                                      // hash value is calculated
       public:
+        // ACCESSORS
         int operator()(const Attribute& attribute) const
             // Return the hash value of the specified 'attribute'.
         {
@@ -335,6 +337,7 @@ DefaultAttributeContainer::end() const
 {
     return d_attributeSet.end();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

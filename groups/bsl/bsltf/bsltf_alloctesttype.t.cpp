@@ -1306,7 +1306,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the the boundary values.
+        //:   the boundary values.
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects, in turn, but configured differently: (a) without passing

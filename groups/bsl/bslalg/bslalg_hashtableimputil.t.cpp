@@ -367,7 +367,7 @@ struct HashNodeUsingHasherAndPolicy {
 // First, we define an abstract template class 'HashSet' that will provide a
 // hash set for any type that has a copy constructor, a destructor, an equality
 // comparator and a hash function.  We inherit from the 'HashTableAnchor' class
-// use the the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
+// use the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
 // facilitate building the table:
 //..
 template <class KEY, class HASHER, class EQUAL>

@@ -90,14 +90,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
 
 class AttributeContainerList;
 
-                       // ==================
-                       // class PredicateSet
-                       // ==================
+                        // ==================
+                        // class PredicateSet
+                        // ==================
 
 class PredicateSet {
     // This class implements a value-semantic collection of unique predicates.
@@ -107,13 +106,15 @@ class PredicateSet {
     // set evaluates to 'true' in the context of a given attribute map.
 
     // PRIVATE TYPES
-    struct PredicateHash
-        // A hash functor for 'Predicate'
-    {
+    struct PredicateHash {
+        // A hash functor for 'Predicate'.
+
       private:
+        // CLASS DATA
         static int s_hashtableSize;  // default hashtable size for which the
                                      // hash value is calculated
       public:
+        // ACCESSORS
         int operator()(const Predicate& predicate) const
             // Return the hash value of the specified 'predicate'.
         {
@@ -123,7 +124,7 @@ class PredicateSet {
 
     typedef bsl::unordered_set<Predicate, PredicateHash> SetType;
 
-    // PRIVATE MEMBERS
+    // CLASS DATA
     static int s_initialSize;     // the initial size of the set
 
     // DATA
@@ -142,7 +143,7 @@ class PredicateSet {
     static int hash(const PredicateSet& set, int size);
         // Return a hash value calculated from the specified 'set' using the
         // specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range [0, size).
+        // guaranteed to be in the range '[0 .. size)'.
 
     // TYPES
     typedef SetType::const_iterator const_iterator;
@@ -160,7 +161,7 @@ class PredicateSet {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator will be used.
 
-    ~PredicateSet();
+    //! ~PredicateSet() = default;
         // Destroy this predicate set.
 
     // MANIPULATORS
@@ -240,9 +241,9 @@ bsl::ostream& operator<<(bsl::ostream&       output,
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                       // ------------------
-                       // class PredicateSet
-                       // ------------------
+                        // ------------------
+                        // class PredicateSet
+                        // ------------------
 
 // CREATORS
 inline
@@ -258,11 +259,6 @@ inline
 PredicateSet::PredicateSet(const PredicateSet&  original,
                            bslma::Allocator    *basicAllocator)
 : d_predicateSet(original.d_predicateSet, basicAllocator)
-{
-}
-
-inline
-PredicateSet::~PredicateSet()
 {
 }
 
@@ -284,7 +280,6 @@ void PredicateSet::removeAllPredicates()
 {
     d_predicateSet.clear();
 }
-
 
 // ACCESSORS
 inline

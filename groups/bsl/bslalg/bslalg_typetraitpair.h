@@ -18,42 +18,30 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitPair'.  A 'TYPE' that has this trait fulfills the
-// following requirements, where 'mX' is a modifiable object and 'X' a
-// non-modifiable object of 'TYPE':
-//..
-//  Valid expression     Type
-//  ----------------     ----
-//  TYPE::first_type
-//  TYPE::second_type
-//
-//  mX.first             first_type
-//  mX.second            second_type
-//  X.first              const first_type
-//  X.second             const second_type
-//..
-// Note that 'first' and 'second' are *not* member functions, but data members.
-
-//TDB #ifdef BDE_OMIT_DEPRECATED // DEPRECATED
-//TBD #error "bslalg_typetraitpair is deprecated"
-//TBD #endif
+//@DESCRIPTION: This component provides a single traits class, 
+// 'bslalg::TypeTraitPair', which allows the trait 'bslmf::IsPair' to be
+// declared using the (deprecated) 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See
+// the 'bslmf_ispair' component for details of this trait.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
-#include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPAIR
-#include <bslmf_ispair.h>
-#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 
@@ -64,13 +52,8 @@ namespace bslalg {
                         // ====================
 
 struct TypeTraitPair {
-    // A type, 'T', with this trait has two data members, 'first' and 'second'
+    // A 'TYPE' with this trait has two data members, 'first' and 'second'
     // of types 'T::first_type' and 'T::second_type', respectively.
-    // Metafunctions can be used to probe and combine the traits of the
-    // individual pair members.  For example, the pair is bitwise moveable only
-    // if both 'first_type' and 'second_type' have the
-    // 'TypeTraitBitwiseMoveable' trait.  User-defined types will rarely need
-    // this trait.
 
     template <class TYPE>
     struct NestedTraitDeclaration :

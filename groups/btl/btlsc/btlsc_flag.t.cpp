@@ -170,13 +170,12 @@ if (verbose) {  // added in test driver
         // VALUE TEST:
         //   The enumerators in this component are flag bits, i.e., powers of
         //   2, and *not* consecutive integers.  At present, they are
-        //   consecutive powers of two, but note that that fact can change.
-        //   Verify that
-        //   the 'toAscii' function produces strings that are identical to
-        //   their respective enumerator symbols.  Verify that the output
-        //   operator produces the same respective string values that would
-        //   be produced by 'toAscii'.  Also verify the ASCII representation
-        //   and 'ostream' output for invalid enumerator values.
+        //   consecutive powers of two, but note that this fact can change.
+        //   Verify that the 'toAscii' function produces strings that are
+        //   identical to their respective enumerator symbols.  Verify that the
+        //   output operator produces the same respective string values that
+        //   would be produced by 'toAscii'.  Also verify the ASCII
+        //   representation and 'ostream' output for invalid enumerator values.
         //
         // Testing:
         //   enum Enum { ... };

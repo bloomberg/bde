@@ -1343,7 +1343,7 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
         *numWordsWritten = dstBuffer - dstStart;
     }
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     if (sizeof(UTF16_WORD) > sizeof(unsigned short)) {
         BSLS_ASSERT(4 == sizeof(UTF16_WORD));
         const UTF16_WORD forbiddenMask = SWAPPER::swap32(

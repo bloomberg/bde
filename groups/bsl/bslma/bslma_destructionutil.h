@@ -9,10 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide routines that destroy objects efficiently.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
-//  DestructionUtil: namespace for routines that destroy objects efficiently
+//  bslma::DestructionUtil: namespace for routines that destroy objects
 //
 //@SEE_ALSO: bslma_constructionutil
 //
@@ -174,7 +172,7 @@ inline
 void DestructionUtil::destroy(TYPE *address, bsl::true_type)
 {
     // No-op.
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     memset(address, 0xa5, sizeof *address);
 #else
     (void) address;

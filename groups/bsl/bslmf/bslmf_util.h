@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level functions on 'bslmf' types.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslmf::Util: utility class providing low-level functionality
 //

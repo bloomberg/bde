@@ -553,8 +553,7 @@ int main(int argc, char *argv[])
             { L_,      1,       64 * 10,  'Y',  "" },
             { L_,     90,  64 * 10 - 12,  'Y',  "0123456789+-" },
         };
-
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                  LINE      = DATA[ti].d_line;
@@ -686,8 +685,7 @@ int main(int argc, char *argv[])
             { L_,      1,       64 * 10,  'Y',  "" }, // read past EOF fails
             { L_,     90,        64 * 9,  'Y',  "" }, // read past EOF fails
         };
-
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                  LINE     = DATA[ti].d_line;

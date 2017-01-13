@@ -362,6 +362,38 @@ void readCbWithBlob(int         result,
     *numNeeded = 1;
 }
 
+void readCbWithReadSize(int            result,
+                        int           *numNeeded,
+                        btlb::Blob    *data,
+                        int            channelId,
+                        int            readSize,
+                        int            totalDataSize,
+                        bslmt::Barrier *barrier)
+{
+    static int numRead = 0;
+
+    if (result) {
+        // Session is going down.
+
+        return;
+    }
+
+    ASSERT(numNeeded);
+    ASSERT(data);
+    ASSERT(0 < data->length());
+
+    const int bytesToRead = bsl::min(data->length(), readSize);
+
+    btlb::BlobUtil::erase(data, 0, bytesToRead);
+
+    numRead += bytesToRead;
+    if (numRead >= totalDataSize) {
+        barrier->wait();
+        numRead = 0;
+    }
+    *numNeeded = 1;
+}
+
 void readCbWithBlobAndBarrier(int             result,
                               int            *numNeeded,
                               btlb::Blob     *data,
@@ -1823,7 +1855,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1844,6 +1876,136 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // CHECKING MEMORY USAGE
+        //
+        // Concerns:
+        //: 1 Memory allocated and used by SessionPool does not grow beyond
+        //:   bound.
+        //
+        // Plan:
+        //: 1 Create a SessionPool object providing it a 'btlb::Blob'-based
+        //:   read callback that reads only a specified amount of bytes during
+        //:   each invocation.  Also provide a test allocator to measure the
+        //:   memory used by the object.
+        //:
+        //: 2 Establish a connection and write a large amount of data through
+        //:   it.
+        //:
+        //: 3 After all the data is read check that the amount of memory used
+        //:   is below the expected threshold.
+        //:
+        //: 4 Repeat steps 1 - 3 for different values of bytes read in the read
+        //:   callback.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "CHECKING MEMORY USAGE" << bsl::endl
+                               << "=====================" << bsl::endl;
+
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+
+        typedef btlmt::SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+        typedef btlmt::SessionPool::SessionStateCallback     SessionStateCb;
+
+        const int MAX_BUF_SIZE = 1024;  // 1K buffers
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setIncomingMessageSizes(1, 1, MAX_BUF_SIZE);
+
+        // ChannelPool allocates a maximum of 32 buffers each of the max
+        // incoming message size (MAX_BUF_SIZE in this test case).  But
+        // because Blob uses a pool that does an exponential increase the
+        // memory used may be double the maximum memory. We set the
+        // threshold to double of that amount just to be safe.
+
+        const int MAX_NUM_BYTES = 4 * 32 * MAX_BUF_SIZE;
+        const int DATA_READ_SIZES[] = { 8, 16, 32, 128, 512,
+                                        1024, 4096, 8192, 16396 };
+        const size_t NUM_DATA_READ_SIZES = sizeof DATA_READ_SIZES /
+                                                       sizeof *DATA_READ_SIZES;
+
+        const int TOTAL_DATA_SIZE = 1024 * 1024;
+
+        for (size_t j = 0; j < NUM_DATA_READ_SIZES; ++j) {
+            const int DATA_READ_SIZE = DATA_READ_SIZES[j];
+
+            bslmt::Barrier barrier(2);
+            BlobReadCallback callback;
+            BlobReadCallback cb(bdlf::BindUtil::bind(&readCbWithReadSize,
+                                                     _1,
+                                                     _2,
+                                                     _3,
+                                                     _4,
+                                                     DATA_READ_SIZE,
+                                                     TOTAL_DATA_SIZE,
+                                                     &barrier));
+            callback = cb;
+
+            TestFactory factory(&callback);
+
+            SessionPoolStateCb poolCb         = &poolStateCallback;
+            SessionStateCb     sessionStateCb = bdlf::BindUtil::bind(
+                                              &sessionStateCallbackWithBarrier,
+                                              _1,
+                                              _2,
+                                              _3,
+                                              _4,
+                                              &barrier);
+
+            bslma::TestAllocator testAllocator;
+            Obj mX(config, poolCb, &testAllocator);
+
+            int rc = mX.start();
+            ASSERT(0 == rc);
+
+            int handle;
+            rc = mX.listen(&handle,
+                           sessionStateCb,
+                           0,
+                           5,
+                           1,
+                           &factory);
+            ASSERT(0 == rc);
+
+            const int PORTNUM = mX.portNumber(handle);
+
+            btlso::IPv4Address ADDRESS("127.0.0.1", PORTNUM);
+
+            btlso::InetStreamSocketFactory<btlso::IPv4Address> socketFactory;
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+            socketFactory.allocate();
+                
+            rc = socket->connect(ADDRESS);
+            ASSERT(0 == rc);
+                
+            barrier.wait();
+
+            int numWritten = 0;
+                
+            // Write 1 MB
+            const int BUF_SIZE = 32768;
+            const char BUFFER[BUF_SIZE] = { 'Z' };
+
+            while (numWritten < TOTAL_DATA_SIZE) {
+                rc = socket->write(BUFFER, BUF_SIZE);
+                if (rc > 0) {
+                    numWritten += rc;
+                }
+            }
+                
+            barrier.wait();
+            socketFactory.deallocate(socket);
+            const int TA_MAX_BYTES = testAllocator.numBytesMax();
+            if (veryVerbose) {
+                P_(DATA_READ_SIZE) P(TA_MAX_BYTES)
+            }
+            LOOP2_ASSERT(TA_MAX_BYTES, MAX_NUM_BYTES,
+                         TA_MAX_BYTES < MAX_NUM_BYTES);
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------

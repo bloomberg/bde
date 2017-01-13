@@ -136,16 +136,16 @@ BSLS_IDENT("$Id: $")
 #include <bslx_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -163,6 +163,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
@@ -186,8 +194,8 @@ class IndexClerkIter {
                            const IndexClerkIter& rhs);
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IndexClerkIter,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(IndexClerkIter, bsl::is_trivially_copyable);
+
     // CREATORS
     IndexClerkIter();
         // Create an unbound iterator.
@@ -275,8 +283,7 @@ class IndexClerk {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IndexClerk,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(IndexClerk, bslma::UsesBslmaAllocator);
 
     // CLASS METHODS
     static int maxSupportedBdexVersion(int versionSelector);

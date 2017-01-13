@@ -237,8 +237,7 @@ int main(int argc, char *argv[])
         //:
         //:   2 For each row 'R2 in the tree of P-2:  (C-1, 3..4)
         //:
-        //:     1 Create a modifiable 'Obj', 'mX', having the the value of
-        //:       'R2'.
+        //:     1 Create a modifiable 'Obj', 'mX', having the value of 'R2'.
         //:
         //:     2 Assign 'mX' from 'Z'.  (C-1)
         //:
@@ -620,7 +619,7 @@ int main(int argc, char *argv[])
         //:
         //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the initial value.  'A' and 'B' should be
-        //:   the the boundary values.
+        //:   the boundary values.
         //:
         //: 2 Value-construct an object using 'D' and use the individual (as
         //:   yet unproven) salient attribute accessors to verify the

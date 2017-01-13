@@ -50,12 +50,12 @@ static void recolorTreeAfterRemoval(RbTreeAnchor *tree,
                                     RbTreeNode   *node,
                                     RbTreeNode   *parentOfNode)
      // Rebalance the nodes in the specified 'tree', which has been
-     // potentially unbalanced by the insertion of the the specified 'node' as
-     // the child of the specified 'parentOfNode'.  The behavior is undefined
-     // unless 'tree' refers to a valid binary search tree (but not
-     // necessarily a valid red-black tree), and 'tree' would be a valid
-     // red-black tree if 'node' were removed (i.e., the potential violation
-     // of red-black constraints is localized to 'node').
+     // potentially unbalanced by the insertion of the specified 'node' as the
+     // child of the specified 'parentOfNode'.  The behavior is undefined
+     // unless 'tree' refers to a valid binary search tree (but not necessarily
+     // a valid red-black tree), and 'tree' would be a valid red-black tree if
+     // 'node' were removed (i.e., the potential violation of red-black
+     // constraints is localized to 'node').
 {
     // Implementation Note:  The following is adapted with few changes from
     // "Introduction to Algorithms" [Cormen, Leiserson, Rivest] , except that

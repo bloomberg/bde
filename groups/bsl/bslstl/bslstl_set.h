@@ -103,9 +103,6 @@ BSLS_IDENT("$Id: $")
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
-//:
-//: *less-than-comparable*: The type provides a less-than operator that defines
-//:     a strict weak ordering relation on values of the type.
 //
 ///Memory Allocation
 ///-----------------
@@ -293,7 +290,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //      }
 //
-//      // ~MyDate() = default;
+//      //! ~MyDate() = default;
 //          // Destroy this object
 //
 //      // MANIPULATORS
@@ -634,7 +631,7 @@ class set {
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'BDEX' serialization
+    //:   except for 'BDEX' serialization
     //: o is *exception-neutral* (agnostic except for the 'at' method)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
@@ -677,11 +674,12 @@ class set {
         // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
 
+      private:
         // NOT IMPLEMENTED
         DataWrapper(const DataWrapper&);
         DataWrapper& operator=(const DataWrapper&);
 
-    public:
+      public:
         // CREATORS
         explicit DataWrapper(const COMPARATOR& comparator,
                              const ALLOCATOR&  basicAllocator);
@@ -689,7 +687,8 @@ class set {
             // to order keys and a copy of the specified 'basicAllocator' to
             // supply memory.
 
-        DataWrapper(BloombergLP::bslmf::MovableRef<DataWrapper> original);
+        DataWrapper(
+              BloombergLP::bslmf::MovableRef<DataWrapper> original);// IMPLICIT
             // Create a data wrapper initialized to the contents of the 'pool'
             // associated with the specified 'original' data wrapper.  The
             // comparator and allocator associated with 'original' are
@@ -816,7 +815,7 @@ class set {
         // type 'KEY' be 'copy-insertable' into this set (see {Requirements on
         // 'KEY'}).
 
-    set(BloombergLP::bslmf::MovableRef<set> original);
+    set(BloombergLP::bslmf::MovableRef<set> original);              // IMPLICIT
         // Create a set having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new set.  Use a copy of 'original.key_comp()' to order the keys
@@ -1009,7 +1008,8 @@ class set {
         // complexity, where 'N' is the size of this set.  This method requires
         // that the (template parameter) type 'KEY' be 'copy-insertable' into
         // this set (see {Requirements on 'KEY'}).  The behavior is undefined
-        // unless 'hint' is a valid iterator into this set.
+        // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
@@ -1023,8 +1023,8 @@ class set {
         // to 'value', this operation has 'O[log(N)]' complexity, where 'N' is
         // the size of this set.  This method requires that the (template
         // parameter) type 'KEY' be 'move-insertable' (see {Requirements on
-        // 'KEY'}).  The behavior is undefined unless 'hint' is a valid
-        // iterator into this set.
+        // 'KEY'}).  The behavior is undefined unless 'hint' is an iterator in
+        // the range '[begin() .. end()]' (both endpoints included).
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1086,7 +1086,9 @@ class set {
         // 'arguments', this operation has 'O[log(N)]' complexity where 'N' is
         // the size of this set.  This method requires that the (template
         // parameter) type 'KEY' be 'emplace-constructible' from 'arguments'
-        // (see {Requirements on 'KEY'}).
+        // (see {Requirements on 'KEY'}).  The behavior is undefined unless
+        // 'hint' is an iterator in the range '[begin() .. end()]' (both
+        // endpoints included).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1438,9 +1440,9 @@ class set {
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the the first iterator is positioned at
-        // the start of the sequence, and the second is positioned one past the
-        // end of the sequence.  The first returned iterator will be
+        // the specified 'key', where the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  The first returned iterator will be
         // 'lower_bound(key)'; the second returned iterator will be
         // 'upper_bound(key)'; and, if this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will
@@ -1552,9 +1554,9 @@ class set {
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the the first iterator is positioned at
-        // the start of the sequence, and the second is positioned one past the
-        // end of the sequence.  The first returned iterator will be
+        // the specified 'key', where the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  The first returned iterator will be
         // 'lower_bound(key)'; the second returned iterator will be
         // 'upper_bound(key)'; and, if this set contains no 'value_type'
         // objects equivalent to 'key', then the two returned iterators will
@@ -1562,71 +1564,76 @@ class set {
         // the range will contain at most one element.
 };
 
+// FREE OPERATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'set' objects have the same value if
-    // they have the same number of keys, and each key that is contained in one
-    // of the objects is also contained in the other object.  This method
-    // requires that the (template parameter) type 'KEY' be
+    // value, and 'false' otherwise.  Two 'set' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of keys, and each element
+    // in the ordered sequence of keys of 'lhs' has the same value as the
+    // corresponding element in the ordered sequence of keys of 'rhs'.  This
+    // method requires that the (template parameter) type 'KEY' be
     // 'equality-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'set' objects do not have the
-    // same value if they do not have the same number of keys, or some keys
-    // that is contained in one of the objects is not also contained in the
-    // other object.  This method requires that the (template parameter) type
-    // 'KEY' be 'equality-comparable' (see {Requirements on 'KEY'}).
+    // same value, and 'false' otherwise.  Two 'set' objects 'lhs' and 'rhs' do
+    // not have the same value if they do not have the same number of keys, or
+    // some element in the ordered sequence of keys of 'lhs' does not have the
+    // same value as the corresponding element in the ordered sequence of keys
+    // of 'rhs'.  This method requires that the (template parameter) type 'KEY'
+    // be 'equality-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator< (const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is less than the specified
-    // 'rhs' value, and 'false' otherwise.  A set, 'lhs', has a value that is
-    // less than that of 'rhs', if, for the first non-equal corresponding key
-    // in their respective sequences, the 'lhs' key is less than the 'rhs' key,
-    // or, if all their corresponding keys compare equal, 'lhs' has fewer keys
-    // than 'rhs'.  This method requires that the (template parameter) type
-    // 'KEY' be 'less-than-comparable' (see {Requirements on 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' set is
+    // lexicographically less than that of the specified 'rhs' set, and 'false'
+    // otherwise.  Given iterators 'i' and 'j' over the respective sequences
+    // '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())', the value
+    // of set 'lhs' is lexicographically less than that of set 'rhs' if
+    // 'true == *i < *j' for the first pair of corresponding iterator positions
+    // where '*i < *j' and '*j < *i' are not both 'false'.  If no such
+    // corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator> (const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is greater than the specified
-    // 'rhs' value, and 'false' otherwise.  A set, 'lhs', has a value that is
-    // greater than that of 'rhs', if, for the first non-equal corresponding
-    // key in their respective sequences, the 'lhs' key is greater than the
-    // 'rhs' key, or, if all their keys compare equal, 'lhs' has more keys than
-    // 'rhs'.  This method requires that the (template parameter) type 'KEY' be
-    // 'less-than-comparable' (see {Requirements on 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' set is
+    // lexicographically greater than that of the specified 'rhs' set, and
+    // 'false' otherwise.  The value of set 'lhs' is lexicographically greater
+    // than that of set 'rhs' if 'rhs' is lexicographically less than 'lhs'
+    // (see 'operator<').  This method requires that 'operator<', inducing a
+    // total order, be defined for 'value_type'.  Note that this operator
+    // returns 'rhs < lhs'.
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator<=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is less-than or equal-to the
-    // specified 'rhs' value, and 'false' otherwise.  A set, 'lhs', has a value
-    // that is less-than or equal-to that of 'rhs', if, for the first non-equal
-    // corresponding key in their respective sequences, the 'lhs' key is less
-    // than the 'rhs' key, or, if all of their corresponding keys compare
-    // equal, 'lhs' has less-than or equal number of keys as 'rhs'.  This
-    // method requires that the (template parameter) type 'KEY' be
-    // 'less-than-comparable' (see {Requirements on 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' set is
+    // lexicographically less than or equal to that of the specified 'rhs' set,
+    // and 'false' otherwise.  The value of set 'lhs' is lexicographically less
+    // than or equal to that of set 'rhs' if 'rhs' is not lexicographically
+    // less than 'lhs' (see 'operator<').  This method requires that
+    // 'operator<', inducing a total order, be defined for 'value_type'.  Note
+    // that this operator returns '!(rhs < lhs)'.
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator>=(const set<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const set<KEY, COMPARATOR, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' value is greater-than or equal-to
-    // the specified 'rhs' value, and 'false' otherwise.  A set, 'lhs', has a
-    // value that is greater-than or equal-to that of 'rhs', if, for the first
-    // corresponding key in their respective sequences, the 'lhs' key is
-    // greater than the 'rhs' key, or, if all of their corresponding keys
-    // compare equal, 'lhs' has greater-than or equal number of keys 'rhs'.
-    // This method requires that the (template parameter) type 'KEY' be
-    // 'less-than-comparable' (see {Requirements on 'KEY'}).
+    // Return 'true' if the value of the specified 'lhs' set is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // set, and 'false' otherwise.  The value of set 'lhs' is lexicographically
+    // greater than or equal to that of set 'rhs' if 'lhs' is not
+    // lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -3280,11 +3287,12 @@ void set<KEY, COMPARATOR, ALLOCATOR>::swap(set& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            set thisCopy(*this, other.nodeFactory().allocator());
-            set otherCopy(other, nodeFactory().allocator());
+            set toOtherCopy(MoveUtil::move(*this),
+                            other.nodeFactory().allocator());
+            set toThisCopy(MoveUtil::move(other), nodeFactory().allocator());
 
-            quickSwapRetainAllocators(otherCopy);
-            other.quickSwapRetainAllocators(thisCopy);
+            this->quickSwapRetainAllocators(toThisCopy);
+            other.quickSwapRetainAllocators(toOtherCopy);
         }
     }
 }
@@ -3294,6 +3302,7 @@ inline
 void set<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
+
     if (d_tree.rootNode()) {
         BSLS_ASSERT_SAFE(0 < d_tree.numNodes());
         BSLS_ASSERT_SAFE(d_tree.firstNode() != d_tree.sentinel());
@@ -3523,6 +3532,7 @@ set<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key) const
 
 }  // close namespace bsl
 
+// FREE OPERATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 bool bsl::operator==(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -3582,6 +3592,7 @@ bool bsl::operator>=(const bsl::set<KEY, COMPARATOR, ALLOCATOR>& lhs,
     return !(lhs < rhs);
 }
 
+// FREE FUNCTIONS
 template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::set<KEY, COMPARATOR, ALLOCATOR>& a,

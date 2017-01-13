@@ -18,9 +18,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a representation of (literal) name/value pairs.
 //
 //@CLASSES:
-//     ball::Attribute: (literal) name/value pair
+//  ball::Attribute: (literal) name/value pair
 //
-//@SEE_ALSO: ball_attributeset
+//@SEE_ALSO: ball_predicate
 //
 //@AUTHOR: Gang Chen (gchen20)
 //
@@ -117,8 +117,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // ===============
                         // class Attribute
                         // ===============
@@ -157,7 +157,7 @@ class Attribute {
     static int hash(const Attribute& attribute, int size);
         // Return a hash value calculated from the specified 'attribute' using
         // the specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range [0 ..size - 1].  The behavior is
+        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
         // undefined unless '0 <= size'.
 
     // CREATORS
@@ -209,7 +209,7 @@ class Attribute {
         // 'basicAllocator' is 0, the currently installed default allocator
         // will be used.
 
-    ~Attribute();
+    //! ~Attribute() = default;
         // Destroy this attribute object.
 
     // MANIPULATORS
@@ -329,11 +329,6 @@ Attribute::Attribute(const Attribute&  original,
 {
 }
 
-inline
-Attribute::~Attribute()
-{
-}
-
 // MANIPULATORS
 inline
 Attribute& Attribute::operator=(const Attribute& rhs)
@@ -392,6 +387,7 @@ const Attribute::Value& Attribute::value() const
 {
     return d_value;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

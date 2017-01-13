@@ -111,7 +111,7 @@ struct TestNode {
     int            d_retCode;     // return code when we advance to this node
     Obj::NodeType  d_type;        // Describes the type of the XML node
     const char    *d_qname;       // Name qualified name the XML node
-    const char    *d_nodeValue;   // Value of the the XML node if null, then
+    const char    *d_nodeValue;   // Value of the XML node if null, then
                                   // hasValue() returns false
     int            d_depthChange; // Used to adjust the 'TestReader' depth
                                   // level, valid values are -1, 0 or 1

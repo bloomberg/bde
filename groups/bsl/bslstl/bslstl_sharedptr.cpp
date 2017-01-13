@@ -52,7 +52,7 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
     return bsl::shared_ptr<char>(reinterpret_cast<char *>(rep->ptr()), rep);
 }
 
-void SharedPtrUtil::throwBadWeakPtr()
+void SharedPtr_ImpUtil::throwBadWeakPtr()
 {
     BSLS_THROW(bsl::bad_weak_ptr());
 }

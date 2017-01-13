@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to determine if a type uses an allocator.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsl::uses_allocator: meta-fn to check if a type uses a certain allocator
 //
@@ -103,12 +101,12 @@ struct UsesAllocator_HasAllocatorType {
     typedef struct { char a;    } yes_type;
     typedef struct { char a[2]; } no_type;
 
-    template <class OTHER_TYPE>
-    static yes_type match(typename OTHER_TYPE::allocator_type *);
-    template <class OTHER_TYPE>
+    template <class BDE_OTHER_TYPE>
+    static yes_type match(typename BDE_OTHER_TYPE::allocator_type *);
+    template <class BDE_OTHER_TYPE>
     static no_type match(...);
-        // Return 'yes_type' if the (template parameter) 'OTHER_TYPE' defines a
-        // type named 'allocator_type', and 'no_type' otherwise.
+        // Return 'yes_type' if the (template parameter) 'BDE_OTHER_TYPE'
+        // defines a type named 'allocator_type', and 'no_type' otherwise.
 
   public:
     static const bool value = sizeof(match<TYPE>(0)) == sizeof(yes_type);

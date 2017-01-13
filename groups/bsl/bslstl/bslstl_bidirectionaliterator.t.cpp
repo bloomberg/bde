@@ -21,7 +21,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl::BidirectionalIterator' is an in-core value-semantic type that that
+// 'bslstl::BidirectionalIterator' is an in-core value-semantic type that
 // adapts a more limited type, which offers a basic set of operations, so that
 // the resulting 'bslstl::BidirectionalIterator' object meets all the
 // requirements of a standard Bidirectional Iterator.  These requirements are

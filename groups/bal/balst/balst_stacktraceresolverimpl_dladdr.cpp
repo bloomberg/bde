@@ -83,40 +83,51 @@ namespace abi = __cxxabiv1;
 namespace BloombergLP {
 
 namespace {
-namespace local {
+namespace u {
 
-enum {
-    DEMANGLING_BUFFER_LENGTH = (32 * 1024) - 64   // length in bytes of
-                                                  // 'd_demangleBuf_p'.  Make
-                                                  // less than a power of 2 to
-                                                  // avoid wasting a page
+class FreeGuard {
+    // This 'class' will manage a buffer returned by '__cxa_demangle', which
+    // was allocated by 'malloc'.
+
+    // DATA
+    char *d_buffer;
+
+  public:
+    // CREATORS
+    explicit
+    FreeGuard(char *buffer)
+    : d_buffer(buffer)
+        // Create a 'FreeGuard' object that manages the specified 'buffer'.
+    {}
+
+    ~FreeGuard()
+        // If 'd_buffer' is non-null, free it.
+    {
+        if (d_buffer) {
+            ::free(d_buffer);
+        }
+    }
 };
 
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Dladdr>
                                                             StackTraceResolver;
 
-}  // close namespace local
+}  // close namespace u
 }  // close unnamed namespace
 
 // CREATORS
-local::StackTraceResolver::StackTraceResolverImpl(
+u::StackTraceResolver::StackTraceResolverImpl(
                                      balst::StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
 , d_demangleFlag(demanglingPreferredFlag)
-, d_hbpAlloc()
-{
-    d_demangleBuf_p = (char *) d_hbpAlloc.allocate(
-                                              local::DEMANGLING_BUFFER_LENGTH);
-}
+{}
 
-local::StackTraceResolver::~StackTraceResolverImpl()
-{
-    d_hbpAlloc.deallocate(d_demangleBuf_p);
-}
+u::StackTraceResolver::~StackTraceResolverImpl()
+{}
 
 // PRIVATE MANIPULATORS
-int local::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
+int u::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
 {
     Dl_info info;
     bsl::memset(&info, 0, sizeof(info));
@@ -142,19 +153,16 @@ int local::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
     int rc = 0;
     frame->setSymbolName("");
     if (d_demangleFlag) {
-        size_t length = local::DEMANGLING_BUFFER_LENGTH;
-        const char *demangled = abi::__cxa_demangle(
-                                            frame->mangledSymbolName().c_str(),
-                                            d_demangleBuf_p,
-                                            &length,
-                                            &rc);
+        char *demangled = abi::__cxa_demangle(info.dli_sname, 0, 0, &rc);
+        u::FreeGuard guard(demangled);
         frame->setSymbolName(demangled ? demangled : "");
     }
 
     if (-2 == rc || frame->symbolName().empty()) {
-        // Either demangling was turned off, or it was a static symbol.  For
-        // some reason, on Darwin, the demangler reduces static symbols to
-        // nothing.  If that happened, just use the mangled symbol name.
+        // Either demangling was turned off, demangling just failed, or it was
+        // a static symbol.  For some reason, on Darwin, the demangler reduces
+        // static symbols to nothing.  If that happened, just use the mangled
+        // symbol name.
 
         frame->setSymbolName(frame->mangledSymbolName());
 
@@ -168,13 +176,13 @@ int local::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
 }
 
 // CLASS METHODS
-int local::StackTraceResolver::resolve(
+int u::StackTraceResolver::resolve(
                                     balst::StackTrace *stackTrace,
                                     bool               demanglingPreferredFlag)
 {
     int retRc = 0;
-    local::StackTraceResolver resolver(stackTrace,
-                                       demanglingPreferredFlag);
+    u::StackTraceResolver resolver(stackTrace,
+                                   demanglingPreferredFlag);
 
     for (int i = 0; i < stackTrace->length(); ++i) {
         int rc = resolver.resolveFrame(&(*stackTrace)[i]);

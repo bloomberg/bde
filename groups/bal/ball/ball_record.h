@@ -89,12 +89,12 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfields.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -105,10 +105,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
-#include <bslma_default.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
 #endif
@@ -117,9 +113,17 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-namespace BloombergLP {
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+namespace BloombergLP {
 namespace ball {
+
                            // ============
                            // class Record
                            // ============
@@ -157,13 +161,11 @@ class Record {
     friend bool operator==(const Record&, const Record&);
 
   public:
-
     // CLASS METHODS
     static void deleteObject(const Record *object);
         // Destroy the specified '*object' and use the allocator held by
         // '*object' to deallocate its memory footprint.  The behavior is
         // undefined unless 'object' is the address of a valid log record.
-
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Record, bslma::UsesBslmaAllocator);
@@ -184,14 +186,13 @@ class Record {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Record(const Record&     original,
-           bslma::Allocator *basicAllocator = 0);
+    Record(const Record& original, bslma::Allocator *basicAllocator = 0);
         // Create a log record having the value of the specified 'original'
         // log record.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    ~Record();
+    //! ~Record() = default;
         // Destroy this log record.
 
     // MANIPULATORS
@@ -240,7 +241,6 @@ class Record {
         // 'spacesPerLevel' is negative, suppress line breaks and format the
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
-
 };
 
 // FREE OPERATORS
@@ -297,17 +297,11 @@ Record::Record(const RecordAttributes&  fixedFields,
 }
 
 inline
-Record::Record(const Record&     original,
-               bslma::Allocator *basicAllocator)
+Record::Record(const Record& original, bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(original.d_fixedFields, &d_allocator)
 , d_customFields(original.d_customFields, &d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
-
-inline
-Record::~Record()
 {
 }
 

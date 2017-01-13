@@ -398,7 +398,7 @@ BSLS_IDENT("$Id: $")
 // Note that, in practice, we might choose to define a more efficient
 // implementation of the 'ball::AttributeContainer' protocol specifically for
 // these three attributes, uuid, luw, and firmNumber.  See the
-// 'ball::attributeContainer' component documentation for an example.
+// 'ball_attributecontainer' component documentation for an example.
 //..
 //      ball::DefaultAttributeContainer attributes;
 //      attributes.addAttribute(ball::Attribute("uuid", uuid));
@@ -479,7 +479,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to register a logging callback.  The
 // C++ stream-based macros that take a callback are particularly useful to
-// seamlessly populate the user fields of a record, thus simplying the
+// seamlessly populate the user fields of a record, thus simplifying the
 // logging line.
 //
 // We define a callback function 'populateUsingPoint' that appends to the
@@ -505,8 +505,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      bsl::function <void(ball::UserFields *)> callback;
 //      callback = bdlf::BindUtil::bind(&populateUsingPoint,
-//                                     bdlf::PlaceHolders::_1,
-//                                     point);
+//                                      bdlf::PlaceHolders::_1,
+//                                      point);
 //
 //      int numErrors = 0;
 //      if (point.x() > 255) {
@@ -576,7 +576,7 @@ BSLS_IDENT("$Id: $")
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!BALL_LOG_CATEGORY)) {          \
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
         BloombergLP::ball::Log::setCategory(&BALL_LOG_CATEGORYHOLDER,         \
-                                           CATEGORY);                         \
+                                            CATEGORY);                        \
     }
 
 #define BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)                               \
@@ -585,7 +585,7 @@ BSLS_IDENT("$Id: $")
     BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
         BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY,                \
         const_cast<BloombergLP::ball::Category *>(BALL_LOG_DYNAMIC_CATEGORY), \
-        0 \
+        0                                                                     \
     };
 
                        // =======================
@@ -596,9 +596,9 @@ BSLS_IDENT("$Id: $")
     using namespace BloombergLP;                                              \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,            \
-                                        BALL_SEVERITY)) {                     \
+                                         BALL_SEVERITY)) {                    \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
-                                              __LINE__, BALL_SEVERITY);       \
+                                               __LINE__, BALL_SEVERITY);      \
             BALL_STREAM
 
 #define BALL_LOG_STREAM_UNLIKELY(BALL_SEVERITY) {                             \
@@ -607,9 +607,9 @@ BSLS_IDENT("$Id: $")
                                  BALL_LOG_THRESHOLD >= (BALL_SEVERITY))) {    \
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,            \
-                                        BALL_SEVERITY)) {                     \
+                                         BALL_SEVERITY)) {                    \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
-                                              __LINE__, BALL_SEVERITY);       \
+                                               __LINE__, BALL_SEVERITY);      \
             BALL_STREAM
 
 // We expect TRACE and DEBUG messages not to be logged.
@@ -646,9 +646,9 @@ BSLS_IDENT("$Id: $")
     using namespace BloombergLP;                                              \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,            \
-                                        BALL_SEVERITY)) {                     \
+                                         BALL_SEVERITY)) {                    \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
-                                              __LINE__, BALL_SEVERITY);       \
+                                               __LINE__, BALL_SEVERITY);      \
             CB(&ball_lOcAl_StReAm.record()->customFields());                  \
             BALL_STREAM
 
@@ -685,13 +685,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG);                                         \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG);                                        \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -701,13 +701,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1);                                   \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1);                                  \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -717,13 +717,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2);                             \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2);                            \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -733,13 +733,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3);                       \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3);                      \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -749,13 +749,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3, ARG4);                 \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3, ARG4);                \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -765,13 +765,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3, ARG4, ARG5);           \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3, ARG4, ARG5);          \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -781,13 +781,13 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6);     \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6);    \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -798,14 +798,14 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,      \
-                             ARG7);                                        \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,     \
+                              ARG7);                                       \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -816,14 +816,14 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,      \
-                             ARG7, ARG8);                                  \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,     \
+                              ARG7, ARG8);                                 \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -834,14 +834,14 @@ do {                                                                       \
     using namespace BloombergLP;                                           \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
         if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
-                                        BALL_SEVERITY)) {                  \
+                                         BALL_SEVERITY)) {                 \
             ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
-                                                    __FILE__, __LINE__,    \
-                                                    BALL_SEVERITY);        \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
             ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
-                             ball_lOcAl_FoRmAtTeR.messageBufferLen(),      \
-                             MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,      \
-                             ARG7, ARG8, ARG9);                            \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,     \
+                              ARG7, ARG8, ARG9);                           \
         }                                                                  \
     }                                                                      \
 } while(0)
@@ -866,21 +866,21 @@ do {                                                                       \
 
 #define BALL_LOG6_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6)
+                                            ARG5, ARG6)
 
 #define BALL_LOG7_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7)
+                                            ARG5, ARG6, ARG7)
 
 #define BALL_LOG8_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8)
+                                            ARG5, ARG6, ARG7, ARG8)
 
 #define BALL_LOG9_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8, ARG9)
+                                            ARG5, ARG6, ARG7, ARG8, ARG9)
 
 #define BALL_LOG0_DEBUG(MSG)                                               \
     BALL_LOG0(ball::Severity::e_DEBUG, MSG)
@@ -902,21 +902,21 @@ do {                                                                       \
 
 #define BALL_LOG6_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6)
+                                            ARG5, ARG6)
 
 #define BALL_LOG7_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7)
+                                            ARG5, ARG6, ARG7)
 
 #define BALL_LOG8_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8)
+                                            ARG5, ARG6, ARG7, ARG8)
 
 #define BALL_LOG9_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8, ARG9)
+                                            ARG5, ARG6, ARG7, ARG8, ARG9)
 
 #define BALL_LOG0_INFO(MSG)                                                \
     BALL_LOG0(ball::Severity::e_INFO, MSG)
@@ -938,21 +938,21 @@ do {                                                                       \
 
 #define BALL_LOG6_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)            \
     BALL_LOG6(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6)
+                                           ARG5, ARG6)
 
 #define BALL_LOG7_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)      \
     BALL_LOG7(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6, ARG7)
+                                           ARG5, ARG6, ARG7)
 
 #define BALL_LOG8_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
                             ARG8)                                          \
     BALL_LOG8(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6, ARG7, ARG8)
+                                           ARG5, ARG6, ARG7, ARG8)
 
 #define BALL_LOG9_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
-                             ARG8, ARG9)                                   \
+                            ARG8, ARG9)                                    \
     BALL_LOG9(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6, ARG7, ARG8, ARG9)
+                                           ARG5, ARG6, ARG7, ARG8, ARG9)
 
 #define BALL_LOG0_WARN(MSG)                                                \
     BALL_LOG0(ball::Severity::e_WARN, MSG)
@@ -974,21 +974,21 @@ do {                                                                       \
 
 #define BALL_LOG6_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)            \
     BALL_LOG6(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6)
+                                           ARG5, ARG6)
 
 #define BALL_LOG7_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)      \
     BALL_LOG7(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6, ARG7)
+                                           ARG5, ARG6, ARG7)
 
 #define BALL_LOG8_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
-                             ARG8)                                         \
+                            ARG8)                                          \
     BALL_LOG8(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6, ARG7, ARG8)
+                                           ARG5, ARG6, ARG7, ARG8)
 
 #define BALL_LOG9_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
-                             ARG8, ARG9)                                   \
+                            ARG8, ARG9)                                    \
     BALL_LOG9(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
-                                             ARG5, ARG6, ARG7, ARG8, ARG9)
+                                           ARG5, ARG6, ARG7, ARG8, ARG9)
 
 #define BALL_LOG0_ERROR(MSG)                                               \
     BALL_LOG0(ball::Severity::e_ERROR, MSG)
@@ -1010,21 +1010,21 @@ do {                                                                       \
 
 #define BALL_LOG6_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6)
+                                            ARG5, ARG6)
 
 #define BALL_LOG7_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7)
+                                            ARG5, ARG6, ARG7)
 
 #define BALL_LOG8_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8)
+                                            ARG5, ARG6, ARG7, ARG8)
 
 #define BALL_LOG9_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8, ARG9)
+                                            ARG5, ARG6, ARG7, ARG8, ARG9)
 
 #define BALL_LOG0_FATAL(MSG)                                               \
     BALL_LOG0(ball::Severity::e_FATAL, MSG)
@@ -1046,21 +1046,21 @@ do {                                                                       \
 
 #define BALL_LOG6_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6)
+                                            ARG5, ARG6)
 
 #define BALL_LOG7_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7)
+                                            ARG5, ARG6, ARG7)
 
 #define BALL_LOG8_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8)
+                                            ARG5, ARG6, ARG7, ARG8)
 
 #define BALL_LOG9_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
-                                              ARG5, ARG6, ARG7, ARG8, ARG9)
+                                            ARG5, ARG6, ARG7, ARG8, ARG9)
 
                        // ==============
                        // Utility Macros
@@ -1455,8 +1455,8 @@ int Log_Formatter::severity() const
 {
     return d_severity;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a non-allocating test class used to test 'emplace' methods.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bsltf::EmplacableTestType: non-allocating test class with 0..14 arguments
 //

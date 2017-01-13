@@ -1,12 +1,4 @@
 // ball_rule.cpp                                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_rule.h>
 
 #include <bsls_ident.h>
@@ -21,8 +13,8 @@ BSLS_IDENT_RCSID(ball_rule_cpp,"$Id$ $CSID$")
 #include <bsl_iostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ----------
                          // class Rule
                          // ----------
@@ -44,11 +36,11 @@ int Rule::hash(const Rule& rule, int size)
 // MANIPULATORS
 Rule& Rule::operator=(const Rule& rhs)
 {
-    d_pattern = rhs.d_pattern,
-    d_thresholds = rhs.d_thresholds;
+    d_pattern      = rhs.d_pattern,
+    d_thresholds   = rhs.d_thresholds;
     d_predicateSet = rhs.d_predicateSet;
-    d_hashValue = rhs.d_hashValue;
-    d_hashSize  = rhs.d_hashSize;
+    d_hashValue    = rhs.d_hashValue;
+    d_hashSize     = rhs.d_hashSize;
     return *this;
 }
 
@@ -71,7 +63,6 @@ bsl::ostream& Rule::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

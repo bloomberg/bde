@@ -1,12 +1,4 @@
 // ball_observeradapter.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_observeradapter.h>
 
 #include <bsls_ident.h>
@@ -20,8 +12,8 @@ BSLS_IDENT_RCSID(ball_observeradapter_cpp,"$Id$ $CSID$")
 #include <ball_userfieldvalue.h>                // for testing only
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // ---------------------
                         // class ObserverAdapter
                         // ---------------------
@@ -32,7 +24,6 @@ ObserverAdapter::~ObserverAdapter()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

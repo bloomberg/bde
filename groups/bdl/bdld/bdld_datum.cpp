@@ -122,6 +122,16 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 //
 // * DatumMapRef::find() does a binary search if the map is sorted.  Otherwise
 //   it does a linear search.
+//
+///R-value and forwarding references
+///- - - - - - - - - - - - - - - - -
+// As you may see in the 'bldl_datummaker.h' file  variadic overloads (for
+// example the 'pushBackHelper') do not support perfect forwarding of their
+// arguments.  In case 'bdld::Datum' will ever support move semantics to some
+// (any) of its directly supported types ('create*' function arguments)
+// variadic functions in the 'bdld::DatumMaker' component shall be updated to
+// support perfect forwarding using the 'BSLS_COMPILERFEATURES_FORWARD', and
+// 'BSLS_COMPILERFEATURES_FORWARDING_REF' macros.
 
 #include <bdlt_currenttime.h>
 #include <bdldfp_decimal.h>

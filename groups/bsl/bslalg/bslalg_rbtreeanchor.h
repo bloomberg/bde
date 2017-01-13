@@ -22,7 +22,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // value-less node, owned by the 'RbTreeAnchor' for the tree, that is used as
 // the end-point for iteration over the nodes in a tree.  'RbTreeAnchor'
 // provides modifiers for the 'firstNode', 'rootNode', and 'numNodes'
-// properties, however the the sentinel node for a tree is located at a fixed
+// properties, however the sentinel node for a tree is located at a fixed
 // address and cannot be modified.  An 'RbTreeAnchor' is similar to an in-core
 // unconstrained attribute class, except that it does not supply
 // equality-comparison, copy-construction, and copy-assignment operations.

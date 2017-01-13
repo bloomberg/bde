@@ -76,9 +76,6 @@ BSLS_IDENT("$Id: $")
 //                                                tag type 'allocator_arg_t' is
 //                                                first, and the allocator type
 //                                                is second.
-//
-//  bslmf::IsPair                                 "TYPE has the pair trait"
-//                                                or "TYPE is a pair"
 //..
 //
 ///Usage
@@ -116,10 +113,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPAIR
-#include <bslmf_ispair.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
@@ -272,9 +265,9 @@ struct ScalarPrimitives {
         // used and 'allocator' will be ignored if TARGET_TYPE' has the
         // bit-wise moveable trait.  Note that, if 'ALLOCATOR' is not based on
         // 'bslma::Allocator', then the 'allocator' argument is ignored; the
-        // allocator used by the the resulting object at 'address' might or
-        // might not be the same as the allocator used by 'original', depending
-        // on whether 'TARGET_TYPE' has a move constructor (C++11).
+        // allocator used by the resulting object at 'address' might or might
+        // not be the same as the allocator used by 'original', depending on
+        // whether 'TARGET_TYPE' has a move constructor (C++11).
 
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE      *address,
@@ -699,9 +692,8 @@ struct ScalarPrimitives_Imp {
         // that 'TARGET_TYPE' has the traits for which the enumerator equal to
         // 'N' is named.
 
-        e_USES_ALLOCATOR_ARG_T_TRAITS     = 6, // Implies USES_BSLMA_ALLOCATOR
-        e_USES_BSLMA_ALLOCATOR_TRAITS     = 5,
-        e_PAIR_TRAITS                     = 4,
+        e_USES_ALLOCATOR_ARG_T_TRAITS     = 5, // Implies USES_BSLMA_ALLOCATOR
+        e_USES_BSLMA_ALLOCATOR_TRAITS     = 4,
         e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS = 3,
         e_BITWISE_COPYABLE_TRAITS         = 2,
         e_BITWISE_MOVEABLE_TRAITS         = 1,
@@ -730,10 +722,6 @@ struct ScalarPrimitives_Imp {
              TARGET_TYPE                                            *address,
              bslma::Allocator                                       *allocator,
              bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *);
-    template <class TARGET_TYPE>
-    static void defaultConstruct(TARGET_TYPE                        *address,
-                                 bslma::Allocator                   *allocator,
-                                 bsl::integral_constant<int, e_PAIR_TRAITS> *);
     template <class TARGET_TYPE>
     static void defaultConstruct(TARGET_TYPE                        *address,
                                  bslma::Allocator                   *allocator,
@@ -771,11 +759,6 @@ struct ScalarPrimitives_Imp {
                  const TARGET_TYPE&                                  original,
                  bslma::Allocator                                   *allocator,
                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *);
-    template <class TARGET_TYPE>
-    static void copyConstruct(TARGET_TYPE                           *address,
-                              const TARGET_TYPE&                     original,
-                              bslma::Allocator                      *allocator,
-                              bsl::integral_constant<int, e_PAIR_TRAITS> *);
     template <class TARGET_TYPE>
     static void copyConstruct(
                      TARGET_TYPE                                    *address,
@@ -826,11 +809,6 @@ struct ScalarPrimitives_Imp {
                  TARGET_TYPE&                                        original,
                  bslma::Allocator                                   *allocator,
                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *);
-    template <class TARGET_TYPE>
-    static void moveConstruct(TARGET_TYPE                           *address,
-                              TARGET_TYPE&                           original,
-                              bslma::Allocator                      *allocator,
-                              bsl::integral_constant<int, e_PAIR_TRAITS> *);
     template <class TARGET_TYPE>
     static void moveConstruct(
                      TARGET_TYPE                                    *address,
@@ -905,26 +883,6 @@ struct ScalarPrimitives_Imp {
         // types.  The traits argument is for overloading resolution only and
         // is ignored.  Note that this function is called only when 'ARG1' is
         // the same as 'TARGET_TYPE'.
-
-    template <class TARGET_TYPE, class ARG1>
-    static void construct(TARGET_TYPE                               *address,
-                          const ARG1&                                a1,
-                          bslma::Allocator                          *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *);
-    template <class TARGET_TYPE, class ARG1, class ARG2>
-    static void construct(TARGET_TYPE                               *address,
-                          const ARG1&                                a1,
-                          const ARG2&                                a2,
-                          bslma::Allocator                          *allocator,
-                          bsl::integral_constant<int, e_PAIR_TRAITS> *);
-        // Build an object from the specified 'a1' (and optionally 'a2') in the
-        // uninitialized memory at the specified 'address'.  The specified
-        // 'allocator' is passed through to the 'first_type' and 'second_type'
-        // members of 'TARGET_TYPE'.  Use the parameterized 'TARGET_TYPE'
-        // constructor with the signature 'TARGET_TYPE(ARG1 const&, ...)'.  The
-        // traits argument is for overloading resolution only and is ignored.
-        // Note that because pair types have at most two constructor arguments,
-        // only two versions of this function are needed.
 
     template <class TARGET_TYPE>
     static void construct(
@@ -1626,9 +1584,7 @@ ScalarPrimitives::defaultConstruct(TARGET_TYPE      *address,
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
               : bsl::is_trivially_default_constructible<TARGET_TYPE>::value
                   ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-                  : bslmf::IsPair<TARGET_TYPE>::value
-                      ? Imp::e_PAIR_TRAITS
-                      : Imp::e_NIL_TRAITS
+                  : Imp::e_NIL_TRAITS
     };
     Imp::defaultConstruct(address,
                           allocator,
@@ -1669,9 +1625,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
               : bsl::is_trivially_copyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
-                  : bslmf::IsPair<TARGET_TYPE>::value
-                      ? Imp::e_PAIR_TRAITS
-                      : Imp::e_NIL_TRAITS
+                  : Imp::e_NIL_TRAITS
     };
     Imp::copyConstruct(address, original, allocator,
                        (bsl::integral_constant<int, k_VALUE>*)0);
@@ -1714,9 +1668,7 @@ ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
               : bsl::is_trivially_copyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
-                  : bslmf::IsPair<TARGET_TYPE>::value
-                      ? Imp::e_PAIR_TRAITS
-                      : Imp::e_NIL_TRAITS
+                  : Imp::e_NIL_TRAITS
     };
     Imp::moveConstruct(address, original, allocator,
                        (bsl::integral_constant<int, k_VALUE>*)0);
@@ -1814,9 +1766,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
               : bsl::is_same<ARG1, TARGET_TYPE>::value
                 && bsl::is_trivially_copyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
-                  : bslmf::IsPair<TARGET_TYPE>::value
-                      ? Imp::e_PAIR_TRAITS
-                      : Imp::e_NIL_TRAITS
+                  : Imp::e_NIL_TRAITS
     };
     Imp::construct(address, a1, allocator,
                    (bsl::integral_constant<int, k_VALUE>*)0);
@@ -1850,9 +1800,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
               ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-              : bslmf::IsPair<TARGET_TYPE>::value
-                  ? Imp::e_PAIR_TRAITS
-                  : Imp::e_NIL_TRAITS
+              : Imp::e_NIL_TRAITS
     };
     Imp::construct(address, a1, a2, allocator,
                    (bsl::integral_constant<int, k_VALUE>*)0);
@@ -2614,26 +2562,6 @@ template <class TARGET_TYPE>
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(
-                                  TARGET_TYPE                       *address,
-                                  bslma::Allocator                  *allocator,
-                                  bsl::integral_constant<int, e_PAIR_TRAITS> *)
-{
-    ScalarPrimitives::defaultConstruct(
-                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                  allocator);
-    AutoScalarDestructor<typename bslmf::RemoveCvq<
-                                typename TARGET_TYPE::first_type>::Type>
-                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ScalarPrimitives::defaultConstruct(
-                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                 allocator);
-    guard.release();
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ScalarPrimitives_Imp::defaultConstruct(
                                    TARGET_TYPE                        *address,
                                    bslma::Allocator                   *,
                                    bsl::integral_constant<int, e_NIL_TRAITS> *)
@@ -2705,29 +2633,6 @@ template <class TARGET_TYPE>
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(
-                                  TARGET_TYPE                       *address,
-                                  const TARGET_TYPE&                 original,
-                                  bslma::Allocator                  *allocator,
-                                  bsl::integral_constant<int, e_PAIR_TRAITS> *)
-{
-    ScalarPrimitives::copyConstruct(
-                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                  original.first,
-                                  allocator);
-    AutoScalarDestructor<typename bslmf::RemoveCvq<
-                                typename TARGET_TYPE::first_type>::Type>
-                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ScalarPrimitives::copyConstruct(
-                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                 original.second,
-                                 allocator);
-    guard.release();
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ScalarPrimitives_Imp::copyConstruct(
                       TARGET_TYPE                                    *address,
                       const TARGET_TYPE&                              original,
                       bslma::Allocator                               *,
@@ -2744,12 +2649,12 @@ ScalarPrimitives_Imp::copyConstruct(
         ::new (address) TARGET_TYPE(original);
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
     }
@@ -2787,12 +2692,12 @@ ScalarPrimitives_Imp::copyConstruct(
         ::new (address) TARGET_TYPE(original);
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
     }
@@ -2842,29 +2747,6 @@ template <class TARGET_TYPE>
 inline
 void
 ScalarPrimitives_Imp::moveConstruct(
-                                  TARGET_TYPE                       *address,
-                                  TARGET_TYPE&                       original,
-                                  bslma::Allocator                  *allocator,
-                                  bsl::integral_constant<int, e_PAIR_TRAITS> *)
-{
-    ScalarPrimitives::moveConstruct(
-                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                  original.first,
-                                  allocator);
-    AutoScalarDestructor<typename bslmf::RemoveCvq<
-                                typename TARGET_TYPE::first_type>::Type>
-                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ScalarPrimitives::moveConstruct(
-                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                 original.second,
-                                 allocator);
-    guard.release();
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ScalarPrimitives_Imp::moveConstruct(
                       TARGET_TYPE                                    *address,
                       TARGET_TYPE&                                    original,
                       bslma::Allocator                               *,
@@ -2880,12 +2762,12 @@ ScalarPrimitives_Imp::moveConstruct(
 
         ::new (address) TARGET_TYPE(original);
     } else {
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
     }
@@ -2921,12 +2803,12 @@ ScalarPrimitives_Imp::moveConstruct(
 
         ::new (address) TARGET_TYPE(original);
     } else {
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
     }
@@ -2965,12 +2847,12 @@ ScalarPrimitives_Imp::destructiveMove(
         ::new (address) TARGET_TYPE(*original);
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
         memcpy(address, original, sizeof *original);   // no overlap
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
     }
@@ -3014,47 +2896,6 @@ ScalarPrimitives_Imp::construct(
         BSLMF_ASSERT(sizeof (TARGET_TYPE) == sizeof(a1));
         memcpy(address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1); // no overlap
     }
-}
-
-template <class TARGET_TYPE, class ARG1>
-inline
-void
-ScalarPrimitives_Imp::construct(TARGET_TYPE                         *address,
-                                const ARG1&                          a1,
-                                bslma::Allocator                    *allocator,
-                                bsl::integral_constant<int, e_PAIR_TRAITS> *)
-{
-    ScalarPrimitives::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                a1.first,
-                                allocator);
-    AutoScalarDestructor<typename bslmf::RemoveCvq<
-                                typename TARGET_TYPE::first_type>::Type>
-                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ScalarPrimitives::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                a1.second,
-                                allocator);
-    guard.release();
-}
-
-template <class TARGET_TYPE, class ARG1, class ARG2>
-inline
-void
-ScalarPrimitives_Imp::construct(TARGET_TYPE                         *address,
-                                const ARG1&                          a1,
-                                const ARG2&                          a2,
-                                bslma::Allocator                    *allocator,
-                                bsl::integral_constant<int, e_PAIR_TRAITS> *)
-{
-    ScalarPrimitives::construct(unconst(BSLS_UTIL_ADDRESSOF(address->first)),
-                                a1,
-                                allocator);
-    AutoScalarDestructor<typename bslmf::RemoveCvq<
-                                typename TARGET_TYPE::first_type>::Type>
-                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
-    ScalarPrimitives::construct(unconst(BSLS_UTIL_ADDRESSOF(address->second)),
-                                a2,
-                                allocator);
-    guard.release();
 }
 
 template <class TARGET_TYPE>

@@ -89,10 +89,6 @@ BSLS_IDENT("$Id: $")
 // There is no usage example for this component since it is not meant for
 // direct client use.
 
-#ifndef INCLUDED_BSLS_LINKCOERCION
-#include <bsls_linkcoercion.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -167,18 +163,6 @@ typedef BuildTargetMtNo BuildTargetMt;
 }  // close package namespace
 
 #endif
-
-// Force linker to pull in this component's object file.
-
-BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                      const int,
-                                      bsls_buildtarget_assertion1,
-                                      bsls::BuildTargetExc::s_isBuildTargetExc)
-
-BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                        const int,
-                                        bsls_buildtarget_assertion2,
-                                        bsls::BuildTargetMt::s_isBuildTargetMt)
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================

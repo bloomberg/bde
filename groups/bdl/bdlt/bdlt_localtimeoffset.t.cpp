@@ -128,7 +128,7 @@ class MyLocalTimeOffset {
         // initially 'false'.
 
     static void setExternals(const int *offset, bool *callbackInvoked);
-        // Set the the specified address 'offset' as the source of the value
+        // Set the specified address 'offset' as the source of the value
         // returned by the 'localLocalTimeOffset' method and set the specified
         // address 'callbackInvoked' as the indicator of whether the callback
         // was invoked.

@@ -15,6 +15,8 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 #include <btlso_timemetrics.h>
 #include <btlso_flag.h>
 
+#include <bdlb_bitutil.h>
+#include <bdlb_bitmaskutil.h>
 #include <bdlt_currenttime.h>
 
 #include <bsls_assert.h>
@@ -108,95 +110,156 @@ static void convert(struct timeval *result, const bsls::TimeInterval& value)
 
 namespace btlso {
 
+namespace {
+
+struct EventPartitioner {
+    // This private helper class visits Event objects and adds them to a
+    // read or write fd_set as appropriate.
+    fd_set *d_read;
+    fd_set *d_write;
+
+    EventPartitioner(fd_set *read, fd_set *write)
+    : d_read(read)
+    , d_write(write)
+    {
+    }
+
+    void operator()(const Event& event) {
+        if (EventType::e_READ == event.type()
+         || EventType::e_ACCEPT == event.type()) {
+            FD_SET(event.handle(), d_read);
+        }
+        else {
+            FD_SET(event.handle(), d_write);
+        }
+    }
+};
+
+struct SignaledEventCollector {
+    // This private helper class visits Event objects and collects those that
+    // are part of a read, write, or except set into read and write containers
+    // respectively.
+    bsl::vector<Event> *d_signaledReads;
+    bsl::vector<Event> *d_signaledWrites;
+    const fd_set       *d_readSet;
+    const fd_set       *d_writeSet;
+    const fd_set       *d_exceptSet;
+    int                 d_numEvents;
+
+    SignaledEventCollector(bsl::vector<Event> *signaledReads,
+                           bsl::vector<Event> *signaledWrites,
+                           const fd_set       *readSet,
+                           const fd_set       *writeSet,
+                           const fd_set       *exceptSet,
+                           int                 numEvents) {
+        d_signaledReads = signaledReads;
+        d_signaledWrites = signaledWrites;
+        d_readSet = readSet;
+        d_writeSet = writeSet;
+        d_exceptSet = exceptSet;
+        d_numEvents = numEvents;
+    }
+
+    void operator()(const Event& event) {
+        if (0 == d_numEvents) {
+            return;                                                // RETURN
+        }
+
+        // If the handle for a read event was in the read set, or the
+        // handle for a write event was in the write or (on Windows) except
+        // set, add the event to the appropriate container.
+        if (EventType::e_READ == event.type()
+         || EventType::e_ACCEPT == event.type()) {
+            if (FD_ISSET(event.handle(), d_readSet)) {
+                d_signaledReads->push_back(event);
+                --d_numEvents;
+            }
+        }
+        else {
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+            if (FD_ISSET(event.handle(), d_writeSet)
+             || FD_ISSET(event.handle(), d_exceptSet))
+#else
+            if (FD_ISSET(event.handle(), d_writeSet))
+#endif
+            {
+                d_signaledWrites->push_back(event);
+                --d_numEvents;
+            }
+        }
+    }
+};
+
+
+#ifdef BTLSO_PLATFORM_BSD_SOCKETS
+struct MaxFdFinder {
+    // This private helper class visits socket handles and saves the largest
+    // one encountered.
+    int d_maxFd;
+
+    MaxFdFinder()
+    : d_maxFd(0)
+    {
+    }
+
+    void operator()(int handle) {
+        if (handle > d_maxFd) {
+            d_maxFd = handle;
+        }
+    }
+};
+#endif
+
+} // close unnamed namespace
+
            // -------------------------------------------
            // class DefaultEventManager<Platform::SELECT>
            // -------------------------------------------
 
 bool DefaultEventManager<Platform::SELECT>::checkInternalInvariants() const
 {
-    EventMap::const_iterator it(d_events.begin()), end(d_events.end());
-    fd_set readControl, writeControl, exceptControl;
+    fd_set readControl, writeControl;
     FD_ZERO(&readControl);
     FD_ZERO(&writeControl);
-    FD_ZERO(&exceptControl);
 
-    for (; it != end; ++it) {
-        const Event& event = it->first;
-        if (EventType::e_READ == event.type()
-         || EventType::e_ACCEPT == event.type()) {
-            FD_SET(event.handle(), &readControl);
-        }
-        else {
-            FD_SET(event.handle(), &writeControl);
+    EventPartitioner visitor(&readControl, &writeControl);
+    d_callbacks.visitEvents(&visitor);
+
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
-            FD_SET(event.handle(), &exceptControl);
-#endif
-        }
+    if (!compareFdSets(d_exceptSet, writeControl)) {
+        return false;
     }
+#endif
 
     return compareFdSets(d_readSet, readControl)
-        && compareFdSets(d_writeSet, writeControl)
-        && compareFdSets(d_exceptSet, exceptControl);
+        && compareFdSets(d_writeSet, writeControl);
 }
 
 int DefaultEventManager<Platform::SELECT>::dispatchCallbacks(
                                                  int           numEvents,
                                                  const fd_set& readSet,
                                                  const fd_set& writeSet,
-                                                 const fd_set& exceptSet) const
+                                                 const fd_set& exceptSet)
 {
     // Iterate through all the events to find out which file descriptors have
-    // been set and invoke their respective callbacks.
+    // been set and invoke their respective callbacks.  Note: we separate
+    // read events from write events and invoke read events first.
+    SignaledEventCollector visitor(&d_signaledReads, &d_signaledWrites,
+                                   &readSet, &writeSet, &exceptSet, numEvents);
+    d_callbacks.visitEvents(&visitor);
 
-    EventMap::const_iterator it(d_events.begin()), end(d_events.end());
+    int numDispatched  = 0;
 
-    for (; numEvents > 0 && it != end; ++it) {
-        const Event& event = it->first;
-        if (EventType::e_READ == event.type()
-         || EventType::e_ACCEPT == event.type()) {
-            if (FD_ISSET(event.handle(), &readSet)) {
-                d_signaledReads.push_back(event);
-                --numEvents;
-            }
-        }
-        else {
-#ifdef BTLSO_PLATFORM_WIN_SOCKETS
-            if (FD_ISSET(event.handle(), &writeSet)
-             || FD_ISSET(event.handle(), &exceptSet)) {
-#else
-            (void) exceptSet;    // silence unused warning
-
-            if (FD_ISSET(event.handle(), &writeSet)) {
-#endif
-                d_signaledWrites.push_back(event);
-                --numEvents;
-            }
-        }
+    for (bsl::vector<Event>::iterator it = d_signaledReads.begin();
+         it != d_signaledReads.end();
+         ++it) {
+        numDispatched += !d_callbacks.invoke(*it);
     }
 
-    typedef bsl::vector<Event>::size_type size_type;
-
-    int numDispatched = 0;
-    size_type numReads      = d_signaledReads.size();
-
-    for (size_type i = 0; i < numReads; ++i) {
-        EventMap::const_iterator callbackIt =
-                                             d_events.find(d_signaledReads[i]);
-        if (d_events.end() != callbackIt) {
-            ++numDispatched;
-            (callbackIt->second)();
-        }
-    }
-
-    size_type numWrites = d_signaledWrites.size();
-
-    for (size_type i = 0; i < numWrites; ++i) {
-        EventMap::const_iterator callbackIt =
-                                            d_events.find(d_signaledWrites[i]);
-        if (d_events.end() != callbackIt) {
-            ++numDispatched;
-            (callbackIt->second)();
-        }
+    for (bsl::vector<Event>::iterator it = d_signaledWrites.begin();
+         it != d_signaledWrites.end();
+         ++it) {
+        numDispatched += !d_callbacks.invoke(*it);
     }
 
     d_signaledReads.clear();
@@ -208,8 +271,7 @@ int DefaultEventManager<Platform::SELECT>::dispatchCallbacks(
 // CREATORS
 DefaultEventManager<Platform::SELECT>::DefaultEventManager(
                                               bslma::Allocator *basicAllocator)
-: d_eventsAllocator(basicAllocator)
-, d_events(&d_eventsAllocator)
+: d_callbacks(basicAllocator)
 , d_numRead(0)
 , d_numWrite(0)
 , d_maxFd(0)
@@ -228,8 +290,7 @@ DefaultEventManager<Platform::SELECT>::DefaultEventManager(
 DefaultEventManager<Platform::SELECT>::DefaultEventManager(
                                               TimeMetrics      *timeMetric,
                                               bslma::Allocator *basicAllocator)
-: d_eventsAllocator(basicAllocator)
-, d_events(&d_eventsAllocator)
+: d_callbacks(basicAllocator)
 , d_numRead(0)
 , d_numWrite(0)
 , d_maxFd(0)
@@ -250,14 +311,12 @@ DefaultEventManager<Platform::SELECT>::~DefaultEventManager()
     BSLS_ASSERT(checkInternalInvariants());
     BSLS_ASSERT(0 == d_signaledReads.size());
     BSLS_ASSERT(0 == d_signaledWrites.size());
-
-    d_events.clear();
 }
 
 // MANIPULATORS
 int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
 {
-    if (0 == d_events.size()) {
+    if (0 == d_callbacks.numCallbacks()) {
         return 0;                                                     // RETURN
     }
 
@@ -321,7 +380,7 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
     tv.tv_usec = (tv.tv_usec + ADJUSTMENT) / INTERVAL * INTERVAL;
     BSLS_ASSERT(0 == tv.tv_usec % INTERVAL);
 
-    if (0 == d_events.size()) {
+    if (0 == d_callbacks.numCallbacks()) {
         DWORD timeoutMS = tv.tv_sec * 1000 + tv.tv_usec / 1000 + 1;
         if (d_timeMetric) {
             d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
@@ -404,29 +463,30 @@ int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
 #endif
 
     Event ev(handle, eventType);
-    d_events[ev] = callback;
-
-    if (eventType == EventType::e_READ || eventType == EventType::e_ACCEPT) {
-        if (!FD_ISSET(handle, &d_readSet)) {
-            FD_SET(handle, &d_readSet);
-            ++d_numRead;
+    if (d_callbacks.registerCallback(ev, callback)) {
+        if (eventType == EventType::e_READ ||
+            eventType == EventType::e_ACCEPT) {
+            if (!FD_ISSET(handle, &d_readSet)) {
+                FD_SET(handle, &d_readSet);
+                ++d_numRead;
+            }
         }
-    }
-    else {
-        if (!FD_ISSET(handle, &d_writeSet)) {
-            FD_SET(handle, &d_writeSet);
+        else {
+            if (!FD_ISSET(handle, &d_writeSet)) {
+                FD_SET(handle, &d_writeSet);
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
-            FD_SET(handle, &d_exceptSet);
+                FD_SET(handle, &d_exceptSet);
 #endif
-            ++d_numWrite;
+                ++d_numWrite;
+            }
         }
-    }
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
-    if (handle >= d_maxFd) {
-        d_maxFd = handle + 1;
-    }
+        if (handle >= d_maxFd) {
+            d_maxFd = handle + 1;
+        }
 #endif
 
+    }
     return 0;
 }
 
@@ -436,7 +496,7 @@ void DefaultEventManager<Platform::SELECT>::deregisterSocketEvent(
 {
     Event ev(handle, event);
 
-    if (1 == d_events.erase(ev)) {
+    if (d_callbacks.remove(ev)) {
         if (event == EventType::e_READ || event == EventType::e_ACCEPT) {
             FD_CLR(handle, &d_readSet);
             --d_numRead;
@@ -454,45 +514,41 @@ void DefaultEventManager<Platform::SELECT>::deregisterSocketEvent(
 int DefaultEventManager<Platform::SELECT>::deregisterSocket(
                                             const SocketHandle::Handle& handle)
 {
+    uint32_t mask = d_callbacks.getRegisteredEventMask(handle);
+
+    if (mask & bdlb::BitMaskUtil::eq(EventType::e_READ)) {
+        deregisterSocketEvent(handle, EventType::e_READ);
+    }
+
+    if (mask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)) {
+        deregisterSocketEvent(handle, EventType::e_WRITE);
+    }
+
+    if (mask & bdlb::BitMaskUtil::eq(EventType::e_ACCEPT)) {
+        deregisterSocketEvent(handle, EventType::e_ACCEPT);
+    }
+
+    if (mask & bdlb::BitMaskUtil::eq(EventType::e_CONNECT)) {
+        deregisterSocketEvent(handle, EventType::e_CONNECT);
+    }
+
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
     if (handle == d_maxFd - 1) {
-        d_maxFd = 0;
-        EventMap::iterator it(d_events.begin()), end(d_events.end());
-        for (; it != end; ++it) {
-            if (it->first.handle() > d_maxFd) {
-                d_maxFd = it->first.handle();
-            }
-        }
-        ++d_maxFd;
+        // If we removed the socket having the highest file descriptor,
+        // find the next-highest file descriptor
+        MaxFdFinder visitor;
+        d_callbacks.visitSockets(&visitor);
+
+        d_maxFd = visitor.d_maxFd + 1;
     }
 #endif
-    int ncbs = 0;
 
-    if (isRegistered(handle, EventType::e_READ)) {
-        deregisterSocketEvent(handle, EventType::e_READ);
-        ++ncbs;
-    }
-
-    if (isRegistered(handle, EventType::e_WRITE)) {
-        deregisterSocketEvent(handle, EventType::e_WRITE);
-        ++ncbs;
-    }
-
-    if (isRegistered(handle, EventType::e_ACCEPT)) {
-        deregisterSocketEvent(handle, EventType::e_ACCEPT);
-        ++ncbs;
-    }
-
-    if (isRegistered(handle, EventType::e_CONNECT)) {
-        deregisterSocketEvent(handle, EventType::e_CONNECT);
-        ++ncbs;
-    }
-    return ncbs;
+    return bdlb::BitUtil::numBitsSet(mask);
 }
 
 void DefaultEventManager<Platform::SELECT>::deregisterAll()
 {
-    d_events.clear();
+    d_callbacks.removeAll();
     FD_ZERO(&d_readSet);
     FD_ZERO(&d_writeSet);
     FD_ZERO(&d_exceptSet);
@@ -515,16 +571,14 @@ int DefaultEventManager<Platform::SELECT>::isRegistered(
                                        const SocketHandle::Handle& handle,
                                        const EventType::Type       event) const
 {
-    return d_events.end() != d_events.find(Event(handle, event));
+    return d_callbacks.contains(Event(handle, event));
 }
 
 int DefaultEventManager<Platform::SELECT>::numSocketEvents (
                                       const SocketHandle::Handle& handle) const
 {
-    return   isRegistered(handle, EventType::e_READ)
-           + isRegistered(handle, EventType::e_WRITE)
-           + isRegistered(handle, EventType::e_ACCEPT)
-           + isRegistered(handle, EventType::e_CONNECT);
+    return bdlb::BitUtil::numBitsSet(
+                                  d_callbacks.getRegisteredEventMask(handle));
 }
 
 }  // close package namespace

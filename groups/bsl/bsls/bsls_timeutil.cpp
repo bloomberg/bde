@@ -1,9 +1,9 @@
 // bsls_timeutil.cpp                                                  -*-C++-*-
 #include <bsls_timeutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_bslonce.h>
 #include <bsls_bsltestutil.h>  // for testing only
-
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
@@ -12,9 +12,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomicoperations.h>
 
 #if defined BSLS_PLATFORM_OS_UNIX
-    #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
-    #include <sys/times.h> // struct tms, times()
-    #include <unistd.h>    // sysconf(), _SC_CLK_TCK
+    #include <time.h>          // NOTE: <ctime> conflicts with <sys/time.h>
+    #include <sys/resource.h>  // struct rusage
+    #include <unistd.h>        // sysconf(), _SC_CLK_TCK
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>
     #include <winbase.h>   // QueryPerformanceCounter(), GetProcessTimes()
@@ -43,110 +43,88 @@ struct UnixTimerUtil {
 
   private:
     // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Int64 s_ticksPerSecond;
-    static const bsls::Types::Int64                   s_nsecsPerSecond;
-
+    static const bsls::Types::Int64 s_nsecsPerSecond;
+    static const bsls::Types::Int64 s_nsecsPerMicrosecond;
   private:
     // PRIVATE CLASS METHODS
-    static void systemProcessTimers(clock_t *systemTimer, clock_t *userTimer);
+    static void systemProcessTimers(bsls::Types::Int64 *systemTimer,
+                                    bsls::Types::Int64 *userTimer);
         // Helper routine to be used by the public methods below: call the OS
         // APIs and handle errors.
 
   public:
     // CLASS METHODS
-    static void initialize();
-        // Initialize the static data used by 'UnixTimerUtil' (currently only
-        // the 's_ticksPerSecond' value above).
-
     static bsls::Types::Int64 systemTimer();
         // Return converted to nanoseconds current value of system time as
-        // returned by times() if the call succeeds, and zero otherwise.  The
-        // behavior is undefined unless 'initialize' has been called.
+        // returned by getrusage() if the call succeeds, and zero otherwise.
 
     static bsls::Types::Int64 userTimer();
         // Return converted to nanoseconds current value of user time as
-        // returned by times() if the call succeeds, and zero otherwise.  The
-        // behavior is undefined unless 'initialize' has been called.
+        // returned by getrusage() if the call succeeds, and zero otherwise.
 
     static void processTimers(bsls::Types::Int64 *systemTimer,
                               bsls::Types::Int64 *userTimer);
         // Return converted to nanoseconds current values of system and user
-        // times as returned by times() if the call succeeds, and zero values
-        // otherwise.  The behavior is undefined unless 'initialize' has been
-        // called.
+        // times as returned by getrusage() if the call succeeds, and zero
+        // values otherwise.
 };
 
-bsls::AtomicOperations::AtomicTypes::Int64
-                                        UnixTimerUtil::s_ticksPerSecond = {-1};
-
 const bsls::Types::Int64 UnixTimerUtil::s_nsecsPerSecond = 1000 * 1000 * 1000;
+const bsls::Types::Int64 UnixTimerUtil::s_nsecsPerMicrosecond = 1000;
 
 inline
-void UnixTimerUtil::systemProcessTimers(clock_t *systemTimer,
-                                        clock_t *userTimer)
+void UnixTimerUtil::systemProcessTimers(bsls::Types::Int64 *systemTimer,
+                                        bsls::Types::Int64 *userTimer)
 {
-    struct tms processTimes;
-    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
-        *systemTimer = 0;
-        *userTimer   = 0;
-        return;                                                       // RETURN
-    }
+    struct rusage usage;
 
-    *systemTimer = processTimes.tms_stime;
-    *userTimer   = processTimes.tms_utime;
-}
+    int rc = getrusage(RUSAGE_SELF, &usage);
+    (void) rc;                   // silence unused variable warning
 
-inline
-void UnixTimerUtil::initialize()
-{
-    if (-1 == bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond)) {
-        long ticksPerSecond = ::sysconf(_SC_CLK_TCK);
+    BSLS_ASSERT_SAFE(-1 != rc);  // Sanity check for validity of 'RUSAGE_SELF'
+                                 // and '&usage'.  Possible errors all require
+                                 // invalid input to 'getrusage'.
 
-        bsls::AtomicOperations::setInt64Relaxed(
-                &s_ticksPerSecond,
-                ticksPerSecond != -1 ? ticksPerSecond : CLOCKS_PER_SEC);
-    }
+    bsls::Types::Int64 timeSec  = 0;
+    bsls::Types::Int64 timeUsec = 0;
+
+    timeSec  = static_cast<bsls::Types::Int64>(usage.ru_stime.tv_sec);
+    timeUsec = static_cast<bsls::Types::Int64>(usage.ru_stime.tv_usec);
+    *systemTimer = timeSec * s_nsecsPerSecond +
+                                              timeUsec * s_nsecsPerMicrosecond;
+
+    timeSec  = static_cast<bsls::Types::Int64>(usage.ru_utime.tv_sec);
+    timeUsec = static_cast<bsls::Types::Int64>(usage.ru_utime.tv_usec);
+    *userTimer = timeSec * s_nsecsPerSecond + timeUsec * s_nsecsPerMicrosecond;
 }
 
 inline
 bsls::Types::Int64 UnixTimerUtil::systemTimer()
 {
-    initialize();
+    bsls::Types::Int64 sTimer;
+    bsls::Types::Int64 dummy;
 
-    clock_t sTimer, dummy;
     systemProcessTimers(&sTimer, &dummy);
 
-    return static_cast<bsls::Types::Int64>(sTimer) * s_nsecsPerSecond
-        / bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond);
+    return sTimer;
 }
 
 inline
 bsls::Types::Int64 UnixTimerUtil::userTimer()
 {
-    initialize();
+    bsls::Types::Int64 uTimer;
+    bsls::Types::Int64 dummy;
 
-    clock_t dummy, uTimer;
     systemProcessTimers(&dummy, &uTimer);
 
-    return static_cast<bsls::Types::Int64>(uTimer) * s_nsecsPerSecond
-        / bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond);
+    return uTimer;
 }
 
 inline
 void UnixTimerUtil::processTimers(bsls::Types::Int64 *systemTimer,
                                   bsls::Types::Int64 *userTimer)
 {
-    initialize();
-
-    clock_t sTimer, uTimer;
-    systemProcessTimers(&sTimer, &uTimer);
-
-    bsls::Types::Int64 ticksPerSecond
-        = bsls::AtomicOperations::getInt64Relaxed(&s_ticksPerSecond);
-    *systemTimer = static_cast<bsls::Types::Int64>(sTimer)
-                   * s_nsecsPerSecond / ticksPerSecond;
-    *userTimer   = static_cast<bsls::Types::Int64>(uTimer)
-                   * s_nsecsPerSecond / ticksPerSecond;
+    systemProcessTimers(systemTimer, userTimer);
 }
 #endif
 
@@ -368,10 +346,8 @@ bsls::Types::Int64 WindowsTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
         // Not implemented: Assert that rawTime - initialTime will fit in an
         // Int64, when expressed as nanoseconds (~292 days).
         //
-        // N.B. This assert is not implemented because:
-        // A) Cannot use BSLS_ASSERT because bsls_assert has an indirect
-        // (and testing only) dependency on bsls_timeutil.
-        // B) Cannot use std::numeric_limits.
+        // N.B. This assert is not implemented because we cannot use
+        // std::numeric_limits here.
         //
         // If it were implemented, it would look like the following:
         // BSLS_ASSERT(((rawTime - initialTime) / timerFrequency)
@@ -596,7 +572,6 @@ namespace bsls {
 void TimeUtil::initialize()
 {
 #if defined BSLS_PLATFORM_OS_UNIX
-    UnixTimerUtil::initialize();
 #  if defined BSLS_PLATFORM_OS_DARWIN
     MachTimerUtil::initialize();
 #  endif
@@ -623,10 +598,6 @@ TimeUtil::convertRawTime(TimeUtil::OpaqueNativeTime rawTime)
     const Types::Int64 G = 1000000000;
     time_base_to_time(&rawTime, TIMEBASE_SZ);
     return (Types::Int64) rawTime.tb_high * G + rawTime.tb_low;
-
-#elif defined BSLS_PLATFORM_OS_HPUX
-
-    return rawTime.d_opaque;
 
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
@@ -662,7 +633,6 @@ Types::Int64 TimeUtil::getTimer()
     return gethrtime();
 
 #elif defined BSLS_PLATFORM_OS_AIX    || \
-      defined BSLS_PLATFORM_OS_HPUX   || \
       defined BSLS_PLATFORM_OS_LINUX  || \
       defined BSLS_PLATFORM_OS_DARWIN || \
       defined BSLS_PLATFORM_OS_UNIX
@@ -685,10 +655,8 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     // Historical Note: Older Sun machines (e.g., sundev2 circa 2003) exhibited
     // intermittent non-compliant (i.e., non-monotonic) behavior for function
     // 'gethrtime'.  As of July 2004, no non-monotonic behavior has been seen
-    // on any Sun machine.  However, hp2 does exhibit a *different*
-    // non-monotonic behavior.  An Imp Note within the 'OS_HPUX' block
-    // describes the new problem.  The imp note in the next paragraph is no
-    // longer valid, but is retained for archival purposes, and as a historical
+    // on any Sun machine.  The imp note in the next paragraph is no longer
+    // valid, but is retained for archival purposes, and as a historical
     // caution.
     //
     // Archival Imp Note:
@@ -716,24 +684,6 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
     // (~1.2 usec).
 
     read_wall_time(timeValue, TIMEBASE_SZ);
-
-#elif defined BSLS_PLATFORM_OS_HPUX
-
-    // The following Imp Note applies to behavior observed on 'hp2' in late
-    // July and early August of 2004.
-    //
-    // The call to 'gethrtime' takes about 100 nsecs (the mode difference
-    // between two successive return values).  About once in every 10^7 call
-    // pairs, the difference is negative; the distribution of negative values
-    // is bimodal, with (approximately equal) peaks at 0 and -90 nsec.  The
-    // maximum observed negative difference in 10^9 call pairs was -144 nsec.
-    //
-    // The algorithm implemented here defends against this behavior by
-    // returning the maximum of two successive calls to 'gethrtime'.
-
-    Types::Int64 t1 = (Types::Int64) gethrtime();
-    Types::Int64 t2 = (Types::Int64) gethrtime();
-    timeValue->d_opaque = t2 > t1 ? t2 : t1;
 
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 

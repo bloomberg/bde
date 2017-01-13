@@ -1,12 +1,4 @@
 // ball_fixedsizerecordbuffer.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_fixedsizerecordbuffer.h>
 
 #include <bsls_ident.h>
@@ -18,8 +10,12 @@ BSLS_IDENT_RCSID(ball_fixedsizerecordbuffer_cpp,"$Id$ $CSID$")
 #include <bslmt_recursivemutex.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
+                        // ---------------------------
+                        // class FixedSizeRecordBuffer
+                        // ---------------------------
+
 // CREATORS
 FixedSizeRecordBuffer::~FixedSizeRecordBuffer()
 {
@@ -31,8 +27,7 @@ void FixedSizeRecordBuffer::popBack()
 {
     bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 
-    d_currentTotalSize -=
-        (d_deque.back())->numAllocatedBytes();
+    d_currentTotalSize -= (d_deque.back())->numAllocatedBytes();
 
     d_currentTotalSize -= static_cast<int>(
                bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
@@ -44,8 +39,7 @@ void FixedSizeRecordBuffer::popFront()
 {
     bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
 
-    d_currentTotalSize -=
-        (d_deque.front())->numAllocatedBytes();
+    d_currentTotalSize -= (d_deque.front())->numAllocatedBytes();
 
     d_currentTotalSize -= static_cast<int>(
                bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
@@ -53,11 +47,9 @@ void FixedSizeRecordBuffer::popFront()
     d_deque.pop_front();
 }
 
-int FixedSizeRecordBuffer::pushBack(
-                         const bsl::shared_ptr<Record>& handle)
+int FixedSizeRecordBuffer::pushBack(const bsl::shared_ptr<Record>& handle)
 {
     bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
-
 
     int size = handle->numAllocatedBytes() +
            static_cast<int>(
@@ -65,80 +57,76 @@ int FixedSizeRecordBuffer::pushBack(
 
     if (size + static_cast<int>(d_allocator.numBytesTotal()) >
                                                               d_maxTotalSize) {
-        // impossible to accommodate this record
+        // Impossible to accommodate this record.
         return -1;                                                    // RETURN
     }
 
     int returnValue = 0;
-    d_deque.push_back(handle); // This operation may cause 'd_deque' to grow,
-                               // so test again.
-
-    if (size + static_cast<int>(d_allocator.numBytesTotal()) >
-                                                d_maxTotalSize) { // impossible
-                                                               // to
-                                                               // accommodate
-        d_deque.pop_back();
-        returnValue = -1;
-    }
-    else { // possible to accommodate this record
-        d_currentTotalSize += size;
-    }
-
-    while(d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
-                                                              d_maxTotalSize) {
-        d_currentTotalSize -=
-            (d_deque.front())->numAllocatedBytes();
-        d_currentTotalSize -=
-            static_cast<int>(
-               bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
-        d_deque.pop_front();
-    }
-    return returnValue;
-}
-
-int FixedSizeRecordBuffer::pushFront(
-                         const bsl::shared_ptr<Record>& handle)
-{
-    bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
-
-
-    int size = handle->numAllocatedBytes() +
-           static_cast<int>(
-               bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
-    if (size + static_cast<int>(d_allocator.numBytesTotal()) >
-                                                              d_maxTotalSize) {
-        // impossible to accommodate this record
-        return -1;                                                    // RETURN
-    }
-
-    int returnValue = 0;
-    d_deque.push_front(handle); // This operation may cause 'd_deque' to grow,
+    d_deque.push_back(handle);  // This operation may cause 'd_deque' to grow,
                                 // so test again.
 
     if (size + static_cast<int>(d_allocator.numBytesTotal()) >
-                                                d_maxTotalSize) { // impossible
-                                                               // to
-                                                               // accommodate
-        d_deque.pop_front();
+                                                              d_maxTotalSize) {
+        // Impossible to accommodate this record.
+        d_deque.pop_back();
         returnValue = -1;
     }
-    else { // possible to accommodate this record
+    else {
+        // Possible to accommodate this record.
         d_currentTotalSize += size;
     }
 
-    while(d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
+    while (d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
                                                               d_maxTotalSize) {
-        d_currentTotalSize -=
-            static_cast<int>((d_deque.back())->numAllocatedBytes());
-        d_currentTotalSize -=
-            static_cast<int>(
+        d_currentTotalSize -= static_cast<int>(
+                                       (d_deque.front())->numAllocatedBytes());
+        d_currentTotalSize -= static_cast<int>(
+               bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
+        d_deque.pop_front();
+    }
+    return returnValue;
+}
+
+int FixedSizeRecordBuffer::pushFront(const bsl::shared_ptr<Record>& handle)
+{
+    bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
+
+    int size = handle->numAllocatedBytes() +
+           static_cast<int>(
+               bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
+    if (size + static_cast<int>(d_allocator.numBytesTotal()) >
+                                                              d_maxTotalSize) {
+        // Impossible to accommodate this record.
+        return -1;                                                    // RETURN
+    }
+
+    int returnValue = 0;
+    d_deque.push_front(handle);  // This operation may cause 'd_deque' to grow,
+                                 // so test again.
+
+    if (size + static_cast<int>(d_allocator.numBytesTotal()) >
+                                                              d_maxTotalSize) {
+        // Impossible to accommodate this record.
+        d_deque.pop_front();
+        returnValue = -1;
+    }
+    else {
+        // Possible to accommodate this record.
+        d_currentTotalSize += size;
+    }
+
+    while (d_currentTotalSize + static_cast<int>(d_allocator.numBytesTotal()) >
+                                                              d_maxTotalSize) {
+        d_currentTotalSize -= static_cast<int>(
+                                        (d_deque.back())->numAllocatedBytes());
+        d_currentTotalSize -= static_cast<int>(
                bsls::AlignmentUtil::roundUpToMaximalAlignment(sizeof(Record)));
         d_deque.pop_back();
     }
     return returnValue;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

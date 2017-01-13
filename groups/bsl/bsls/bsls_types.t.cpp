@@ -2,7 +2,7 @@
 
 #include <bsls_types.h>
 
-#include <bsls_platform.h>     // for testing only
+#include <bsls_platform.h>
 
 #include <cstddef>     // offsetof(), std::ptrdiff_t
 #include <cstdlib>     // atoi()

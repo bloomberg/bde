@@ -612,7 +612,7 @@ const DefaultDataRow DEFAULT_DATA[] =
                 LONGEST_STRING
     },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 // ============================================================================
 //                     GLOBAL FUNCTIONS USED FOR TESTING
@@ -847,8 +847,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The signature and return type are standard.
         //:
-        //: 2 The method returns the expected Boolean value for the the value
-        //:   of the attribute.
+        //: 2 The method returns the expected Boolean value for the value of
+        //:   the attribute.
         //:
         //: 3 No memory is allocated by any of these methods.
         //
@@ -2267,7 +2267,7 @@ int main(int argc, char *argv[])
   {  L_,     A1,          A2,    A3,            A4,    A5,          A6,     B7,
   },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
@@ -2765,7 +2765,7 @@ int main(int argc, char *argv[])
 #undef NL
 #undef SP
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;

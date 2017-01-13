@@ -41,8 +41,8 @@ BSLS_IDENT("$Id: $")
 //    assert(0 == bsl::strcmp("uuid", p1.name()));
 //    assert(0 == bsl::strcmp("name", p2.name()));
 //..
-// The 'value' method returns a non-modifiable reference to the
-// 'bdlb::Variant' object that manages the value of the predicate:
+// The 'value' method returns a non-modifiable reference to the 'bdlb::Variant'
+// object that manages the value of the predicate:
 //..
 //    assert(true        == p1.value().is<int>());
 //    assert(4044457     == p1.value().the<int>());
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //    bsl::strcpy(buffer, "World");
 //    assert(0 == bsl::strcmp("Hello", p3.name()));
 //..
-// The 'ball::Attribute' class also provides a constructor that takes a value
+// The 'ball::Predicate' class also provides a constructor that takes a value
 // of type 'ball::Attribute::Value':
 //..
 //    ball::Attribute::Value value;
@@ -104,8 +104,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
                          // ===============
                          // class Predicate
                          // ===============
@@ -137,7 +137,7 @@ class Predicate {
     static int hash(const Predicate& predicate, int size);
         // Return a hash value calculated from the specified 'predicate' using
         // the specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range [0 .. size - 1].
+        // guaranteed to be in the range '[0 .. size - 1]'.
 
     // CREATORS
     Predicate(const bslstl::StringRef&  name,
@@ -179,6 +179,9 @@ class Predicate {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
+    //! ~Predicate() = default;
+        // Destroy this object.
+
     // MANIPULATORS
     Predicate& operator=(const Predicate& rhs);
         // Assign the value of the specified 'rhs' object to this object.
@@ -215,7 +218,6 @@ class Predicate {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
-
 };
 
 // FREE OPERATORS
@@ -232,8 +234,7 @@ bool operator!=(const Predicate& lhs, const Predicate& rhs);
     // the same value if any of their respective names (value, not address),
     // attribute value types, or attribute values differ.
 
-bsl::ostream& operator<<(bsl::ostream&    stream,
-                         const Predicate& predicate);
+bsl::ostream& operator<<(bsl::ostream& stream, const Predicate& predicate);
     // Write the value of the specified 'predicate' to the specified output
     // 'stream', and return a reference to the modifiable 'stream'.
 
@@ -319,7 +320,6 @@ void Predicate::setValue(const Attribute::Value& value)
 {
     d_attribute.setValue(value);
 }
-
 
 // ACCESSORS
 inline

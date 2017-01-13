@@ -26,12 +26,12 @@ BSLS_IDENT("$Id: $")
 //
 ///'ball' "Private" Methods and Classes
 ///------------------------------------
-// This component provides classes that are *not* intended for use by the
-// users of the 'ball' logging sub-system: 'ball::CategoryHolder' and
-// 'ball::CategoryManagerImpUtil'.  These classes are defined in this
-// component because they are either friends of 'ball::Category' or have a
-// circular definition with 'ball::Category'.  They are used within the
-// logging sub-system to efficiently process log records.
+// This component provides classes that are *not* intended for use by the users
+// of the 'ball' logging sub-system: 'ball::CategoryHolder' and
+// 'ball::CategoryManagerImpUtil'.  These classes are defined in this component
+// because they are either friends of 'ball::Category' or have a circular
+// definition with 'ball::Category'.  They are used within the logging
+// sub-system to efficiently process log records.
 //
 ///'ball::CategoryHolder'
 /// - - - - - - - - - - -
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //
 // Note that other components in the logging subsystem provide more user
 // focused examples of using categories (see {'ball_loggermanager'},
-// {'ball_administration'}, and 'ball_categorymanager'}).
+// {'ball_administration'}, and {'ball_categorymanager'}).
 //
 // First we create a simple category, 'example', that has the record-level,
 // trigger-level, and trigger-all thresholds set to OFF and the pass-level set
@@ -114,6 +114,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_bitutil.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -135,15 +139,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace ball {
+
+class CategoryHolder;
 
                            // ==============
                            // class Category
                            // ==============
-
-
-class CategoryHolder;
 
 class Category {
     // This class provides a container to hold the name and threshold levels of
@@ -157,7 +159,7 @@ class Category {
     // of the logging system, and may be modified by 'const' operations of the
     // logging system.
 
-
+    // DATA
     ThresholdAggregate  d_thresholdLevels;  // record, pass, trigger, and
                                             // trigger-all levels
 
@@ -201,7 +203,6 @@ class Category {
         // of this object to the maximum of 'd_threshold' and
         // 'd_ruleThreshold'.
 
-
   public:
     // CLASS METHODS
     static bool areValidThresholdLevels(int recordLevel,
@@ -215,7 +216,7 @@ class Category {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Category, bslma::UsesBslmaAllocator);
 
-    // PRIVATE CREATORS
+    // CREATORS
     Category(const char       *categoryName,
              int               recordLevel,
              int               passLevel,
@@ -231,7 +232,7 @@ class Category {
         // threshold levels is in the range '[0 .. 255]', and 'categoryName' is
         // null-terminated.
 
-    ~Category();
+    //! ~Category() = default;
         // Destroy this category.
 
     // MANIPULATORS
@@ -340,10 +341,10 @@ class CategoryHolder {
         // threshold levels.  Note that these values are intentionally outside
         // the range '[0 .. 255]'.
 
-    // PUBLIC DATA MEMBERS
-    AtomicInt       d_threshold;   // threshold level
-    AtomicPointer   d_category_p;  // held category (not owned)
-    AtomicPointer   d_next_p;      // next category holder in linked list
+    // PUBLIC DATA
+    AtomicInt     d_threshold;   // threshold level
+    AtomicPointer d_category_p;  // held category (not owned)
+    AtomicPointer d_next_p;      // next category holder in linked list
 
     // CREATORS
 
@@ -354,7 +355,7 @@ class CategoryHolder {
     void reset();
         // Reset this object to its default value.  The default value is:
         //..
-        //   { BALL_UNINITIALIZED_CATEGORY, 0, 0 }
+        //  { e_UNINITIALIZED_CATEGORY, 0, 0 }
         //..
 
     void setCategory(const Category *category);
@@ -383,7 +384,6 @@ class CategoryHolder {
                     // ============================
                     // class CategoryManagerImpUtil
                     // ============================
-
 
 class CategoryManagerImpUtil {
     // This class provides a suite of free functions used to help implement a
@@ -425,7 +425,7 @@ class CategoryManagerImpUtil {
 
     static void setRelevantRuleMask(Category          *category,
                                     RuleSet::MaskType  mask);
-        // Set the the rule-mask for the specified 'category' to the specified
+        // Set the rule-mask for the specified 'category' to the specified
         // 'mask'.
 };
 
@@ -602,9 +602,7 @@ void CategoryManagerImpUtil::setRelevantRuleMask(Category          *category,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
-
 
 #endif
 

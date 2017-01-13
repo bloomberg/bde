@@ -1,12 +1,4 @@
 // ball_testobserver.cpp                                              -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_testobserver.h>
 
 #include <bsls_ident.h>
@@ -17,19 +9,22 @@ BSLS_IDENT_RCSID(ball_testobserver_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-// STATIC DATA MEMBER INITIALIZATION
-bsls::AtomicOperations::AtomicTypes::Int ball::TestObserver::s_count = {0};
-
 namespace ball {
+
+                        // ------------------
+                        // class TestObserver
+                        // ------------------
+
+// CLASS DATA
+bsls::AtomicOperations::AtomicTypes::Int TestObserver::s_count = {0};
+
 // CREATORS
 TestObserver::~TestObserver()
 {
 }
 
 // MANIPULATORS
-void TestObserver::publish(const Record&  record,
-                           const Context& context)
+void TestObserver::publish(const Record& record, const Context& context)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
@@ -48,7 +43,6 @@ void TestObserver::publish(const Record&  record,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

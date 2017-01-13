@@ -487,6 +487,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -1040,8 +1044,6 @@ class BitArray {
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED METHODS
-
-    // CLASS METHOD
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -1174,12 +1176,11 @@ int BitArray::maxSupportedBdexVersion(int)
 inline
 BitArray& BitArray::operator=(const BitArray& rhs)
 {
-    if (this != &rhs) {
-        // The allocator used by the temporary copy must be the same as the
-        // allocator of this object.
-
-        BitArray(rhs, allocator()).swap(*this);
-    }
+    d_array.resize(rhs.d_array.size());
+    bsl::memcpy(d_array.data(),
+                rhs.d_array.data(),
+                d_array.size() * sizeof(bsl::uint64_t));
+    d_length = rhs.d_length;
 
     return *this;
 }
@@ -1863,8 +1864,6 @@ STREAM& BitArray::bdexStreamOut(STREAM& stream, int version) const
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // DEPRECATED METHODS
-
-// CLASS METHOD
 inline
 int BitArray::maxSupportedBdexVersion()
 {

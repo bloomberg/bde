@@ -20,6 +20,8 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 
+#include <bsltf_alloctesttype.h>
+
 #include <bsls_atomic.h>
 #include <bsls_types.h>
 
@@ -174,24 +176,29 @@ struct Element {
     static bsls::AtomicInt s_allocCount;
     double                d_data;
 
-    Element() {
+    Element()
+    {
         ++s_allocCount;
     }
-    Element(double e) {
+    Element(double e)                                               // IMPLICIT
+    {
         ++s_allocCount;
 
         d_data = e;
     }
-    Element(const Element& original) {
+    Element(const Element& original)
+    {
         ++s_allocCount;
 
         d_data = original.d_data;
     }
-    ~Element() {
+    ~Element()
+    {
         --s_allocCount;
     }
 
-    operator double() const {
+    operator double() const
+    {
         return d_data;
     }
 };
@@ -201,6 +208,7 @@ typedef bdlcc::MultipriorityQueue<Element>      Obj;
 typedef bdlcc::MultipriorityQueue<double>       Dobj;
 typedef bdlcc::MultipriorityQueue<int>          Iobj;
 typedef bdlcc::MultipriorityQueue<bsl::string>  Sobj;
+typedef bsls::Types::Int64                      Int64;
 
 }  // close unnamed namespace
 
@@ -567,16 +575,18 @@ struct Thrower {
   public:
     Thrower(double value, bool throwOnCopy, bool throwOnAssign);
     Thrower(const Thrower& original);
-    Thrower& operator=(const Thrower& original);
+    Thrower& operator=(const Thrower& rhs);
 };
 
-Thrower::Thrower(double value, bool throwOnCopy, bool throwOnAssign) {
+Thrower::Thrower(double value, bool throwOnCopy, bool throwOnAssign)
+{
     d_value = value;
     d_throwOnCopy = throwOnCopy;
     d_throwOnAssign = throwOnAssign;
 }
 
-Thrower::Thrower(const Thrower& original) {
+Thrower::Thrower(const Thrower& original)
+{
     if (original.d_throwOnCopy) {
         throw 1;
     }
@@ -586,14 +596,15 @@ Thrower::Thrower(const Thrower& original) {
     d_throwOnAssign = original.d_throwOnAssign;
 }
 
-Thrower& Thrower::operator=(const Thrower& original) {
-    if (original.d_throwOnAssign) {
+Thrower& Thrower::operator=(const Thrower& rhs)
+{
+    if (rhs.d_throwOnAssign) {
         throw 1;
     }
 
-    d_value         = original.d_value;
-    d_throwOnCopy   = original.d_throwOnCopy;
-    d_throwOnAssign = original.d_throwOnAssign;
+    d_value         = rhs.d_value;
+    d_throwOnCopy   = rhs.d_throwOnCopy;
+    d_throwOnAssign = rhs.d_throwOnAssign;
 
     return *this;
 }
@@ -618,7 +629,8 @@ struct ProducerThread {
     static Obj            *s_queue_p;
     static int             s_removeMask;
 
-    int operator()() {
+    int operator()()
+    {
         int pushPriority = 0;
 
         s_barrier->wait();
@@ -659,13 +671,16 @@ struct OutPair {
 };
 
 struct OutPairValueLess {
-    bool operator()(const OutPair& lhs, const OutPair& rhs) {
+    bool operator()(const OutPair& lhs, const OutPair& rhs)
+    {
         return lhs.d_value < rhs.d_value;
     }
 };
 
 struct OutPairPriorityLess {
-    bool operator()(const OutPair& lhs, const OutPair& rhs) {
+    bool operator()(const OutPair& lhs, const OutPair& rhs)
+    {
+
         return lhs.d_priority < rhs.d_priority;
     }
 };
@@ -680,7 +695,8 @@ struct ConsumerThread {
     static OutPair         *s_outPairVec;
     static bsls::AtomicInt *s_outPairVecIdx;
 
-    int operator()() {
+    int operator()()
+    {
         s_barrier->wait();
 
         while (true) {
@@ -732,7 +748,8 @@ struct ProducerThread {
     static bslmt::Barrier  *s_barrier;
     static Iobj           *s_queue_p;
 
-    int operator()() {
+    int operator()()
+    {
         int pushPriority = 0;
 
         s_barrier->wait();
@@ -767,13 +784,15 @@ struct OutPair {
 };
 
 struct OutPairValueLess {
-    bool operator()(const OutPair& lhs, const OutPair& rhs) {
+    bool operator()(const OutPair& lhs, const OutPair& rhs)
+    {
         return lhs.d_value < rhs.d_value;
     }
 };
 
 struct OutPairPriorityLess {
-    bool operator()(const OutPair& lhs, const OutPair& rhs) {
+    bool operator()(const OutPair& lhs, const OutPair& rhs)
+    {
         return lhs.d_priority < rhs.d_priority;
     }
 };
@@ -788,7 +807,8 @@ struct ConsumerThread {
     static OutPair         *s_outPairVec;
     static bsls::AtomicInt *s_outPairVecIdx;
 
-    int operator()() {
+    int operator()()
+    {
         s_barrier->wait();
 
         while (true) {
@@ -841,7 +861,8 @@ struct TestFunctor7 {
     Element d_e;
     int     d_priority;
 
-    void setGarbage() {
+    void setGarbage()
+    {
         d_e        = k_GARBAGE_VALUE;
         d_priority = k_GARBAGE_VALUE;
     }
@@ -853,7 +874,8 @@ struct TestFunctor7 {
         setGarbage();
     }
 
-    void operator()() {
+    void operator()()
+    {
         // the queue is empty, verify tryPopFront does not block
         setGarbage();
         ASSERT(0 != d_pMX->tryPopFront(&d_e));
@@ -891,8 +913,10 @@ namespace MULTIPRIORITYQUEUE_TEST_CASE_5 {
 struct PushPoint {
     double d_value;
     int    d_priority;
-    bool operator<(const PushPoint& rhs) const {
+    bool operator<(const PushPoint& rhs) const
+    {
         // for sorting by priority
+
         return this->d_priority < rhs.d_priority;
     }
 };
@@ -1105,31 +1129,40 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.numBytesInUse());
 
-        bdlcc::MultipriorityQueue<int> mpq(&ta);
+        bdlcc::MultipriorityQueue<bsltf::AllocTestType> mpq(&ta);
+        bsltf::AllocTestType mT('A');
 
-        ASSERT(!mpq.pushBack(5, 3));
+        ASSERT(!mpq.pushBack(mT, 7));
 
         ASSERT(1 == mpq.length());
 
         mpq.disable();
 
-        ASSERT(0 != mpq.pushBack(7, 3));
+        mT.setData('B');
+        ASSERT(0 != mpq.pushBack(mT, 3));
 
         ASSERT(1 == mpq.length());
 
         bsls::Types::Int64 memUsed = ta.numBytesInUse();
 
+        mT.setData('C');
         for (int i = 0; i < 10000; ++i) {
-            ASSERT(0 != mpq.pushBack(8, 3));
+            ASSERT(0 != mpq.pushBack(mT, 3));
             ASSERT(1 == mpq.length());
             ASSERT(ta.numBytesInUse() == memUsed);    // no memory leaked
         }
 
         mpq.enable();
 
-        ASSERT(!mpq.pushBack(15, 3));
+        mT.setData('D');
+        ASSERT(!mpq.pushBack(mT, 3));
 
         ASSERT(2 == mpq.length());
+
+        mpq.popFront(&mT);
+        ASSERT('D' == mT.data());
+        mpq.popFront(&mT);
+        ASSERT('A' == mT.data());
       }  break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1158,7 +1191,7 @@ int main(int argc, char *argv[])
                                                              // --------------
             numAllocList.push_back(testAllocator.numAllocations());    // 0
 
-            Sobj mX(&testAllocator);    const Sobj& X = mX;
+            Sobj mX(&testAllocator);
 
             numAllocList.push_back(testAllocator.numAllocations());    // 2
 
@@ -1830,7 +1863,7 @@ int main(int argc, char *argv[])
         // TESTING REMOVEALL AND DESTRUCTOR
         //
         // Concerns:
-        //   That 'removeAll' and the destructor work both when the the queue
+        //   That 'removeAll' and the destructor work both when the queue
         //   contains items and when it is empty, and never leak items.
         //
         // Plan:
@@ -2032,7 +2065,7 @@ int main(int argc, char *argv[])
 
             switch (construct) {
               case 0: {
-                priorityCount = sizeof(int) * 8;
+                priorityCount = static_cast<int>(sizeof(int) * 8);
                 pX = new (ta) Obj(&ta);
               }  break;
               case 1: {
@@ -2044,7 +2077,7 @@ int main(int argc, char *argv[])
                 pX = new (ta) Obj(priorityCount, &ta);
               }  break;
               case 3: {
-                priorityCount = sizeof(int) * 8;
+                priorityCount = static_cast<int>(sizeof(int) * 8);
                 pX = new (ta) Obj;
               }  break;
               case 4: {
@@ -2448,6 +2481,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == Element::s_allocCount);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

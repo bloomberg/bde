@@ -87,12 +87,22 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
         else {
             // Geometric growth strategy; find bin to use.
 
-            uint64_t unavailable = d_unavailable
-                                 | (  bdlb::BitUtil::roundUpToBinaryPower(
+            uint64_t available = ~(  d_unavailable
+                                   | (  bdlb::BitUtil::roundUpToBinaryPower(
                                                    static_cast<uint64_t>(size))
-                                    - 1);
+                                      - 1));
 
-            int index = bdlb::BitUtil::numTrailingUnsetBits(~unavailable);
+            // Determine 'index' of block to use.  Prefer pre-allocated, overly
+            // large blocks to allocating a block.
+
+            int index;
+            if (d_allocated & available) {
+                index = bdlb::BitUtil::numTrailingUnsetBits(
+                                                      d_allocated & available);
+            }
+            else {
+                index = bdlb::BitUtil::numTrailingUnsetBits(available);
+            }
 
             // Update 'd_bufferManager'.
 
@@ -110,6 +120,7 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
                                                               allocatedSize)));
                     d_allocated |= allocatedSize;
                 }
+
                 d_bufferManager.replaceBuffer(
                            bin,
                            static_cast<bsls::Types::size_type>(allocatedSize));
@@ -531,22 +542,22 @@ void SequentialPool::reserveCapacity(bsls::Types::size_type numBytes)
     else {
         // Geometric growth strategy.
 
-        uint64_t unavailable = d_unavailable
-                             | (  bdlb::BitUtil::roundUpToBinaryPower(
+        uint64_t available = ~(   d_unavailable
+                               | (  bdlb::BitUtil::roundUpToBinaryPower(
                                                static_cast<uint64_t>(numBytes))
-                                - 1);
+                                  - 1));
 
-        int index = bdlb::BitUtil::numTrailingUnsetBits(~unavailable);
+        int index = bdlb::BitUtil::numTrailingUnsetBits(available);
 
         if (index < k_NUM_GEOMETRIC_BIN) {
             // Use memory from the geometric strategy.  If needed, allocate a
-            // block of memory.
+            // block of memory.  Allow pre-allocated overly large blocks to be
+            // used.
 
-            char *&  bin           = d_geometricBin[index];
-            uint64_t allocatedSize = static_cast<uint64_t>(1) << index;
+            const uint64_t allocatedSize = static_cast<uint64_t>(1) << index;
 
-            if (0 == (d_allocated & allocatedSize)) {
-                bin = reinterpret_cast<char *>(
+            if (allocatedSize > (d_allocated & available)) {
+                d_geometricBin[index] = reinterpret_cast<char *>(
                                        d_allocator_p->allocate(
                                            static_cast<bsls::Types::size_type>(
                                                               allocatedSize)));

@@ -24,15 +24,14 @@ BSLS_IDENT_RCSID(ball_ruleset_cpp,"$Id$ $CSID$")
 #include <bsl_functional.h>
 
 namespace BloombergLP {
-
-// CLASS MEMBER
-int ball::RuleSet::RuleHash::s_hashtableSize = INT_MAX;
-
 namespace ball {
 
                           // -------------
                           // class RuleSet
                           // -------------
+
+// CLASS DATA
+int RuleSet::RuleHash::s_hashtableSize = INT_MAX;
 
 // CLASS METHODS
 void RuleSet::printMask(bsl::ostream& stream,
@@ -61,15 +60,13 @@ RuleSet::RuleSet(bslma::Allocator *basicAllocator)
 , d_freeRuleIds(basicAllocator)
 , d_numPredicates(0)
 {
-    for (int i = 0; i < maxNumRules(); ++i)
-    {
+    for (int i = 0; i < maxNumRules(); ++i) {
         d_ruleAddresses.push_back(0);
         d_freeRuleIds.push_back(i);
     }
 }
 
-RuleSet::RuleSet(const RuleSet&    original,
-                 bslma::Allocator *basicAllocator)
+RuleSet::RuleSet(const RuleSet& original, bslma::Allocator *basicAllocator)
 : d_ruleHashtable(maxNumRules(),          // initial size
                   RuleHash(),             // hash functor
                   bsl::equal_to<Rule>(),  // equal functor
@@ -77,16 +74,11 @@ RuleSet::RuleSet(const RuleSet&    original,
 , d_ruleAddresses(basicAllocator)
 , d_freeRuleIds(basicAllocator)
 {
-    for (int i = 0; i < maxNumRules(); ++i)
-    {
+    for (int i = 0; i < maxNumRules(); ++i) {
         d_ruleAddresses.push_back(0);
         d_freeRuleIds.push_back(i);
     }
     addRules(original);
-}
-
-RuleSet::~RuleSet()
-{
 }
 
 // MANIPULATORS
@@ -174,8 +166,7 @@ void RuleSet::removeAllRules()
     d_ruleHashtable.clear();
     d_freeRuleIds.clear();
 
-    for(int i = 0; i < maxNumRules(); ++i)
-    {
+    for (int i = 0; i < maxNumRules(); ++i) {
         d_ruleAddresses.push_back(0);
         d_freeRuleIds.push_back(i);
     }
@@ -191,7 +182,7 @@ RuleSet& RuleSet::operator=(const RuleSet& rhs)
     return *this;
 }
 
-// ACCESSOR
+// ACCESSORS
 int RuleSet::ruleId(const Rule& value) const
 {
     HashtableType::const_iterator iter = d_ruleHashtable.find(value);

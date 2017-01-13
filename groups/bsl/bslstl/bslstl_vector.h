@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant vector class.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bsl::vector: STL-compatible vector template
 //
@@ -106,9 +104,6 @@ BSLS_IDENT("$Id: $")
 //: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
-//:
-//: *less-than-comparable*: The type provides a less-than operator that defines
-//:     a strict weak ordering relation on values of the type.
 //
 ///Memory Allocation
 ///-----------------
@@ -760,6 +755,7 @@ struct Vector_RangeCheck {
     // in the class definition due to a bug in the Microsoft C++ compiler (see
     // 'bslmf_enableif').
 
+    // CLASS METHODS
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
@@ -1183,7 +1179,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // type 'VALUE_TYPE' be 'copy-insertable' into this vector (see
         // {Requirements on 'VALUE_TYPE'}).
 
-    Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original);
+    Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original);// IMPLICIT
         // Create a vector having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new vector.  The allocator associated with 'original' is
@@ -1507,8 +1503,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // 'VALUE_TYPE' be 'move-insertable' into this vector and
         // 'emplace-constructible' from 'arguments' (see {Requirements on
         // 'VALUE_TYPE'}).
-    // NOTE: This function has been implemented inline due to an issue with
-    // the sun compiler.
+        //
+        // NOTE: This function has been implemented inline due to an issue with
+        // the Sun compiler.
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
         BSLS_ASSERT_SAFE(position      <= this->end());
@@ -2402,8 +2399,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // 'position' is an iterator in the range '[begin() .. end()]' (both
         // endpoints included), and 'first' and 'last' refer to a range of
         // valid values where 'first' is at a position at or before 'last'.
-    // NOTE: This function has been implemented inline due to an issue with
-    // the sun compiler.
+        //
+        // NOTE: This function has been implemented inline due to an issue with
+        // the Sun compiler.
     {
         BSLS_ASSERT_SAFE(this->begin() <= position);
         BSLS_ASSERT_SAFE(position      <= this->end());
@@ -2499,85 +2497,74 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector has the same value as the
-    // specified 'rhs' vector, and 'false' otherwise.  Two vectors have the
-    // same value if they contain the same number of elements and corresponding
-    // elements at each index position in the range '[0 .. lhs.size())' have
-    // the same value.  This method requires that the (template parameter)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type
     // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
     // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector does not have the same value
-    // as the specified 'rhs' vector, and 'false' otherwise.  Two vectors do
-    // not have the same value if they contain different numbers of elements or
-    // corresponding elements at some index position in the range
-    // '[0 .. lhs.size())' do not have the same value.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE_TYPE'}).  Note that this operator returns
-    // '!(lhs == rhs)'.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
+    // on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than the specified 'rhs' vector, and 'false' otherwise.  A vector 'lhs'
-    // is lexicographically less than another vector 'rhs' if there exists an
-    // index 'i' between 0 and the minimum of 'lhs.size()' and 'rhs.size()'
-    // such that 'lhs[j] == rhs[j]' for every '0 <= j < i', 'i < rhs.size()',
-    // and either 'i == lhs.size()' or 'lhs[i] < rhs[i]'.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'less-than-comparable'
-    // (see {Requirements on 'VALUE_TYPE'}).
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of vector 'lhs' is lexicographically less than that of vector
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than the specified 'rhs' vector, and 'false' otherwise.  This method
-    // requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns 'rhs < lhs'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  The value of vector 'lhs' is lexicographically
+    // greater than that of vector 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(rhs < lhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically less than or equal to that of vector 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(lhs < rhs)'.
-
-// FREE FUNCTIONS
-
-                      // *** specialized algorithms ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-void swap(Vector_Imp<VALUE_TYPE, ALLOCATOR>& a,
-          Vector_Imp<VALUE_TYPE, ALLOCATOR>& b)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown, e.g., in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically greater than or equal to that of vector 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
                             // ============
                             // class vector
@@ -2701,7 +2688,7 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // {Requirements on 'VALUE_TYPE'}).
 
     vector(BloombergLP::bslmf::MovableRef<vector> original)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                               BSLS_CPP11_NOEXCEPT; // IMPLICIT
         // Create a vector having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new vector.  The allocator associated with 'original' is
@@ -2797,64 +2784,80 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector has the same value as the
-    // specified 'rhs' vector, and 'false' otherwise.  Two vectors have the
-    // same value if they contain the same number of elements and corresponding
-    // elements at each index position in the range '[0 .. lhs.size())' have
-    // the same value.  This method requires that the (template parameter)
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type
     // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
     // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector does not have the same value
-    // as the specified 'rhs' vector, and 'false' otherwise.  Two vectors do
-    // not have the same value if they contain different numbers of elements or
-    // corresponding elements at some index position in the range
-    // '[0 .. lhs.size())' do not have the same value.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE_TYPE'}).  Note that this operator returns
-    // '!(lhs == rhs)'.
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
+    // on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than the specified 'rhs' vector, and 'false' otherwise.  A vector 'lhs'
-    // is lexicographically less than another vector 'rhs' if there exists an
-    // index 'i' between 0 and the minimum of 'lhs.size()' and 'rhs.size()'
-    // such that 'lhs[j] == rhs[j]' for every '0 <= j < i', 'i < rhs.size()',
-    // and either 'i == lhs.size()' or 'lhs[i] < rhs[i]'.  This method requires
-    // that the (template parameter) 'VALUE_TYPE' be 'less-than-comparable'
-    // (see {Requirements on 'VALUE_TYPE'}).
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of vector 'lhs' is lexicographically less than that of vector
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than the specified 'rhs' vector, and 'false' otherwise.  This method
-    // requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns 'rhs < lhs'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  The value of vector 'lhs' is lexicographically
+    // greater than that of vector 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically less
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(rhs < lhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically less than or equal to that of vector 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' vector is lexicographically greater
-    // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) 'VALUE_TYPE' be
-    // 'less-than-comparable' (see {Requirements on 'VALUE_TYPE'}).  Note that
-    // this operator returns '!(lhs < rhs)'.
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically greater than or equal to that of vector 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR>
+void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
+          vector<VALUE_TYPE, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
 
                    // =====================================
                    // class vector<VALUE_TYPE *, ALLOCATOR>
@@ -2894,6 +2897,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
 
                       // *** construct/copy/destroy ***
 
+    // CREATORS
     explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
                                                             BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
@@ -2926,7 +2930,8 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original) BSLS_CPP11_NOEXCEPT
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
     : Base(MoveUtil::move(static_cast<Base&>(original)))
     {
     }
@@ -3514,6 +3519,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
 
                       // *** construct/copy/destroy ***
 
+    // CREATORS
     explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
                                                             BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
@@ -3546,7 +3552,8 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original) BSLS_CPP11_NOEXCEPT
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
     : Base(MoveUtil::move(static_cast<Base&>(original)))
     {
     }
@@ -3572,7 +3579,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     }
 #endif
 
-    ~vector() { }
+    ~vector() {}
 
     // MANIPULATORS
 
@@ -4927,7 +4934,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type         newSize,
         this->d_dataEnd_p = this->d_dataBegin_p + newSize;
     }
     else {
-       insert(this->d_dataEnd_p, newSize - this->size(), value);
+        insert(this->d_dataEnd_p, newSize - this->size(), value);
     }
 }
 
@@ -5643,11 +5650,16 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::swap(
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            Vector_Imp v1(other, this->get_allocator());
-            Vector_Imp v2(*this, other.get_allocator());
 
-            Vector_Util::swap(&v1.d_dataBegin_p, &this->d_dataBegin_p);
-            Vector_Util::swap(&v2.d_dataBegin_p, &other.d_dataBegin_p);
+            Vector_Imp toOtherCopy(MoveUtil::move(*this),
+                                   other.get_allocator());
+            Vector_Imp toThisCopy( MoveUtil::move(other),
+                                   this->get_allocator());
+
+            Vector_Util::swap(&toOtherCopy.d_dataBegin_p,
+                              &other.d_dataBegin_p);
+            Vector_Util::swap(&toThisCopy. d_dataBegin_p,
+                              &this->d_dataBegin_p);
         }
     }
 }
@@ -5729,18 +5741,18 @@ bool operator> (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
-    return ! (lhs < rhs);
+    return !(rhs < lhs);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
-    return ! (rhs < lhs);
+    return !(lhs < rhs);
 }
 
                             // ------------
@@ -5939,7 +5951,18 @@ void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Some platforms might not be willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 // HASH SPECIALIZATIONS
@@ -6026,6 +6049,7 @@ bool operator>=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
                       static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
@@ -6033,7 +6057,18 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
 {
     typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
     typedef Vector_Imp<void *, BaseAlloc>                      Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
              // -------------------------------------------
@@ -6173,6 +6208,7 @@ bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                       static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
@@ -6180,7 +6216,18 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 {
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
-    static_cast<Base&>(a).swap(static_cast<Base&>(b));
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 }  // close namespace bsl

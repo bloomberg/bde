@@ -342,6 +342,34 @@ struct MyFunctionObjectWithMultipleSignatures {
     }
 };
 
+struct MyFunctionObjectWithAlternateResultType {
+    // This stateless 'struct' declares 'result_type' rather than 'ResultType'.
+
+    // TYPES
+    typedef int result_type;
+
+    // ACCESSORS
+    int operator()(int x) const
+    {
+        return x;
+    }
+};
+
+struct MyFunctionObjectWithBothResultTypes {
+    // This stateless 'struct' declares both 'result_type' and 'ResultType'.
+    // 'result_type' should be used.
+
+    // TYPES
+    typedef int   result_type;
+    typedef void  ResultType;
+
+    // ACCESSORS
+    long operator()(int x) const
+    {
+        return x;
+    }
+};
+
 template <class Binder>
 void testMultipleSignatureBinder(Binder binder)
 {
@@ -2169,6 +2197,42 @@ DEFINE_TEST_CASE(5) {
         }
 
         if (verbose)
+            printf("\tDeclaring result_type instead of ResultType\n");
+        {
+            MyFunctionObjectWithAlternateResultType mX;
+
+            ASSERT(5 == bdlf::BindUtil::bind(mX, _1)(5));
+        }
+
+        if (verbose)
+            printf("\tDeclaring result_type and ResultType\n");
+        {
+            MyFunctionObjectWithBothResultTypes mX;
+
+            ASSERT(5 == bdlf::BindUtil::bind(mX, _1)(5));
+        }
+
+        if (verbose)
+            printf("\tUsing std::function\n");
+        {
+            struct Func { static int f(int x) { return x; } };
+#if __cplusplus >= 201103L
+            native_std::function<int(int)> f = &Func::f;
+#else
+            bsl::function<int(int)> f = &Func::f;
+#endif
+            ASSERT(5 == bdlf::BindUtil::bind(f, _1)(5));
+        }
+
+#if __cplusplus >= 201103L
+        if (verbose)
+             printf("\tUsing a lambda\n");
+        {
+            ASSERT(5 == bdlf::BindUtil::bind([](int x) { return x; }, _1)(5));
+        }
+#endif
+
+        if (verbose)
             printf("\tRespecting const-correctness of the invocable\n");
         {
             testMyFunctionObjectWithConstAndNonConstOperator();
@@ -2516,7 +2580,7 @@ DEFINE_TEST_CASE(3) {
         //  indeed not used, but do not compromise the forwarding mechanism.
         //  Additionally, we want to confirm that the arguments bound using
         //  'bindS' are forwarded properly to the constructor of the binder by
-        //  the 'bdlf::BindUtil::bind' methods.  Finally, the the invocation
+        //  the 'bdlf::BindUtil::bind' methods.  Finally, the invocation
         //  arguments passed to 'bindS' are forwarded properly to the
         //  invocation method of the 'bdlf::BindWrapper' object.
         //

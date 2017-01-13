@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a vocabulary type to enable move semantics.
 //
-//@REVIEW_FOR_MASTER: update component-level doc, test driver
-//
 //@CLASSES:
 //  bslmf::MovableRef: a template indicating that an object can be moved from
 //  bslmf::MovableRefUtil: a namespace for functions dealing with movables
@@ -568,8 +566,8 @@ class MovableRef {
         // Return a reference to the referenced object.  In contexts where a
         // reference to an object of type 'TYPE' is needed, a
         // 'MovableRef<TYPE>' behaves like such a reference.  For information
-        // on how to access the the reference in contexts where no conversion
-        // can be used see 'MovableRefUtil::access()'.
+        // on how to access the reference in contexts where no conversion can
+        // be used see 'MovableRefUtil::access()'.
 };
 
 #endif // support r-value references and alias templates

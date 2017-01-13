@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor for destroying arrays.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslalg::AutoArrayMoveDestructor: exception-neutrality guard for arrays
 //

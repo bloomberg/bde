@@ -782,11 +782,11 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
     // TESTING BASIC CONSTRUCTOR
     //
     // Concerns:
-    //   Verify that upon construction the object is properly initialized,
+    //   Verify that upon construction the object is properly initialized.
     //
     // Plan:
-    //   Construct object using basic constructor and verify that that
-    //   accessors return the expected values.
+    //   Construct object using basic constructor and verify that accessors
+    //   return the expected values.
     //
     // Testing:
     //   bslstl::SharedPtrAllocateInplaceRep(bslma::Allocator *basicAllocator);
@@ -1502,11 +1502,11 @@ int main(int argc, char *argv[])
         // TESTING BASIC CONSTRUCTOR
         //
         // Concerns:
-        //   Verify that upon construction the object is properly initialized,
+        //   Verify that upon construction the object is properly initialized.
         //
         // Plan:
-        //   Construct object using basic constructor and verify that that
-        //   accessors return the expected values.
+        //   Construct object using basic constructor and verify that accessors
+        //   return the expected values.
         //
         // Testing:
         //   SharedPtrAllocateInplaceRep(const ReboundAllocator& alloc);

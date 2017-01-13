@@ -320,8 +320,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
-#include <bslmt_threadattributes.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMT_CONDITION
@@ -332,24 +340,24 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
-#include <bsls_timeinterval.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -409,8 +417,7 @@ class TimerEventScheduler {
                                                        // callback
 
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(ClockData,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(ClockData, bslma::UsesBslmaAllocator);
 
         // CREATORS
         ClockData(const bsl::function<void()>&  callback,
@@ -484,6 +491,9 @@ class TimerEventScheduler {
     bdlcc::ObjectCatalog<ClockDataPtr>
                       d_clocks;             // catalog of clocks
 
+    bslmt::Mutex      d_dispatcherMutex;    // serialize starting/stopping
+                                            // dispatcher thread
+
     bslmt::Mutex      d_mutex;              // mutex used to control access to
                                             // this timer event scheduler
 
@@ -491,15 +501,17 @@ class TimerEventScheduler {
                                             // control access to this timer
                                             // event scheduler
 
+    Dispatcher        d_dispatcherFunctor;  // functor used to dispatch events
+
+    bsls::AtomicInt64 d_dispatcherId;       // id of the dispatcher thread
+
     bslmt::ThreadUtil::Handle
                       d_dispatcherThread;   // handle of the dispatcher thread
 
-    Dispatcher        d_dispatcherFunctor;  // functor used to dispatch events
-
-    volatile int      d_running;            // indicates if the timer event
+    bsls::AtomicInt   d_running;            // indicates if the timer event
                                             // scheduler is running
 
-    volatile int      d_iterations;         // dispatcher cycle iteration
+    bsls::AtomicInt   d_iterations;         // dispatcher cycle iteration
                                             // number
 
     bsl::vector<EventItem>
@@ -537,8 +549,8 @@ class TimerEventScheduler {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TimerEventScheduler,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TimerEventScheduler,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit TimerEventScheduler(bslma::Allocator *basicAllocator = 0);
@@ -649,32 +661,37 @@ class TimerEventScheduler {
 
     // MANIPULATORS
     int start();
-        // Start dispatching events on this scheduler.  The dispatcher thread
-        // will have default attributes.  Return 0 on success, and a non-zero
-        // result otherwise.  If this scheduler has already started then this
-        // invocation has no effect and 0 is returned.  This scheduler can be
-        // stopped by invoking 'stop'.  Note that any event whose time has
-        // already passed is pending and will be dispatched immediately.
-
-    int start(const bslmt::ThreadAttributes& threadAttributes);
-        // Start dispatching events on this scheduler, using the specified
-        // 'threadAttributes' for the dispatcher thread, except the DETACHED
-        // attribute will always be overridden to be joinable.  Return 0 on
-        // success, and a non-zero result otherwise.  If this scheduler has
-        // already started then this invocation has no effect and 0 is
-        // returned.  This scheduler can be stopped by invoking 'stop'.  Note
+        // Begin dispatching events on this scheduler using default attributes
+        // for the dispatcher thread.  Return 0 on success, and a nonzero value
+        // otherwise.  If another thread is currently executing 'stop', wait
+        // until the dispatcher thread stops before starting a new one.  If this
+        // scheduler has already started (and is not currently being stopped by
+        // another thread) then this invocation has no effect and 0 is returned.
+        // The behavior is undefined if this method is invoked in the
+        // dispatcher thread (i.e., in a job executed by this scheduler).  Note
         // that any event whose time has already passed is pending and will be
         // dispatched immediately.
 
+    int start(const bslmt::ThreadAttributes& threadAttributes);
+        // Begin dispatching events on this scheduler using the specified
+        // 'threadAttributes' for the dispatcher thread (except that the
+        // DETACHED attribute is ignored).  Return 0 on success, and a nonzero
+        // value otherwise.  If another thread is currently executing 'stop',
+        // wait until the dispatcher thread stops before starting a new one.
+        // If this scheduler has already started (and is not currently being
+        // stopped by another thread) then this invocation has no effect and 0
+        // is returned.  The behavior is undefined if this method is invoked in
+        // the dispatcher thread (i.e., in a job executed by this scheduler).
+        // Note that any event whose time has already passed is pending and
+        // will be dispatched immediately.
+
     void stop();
-        // Stop dispatching events on this scheduler, but do not remove any
-        // pending event.  If the dispatcher thread is in the middle of
-        // dispatching some events, block until those events are dispatched.
-        // Then terminate the dispatcher thread and return.  If this scheduler
-        // is already stopped then this invocation has no effect.  The behavior
-        // is undefined if this function is called by a job enqueued to the
-        // scheduler that is to be stopped.  This scheduler can be restarted by
-        // invoking 'start'.
+        // End the dispatching of events on this scheduler (but do not remove
+        // any pending events), and wait for any (one) currently executing
+        // event to complete.  If the scheduler is already stopped then this
+        // method has no effect.  This scheduler can be restarted by invoking
+        // 'start'.  The behavior is undefined if this method is invoked from
+        // the dispatcher thread.
 
     Handle scheduleEvent(const bsls::TimeInterval&    time,
                          const bsl::function<void()>& callback,

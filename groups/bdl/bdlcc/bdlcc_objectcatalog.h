@@ -289,16 +289,20 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -320,6 +324,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -411,10 +423,10 @@ class ObjectCatalog {
     };
 
     // DATA
-    bsl::vector<Node*>     d_nodes;
+    bsl::vector<Node*>      d_nodes;
     bdlma::Pool             d_nodePool;
-    Node                  *d_nextFreeNode_p;
-    volatile int           d_length;
+    Node                   *d_nextFreeNode_p;
+    volatile int            d_length;
     mutable bslmt::RWMutex  d_lock;
 
     // FRIENDS
@@ -422,6 +434,12 @@ class ObjectCatalog {
     friend class ObjectCatalogIter<TYPE>;
 
   private:
+    // PRIVATE CLASS METHODS
+    static TYPE *getNodeValue(Node *node);
+        // Return a pointer to the 'd_value' field of the specified 'node'.
+        // The behavior is undefined unless '0 != node' and 'node->d_value' is
+        // initialized to a 'TYPE' object.
+
     // PRIVATE MANIPULATORS
     void freeNode(Node *node);
         // Add the specified 'node' to the free node list.  Destruction of the
@@ -437,8 +455,7 @@ class ObjectCatalog {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ObjectCatalog,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ObjectCatalog, bslma::UsesBslmaAllocator);
 
     // CREATORS
     ObjectCatalog(bslma::Allocator *allocator = 0);
@@ -611,6 +628,17 @@ void ObjectCatalog_AutoCleanup<TYPE>::release()
                             // class ObjectCatalog
                             // -------------------
 
+// PRIVATE CLASS METHODS
+template <class TYPE>
+inline
+TYPE *ObjectCatalog<TYPE>::getNodeValue(
+                                      typename ObjectCatalog<TYPE>::Node *node)
+{
+    BSLS_ASSERT_SAFE(node);
+
+    return reinterpret_cast<TYPE *>(node->d_value);
+}
+
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline
@@ -698,8 +726,7 @@ int ObjectCatalog<TYPE>::add(const TYPE& object)
 
     // We need to use the copyConstruct logic to pass the allocator through.
     bslalg::ScalarPrimitives::copyConstruct(
-            (TYPE *)(void *)&node->d_value, object,
-            d_nodes.get_allocator().mechanism());
+              getNodeValue(node), object, d_nodes.get_allocator().mechanism());
 
     // If the copy constructor throws, the proctor will properly put the node
     // back onto the free list.  Otherwise, the proctor should do nothing.
@@ -721,11 +748,13 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
         return -1;                                                    // RETURN
     }
 
+    TYPE *value = getNodeValue(node);
+
     if (valueBuffer) {
-        *valueBuffer = *((TYPE *)(void *)&node->d_value);
+        *valueBuffer = *value;
     }
 
-    ((TYPE *)(void *)&node->d_value)->~TYPE();
+    value->~TYPE();
     freeNode(node);
 
     --d_length;
@@ -740,10 +769,12 @@ void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
     for (typename bsl::vector<Node*>::iterator it = d_nodes.begin();
          it != d_nodes.end();++it) {
         if ((*it)->d_handle & k_BUSY_INDICATOR) {
+            TYPE *value = getNodeValue(*it);
+
             if (buffer) {
-                buffer->push_back(*((TYPE *)(void *)&(*it)->d_value));
+                buffer->push_back(*value);
             }
-            ((TYPE *)(void *)(*it)->d_value)->~TYPE();
+            value->~TYPE();
         }
     }
     // Even though we get rid of the container of 'Node*' without returning the
@@ -767,11 +798,12 @@ int ObjectCatalog<TYPE>::replace(int handle, const TYPE& newObject)
         return -1;                                                    // RETURN
     }
 
-    ((TYPE *)(void *)&node->d_value)->~TYPE();
+    TYPE *value = getNodeValue(node);
+
+    value->~TYPE();
     // We need to use the copyConstruct logic to pass the allocator through.
     bslalg::ScalarPrimitives::copyConstruct(
-            (TYPE *)(void *)&node->d_value, newObject,
-            d_nodes.get_allocator().mechanism());
+                        value, newObject, d_nodes.get_allocator().mechanism());
 
     return 0;
 }
@@ -790,7 +822,7 @@ int ObjectCatalog<TYPE>::find(int handle, TYPE *valueBuffer) const
     }
 
     if (valueBuffer) {
-        *valueBuffer = *((TYPE *)(void *)&node->d_value);
+        *valueBuffer = *getNodeValue(node);
     }
     return 0;
 }
@@ -878,10 +910,13 @@ template <class TYPE>
 inline
 bsl::pair<int, TYPE> ObjectCatalogIter<TYPE>::operator()() const
 {
-    return bsl::pair<int, TYPE>(
-                    d_catalog_p->d_nodes[d_index]->d_handle,
-                    *(TYPE *)(void *)(d_catalog_p->d_nodes[d_index]->d_value));
+    typedef ObjectCatalog<TYPE> Catalog;
+
+    typename Catalog::Node *node = d_catalog_p->d_nodes[d_index];
+
+    return bsl::pair<int, TYPE>(node->d_handle, *Catalog::getNodeValue(node));
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

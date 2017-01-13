@@ -1,20 +1,8 @@
 // ball_scopedattributes.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_scopedattributes.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_scopedattributes_cpp,"$Id$ $CSID$")
-
-namespace BloombergLP {
-
-}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

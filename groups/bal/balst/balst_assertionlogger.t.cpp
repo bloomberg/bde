@@ -20,8 +20,12 @@
 
 #include <ball_loggermanager.h>
 #include <ball_testobserver.h>
-#include <bsl_string.h>
+
+#include <bslim_testutil.h>
+
 #include <bsls_assert.h>
+
+#include <bsl_string.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>     // atoi()
@@ -48,44 +52,47 @@ using namespace bsl;
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 #define C_(X)   << #X << ": " << X << '\t'
 #define A_(X,S) { if (!(X)) { cout S << endl; aSsErT(1, #X, __LINE__); } }
-#define LOOP_ASSERT(I,X)              A_(X,C_(I))
-#define LOOP2_ASSERT(I,J,X)           A_(X,C_(I)C_(J))
-#define LOOP3_ASSERT(I,J,K,X)         A_(X,C_(I)C_(J)C_(K))
-#define LOOP4_ASSERT(I,J,K,L,X)       A_(X,C_(I)C_(J)C_(K)C_(L))
-#define LOOP5_ASSERT(I,J,K,L,M,X)     A_(X,C_(I)C_(J)C_(K)C_(L)C_(M))
-#define LOOP6_ASSERT(I,J,K,L,M,N,X)   A_(X,C_(I)C_(J)C_(K)C_(L)C_(M)C_(N))
-#define LOOP7_ASSERT(I,J,K,L,M,N,O,X) A_(X,C_(I)C_(J)C_(K)C_(L)C_(M)C_(N)C_(O))
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -115,9 +122,9 @@ class SeverityCB
   public:
     // CLASS METHODS
     static ball::Severity::Level callback(void *severityCB,
-                                         const char *,
-                                         const char *,
-                                         int);
+                                          const char *,
+                                          const char *,
+                                          int);
         // Indirect to the specified 'severityCB' class object, ignoring the
         // available text, file, and line information.
 };
@@ -130,9 +137,9 @@ ball::Severity::Level SeverityCB<Level>::level() const
 
 template <ball::Severity::Level Level>
 ball::Severity::Level SeverityCB<Level>::callback(void *severityCB,
-                                                 const char *,
-                                                 const char *,
-                                                 int)
+                                                  const char *,
+                                                  const char *,
+                                                  int)
 {
     return static_cast<SeverityCB *>(severityCB)->level();
 }
@@ -148,6 +155,39 @@ AlwaysAssert::~AlwaysAssert()
 {
     BSLS_ASSERT_OPT(false);
 }
+
+struct NumReturnReports {
+    // This 'struct' anticipates the number of reports that will be generated
+    // from 'BSLS_ASSERT_OPT' complaining about it having been returned from.
+    // 'BSLS_ASSERT_OPT' will publish two reports to ball every time it returns
+    // when the count of returns (including the current return) was a power of
+    // 2.
+
+    int d_numReturns;
+    int d_numPublished;
+
+    NumReturnReports()
+    : d_numReturns(0)
+    , d_numPublished(0)
+        // Create a 'ReturnNumReports' object.
+    {}
+
+    void operator++()
+        // Update 'd_numPublished', if appropriate, and increment
+        // 'd_numReturns'.
+    {
+        ++d_numReturns;
+        if (0 == (d_numReturns & (d_numReturns - 1))) {
+            d_numPublished += 2;
+        }
+    }
+
+    operator int()
+        // Return the expected number of return reports published.
+    {
+        return d_numPublished;
+    }
+};
 
 // ============================================================================
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
@@ -253,10 +293,10 @@ void protect_the_subsystem()
 int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    bool             verbose = argc > 2;    (void) verbose;
+    bool         veryVerbose = argc > 3;    (void) veryVerbose;
+    bool     veryVeryVerbose = argc > 4;    (void) veryVeryVerbose;
+    bool veryVeryVeryVerbose = argc > 5;    (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -339,46 +379,45 @@ int main(int argc, char *argv[])
                           << "ASSERT TRACING" << endl
                           << "==============" << endl;
 
-        bsl::ostringstream              o;
+        bsl::ostringstream               o;
         ball::TestObserver               to(o);
         ball::LoggerManagerConfiguration c;
         ball::LoggerManagerScopedGuard   lmsg(&to, c);
-        bsls::AssertFailureHandlerGuard guard(
+        bsls::AssertFailureHandlerGuard  guard(
                               balst::AssertionLogger::assertionFailureHandler);
 
-        LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
+        NumReturnReports numReturnReports;
+
+        ASSERTV(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity OFF" << endl; }
-        balst::AssertionLogger::setDefaultLogSeverity(
-                                                     ball::Severity::e_OFF);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        balst::AssertionLogger::setDefaultLogSeverity(ball::Severity::e_OFF);
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_OFF ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             0 + numReturnReports == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity FATAL" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
                                                    ball::Severity::e_FATAL);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_FATAL ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
-        o << to.lastPublishedRecord();
-        if (veryVeryVerbose) { P(o.str()) }
-        LOOP_ASSERT(o.str(), string::npos != o.str().find(" 0x"));
-        o.str(string());
-        ASSERT(string::npos == o.str().find(" 0x"));
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             1 + numReturnReports == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
                                                    ball::Severity::e_ERROR);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_ERROR ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             2 + numReturnReports == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         if (veryVeryVerbose) { P(o.str()) }
         LOOP_ASSERT(o.str(), string::npos != o.str().find(" 0x"));
@@ -388,20 +427,22 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
                                                     ball::Severity::e_WARN);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_WARN ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             2 + numReturnReports == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity TRACE" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
                                                    ball::Severity::e_TRACE);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_TRACE ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             2 + numReturnReports == to.numPublishedRecords());
 
         SeverityCB<ball::Severity::e_FATAL>        fatalCb;
         SeverityCB<ball::Severity::e_WARN>         warnCb;
@@ -413,14 +454,15 @@ int main(int argc, char *argv[])
         balst::AssertionLogger::getLogSeverityCallback(&cb, &cl);
         ASSERT(fatalCb.callback == cb);
         ASSERT(&cb              == cl);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_TRACE ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             3 + numReturnReports == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         if (veryVeryVerbose) { P(o.str()) }
-        LOOP_ASSERT(o.str(), string::npos != o.str().find(" 0x"));
+        ASSERTV(o.str(), string::npos != o.str().find(" 0x"));
         o.str(string());
         ASSERT(string::npos == o.str().find(" 0x"));
 
@@ -428,11 +470,12 @@ int main(int argc, char *argv[])
         balst::AssertionLogger::getLogSeverityCallback(&cb, &cl);
         ASSERT(warnCb.callback == cb);
         ASSERT(&cb             == cl);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_TRACE ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             3 + numReturnReports == to.numPublishedRecords());
 
         balst::AssertionLogger::setLogSeverityCallback(0, 0);
         balst::AssertionLogger::getLogSeverityCallback(&cb, &cl);
@@ -444,11 +487,12 @@ int main(int argc, char *argv[])
                                                                  0, 255, 0, 0);
         balst::AssertionLogger::setDefaultLogSeverity(
                                                      ball::Severity::e_OFF);
-        { AlwaysAssert(); }
-        LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
+        { AlwaysAssert(); ++numReturnReports; }
+        ASSERTV(balst::AssertionLogger::defaultLogSeverity(),
                                  ball::Severity::e_OFF ==
                                  balst::AssertionLogger::defaultLogSeverity());
-        LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
+        ASSERTV(to.numPublishedRecords(), numReturnReports,
+                             3 + numReturnReports == to.numPublishedRecords());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

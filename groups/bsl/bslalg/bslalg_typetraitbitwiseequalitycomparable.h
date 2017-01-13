@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise eq.-comparable.
 //
+//@DEPRECATED: Use 'bslmf_isbitwiseequalitycomparable' instead.
+//
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait
 //
@@ -17,24 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg::TypeTraitBitwiseEqualityComparable'.  Two objects of a 'TYPE' that
-// has the bit-wise equality comparable trait can be compared either by
-// invoking the equality operator or by comparing the footprint (i.e., the
-// 'sizeof(TYPE)' bytes at the respective object addresses) using 'memcmp'.
-//
-// This component is used by various 'bslalg' components for providing
-// optimized primitives for types that have the bit-wise equality comparable
-// trait.  The major benefit of this trait is not for a single object but for
-// an array of such types, as a loop can be replaced by a single call to
-// 'memcmp'.
-//
-///What Constitutes Bit-Wise Equality Comparability?
-///-------------------------------------------------
-// TBD: A short guide on when to attach this trait to a class should follow.
-//
-///Usage
-///-----
-// TBD
+// 'bslalg::TypeTraitBitwiseEqualityComparable', which allows the trait
+// 'bslmf::IsBitwiseEqualityComparable' to be declared using the (deprecated)
+// 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the
+// 'bslmf_isbitwiseequalitycomparable' component for details of this trait.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -42,6 +30,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #include <bslmf_isbitwiseequalitycomparable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 namespace BloombergLP {

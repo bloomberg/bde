@@ -1,12 +1,4 @@
 // ball_loggermanagerdefaults.cpp                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_loggermanagerdefaults.h>
 
 #include <bsls_ident.h>
@@ -18,10 +10,6 @@ BSLS_IDENT_RCSID(ball_loggermanagerdefaults_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-                    // ================================
-                    // class ball::LoggerManagerDefaults
-                    // ================================
 
 enum {
     // This enumeration provides the default values for the attributes of
@@ -36,6 +24,11 @@ enum {
 };
 
 namespace ball {
+
+                         // ---------------------------
+                         // class LoggerManagerDefaults
+                         // ---------------------------
+
 // CLASS METHODS
 bool LoggerManagerDefaults::isValidDefaultRecordBufferSize(int numBytes)
 {
@@ -49,9 +42,9 @@ bool LoggerManagerDefaults::isValidDefaultLoggerBufferSize(int numBytes)
 
 bool
 LoggerManagerDefaults::areValidDefaultThresholdLevels(int recordLevel,
-                                                           int passLevel,
-                                                           int triggerLevel,
-                                                           int triggerAllLevel)
+                                                      int passLevel,
+                                                      int triggerLevel,
+                                                      int triggerAllLevel)
 {
     const int bitwiseOr =
                       recordLevel | passLevel | triggerLevel | triggerAllLevel;
@@ -89,7 +82,6 @@ int LoggerManagerDefaults::defaultDefaultTriggerAllLevel()
     return DEFAULT_TRIGGER_ALL_LEVEL;
 }
 
-
 // CREATORS
 LoggerManagerDefaults::LoggerManagerDefaults()
 : d_recordBufferSize(DEFAULT_RECORD_BUFFER_SIZE)
@@ -102,7 +94,7 @@ LoggerManagerDefaults::LoggerManagerDefaults()
 }
 
 LoggerManagerDefaults::LoggerManagerDefaults(
-                                    const LoggerManagerDefaults& original)
+                                         const LoggerManagerDefaults& original)
 : d_recordBufferSize(original.d_recordBufferSize)
 , d_loggerBufferSize(original.d_loggerBufferSize)
 , d_defaultRecordLevel(original.d_defaultRecordLevel)
@@ -127,8 +119,8 @@ LoggerManagerDefaults::~LoggerManagerDefaults()
 }
 
 // MANIPULATORS
-LoggerManagerDefaults&
-LoggerManagerDefaults::operator=(const LoggerManagerDefaults& rhs)
+LoggerManagerDefaults& LoggerManagerDefaults::operator=(
+                                              const LoggerManagerDefaults& rhs)
 {
     d_recordBufferSize       = rhs.d_recordBufferSize;
     d_loggerBufferSize       = rhs.d_loggerBufferSize;
@@ -159,11 +151,7 @@ int LoggerManagerDefaults::setDefaultLoggerBufferSizeIfValid(int numBytes)
 
 int LoggerManagerDefaults::setDefaultThresholdLevelsIfValid(int passLevel)
 {
-    if (areValidDefaultThresholdLevels(0,
-                                       passLevel,
-                                       0,
-                                       0)) {
-
+    if (areValidDefaultThresholdLevels(0, passLevel, 0, 0)) {
         d_defaultRecordLevel     = 0;
         d_defaultPassLevel       = passLevel;
         d_defaultTriggerLevel    = 0;
@@ -226,8 +214,8 @@ int LoggerManagerDefaults::defaultTriggerAllLevel() const
 
 bsl::ostream&
 LoggerManagerDefaults::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
+                             int           level,
+                             int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -263,29 +251,29 @@ LoggerManagerDefaults::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 bool ball::operator==(const LoggerManagerDefaults& lhs,
-                const LoggerManagerDefaults& rhs)
+                      const LoggerManagerDefaults& rhs)
 {
-    return
-        lhs.d_recordBufferSize       == rhs.d_recordBufferSize       &&
-        lhs.d_loggerBufferSize       == rhs.d_loggerBufferSize       &&
-        lhs.d_defaultRecordLevel     == rhs.d_defaultRecordLevel     &&
-        lhs.d_defaultPassLevel       == rhs.d_defaultPassLevel       &&
-        lhs.d_defaultTriggerLevel    == rhs.d_defaultTriggerLevel    &&
-        lhs.d_defaultTriggerAllLevel == rhs.d_defaultTriggerAllLevel;
+    return lhs.d_recordBufferSize       == rhs.d_recordBufferSize
+        && lhs.d_loggerBufferSize       == rhs.d_loggerBufferSize
+        && lhs.d_defaultRecordLevel     == rhs.d_defaultRecordLevel
+        && lhs.d_defaultPassLevel       == rhs.d_defaultPassLevel
+        && lhs.d_defaultTriggerLevel    == rhs.d_defaultTriggerLevel
+        && lhs.d_defaultTriggerAllLevel == rhs.d_defaultTriggerAllLevel;
 }
 
 bool ball::operator!=(const LoggerManagerDefaults& lhs,
-                const LoggerManagerDefaults& rhs)
+                      const LoggerManagerDefaults& rhs)
 {
     return !(lhs == rhs);
 }
 
-bsl::ostream& ball::operator<<(bsl::ostream&                     stream,
-                         const LoggerManagerDefaults& config)
+bsl::ostream& ball::operator<<(bsl::ostream&                stream,
+                               const LoggerManagerDefaults& config)
 {
     return config.print(stream);
 }

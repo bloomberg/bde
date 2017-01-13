@@ -429,17 +429,25 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>  // INT_MAX
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlde {
@@ -687,7 +695,7 @@ class QuotedPrintableEncoder {
         // an error), and if there is no pending output, and 'false' otherwise.
 
     bool isError() const;
-        // Return 'true' if the there is no possibility of achieving an
+        // Return 'true' if there is no possibility of achieving an
         // "acceptable" result, and 'false' otherwise.  Note that for an
         // encoder, no input can cause an error; the possible errors result
         // either from a call to the 'convert' method after the 'endConvert'

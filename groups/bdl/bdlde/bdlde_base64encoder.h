@@ -596,7 +596,7 @@ class Base64Encoder {
         // output has been emitted to 'out'.
 
     bool isError() const;
-        // Return 'true' if the there is no possibility of achieving an
+        // Return 'true' if there is no possibility of achieving an
         // "acceptable" result, and 'false' otherwise.
 
     bool isInitialState() const;

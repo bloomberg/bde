@@ -10,6 +10,10 @@
 
 #include <btlso_defaulteventmanagerimpl.h>
 
+#if defined(events) || defined(revents)
+#error 'events' or 'revents' macros have leaked (probably from <sys/poll.h>)
+#endif
+
 #include <bsls_platform.h>
 #include <btlso_platform.h>
 #include <btlso_timemetrics.h>
@@ -228,14 +232,14 @@ int main(int argc, char *argv[])
 //..
       } break;
       case 1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // BREATHING TEST
         //    Verify that
         //    o  a default instance can be created
         //
         // Testing:
         //   Create an object of this event manager under test.
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;

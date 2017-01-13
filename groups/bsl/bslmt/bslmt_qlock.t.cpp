@@ -40,7 +40,7 @@ using namespace bsl;  // automatically added by script
 //                                Overview
 //                                --------
 // The basic idea of testing bslmt::QLock and bslmt::QLock is to create thread
-// poll and manipulate various test data in parallel, then to check the the
+// poll and manipulate various test data in parallel, then to check that the
 // integrity of data is preserved.
 //
 // The helper class MyTask provides thread pool and its management.  This class

@@ -23,14 +23,24 @@ BSLS_IDENT("$Id: $")
 // which does not block, but which potentially should not be used for
 // cryptography.  The strength of these random numbers and the performance of
 // these calls is strongly dependent on the underlying system.  On UNIX-like
-// platforms 'genRandomBytes()' reads from '/dev/random' and
-// 'genRandonBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
+// platforms 'getRandomBytes()' reads from '/dev/random' and
+// 'getRandomBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
 // methods use 'CryptGenRandom'.
 //
-// Note that it is not appropriate to use these functions to generate many
-// random numbers, because they are likely to exhaust available entropy and
-// then be slow.  Instead, these functions should be used to seed pseudo-random
-// random number generators.
+// Note that (at least on UNIX-like systems) it is not appropriate to call
+// these functions repeatedly to generate many random numbers.  A call to
+// 'getRandomBytes()' can block if available entropy is exhausted, and both
+// 'getRandomBytes()' and 'getRandomBytesNonBlocking()' open and close their
+// respective devices on each call.  Instead, these functions should be used
+// for seeding pseudo-random random number generators.  (E.g., promiscuous use
+// of 'getRandomBytes()' appears to have caused the WP in '{DRQS 92851043}'.)
+//
+// There is discussion about which of '/dev/random' or '/dev/urandom' is best,
+// especially on modern Linux systems, while 'man' pages on other UNIX systems
+// continue to make claims about '/dev/random' providing "more secure" numbers
+// than '/dev/urandom'.  See '{http://www.2uo.de/myths-about-urandom/}', for
+// example.  This component deliberately takes no stand on the issue, making
+// both available and leaving it for users to decide which to use.
 //
 ///Usage
 ///-----
@@ -90,18 +100,18 @@ struct RandomDevice {
 
     // CLASS METHODS
     static int getRandomBytes(unsigned char *buffer, size_t numBytes);
-        // Read the the specified 'numBytes' from the system random number
+        // Read the specified 'numBytes' from the system random number
         // generator into the specified 'buffer'.  Returns 0 on success,
         // non-zero otherwise.  Note that this method may block if called
         // repeatedly or if 'numBytes' is high.
 
     static int getRandomBytesNonBlocking(unsigned char *buffer,
                                          size_t         numBytes);
-        // Read the the specified 'numBytes' from the system non-blocking
-        // random number generator into the specified 'buffer'.  Returns 0 on
-        // success, non-zero otherwise.  Note that the cryptographic strength
-        // of samples drawn from this pool may or may not be lower than that of
-        // those drawn from the blocking pool, and may vary by platform.
+        // Read the specified 'numBytes' from the system non-blocking random
+        // number generator into the specified 'buffer'.  Returns 0 on success,
+        // non-zero otherwise.  Note that the cryptographic strength of samples
+        // drawn from this pool may or may not be lower than that of those
+        // drawn from the blocking pool, and may vary by platform.
 };
 
 }  // close package namespace

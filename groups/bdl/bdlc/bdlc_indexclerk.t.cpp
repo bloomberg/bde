@@ -430,7 +430,7 @@ Obj g(const char *spec)
 //        Additional Functionality Needed to Complete Usage Test Case
 // ----------------------------------------------------------------------------
 
-#if defined(BDE_BUILD_TARGET_SAFE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 const bool safe = true;
 #else
 const bool safe = false;

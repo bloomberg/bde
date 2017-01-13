@@ -16,8 +16,8 @@ BSLS_IDENT_RCSID(ball_context_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace ball {
+
                         // -------------
                         // class Context
                         // -------------
@@ -105,8 +105,8 @@ bsl::ostream& Context::print(bsl::ostream& stream,
 
     return stream << bsl::flush;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

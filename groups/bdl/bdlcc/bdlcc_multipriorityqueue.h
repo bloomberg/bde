@@ -396,28 +396,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
-#include <bdlma_concurrentpool.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_LOCKGUARD
-#include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_CONDITION
-#include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
-#include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
-#endif
-
 #ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
+#endif
+
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
@@ -426,10 +410,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -442,6 +422,34 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -460,6 +468,14 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
 namespace bdlcc {
 
@@ -477,14 +493,15 @@ class MultipriorityQueue_Node {
     bslalg::ConstructorProxy<TYPE>      d_item;    // object stored in node
     MultipriorityQueue_Node<TYPE> *d_next_p;  // next node on linked list
 
+  private:
     // NOT IMPLEMENTED
     MultipriorityQueue_Node(const MultipriorityQueue_Node&);
     MultipriorityQueue_Node& operator=(const MultipriorityQueue_Node&);
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultipriorityQueue_Node,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultipriorityQueue_Node,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MultipriorityQueue_Node(const TYPE&              item,
@@ -581,6 +598,7 @@ class MultipriorityQueue {
 
     bslma::Allocator   *d_allocator_p;    // memory allocator (held)
 
+  private:
     // NOT IMPLEMENTED
     MultipriorityQueue(const MultipriorityQueue&);
     MultipriorityQueue& operator=(const MultipriorityQueue&);
@@ -602,8 +620,8 @@ class MultipriorityQueue {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultipriorityQueue,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultipriorityQueue,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit MultipriorityQueue(bslma::Allocator *basicAllocator = 0);
@@ -893,13 +911,18 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
     // queue is disabled, in which case we'll throw the new node away.
     //     Note the queue being disabled is not the usual case.  Note a race
     // condition occurs if we check d_enabledFlag outside the mutex.
-    Node *newNode = (Node *)d_pool.allocate();
-    bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode, &d_pool);
 
-    bslalg::ScalarPrimitives::construct(newNode,
+    Node *newNode = (Node *)d_pool.allocate();
+    bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(newNode,
+                                                                 &d_pool);
+
+    bslalg::ScalarPrimitives::construct(newNode,            // might throw
                                         item,
                                         (Node *)0,
                                         d_allocator_p);
+
+    deallocator.release();
+    bslma::ManagedPtr<Node> deleter(newNode, &d_pool);
 
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -942,15 +965,15 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode,
-                                                                     &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
                                                 (Node *)0,
                                                 d_allocator_p);
 
-            deleter.release();
+            deallocator.release();
 
             Node *& head = d_heads[itemPriority];
             if (!head) {
@@ -981,15 +1004,15 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode,
-                                                                     &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
+                                                             newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
                                                 (Node *)0,
                                                 d_allocator_p);
 
-            deleter.release();
+            deallocator.release();
 
             if (d_notEmptyFlags & mask) {
                 d_tails[itemPriority]->nextPtr() = newNode;

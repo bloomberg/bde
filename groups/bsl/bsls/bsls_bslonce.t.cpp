@@ -1,7 +1,6 @@
 // bsls_bslonce.t.cpp                                                 -*-C++-*-
 #include <bsls_bslonce.h>
 
-#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -80,17 +79,6 @@ static void aSsErT(int c, const char *s, int i, bool locked = false);
 #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
@@ -397,7 +385,7 @@ my_Barrier::my_Barrier(int numThreads)
 , d_genCounter(0)
 , d_expected(numThreads)
 {
-    BSLS_ASSERT(numThreads > 0);
+    ASSERT(numThreads > 0);
 }
 
 my_Barrier::~my_Barrier()
@@ -677,7 +665,7 @@ int main(int argc, char *argv[])
 
             ConcurrencyTest args(&mutex, &barrier);
 
-            // Execute the the first test.
+            // Execute the first test.
             for (int i = 0; i < NUM_THREADS; ++i) {
                 myCreateThread(&handles[i], concurrencyTest, &args);
             }
@@ -703,8 +691,6 @@ int main(int argc, char *argv[])
         //:
         //: 5 'enter' returns 'false', and leaves the guard unmodified, if
         //:   the 'BslOnce' has already been 'enter'ed.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Call 'enter' on a newly constructed object and verify it returns
@@ -712,9 +698,6 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call 'enter', then 'leave' on a newly constructed object and
         //:   verify subsequent calls to 'enter' return 'false' (C-2)
-        //:
-        //: 3 Call 'enter' on an object that has been incorrectly initialized
-        //:   and verify that it throws in an appropriate build mode.  (C-3)
         //
         // Testing:
         //   BslOnceGuard();
@@ -764,35 +747,6 @@ int main(int argc, char *argv[])
                 ASSERT(false == guard.enter(&x));
             }
         }
-
-
-        if (verbose) printf("\nNegative Testing.\n");
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            {
-                Obj x = BSLS_BSLONCE_INITIALIZER;
-
-                BslOnceGuard guard;
-                ASSERT_SAFE_FAIL(guard.enter(0));
-                ASSERT_SAFE_PASS(guard.enter(&x));
-                ASSERT_SAFE_FAIL(guard.enter(&x));
-            }
-
-            {
-                BslOnceGuard guard;
-                ASSERT_SAFE_FAIL(guard.leave());
-            }
-            {
-                Obj x = BSLS_BSLONCE_INITIALIZER;
-
-                BslOnceGuard guard;
-                ASSERT(true == guard.enter(&x));
-                ASSERT_SAFE_PASS(guard.leave());
-                ASSERT_SAFE_FAIL(guard.leave());
-            }
-        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -808,8 +762,6 @@ int main(int argc, char *argv[])
         //: 2 'leave' can be called after 'enter'
         //:
         //: 3 Calls to 'enter' after a call to 'leave' return 'false'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Call 'enter' on a newly constructed object and verify it returns
@@ -817,9 +769,6 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call 'enter', then 'leave' on a newly constructed object and
         //:   verify subsequent calls to 'enter' return 'false' (C-2)
-        //:
-        //: 3 Call 'enter' on an object that has been incorrectly initialized
-        //:   and verify that it throws in an appropriate build mode.  (C-3)
         //
         // Testing:
         //   bool enter();
@@ -845,17 +794,6 @@ int main(int argc, char *argv[])
             ASSERT(false == x.enter());
             ASSERT(false == x.enter());
         }
-
-        if (verbose) printf("\nNegative Testing.\n");
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj x = { 0 };
-            ASSERT_FAIL(x.enter());
-
-        }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------

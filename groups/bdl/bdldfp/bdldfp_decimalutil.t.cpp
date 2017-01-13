@@ -9,6 +9,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_stopwatch.h>
@@ -97,6 +99,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -344,7 +357,6 @@ BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
     return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 }
 
-
 }  // close unnamed namespace
 
 //=============================================================================
@@ -423,6 +435,40 @@ struct NulBuf : bsl::streambuf {
     }
 };
 
+                          // Concurrency helpers
+
+extern "C" void doQuantize()
+{
+    typedef BDEC::DecimalUtil Util;
+    const BDEC::Decimal64 d_1_005 = BDLDFP_DECIMAL_DD(1.005);
+    const BDEC::Decimal64 d_1_00 = BDLDFP_DECIMAL_DD(1.00);
+    const BDEC::Decimal64 d_0_01 = bdldfp::DecimalUtil::makeDecimal64(1, -2);
+    const int k_REPETITIONS = 1000000;
+    for (int repetition = 0; repetition < k_REPETITIONS; ++repetition) {
+        const BDEC::Decimal64 q = Util::quantize(d_1_005, d_0_01);
+        if (d_1_00 != q) {
+            ASSERTV(repetition, d_1_00, q, d_1_00 == q);
+            break;
+        }
+    }
+}
+
+extern "C" void doRound()
+{
+    typedef BDEC::DecimalUtil Util;
+    const BDEC::Decimal64 d_1_005 = BDLDFP_DECIMAL_DD(1.005);
+    const BDEC::Decimal64 d_1_01 = BDLDFP_DECIMAL_DD(1.01);
+    const BDEC::Decimal64 d_100_0 = BDLDFP_DECIMAL_DD(100.0);
+    const int k_REPETITIONS = 1000000;
+    for (int repetition = 0; repetition < k_REPETITIONS; ++repetition) {
+        const BDEC::Decimal64 r = Util::round(d_1_005 * d_100_0) / d_100_0;
+        if (d_1_01 != r) {
+            ASSERTV(repetition, d_1_01, r, d_1_01 == r);
+            break;
+        }
+    }
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -453,250 +499,803 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
-    case 13: {
-        // ------------------------------------------------------------------------
-    // TESTING format
-    // Concerns: The format functions output human readable strings which
-    //           can be round-tripped using the parse functions.
-    // Plan: Try formatting a variety of different valid values into a string.
-    //       Including minimum and maximum values and special values
-    //       such as 'NaN' and 'Inf'.
-    //       Re-parse the returned string and check that it returns the
-    //       original value.
+    case 15: {
+    // ------------------------------------------------------------------------
+    // TESTING decompose
+    // Concerns:
+    //: 1 Finite decimal value decomposed using 'decompose' functions can be
+    //:   reconstructed to the value equal to the original one using
+    //:   'sign', 'significand' and 'exponent' values.
+    //:
+    //: 2 Special encoding values having the 2 bits after the sign set to '11'
+    //:   are decomposed either into finite value if at least one of the next
+    //:   two bits are set to '0' or decomposed into 'Inf' or 'NaN' type
+    //:   values otherwise.
+    //
+    // Plan:
+    //: 1 Try decomposing a variety of different valid values into sign,
+    //:   significand and exponent compartments.  Including minimum and maximum
+    //:   values and special values such as 'NaN' and 'Inf'.  Restore the value
+    //:   using 'sign', significand' and 'exponent' parts and check that if the
+    //:   value is not a special (infinity or NaNs), it is restored into the
+    //:   value equal to the original one.
     //
     // Testing:
-    //   void DecimalUtil::format(Decimal32,  bsl::string *out);
-    //   void DecimalUtil::format(Decimal64,  bsl::string *out);
-    //   void DecimalUtil::format(Decimal128, bsl::string *out);
+    //   int decompose(int *, unsigned int *,        int *, Decimal32);
+    //   int decompose(int *, bsls::Types::Uint64 *, int *, Decimal64);
+    //   int decompose(int *, Uint128 *,             int *, Decimal128);
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING FORMAT METHODS"
+    if (verbose) bsl::cout << "\nTESTING DECOMPOSE METHODS"
                            << "\n=========================="
                            << bsl::endl;
 
     typedef BDEC::DecimalUtil Util;
-    {
+
 #define DEC(X) BDLDFP_DECIMAL_DF(X)
+    {
+        if (veryVerbose) bsl::cout << "\nDecimal32"
+                                   << "\n---------"
+                                   << bsl::endl;
 
         typedef bdldfp::Decimal32 Type;
 
-        Type INF_P =  bsl::numeric_limits<Type>::infinity();
-        Type INF_N = -bsl::numeric_limits<Type>::infinity();
-        Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
-        Type MAX   = DEC(9.999999e+96);
-        Type MIN   = DEC(-1e-95);
+        Type SUBN_P  =  bsl::numeric_limits<Type>::denorm_min();
+        Type SUBN_N  = -bsl::numeric_limits<Type>::denorm_min();
+        Type INF_P   =  bsl::numeric_limits<Type>::infinity();
+        Type INF_N   = -bsl::numeric_limits<Type>::infinity();
+        Type NAN_Q_P =  bsl::numeric_limits<Type>::quiet_NaN();
+        Type NAN_Q_N = -bsl::numeric_limits<Type>::quiet_NaN();
+        Type NAN_S_P =  bsl::numeric_limits<Type>::signaling_NaN();
+        Type NAN_S_N = -bsl::numeric_limits<Type>::signaling_NaN();
+        Type MAX     = DEC(9.999999e+96);
+        Type MIN     = DEC(1e-95);
+
+        // the most left 4 bits of the significand are in the range 8 to 9.
+        Type SPE_8_P = DEC( 8.999999e+0);
+        Type SPE_8_N = DEC(-8.999999e+0);
+        Type SPE_9_P = DEC( 9.000001e+10);
+        Type SPE_9_N = DEC(-9.000001e+10);
 
         static const struct {
-            int         d_line;
-            Type        d_decimalValue;
-            const char *d_expected;
+            int          d_line;
+            Type         d_decimalValue;
+            int          d_class;         // classification
+            int          d_sign;
+            unsigned int d_significand;
+            int          d_exponent;
         } DATA[] = {
-            // L      NUMBER               EXPECTED
-            // ---    ---------            --------
-            {  L_,     DEC(0.0),             "0.0" },
-            {  L_,     DEC(1.0),             "1.0" },
-            {  L_,  DEC(9.3E23),         "9.3E+23" },
-            {  L_,    DEC(-1.0),            "-1.0" },
-            {  L_,    DEC(-0.1),            "-0.1" },
-            {  L_,    DEC(4.25),            "4.25" },
-            {  L_,   DEC(-4.25),           "-4.25" },
-            {  L_,          MAX,    "9.999999E+96" },
-            {  L_,          MIN,          "-1E-95" },
-            {  L_,        INF_P,        "Infinity" },
-            {  L_,        INF_N,       "-Infinity" },
-            {  L_,        NAN_Q,             "NaN" }
+            // L    NUMBER       CLASS       SIGN  SIGNIFICAND  EXPONENT
+            // ---  ----------   -------     ----  -----------  --------
+
+            // Test zero values
+            {  L_,  DEC( 0.0),   FP_ZERO,       1,           0,   -1 },
+            {  L_,  DEC(-0.0),   FP_ZERO,      -1,           0,   -1 },
+
+            // Test special encoding values
+            {  L_,   INF_P,      FP_INFINITE,   1,    0x800000, 0xc0 },
+            {  L_,   INF_N,      FP_INFINITE,  -1,    0x800000, 0xc0 },
+            {  L_,   NAN_Q_P,    FP_NAN,        1,    0x800000, 0xe0 },
+            {  L_,   NAN_Q_N,    FP_NAN,       -1,    0x800000, 0xe0 },
+            {  L_,   NAN_S_P,    FP_NAN,        1,    0x800000, 0xf0 },
+            {  L_,   NAN_S_N,    FP_NAN,       -1,    0x800000, 0xf0 },
+            {  L_,   SUBN_P,     FP_SUBNORMAL,  1,           1, -101 },
+            {  L_,   SUBN_N,     FP_SUBNORMAL, -1,           1, -101 },
+            {  L_,   SPE_8_P,    FP_NORMAL,     1,     8999999,   -6 },
+            {  L_,   SPE_8_N,    FP_NORMAL,    -1,     8999999,   -6 },
+            {  L_,   SPE_9_P,    FP_NORMAL,     1,     9000001,    4 },
+            {  L_,   SPE_9_N,    FP_NORMAL,    -1,     9000001,    4 },
+
+            // Test boundary values
+            {  L_,   MIN,        FP_NORMAL,     1,           1,  -95 },
+            {  L_,  -MIN,        FP_NORMAL,    -1,           1,  -95 },
+            {  L_,   MAX,        FP_NORMAL,     1,     9999999,   90 },
+            {  L_,  -MAX,        FP_NORMAL,    -1,     9999999,   90 },
+
+            // Test arbitrary values
+            {  L_,   DEC( 1.0),  FP_NORMAL,     1,          10,   -1 },
+            {  L_,   DEC(-1.0),  FP_NORMAL,    -1,          10,   -1 },
+            {  L_,   DEC( 0.1),  FP_NORMAL,     1,           1,   -1 },
+            {  L_,   DEC(-0.1),  FP_NORMAL,    -1,           1,   -1 },
+            {  L_,   DEC( 4.25), FP_NORMAL,     1,         425,   -2 },
+            {  L_,   DEC(-4.25), FP_NORMAL,    -1,         425,   -2 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int    LINE       = DATA[ti].d_line;
-            const Type   DECIMAL32  = DATA[ti].d_decimalValue;
-            const char  *EXPECTED   = DATA[ti].d_expected;
+            const int           LINE        = DATA[ti].d_line;
+            const Type          DECIMAL32   = DATA[ti].d_decimalValue;
+            const int           CLASS       = DATA[ti].d_class;
+            const int           SIGN        = DATA[ti].d_sign;
+            const unsigned int  SIGNIFICAND = DATA[ti].d_significand;
+            const int           EXPONENT    = DATA[ti].d_exponent;
 
             if (veryVerbose) {
-                P_(LINE); P_(EXPECTED); P(DECIMAL32);
+                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P_(EXPONENT);
+                P(DECIMAL32);
             }
 
             // Test with Decimal32.
             {
-                const BDEC::Decimal32 VALUE(DECIMAL32);
+                const Type VALUE(DECIMAL32);
 
-                bsl::string ACTUAL(pa);
-                Util::format(VALUE, &ACTUAL);
+                int ACTUAL_SIGN;
+                unsigned int ACTUAL_SIGNIFICAND;
+                int ACTUAL_EXPONENT;
+                int ACTUAL_CLASS = Util::decompose(&ACTUAL_SIGN,
+                                                   &ACTUAL_SIGNIFICAND,
+                                                   &ACTUAL_EXPONENT,
+                                                   VALUE);
 
-                ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+                ASSERTV(LINE, ACTUAL_CLASS, CLASS, ACTUAL_CLASS == CLASS);
+                ASSERTV(LINE, ACTUAL_SIGN,   SIGN, ACTUAL_SIGN  == SIGN);
+                ASSERTV(LINE,
+                        ACTUAL_SIGNIFICAND,
+                        SIGNIFICAND,
+                        ACTUAL_SIGNIFICAND == SIGNIFICAND);
+                ASSERTV(LINE,
+                        ACTUAL_EXPONENT,
+                        EXPONENT,
+                        ACTUAL_EXPONENT == EXPONENT);
 
-                BDEC::Decimal32 INPUT;
-                const int rc = Util::parseDecimal32(&INPUT, ACTUAL);
+                if (Util::isFinite(VALUE)) {
+                    Type INPUT =
+                        ImpUtil::makeDecimalRaw32(
+                                              ACTUAL_SIGN * ACTUAL_SIGNIFICAND,
+                                              ACTUAL_EXPONENT);
 
-                ASSERTV(LINE, EXPECTED, rc == 0);
-                if (Util::isNan(VALUE)) {
-                    ASSERTV(LINE, EXPECTED, Util::isNan(INPUT));
-                } else {
-                    ASSERTV(LINE, EXPECTED, INPUT == VALUE);
+                    ASSERTV(LINE, INPUT, VALUE, INPUT == VALUE);
                 }
             }
+        }
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
 
-            // Test with Decimal64.
-            {
-                const BDEC::Decimal64 VALUE(DECIMAL32);
+            const Type    TEMP(0);
+            int           SIGN;
+            unsigned int  SIGNIFICAND;
+            int           EXPONENT;
+            int           *VALID_SIGN(&SIGN);
+            unsigned int  *VALID_SIGNIFICAND(&SIGNIFICAND);
+            int           *VALID_EXPONENT(&EXPONENT);
+            int           *INVALID_SIGN(0);
+            unsigned int  *INVALID_SIGNIFICAND(0);
+            int           *INVALID_EXPONENT(0);
 
-                bsl::string ACTUAL(pa);
-                Util::format(VALUE, &ACTUAL);
-
-                ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
-            }
-
-
-            // Test with Decimal128.
-            {
-                const BDEC::Decimal128 VALUE(DECIMAL32);
-
-                bsl::string ACTUAL(pa);
-                Util::format(VALUE, &ACTUAL);
-
-                ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
-            }
+            ASSERT_PASS(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        INVALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        INVALID_EXPONENT,
+                                        TEMP));
         }
     }
-    {
 #undef DEC
-#define DEC(lit) BDLDFP_DECIMAL_DD(lit)
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+    {
+        if (veryVerbose) bsl::cout << "\nDecimal64"
+                                   << "\n---------"
+                                   << bsl::endl;
+
         typedef bdldfp::Decimal64 Type;
 
-        Type INF_P =  bsl::numeric_limits<Type>::infinity();
-        Type INF_N = -bsl::numeric_limits<Type>::infinity();
-        Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
-        Type MAX   =  bdldfp::DecimalImpUtil::parse64(
+        Type SUBN_P  =  bsl::numeric_limits<Type>::denorm_min();
+        Type SUBN_N  = -bsl::numeric_limits<Type>::denorm_min();
+        Type INF_P   =  bsl::numeric_limits<Type>::infinity();
+        Type INF_N   = -bsl::numeric_limits<Type>::infinity();
+        Type NAN_Q_P =  bsl::numeric_limits<Type>::quiet_NaN();
+        Type NAN_Q_N = -bsl::numeric_limits<Type>::quiet_NaN();
+        Type NAN_S_P =  bsl::numeric_limits<Type>::signaling_NaN();
+        Type NAN_S_N = -bsl::numeric_limits<Type>::signaling_NaN();
+        Type MAX     =  bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
-        Type MIN   = DEC(1e-383);
+        Type MIN     = DEC(1e-383);
+
+        // the most left 4 bits of the significand are in the range 8 to 9.
+        Type SPE_8_P = DEC( 8.999999999999999e+0);
+        Type SPE_8_N = DEC(-8.999999999999999e+0);
+        Type SPE_9_P = DEC( 9.000000000000001e+10);
+        Type SPE_9_N = DEC(-9.000000000000001e+10);
 
         static const struct {
-            int         d_line;
-            Type        d_decimalValue;
-            const char *d_expected;
+            int                 d_line;
+            Type                d_decimalValue;
+            int                 d_class;         // classification
+            int                 d_sign;
+            bsls::Types::Uint64 d_significand;
+            int                 d_exponent;
         } DATA[] = {
-            // L      NUMBER        EXPECTED
-            // ---    ---------     -------------------------
-            {  L_,     DEC(0.0),                      "0.0" },
-            {  L_,     DEC(1.0),                       "1.0" },
-            {  L_,  DEC(9.3E23),                   "9.3E+23" },
-            {  L_,    DEC(-1.0),                      "-1.0" },
-            {  L_,    DEC(-0.1),                      "-0.1" },
-            {  L_,    DEC(4.25),                      "4.25" },
-            {  L_,   DEC(-4.25),                     "-4.25" },
-            {  L_,          MAX,    "9.999999999999999E+384" },
-            {  L_,          MIN,                   "1E-383" },
-            {  L_,        INF_P,                  "Infinity" },
-            {  L_,        INF_N,                 "-Infinity" },
-            {  L_,        NAN_Q,                       "NaN" }
+            // L   NUMBER     CLASS       SIGN   SIGNIFICAND          EXPONENT
+            // --- ---------- -------     ----   -------------------- --------
+
+            // Test zero values
+            {  L_, DEC( 0.0), FP_ZERO,       1,                    0,     -1 },
+            {  L_, DEC(-0.0), FP_ZERO,      -1,                    0,     -1 },
+
+            // Test special encoding values
+            {  L_,  INF_P,    FP_INFINITE,   1,  0x20000000000000ull,  0x300 },
+            {  L_,  INF_N,    FP_INFINITE,  -1,  0x20000000000000ull,  0x300 },
+            {  L_,  NAN_Q_P,  FP_NAN,        1,  0x20000000000000ull,  0x380 },
+            {  L_,  NAN_Q_N,  FP_NAN,       -1,  0x20000000000000ull,  0x380 },
+            {  L_,  NAN_S_P,  FP_NAN,        1,  0x20000000000000ull,  0x3c0 },
+            {  L_,  NAN_S_N,  FP_NAN,       -1,  0x20000000000000ull,  0x3c0 },
+            {  L_,  SUBN_P,   FP_SUBNORMAL,  1,                    1,   -398 },
+            {  L_,  SUBN_N,   FP_SUBNORMAL, -1,                    1,   -398 },
+            {  L_,  SPE_8_P,  FP_NORMAL,     1,  8999999999999999ull,    -15 },
+            {  L_,  SPE_8_N,  FP_NORMAL,    -1,  8999999999999999ull,    -15 },
+            {  L_,  SPE_9_P,  FP_NORMAL,     1,  9000000000000001ull,     -5 },
+            {  L_,  SPE_9_N,  FP_NORMAL,    -1,  9000000000000001ull,     -5 },
+
+            // Test boundary values
+            {  L_,   MIN,     FP_NORMAL,     1,                    1,   -383 },
+            {  L_,  -MIN,     FP_NORMAL,    -1,                    1,   -383 },
+            {  L_,   MAX,     FP_NORMAL,     1,  9999999999999999ull,    369 },
+            {  L_,  -MAX,     FP_NORMAL,    -1,  9999999999999999ull,    369 },
+
+            // Test arbitrary values
+            {  L_,   DEC( 1.0),  FP_NORMAL,  1,                   10,     -1 },
+            {  L_,   DEC(-1.0),  FP_NORMAL, -1,                   10,     -1 },
+            {  L_,   DEC( 0.1),  FP_NORMAL,  1,                    1,     -1 },
+            {  L_,   DEC(-0.1),  FP_NORMAL, -1,                    1,     -1 },
+            {  L_,   DEC( 4.25), FP_NORMAL,  1,                  425,     -2 },
+            {  L_,   DEC(-4.25), FP_NORMAL, -1,                  425,     -2 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int    LINE       = DATA[ti].d_line;
-            const Type   DECIMAL64  = DATA[ti].d_decimalValue;
-            const char  *EXPECTED   = DATA[ti].d_expected;
+            const int                LINE         = DATA[ti].d_line;
+            const Type               DECIMAL64    = DATA[ti].d_decimalValue;
+            const int                CLASS        = DATA[ti].d_class;
+            const int                SIGN         = DATA[ti].d_sign;
+            const bsls::Types::Uint64 SIGNIFICAND = DATA[ti].d_significand;
+            const int                EXPONENT     = DATA[ti].d_exponent;
 
             if (veryVerbose) {
-                P_(LINE); P_(EXPECTED); P(DECIMAL64);
+                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P_(EXPONENT);
+                P(DECIMAL64);
             }
 
             // Test with Decimal64.
             {
-                const BDEC::Decimal64 VALUE(DECIMAL64);
+                const Type VALUE(DECIMAL64);
 
-                bsl::string ACTUAL(pa);
-                Util::format(VALUE, &ACTUAL);
+                int                 ACTUAL_SIGN;
+                bsls::Types::Uint64 ACTUAL_SIGNIFICAND;
+                int                 ACTUAL_EXPONENT;
+                int                 ACTUAL_CLASS =
+                                           Util::decompose(&ACTUAL_SIGN,
+                                                           &ACTUAL_SIGNIFICAND,
+                                                           &ACTUAL_EXPONENT,
+                                                           VALUE);
 
-                ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+                ASSERTV(LINE, ACTUAL_CLASS, CLASS, ACTUAL_CLASS == CLASS);
+                ASSERTV(LINE, ACTUAL_SIGN,   SIGN, ACTUAL_SIGN  == SIGN);
+                ASSERTV(LINE,
+                        ACTUAL_SIGNIFICAND,
+                        SIGNIFICAND,
+                        ACTUAL_SIGNIFICAND == SIGNIFICAND);
+                ASSERTV(LINE,
+                        ACTUAL_EXPONENT,
+                        EXPONENT,
+                        ACTUAL_EXPONENT == EXPONENT);
 
-                BDEC::Decimal64 INPUT;
-                const int rc = Util::parseDecimal64(&INPUT, ACTUAL);
+                if (Util::isFinite(VALUE)) {
+                    Type INPUT = ACTUAL_SIGN
+                                 * Util::multiplyByPowerOf10(
+                                                      Type(ACTUAL_SIGNIFICAND),
+                                                      ACTUAL_EXPONENT);
 
-                ASSERTV(LINE, EXPECTED, rc == 0);
-                if (Util::isNan(VALUE)) {
-                    ASSERTV(LINE, EXPECTED, Util::isNan(INPUT));
-                } else {
-                    ASSERTV(LINE, EXPECTED, INPUT == VALUE);
+                    ASSERTV(LINE, INPUT, VALUE, INPUT == VALUE);
                 }
             }
+        }
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
 
-            // Test with Decimal128.
-            {
-                const BDEC::Decimal128 VALUE(DECIMAL64);
+            const Type           TEMP(0);
+            int                  SIGN;
+            bsls::Types::Uint64  SIGNIFICAND;
+            int                  EXPONENT;
+            int                 *VALID_SIGN(&SIGN);
+            bsls::Types::Uint64 *VALID_SIGNIFICAND(&SIGNIFICAND);
+            int                 *VALID_EXPONENT(&EXPONENT);
+            int                 *INVALID_SIGN(0);
+            bsls::Types::Uint64 *INVALID_SIGNIFICAND(0);
+            int                 *INVALID_EXPONENT(0);
 
-                bsl::string ACTUAL(pa);
-                Util::format(VALUE, &ACTUAL);
-
-                ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
-            }
+            ASSERT_PASS(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        INVALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        INVALID_EXPONENT,
+                                        TEMP));
         }
     }
-    {
 #undef DEC
-#define DEC(lit) BDLDFP_DECIMAL_DL(lit)
+#define DEC(X) BDLDFP_DECIMAL_DL(X)
+    {
+        if (veryVerbose) bsl::cout << "\nDecimal128"
+                                   << "\n----------"
+                                   << bsl::endl;
+
         typedef bdldfp::Decimal128 Type;
 
-        Type INF_P =  bsl::numeric_limits<Type>::infinity();
-        Type INF_N = -bsl::numeric_limits<Type>::infinity();
-        Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
-        Type NAN_S =  bsl::numeric_limits<Type>::signaling_NaN();
-        Type MAX   =  bdldfp::DecimalImpUtil::parse128(
-                                                     "9.999999999999999e+500");
-        Type MIN   = DEC(-1e-500);
+        Type SUBN_P  =  bsl::numeric_limits<Type>::denorm_min();
+        Type SUBN_N  = -bsl::numeric_limits<Type>::denorm_min();
+        Type INF_P   =  bsl::numeric_limits<Type>::infinity();
+        Type INF_N   = -bsl::numeric_limits<Type>::infinity();
+        Type NAN_Q_P =  bsl::numeric_limits<Type>::quiet_NaN();
+        Type NAN_Q_N = -bsl::numeric_limits<Type>::quiet_NaN();
+        Type NAN_S_P =  bsl::numeric_limits<Type>::signaling_NaN();
+        Type NAN_S_N = -bsl::numeric_limits<Type>::signaling_NaN();
+        Type MAX     =  bsl::numeric_limits<Type>::max();
+        Type MIN     =  bsl::numeric_limits<Type>::min();
+        Type V1      = Type(0xFFFFFFFFFFFFFFFFull) + 1;
 
         static const struct {
-            int         d_line;
-            Type        d_decimalValue;
-            const char *d_expected;
+            int                 d_line;
+            Type                d_decimalValue;
+            int                 d_class;         // classification
+            int                 d_sign;
+            bsls::Types::Uint64 d_significandH;
+            bsls::Types::Uint64 d_significandL;
+            int                 d_exponent;
         } DATA[] = {
-            // L      NUMBER        EXPECTED
-            // ---    ---------     -------------------------
-            {  L_,     DEC(0.0),                      "0.0" },
-            {  L_,     DEC(1.0),                       "1.0" },
-            {  L_,  DEC(9.3E23),                   "9.3E+23" },
-            {  L_,    DEC(-1.0),                      "-1.0" },
-            {  L_,    DEC(-0.1),                      "-0.1" },
-            {  L_,    DEC(4.25),                      "4.25" },
-            {  L_,   DEC(-4.25),                     "-4.25" },
-            {  L_,          MAX,    "9.999999999999999E+500" },
-            {  L_,          MIN,                   "-1E-500" },
-            {  L_,        INF_P,                  "Infinity" },
-            {  L_,        INF_N,                 "-Infinity" },
-            {  L_,        NAN_Q,                       "NaN" },
-            {  L_,        NAN_S,                      "sNaN" }
+        // L   NUMBER      CLASS        SIGN  SIGNIFICAND HIGH,    EXPONENT
+        //                                    SIGNIFICAND LOW
+        // --- ----------  -------      ----  -------------------  ---------
+
+        // Test zero values
+        {  L_, DEC( 0.0),  FP_ZERO,       1,                     0,
+                                                                 0,       -1 },
+        {  L_, DEC(-0.0),  FP_ZERO,      -1,                     0,
+                                                                 0,       -1 },
+
+        // Test special encoding values
+        {  L_,  INF_P,     FP_INFINITE,   1,   0x20000000000000ull,
+                                                                 0,   0x3000 },
+        {  L_,  INF_N,     FP_INFINITE,  -1,   0x20000000000000ull,
+                                                                 0,   0x3000 },
+        {  L_,  NAN_Q_P,   FP_NAN,        1,   0x20000000000000ull,
+                                                                 0,   0x3800 },
+        {  L_,  NAN_Q_N,   FP_NAN,       -1,   0x20000000000000ull,
+                                                                 0,   0x3800 },
+        {  L_,  NAN_S_P,   FP_NAN,        1,   0x20000000000000ull,
+                                                                 0,   0x3c00 },
+        {  L_,  NAN_S_N,   FP_NAN,       -1,   0x20000000000000ull,
+                                                                 0,   0x3c00 },
+        {  L_,  SUBN_P,    FP_SUBNORMAL,  1,                     0,
+                                                                 1,    -6176 },
+        {  L_,  SUBN_N,    FP_SUBNORMAL, -1,                     0,
+                                                                 1,    -6176 },
+
+            // // Test boundary values
+        {  L_,   MIN,      FP_NORMAL,     1,                     0,
+                                                                 1,    -6143 },
+        {  L_,  -MIN,      FP_NORMAL,    -1,                     0,
+                                                                 1,    -6143 },
+        {  L_,   MAX,      FP_NORMAL,     1,    0x1ED09BEAD87C0ull,
+                                             0x378D8E63FFFFFFFFull,     6111 },
+        {  L_,  -MAX,      FP_NORMAL,    -1,    0x1ED09BEAD87C0ull,
+                                             0x378D8E63FFFFFFFFull,     6111 },
+            // // Test arbitrary values
+        {  L_, DEC( 1.0),  FP_NORMAL,     1,                     0,
+                                                                10,       -1 },
+        {  L_, DEC(-1.0),  FP_NORMAL,    -1,                     0,
+                                                                10,       -1 },
+        {  L_, DEC( 0.1),  FP_NORMAL,     1,                     0,
+                                                                 1,       -1 },
+        {  L_, DEC(-0.1),  FP_NORMAL,    -1,                     0,
+                                                                 1,       -1 },
+        {  L_, DEC( 4.25), FP_NORMAL,     1,                     0,
+                                                               425,       -2 },
+        {  L_, DEC(-4.25), FP_NORMAL,    -1,                     0,
+                                                               425,       -2 },
+        {  L_, V1,         FP_NORMAL,     1,                     1,
+                                                                 0,        0 },
+        {  L_, -V1,        FP_NORMAL,    -1,                     1,
+                                                                 0,        0 },
+        {  L_, V1 * 0x10 + 0x50,
+                           FP_NORMAL,     1,                  0x10,
+                                                              0x50,        0 },
+        {  L_, -(V1 * 0x10 + 0x50),
+                           FP_NORMAL,    -1,                  0x10,
+                                                              0x50,        0 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof * DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int    LINE        = DATA[ti].d_line;
-            const Type   DECIMAL128  = DATA[ti].d_decimalValue;
-            const char  *EXPECTED    = DATA[ti].d_expected;
+            const int                 LINE          = DATA[ti].d_line;
+            const Type                DECIMAL128    = DATA[ti].d_decimalValue;
+            const int                 CLASS         = DATA[ti].d_class;
+            const int                 SIGN          = DATA[ti].d_sign;
+            const bsls::Types::Uint64 SIGNIFICAND_H = DATA[ti].d_significandH;
+            const bsls::Types::Uint64 SIGNIFICAND_L = DATA[ti].d_significandL;
+            const int                 EXPONENT      = DATA[ti].d_exponent;
 
             if (veryVerbose) {
-                P_(LINE); P_(EXPECTED); P(DECIMAL128);
+                P_(LINE); P_(CLASS); P_(SIGN);
+                P_(SIGNIFICAND_H); P_(SIGNIFICAND_L);
+                P_(EXPONENT); P(DECIMAL128);
             }
-            // Test with Decimal128.
+
+            // Test with Decimal64.
             {
-                const BDEC::Decimal128 VALUE(DECIMAL128);
+                const Type VALUE(DECIMAL128);
 
-                bsl::string ACTUAL(pa);
-                Util::format(VALUE, &ACTUAL);
+                int           ACTUAL_SIGN;
+                BDEC::Uint128 ACTUAL_SIGNIFICAND;
+                int           ACTUAL_EXPONENT;
+                int           ACTUAL_CLASS = Util::decompose(
+                                                           &ACTUAL_SIGN,
+                                                           &ACTUAL_SIGNIFICAND,
+                                                           &ACTUAL_EXPONENT,
+                                                           VALUE);
 
-                ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+                ASSERTV(LINE, ACTUAL_CLASS, CLASS, ACTUAL_CLASS == CLASS);
+                ASSERTV(LINE, ACTUAL_SIGN,   SIGN, ACTUAL_SIGN  == SIGN);
+                ASSERTV(LINE,
+                        ACTUAL_SIGNIFICAND.high(),
+                        SIGNIFICAND_H,
+                        ACTUAL_SIGNIFICAND.high() == SIGNIFICAND_H);
+                ASSERTV(LINE,
+                        ACTUAL_SIGNIFICAND.low(),
+                        SIGNIFICAND_L,
+                        ACTUAL_SIGNIFICAND.low() == SIGNIFICAND_L);
+                ASSERTV(LINE,
+                        ACTUAL_EXPONENT,
+                        EXPONENT,
+                        ACTUAL_EXPONENT == EXPONENT);
 
-                BDEC::Decimal128 INPUT;
-                const int rc = Util::parseDecimal128(&INPUT, ACTUAL);
+                if (Util::isFinite(VALUE)) {
+                    const Type MOVE_LEFT_64 = Type(0xFFFFFFFFFFFFFFFFull) + 1;
+                    const Type SIGNIFICAND =
+                        Type(ACTUAL_SIGNIFICAND.high()) * MOVE_LEFT_64
+                        + Type(ACTUAL_SIGNIFICAND.low());
+                    const Type INPUT =
+                           ACTUAL_SIGN * Util::multiplyByPowerOf10(
+                                                              SIGNIFICAND,
+                                                              ACTUAL_EXPONENT);
 
-                ASSERTV(LINE, EXPECTED, rc == 0);
-                if (Util::isNan(VALUE)) {
-                    ASSERTV(LINE, EXPECTED, Util::isNan(INPUT));
-                } else {
-                    ASSERTV(LINE, EXPECTED, INPUT == VALUE);
+                    ASSERTV(LINE, INPUT, VALUE, INPUT == VALUE);
                 }
+
             }
         }
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Type     TEMP(0);
+            int            SIGN;
+            BDEC::Uint128  SIGNIFICAND;
+            int            EXPONENT;
+            int           *VALID_SIGN(&SIGN);
+            BDEC::Uint128 *VALID_SIGNIFICAND(&SIGNIFICAND);
+            int           *VALID_EXPONENT(&EXPONENT);
+            int           *INVALID_SIGN(0);
+            BDEC::Uint128 *INVALID_SIGNIFICAND(0);
+            int           *INVALID_EXPONENT(0);
+
+            ASSERT_PASS(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        INVALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        INVALID_EXPONENT,
+                                        TEMP));
+        }
     }
+#undef DEC
+    } break;
+    case 14: {
+      // ----------------------------------------------------------------------
+      // CONCURRENCY
+      //
+      // Concerns:
+      //:  1 Concurrent use of round and quantize is correct.
+      //
+      // Plan:
+      //:  1 Create several threads that call either quantize or round in loops
+      //:    and verify that the correct values are always returned.
+      //
+      // Testing:
+      //   void DecimalUtil::quantize;
+      //   void DecimalUtil::round;
+      // ----------------------------------------------------------------------
+
+      if (verbose) bsl::cout << "\nCONCURRENCY"
+                                "\n===========\n";
+
+      const int                 k_NUM_THREADS = 10;
+      bslmt::ThreadUtil::Handle q[k_NUM_THREADS];
+      bslmt::ThreadUtil::Handle r[k_NUM_THREADS];
+      for (int i = 0; i < k_NUM_THREADS; ++i) {
+          if (veryVerbose) { cout << "Begin quantize thread " << i << "\n"; }
+          bslmt::ThreadUtil::createWithAllocator(&q[i], &doQuantize, &ta);
+          if (veryVerbose) { cout << "Begin round thread " << i << "\n"; }
+          bslmt::ThreadUtil::createWithAllocator(&r[i], &doRound, &ta);
+      }
+      for (int i = 0; i < k_NUM_THREADS; ++i) {
+          if (veryVerbose) { cout << "Wait for quantize thread " << i << "\n"; }
+          bslmt::ThreadUtil::join(q[i]);
+          if (veryVerbose) { cout << "Wait for round thread " << i << "\n"; }
+          bslmt::ThreadUtil::join(r[i]);
+      }
+    } break;
+    case 13: {
+      // ----------------------------------------------------------------------
+      // TESTING format
+      // Concerns: The format functions output human readable strings which
+      //           can be round-tripped using the parse functions.
+      // Plan: Try formatting a variety of different valid values into a
+      //       string.
+      //       Including minimum and maximum values and special values
+      //       such as 'NaN' and 'Inf'.
+      //       Re-parse the returned string and check that it returns the
+      //       original value.
+      //
+      // Testing:
+      //   void DecimalUtil::format(Decimal32,  bsl::string *out);
+      //   void DecimalUtil::format(Decimal64,  bsl::string *out);
+      //   void DecimalUtil::format(Decimal128, bsl::string *out);
+      // ----------------------------------------------------------------------
+      if (verbose) bsl::cout << "\nTESTING FORMAT METHODS"
+                                "\n======================\n";
+
+      typedef BDEC::DecimalUtil Util;
+      {
+#define DEC(X) BDLDFP_DECIMAL_DF(X)
+
+          typedef bdldfp::Decimal32 Type;
+
+          Type INF_P =  bsl::numeric_limits<Type>::infinity();
+          Type INF_N = -bsl::numeric_limits<Type>::infinity();
+          Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
+          Type MAX   =  DEC(9.999999e+96);
+          Type MIN   =  DEC(-1e-95);
+
+          static const struct {
+              int         d_line;
+              Type        d_decimalValue;
+              const char *d_expected;
+          } DATA[] = {
+              // L      NUMBER               EXPECTED
+              // ---    ---------            --------
+              {  L_,     DEC(0.0),             "0.0" },
+              {  L_,     DEC(1.0),             "1.0" },
+              {  L_,  DEC(9.3E23),         "9.3E+23" },
+              {  L_,    DEC(-1.0),            "-1.0" },
+              {  L_,    DEC(-0.1),            "-0.1" },
+              {  L_,    DEC(4.25),            "4.25" },
+              {  L_,   DEC(-4.25),           "-4.25" },
+              {  L_,          MAX,    "9.999999E+96" },
+              {  L_,          MIN,          "-1E-95" },
+              {  L_,        INF_P,        "Infinity" },
+              {  L_,        INF_N,       "-Infinity" },
+              {  L_,        NAN_Q,             "NaN" }
+          };
+          const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+          for (int ti = 0; ti < NUM_DATA; ++ti) {
+              const int   LINE      = DATA[ti].d_line;
+              const Type  DECIMAL32 = DATA[ti].d_decimalValue;
+              const char *EXPECTED  = DATA[ti].d_expected;
+
+              if (veryVerbose) {
+                  P_(LINE); P_(EXPECTED); P(DECIMAL32);
+              }
+
+              // Test with Decimal32.
+              {
+                  const BDEC::Decimal32 VALUE(DECIMAL32);
+
+                  bsl::string ACTUAL(pa);
+                  Util::format(VALUE, &ACTUAL);
+
+                  ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+
+                  BDEC::Decimal32 INPUT;
+                  const int rc = Util::parseDecimal32(&INPUT, ACTUAL);
+
+                  ASSERTV(LINE, EXPECTED, rc == 0);
+                  if (Util::isNan(VALUE)) {
+                      ASSERTV(LINE, EXPECTED, Util::isNan(INPUT));
+                  } else {
+                      ASSERTV(LINE, EXPECTED, INPUT == VALUE);
+                  }
+              }
+
+              // Test with Decimal64.
+              {
+                  const BDEC::Decimal64 VALUE(DECIMAL32);
+
+                  bsl::string ACTUAL(pa);
+                  Util::format(VALUE, &ACTUAL);
+
+                  ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+              }
+
+              // Test with Decimal128.
+              {
+                  const BDEC::Decimal128 VALUE(DECIMAL32);
+
+                  bsl::string ACTUAL(pa);
+                  Util::format(VALUE, &ACTUAL);
+
+                  ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+              }
+          }
+      }
+      {
+#undef DEC
+#define DEC(lit) BDLDFP_DECIMAL_DD(lit)
+          typedef bdldfp::Decimal64 Type;
+
+          Type INF_P =  bsl::numeric_limits<Type>::infinity();
+          Type INF_N = -bsl::numeric_limits<Type>::infinity();
+          Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
+          Type MAX   =  bdldfp::DecimalImpUtil::parse64(
+                                                     "9.999999999999999e+384");
+          Type MIN   =  DEC(1e-383);
+
+          static const struct {
+              int         d_line;
+              Type        d_decimalValue;
+              const char *d_expected;
+          } DATA[] = {
+              // L      NUMBER        EXPECTED
+              // ---    ---------     -------------------------
+              {  L_,     DEC(0.0),                       "0.0" },
+              {  L_,     DEC(1.0),                       "1.0" },
+              {  L_,  DEC(9.3E23),                   "9.3E+23" },
+              {  L_,    DEC(-1.0),                      "-1.0" },
+              {  L_,    DEC(-0.1),                      "-0.1" },
+              {  L_,    DEC(4.25),                      "4.25" },
+              {  L_,   DEC(-4.25),                     "-4.25" },
+              {  L_,          MAX,    "9.999999999999999E+384" },
+              {  L_,          MIN,                    "1E-383" },
+              {  L_,        INF_P,                  "Infinity" },
+              {  L_,        INF_N,                 "-Infinity" },
+              {  L_,        NAN_Q,                       "NaN" }
+          };
+          const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+          for (int ti = 0; ti < NUM_DATA; ++ti) {
+              const int   LINE      = DATA[ti].d_line;
+              const Type  DECIMAL64 = DATA[ti].d_decimalValue;
+              const char *EXPECTED  = DATA[ti].d_expected;
+
+              if (veryVerbose) {
+                  P_(LINE); P_(EXPECTED); P(DECIMAL64);
+              }
+
+              // Test with Decimal64.
+              {
+                  const BDEC::Decimal64 VALUE(DECIMAL64);
+
+                  bsl::string ACTUAL(pa);
+                  Util::format(VALUE, &ACTUAL);
+
+                  ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+
+                  BDEC::Decimal64 INPUT;
+                  const int rc = Util::parseDecimal64(&INPUT, ACTUAL);
+
+                  ASSERTV(LINE, EXPECTED, rc == 0);
+                  if (Util::isNan(VALUE)) {
+                      ASSERTV(LINE, EXPECTED, Util::isNan(INPUT));
+                  } else {
+                      ASSERTV(LINE, EXPECTED, INPUT == VALUE);
+                  }
+              }
+
+              // Test with Decimal128.
+              {
+                  const BDEC::Decimal128 VALUE(DECIMAL64);
+
+                  bsl::string ACTUAL(pa);
+                  Util::format(VALUE, &ACTUAL);
+
+                  ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+              }
+          }
+      }
+      {
+#undef DEC
+#define DEC(lit) BDLDFP_DECIMAL_DL(lit)
+          typedef bdldfp::Decimal128 Type;
+
+          Type INF_P =  bsl::numeric_limits<Type>::infinity();
+          Type INF_N = -bsl::numeric_limits<Type>::infinity();
+          Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
+          Type NAN_S =  bsl::numeric_limits<Type>::signaling_NaN();
+          Type MAX   =  bdldfp::DecimalImpUtil::parse128(
+                                                     "9.999999999999999e+500");
+          Type MIN   =  DEC(-1e-500);
+
+          static const struct {
+              int         d_line;
+              Type        d_decimalValue;
+              const char *d_expected;
+          } DATA[] = {
+              // L      NUMBER        EXPECTED
+              // ---    ---------     -------------------------
+              {  L_,     DEC(0.0),                       "0.0" },
+              {  L_,     DEC(1.0),                       "1.0" },
+              {  L_,  DEC(9.3E23),                   "9.3E+23" },
+              {  L_,    DEC(-1.0),                      "-1.0" },
+              {  L_,    DEC(-0.1),                      "-0.1" },
+              {  L_,    DEC(4.25),                      "4.25" },
+              {  L_,   DEC(-4.25),                     "-4.25" },
+              {  L_,          MAX,    "9.999999999999999E+500" },
+              {  L_,          MIN,                   "-1E-500" },
+              {  L_,        INF_P,                  "Infinity" },
+              {  L_,        INF_N,                 "-Infinity" },
+              {  L_,        NAN_Q,                       "NaN" },
+              {  L_,        NAN_S,                      "sNaN" }
+          };
+          const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+          for (int ti = 0; ti < NUM_DATA; ++ti) {
+              const int   LINE       = DATA[ti].d_line;
+              const Type  DECIMAL128 = DATA[ti].d_decimalValue;
+              const char *EXPECTED   = DATA[ti].d_expected;
+
+              if (veryVerbose) {
+                  P_(LINE); P_(EXPECTED); P(DECIMAL128);
+              }
+              // Test with Decimal128.
+              {
+                  const BDEC::Decimal128 VALUE(DECIMAL128);
+
+                  bsl::string ACTUAL(pa);
+                  Util::format(VALUE, &ACTUAL);
+
+                  ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+
+                  BDEC::Decimal128 INPUT;
+                  const int rc = Util::parseDecimal128(&INPUT, ACTUAL);
+
+                  ASSERTV(LINE, EXPECTED, rc == 0);
+                  if (Util::isNan(VALUE)) {
+                      ASSERTV(LINE, EXPECTED, Util::isNan(INPUT));
+                  } else {
+                      ASSERTV(LINE, EXPECTED, INPUT == VALUE);
+                  }
+              }
+          }
+      }
 #undef DEC
     }
     case 12: {

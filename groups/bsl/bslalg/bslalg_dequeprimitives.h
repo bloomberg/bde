@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that operate on deques.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //  bslalg::DequePrimitives: namespace for deque algorithms
 //

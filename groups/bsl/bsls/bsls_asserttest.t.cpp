@@ -1873,7 +1873,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -1983,7 +1983,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -2093,7 +2093,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -2203,7 +2203,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -2313,7 +2313,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -2422,7 +2422,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -2531,7 +2531,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -2640,7 +2640,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -2822,7 +2822,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -2920,7 +2920,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -3222,7 +3222,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -3607,7 +3607,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -4042,7 +4042,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -4137,7 +4137,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -4470,7 +4470,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -4854,7 +4854,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -5343,7 +5343,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -5439,7 +5439,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -5770,7 +5770,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -6151,7 +6151,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
 #endif
@@ -6585,7 +6585,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -6680,7 +6680,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -7010,7 +7010,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif
@@ -7390,7 +7390,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #include <bsls_asserttest.h>
 
     //  Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-    // 'IS_ACTIVE' macros and the are values we intend to test.
+    // 'IS_ACTIVE' macros and their values we intend to test.
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
 #endif

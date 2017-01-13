@@ -177,6 +177,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_movableref.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_UTIL
+#include <bslmf_util.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -234,8 +238,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 
   public:
     // CREATORS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class... ARGS>
     explicit SharedPtrInplaceRep(Allocator *basicAllocator,
                                  ARGS&&...  args);
@@ -244,173 +247,257 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // the specified arguments, 'args...'.  Use the specified
         // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
         // to destroy this representation (and the "in-place" shared object).
-# else
-    template <class... ARGS>
-    explicit SharedPtrInplaceRep(Allocator      *basicAllocator,
-                                 const ARGS&...  args);
-        // Create a 'SharedPtrInplaceRep' object having an "in-place" instance
-        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
-        // the specified arguments, 'args...'.  Use the specified
-        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
-        // to destroy this representation (and the "in-place" shared object).
-
-# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=14 bslma_sharedptrinplacerep.h
     explicit SharedPtrInplaceRep(Allocator *basicAllocator);
-        // Create a 'SharedPtrInplaceRep' object having an "in-place"
-        // default-constructed instance of the parameterized 'TYPE'.  Use the
-        // specified 'basicAllocator' to supply memory and, upon a call to
-        // 'disposeRep', to destroy this representation (and the "in-place"
-        // shared object) .
 
-    template <class A1>
-    SharedPtrInplaceRep(Allocator *basicAllocator, const A1& a1);
-    template <class A1, class A2>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2);
-    template <class A1, class A2, class A3>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3);
-    template <class A1, class A2, class A3, class A4>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3,
-                        const A4&  a4);
-    template <class A1, class A2, class A3, class A4, class A5>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3,
-                        const A4&  a4,
-                        const A5&  a5);
-    template <class A1, class A2, class A3, class A4, class A5, class A6>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3,
-                        const A4&  a4,
-                        const A5&  a5,
-                        const A6&  a6);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3,
-                        const A4&  a4,
-                        const A5&  a5,
-                        const A6&  a6,
-                        const A7&  a7);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3,
-                        const A4&  a4,
-                        const A5&  a5,
-                        const A6&  a6,
-                        const A7&  a7,
-                        const A8&  a8);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&  a1,
-                        const A2&  a2,
-                        const A3&  a3,
-                        const A4&  a4,
-                        const A5&  a5,
-                        const A6&  a6,
-                        const A7&  a7,
-                        const A8&  a8,
-                        const A9&  a9);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10>
-    SharedPtrInplaceRep(Allocator  *basicAllocator,
-                        const A1&   a1,
-                        const A2&   a2,
-                        const A3&   a3,
-                        const A4&   a4,
-                        const A5&   a5,
-                        const A6&   a6,
-                        const A7&   a7,
-                        const A8&   a8,
-                        const A9&   a9,
-                        const A10&  a10);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11>
-    SharedPtrInplaceRep(Allocator  *basicAllocator,
-                        const A1&   a1,
-                        const A2&   a2,
-                        const A3&   a3,
-                        const A4&   a4,
-                        const A5&   a5,
-                        const A6&   a6,
-                        const A7&   a7,
-                        const A8&   a8,
-                        const A9&   a9,
-                        const A10&  a10,
-                        const A11&  a11);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11, class A12>
-    SharedPtrInplaceRep(Allocator  *basicAllocator,
-                        const A1&   a1,
-                        const A2&   a2,
-                        const A3&   a3,
-                        const A4&   a4,
-                        const A5&   a5,
-                        const A6&   a6,
-                        const A7&   a7,
-                        const A8&   a8,
-                        const A9&   a9,
-                        const A10&  a10,
-                        const A11&  a11,
-                        const A12&  a12);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11, class A12,
-              class A13>
-    SharedPtrInplaceRep(Allocator  *basicAllocator,
-                        const A1&   a1,
-                        const A2&   a2,
-                        const A3&   a3,
-                        const A4&   a4,
-                        const A5&   a5,
-                        const A6&   a6,
-                        const A7&   a7,
-                        const A8&   a8,
-                        const A9&   a9,
-                        const A10&  a10,
-                        const A11&  a11,
-                        const A12&  a12,
-                        const A13&  a13);
-    template <class A1, class A2, class A3, class A4, class A5, class A6,
-              class A7, class A8, class A9, class A10, class A11, class A12,
-              class A13, class A14>
-    SharedPtrInplaceRep(Allocator  *basicAllocator,
-                        const A1&   a1,
-                        const A2&   a2,
-                        const A3&   a3,
-                        const A4&   a4,
-                        const A5&   a5,
-                        const A6&   a6,
-                        const A7&   a7,
-                        const A8&   a8,
-                        const A9&   a9,
-                        const A10&  a10,
-                        const A11&  a11,
-                        const A12&  a12,
-                        const A13&  a13,
-                        const A14&  a14);
-        // Create a 'SharedPtrInplaceRep' object having an "in-place" instance
-        // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
-        // the specified arguments, 'a1' up to 'aN', where 'N' (at most 14) is
-        // the number of arguments passed to this method.  Use the specified
-        // 'basicAllocator' to supply memory and, upon a call to 'disposeRep',
-        // to destroy this representation (and the "in-place" shared object).
+    template <class ARGS_01>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+
+    template <class ARGS_01,
+              class ARGS_02>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10,
+              class ARGS_11>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10,
+              class ARGS_11,
+              class ARGS_12>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10,
+              class ARGS_11,
+              class ARGS_12,
+              class ARGS_13>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13);
+
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10,
+              class ARGS_11,
+              class ARGS_12,
+              class ARGS_13,
+              class ARGS_14>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... ARGS>
+    explicit SharedPtrInplaceRep(Allocator *basicAllocator,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+// }}} END GENERATED CODE
 #endif
 
     // MANIPULATORS
@@ -509,8 +596,7 @@ void *SharedPtrInplaceRep_ImpUtil::voidify(TYPE *address) {
                         // -------------------------
 
 // CREATORS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class TYPE>
 template <class... ARGS>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
@@ -519,19 +605,11 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
 , d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...)
 {
 }
-# else
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl --var-args=14 bslma_sharedptrinplacerep.h
 template <class TYPE>
-template <class... ARGS>
-SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator      *basicAllocator,
-                                               const ARGS&...  args)
-: d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(args)...)
-{
-}
-# endif
-#else
-template <class TYPE>
-inline
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
 , d_instance()
@@ -539,322 +617,416 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator)
 }
 
 template <class TYPE>
-template <class A1>
+template <class ARGS_01>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2>
+template <class ARGS_01,
+          class ARGS_02>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8,
-                                               const A9&  a9)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8),
-             SharedPtrInplaceRep_ImpUtil::forward(a9))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8,
-                                               const A9&  a9,
-                                               const A10& a10)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8),
-             SharedPtrInplaceRep_ImpUtil::forward(a9),
-             SharedPtrInplaceRep_ImpUtil::forward(a10))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10,
+          class ARGS_11>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8,
-                                               const A9&  a9,
-                                               const A10& a10,
-                                               const A11& a11)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8),
-             SharedPtrInplaceRep_ImpUtil::forward(a9),
-             SharedPtrInplaceRep_ImpUtil::forward(a10),
-             SharedPtrInplaceRep_ImpUtil::forward(a11))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10,
+          class ARGS_11,
+          class ARGS_12>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8,
-                                               const A9&  a9,
-                                               const A10& a10,
-                                               const A11& a11,
-                                               const A12& a12)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8),
-             SharedPtrInplaceRep_ImpUtil::forward(a9),
-             SharedPtrInplaceRep_ImpUtil::forward(a10),
-             SharedPtrInplaceRep_ImpUtil::forward(a11),
-             SharedPtrInplaceRep_ImpUtil::forward(a12))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10,
+          class ARGS_11,
+          class ARGS_12,
+          class ARGS_13>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8,
-                                               const A9&  a9,
-                                               const A10& a10,
-                                               const A11& a11,
-                                               const A12& a12,
-                                               const A13& a13)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8),
-             SharedPtrInplaceRep_ImpUtil::forward(a9),
-             SharedPtrInplaceRep_ImpUtil::forward(a10),
-             SharedPtrInplaceRep_ImpUtil::forward(a11),
-             SharedPtrInplaceRep_ImpUtil::forward(a12),
-             SharedPtrInplaceRep_ImpUtil::forward(a13))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13))
 {
 }
 
 template <class TYPE>
-template <class A1, class A2, class A3, class A4, class A5, class A6,
-          class A7, class A8, class A9, class A10, class A11, class A12,
-          class A13, class A14>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10,
+          class ARGS_11,
+          class ARGS_12,
+          class ARGS_13,
+          class ARGS_14>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
-                                               const A1&  a1,
-                                               const A2&  a2,
-                                               const A3&  a3,
-                                               const A4&  a4,
-                                               const A5&  a5,
-                                               const A6&  a6,
-                                               const A7&  a7,
-                                               const A8&  a8,
-                                               const A9&  a9,
-                                               const A10& a10,
-                                               const A11& a11,
-                                               const A12& a12,
-                                               const A13& a13,
-                                               const A14& a14)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) args_11,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) args_12,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) args_13,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_14) args_14)
 : d_allocator_p(basicAllocator)
-, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
-             SharedPtrInplaceRep_ImpUtil::forward(a2),
-             SharedPtrInplaceRep_ImpUtil::forward(a3),
-             SharedPtrInplaceRep_ImpUtil::forward(a4),
-             SharedPtrInplaceRep_ImpUtil::forward(a5),
-             SharedPtrInplaceRep_ImpUtil::forward(a6),
-             SharedPtrInplaceRep_ImpUtil::forward(a7),
-             SharedPtrInplaceRep_ImpUtil::forward(a8),
-             SharedPtrInplaceRep_ImpUtil::forward(a9),
-             SharedPtrInplaceRep_ImpUtil::forward(a10),
-             SharedPtrInplaceRep_ImpUtil::forward(a11),
-             SharedPtrInplaceRep_ImpUtil::forward(a12),
-             SharedPtrInplaceRep_ImpUtil::forward(a13),
-             SharedPtrInplaceRep_ImpUtil::forward(a14))
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_11,args_11),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_12,args_12),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_13,args_13),
+             BSLS_COMPILERFEATURES_FORWARD(ARGS_14,args_14))
 {
 }
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class TYPE>
+template <class... ARGS>
+SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+: d_allocator_p(basicAllocator)
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...)
+{
+}
+// }}} END GENERATED CODE
 #endif
 
 template <class TYPE>

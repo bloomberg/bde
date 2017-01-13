@@ -19,29 +19,20 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
 
 #include <memory>
 
-// 'std::unique_ptr' is available:
-//:  o GCC 4.4+, C++11 builds.
-//:    https://gcc.gnu.org/gcc-4.4/changes.html
-//:  o Clang, libc++, C++11 builds that have <forward_list> available
-//:    http://stackoverflow.com/questions/31655462/
-//:  o MSVC 2010+
-//:    https://msdn.microsoft.com/en-us/library/ee410601(v=vs.100).aspx
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__) &&  \
-    BSLS_PLATFORM_CMP_VERSION >= 40400
-#define BSL_MEMORY_SUPPORT_UNIQUE_PTR
-#elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L
-#if __has_include(<forward_list>)
-#define BSL_MEMORY_SUPPORT_UNIQUE_PTR
-#endif
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1600
-#define BSL_MEMORY_SUPPORT_UNIQUE_PTR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
+    #define USING_CPP11_NATIVE_STD(algo) using native_std::algo;
+#else
+    #define USING_CPP11_NATIVE_STD(algo)
 #endif
 
 namespace bsl {
@@ -52,20 +43,23 @@ namespace bsl {
     //  using native_std::allocator;
     //..
 
-    using native_std::auto_ptr;  // May not be available from C++17 libraries
     using native_std::get_temporary_buffer;
     using native_std::raw_storage_iterator;
     using native_std::return_temporary_buffer;
     using native_std::uninitialized_copy;
+    USING_CPP11_NATIVE_STD(uninitialized_copy_n);
     using native_std::uninitialized_fill;
     using native_std::uninitialized_fill_n;
 
-#if defined(BSL_MEMORY_SUPPORT_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
     using native_std::unique_ptr;
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if !defined(BSLS_LIBRARYFEATURES_REMOVE_AUTOPTR)
+    using native_std::auto_ptr;  // May not be available from C++17 libraries
+#endif
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.  This may get tricky if some standard library
     // happens to not require any of these names for its native implementation
@@ -88,18 +82,20 @@ namespace bsl {
 
 }  // close package namespace
 
+#undef USING_CPP11_NATIVE_STD
+
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslmf_allocatorargt.h>
+#include <bslma_allocatortraits.h>
 #include <bslma_stdallocator.h>
+#include <bslmf_allocatorargt.h>
 #include <bslstl_badweakptr.h>
 #include <bslstl_ownerless.h>
 #include <bslstl_sharedptr.h>
-#include <bslma_allocatortraits.h>
 #endif
 
 #endif

@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient creation of nodes used in a node-based container.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bslstl::BidirectionalNodePool: memory manager to allocate hash table nodes
 //

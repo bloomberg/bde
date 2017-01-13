@@ -83,8 +83,8 @@ using namespace bsl;
 //: o [10] -- BDEX streaming is not (yet) implemented for this class.
 //
 // This class *does* not support an allocator for memory so the standard tests
-// with respect to to allocators and exceptions from allocators are simplified
-// to checks that no memory is every allocated from neither the default nor the
+// with respect to allocators and exceptions from allocators are simplified to
+// checks that no memory is every allocated from neither the default nor the
 // global allocator.
 //
 // Global Concerns:

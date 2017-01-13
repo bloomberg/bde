@@ -1,20 +1,12 @@
 // ball_observer.cpp                                                  -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_observer.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_observer_cpp,"$Id$ $CSID$")
 
-#include <ball_recordattributes.h>              // for testing only
-#include <ball_record.h>                        // for testing only
 #include <ball_context.h>                       // for testing only
+#include <ball_record.h>                        // for testing only
+#include <ball_recordattributes.h>              // for testing only
 #include <ball_transmission.h>                  // for testing only
 #include <ball_userfields.h>                    // for testing only
 
@@ -22,11 +14,11 @@ BSLS_IDENT_RCSID(ball_observer_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-
 namespace ball {
-                           // --------------
-                           // class Observer
-                           // --------------
+
+                         // --------------
+                         // class Observer
+                         // --------------
 
 // CREATORS
 Observer::~Observer()
@@ -40,9 +32,9 @@ Observer::~Observer()
 }
 
 // MANIPULATORS
-void Observer::publish(const Record& , const Context& )
+void Observer::publish(const Record&, const Context&)
 {
-    BSLS_ASSERT_OPT(false);  // Should not be called
+    BSLS_ASSERT_OPT(false);  // Should not be called.
 }
 
 void Observer::publish(const bsl::shared_ptr<const Record>& record,
@@ -54,8 +46,8 @@ void Observer::publish(const bsl::shared_ptr<const Record>& record,
 void Observer::releaseRecords()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

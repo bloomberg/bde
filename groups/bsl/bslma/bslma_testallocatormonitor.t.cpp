@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 //:     attribute to a value whose size exceeds the size of the object itself.
 //:     Confirm that the attribute was set and that memory was allocated.
 //:
-//:   3 Confirm the the primary manipulator (the 'setDescription' method) is
+//:   3 Confirm that the primary manipulator (the 'setDescription' method) is
 //:     exception neutral (i.e., exceptions from the allocator are propagated
 //:     and no memory is leaked).  Use the
 //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
@@ -492,7 +492,7 @@ int main(int argc, char *argv[])
 // maximum increased by exactly one.  In this case, we must extract our
 // statistics directly from the test allocator.
 //
-// Note that increment in "max" occurs only the first time through the the
+// Note that increment in "max" occurs only the first time through the
 // allocate/deallocate scenario in 'setDescription'.
 //..
             bslma::TestAllocatorMonitor oam3(&oa);
@@ -911,7 +911,7 @@ int main(int argc, char *argv[])
         //:   allocation request, create an associated test allocator monitor
         //:   object.  Use the (as yet unproven) "same" accessors to confirm
         //:   that the monitor is the expected initial state.  Exercise the
-        //:   allocator and check for the expected change of state in the the
+        //:   allocator and check for the expected change of state in the
         //:   associated monitor.  (C-1) Finally, destroy the monitor by
         //:   allowing it to go out of scope.  (C-2)
         //:
@@ -1046,12 +1046,12 @@ int main(int argc, char *argv[])
         //: 1 Create a 'bslma::TestAllocator' object and a
         //:   'bslma::TestAllocatorMonitor' object to track the
         //:   'bslma::TestAllocator' object and a
-        //: 2 Perform several allocations from and deallocations to the the
-        //:   test allocator created in P-1.  Once the test allocator has been
-        //:   used, create a second test allocator monitor to trace changes
-        //:   from that non-initial state.  At each point, confirm that the
-        //:   test allocator monitor object created in P-2 returns 'true' from
-        //:   the appropriate methods.
+        //: 2 Perform several allocations from and deallocations to the test
+        //:   allocator created in P-1.  Once the test allocator has been used,
+        //:   create a second test allocator monitor to trace changes from that
+        //:   non-initial state.  At each point, confirm that the test
+        //:   allocator monitor object created in P-2 returns 'true' from the
+        //:   appropriate methods.
         //: 3 Destroy the test allocator monitors.
         //
         // Testing:

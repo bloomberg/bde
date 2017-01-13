@@ -278,6 +278,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_event.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_EVENTCALLBACKREGISTRY
+#include <btlso_eventcallbackregistry.h>
+#endif
+
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
@@ -306,10 +310,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSL_UNORDERED_MAP
-#include <bsl_unordered_map.h>
-#endif
-
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
@@ -317,13 +317,14 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_OS_AIX)
 
 #ifndef INCLUDED_SYS_POLL
+#ifndef events
+#define BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_EVENTS
+#endif
+#ifndef revents
+#define BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_REVENTS
+#endif
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
-#endif
-
-#ifndef INCLUDED_SYS_POLLSET
-#include <sys/pollset.h>
-#define INCLUDED_SYS_POLLSET
 #endif
 
 namespace BloombergLP {
@@ -342,28 +343,19 @@ class TimeMetrics;
 
 template <>
 class DefaultEventManager<Platform::POLLSET> : public EventManager {
-    // This specialization of 'DefaultEventManager' for the 'Platform::POLL'
-    // integral template parameter, implements the 'EventManager' and uses the
-    // 'poll' system call as its polling mechanism.
-
-    // PRIVATE TYPES
-    typedef bsl::unordered_map<Event, EventManager::Callback, EventHash>
-                                                                   CallbackMap;
+    // This specialization of 'DefaultEventManager' for the 'Platform::POLLSET'
+    // template parameter, implements the 'EventManager' protocol and uses the
+    // 'pollset_poll' system call as its polling mechanism.
 
     // DATA
-    ::pollset_t                   d_ps;           // (integral) id of pollset
-
-    int                           d_fdCount;      // Number of file descriptors
-                                                  // tracked by this event
-                                                  // manager.
-
-    CallbackMap                   d_callbacks;    // container of registered
-                                                  // socket events and
-                                                  // associated callbacks
+    int                           d_ps;           // (integral) id of pollset
 
     TimeMetrics                  *d_timeMetric_p; // metrics to use for
                                                   // reporting percent-busy
                                                   // statistics
+
+    EventCallbackRegistry         d_callbacks;    // Container of events and
+                                                  // associated callbacks
 
     bsl::vector<struct ::pollfd>  d_signaled;     // array of 'pollfd'
                                                   // structures indicating
@@ -500,6 +492,15 @@ class DefaultEventManager<Platform::POLLSET> : public EventManager {
 }  // close package namespace
 
 }  // close namespace BloombergLP
+
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_EVENTS
+#undef events
+#undef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_EVENTS
+#endif
+#ifdef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_REVENTS
+#undef revents
+#undef BTLSO_DEFAULTEVENTMANAGER_POLLSET_UNDEF_REVENTS
+#endif
 
 #endif // BSLS_PLATFORM_OS_AIX
 

@@ -4616,8 +4616,16 @@ int main(int argc, char *argv[])
 
             ASSERT_PASS(mX.setValidRange(bdlt::Date(2012, 1,  1),
                                          bdlt::Date(2012, 1, 15)));
+
+            ASSERT_SAFE_FAIL(mX.setValidRange(bdlt::Date(2012, 1, 31),
+                                              bdlt::Date(2012, 1, 15)));
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+            // The underlying packed calendar uses a non-safe assert.
+
             ASSERT_FAIL_RAW(mX.setValidRange(bdlt::Date(2012, 1, 31),
                                              bdlt::Date(2012, 1, 15)));
+#endif
         }
       } break;
       case 14: {

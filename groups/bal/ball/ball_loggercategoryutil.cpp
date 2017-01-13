@@ -25,9 +25,9 @@ BSLS_IDENT_RCSID(ball_loggercategoryutil_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
 namespace ball {
 
+// STATIC HELPER FUNCTIONS
 static void setThesholdIfMatchingCategoryPrefix(
                                      Category                 *category,
                                      int                      *matchCount,
@@ -37,9 +37,9 @@ static void setThesholdIfMatchingCategoryPrefix(
                                      int                       triggerLevel,
                                      int                       triggerAllLevel)
     // If the specified 'category' has a name that begins with the specified
-    // 'prefix', then set the category levels to the specified 'recordLevel,
+    // 'prefix', then set the category levels to the specified 'recordLevel',
     // 'passLevel', 'triggerLevel', and 'triggerAllLevel' (respectively) and
-    // increment 'matchCount.  This operation has no effect if the name of
+    // increment 'matchCount'.  This operation has no effect if the name of
     // 'category' does not being with 'prefix'.
 {
     if (0 == bsl::strncmp(category->categoryName(),
@@ -58,13 +58,12 @@ static void isLongerPrefixCategory(const Category **result,
                                    int             *minPrefixLength,
                                    const char      *categoryName,
                                    const Category  *category)
-
     // If the specified 'category' has a name that is a prefix of
-    // 'categoryName' longer than 'minPrefixLength', then populate 'result with
-    // 'category, and populate 'minPrefixLength' with length of 'category'.
-    // This operation has no effect if the name of 'category' is not a prefix
-    // of 'categoryName' longer than the supplied 'minPrefixLength'.
-
+    // 'categoryName' longer than 'minPrefixLength', then populate 'result'
+    // with 'category', and populate 'minPrefixLength' with length of
+    // 'category'.  This operation has no effect if the name of 'category' is
+    // not a prefix of 'categoryName' longer than the supplied
+    // 'minPrefixLength'.
 {
     int length = static_cast<int>(bsl::strlen(category->categoryName()));
     if (*minPrefixLength < length &&
@@ -74,15 +73,14 @@ static void isLongerPrefixCategory(const Category **result,
     }
 }
 
-
                             // -------------------------
                             // struct LoggerCategoryUtil
                             // -------------------------
 
 // CLASS METHODS
 Category *LoggerCategoryUtil::addCategoryHierarchically(
-                                             LoggerManager *loggerManager,
-                                             const char    *categoryName)
+                                                  LoggerManager *loggerManager,
+                                                  const char    *categoryName)
 {
     BSLS_ASSERT(loggerManager);
     BSLS_ASSERT(categoryName);
@@ -93,7 +91,6 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
 
     const Category *longestPrefixCategory =  0;
     int             longestPrefixLength   = -1;
-
 
     using namespace bdlf::PlaceHolders;
     loggerManager->visitCategories(bdlf::BindUtil::bind(isLongerPrefixCategory,
@@ -123,14 +120,13 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
 }
 
 int LoggerCategoryUtil::setThresholdLevelsHierarchically(
-                                            LoggerManager *loggerManager,
-                                            const char    *categoryNamePrefix,
-                                            int            recordLevel,
-                                            int            passLevel,
-                                            int            triggerLevel,
-                                            int            triggerAllLevel)
+                                             LoggerManager *loggerManager,
+                                             const char    *categoryNamePrefix,
+                                             int            recordLevel,
+                                             int            passLevel,
+                                             int            triggerLevel,
+                                             int            triggerAllLevel)
 {
-
     BSLS_ASSERT(loggerManager);
     BSLS_ASSERT(categoryNamePrefix);
 
@@ -140,7 +136,6 @@ int LoggerCategoryUtil::setThresholdLevelsHierarchically(
                                            triggerAllLevel)) {
         return -1;                                                    // RETURN
     }
-
 
     int matchCount = 0;
 
@@ -200,7 +195,6 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

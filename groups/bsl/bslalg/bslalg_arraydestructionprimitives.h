@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that destroy arrays.
 //
-//@REVIEW_FOR_MASTER: doc, test driver, usage example
-//
 //@CLASSES:
 //  bslalg::ArrayDestructionPrimitives: namespace for array algorithms
 //
@@ -213,7 +211,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
     // 'bsl::is_trivially_copyable' is a valid surrogate for having a trivial
     // destructor.
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
     std::memset(begin, 0xa5, numBytes);
 #else
@@ -242,7 +240,7 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     // 'bsl::is_trivially_copyable' is a valid surrogate for having a trivial
     // destructor.
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
     std::memset(begin, 0xa5, numBytes);
 #else

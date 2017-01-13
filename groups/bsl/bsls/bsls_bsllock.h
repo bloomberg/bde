@@ -79,8 +79,6 @@ BSLS_IDENT("$Id: $")
 // that an acquired lock is always properly released, even if an exception is
 // thrown:
 //..
-//      BSLS_ASSERT(amount >= 0.0);
-//
 //      d_lock.lock();  // consider using 'bsls::BslLockGuard' (see 'withdraw')
 //      d_money += amount;
 //      d_lock.unlock();
@@ -93,8 +91,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  int my_Account::withdraw(double amount)
 //  {
-//      BSLS_ASSERT(amount >= 0.0);
-//
 //      bsls::BslLockGuard guard(&d_lock);  // a very good practice
 //
 //      if (amount <= d_money) {
@@ -107,24 +103,18 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-#ifndef INCLUDED_WTYPES
-#include <wtypes.h>
-#define INCLUDED_WTYPES
-#endif
-
-#ifndef INCLUDED_WINBASE
-#include <winbase.h>
-#define INCLUDED_WINBASE
+#ifndef INCLUDED_WINDOWS
+// windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
+// defined. BDE uses winsocks2.h for its transport facilities.
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#define INCLUDED_WINDOWS
 #endif
 
 #else
@@ -135,6 +125,23 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #endif
+
+#ifdef BDE_BUILD_TARGET_SAFE
+// This component needs to be below bsls_assert in the physical hierarchy, so
+// 'BSLS_ASSERT' macros can't be used here.  To workaround this issue, we use
+// the C 'assert' instead.
+
+#ifndef INCLUDED_ASSERT_H
+#include <assert.h>
+#endif
+#define BSLS_BSLLOCK_ASSERT_SAFE(x) assert((x))
+
+#else
+
+#define BSLS_BSLLOCK_ASSERT_SAFE(x)
+
+#endif
+
 
 namespace BloombergLP {
 namespace bsls {
@@ -256,7 +263,7 @@ BslLock::BslLock()
 #else
     const int status = pthread_mutex_init(&d_lock, 0);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -268,7 +275,7 @@ BslLock::~BslLock()
 #else
     const int status = pthread_mutex_destroy(&d_lock);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -281,7 +288,7 @@ void BslLock::lock()
 #else
     const int status = pthread_mutex_lock(&d_lock);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
+    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -293,7 +300,6 @@ void BslLock::unlock()
 #else
     const int status = pthread_mutex_unlock(&d_lock);
     (void)status;
-    BSLS_ASSERT_SAFE(0 == status);
 #endif
 }
 
@@ -306,8 +312,7 @@ inline
 BslLockGuard::BslLockGuard(BslLock *lock)
 : d_lock_p(lock)
 {
-    BSLS_ASSERT_SAFE(lock);
-
+    BSLS_BSLLOCK_ASSERT_SAFE(lock);
     d_lock_p->lock();
 }
 

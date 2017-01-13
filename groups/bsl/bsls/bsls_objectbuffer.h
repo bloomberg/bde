@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide raw buffer with size and alignment of user-specified type.
 //
-//@REVIEW_FOR_MASTER: review 'address' doc, test 'address'
-//
 //@CLASSES:
 //  bsls::ObjectBuffer: templatized buffer aligned to hold specified type
 //

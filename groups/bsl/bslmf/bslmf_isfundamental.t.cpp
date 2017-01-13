@@ -2,6 +2,13 @@
 
 #include <bslmf_isfundamental.h>
 
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
+#include <bslmf_addlvaluereference.h>
+#include <bslmf_addpointer.h>
+#include <bslmf_addrvaluereference.h>
+#include <bslmf_addvolatile.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -73,6 +80,117 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+// Each of the macros below will test a 'METAFUNC' trait type with a set of
+// variations on a 'TYPE'.  There are several layers of macros, as object types
+// support the full range of variation, but function types cannot form an
+// array, nor be cv-qualified.  Similarly, 'void' may be cv-qualified but still
+// cannot form an array.  As macros are strictly text-substitution we must use
+// the appropriate 'add_decoration' traits to transform types in a manner that
+// is guaranteed to be syntactically valid.  Note that these are not
+// type-dependent contexts, so there is no need to use 'typename' when fetching
+// the result from any of the queried traits.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# define LEGACY_ASSERT_REF(META_FUNC, TYPE, result)                           \
+    ASSERT(result == META_FUNC<                          TYPE       >::VALUE);\
+    ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::VALUE);\
+    ASSERT(false  == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::VALUE);
+#else
+# define LEGACY_ASSERT_REF(META_FUNC, TYPE, result)                           \
+    ASSERT(result == META_FUNC<                          TYPE       >::VALUE);\
+    ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::VALUE);
+#endif
+    // Lvalue-references are deemd to be fundamental, for purposes of a legacy
+    // trait, as long as they refer to a fundamental types; this macro tests
+    // whether a given 'TYPE' is fundemental according to a legacy METAFUNC
+    // trait, and whether any kind of reference to that TYPE is fundamental.
+
+# define LEGACY_ASSERT_CVQ(META_FUNC, TYPE, result)                          \
+         LEGACY_ASSERT_REF(META_FUNC,                   TYPE,        result) \
+         LEGACY_ASSERT_REF(META_FUNC, bsl::add_const<   TYPE>::type, result) \
+         LEGACY_ASSERT_REF(META_FUNC, bsl::add_volatile<TYPE>::type, result) \
+         LEGACY_ASSERT_REF(META_FUNC, bsl::add_cv<      TYPE>::type, result)
+    // Test all cv-qualified combinations on a type, and references to those
+    // same cv-qualified types.
+
+# define LEGACY_ASSERT_CVQP(META_FUNC,                  TYPE,        result) \
+         LEGACY_ASSERT_CVQ (META_FUNC,                  TYPE,        result) \
+         LEGACY_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
+    // Test whether a type is fundamental, and confirm that pointers to such a
+    // type are never fundamental.
+
+# define LEGACY_ASSERT_CVQ_NO_REF(META_FUNC, TYPE, result)                 \
+    ASSERT(result == META_FUNC<                  TYPE       >::VALUE);     \
+    ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::VALUE);     \
+    ASSERT(result == META_FUNC<bsl::add_volatile<TYPE>::type>::VALUE);     \
+    ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::VALUE);
+    // Test all cv-qualified combinations on a type, but not references to that
+    // type.
+
+# define LEGACY_ASSERT_CVQP_NO_REF(META_FUNC,           TYPE,        result) \
+         LEGACY_ASSERT_CVQ_NO_REF (META_FUNC,           TYPE,        result) \
+         LEGACY_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
+    // Test whether a type is fundamental, and confirm that pointers to such a
+    // type are never fundamental.
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
+    ASSERT(result == META_FUNC<                         TYPE       >::value); \
+    ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value); \
+    ASSERT(false == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value);
+#else
+# define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
+    ASSERT(result == META_FUNC<                         TYPE       >::value); \
+    ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value);
+#endif
+    // References are never fundamental types, but must safely be parsed by the
+    // metafunction under test, and give the expected ('false') result.
+
+# define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                          \
+         TYPE_ASSERT_REF(META_FUNC,                   TYPE,        result) \
+         TYPE_ASSERT_REF(META_FUNC, bsl::add_const<   TYPE>::type, result) \
+         TYPE_ASSERT_REF(META_FUNC, bsl::add_volatile<TYPE>::type, result) \
+         TYPE_ASSERT_REF(META_FUNC, bsl::add_cv<      TYPE>::type, result)
+    // Test all cv-qualified combinations on a type, and references to those
+    // same cv-qualified types.
+
+# define TYPE_ASSERT_CVQP(META_FUNC,                  TYPE,        result) \
+         TYPE_ASSERT_CVQ (META_FUNC,                  TYPE,        result) \
+         TYPE_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
+    // Test whether a type is fundamental, and confirm that pointers to such a
+    // type is never fundamental.
+
+# define TYPE_ASSERT_CVQ_NO_REF(META_FUNC, TYPE, result)                   \
+    ASSERT(result == META_FUNC<                  TYPE       >::value);     \
+    ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::value);     \
+    ASSERT(result == META_FUNC<bsl::add_volatile<TYPE>::type>::value);     \
+    ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::value);
+    // Test all cv-qualified combinations on a type, but not references to that
+    // type.
+
+# define TYPE_ASSERT_CVQP_NO_REF(META_FUNC,           TYPE,        result) \
+         TYPE_ASSERT_CVQ_NO_REF (META_FUNC,           TYPE,        result) \
+         TYPE_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
+    // Test whether a type is fundamental, and confirm that pointers to such a
+    // type is never fundamental, but do not test references to such a type.
+
+
+#if defined(BSLS_PLATFORM_CMP_IBM)                                    \
+ || defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_ISFUNDAMENTAL_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND 1
+        // The IBM xlC compiler does not handle arrays of unknown bounds as
+        // template type parameters.  Older Microsoft compilers have problems
+        // with references to arrays of unknown bound that fall out of the
+        // template metaprograms used to implement this trait.
+#endif
+
+//=============================================================================
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
 
@@ -135,30 +253,6 @@ struct Incomplete;
     // template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 }  // close unnamed namespace
-
-#define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
-    ASSERT(result == metaFunc<type>::member);                                 \
-    ASSERT(result == metaFunc<type const>::member);                           \
-    ASSERT(result == metaFunc<type volatile>::member);                        \
-    ASSERT(result == metaFunc<type const volatile>::member);
-
-#define TYPE_ASSERT_CVQ_PREFIX(metaFunc, member, type, result)                \
-    ASSERT(result == metaFunc<type>::member);                                 \
-    ASSERT(result == metaFunc<const type>::member);                           \
-    ASSERT(result == metaFunc<volatile type>::member);                        \
-    ASSERT(result == metaFunc<const volatile type>::member);
-
-#define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
-    ASSERT(result == metaFunc<type&>::member);                                \
-    ASSERT(result == metaFunc<type const&>::member);                          \
-    ASSERT(result == metaFunc<type volatile&>::member);                       \
-    ASSERT(result == metaFunc<type const volatile&>::member);
-
-#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result);                   \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const type, result);             \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
-    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -239,6 +333,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 'IsFundamental::VALUE' is 0 when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
+        //:
+        //: 5 'is_fundamental::value' is '1' when 'TYPE' is a (possibly
+        //:   cv-qualified) 'bsl::nullptr_t' type if the 'nullptr' keyword is
+        //:   is supported, and '0' otherwise.
         //
         // Plan:
         //   Verify that 'bslmf::IsFundamental::VALUE' has the correct value
@@ -250,151 +348,58 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("'bslmf::IsFundamental::VALUE'\n"
                             "=============================\n");
-
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, char,                   1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, signed char,            1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, unsigned char,          1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, wchar_t,                1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, short int,              1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, unsigned short int,     1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, int,                    1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, unsigned int,           1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, long int,               1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, unsigned long int,      1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, float,                  1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, double,                 1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, long double,            1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, void,                   1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, long long int,          1);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                       bslmf::IsFundamental, VALUE, unsigned long long int, 1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, char,                   1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, signed char,            1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, unsigned char,          1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, wchar_t,                1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, short int,              1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, unsigned short int,     1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, int,                    1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, unsigned int,           1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, long int,               1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, unsigned long int,      1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, float,                  1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, double,                 1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, long double,            1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, long long int,          1);
-        TYPE_ASSERT_CVQ_REF(
-                       bslmf::IsFundamental, VALUE, unsigned long long int, 1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char,                   1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, signed char,            1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned char,          1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, wchar_t,                1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, short int,              1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned short int,     1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int,                    1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned int,           1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, long int,               1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned long int,      1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, float,                  1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, double,                 1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, long double,            1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, long long int,          1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, unsigned long long int, 1);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_LEGACYS)
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char16_t,               1);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char32_t,               1);
+#endif
+
+        LEGACY_ASSERT_CVQP_NO_REF(bslmf::IsFundamental, void,            1);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(
-                         bslmf::IsFundamental, VALUE, EnumTestType,         0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                         bslmf::IsFundamental, VALUE, StructTestType,       0);
-        TYPE_ASSERT_CVQ_REF   (
-                         bslmf::IsFundamental, VALUE, StructTestType,       0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                         bslmf::IsFundamental, VALUE, UnionTestType,        0);
-        TYPE_ASSERT_CVQ_REF   (
-                         bslmf::IsFundamental, VALUE, UnionTestType,        0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                         bslmf::IsFundamental, VALUE, Incomplete,           0);
-        TYPE_ASSERT_CVQ_REF   (
-                         bslmf::IsFundamental, VALUE, Incomplete,           0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                         bslmf::IsFundamental, VALUE, BaseClassTestType,    0);
-        TYPE_ASSERT_CVQ_REF   (
-                         bslmf::IsFundamental, VALUE, BaseClassTestType,    0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                         bslmf::IsFundamental, VALUE, DerivedClassTestType, 0);
-        TYPE_ASSERT_CVQ_REF   (
-                         bslmf::IsFundamental, VALUE, DerivedClassTestType, 0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, EnumTestType,           0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, StructTestType,         0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, UnionTestType,          0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, Incomplete,             0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, BaseClassTestType,      0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, DerivedClassTestType,   0);
 
         // C-3
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, int*,                       0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, StructTestType*,            0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, int StructTestType::* *,    0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, UnionTestType*,             0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::* *, 0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, BaseClassTestType*,         0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, DerivedClassTestType*,      0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, Incomplete*,                0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                   bslmf::IsFundamental, VALUE, FunctionPtrTestType,        0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, int*,                       0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, StructTestType*,            0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, int StructTestType::*,      0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, int StructTestType::* *,    0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, UnionTestType*,             0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::*,   0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::* *, 0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, BaseClassTestType*,         0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, DerivedClassTestType*,      0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, Incomplete*,                0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, FunctionPtrTestType,        0);
-        TYPE_ASSERT_CVQ_REF(
-                   bslmf::IsFundamental, VALUE, MethodPtrTestType,          0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, int StructTestType::*,      0);
-        TYPE_ASSERT_CVQ(
-                   bslmf::IsFundamental, VALUE, PMD BaseClassTestType::*,   0);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                   bslmf::IsFundamental, VALUE, MethodPtrTestType,          0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int StructTestType::*,  0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, MethodPtrTestType,      0);
 
         // C-4
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (int),  0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (void), 0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, int  (void), 0);
-        TYPE_ASSERT_CVQ_PREFIX(bslmf::IsFundamental, VALUE, void (int),  0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int  (),                0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, void (char...),         0);
 
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int[5],                 0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int[5][42],             0);
+#if !defined(BSLMF_ISFUNDAMENTAL_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND)
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int[ ],                 0);
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int[ ][42],             0);
+#endif
+
+        // C -5
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, bsl::nullptr_t,         1);
+#else
+        LEGACY_ASSERT_CVQP(bslmf::IsFundamental, bsl::nullptr_t,         0);
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -416,6 +421,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 'is_fundamental::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
+        //:
+        //: 5 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
+        //:   cv-qualified) 'bsl::nullptr_t' type if the 'nullptr' keyword is
+        //:   is supported, and 'false' otherwise.
         //
         // Plan:
         //   Verify that 'bsl::is_fundamental::value' has the correct value for
@@ -429,149 +438,57 @@ int main(int argc, char *argv[])
                             "============================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, char,                    true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, signed char,             true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, unsigned char,           true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, wchar_t,                 true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, short int,               true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, unsigned short int,      true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, int,                     true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, unsigned int,            true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, long int,                true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, unsigned long int,       true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, float,                   true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, double,                  true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, long double,             true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, void,                    true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, long long int,           true);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                    bsl::is_fundamental, value, unsigned long long int,  true);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, char,                   false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, signed char,            false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, unsigned char,          false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, wchar_t,                false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, short int,              false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, unsigned short int,     false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, int,                    false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, unsigned int,           false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, long int,               false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, unsigned long int,      false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, float,                  false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, double,                 false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, long double,            false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, long long int,          false);
-        TYPE_ASSERT_CVQ_REF(
-                    bsl::is_fundamental, value, unsigned long long int, false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, char,                   true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, signed char,            true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned char,          true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, wchar_t,                true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, short int,              true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned short int,     true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int,                    true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned int,           true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, long int,               true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned long int,      true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, float,                  true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, double,                 true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, long double,            true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, long long int,          true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, unsigned long long int, true);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, char16_t,               true);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, char32_t,               true);
+#endif
+
+        TYPE_ASSERT_CVQP_NO_REF(bsl::is_fundamental, void,            true);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(
-                           bsl::is_fundamental, value, EnumTestType,    false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                           bsl::is_fundamental, value, StructTestType,  false);
-        TYPE_ASSERT_CVQ_REF   (
-                           bsl::is_fundamental, value, StructTestType,  false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                           bsl::is_fundamental, value, UnionTestType,   false);
-        TYPE_ASSERT_CVQ_REF   (
-                           bsl::is_fundamental, value, UnionTestType,   false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                           bsl::is_fundamental, value, Incomplete,      false);
-        TYPE_ASSERT_CVQ_REF   (
-                           bsl::is_fundamental, value, Incomplete,      false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                      bsl::is_fundamental, value, BaseClassTestType,    false);
-        TYPE_ASSERT_CVQ_REF   (
-                      bsl::is_fundamental, value, BaseClassTestType,    false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                      bsl::is_fundamental, value, DerivedClassTestType, false);
-        TYPE_ASSERT_CVQ_REF   (
-                      bsl::is_fundamental, value, DerivedClassTestType, false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, EnumTestType,           false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, StructTestType,         false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, UnionTestType,          false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, Incomplete,             false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, BaseClassTestType,      false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, DerivedClassTestType,   false);
 
         // C-3
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, int*,                       false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, StructTestType*,            false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, int StructTestType::* *,    false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, UnionTestType*,             false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, PMD BaseClassTestType::* *, false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, BaseClassTestType*,         false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, DerivedClassTestType*,      false);
-        TYPE_ASSERT_CVQ(
-                bsl::is_fundamental, value, Incomplete*,                false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                bsl::is_fundamental, value, FunctionPtrTestType,        false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, int*,                       false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, StructTestType*,            false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, int StructTestType::*,      false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, int StructTestType::* *,    false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, UnionTestType*,             false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, PMD BaseClassTestType::*,   false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, PMD BaseClassTestType::* *, false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, BaseClassTestType*,         false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, DerivedClassTestType*,      false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, Incomplete*,                false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, FunctionPtrTestType,        false);
-        TYPE_ASSERT_CVQ_REF(
-                bsl::is_fundamental, value, MethodPtrTestType,          false);
-        TYPE_ASSERT_CVQ(
-                  bsl::is_fundamental, value, int StructTestType::*,    false);
-        TYPE_ASSERT_CVQ(
-                  bsl::is_fundamental, value, PMD BaseClassTestType::*, false);
-        TYPE_ASSERT_CVQ_SUFFIX(
-                  bsl::is_fundamental, value, MethodPtrTestType,        false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int StructTestType::*,  false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, MethodPtrTestType,      false);
 
         // C-4
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, int  (int),  false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, void (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, int  (void), false);
-        TYPE_ASSERT_CVQ_PREFIX(bsl::is_fundamental, value, void (int),  false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int  (),                false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, void (char...),         false);
 
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int[5],                 false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int[5][42],             false);
+#if !defined(BSLMF_ISFUNDAMENTAL_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND)
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int[ ],                 false);
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, int[ ][42],             false);
+#endif
+
+        // C -5
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, bsl::nullptr_t,          true);
+#else
+        TYPE_ASSERT_CVQP(bsl::is_fundamental, bsl::nullptr_t,         false);
+#endif
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -573,47 +573,72 @@ template <class VALUE, class CONTAINER>
 bool operator==(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'queue' objects have the same value
-    // if the containers they adapt have the same value.
+    // value, and 'false' otherwise.  Two 'queue' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type 'VALUE'
+    // be 'equality-comparable' (see {Requirements on 'VALUE'}).
 
 template <class VALUE, class CONTAINER>
 bool operator!=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'queue' objects do not have the
-    // same value if the containers they adapt do not have the same value.
+    // same value, and 'false' otherwise.  Two 'queue' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE' be 'equality-comparable' (see {Requirements on
+    // 'VALUE'}).
 
 template <class VALUE, class CONTAINER>
 bool operator< (const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is less than the specified
-    // 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is less than queue
-    // 'rhs' if the container adapted by 'lhs' is less than the container
-    // adapted by 'rhs'.
+    // Return 'true' if the value of the specified 'lhs' queue is
+    // lexicographically less than that of the specified 'rhs' queue, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of queue 'lhs' is lexicographically less than that of queue
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
 
 template <class VALUE, class CONTAINER>
 bool operator> (const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is greater than the specified
-    // 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is greater than 'rhs'
-    // if the container adapted by 'lhs' is greater than the container adapted
-    // by 'rhs'.
-
-template <class VALUE, class CONTAINER>
-bool operator>=(const queue<VALUE, CONTAINER>& lhs,
-                const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is greater-than or equal-to
-    // the specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is
-    // greater-than or equal-to queue 'rhs' if the container adapted by 'lhs'
-    // is greater-than or equal-to that adapted by 'rhs'.
+    // Return 'true' if the value of the specified 'lhs' queue is
+    // lexicographically greater than that of the specified 'rhs' queue, and
+    // 'false' otherwise.  The value of queue 'lhs' is lexicographically
+    // greater than that of queue 'rhs' if 'rhs' is lexicographically less than
+    // 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
 
 template <class VALUE, class CONTAINER>
 bool operator<=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is less-than or equal-to the
-    // specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is
-    // lexicographically less-than or equal-to queue 'rhs' if the container
-    // adapted by 'lhs' is less-than or equal-to that adapted by 'rhs'.
+    // Return 'true' if the value of the specified 'lhs' queue is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // queue, and 'false' otherwise.  The value of queue 'lhs' is
+    // lexicographically less than or equal to that of queue 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
+
+template <class VALUE, class CONTAINER>
+bool operator>=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
+    // Return 'true' if the value of the specified 'lhs' queue is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // queue, and 'false' otherwise.  The value of queue 'lhs' is
+    // lexicographically greater than or equal to that of queue 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
@@ -1092,18 +1117,18 @@ bool operator==(const queue<VALUE, CONTAINER>& lhs,
 
 template <class VALUE, class CONTAINER>
 inline
-bool operator< (const queue<VALUE, CONTAINER>& lhs,
-                const queue<VALUE, CONTAINER>& rhs)
-{
-    return lhs.c < rhs.c;
-}
-
-template <class VALUE, class CONTAINER>
-inline
 bool operator!=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c != rhs.c;
+}
+
+template <class VALUE, class CONTAINER>
+inline
+bool operator< (const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c < rhs.c;
 }
 
 template <class VALUE, class CONTAINER>
@@ -1116,18 +1141,18 @@ bool operator> (const queue<VALUE, CONTAINER>& lhs,
 
 template <class VALUE, class CONTAINER>
 inline
-bool operator>=(const queue<VALUE, CONTAINER>& lhs,
-                const queue<VALUE, CONTAINER>& rhs)
-{
-    return lhs.c >= rhs.c;
-}
-
-template <class VALUE, class CONTAINER>
-inline
 bool operator<=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c <= rhs.c;
+}
+
+template <class VALUE, class CONTAINER>
+inline
+bool operator>=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
+{
+    return lhs.c >= rhs.c;
 }
 
 // FREE FUNCTIONS

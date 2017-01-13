@@ -109,12 +109,20 @@ BSLS_IDENT("$Id: $ $CSID: $")
 #include <bslx_outstreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -132,6 +140,14 @@ BSLS_IDENT("$Id: $ $CSID: $")
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace baltzo {
@@ -158,9 +174,8 @@ class LocalDatetime {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(LocalDatetime,
-                                  bslalg::TypeTraitBitwiseMoveable,
-                                  bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(LocalDatetime, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(LocalDatetime, bslmf::IsBitwiseMoveable);
 
     // CLASS METHODS
 

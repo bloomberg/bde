@@ -140,16 +140,18 @@ namespace bsl {
     using native_std::is_trivially_assignable;
     using native_std::is_trivially_copy_assignable;
     using native_std::is_trivially_move_assignable;
+    using native_std::is_trivially_destructible;
 #endif
 #if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
-    using native_std::is_trivially_destructible;
     using native_std::is_nothrow_constructible;
     using native_std::is_nothrow_default_constructible;
     using native_std::is_nothrow_copy_constructible;
     using native_std::is_nothrow_assignable;
     using native_std::is_nothrow_copy_assignable;
     using native_std::is_nothrow_move_assignable;
+# if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40800
     using native_std::is_nothrow_destructible;
+# endif
 #endif
     using native_std::has_virtual_destructor;
 

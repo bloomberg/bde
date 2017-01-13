@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide testing type that is move-only & uses 'bslma' allocators.
 //
-//@REVIEW_FOR_MASTER:
-//
 //@CLASSES:
 //   bsltf::MoveOnlyAllocTestType: move-only, allocating test class
 //

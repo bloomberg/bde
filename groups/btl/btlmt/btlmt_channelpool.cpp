@@ -2320,7 +2320,7 @@ void Channel::setWriteQueueHighWatermarkRaw(int numBytes, ChannelHandle self)
         }
      }
 
-    // It is possible that the queue size had previously exceeded the the high
+    // It is possible that the queue size had previously exceeded the high
     // watermark level resulting in the enqueuing of a high-watermark alert.
     // Now, even if the queue size is below the high watermark level we have no
     // way of dequeuing that alert.  So we leave 'd_highWatermarkAlertState'
@@ -4734,7 +4734,7 @@ void ChannelPool::getHandleStatistics(
             const ServerState& ss   = *(iter->second);
 
             // Because we hold the 'd_acceptorsLock', it's impossible that
-            // 'ss.d_socket_p' could be 0 as is is set once and for all in
+            // 'ss.d_socket_p' could be 0 as it is set once and for all in
             // 'listen()' under the lock.
 
             info.d_handle       = ss.d_socket_p->handle();

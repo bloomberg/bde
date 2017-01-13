@@ -35,7 +35,7 @@ namespace {
                           // ------------------
 
 struct Vector_Base {
-    // This 'struct' must have the same layout as 'bsl::Vector_ImpBase' 
+    // This 'struct' must have the same layout as 'bsl::Vector_ImpBase'
     // (defined in the .h file).
 
     // DATA

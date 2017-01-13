@@ -1373,8 +1373,8 @@ int main(int argc, char *argv[])
         //      to be resized either by constant or exponential growth based on
         //      whether 'bufSize' is positive or negative.
         //   4. All requests over a specified THRESHOLD are satisfied directly
-        //      from the blockList if the they cannot be satisfied by the
-        //      pool's internal buffer
+        //      from the blockList if they cannot be satisfied by the pool's
+        //      internal buffer,
         //   5. The buffer returned in aligned according to the specified
         //      strategy.
         //
