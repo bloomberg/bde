@@ -171,51 +171,51 @@ BSLS_IDENT("$Id: $")
     BDLS_TESTUTIL_ASSERT
 
 #define BDLS_TESTUTIL_LOOP_ASSERT(I,X)                                        \
-    if (!(X)) { cout << #I << ": " << I << "\n";                              \
+    if (!(X)) { bsl::cout << #I << ": " << I << "\n";                         \
                 aSsErT(1, #X, __LINE__); }
 
 #define BDLS_TESTUTIL_LOOP1_ASSERT                                            \
     BDLS_TESTUTIL_LOOP_ASSERT
 
 #define BDLS_TESTUTIL_LOOP2_ASSERT(I,J,X)                                     \
-    if (!(X)) { cout << #I << ": " << I << "\t"                               \
-                     << #J << ": " << J << "\n";                              \
+    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
+                          << #J << ": " << J << "\n";                         \
                 aSsErT(1, #X, __LINE__); }
 
 #define BDLS_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                   \
-    if (!(X)) { cout << #I << ": " << I << "\t"                               \
-                     << #J << ": " << J << "\t"                               \
-                     << #K << ": " << K << "\n";                              \
+    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
+                          << #J << ": " << J << "\t"                          \
+                          << #K << ": " << K << "\n";                         \
                 aSsErT(1, #X, __LINE__); }
 
 #define BDLS_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t"                               \
-                     << #J << ": " << J << "\t"                               \
-                     << #K << ": " << K << "\t"                               \
-                     << #L << ": " << L << "\n";                              \
+    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
+                          << #J << ": " << J << "\t"                          \
+                          << #K << ": " << K << "\t"                          \
+                          << #L << ": " << L << "\n";                         \
                 aSsErT(1, #X, __LINE__); }
 
 #define BDLS_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                               \
-    if (!(X)) { cout << #I << ": " << I << "\t"                               \
-                     << #J << ": " << J << "\t"                               \
-                     << #K << ": " << K << "\t"                               \
-                     << #L << ": " << L << "\t"                               \
-                     << #M << ": " << M << "\n";                              \
-               aSsErT(1, #X, __LINE__); }
+    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
+                          << #J << ": " << J << "\t"                          \
+                          << #K << ": " << K << "\t"                          \
+                          << #L << ": " << L << "\t"                          \
+                          << #M << ": " << M << "\n";                         \
+                aSsErT(1, #X, __LINE__); }
 
 #define BDLS_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                             \
-    if (!(X)) { cout << #I << ": " << I << "\t"                               \
-                     << #J << ": " << J << "\t"                               \
-                     << #K << ": " << K << "\t"                               \
-                     << #L << ": " << L << "\t"                               \
-                     << #M << ": " << M << "\t"                               \
-                     << #N << ": " << N << "\n";                              \
-               aSsErT(1, #X, __LINE__); }
+    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
+                          << #J << ": " << J << "\t"                          \
+                          << #K << ": " << K << "\t"                          \
+                          << #L << ": " << L << "\t"                          \
+                          << #M << ": " << M << "\t"                          \
+                          << #N << ": " << N << "\n";                         \
+                aSsErT(1, #X, __LINE__); }
 
+// The 'BDLS_TESTUTIL_EXPAND' macro is required to work around a preprocessor
+// issue on Windows that prevents '__VA_ARGS__' from being expanded in the
+// definition of 'BDLS_TESTUTIL_NUM_ARGS'.
 
-// The 'BDLS_TESTUTIL_EXPAND' macro is required to workaround a pre-processor
-// issue on windows that prevents __VA_ARGS__ to be expanded in the definition
-// of 'BDLS_TESTUTIL_NUM_ARGS'
 #define BDLS_TESTUTIL_EXPAND(X)                                               \
     X
 
@@ -237,15 +237,15 @@ BSLS_IDENT("$Id: $")
                               BDLS_TESTUTIL_NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 #define BDLS_TESTUTIL_Q(X)                                                    \
-    cout << "<| " #X " |>" << endl;
+    bsl::cout << "<| " #X " |>" << bsl::endl;
     // Quote identifier literally.
 
 #define BDLS_TESTUTIL_P(X)                                                    \
-    cout << #X " = " << (X) << endl;
+    bsl::cout << #X " = " << (X) << bsl::endl;
     // Print identifier and its value.
 
 #define BDLS_TESTUTIL_P_(X)                                                   \
-    cout << #X " = " << (X) << ", " << flush;
+    bsl::cout << #X " = " << (X) << ", " << bsl::flush;
     // 'P(X)' without '\n'
 
 #define BDLS_TESTUTIL_L_                                                      \
@@ -253,9 +253,8 @@ BSLS_IDENT("$Id: $")
     // current Line number
 
 #define BDLS_TESTUTIL_T_                                                      \
-    cout << "\t" << flush;
+    bsl::cout << "\t" << bsl::flush;
     // Print tab (w/o newline).
-
 
 namespace BloombergLP {
 namespace bsltf {
@@ -289,7 +288,6 @@ bsl::ostream& operator<<(bsl::ostream&                          stream,
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
     // operation has no effect.
-
 
 // ============================================================================
 //                          INLINE DEFINITIONS
