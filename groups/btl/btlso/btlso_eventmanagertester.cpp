@@ -138,13 +138,13 @@ static int ggHelper(btlso::EventManager         *mX,
                     int                          flags);
 
 extern "C"
-void bteso_eventmanagertester_nullFunctor()
+void btlso_eventmanagertester_nullFunctor()
 {
 }
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 extern "C"
-void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
+void* btlso_eventmanagertester_threadSignalGenerator(void *arg)
     // Generate signal 'SIGSYS' and deliver it to a thread specified in 'arg'.
     // Note the test can only work on UNIX platforms since window doesn't
     // support signal operations.
@@ -1461,7 +1461,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             int ret = bslmt::ThreadUtil::create(
                                &threadHandle[i],
                                attributes,
-                               &bteso_eventmanagertester_threadSignalGenerator,
+                               &btlso_eventmanagertester_threadSignalGenerator,
                                &threadInfo);
             if (0 != ret) {
                 bsl::printf("bslmt::ThreadUtil::create() call at line %d "
@@ -1709,7 +1709,7 @@ EventManagerTester::testDispatchPerformance(EventManager *mX,
             socketPairs[i].setControlBufferOptions(k_BUF_LEN, 1);
 
             if ('N' == reads) {
-                readCb[i] = &bteso_eventmanagertester_nullFunctor;
+                readCb[i] = &btlso_eventmanagertester_nullFunctor;
             }
             else {
                 readCb[i] = bdlf::BindUtil::bind(&genericCb,
@@ -1892,7 +1892,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX, int flags)
 
     BSLS_ASSERT_OPT(numSockets >= 10);
 
-    EventManager::Callback nullCb = &bteso_eventmanagertester_nullFunctor;
+    EventManager::Callback nullCb = &btlso_eventmanagertester_nullFunctor;
 
     bslma::TestAllocator testAllocator(
                               flags & EventManagerTester::k_VERY_VERY_VERBOSE);
