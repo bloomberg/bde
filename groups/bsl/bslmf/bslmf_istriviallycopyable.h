@@ -252,16 +252,19 @@ struct is_trivially_copyable
     // 'bsl::true_type' for them.
 };
 
-
-// IMPLEMENTATION NOTE: We specialize 'is_trivially_copyable' for
-// 'bsls::TimeInterval' here because 'bsls' is levelized below 'bslmf'.
-// Previously 'bsls_timeinterval.h' had forward declared the
-// 'is_trivially_copyable' template and provided a specialization for
-// 'TimeInterval' (see BDE 2.24.0 tag), but the forward declaration caused
-// compilation errors with the Sun CC 5.13 compiler.
+///IMPLEMENTATION NOTE
+///-------------------
+// We specialize 'is_trivially_copyable' for 'bsls::TimeInterval' here because
+// 'bsls' is levelized below 'bslmf'.  Previously, 'bsls_timeinterval.h' had
+// forward declared the 'is_trivially_copyable' template and provided a
+// specialization for 'TimeInterval' (see BDE 2.24.0 tag), but the forward
+// declaration caused compilation errors with the Sun CC 5.13 compiler.
 //
-// This trait declaration is not needed once we migrate to a C++11 definition
-// for 'is_trivially_copyable'.
+// We specialize 'is_trivially_copyable' for 'bslmf::Nil' here to avoid
+// increasing the dependency envelope of 'bslmf_nil'.
+//
+// Neither of these trait declarations will be needed once we fully migrate to
+// a C++11 definition for 'is_trivially_copyable'.
 
 template <>
 struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> : bsl::true_type{
