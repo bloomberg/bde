@@ -848,6 +848,11 @@ class Function_Imp<RET(ARGS...)> :
         static bool isNull(const FUNC&) { return false; }
     };
 
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
+
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
         // Return the invoker for an invocable of the specified 'FUNC' type.
@@ -1034,6 +1039,11 @@ class Function_Imp<RET()> :
         static bool isNull(const FUNC&) { return false; }
     };
 
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
+
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
     {
@@ -1170,6 +1180,11 @@ class Function_Imp<RET(ARGS_01)> :
                    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1315,6 +1330,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1471,6 +1491,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1638,6 +1663,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1816,6 +1846,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2005,6 +2040,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2205,6 +2245,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2416,6 +2461,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2638,6 +2688,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2871,6 +2926,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -3115,6 +3175,11 @@ class Function_Imp<RET(ARGS_01,
                    typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -3371,6 +3436,11 @@ class Function_Imp<RET(ARGS_01,
         static bool isNull(const FUNC&) { return false; }
     };
 
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
+
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
     {
@@ -3544,6 +3614,11 @@ class Function_Imp<RET(ARGS...)> :
                    typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
         static bool isNull(const FUNC&) { return false; }
     };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
