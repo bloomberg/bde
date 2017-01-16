@@ -18,10 +18,10 @@ namespace bdlt {
 // STATIC HELPER FUNCTIONS
 
 static
-int fastMod(int *number, int base)
-    // Efficiently mod ('%') the specified 'number' by the specified 'base'
-    // and store the result back into 'number'; return the value of the
-    // original 'number' divided by 'base'.  The behavior is undefined unless
+bsls::Types::Int64 fastMod(bsls::Types::Int64 *number, bsls::Types::Int64 base)
+    // Efficiently mod ('%') the specified 'number' by the specified 'base' and
+    // store the result back into 'number'; return the value of the original
+    // 'number' divided by 'base'.  The behavior is undefined unless
     // '1 <= base'.  Note that, for efficiency, this function uses the native
     // '%' operator which, for an initially negative '*number' may, depending
     // on the platform, have a positive or negative result (whose absolute
@@ -34,8 +34,8 @@ int fastMod(int *number, int base)
     BSLS_ASSERT_SAFE(number);
     BSLS_ASSERT_SAFE(1 <= base);
 
-    const int initial = *number;
-    const int result  = initial / base;
+    const bsls::Types::Int64 initial = *number;
+    const bsls::Types::Int64 result  = initial / base;
 
     *number = initial % base;
 
@@ -45,7 +45,7 @@ int fastMod(int *number, int base)
 }
 
 static
-int modulo(int *number, int base)
+bsls::Types::Int64 modulo(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     // Mod ('%') the specified 'number' by the specified 'base', and store the
     // result back into '*number'; return the value of the original '*number'
     // divided by 'base'.  If the result of the mod operation is negative,
@@ -59,7 +59,7 @@ int modulo(int *number, int base)
     BSLS_ASSERT_SAFE(number);
     BSLS_ASSERT_SAFE(1 <= base);
 
-    int result = *number / base;
+    bsls::Types::Int64 result = *number / base;
     *number %= base;
 
     // Adjust modulus to a positive value, if necessary.
@@ -75,219 +75,283 @@ int modulo(int *number, int base)
     return result;
 }
 
-                        // ----------
-                        // class Time
-                        // ----------
+                                // ----------
+                                // class Time
+                                // ----------
+
+// CLASS DATA
+bsls::AtomicInt64 Time::s_invalidRepresentationCount(0);
 
 // MANIPULATORS
-int Time::addHours(int hours)
+bsls::Types::Int64 Time::addHours(bsls::Types::Int64 hours)
 {
-    d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_D_32;
-                                                 // Force zero if 24:00:00.000.
+    bsls::Types::Int64 totalMicroseconds =
+                        microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
+                                              // Force zero if 24:00:00.000000.
 
-    int wholeDays = fastMod(&hours, bdlt::TimeUnitRatio::k_H_PER_D_32);
-    d_milliseconds += hours * bdlt::TimeUnitRatio::k_MS_PER_H_32;
-    return wholeDays + modulo(&d_milliseconds,
-                              bdlt::TimeUnitRatio::k_MS_PER_D_32);
+    bsls::Types::Int64 wholeDays = fastMod(&hours, TimeUnitRatio::k_H_PER_D);
+
+    totalMicroseconds += hours * TimeUnitRatio::k_US_PER_H;
+    wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
+
+    setMicrosecondsFromMidnight(totalMicroseconds);
+
+    return wholeDays;
 }
 
-int Time::addMinutes(int minutes)
+bsls::Types::Int64 Time::addMinutes(bsls::Types::Int64 minutes)
 {
-    d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_D_32;
-                                                 // Force zero if 24:00:00.000.
+    bsls::Types::Int64 totalMicroseconds =
+                        microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
+                                              // Force zero if 24:00:00.000000.
 
-    int wholeDays = fastMod(&minutes,
-                            bdlt::TimeUnitRatio::k_M_PER_D_32);
-    d_milliseconds += minutes * bdlt::TimeUnitRatio::k_MS_PER_M_32;
-    return wholeDays + modulo(&d_milliseconds,
-                              bdlt::TimeUnitRatio::k_MS_PER_D_32);
+    bsls::Types::Int64 wholeDays = fastMod(&minutes, TimeUnitRatio::k_M_PER_D);
+
+    totalMicroseconds += minutes * TimeUnitRatio::k_US_PER_M;
+    wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
+
+    setMicrosecondsFromMidnight(totalMicroseconds);
+
+    return wholeDays;
 }
 
-int Time::addSeconds(int seconds)
+bsls::Types::Int64 Time::addSeconds(bsls::Types::Int64 seconds)
 {
-    d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_D_32;
-                                                 // Force zero if 24:00:00.000.
+    bsls::Types::Int64 totalMicroseconds =
+                        microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
+                                              // Force zero if 24:00:00.000000.
 
-    int wholeDays = fastMod(&seconds,
-                            bdlt::TimeUnitRatio::k_S_PER_D_32);
-    d_milliseconds += seconds * bdlt::TimeUnitRatio::k_MS_PER_S_32;
-    return wholeDays + modulo(&d_milliseconds,
-                              bdlt::TimeUnitRatio::k_MS_PER_D_32);
+    bsls::Types::Int64 wholeDays = fastMod(&seconds, TimeUnitRatio::k_S_PER_D);
+
+    totalMicroseconds += seconds * TimeUnitRatio::k_US_PER_S;
+    wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
+
+    setMicrosecondsFromMidnight(totalMicroseconds);
+
+    return wholeDays;
 }
 
-int Time::addMilliseconds(int milliseconds)
+bsls::Types::Int64 Time::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_D_32;
-                                                 // Force zero if 24:00:00.000.
+    bsls::Types::Int64 totalMicroseconds =
+                        microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
+                                              // Force zero if 24:00:00.000000.
 
-    int wholeDays = fastMod(&milliseconds,
-                            bdlt::TimeUnitRatio::k_MS_PER_D_32);
-    d_milliseconds += milliseconds;
-    return wholeDays + modulo(&d_milliseconds,
-                              bdlt::TimeUnitRatio::k_MS_PER_D_32);
+    bsls::Types::Int64 wholeDays = fastMod(&milliseconds,
+                                           TimeUnitRatio::k_MS_PER_D);
+
+    totalMicroseconds += milliseconds * TimeUnitRatio::k_US_PER_MS;
+    wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
+
+    setMicrosecondsFromMidnight(totalMicroseconds);
+
+    return wholeDays;
 }
 
-int Time::addInterval(const DatetimeInterval& interval)
+bsls::Types::Int64 Time::addMicroseconds(bsls::Types::Int64 microseconds)
 {
-    d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_D_32;
-                                                 // Force zero if 24:00:00.000.
+    bsls::Types::Int64 totalMicroseconds =
+                        microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
+                                              // Force zero if 24:00:00.000000.
 
-    // We must perform the 64-bit normalization with temporaries before
-    // adjusting the 'int' 'd_milliseconds' value to avoid integer overflow.
+    bsls::Types::Int64 wholeDays = fastMod(&microseconds,
+                                           TimeUnitRatio::k_US_PER_D);
 
-    const bsls::Types::Int64 totalMsec = interval.totalMilliseconds();
+    totalMicroseconds += microseconds;
+    wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
 
-    const int normMsec  = static_cast<int>(totalMsec
-                                            % bdlt::TimeUnitRatio::k_MS_PER_D);
+    setMicrosecondsFromMidnight(totalMicroseconds);
 
-    const bsls::Types::Int64 wholeDays = totalMsec
-                                             / bdlt::TimeUnitRatio::k_MS_PER_D;
-
-    const bsls::Types::Int64 totalWholeDays = wholeDays
-                                                   + addMilliseconds(normMsec);
-
-    BSLS_ASSERT(bsl::numeric_limits<int>::min() <= totalWholeDays);
-    BSLS_ASSERT(bsl::numeric_limits<int>::max() >= totalWholeDays);
-
-    return static_cast<int>(totalWholeDays);
+    return wholeDays;
 }
 
-int Time::addTime(int hours, int minutes, int seconds, int milliseconds)
+bsls::Types::Int64 Time::addTime(bsls::Types::Int64 hours,
+                                 bsls::Types::Int64 minutes,
+                                 bsls::Types::Int64 seconds,
+                                 bsls::Types::Int64 milliseconds,
+                                 bsls::Types::Int64 microseconds)
 {
-    d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_D_32;
-                                                 // Force zero if 24:00:00.000.
+    bsls::Types::Int64 totalMicroseconds =
+                        microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
+                                              // Force zero if 24:00:00.000000.
 
-    int wholeDays = fastMod(&hours, bdlt::TimeUnitRatio::k_H_PER_D_32);
-    d_milliseconds += hours * bdlt::TimeUnitRatio::k_MS_PER_H_32;
+    bsls::Types::Int64 wholeDays = fastMod(&hours,
+                                           TimeUnitRatio::k_H_PER_D);
 
-    wholeDays += fastMod(&minutes, bdlt::TimeUnitRatio::k_M_PER_D_32);
-    d_milliseconds += minutes * bdlt::TimeUnitRatio::k_MS_PER_M_32;
+    totalMicroseconds += hours * TimeUnitRatio::k_US_PER_H;
 
-    wholeDays += fastMod(&seconds, bdlt::TimeUnitRatio::k_S_PER_D_32);
-    d_milliseconds += seconds * bdlt::TimeUnitRatio::k_MS_PER_S_32;
+    wholeDays         += fastMod(&minutes, TimeUnitRatio::k_M_PER_D);
+    totalMicroseconds += minutes * TimeUnitRatio::k_US_PER_M;
 
-    wholeDays += fastMod(&milliseconds, bdlt::TimeUnitRatio::k_MS_PER_D_32);
-    d_milliseconds += milliseconds;
+    wholeDays         += fastMod(&seconds, TimeUnitRatio::k_S_PER_D);
+    totalMicroseconds += seconds * TimeUnitRatio::k_US_PER_S;
 
-    return wholeDays + modulo(&d_milliseconds,
-                              bdlt::TimeUnitRatio::k_MS_PER_D_32);
+    wholeDays         += fastMod(&milliseconds, TimeUnitRatio::k_MS_PER_D);
+    totalMicroseconds += milliseconds * TimeUnitRatio::k_US_PER_MS;
+
+    wholeDays         += fastMod(&microseconds, TimeUnitRatio::k_US_PER_D);
+    totalMicroseconds += microseconds;
+
+    wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
+
+    setMicrosecondsFromMidnight(totalMicroseconds);
+
+    return wholeDays;
 }
 
 void Time::setHour(int hour)
 {
     BSLS_ASSERT(0 <= hour);
-    BSLS_ASSERT(     hour <= bdlt::TimeUnitRatio::k_H_PER_D_32);
+    BSLS_ASSERT(     hour <= TimeUnitRatio::k_H_PER_D_32);
 
-    if (hour < 24) {
-        d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_H_32;
-        d_milliseconds += hour * bdlt::TimeUnitRatio::k_MS_PER_H_32;
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
+
+    if (hour < TimeUnitRatio::k_H_PER_D_32) {
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_H;
+        totalMicroseconds += TimeUnitRatio::k_US_PER_H * hour;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
     }
     else {
-        d_milliseconds = bdlt::TimeUnitRatio::k_MS_PER_D_32;
+        setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_D);
     }
-
-    BSLS_ASSERT_SAFE(0              <= d_milliseconds);
-    BSLS_ASSERT_SAFE(d_milliseconds <= bdlt::TimeUnitRatio::k_MS_PER_D_32);
 }
 
 void Time::setMinute(int minute)
 {
     BSLS_ASSERT(0 <= minute);
-    BSLS_ASSERT(     minute < bdlt::TimeUnitRatio::k_M_PER_H_32);
+    BSLS_ASSERT(     minute < TimeUnitRatio::k_M_PER_H_32);
 
-    if (bdlt::TimeUnitRatio::k_MS_PER_D_32 != d_milliseconds) {
-        int hours = d_milliseconds / bdlt::TimeUnitRatio::k_MS_PER_H_32;
-        d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_M_32;
-        d_milliseconds += hours  * bdlt::TimeUnitRatio::k_MS_PER_H_32
-                        + minute * bdlt::TimeUnitRatio::k_MS_PER_M_32;
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
+
+    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
+        bsls::Types::Int64 hours =
+                                 totalMicroseconds / TimeUnitRatio::k_US_PER_H;
+
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_M;
+        totalMicroseconds += TimeUnitRatio::k_US_PER_H * hours
+                          +  TimeUnitRatio::k_US_PER_M * minute;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
     }
     else {
-        d_milliseconds = minute * bdlt::TimeUnitRatio::k_MS_PER_M_32;
+        setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_M * minute);
     }
-
-    BSLS_ASSERT_SAFE(0              <= d_milliseconds);
-    BSLS_ASSERT_SAFE(d_milliseconds <= bdlt::TimeUnitRatio::k_MS_PER_D_32);
 }
 
 void Time::setSecond(int second)
 {
     BSLS_ASSERT(0 <= second);
-    BSLS_ASSERT(     second < bdlt::TimeUnitRatio::k_S_PER_M_32);
+    BSLS_ASSERT(     second < TimeUnitRatio::k_S_PER_M_32);
 
-    if (bdlt::TimeUnitRatio::k_MS_PER_D_32 != d_milliseconds) {
-        int minutes = d_milliseconds / bdlt::TimeUnitRatio::k_MS_PER_M_32;
-        d_milliseconds %= bdlt::TimeUnitRatio::k_MS_PER_S_32;
-        d_milliseconds += minutes * bdlt::TimeUnitRatio::k_MS_PER_M_32
-                       +  second  * bdlt::TimeUnitRatio::k_MS_PER_S_32;
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
+
+    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
+        bsls::Types::Int64 minutes =
+                                 totalMicroseconds / TimeUnitRatio::k_US_PER_M;
+
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_S;
+        totalMicroseconds += TimeUnitRatio::k_US_PER_M * minutes
+                          +  TimeUnitRatio::k_US_PER_S * second;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
     }
     else {
-        d_milliseconds = bdlt::TimeUnitRatio::k_MS_PER_S_32 * second;
+        setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_S * second);
     }
-
-    BSLS_ASSERT_SAFE(0              <= d_milliseconds);
-    BSLS_ASSERT_SAFE(d_milliseconds <= bdlt::TimeUnitRatio::k_MS_PER_D_32);
 }
 
 void Time::setMillisecond(int millisecond)
 {
     BSLS_ASSERT(0 <= millisecond);
-    BSLS_ASSERT(     millisecond < bdlt::TimeUnitRatio::k_MS_PER_S_32);
+    BSLS_ASSERT(     millisecond < TimeUnitRatio::k_MS_PER_S_32);
 
-    if (bdlt::TimeUnitRatio::k_MS_PER_D_32 != d_milliseconds) {
-        d_milliseconds /= bdlt::TimeUnitRatio::k_MS_PER_S_32;
-        d_milliseconds *= bdlt::TimeUnitRatio::k_MS_PER_S_32;
-        d_milliseconds += millisecond;
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
+
+    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
+        bsls::Types::Int64 seconds =
+                                 totalMicroseconds / TimeUnitRatio::k_US_PER_S;
+
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_MS;
+        totalMicroseconds += TimeUnitRatio::k_US_PER_S  * seconds
+                          +  TimeUnitRatio::k_US_PER_MS * millisecond;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
     }
     else {
-        d_milliseconds = millisecond;
+        setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_MS * millisecond);
     }
-
-    BSLS_ASSERT_SAFE(0              <= d_milliseconds);
-    BSLS_ASSERT_SAFE(d_milliseconds <= bdlt::TimeUnitRatio::k_MS_PER_D_32);
 }
 
-void Time::setTime(int hour, int minute, int second, int millisecond)
+void Time::setMicrosecond(int microsecond)
 {
-    BSLS_ASSERT(isValid(hour, minute, second, millisecond));
+    BSLS_ASSERT(0 <= microsecond);
+    BSLS_ASSERT(     microsecond < TimeUnitRatio::k_US_PER_MS_32);
 
-    d_milliseconds = millisecond
-                   + second * bdlt::TimeUnitRatio::k_MS_PER_S_32
-                   + minute * bdlt::TimeUnitRatio::k_MS_PER_M_32
-                   + hour * bdlt::TimeUnitRatio::k_MS_PER_H_32;
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
 
-    BSLS_ASSERT_SAFE(0              <= d_milliseconds);
-    BSLS_ASSERT_SAFE(d_milliseconds <= bdlt::TimeUnitRatio::k_MS_PER_D_32);
+    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
+        bsls::Types::Int64 milliseconds =
+                                totalMicroseconds / TimeUnitRatio::k_US_PER_MS;
+
+        totalMicroseconds += TimeUnitRatio::k_US_PER_MS * milliseconds
+                          +  microsecond;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
+    }
+    else {
+        setMicrosecondsFromMidnight(microsecond);
+    }
+}
+
+void Time::setTime(int hour,
+                   int minute,
+                   int second,
+                   int millisecond,
+                   int microsecond)
+{
+    BSLS_ASSERT(isValid(hour, minute, second, millisecond, microsecond));
+
+    setMicrosecondsFromMidnight(  TimeUnitRatio::k_US_PER_H  * hour
+                                + TimeUnitRatio::k_US_PER_M  * minute
+                                + TimeUnitRatio::k_US_PER_S  * second
+                                + TimeUnitRatio::k_US_PER_MS * millisecond
+                                + microsecond);
 }
 
 // ACCESSORS
 void Time::getTime(int *hour,
                    int *minute,
                    int *second,
-                   int *millisecond) const
+                   int *millisecond,
+                   int *microsecond) const
 {
-    int ms = d_milliseconds;
-    int hr = ms / bdlt::TimeUnitRatio::k_MS_PER_H_32;
-    ms %= bdlt::TimeUnitRatio::k_MS_PER_H_32;
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
 
     if (hour) {
-        *hour = hr;
+        *hour = totalMicroseconds / TimeUnitRatio::k_US_PER_H;
     }
-
-    int min = ms / bdlt::TimeUnitRatio::k_MS_PER_M_32;
-    ms %= bdlt::TimeUnitRatio::k_MS_PER_M_32;
 
     if (minute) {
-        *minute = min;
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_H;
+
+        *minute = totalMicroseconds / TimeUnitRatio::k_US_PER_M;
     }
 
-    int sec = ms / bdlt::TimeUnitRatio::k_MS_PER_S_32;
-
     if (second) {
-        *second = sec;
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_M;
+
+        *second = totalMicroseconds / TimeUnitRatio::k_US_PER_S;
     }
 
     if (millisecond) {
-        *millisecond = ms % bdlt::TimeUnitRatio::k_MS_PER_S_32;
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_S;
+
+        *millisecond = totalMicroseconds / TimeUnitRatio::k_US_PER_MS;
+    }
+
+    if (microsecond) {
+        *microsecond = totalMicroseconds % TimeUnitRatio::k_US_PER_MS;
     }
 }
 
@@ -299,16 +363,21 @@ bsl::ostream& Time::print(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
-    //      Format: HH: MM: SS. mmm '\0'
-    const int size = 3 + 3 + 3 + 3 + 1;
+    //      Format: HH: MM: SS. ssssss '\0'
+    const int size = 3 + 3 + 3 + 6 + 1;
     char      buffer[size];
 
-    int hour, min, sec, mSec;
+    int hour, min, sec, mSec, uSec;
 
-    getTime(&hour, &min, &sec, &mSec);
+    getTime(&hour, &min, &sec, &mSec, &uSec);
 
-    //              Format: HH:  MM:  SS. mmm '\0'
-    bsl::sprintf(buffer, "%02d:%02d:%02d.%03d", hour, min, sec, mSec);
+    bsl::sprintf(buffer,
+                 "%02d:%02d:%02d.%03d%03d",
+                 hour,
+                 min,
+                 sec,
+                 mSec,
+                 uSec);
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);  // 'true' -> suppress '['
@@ -322,7 +391,7 @@ bsl::ostream& Time::print(bsl::ostream& stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
