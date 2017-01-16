@@ -394,7 +394,7 @@ BSLS_IDENT("$Id: $")
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
 
     #ifndef INCLUDED_BSL_ALGORITHM
-    #include <bsl_algorithm.h>               // for copy_n
+    #include <bsl_algorithm.h>               // for copy
     #endif
 
 #endif
@@ -1628,6 +1628,7 @@ int SocketImpUtil_Imp<ADDRESS>::writevTo(
         *errorCode = errorNumber;
     }
     return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+                                                                      // RETURN
 #endif
 
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
@@ -1656,13 +1657,13 @@ int SocketImpUtil_Imp<ADDRESS>::writevTo(
                 // Behavior in this case is undefined but avoid
                 // trashing the stack.
 
-                return -1;
+                return -1;                                            // RETURN
             }
-            bsl::copy_n(static_cast<char const*>(ovec[i].buffer()),
-                        ovec[i].length(),
-                        to);
-            numBytes += ovec[i].length();
-            to += ovec[i].length();
+            char const *from   = static_cast<char const*>(ovec[i].buffer());
+            const int   length = ovec[i].length();
+            bsl::copy(from, from + length, to);
+            numBytes += length;
+            to += length;
         }
         return writeTo(socket,
                        toAddress,

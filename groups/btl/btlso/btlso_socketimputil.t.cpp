@@ -7,10 +7,11 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <btlso_socketimputil.h>
 
 #include <btlso_ipv4address.h>
+
+#include <bslim_testutil.h>
 
 #include <bslmt_threadutil.h>
 #include <bslmt_barrier.h>
@@ -38,24 +39,53 @@ using namespace bsl;  // automatically added by script
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 
 typedef btlso::SocketHandle::Handle SockType;
 
@@ -207,6 +237,128 @@ int countSockets(int base, int max)
 #endif
 }
 
+static const struct {
+    int         d_line;        // line number
+    const char *d_inputs[3];   // inputs
+    int         d_numInputs;   // number of used inputs
+    const char *d_expected_p;  // expected result
+} WRITEVTO_TEST_DATA[] = {
+    //LINE    FIRST   SECOND  THIRD     INPUTS   EXPECTED
+    //        INPUT   INPUT   INPUT     NUMBER   RESULT
+    //----    ------  ------  -----     ------   --------
+    { L_,   { "",     0,      0     },  1,       ""       },
+    { L_,   { "abc",  0,      0     },  1,       "abc"    },
+    { L_,   { "",     "",     0     },  2,       ""       },
+    { L_,   { "",     "abc",  0     },  2,       "abc"    },
+    { L_,   { "abc",  "",     0     },  2,       "abc"    },
+    { L_,   { "a",    "bc",   0     },  2,       "abc"    },
+    { L_,   { "",     "",     "abc" },  3,       "abc"    },
+    { L_,   { "",     "abc",  ""    },  3,       "abc"    },
+    { L_,   { "abc",  "",     ""    },  3,       "abc"    },
+    { L_,   { "",     "a",    "bc"  },  3,       "abc"    },
+    { L_,   { "a",    "",     "bc"  },  3,       "abc"    },
+    { L_,   { "a",    "bc",   ""    },  3,       "abc"    },
+    { L_,   { "a" ,   "b",    "c"   },  3,       "abc"    },
+};
+
+enum { WRITEVTO_TEST_DATA_LEN =
+                      sizeof WRITEVTO_TEST_DATA / sizeof *WRITEVTO_TEST_DATA };
+
+void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
+                            bslmt::Barrier     *barrier,
+                            int                 tableIndex)
+    // Trigger message sending, using the specified 'barrier', recieve it from
+    // the socket binded with the specified 'IP_ADDR' and verify obtained data,
+    // using the line of 'WRITEVTO_TEST_DATA' table with the specified
+    // 'tableIndex'.
+{
+    const int   LINE             = WRITEVTO_TEST_DATA[tableIndex].d_line;
+    const char *EXPECTED_MESSAGE = WRITEVTO_TEST_DATA[tableIndex].d_expected_p;
+    const int   EXPECTED_SIZE    = static_cast<int>(bsl::strlen(
+                                                            EXPECTED_MESSAGE));
+    char       *readBuffer       = new char[EXPECTED_SIZE + 1];
+
+    btlso::SocketHandle::Handle  serverSocket;
+    int                          rc         = 0;
+    int                          errCode    = 0;
+
+    rc = btlso::SocketImpUtil::startup(&errCode);
+    ASSERT(0 == rc);
+
+    rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+                                       &serverSocket,
+                                       btlso::SocketImpUtil::k_SOCKET_DATAGRAM,
+                                       &errCode);
+    ASSERT(0 == rc);
+
+    rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
+                                                        *IP_ADDR,
+                                                        &errCode);
+    ASSERT(0 == rc);
+
+    barrier->wait();
+
+    rc = btlso::SocketImpUtil::readFrom<btlso::IPv4Address>(IP_ADDR,
+                                                            readBuffer,
+                                                            serverSocket,
+                                                            EXPECTED_SIZE,
+                                                            &errCode);
+    ASSERTV(LINE, rc, EXPECTED_SIZE == rc);
+
+    readBuffer[EXPECTED_SIZE] = 0;
+    ASSERT(0 == bsl::strcmp(EXPECTED_MESSAGE, readBuffer));
+
+    rc = btlso::SocketImpUtil::close(serverSocket, &errCode);
+    ASSERT(0 == rc);
+    rc = btlso::SocketImpUtil::cleanup(&errCode);
+    ASSERT(0 == rc);
+
+    delete [] readBuffer;
+}
+
+void writevToClientFunction(const btlso::IPv4Address& IP_ADDR, int tableIndex)
+    // Send data, got from the line of 'WRITEVTO_TEST_DATA' table with the
+    // specified 'tableIndex', to the specified 'IP_ADDR'.
+{
+     const int   LINE          = WRITEVTO_TEST_DATA[tableIndex].d_line;
+     const int   NUM_BUFFERS   = WRITEVTO_TEST_DATA[tableIndex].d_numInputs;
+     const int   EXPECTED_SIZE =
+                      bsl::strlen(WRITEVTO_TEST_DATA[tableIndex].d_expected_p);
+     btls::Ovec *buffers       = new btls::Ovec[NUM_BUFFERS];
+     for (int i = 0; i < NUM_BUFFERS; ++i) {
+         const char *INPUT = WRITEVTO_TEST_DATA[tableIndex].d_inputs[i];
+         buffers[i].setBuffer(INPUT, bsl::strlen(INPUT));
+     }
+
+     btlso::SocketHandle::Handle sendSocket;
+     int                         rc;
+     int                         errorCode = 0;
+
+     rc = btlso::SocketImpUtil::startup(&errorCode);
+     ASSERT(0 == rc);
+
+     rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+                                       &sendSocket,
+                                       btlso::SocketImpUtil::k_SOCKET_DATAGRAM,
+                                       &errorCode);
+     ASSERT(0 == rc);
+
+     rc = btlso::SocketImpUtil::writevTo(sendSocket,
+                                         IP_ADDR,
+                                         buffers,
+                                         NUM_BUFFERS,
+                                         &errorCode);
+
+     ASSERTV(LINE, EXPECTED_SIZE, rc, EXPECTED_SIZE == rc);
+
+     rc = btlso::SocketImpUtil::close(sendSocket, &errorCode);
+     ASSERT(0 == rc);
+     rc = btlso::SocketImpUtil::cleanup(&errorCode);
+     ASSERT(0 == rc);
+
+     delete [] buffers;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -223,7 +375,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE TEST
         //
@@ -334,6 +486,62 @@ int main(int argc, char *argv[])
 
      ASSERT(0 == bslmt::ThreadUtil::join(stid));
      ASSERT(0 == bslmt::ThreadUtil::join(ctid));
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'writevTo'
+        //
+        // Concerns:
+        //: 1 The 'writevTo' function correctly transfers data to the specified
+        //:   address.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a sets of inputs for
+        //:   data transfer.
+        //:
+        //: 2 For each row 'R' in the table of P-1:
+        //:
+        //:    1 Start server thread, that waits for a message and client
+        //:      thread, that sends the message, using 'writevTo' function.
+        //:
+        //:    2 Verify that message transfered correctly.  (C-1)
+        //
+        // Testing:
+        //   int writevTo(Handle&, ADDRESS&, btls::Ovec *, int, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'writevTo'" << endl
+                          << "==================" << endl;
+
+        btlso::IPv4Address IP_ADDR("127.0.0.1", 8142);
+
+        for (int i = 0; i < WRITEVTO_TEST_DATA_LEN; ++i) {
+            bslmt::ThreadUtil::Handle stid;
+            bslmt::ThreadUtil::Handle ctid;
+
+            bslmt::Barrier barrier(2);
+
+            // Run server thred.
+
+            bslmt::ThreadUtil::create(
+                                  &stid,
+                                  bdlf::BindUtil::bind(&writevToServerFunction,
+                                                       &IP_ADDR,
+                                                       &barrier,
+                                                       i));
+            barrier.wait();
+
+            // Run client thread.
+
+            bslmt::ThreadUtil::create(
+                                  &ctid,
+                                  bdlf::BindUtil::bind(&writevToClientFunction,
+                                                       IP_ADDR,
+                                                       i));
+
+            ASSERT(0 == bslmt::ThreadUtil::join(stid));
+            ASSERT(0 == bslmt::ThreadUtil::join(ctid));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
