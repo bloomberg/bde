@@ -278,17 +278,19 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
                                                             EXPECTED_MESSAGE));
     char       *readBuffer       = new char[EXPECTED_SIZE + 1];
 
-    btlso::SocketHandle::Handle  serverSocket;
-    int                          rc         = 0;
-    int                          errCode    = 0;
+    btlso::SocketHandle::Handle serverSocket;
+    btlso::SocketHandle::Handle sessionSocket;
+    const int                   BACKLOG = 32;
+    int                         rc      = 0;
+    int                         errCode = 0;
 
     rc = btlso::SocketImpUtil::startup(&errCode);
     ASSERT(0 == rc);
 
     rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
-                                       &serverSocket,
-                                       btlso::SocketImpUtil::k_SOCKET_DATAGRAM,
-                                       &errCode);
+                                         &serverSocket,
+                                         btlso::SocketImpUtil::k_SOCKET_STREAM,
+                                         &errCode);
     ASSERT(0 == rc);
 
     rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
@@ -296,11 +298,19 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
                                                         &errCode);
     ASSERT(0 == rc);
 
+    rc = btlso::SocketImpUtil::listen(serverSocket, BACKLOG, &errCode);
+    ASSERT(0 == rc);
+
     barrier->wait();
+
+    rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
+                                                          serverSocket,
+                                                          &errCode);
+    ASSERT(0 == rc);
 
     rc = btlso::SocketImpUtil::readFrom<btlso::IPv4Address>(IP_ADDR,
                                                             readBuffer,
-                                                            serverSocket,
+                                                            sessionSocket,
                                                             EXPECTED_SIZE,
                                                             &errCode);
     ASSERTV(LINE, rc, EXPECTED_SIZE == rc);
@@ -308,6 +318,12 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
     readBuffer[EXPECTED_SIZE] = 0;
     ASSERT(0 == bsl::strcmp(EXPECTED_MESSAGE, readBuffer));
 
+    rc = btlso::SocketImpUtil::shutDown(sessionSocket,
+                                        btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+                                        &errCode);
+    ASSERT(0 == rc);
+    rc = btlso::SocketImpUtil::close(sessionSocket, &errCode);
+    ASSERT(0 == rc);
     rc = btlso::SocketImpUtil::close(serverSocket, &errCode);
     ASSERT(0 == rc);
     rc = btlso::SocketImpUtil::cleanup(&errCode);
@@ -338,9 +354,14 @@ void writevToClientFunction(const btlso::IPv4Address& IP_ADDR, int tableIndex)
      ASSERT(0 == rc);
 
      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
-                                       &sendSocket,
-                                       btlso::SocketImpUtil::k_SOCKET_DATAGRAM,
-                                       &errorCode);
+                                         &sendSocket,
+                                         btlso::SocketImpUtil::k_SOCKET_STREAM,
+                                         &errorCode);
+     ASSERT(0 == rc);
+
+     rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
+                                                            IP_ADDR,
+                                                            &errorCode);
      ASSERT(0 == rc);
 
      rc = btlso::SocketImpUtil::writevTo(sendSocket,
