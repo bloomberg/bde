@@ -788,6 +788,8 @@ class Function_Imp<RET(ARGS...)> :
     // specialization (as 'Function_Imp' does). 'bsl::function' is a thin
     // wrapper that does not have a partial specialization.
 
+    using Function_Rep::d_objbuf; // Make this member accessible to my friends.
+
     // PRIVATE TYPES
     typedef RET Invoker(const Function_Rep* rep,
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args);
@@ -1003,6 +1005,8 @@ class Function_Imp<RET()> :
         public Function_ArgTypes<RET()>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep);
 
     void setInvoker(Invoker *p);
@@ -1139,6 +1143,8 @@ template <class RET, class ARGS_01>
 class Function_Imp<RET(ARGS_01)> :
         public Function_ArgTypes<RET(ARGS_01)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01);
@@ -1284,6 +1290,8 @@ class Function_Imp<RET(ARGS_01,
         public Function_ArgTypes<RET(ARGS_01,
                                      ARGS_02)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -1440,6 +1448,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_02,
                                      ARGS_03)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -1607,6 +1617,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_03,
                                      ARGS_04)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -1785,6 +1797,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_04,
                                      ARGS_05)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -1974,6 +1988,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_05,
                                      ARGS_06)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2174,6 +2190,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_06,
                                      ARGS_07)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2385,6 +2403,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_07,
                                      ARGS_08)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2607,6 +2627,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_08,
                                      ARGS_09)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -2840,6 +2862,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_09,
                                      ARGS_10)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3084,6 +3108,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_10,
                                      ARGS_11)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -3340,6 +3366,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_12)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -3573,6 +3601,8 @@ template <class RET, class... ARGS>
 class Function_Imp<RET(ARGS...)> :
         public Function_ArgTypes<RET(ARGS...)>,
         public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
 
     typedef RET Invoker(const Function_Rep* rep,
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args);
@@ -3826,9 +3856,9 @@ void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b);
 
 
 #ifndef BSLS_PLATFORM_CMP_SUN
-#define BSLSTL_FUNCTION_CAST_RESULT(X) static_cast<RET>(X)
+#define BSLSTL_FUNCTION_CAST_RESULT(RET, X) static_cast<RET>(X)
 #else
-#define BSLSTL_FUNCTION_CAST_RESULT(X) (RET)(X)
+#define BSLSTL_FUNCTION_CAST_RESULT(RET, X) (RET)(X)
 #endif
 
 
@@ -7387,14 +7417,17 @@ RET bsl::Function_Imp<RET(ARGS...)>::FunctionPtrInvoker<FUNC>::exec(
               const Function_Rep                                         *rep,
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
     // Note that 'FUNC' might be different than 'RET(*)(ARGS...)'. All that is
     // required is that it be Callable with 'ARGS...' and return something
     // convertible to 'RET'.
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
                     forwardToTarget(args)...));
 }
@@ -7408,14 +7441,17 @@ RET bsl::Function_Imp<RET(ARGS...)>::MemFuncPtrInvoker<FUNC>::exec(
 {
     using namespace BloombergLP;
 
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
     // Workaround Sun compiler issue - it thinks we're trying to cast away
     // const or volatile if we use reinterpret_cast.
-    // FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    // FUNC f = reinterpret_cast<const FUNC&>(imp_p->d_objbuf.d_memFunc_p);
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args...);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args...));
 }
 
 template <class RET, class... ARGS>
@@ -7425,12 +7461,14 @@ RET bsl::Function_Imp<RET(ARGS...)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -7441,10 +7479,13 @@ bsl::Function_Imp<RET(ARGS...)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
 // PRIVATE STATIC MEMBER FUNCTIONS
@@ -7736,9 +7777,12 @@ inline
 RET bsl::Function_Imp<RET()>::FunctionPtrInvoker<FUNC>::exec(
               const Function_Rep                                         *rep)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f());
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -7751,9 +7795,12 @@ RET bsl::Function_Imp<RET(ARGS_01)>::FunctionPtrInvoker<FUNC>::exec(
               const Function_Rep                                         *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01)));
 }
@@ -7770,9 +7817,13 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -7794,9 +7845,14 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -7823,9 +7879,15 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -7857,9 +7919,16 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -7896,9 +7965,17 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -7940,9 +8017,18 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -7989,9 +8075,19 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8043,9 +8139,20 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8102,9 +8209,21 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8166,9 +8285,22 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8235,9 +8367,23 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
             typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8275,11 +8421,14 @@ RET bsl::Function_Imp<RET()>::MemFuncPtrInvoker<FUNC>::exec(
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 0u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -8293,11 +8442,14 @@ RET bsl::Function_Imp<RET(ARGS_01)>::MemFuncPtrInvoker<FUNC>::exec(
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 1u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -8314,13 +8466,17 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 2u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -8340,15 +8496,20 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 3u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -8371,17 +8532,23 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
                                             ARGS_04>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 4u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -8407,7 +8574,14 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8415,11 +8589,11 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_05>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 5u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -8448,7 +8622,15 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8457,12 +8639,12 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_06>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 6u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -8494,7 +8676,16 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8504,13 +8695,13 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_07>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 7u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -8545,7 +8736,17 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8556,14 +8757,14 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_08>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 8u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -8601,7 +8802,18 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8613,15 +8825,15 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_09>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 9u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -8662,7 +8874,19 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8675,16 +8899,16 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_10>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(10u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09,
-                                       args_10);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -8728,7 +8952,20 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8742,17 +8979,17 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_11>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(11u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09,
-                                       args_10,
-                                       args_11);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10,
+                                                                  args_11));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -8799,7 +9036,21 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8814,18 +9065,18 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_12>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(12u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09,
-                                       args_10,
-                                       args_11,
-                                       args_12);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10,
+                                                                  args_11,
+                                                                  args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
@@ -8837,10 +9088,12 @@ inline
 RET bsl::Function_Imp<RET()>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f());
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f());
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -8852,10 +9105,12 @@ RET bsl::Function_Imp<RET(ARGS_01)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -8870,11 +9125,14 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -8892,12 +9150,16 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -8918,13 +9180,18 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -8948,14 +9215,20 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -8982,15 +9255,22 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -9020,16 +9300,24 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -9062,17 +9350,26 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -9108,18 +9405,28 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -9158,19 +9465,30 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09,
-                    args_10));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -9212,20 +9530,32 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09,
-                    args_10,
-                    args_11));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -9270,21 +9600,34 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
             typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09,
-                    args_10,
-                    args_11,
-                    args_12));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
@@ -9297,8 +9640,11 @@ RET
 bsl::Function_Imp<RET()>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f());
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f());
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -9311,8 +9657,11 @@ bsl::Function_Imp<RET(ARGS_01)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01));
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -9328,9 +9677,13 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -9349,10 +9702,15 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -9374,11 +9732,17 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -9403,12 +9767,19 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -9436,13 +9807,21 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -9473,14 +9852,23 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -9514,15 +9902,25 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -9559,16 +9957,27 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -9608,17 +10017,29 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09,
-                                         args_10));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -9661,18 +10082,31 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09,
-                                         args_10,
-                                         args_11));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -9718,19 +10152,33 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
             typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09,
-                                         args_10,
-                                         args_11,
-                                         args_12));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
@@ -16488,9 +16936,12 @@ RET bsl::Function_Imp<RET(ARGS...)>::FunctionPtrInvoker<FUNC>::exec(
               const Function_Rep                                         *rep,
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
                     forwardToTarget(args)...));
 }
@@ -16504,11 +16955,14 @@ RET bsl::Function_Imp<RET(ARGS...)>::MemFuncPtrInvoker<FUNC>::exec(
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args...);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args...));
 }
 
 template <class RET, class... ARGS>
@@ -16518,10 +16972,12 @@ RET bsl::Function_Imp<RET(ARGS...)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args...));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -16532,8 +16988,11 @@ bsl::Function_Imp<RET(ARGS...)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args...));
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
 
