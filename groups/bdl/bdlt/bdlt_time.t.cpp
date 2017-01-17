@@ -82,6 +82,7 @@ using namespace bsl;
 // [12] void setMinute(int minute);
 // [12] void setSecond(int second);
 // [12] void setMillisecond(int millisecond);
+// [12] void setMicrosecond(int microsecond);
 // [ 2] void setTime(int hour, int min = 0, int sec = 0, int msec = 0);
 // [17] int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -1478,12 +1479,12 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 For a set of independent test values not including the
-        //:   default value (24:00:00.000), use the default constructor to
+        //:   default value (24:00:00.000000), use the default constructor to
         //:   create an object and use the 'set' manipulators to set its value.
         //:   Verify the value using the basic accessors.  (C-1,2)
         //:
         //: 2 Confirm the correct behavior of the 'set' methods when
-        //:   setting from the value 24:00:00.000.  (C-3)
+        //:   setting from the value 24:00:00.000000.  (C-3)
         //:
         //: 3 Verify 'setHour(24)' results in the default value for the object.
         //:   (C-4)
@@ -1495,6 +1496,7 @@ if (veryVerbose)
         //   void setMinute(int minute);
         //   void setSecond(int second);
         //   void setMillisecond(int millisecond);
+        //   void setMillisecond(int microsecond);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1506,12 +1508,22 @@ if (veryVerbose)
         if (verbose) cout << "\tFor ordinary computational values." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  // 24:00:00.000 NOT tested here
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 117 },
+                // 24:00:00.000000 NOT tested here
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -1522,66 +1534,108 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 Obj x;  const Obj& X = x;
                 x.setHour(HOUR);
                 x.setMinute(MINUTE);
                 x.setSecond(SECOND);
                 x.setMillisecond(MSEC);
+                x.setMicrosecond(USEC);
                 if (veryVerbose) {
-                    T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P(X);
+                    T_;
+                    P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P_(USEC);
+                    P(X);
                 }
                 LOOP_ASSERT(i, HOUR   == X.hour());
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
             }
             if (veryVerbose) cout << endl;
         }
 
-        if (verbose) cout << "\tSetting from value 24:00:00.000." << endl;
+        if (verbose) cout << "\tSetting from value 24:00:00.000000." << endl;
         {
-            const Obj R24;             // Reference object (24:00:00.000)
+            const Obj R24;             // Reference object (24:00:00.000000)
 
             Obj x;  const Obj& X = x;  if (veryVerbose) { T_;  P_(X); }
             x.setMinute(0);            if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setMinute(59);           if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT( 59 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT( 59 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setSecond(0);            if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setSecond(59);           if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT(59 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT( 59 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setMillisecond(0);       if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setMillisecond(999);     if (veryVerbose) { P(X); cout << endl; }
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(999 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(999 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
+
+            x = R24;                   if (veryVerbose) { T_;  P_(X); }
+            x.setMicrosecond(0);       if (veryVerbose) P(X);
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
+
+            x = R24;                   if (veryVerbose) { T_;  P_(X); }
+            x.setMicrosecond(999);     if (veryVerbose) { P(X); cout << endl; }
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(999 == x.microsecond());
         }
 
-        if (verbose) cout << "\tSetting to value 24:00:00.000." << endl;
+        if (verbose) cout << "\tSetting to value 24:00:00.000000." << endl;
         {
             const Obj R(23, 22, 21, 209); // Reference object (21:22:21.209)
 
             Obj x(R); const Obj& X = x;if (veryVerbose) { T_;  P_(X); }
             x.setHour(24);             if (veryVerbose) { P(X); cout << endl; }
-            ASSERT(24 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(24 == x.hour());
+            ASSERT( 0 == x.minute());
+            ASSERT( 0 == x.second());
+            ASSERT( 0 == x.millisecond());
+            ASSERT( 0 == x.microsecond());
 
         }
 
@@ -1612,6 +1666,11 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(mX.setMillisecond(   0));
             ASSERT_SAFE_PASS(mX.setMillisecond( 999));
             ASSERT_SAFE_FAIL(mX.setMillisecond(1000));
+
+            ASSERT_SAFE_FAIL(mX.setMicrosecond(  -1));
+            ASSERT_SAFE_PASS(mX.setMicrosecond(   0));
+            ASSERT_SAFE_PASS(mX.setMicrosecond( 999));
+            ASSERT_SAFE_FAIL(mX.setMicrosecond(1000));
         }
 
       } break;

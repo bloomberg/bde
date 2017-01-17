@@ -345,8 +345,8 @@ void Time::setMicrosecond(int microsecond)
         bsls::Types::Int64 milliseconds =
                                 totalMicroseconds / TimeUnitRatio::k_US_PER_MS;
 
-        totalMicroseconds += TimeUnitRatio::k_US_PER_MS * milliseconds
-                          +  microsecond;
+        totalMicroseconds = TimeUnitRatio::k_US_PER_MS * milliseconds
+                          + microsecond;
 
         setMicrosecondsFromMidnight(totalMicroseconds);
     }
