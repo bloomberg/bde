@@ -331,7 +331,7 @@ struct Reproducer {
 
         bslmt::ThreadUtil::microSleep(SLEEP_HARDLY_TIME);
         d_handleIdx += d_handleIdxIncrement;
-        d_handleIdx %= d_handles->size();
+        d_handleIdx %= static_cast<int>(d_handles->size());
         if (s_counter > 0) {
             --s_counter;
             d_threadPool->enqueueJob((*d_handles)[d_handleIdx], *this);
