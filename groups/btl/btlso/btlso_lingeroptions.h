@@ -192,7 +192,7 @@ class LingerOptions {
         // Create a 'LingerOptions' object having the same value as the
         // specified 'original' object.
 
-    ~LingerOptions();
+    //! ~LingerOptions() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -279,12 +279,7 @@ LingerOptions::LingerOptions(int timeout, bool lingerFlag)
 : d_timeout(timeout)
 , d_lingerFlag(lingerFlag)
 {
-}
-
-inline
-LingerOptions::~LingerOptions()
-{
-    BSLS_ASSERT_SAFE(0 <= d_timeout);
+    BSLS_ASSERT_SAFE(0 <= timeout);
 }
 
 inline
