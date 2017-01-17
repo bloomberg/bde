@@ -87,11 +87,12 @@ using namespace bsl;
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
-// [ 4] void getTime(int *hour, int *min, int *second, int *msec) const;
+// [ 4] void getTime(int *h, int *m, int *s, int *ms, int *us) const;
 // [ 4] int hour() const;
 // [ 4] int minute() const;
 // [ 4] int second() const;
 // [ 4] int millisecond() const;
+// [ 4] int microsecond() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& os, int level = 0, int spl = 4) const;
 //
@@ -2930,11 +2931,12 @@ if (veryVerbose)
         //:   expected behavior.  (C-2)
         //
         // Testing:
-        //   void getTime(int *hour, int *min, int *second, int *msec) const;
+        //   void getTime(int *h, int *m, int *s, int *ms, int *us) const;
         //   int hour() const;
         //   int minute() const;
         //   int second() const;
         //   int millisecond() const;
+        //   int microsecond() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2947,12 +2949,22 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 117 },
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -2963,15 +2975,17 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
-                int       h, m, s, ms;
+                const int USEC   = VALUES[i].d_usec;
+                int       h, m, s, ms, us;
 
                 Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(&h, &m, &s, &ms);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(&h, &m, &s, &ms, &us);
 
                 if (veryVerbose) {
                     T_;  P_(HOUR);    P_(h);  P_(MINUTE);  P_(m);
-                         P_(SECOND);  P_(s);  P_(MSEC);    P(ms);
+                         P_(SECOND);  P_(s);  P_(MSEC);    P_(ms);
+                         P_(USEC);    P(us);
                     T_;  P(X);
                 }
 
@@ -2979,23 +2993,35 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
 
                 LOOP_ASSERT(i, HOUR   == h);
                 LOOP_ASSERT(i, MINUTE == m);
                 LOOP_ASSERT(i, SECOND == s);
                 LOOP_ASSERT(i, MSEC   == ms);
+                LOOP_ASSERT(i, USEC   == us);
             }
         }
 
         if (verbose) cout << "\nTesting 'getTime' with null args." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 117 },
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -3006,47 +3032,53 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
-                int h, m, s, ms;
+                int h, m, s, ms, us;
 
                 Obj x;  const Obj& X = x;
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(&h, 0, 0, 0, 0);
+                if (veryVerbose) { T_;  P_(HOUR);  P_(h);  P(X); }
+                LOOP_ASSERT(i, HOUR   == h);
+
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(&h, 0, 0, 0);
                 if (veryVerbose) { T_;  P_(HOUR);  P_(h);  P(X); }
                 LOOP_ASSERT(i, HOUR   == h);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(&h, 0, 0);
-                if (veryVerbose) { T_;  P_(HOUR);  P_(h);  P(X); }
-                LOOP_ASSERT(i, HOUR   == h);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(0, &m, 0, 0, 0);
+                if (veryVerbose) { T_;  P_(MINUTE);  P_(m);  P(X); }
+                LOOP_ASSERT(i, MINUTE == m);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, &m, 0, 0);
                 if (veryVerbose) { T_;  P_(MINUTE);  P_(m);  P(X); }
                 LOOP_ASSERT(i, MINUTE == m);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(0, &m, 0);
-                if (veryVerbose) { T_;  P_(MINUTE);  P_(m);  P(X); }
-                LOOP_ASSERT(i, MINUTE == m);
-
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(0, 0, &s, 0);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(0, 0, &s, 0, 0);
                 if (veryVerbose) { T_;  P_(SECOND);  P_(s);  P(X); }
                 LOOP_ASSERT(i, SECOND == s);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, 0, &s);
                 if (veryVerbose) { T_;  P_(SECOND);  P_(s);  P(X); }
                 LOOP_ASSERT(i, SECOND == s);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, 0, 0, &ms);
                 if (veryVerbose) { T_;  P_(MSEC);  P_(ms);  P(X); }
                 LOOP_ASSERT(i, MSEC   == ms);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(0, 0, 0, 0, &us);
+                if (veryVerbose) { T_;  P_(USEC);  P_(us);  P(X); }
+                LOOP_ASSERT(i, USEC   == us);
+
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, 0, 0);
                 if (veryVerbose) { T_;  P_(0);  P(X);  cout << endl; }
             }
