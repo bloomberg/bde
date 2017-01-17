@@ -192,9 +192,6 @@ int Time::addMicroseconds(bsls::Types::Int64 microseconds)
 
     setMicrosecondsFromMidnight(totalMicroseconds);
 
-    BSLS_ASSERT(bsl::numeric_limits<int>::min() <= wholeDays);
-    BSLS_ASSERT(bsl::numeric_limits<int>::max() >= wholeDays);
-
     return static_cast<int>(wholeDays);
 }
 
@@ -210,7 +207,7 @@ int Time::addInterval(const DatetimeInterval& interval)
 
     totalMicroseconds += TimeUnitRatio::k_US_PER_MS * totalMilliseconds;
     wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
-    
+
     setMicrosecondsFromMidnight(totalMicroseconds);
 
     BSLS_ASSERT(bsl::numeric_limits<int>::min() <= wholeDays);
@@ -249,9 +246,6 @@ int Time::addTime(int                hours,
     wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
 
     setMicrosecondsFromMidnight(totalMicroseconds);
-
-    BSLS_ASSERT(bsl::numeric_limits<int>::min() <= wholeDays);
-    BSLS_ASSERT(bsl::numeric_limits<int>::max() >= wholeDays);
 
     return static_cast<int>(wholeDays);
 }

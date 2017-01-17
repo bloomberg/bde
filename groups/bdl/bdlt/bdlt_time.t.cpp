@@ -2,6 +2,8 @@
 
 #include <bdlt_time.h>
 
+#include <bdlt_timeunitratio.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
@@ -56,7 +58,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //
 // CLASS METHODS
-// [16] bool isValid(int hour, int minute, int second, int ms);
+// [16] bool isValid(int hour, int minute, int second, int ms, int us);
 // [10] static int maxSupportedBdexVersion(int versionSelector);
 //
 // CREATORS
@@ -73,8 +75,9 @@ using namespace bsl;
 // [15] int addMinutes(int minutes);
 // [15] int addSeconds(int seconds);
 // [15] int addMilliseconds(int milliseconds);
+// [15] int addMicroseconds(int microseconds);
 // [15] int addInterval(const DatetimeInterval& interval);
-// [15] int addTime(int hours, int minutes, int seconds, int msec);
+// [15] int addTime(int hours, int minutes, int seconds, int ms, int us);
 // [12] void setHour(int hour);
 // [12] void setMinute(int minute);
 // [12] void setSecond(int second);
@@ -231,19 +234,21 @@ int main(int argc, char *argv[])
 // This example demonstrates how to create and use a 'bdlt::Time' object.
 //
 // First, create an object 't1' having the default value, and then verify that
-// it represents the value 24:00:00.000:
+// it represents the value 24:00:00.000000:
 //..
     bdlt::Time t1;               ASSERT(24 == t1.hour());
                                  ASSERT( 0 == t1.minute());
                                  ASSERT( 0 == t1.second());
                                  ASSERT( 0 == t1.millisecond());
+                                 ASSERT( 0 == t1.microsecond());
 //..
-// Then, set 't1' to the value 2:34pm (14:34:00.000):
+// Then, set 't1' to the value 2:34pm (14:34:00.000000):
 //..
     t1.setTime(14, 34);          ASSERT(14 == t1.hour());
                                  ASSERT(34 == t1.minute());
                                  ASSERT( 0 == t1.second());
                                  ASSERT( 0 == t1.millisecond());
+                                 ASSERT( 0 == t1.microsecond());
 //..
 // Next, use 'setTimeIfValid' to attempt to assign the invalid value 24:15 to
 // 't1', then verify the method returns an error status and the value of 't1'
@@ -257,6 +262,7 @@ int main(int argc, char *argv[])
                                  ASSERT(34 == t1.minute());  // on the
                                  ASSERT( 0 == t1.second());  // object
                                  ASSERT( 0 == t1.millisecond());
+                                 ASSERT( 0 == t1.microsecond());
 //..
 // Then, create 't2' as a copy of 't1':
 //..
@@ -271,6 +277,7 @@ int main(int argc, char *argv[])
                                  ASSERT(39 == t2.minute());
                                  ASSERT( 7 == t2.second());
                                  ASSERT( 0 == t2.millisecond());
+                                 ASSERT( 0 == t2.microsecond());
 //..
 // Then, subtract 't1' from 't2' to yield a 'bdlt::DatetimeInterval' 'dt'
 // representing the time-interval between those two times, and verify the value
@@ -286,7 +293,7 @@ if (veryVerbose)
 //..
 // The streaming operator produces the following output on 'stdout':
 //..
-//  14:39:07.000
+//  14:39:07.000000
 //..
 
       } break;
@@ -616,7 +623,7 @@ if (veryVerbose)
         //:   to the expected values.  (C-1,2)
         //
         // Testing:
-        //   bool isValid(int hour, int minute, int second, int ms);
+        //   bool isValid(int hour, int minute, int second, int ms, int us);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -631,34 +638,40 @@ if (veryVerbose)
                 int d_minute;       // specification minute
                 int d_second;       // specification second
                 int d_millisecond;  // specification millisecond
+                int d_microsecond;  // specification microsecond
                 int d_valid;        // expected return value
             } DATA[] = {
-                //LINE HOUR   MIN  SEC   MSEC   VALID
-                //---- ----   ---  ---   ----   ------
-                { L_,     0,    0,   0,     0,    1   },
+                //LINE HOUR   MIN  SEC   MSEC   USEC   VALID
+                //---- ----   ---  ---   ----   ----   ------
+                { L_,     0,    0,   0,     0,     0,       1   },
 
-                { L_,     0,    0,   0,    -1,    0   },
-                { L_,     0,    0,   0,   999,    1   },
-                { L_,     0,    0,   0,  1000,    0   },
+                { L_,     0,    0,   0,     0,    -1,       0   },
+                { L_,     0,    0,   0,     0,   999,       1   },
+                { L_,     0,    0,   0,     0,  1000,       0   },
 
-                { L_,     0,    0,  -1,     0,    0   },
-                { L_,     0,    0,  59,     0,    1   },
-                { L_,     0,    0,  60,     0,    0   },
+                { L_,     0,    0,   0,    -1,     0,       0   },
+                { L_,     0,    0,   0,   999,     0,       1   },
+                { L_,     0,    0,   0,  1000,     0,       0   },
 
-                { L_,     0,   -1,   0,     0,    0   },
-                { L_,     0,   59,   0,     0,    1   },
-                { L_,     0,   60,   0,     0,    0   },
+                { L_,     0,    0,  -1,     0,     0,       0   },
+                { L_,     0,    0,  59,     0,     0,       1   },
+                { L_,     0,    0,  60,     0,     0,       0   },
 
-                { L_,    -1,    0,   0,     0,    0   },
-                { L_,    23,    0,   0,     0,    1   },
-                { L_,    24,    0,   0,     0,    1   },
-                { L_,    25,    0,   0,     0,    0   },
+                { L_,     0,   -1,   0,     0,     0,       0   },
+                { L_,     0,   59,   0,     0,     0,       1   },
+                { L_,     0,   60,   0,     0,     0,       0   },
 
-                { L_,    24,    0,   0,     1,    0   },
-                { L_,    24,    0,   1,     0,    0   },
-                { L_,    24,    1,   0,     0,    0   },
+                { L_,    -1,    0,   0,     0,     0,       0   },
+                { L_,    23,    0,   0,     0,     0,       1   },
+                { L_,    24,    0,   0,     0,     0,       1   },
+                { L_,    25,    0,   0,     0,     0,       0   },
 
-                { L_,    23,   59,  59,   999,    1   },
+                { L_,    24,    0,   0,     0,     1,       0   },
+                { L_,    24,    0,   0,     1,     0,       0   },
+                { L_,    24,    0,   1,     0,     0,       0   },
+                { L_,    24,    1,   0,     0,     0,       0   },
+
+                { L_,    23,   59,  59,   999,   999,       1   },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -669,15 +682,20 @@ if (veryVerbose)
                 const int MINUTE       = DATA[i].d_minute;
                 const int SECOND       = DATA[i].d_second;
                 const int MILLISECOND  = DATA[i].d_millisecond;
+                const int MICROSECOND  = DATA[i].d_microsecond;
                 const int VALID        = DATA[i].d_valid;
 
                 if (veryVerbose) { T_; P_(LINE);   P_(VALID);
                                        P_(HOUR);   P_(MINUTE);
-                                       P_(SECOND); P(MILLISECOND);
+                                       P_(SECOND); P_(MILLISECOND);
+                                       P(MICROSECOND);
                 }
                 LOOP_ASSERT(LINE,
-                            VALID == bdlt::Time::isValid(HOUR,   MINUTE,
-                                                         SECOND, MILLISECOND));
+                            VALID == bdlt::Time::isValid(HOUR,
+                                                         MINUTE,
+                                                         SECOND,
+                                                         MILLISECOND,
+                                                         MICROSECOND));
             }
         }
 
@@ -718,8 +736,9 @@ if (veryVerbose)
         //   int addMinutes(int minutes);
         //   int addSeconds(int seconds);
         //   int addMilliseconds(int milliseconds);
+        //   int addMicroseconds(int microseconds);
         //   int addInterval(const DatetimeInterval& interval);
-        //   int addTime(int hours, int minutes, int seconds, int msec);
+        //   int addTime(int hours, int minutes, int seconds, int ms, int us);
         //   Time& operator+=(const DatetimeInterval& rhs);
         //   Time& operator-=(const DatetimeInterval& rhs);
         //   Time operator+(const Time&, const DatetimeInterval&);
@@ -742,52 +761,63 @@ if (veryVerbose)
                 int d_minutes;       // minutes to add
                 int d_seconds;       // seconds to add
                 int d_msecs;         // milliseconds to add
+                int d_usecs;         // microseconds to add
                 int d_expDays;       // expected return value (days)
                 int d_expHour;       // expected hour value
                 int d_expMinute;     // expected minute value
                 int d_expSecond;     // expected second value
                 int d_expMsec;       // expected milliseconds value
+                int d_expUsec;       // expected microseconds value
             } DATA[] = {
-        //        - - - - - - time added - - - - - -   ---expected values---
-        //LINE     H       M         S           MS    DAYS  H   M   S   MS
-        //------   --      --        --          ---   ----  --  --  --  ---
-        { L_,       0,      0,        0,           0,     0,  0,  0,  0,   0 },
-        { L_,       0,      0,        0,           1,     0,  0,  0,  0,   1 },
-        { L_,       0,      0,        0,          -1,    -1, 23, 59, 59, 999 },
-        { L_,       0,      0,        0,        1000,     0,  0,  0,  1,   0 },
-        { L_,       0,      0,        0,       60000,     0,  0,  1,  0,   0 },
-        { L_,       0,      0,        0,     3600000,     0,  1,  0,  0,   0 },
-        { L_,       0,      0,        0,    86400000,     1,  0,  0,  0,   0 },
-        { L_,       0,      0,        0,   -86400000,    -1,  0,  0,  0,   0 },
-        { L_,       0,      0,        0,   864000000,    10,  0,  0,  0,   0 },
+//     - - - - - - - time added - - - - - - -    - - expected values - -
+//LI   H      M       S         MS        US    DAYS  H   M   S   MS   US
+//--   --     --      --        ---       ---   ----  --  --  --  ---  ---
+{ L_,   0,     0,      0,         0,        0,     0,  0,  0,  0,   0,   0 },
 
-        { L_,       0,      0,        1,           0,     0,  0,  0,  1,   0 },
-        { L_,       0,      0,       -1,           0,    -1, 23, 59, 59,   0 },
-        { L_,       0,      0,       60,           0,     0,  0,  1,  0,   0 },
-        { L_,       0,      0,     3600,           0,     0,  1,  0,  0,   0 },
-        { L_,       0,      0,    86400,           0,     1,  0,  0,  0,   0 },
-        { L_,       0,      0,   -86400,           0,    -1,  0,  0,  0,   0 },
-        { L_,       0,      0,   864000,           0,    10,  0,  0,  0,   0 },
+{ L_,   0,     0,      0,         0,        1,     0,  0,  0,  0,   0,   1 },
+{ L_,   0,     0,      0,         0,       -1,    -1, 23, 59, 59, 999, 999 },
+{ L_,   0,     0,      0,         0,     1000,     0,  0,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,         0,    -1000,    -1, 23, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,         0,  1000000,     0,  0,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,         0, -1000000,    -1, 23, 59, 59,   0,   0 },
+{ L_,   0,     0,      0,         0, 60000000,     0,  0,  1,  0,   0,   0 },
 
-        { L_,       0,      1,        0,           0,     0,  0,  1,  0,   0 },
-        { L_,       0,     -1,        0,           0,    -1, 23, 59,  0,   0 },
-        { L_,       0,     60,        0,           0,     0,  1,  0,  0,   0 },
-        { L_,       0,   1440,        0,           0,     1,  0,  0,  0,   0 },
-        { L_,       0,  -1440,        0,           0,    -1,  0,  0,  0,   0 },
-        { L_,       0,  14400,        0,           0,    10,  0,  0,  0,   0 },
+{ L_,   0,     0,      0,         1,        0,     0,  0,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,        -1,        0,    -1, 23, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,      1000,        0,     0,  0,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,     60000,        0,     0,  0,  1,  0,   0,   0 },
+{ L_,   0,     0,      0,   3600000,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,   0,     0,      0,  86400000,        0,     1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, -86400000,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, 864000000,        0,    10,  0,  0,  0,   0,   0 },
 
-        { L_,       1,      0,        0,           0,     0,  1,  0,  0,   0 },
-        { L_,      -1,      0,        0,           0,    -1, 23,  0,  0,   0 },
-        { L_,      24,      0,        0,           0,     1,  0,  0,  0,   0 },
-        { L_,     -24,      0,        0,           0,    -1,  0,  0,  0,   0 },
-        { L_,     240,      0,        0,           0,    10,  0,  0,  0,   0 },
+{ L_,   0,     0,      1,         0,        0,     0,  0,  0,  1,   0,   0 },
+{ L_,   0,     0,     -1,         0,        0,    -1, 23, 59, 59,   0,   0 },
+{ L_,   0,     0,     60,         0,        0,     0,  0,  1,  0,   0,   0 },
+{ L_,   0,     0,   3600,         0,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,   0,     0,  86400,         0,        0,     1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0, -86400,         0,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0, 864000,         0,        0,    10,  0,  0,  0,   0,   0 },
 
-        { L_,      24,   1440,    86400,    86400000,     4,  0,  0,  0,   0 },
-        { L_,      24,   1440,    86400,   -86400000,     2,  0,  0,  0,   0 },
-        { L_,      24,   1440,   -86400,   -86400000,     0,  0,  0,  0,   0 },
-        { L_,      24,  -1440,   -86400,   -86400000,    -2,  0,  0,  0,   0 },
-        { L_,     -24,  -1440,   -86400,   -86400000,    -4,  0,  0,  0,   0 },
-        { L_,      25,   1441,    86401,    86400001,     4,  1,  1,  1,   1 },
+{ L_,   0,     1,      0,         0,        0,     0,  0,  1,  0,   0,   0 },
+{ L_,   0,    -1,      0,         0,        0,    -1, 23, 59,  0,   0,   0 },
+{ L_,   0,    60,      0,         0,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,   0,  1440,      0,         0,        0,     1,  0,  0,  0,   0,   0 },
+{ L_,   0, -1440,      0,         0,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_,   0, 14400,      0,         0,        0,    10,  0,  0,  0,   0,   0 },
+
+{ L_,   1,     0,      0,         0,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,  -1,     0,      0,         0,        0,    -1, 23,  0,  0,   0,   0 },
+{ L_,  24,     0,      0,         0,        0,     1,  0,  0,  0,   0,   0 },
+{ L_, -24,     0,      0,         0,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_, 240,     0,      0,         0,        0,    10,  0,  0,  0,   0,   0 },
+
+{ L_,  24,  1440,  86400,  86400000,        0,     4,  0,  0,  0,   0,   0 },
+{ L_,  24,  1440,  86400, -86400000,        0,     2,  0,  0,  0,   0,   0 },
+{ L_,  24,  1440, -86400, -86400000,        0,     0,  0,  0,  0,   0,   0 },
+{ L_,  24, -1440, -86400, -86400000,        0,    -2,  0,  0,  0,   0,   0 },
+{ L_, -24, -1440, -86400, -86400000,        0,    -4,  0,  0,  0,   0,   0 },
+{ L_,  25,  1441,  86401,  86400001,        0,     4,  1,  1,  1,   1,   0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -798,20 +828,26 @@ if (veryVerbose)
                 const int MINUTES  = DATA[i].d_minutes;
                 const int SECONDS  = DATA[i].d_seconds;
                 const int MSECS    = DATA[i].d_msecs;
+                const int USECS    = DATA[i].d_usecs;
 
                 const int EXP_DAYS = DATA[i].d_expDays;
                 const int EXP_HR   = DATA[i].d_expHour;
                 const int EXP_MIN  = DATA[i].d_expMinute;
                 const int EXP_SEC  = DATA[i].d_expSecond;
                 const int EXP_MSEC = DATA[i].d_expMsec;
+                const int EXP_USEC = DATA[i].d_expUsec;
 
                 Obj x;  const Obj& X = x;
 
                 if (veryVerbose) { T_;  P_(X); }
 
-                int RETURN_VALUE = x.addTime(HOURS, MINUTES, SECONDS, MSECS);
+                int RETURN_VALUE = x.addTime(HOURS,
+                                             MINUTES,
+                                             SECONDS,
+                                             MSECS,
+                                             USECS);
 
-                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC);
+                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC, EXP_USEC);
 
                 if (veryVerbose) { P_(X);  P_(EXP);  P(RETURN_VALUE); }
 
@@ -831,52 +867,63 @@ if (veryVerbose)
                 int d_minutes;       // minutes to add
                 int d_seconds;       // seconds to add
                 int d_msecs;         // milliseconds to add
+                int d_usecs;         // microseconds to add
                 int d_expDays;       // expected return value (days)
                 int d_expHour;       // expected hour value
                 int d_expMinute;     // expected minute value
                 int d_expSecond;     // expected second value
                 int d_expMsec;       // expected milliseconds value
+                int d_expUsec;       // expected microseconds value
             } DATA[] = {
-        //        - - - - - - time added - - - - - -   ---expected values---
-        //LINE     H       M         S           MS    DAYS  H   M   S   MS
-        //------   --      --        --          ---   ----  --  --  --  ---
-        { L_,       0,      0,        0,           0,     0, 12,  0,  0,   0 },
-        { L_,       0,      0,        0,           1,     0, 12,  0,  0,   1 },
-        { L_,       0,      0,        0,          -1,     0, 11, 59, 59, 999 },
-        { L_,       0,      0,        0,        1000,     0, 12,  0,  1,   0 },
-        { L_,       0,      0,        0,       60000,     0, 12,  1,  0,   0 },
-        { L_,       0,      0,        0,     3600000,     0, 13,  0,  0,   0 },
-        { L_,       0,      0,        0,    86400000,     1, 12,  0,  0,   0 },
-        { L_,       0,      0,        0,   -86400000,    -1, 12,  0,  0,   0 },
-        { L_,       0,      0,        0,   864000000,    10, 12,  0,  0,   0 },
+//     - - - - - - - time added - - - - - - -    - - expected values - -
+//LI   H      M       S         MS        US    DAYS  H   M   S   MS   US
+//--   --     --      --        ---       ---   ----  --  --  --  ---  ---
+{ L_,   0,     0,      0,         0,        0,     0, 12,  0,  0,   0,   0 },
 
-        { L_,       0,      0,        1,           0,     0, 12,  0,  1,   0 },
-        { L_,       0,      0,       -1,           0,     0, 11, 59, 59,   0 },
-        { L_,       0,      0,       60,           0,     0, 12,  1,  0,   0 },
-        { L_,       0,      0,     3600,           0,     0, 13,  0,  0,   0 },
-        { L_,       0,      0,    86400,           0,     1, 12,  0,  0,   0 },
-        { L_,       0,      0,   -86400,           0,    -1, 12,  0,  0,   0 },
-        { L_,       0,      0,   864000,           0,    10, 12,  0,  0,   0 },
+{ L_,   0,     0,      0,         0,        1,     0, 12,  0,  0,   0,   1 },
+{ L_,   0,     0,      0,         0,       -1,     0, 11, 59, 59, 999, 999 },
+{ L_,   0,     0,      0,         0,     1000,     0, 12,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,         0,    -1000,     0, 11, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,         0,  1000000,     0, 12,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,         0, -1000000,     0, 11, 59, 59,   0,   0 },
+{ L_,   0,     0,      0,         0, 60000000,     0, 12,  1,  0,   0,   0 },
 
-        { L_,       0,      1,        0,           0,     0, 12,  1,  0,   0 },
-        { L_,       0,     -1,        0,           0,     0, 11, 59,  0,   0 },
-        { L_,       0,     60,        0,           0,     0, 13,  0,  0,   0 },
-        { L_,       0,   1440,        0,           0,     1, 12,  0,  0,   0 },
-        { L_,       0,  -1440,        0,           0,    -1, 12,  0,  0,   0 },
-        { L_,       0,  14400,        0,           0,    10, 12,  0,  0,   0 },
+{ L_,   0,     0,      0,         1,        0,     0, 12,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,        -1,        0,     0, 11, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,      1000,        0,     0, 12,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,     60000,        0,     0, 12,  1,  0,   0,   0 },
+{ L_,   0,     0,      0,   3600000,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,   0,     0,      0,  86400000,        0,     1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, -86400000,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, 864000000,        0,    10, 12,  0,  0,   0,   0 },
 
-        { L_,       1,      0,        0,           0,     0, 13,  0,  0,   0 },
-        { L_,      -1,      0,        0,           0,     0, 11,  0,  0,   0 },
-        { L_,      24,      0,        0,           0,     1, 12,  0,  0,   0 },
-        { L_,     -24,      0,        0,           0,    -1, 12,  0,  0,   0 },
-        { L_,     240,      0,        0,           0,    10, 12,  0,  0,   0 },
+{ L_,   0,     0,      1,         0,        0,     0, 12,  0,  1,   0,   0 },
+{ L_,   0,     0,     -1,         0,        0,     0, 11, 59, 59,   0,   0 },
+{ L_,   0,     0,     60,         0,        0,     0, 12,  1,  0,   0,   0 },
+{ L_,   0,     0,   3600,         0,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,   0,     0,  86400,         0,        0,     1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0, -86400,         0,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0, 864000,         0,        0,    10, 12,  0,  0,   0,   0 },
 
-        { L_,      24,   1440,    86400,    86400000,     4, 12,  0,  0,   0 },
-        { L_,      24,   1440,    86400,   -86400000,     2, 12,  0,  0,   0 },
-        { L_,      24,   1440,   -86400,   -86400000,     0, 12,  0,  0,   0 },
-        { L_,      24,  -1440,   -86400,   -86400000,    -2, 12,  0,  0,   0 },
-        { L_,     -24,  -1440,   -86400,   -86400000,    -4, 12,  0,  0,   0 },
-        { L_,      25,   1441,    86401,    86400001,     4, 13,  1,  1,   1 },
+{ L_,   0,     1,      0,         0,        0,     0, 12,  1,  0,   0,   0 },
+{ L_,   0,    -1,      0,         0,        0,     0, 11, 59,  0,   0,   0 },
+{ L_,   0,    60,      0,         0,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,   0,  1440,      0,         0,        0,     1, 12,  0,  0,   0,   0 },
+{ L_,   0, -1440,      0,         0,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_,   0, 14400,      0,         0,        0,    10, 12,  0,  0,   0,   0 },
+
+{ L_,   1,     0,      0,         0,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,  -1,     0,      0,         0,        0,     0, 11,  0,  0,   0,   0 },
+{ L_,  24,     0,      0,         0,        0,     1, 12,  0,  0,   0,   0 },
+{ L_, -24,     0,      0,         0,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_, 240,     0,      0,         0,        0,    10, 12,  0,  0,   0,   0 },
+
+{ L_,  24,  1440,  86400,  86400000,        0,     4, 12,  0,  0,   0,   0 },
+{ L_,  24,  1440,  86400, -86400000,        0,     2, 12,  0,  0,   0,   0 },
+{ L_,  24,  1440, -86400, -86400000,        0,     0, 12,  0,  0,   0,   0 },
+{ L_,  24, -1440, -86400, -86400000,        0,    -2, 12,  0,  0,   0,   0 },
+{ L_, -24, -1440, -86400, -86400000,        0,    -4, 12,  0,  0,   0,   0 },
+{ L_,  25,  1441,  86401,  86400001,        0,     4, 13,  1,  1,   1,   0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -889,20 +936,26 @@ if (veryVerbose)
                 const int MINUTES  = DATA[i].d_minutes;
                 const int SECONDS  = DATA[i].d_seconds;
                 const int MSECS    = DATA[i].d_msecs;
+                const int USECS    = DATA[i].d_usecs;
 
                 const int EXP_DAYS = DATA[i].d_expDays;
                 const int EXP_HR   = DATA[i].d_expHour;
                 const int EXP_MIN  = DATA[i].d_expMinute;
                 const int EXP_SEC  = DATA[i].d_expSecond;
                 const int EXP_MSEC = DATA[i].d_expMsec;
+                const int EXP_USEC = DATA[i].d_expUsec;
 
                 Obj x(INITIAL);  const Obj& X = x;
 
                 if (veryVerbose) { T_;  P_(X); }
 
-                int RETURN_VALUE = x.addTime(HOURS, MINUTES, SECONDS, MSECS);
+                int RETURN_VALUE = x.addTime(HOURS,
+                                             MINUTES,
+                                             SECONDS,
+                                             MSECS,
+                                             USECS);
 
-                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC);
+                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC, EXP_USEC);
 
                 if (veryVerbose) { P_(X);  P_(EXP);  P(RETURN_VALUE); }
 
@@ -930,6 +983,10 @@ if (veryVerbose)
             const int START_MSECS = -900000000;
             const int STOP_MSECS  =  900000000;
             const int STEP_MSECS  =   90000000;
+
+            const int START_USECS = -900000000;
+            const int STOP_USECS  =  900000000;
+            const int STEP_USECS  =   90000000;
 
             if (verbose) cout << "\nTesting 'addHours'." << endl;
             for (int hi = START_HOURS; hi <= STOP_HOURS; hi += STEP_HOURS) {
@@ -1021,6 +1078,29 @@ if (veryVerbose)
 
                 LOOP_ASSERT(msi, Y1 == X1);  LOOP_ASSERT(msi, RY1 == RX1);
                 LOOP_ASSERT(msi, Y2 == X2);  LOOP_ASSERT(msi, RY2 == RX2);
+            }
+
+            if (verbose) cout << "\nTesting 'addMicroseconds'." << endl;
+            for (int usi = START_USECS; usi <= STOP_USECS; usi += STEP_USECS) {
+                Obj x1(I1);  const Obj &X1 = x1;
+
+                Obj x2(I2);  const Obj &X2 = x2;
+
+                Obj y1(I1);  const Obj &Y1 = y1;
+
+                Obj y2(I2);  const Obj &Y2 = y2;
+
+                if (veryVerbose) { T_;  P_(X1);  P(X2); }
+
+                const int RX1 = x1.addMicroseconds(usi);
+                const int RX2 = x2.addMicroseconds(usi);
+                const int RY1 = y1.addTime(0, 0, 0, 0, usi);
+                const int RY2 = y2.addTime(0, 0, 0, 0, usi);
+
+                if (veryVerbose) { T_;  P_(X1);  P_(X2);  P_(RX1);  P(RX2); }
+
+                LOOP_ASSERT(usi, Y1 == X1);  LOOP_ASSERT(usi, RY1 == RX1);
+                LOOP_ASSERT(usi, Y2 == X2);  LOOP_ASSERT(usi, RY2 == RX2);
             }
 
             if (verbose) cout << "\nTesting 'addInterval'." << endl;
@@ -1170,13 +1250,12 @@ if (veryVerbose)
                                                bsl::numeric_limits<int>::max(),
                                                23);
 
-            ASSERT_SAFE_PASS(mV.addInterval(INTERVAL_A));
-            ASSERT_SAFE_PASS(mW.addInterval(INTERVAL_B));
-            ASSERT_SAFE_PASS(mX.addInterval(INTERVAL_C));
-            ASSERT_SAFE_FAIL(mY.addInterval(INTERVAL_D));
-            ASSERT_SAFE_FAIL(mZ.addInterval(INTERVAL_E));
+            ASSERT_PASS(mV.addInterval(INTERVAL_A));
+            ASSERT_PASS(mW.addInterval(INTERVAL_B));
+            ASSERT_PASS(mX.addInterval(INTERVAL_C));
+            ASSERT_FAIL(mY.addInterval(INTERVAL_D));
+            ASSERT_FAIL(mZ.addInterval(INTERVAL_E));
         }
-
       } break;
       case 14: {
         // --------------------------------------------------------------------

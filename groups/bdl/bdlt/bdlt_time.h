@@ -308,8 +308,7 @@ class Time {
         // Increase the value of this time object by the specified number of
         // 'microseconds', and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
-        // the operation.  The behavior is undefined unless the number of
-        // crossings that would be returned can be represented by an 'int'.  Note that 'microseconds' may be negative.
+        // the operation.  Note that 'microseconds' may be negative.
 
     int addInterval(const DatetimeInterval& interval);
         // Increase the value of this time object by the specified 'interval'
@@ -328,8 +327,7 @@ class Time {
         // 'seconds', 'milliseconds', and 'microseconds'; return the (signed)
         // number of times that the 23:59:59.999999 - 00:00:00.000000 boundary
         // was crossed in performing the operation.  Unspecified arguments
-        // default to 0.  The behavior is undefined unless the number of
-        // crossings that would be returned can be represented by an 'int'.
+        // default to 0.
 
     void setHour(int hour);
         // Set the 'hour' attribute of this time object to the specified
@@ -584,7 +582,7 @@ inline
 bsls::Types::Int64 Time::microsecondsFromMidnight() const
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
-        return d_value & (~k_REP_MASK);
+        return d_value & (~k_REP_MASK);                               // RETURN
     }
 
     BSLS_ASSERT_SAFE(0 && "detected invalid 'bdlt::Time'; see TEAM 579660115");
