@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide methods to construct arbitrarily-typed objects uniformily.
+//@PURPOSE: Provide methods to construct arbitrarily-typed objects uniformly.
 //
 //@CLASSES:
 //  bslma::ConstructionUtil: namespace for methods to construct objects
@@ -50,10 +50,9 @@ BSLS_IDENT("$Id: $")
 //                                                (implies that it has a
 //                                                trivial destructor too)
 //
-// TBD: remove this?
 //  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
-//                                                moveable trait", or
-//                                                "TYPE is bit-wise moveable"
+//                                                movable trait", or
+//                                                "TYPE is bit-wise movable"
 //..
 //
 ///Usage
@@ -65,16 +64,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
 #include <bslma_destructorproctor.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_USESALLOCATORARGT
@@ -143,26 +142,6 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslma {
 
-// TBD: this is temporary - find a routine in 'bsl' that can do this (or
-//      similar) and get rid of this
-namespace tmp {
-
-struct ImpUtil {
-    template <class TYPE>
-    static void *voidify(TYPE *address);
-        // Return the specified 'address' cast as a pointer to 'void', even if
-        // (the template parameter) 'TYPE' is cv-qualified.
-};
-
-template <class TYPE>
-inline
-void *ImpUtil::voidify(TYPE *address) {
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
-}
-
-} // close namespace 'tmp'
-
 // Workaround for optimization issue in xlC that mishandles pointer aliasing.
 //   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
 //   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
@@ -189,8 +168,10 @@ struct ConstructionUtil {
     // elements of (a template parameter) 'TARGET_TYPE'.
 
   private:
-
+    // PRIVATE TYPES
     typedef ConstructionUtil_Imp Imp;
+        // This 'typedef' is a convenient alias for the implementation-specific
+        // utility class defined in this component.
 
   public:
     template <class TARGET_TYPE, class ALLOCATOR>
@@ -926,14 +907,23 @@ struct ConstructionUtil_Imp {
     // should not be used outside this component.
 
   private:
+    // FRIENDS
+    friend class ConstructionUtil;
+
+    // PRIVATE CLASS METHODS
     template <class TARGET_TYPE>
     static TARGET_TYPE *unconst(const TARGET_TYPE *address)
     {
         return const_cast<TARGET_TYPE *>(address);
     }
 
-  public:
+    template <class TARGET_TYPE>
+    static void *voidify(TARGET_TYPE *address);
+        // Return the specified 'address' cast as a pointer to 'void', even if
+        // the (template parameter) 'TARGET_TYPE' is cv-qualified.
 
+  public:
+    // TYPES
     enum {
         // These constants are used in the overloads below, when the last
         // argument is of type 'bsl::integral_constant<int, N> *', indicating
@@ -948,6 +938,7 @@ struct ConstructionUtil_Imp {
         e_NIL_TRAITS                      = 0
     };
 
+    // CLASS METHODS
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
                      TARGET_TYPE *address,
@@ -2341,16 +2332,15 @@ struct ConstructionUtil_Imp {
 #endif
 };
 
-
 // ============================================================================
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
-
 
                           // -----------------------
                           // struct ConstructionUtil
                           // -----------------------
 
+// CLASS METHODS
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void
@@ -2549,7 +2539,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                             Arg1&&       argument1,
                             Args&&...    arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -3231,7 +3221,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                             void        *,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1));
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -3244,7 +3234,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -3260,7 +3250,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
@@ -3279,7 +3269,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3301,7 +3291,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3326,7 +3316,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3354,7 +3344,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3385,7 +3375,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3419,7 +3409,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3456,7 +3446,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3496,7 +3486,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3539,7 +3529,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3585,7 +3575,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3634,7 +3624,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3686,7 +3676,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3741,7 +3731,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
@@ -3794,7 +3784,7 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (Imp::voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
                              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -3806,6 +3796,16 @@ ConstructionUtil::construct(TARGET_TYPE *address,
                        // struct ConstructionUtil_Imp
                        // ---------------------------
 
+// PRIVATE CLASS METHODS
+template <class TARGET_TYPE>
+inline
+void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
+{
+    return static_cast<void *>(
+            const_cast<typename bsl::remove_cv<TARGET_TYPE>::type *>(address));
+}
+
+// CLASS METHODS
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void
@@ -3816,7 +3816,7 @@ ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value
      || bsl::is_pointer<TARGET_TYPE>::value) {
-         ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(*original);
+         ::new (voidify(address)) TARGET_TYPE(*original);
          BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
      }
      else {
@@ -3866,7 +3866,7 @@ ConstructionUtil_Imp::construct(
     if (bsl::is_fundamental<TARGET_TYPE>::value
      || bsl::is_pointer<TARGET_TYPE>::value) {
 
-        ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE();
+        ::new (voidify(address)) TARGET_TYPE();
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
     else {
@@ -3895,7 +3895,7 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
     if (bsl::is_fundamental<TARGET_TYPE>::value
      || bsl::is_pointer<TARGET_TYPE>::value) {
 
-        ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(original);
+        ::new (voidify(address)) TARGET_TYPE(original);
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
     else {
@@ -3938,7 +3938,7 @@ ConstructionUtil_Imp::construct(
                   bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
                   Args&&...         arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args,arguments)..., allocator);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -3952,7 +3952,7 @@ ConstructionUtil_Imp::construct(
                   bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
                   Args&&...         arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
@@ -3979,7 +3979,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                                 bsl::integral_constant<int, e_NIL_TRAITS> *,
                                 Args&&...         arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -3995,7 +3995,7 @@ ConstructionUtil_Imp::construct(
                   bslma::Allocator *allocator,
                   bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   allocator);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -4009,7 +4009,7 @@ ConstructionUtil_Imp::construct(
                   bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   allocator);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -4026,7 +4026,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   allocator);
@@ -4046,7 +4046,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4069,7 +4069,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4095,7 +4095,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4124,7 +4124,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4156,7 +4156,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4191,7 +4191,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4229,7 +4229,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4270,7 +4270,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4314,7 +4314,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4361,7 +4361,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4411,7 +4411,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4464,7 +4464,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4520,7 +4520,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -4549,7 +4549,7 @@ ConstructionUtil_Imp::construct(
                   bslma::Allocator *allocator,
                   bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -4564,7 +4564,7 @@ ConstructionUtil_Imp::construct(
                   bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
@@ -4582,7 +4582,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4603,7 +4603,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4627,7 +4627,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4654,7 +4654,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4684,7 +4684,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4717,7 +4717,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4753,7 +4753,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4792,7 +4792,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4834,7 +4834,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4879,7 +4879,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4927,7 +4927,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -4978,7 +4978,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -5032,7 +5032,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -5089,7 +5089,7 @@ ConstructionUtil_Imp::construct(
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
@@ -5639,7 +5639,7 @@ void
 ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                                 bsl::integral_constant<int, e_NIL_TRAITS> *)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              );
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -5651,7 +5651,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                                 bsl::integral_constant<int, e_NIL_TRAITS> *,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -5665,7 +5665,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -5682,7 +5682,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
@@ -5702,7 +5702,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5725,7 +5725,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5751,7 +5751,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5780,7 +5780,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5812,7 +5812,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5847,7 +5847,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5885,7 +5885,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5926,7 +5926,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -5970,7 +5970,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -6017,7 +6017,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -6067,7 +6067,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -6120,7 +6120,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                           BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
                           BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
                           BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
@@ -6151,7 +6151,7 @@ ConstructionUtil_Imp::construct(
                   bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                   BSLS_COMPILERFEATURES_FORWARD(Args,arguments)..., allocator);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
@@ -6165,7 +6165,7 @@ ConstructionUtil_Imp::construct(
                   bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
                              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
@@ -6192,7 +6192,7 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
                                 bsl::integral_constant<int, e_NIL_TRAITS> *,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
-    ::new (tmp::ImpUtil::voidify(address)) TARGET_TYPE(
+    ::new (voidify(address)) TARGET_TYPE(
                              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
