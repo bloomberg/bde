@@ -44,15 +44,15 @@ BSLS_IDENT("$Id: $")
 //                                                first, and the allocator type
 //                                                is second
 //
-//  bsl::is_trivially_copyable                    "TYPE has the bit-wise
+//  bsl::is_trivially_copyable                    "TYPE has the bitwise
 //                                                copyable trait", or
-//                                                "TYPE is bit-wise copyable"
+//                                                "TYPE is bitwise copyable"
 //                                                (implies that it has a
 //                                                trivial destructor too)
 //
-//  bslmf::IsBitwiseMoveable                      "TYPE has the bit-wise
+//  bslmf::IsBitwiseMoveable                      "TYPE has the bitwise
 //                                                movable trait", or
-//                                                "TYPE is bit-wise movable"
+//                                                "TYPE is bitwise movable"
 //..
 //
 ///Usage
@@ -174,12 +174,7 @@ struct ConstructionUtil {
         // utility class defined in this component.
 
   public:
-    template <class TARGET_TYPE, class ALLOCATOR>
-    static void destructiveMove(TARGET_TYPE *address,
-                                ALLOCATOR   *allocator,
-                                TARGET_TYPE *original);
-        // TBD: comment this
-
+    // CLASS METHODS
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE *address, bslma::Allocator *allocator);
     template <class TARGET_TYPE>
@@ -891,6 +886,26 @@ struct ConstructionUtil {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 // }}} END GENERATED CODE
 #endif
+
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destructiveMove(TARGET_TYPE *address,
+                                ALLOCATOR   *allocator,
+                                TARGET_TYPE *original);
+        // Create an object of (template parameter) type 'TARGET_TYPE' at the
+        // specified (uninitialized memory) 'address' having the same value as
+        // the object at the specified 'original' address, propagating the
+        // specified 'allocator' to the moved object if 'TARGET_TYPE' uses
+        // 'bslma'-style allocation and the (template parameter) type
+        // 'ALLOCATOR' is implicitly convertible to 'bslma::Allocator', and
+        // destroy 'original'.  If the move constructor throws an exception,
+        // 'address' is left in an uninitialized state and 'original' is left
+        // in a valid but unspecified state.  The behavior is undefined unless
+        // either 'TARGET_TYPE' does not support 'bslma'-style allocation or
+        // 'original' uses 'allocator' to supply memory.  Note that this class
+        // method is equivalent to move-constructing an object at 'address'
+        // from '*original' and then destroying 'original', except that this
+        // method elides the calls to the constructor and destructor for
+        // objects that are bitwise movable.
 };
 
                         // ===========================
@@ -939,21 +954,6 @@ struct ConstructionUtil_Imp {
     };
 
     // CLASS METHODS
-    template <class TARGET_TYPE, class ALLOCATOR>
-    static void destructiveMove(
-                     TARGET_TYPE *address,
-                     ALLOCATOR   *allocator,
-                     bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
-                     TARGET_TYPE *original);
-        // TBD: comment this
-
-    template <class TARGET_TYPE, class ALLOCATOR>
-    static void destructiveMove(TARGET_TYPE *address,
-                                ALLOCATOR   *allocator,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                                TARGET_TYPE *original);
-        // TBD: comment this
-
     template <class TARGET_TYPE>
     static void construct(
              TARGET_TYPE      *address,
@@ -987,7 +987,7 @@ struct ConstructionUtil_Imp {
     construct(TARGET_TYPE        *address,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
               const TARGET_TYPE&  original);
-        // Create an object of a bit-wise copyable (template parameter) type
+        // Create an object of a bitwise copyable (template parameter) type
         // 'TARGET_TYPE' at the specified (uninitialized memory) 'address',
         // with the same value as the specified 'original' object.  If the
         // constructor throws, 'address' is left in an uninitialized state.
@@ -1006,7 +1006,7 @@ struct ConstructionUtil_Imp {
     construct(TARGET_TYPE                    *address,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
               bslmf::MovableRef<TARGET_TYPE>  original);
-        // Create an object of a bit-wise copyable (template parameter) type
+        // Create an object of a bitwise copyable (template parameter) type
         // 'TARGET_TYPE' at the specified (uninitialized memory) 'address',
         // with the same value as the specified 'original' object.  If the
         // constructor throws, 'address' is left in an uninitialized state.
@@ -2330,6 +2330,39 @@ struct ConstructionUtil_Imp {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 // }}} END GENERATED CODE
 #endif
+
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destructiveMove(
+                     TARGET_TYPE *address,
+                     ALLOCATOR   *allocator,
+                     bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
+                     TARGET_TYPE *original);
+        // Move the bitwise movable object of (template parameter) type
+        // 'TARGET_TYPE' at the specified 'original' address to the specified
+        // (uninitialized memory) 'address', eliding the call to the move
+        // constructor and destructor in favor of performing a bitwise copy.
+        // The behavior is undefined unless either 'TARGET_TYPE' does not
+        // support 'bslma'-style allocation or 'original' uses 'allocator' to
+        // supply memory.
+
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void destructiveMove(TARGET_TYPE *address,
+                                ALLOCATOR   *allocator,
+                                bsl::integral_constant<int, e_NIL_TRAITS> *,
+                                TARGET_TYPE *original);
+        // Create an object of (template parameter) type 'TARGET_TYPE' at the
+        // specified (uninitialized memory) 'address' having the same value as
+        // the object at the specified 'original' address, propagating the
+        // specified 'allocator' to the moved object if 'TARGET_TYPE' uses
+        // 'bslma'-style allocation and the (template parameter) type
+        // 'ALLOCATOR' is implicitly convertible to 'bslma::Allocator', and
+        // destroy 'original'.  If the move constructor throws an exception,
+        // 'address' is left in an uninitialized state and 'original' is left
+        // in a valid but unspecified state.  The behavior is undefined unless
+        // either 'TARGET_TYPE' does not support 'bslma'-style allocation or
+        // 'original' uses 'allocator' to supply memory.  Note that this class
+        // method is equivalent to move-constructing an object at 'address'
+        // from '*original' and then destroying 'original'.
 };
 
 // ============================================================================
@@ -2341,28 +2374,6 @@ struct ConstructionUtil_Imp {
                           // -----------------------
 
 // CLASS METHODS
-template <class TARGET_TYPE, class ALLOCATOR>
-inline
-void
-ConstructionUtil::destructiveMove(TARGET_TYPE *address,
-                                  ALLOCATOR   *allocator,
-                                  TARGET_TYPE *original)
-{
-    BSLS_ASSERT_SAFE(address);
-    BSLS_ASSERT_SAFE(original);
-
-    enum {
-       k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
-                 ? Imp::e_BITWISE_MOVABLE_TRAITS
-                 : Imp::e_NIL_TRAITS
-    };
-
-    Imp::destructiveMove(address,
-                         allocator,
-                         (bsl::integral_constant<int, k_VALUE>*)0,
-                         original);
-}
-
 template <class TARGET_TYPE>
 inline
 void
@@ -3792,6 +3803,28 @@ ConstructionUtil::construct(TARGET_TYPE *address,
 // }}} END GENERATED CODE
 #endif
 
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void
+ConstructionUtil::destructiveMove(TARGET_TYPE *address,
+                                  ALLOCATOR   *allocator,
+                                  TARGET_TYPE *original)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(original);
+
+    enum {
+       k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+                 ? Imp::e_BITWISE_MOVABLE_TRAITS
+                 : Imp::e_NIL_TRAITS
+    };
+
+    Imp::destructiveMove(address,
+                         allocator,
+                         (bsl::integral_constant<int, k_VALUE>*)0,
+                         original);
+}
+
                        // ---------------------------
                        // struct ConstructionUtil_Imp
                        // ---------------------------
@@ -3806,43 +3839,6 @@ void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
 }
 
 // CLASS METHODS
-template <class TARGET_TYPE, class ALLOCATOR>
-inline
-void
-ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
-                                      ALLOCATOR   *,
-                      bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
-                                      TARGET_TYPE *original)
-{
-    if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value) {
-         ::new (voidify(address)) TARGET_TYPE(*original);
-         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-     }
-     else {
-         memcpy(address, original, sizeof *original);
-     }
-}
-
-template <class TARGET_TYPE, class ALLOCATOR>
-inline
-void
-ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
-                                      ALLOCATOR   *allocator,
-                                  bsl::integral_constant<int, e_NIL_TRAITS> *,
-                                      TARGET_TYPE *original)
-{
-    // TBD: should be ok with C++03 as well, but need to test edge cases first
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    ConstructionUtil::construct(address,
-                                allocator,
-                                bslmf::MovableRefUtil::move(*original));
-#else
-    ConstructionUtil::construct(address, allocator, *original);
-#endif
-    DestructionUtil::destroy(original);
-}
-
 template <class TARGET_TYPE>
 inline
 void
@@ -6198,6 +6194,43 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
 }
 // }}} END GENERATED CODE
 #endif
+
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void
+ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
+                                      ALLOCATOR   *,
+                      bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
+                                      TARGET_TYPE *original)
+{
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
+         ::new (voidify(address)) TARGET_TYPE(*original);
+         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+     }
+     else {
+         memcpy(address, original, sizeof *original);
+     }
+}
+
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void
+ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
+                                      ALLOCATOR   *allocator,
+                                  bsl::integral_constant<int, e_NIL_TRAITS> *,
+                                      TARGET_TYPE *original)
+{
+    // TBD: should be ok with C++03 as well, but need to test edge cases first
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    ConstructionUtil::construct(address,
+                                allocator,
+                                bslmf::MovableRefUtil::move(*original));
+#else
+    ConstructionUtil::construct(address, allocator, *original);
+#endif
+    DestructionUtil::destroy(original);
+}
 
 }  // close package namespace
 }  // close enterprise namespace
