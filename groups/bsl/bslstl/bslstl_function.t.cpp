@@ -104,22 +104,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Fundamental-type-specific print functions.
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%lu", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-// inline void dbg_print(Int64 val) { printf("%lld", val); fflush(stdout); }
-// inline void dbg_print(Uint64 val) { printf("%llu", val); fflush(stdout); }
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-
 bool         verbose = false;
 bool     veryVerbose = false;
 bool veryVeryVerbose = false;
@@ -2953,7 +2937,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
 }
 
-// Functions for testing the workaround to the SunCC compiler bug (case 19)
+// Functions for testing the workaround to the SunCC compiler bug (case 18)
 template <class RET_TYPE>
 void sun1(const bsl::function<RET_TYPE()>&)
 {
@@ -2972,35 +2956,60 @@ struct OuterClass {
     // A class containing a nested class.
 
     struct NestedClass {
-        // An empty nested class
+        // A nested POD class.
+
+        int d_data;     // data member used to test for correct return value
     };
 
-    static NestedClass staticFunc()
-        // Static member function to return 'NestedClass' by value.
-        // The address of this function is an ordinary pointer to function.
-        { return NestedClass(); }
+    static NestedClass staticFunc(int value);
+        // Return a 'NestedClass' whose 'd_data' member has the specified
+        // 'value'.  The address of this method is an ordinary pointer to
+        // function.  Note that this function returning a nested POD class by
+        // value is the trigger for the MSVC compiler bug.
 
-    NestedClass memberFunc()
-        // Non-static member function to return 'NestedClass' by value.
-        // The address of this function is a pointer to member-function.
-        { return NestedClass(); }
+    NestedClass memberFunc(int value);
+        // Return a 'NestedClass' whose 'd_data' member has the specified
+        // 'value'.  The address of this method is a pointer to
+        // member-function.  Note that this function returning a nested POD
+        // class by value is the trigger for the MSVC compiler bug.
 
     struct smallFunctor {
         // Small (empty) functor to return 'NestedClass' by value.
-        NestedClass operator()() { return NestedClass(); }
+
+        NestedClass operator()(int value)
+            // Return a 'NestedClass' whose 'd_data' member has the specified
+            // 'value'.
+        {
+            NestedClass result = { value };
+            return result;
+        }
     };
 
     struct largeFunctor {
         // Small (empty) functor to return 'NestedClass' by value.
-        NestedClass operator()() { return NestedClass(); }
-        int d_padding[20];
+
+        // PUBLIC DATA
+        int d_padding[20];      // padding to ensure the 'function' small
+                                // object optimization does not kick in.
+
+        // Manipulators
+        NestedClass operator()(int value)
+            // Return a 'NestedClass' whose 'd_data' member has the specified
+            // 'value'.
+        {
+            NestedClass result = { value };
+            return result;
+        }
     };
 
-    bsl::function<NestedClass()>            d_f1, d_f2, d_f3;
-        // 'function' taking no arguments and returning 'NestedClass'.
-    bsl::function<NestedClass(OuterClass&)> d_f4;
-        // 'function' taking argument of class 'OuterClass' and returning
-        // 'NestedClass'.
+    // PUBLIC DATA
+    bsl::function<NestedClass(int)>              d_f1;
+    bsl::function<NestedClass(int)>              d_f2;
+    bsl::function<NestedClass(int)>              d_f3;
+        // 'function' taking one 'int' argument and returning a 'NestedClass'.
+    bsl::function<NestedClass(OuterClass&, int)> d_f4;
+        // 'function' taking argument of class 'OuterClass' and an 'int'
+        // argument, and returning a 'NestedClass'.
 
     OuterClass()
         // Constructor initializes 'function' members from each of the
@@ -3009,8 +3018,21 @@ struct OuterClass {
         , d_f2(smallFunctor())
         , d_f3(largeFunctor())
         , d_f4(&OuterClass::memberFunc)
-        { }
+    {
+    }
 };
+
+OuterClass::NestedClass OuterClass::staticFunc(int value)
+{
+    NestedClass result = { value };
+    return result;
+}
+
+OuterClass::NestedClass OuterClass::memberFunc(int value)
+{
+    NestedClass result = { value };
+    return result;
+}
 
 }
 
@@ -3129,7 +3151,8 @@ int main(int argc, char *argv[])
         //:   mismatched calling convention when converting pointers and
         //:   appeared to be related to the return type being a POD class.
         //:   The concern of this test case is that this bug does not manafest
-        //:   with the current implementation of 'bsl::function'.
+        //:   with the current implementation of 'bsl::function', snd that
+        //:   calling such a stored function does not corrupt the result.
         //
         // Plan:
         //: 1 Create a class, 'OuterClass', that has the following members:
@@ -3145,6 +3168,10 @@ int main(int argc, char *argv[])
         //:   member variables with each of the four invocable types.
         //: 3 Create an instance of 'OuterClass' to force compilation of the
         //:   constructor.
+        //: 4 Call each functor and verify that the returned 'NestedClass' has
+        //:   the correcct value.
+        //: 5 For the function pointer and pointer-to-member cases, confirm
+        //:   that the expected type is held in the 'target' object.
         //
         // Testing
         //     Fix for DRQS94831150
@@ -3154,6 +3181,26 @@ int main(int argc, char *argv[])
                             "\n============================\n");
 
         OuterClass testObj;
+
+        ASSERT(42 == testObj.d_f1(42).d_data);
+        ASSERT(13 == testObj.d_f2(13).d_data);
+        ASSERT(69 == testObj.d_f3(69).d_data);
+        ASSERT(37 == testObj.d_f4(testObj, 37).d_data);
+
+        typedef OuterClass::NestedClass (*SimpleFuncPtr_t)(int);
+        SimpleFuncPtr_t *f1 = testObj.d_f1.target<SimpleFuncPtr_t>();
+        ASSERT(f1);
+        if (f1) {
+            ASSERTV((void*)&OuterClass::staticFunc, (void*)f1,
+                           &OuterClass::staticFunc   ==   *f1);
+        }
+
+        typedef OuterClass::NestedClass (OuterClass::*SimpleMemFuncPtr_t)(int);
+        SimpleMemFuncPtr_t *f4 = testObj.d_f4.target<SimpleMemFuncPtr_t>();
+        ASSERT(f4);
+        if (f4) {
+            ASSERTV(&OuterClass::memberFunc == *f4);
+        }
 
       } break;
       case 18: {
