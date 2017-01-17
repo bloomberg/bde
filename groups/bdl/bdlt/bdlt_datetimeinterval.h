@@ -538,6 +538,8 @@ void hashAppend(HASHALG& hashAlg, const DatetimeInterval& object);
 inline
 void DatetimeInterval::verifyProposedRange()
 {
+    // TBD re-enable this logging (or remove all traces)
+    /*
     if (   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                   k_PROPOSED_MILLISECONDS_MIN > d_milliseconds)
         || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -545,6 +547,7 @@ void DatetimeInterval::verifyProposedRange()
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         logProposedRangeViolation();
     }
+    */
 }
 
 // CLASS METHODS
