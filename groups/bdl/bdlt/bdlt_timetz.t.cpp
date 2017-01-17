@@ -1180,7 +1180,7 @@ int main(int argc, char *argv[])
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -1221,7 +1221,7 @@ int main(int argc, char *argv[])
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -1257,7 +1257,7 @@ int main(int argc, char *argv[])
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1303,7 +1303,7 @@ int main(int argc, char *argv[])
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1352,15 +1352,15 @@ int main(int argc, char *argv[])
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
             out.putInt32(SERIAL_Y);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1498,7 +1498,7 @@ int main(int argc, char *argv[])
             out.putInt32(SERIAL_Y);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1526,7 +1526,7 @@ int main(int argc, char *argv[])
             out.putInt32(SERIAL_Y);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1556,7 +1556,7 @@ int main(int argc, char *argv[])
             out.putInt32(-1440);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1586,7 +1586,7 @@ int main(int argc, char *argv[])
             out.putInt32(1440);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -1614,7 +1614,7 @@ int main(int argc, char *argv[])
             out.putInt32(1);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2273,15 +2273,15 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LN  INDENT  SPACES  OFFSET            FORMAT
                 //--  ------  ------  ------   ------------------------
-                {L_,       0,     -1,      0,       "17:00:00.000+0000" },
-                {L_,       0,      0,     15,     "17:00:00.000+0015\n" },
-                {L_,       0,      2,     60,     "17:00:00.000+0100\n" },
-                {L_,       1,      1,     90,    " 17:00:00.000+0130\n" },
-                {L_,       1,      2,    -20,   "  17:00:00.000-0020\n" },
-                {L_,      -1,      2,   -330,     "17:00:00.000-0530\n" },
-                {L_,      -2,      1,    311,     "17:00:00.000+0511\n" },
-                {L_,       2,      1,   1439,   "  17:00:00.000+2359\n" },
-                {L_,       1,      3,  -1439,  "   17:00:00.000-2359\n" },
+                {L_,       0,     -1,      0,       "17:00:00.000000+0000" },
+                {L_,       0,      0,     15,     "17:00:00.000000+0015\n" },
+                {L_,       0,      2,     60,     "17:00:00.000000+0100\n" },
+                {L_,       1,      1,     90,    " 17:00:00.000000+0130\n" },
+                {L_,       1,      2,    -20,   "  17:00:00.000000-0020\n" },
+                {L_,      -1,      2,   -330,     "17:00:00.000000-0530\n" },
+                {L_,      -2,      1,    311,     "17:00:00.000000+0511\n" },
+                {L_,       2,      1,   1439,   "  17:00:00.000000+2359\n" },
+                {L_,       1,      3,  -1439,  "   17:00:00.000000-2359\n" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2296,7 +2296,7 @@ int main(int argc, char *argv[])
                     T_ P_(LINE) P_(IND) P_(SPL) P_(OFF) P(FMT)
                 }
 
-                bdlt::Time time(17);  // 17:00:00.000
+                bdlt::Time time(17);  // 17:00:00.000000
                 Obj mX(time, OFF);  const Obj& X = mX;
 
                 ostringstream output;
@@ -2318,25 +2318,25 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LN  IND.  SPC.  OFFSET                FORMAT
                 //--  ----  ----  ------  ----------------------------------
-                {L_,     0,   -1,      0,   "17:00:00.000+0000@@@@@@@@@@@@@" },
-                {L_,     0,    0,     15,  "17:00:00.000+0015\n@@@@@@@@@@@@" },
-                {L_,     0,    2,     60,  "17:00:00.000+0100\n@@@@@@@@@@@@" },
-                {L_,     1,   -1,      1,   " 17:00:00.000+0001@@@@@@@@@@@@" },
-                {L_,     1,    0,      2,  "17:00:00.000+0002\n@@@@@@@@@@@@" },
-                {L_,     1,    1,     90,  " 17:00:00.000+0130\n@@@@@@@@@@@" },
-                {L_,     1,    2,    -20,  "  17:00:00.000-0020\n@@@@@@@@@@" },
-                {L_,    -1,    0,      0,  "17:00:00.000+0000\n@@@@@@@@@@@@" },
-                {L_,    -1,    2,   -330,  "17:00:00.000-0530\n@@@@@@@@@@@@" },
-                {L_,    -2,    1,    311,  "17:00:00.000+0511\n@@@@@@@@@@@@" },
-                {L_,    -1,   -2,   -330,   "17:00:00.000-0530@@@@@@@@@@@@@" },
-                {L_,     2,    1,   1439,  "  17:00:00.000+2359\n@@@@@@@@@@" },
-                {L_,     1,    3,  -1439,  "   17:00:00.000-2359\n@@@@@@@@@" },
+            {L_,     0,   -1,      0,   "17:00:00.000000+0000@@@@@@@@@@@@@" },
+            {L_,     0,    0,     15,  "17:00:00.000000+0015\n@@@@@@@@@@@@" },
+            {L_,     0,    2,     60,  "17:00:00.000000+0100\n@@@@@@@@@@@@" },
+            {L_,     1,   -1,      1,   " 17:00:00.000000+0001@@@@@@@@@@@@" },
+            {L_,     1,    0,      2,  "17:00:00.000000+0002\n@@@@@@@@@@@@" },
+            {L_,     1,    1,     90,  " 17:00:00.000000+0130\n@@@@@@@@@@@" },
+            {L_,     1,    2,    -20,  "  17:00:00.000000-0020\n@@@@@@@@@@" },
+            {L_,    -1,    0,      0,  "17:00:00.000000+0000\n@@@@@@@@@@@@" },
+            {L_,    -1,    2,   -330,  "17:00:00.000000-0530\n@@@@@@@@@@@@" },
+            {L_,    -2,    1,    311,  "17:00:00.000000+0511\n@@@@@@@@@@@@" },
+            {L_,    -1,   -2,   -330,   "17:00:00.000000-0530@@@@@@@@@@@@@" },
+            {L_,     2,    1,   1439,  "  17:00:00.000000+2359\n@@@@@@@@@@" },
+            {L_,     1,    3,  -1439,  "   17:00:00.000000-2359\n@@@@@@@@@" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             const char FILL_CHAR    = '@'; // Used for filling whitespaces due
                                            // to 'setw'.
-            const int  FORMAT_WIDTH = 30;
+            const int  FORMAT_WIDTH = 33;
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
                 const int         LINE = DATA[ti].d_line;
@@ -2349,7 +2349,7 @@ int main(int argc, char *argv[])
                     T_ P_(LINE) P_(IND) P_(SPL) P_(OFF) P(FMT)
                 }
 
-                bdlt::Time time(17);  // 17:00:00.000
+                bdlt::Time time(17);  // 17:00:00.000000
                 Obj mX(time, OFF);  const Obj& X = mX;
 
                 ostringstream output;
@@ -2370,28 +2370,28 @@ int main(int argc, char *argv[])
                 int         d_offset;   // tz offset
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
-                //LN  IND.  SPC.  OFFSET                FORMAT
-                //--  ----  ----  ------  ----------------------------------
-                {L_,     0,   -1,      0,   "@@@@@@@@@@@@@17:00:00.000+0000" },
-                {L_,     0,    0,     15,  "@@@@@@@@@@@@17:00:00.000+0015\n" },
-                {L_,     0,    2,     60,  "@@@@@@@@@@@@17:00:00.000+0100\n" },
-                {L_,     1,   -1,      1,   "@@@@@@@@@@@@ 17:00:00.000+0001" },
-                {L_,     1,    0,      2,  "@@@@@@@@@@@@17:00:00.000+0002\n" },
-                {L_,     1,    1,     90,  "@@@@@@@@@@@ 17:00:00.000+0130\n" },
-                {L_,     1,    2,    -20,  "@@@@@@@@@@  17:00:00.000-0020\n" },
-                {L_,    -1,    0,      0,  "@@@@@@@@@@@@17:00:00.000+0000\n" },
-                {L_,    -1,    2,   -330,  "@@@@@@@@@@@@17:00:00.000-0530\n" },
-                {L_,    -2,    1,    311,  "@@@@@@@@@@@@17:00:00.000+0511\n" },
-                {L_,    -1,   -2,   -330,   "@@@@@@@@@@@@@17:00:00.000-0530" },
-                {L_,     2,    1,   1439,  "@@@@@@@@@@  17:00:00.000+2359\n" },
-                {L_,     1,    3,  -1439,  "@@@@@@@@@   17:00:00.000-2359\n" },
+            //LN  IND.  SPC.  OFFSET                FORMAT
+            //--  ----  ----  ------  ----------------------------------
+            {L_,     0,   -1,      0,   "@@@@@@@@@@@@@17:00:00.000000+0000" },
+            {L_,     0,    0,     15,  "@@@@@@@@@@@@17:00:00.000000+0015\n" },
+            {L_,     0,    2,     60,  "@@@@@@@@@@@@17:00:00.000000+0100\n" },
+            {L_,     1,   -1,      1,   "@@@@@@@@@@@@ 17:00:00.000000+0001" },
+            {L_,     1,    0,      2,  "@@@@@@@@@@@@17:00:00.000000+0002\n" },
+            {L_,     1,    1,     90,  "@@@@@@@@@@@ 17:00:00.000000+0130\n" },
+            {L_,     1,    2,    -20,  "@@@@@@@@@@  17:00:00.000000-0020\n" },
+            {L_,    -1,    0,      0,  "@@@@@@@@@@@@17:00:00.000000+0000\n" },
+            {L_,    -1,    2,   -330,  "@@@@@@@@@@@@17:00:00.000000-0530\n" },
+            {L_,    -2,    1,    311,  "@@@@@@@@@@@@17:00:00.000000+0511\n" },
+            {L_,    -1,   -2,   -330,   "@@@@@@@@@@@@@17:00:00.000000-0530" },
+            {L_,     2,    1,   1439,  "@@@@@@@@@@  17:00:00.000000+2359\n" },
+            {L_,     1,    3,  -1439,  "@@@@@@@@@   17:00:00.000000-2359\n" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             const char FILL_CHAR    = '@'; // Used for filling whitespaces due
                                            // to 'setw'.
 
-            const int  FORMAT_WIDTH = 30;
+            const int  FORMAT_WIDTH = 33;
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
                 const int         LINE = DATA[ti].d_line;
@@ -2404,7 +2404,7 @@ int main(int argc, char *argv[])
                     T_ P_(LINE) P_(IND) P_(SPL) P_(OFF) P(FMT)
                 }
 
-                bdlt::Time time(17);  // 17:00:00.000
+                bdlt::Time time(17);  // 17:00:00.000000
                 Obj mX(time, OFF);  const Obj& X = mX;
 
                 ostringstream output;
@@ -2417,7 +2417,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting default values." << endl;
         {
-            bdlt::Time time(17);  // 17:00:00.000
+            bdlt::Time time(17);  // 17:00:00.000000
             Obj mX(time, 1234);  const Obj& X = mX;
 
             ostringstream output;
@@ -2438,15 +2438,15 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LN  OFFSET          FORMAT
                 //--  ------   -------------------
-                {L_,       0,  "17:00:00.000+0000" },
-                {L_,      15,  "17:00:00.000+0015" },
-                {L_,      60,  "17:00:00.000+0100" },
-                {L_,      90,  "17:00:00.000+0130" },
-                {L_,     -20,  "17:00:00.000-0020" },
-                {L_,    -330,  "17:00:00.000-0530" },
-                {L_,     311,  "17:00:00.000+0511" },
-                {L_,    1439,  "17:00:00.000+2359" },
-                {L_,   -1439,  "17:00:00.000-2359" },
+                {L_,       0,  "17:00:00.000000+0000" },
+                {L_,      15,  "17:00:00.000000+0015" },
+                {L_,      60,  "17:00:00.000000+0100" },
+                {L_,      90,  "17:00:00.000000+0130" },
+                {L_,     -20,  "17:00:00.000000-0020" },
+                {L_,    -330,  "17:00:00.000000-0530" },
+                {L_,     311,  "17:00:00.000000+0511" },
+                {L_,    1439,  "17:00:00.000000+2359" },
+                {L_,   -1439,  "17:00:00.000000-2359" },
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2463,15 +2463,15 @@ int main(int argc, char *argv[])
                     T_ P_(LINE) P_(OFF) P(FORMAT)
                 }
 
-                bdlt::Time time(17);  // 17:00:00.000
+                bdlt::Time time(17);  // 17:00:00.000000
                 Obj mX(time, OFF);  const Obj& X = mX;
 
                 const char FILL_CHAR = '@'; // Used for filling whitespaces due
                                             // to 'setw'.
 
-                const int  FORMAT_WIDTH = 20;
+                const int  FORMAT_WIDTH = 23;
 
-                const int  OUTPUT_WIDTH = 17;  // expected width of bare
+                const int  OUTPUT_WIDTH = 20;  // expected width of bare
                                                // 'TimeTz' representation
 
                 const string FILL(FORMAT_WIDTH - OUTPUT_WIDTH, FILL_CHAR);

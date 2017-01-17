@@ -2,6 +2,7 @@
 #include <bdlt_datetime.h>
 
 #include <bdlt_datetimeinterval.h>
+#include <bdlt_timeunitratio.h>
 
 #include <bslim_testutil.h>
 
@@ -307,9 +308,30 @@ static void countingLogMessageHandler(bsls::LogSeverity::Enum,
 
 #endif
 
+class OldTime {
+    int d_milliseconds;
+
+  public:
+    OldTime()
+    {
+        setTime(24);
+    }
+
+    void setTime(int hour,
+                 int minute      = 0,
+                 int second      = 0,
+                 int millisecond = 0)
+    {
+        d_milliseconds = bdlt::TimeUnitRatio::k_MS_PER_H_32 * hour
+                       + bdlt::TimeUnitRatio::k_MS_PER_M_32 * minute
+                       + bdlt::TimeUnitRatio::k_MS_PER_S_32 * second
+                       + millisecond;
+    }
+};
+
 struct DT {
-    Date d_date;
-    Time d_time;
+    Date    d_date;
+    OldTime d_time;
 };
 
 // ============================================================================

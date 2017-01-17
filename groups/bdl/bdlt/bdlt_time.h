@@ -280,54 +280,56 @@ class Time {
         // datetime interval, and return a reference providing modifiable
         // access to this object.
 
-    bsls::Types::Int64 addHours(bsls::Types::Int64 hours);
+    int addHours(int hours);
         // Increase the value of this time object by the specified number of
         // 'hours', and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
         // the operation.  Note that 'hours' may be negative.
 
-    bsls::Types::Int64 addMinutes(bsls::Types::Int64 minutes);
+    int addMinutes(int minutes);
         // Increase the value of this time object by the specified number of
         // 'minutes', and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
         // the operation.  Note that 'minutes' may be negative.
 
-    bsls::Types::Int64 addSeconds(bsls::Types::Int64 seconds);
+    int addSeconds(int seconds);
         // Increase the value of this time object by the specified number of
         // 'seconds', and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
         // the operation.  Note that 'seconds' may be negative.
 
-    bsls::Types::Int64 addMilliseconds(bsls::Types::Int64 milliseconds);
+    int addMilliseconds(int milliseconds);
         // Increase the value of this time object by the specified number of
         // 'milliseconds', and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
         // the operation.  Note that 'milliseconds' may be negative.
 
-    bsls::Types::Int64 addMicroseconds(bsls::Types::Int64 microseconds);
+    int addMicroseconds(bsls::Types::Int64 microseconds);
         // Increase the value of this time object by the specified number of
         // 'microseconds', and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
-        // the operation.  Note that 'microseconds' may be negative.
+        // the operation.  The behavior is undefined unless the number of
+        // crossings that would be returned can be represented by an 'int'.  Note that 'microseconds' may be negative.
 
-    bsls::Types::Int64 addInterval(const DatetimeInterval& interval);
+    int addInterval(const DatetimeInterval& interval);
         // Increase the value of this time object by the specified 'interval'
         // of time, and return the (signed) number of times that the
         // 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing
         // the operation.  The behavior is undefined unless the number of
         // crossings that would be returned can be represented by an 'int'.
 
-    bsls::Types::Int64 addTime(bsls::Types::Int64 hours,
-                               bsls::Types::Int64 minutes = 0,
-                               bsls::Types::Int64 seconds = 0,
-                               bsls::Types::Int64 milliseconds = 0,
-                               bsls::Types::Int64 microseconds = 0);
+    int addTime(int                hours,
+                int                minutes = 0,
+                int                seconds = 0,
+                int                milliseconds = 0,
+                bsls::Types::Int64 microseconds = 0);
         // Add to the value of this time object the specified (signed) number
         // of 'hours' and optionally specified (signed) numbers of 'minutes',
         // 'seconds', 'milliseconds', and 'microseconds'; return the (signed)
         // number of times that the 23:59:59.999999 - 00:00:00.000000 boundary
         // was crossed in performing the operation.  Unspecified arguments
-        // default to 0.
+        // default to 0.  The behavior is undefined unless the number of
+        // crossings that would be returned can be represented by an 'int'.
 
     void setHour(int hour);
         // Set the 'hour' attribute of this time object to the specified
@@ -677,21 +679,15 @@ Time& Time::operator=(const Time& rhs)
 inline
 Time& Time::operator+=(const DatetimeInterval& rhs)
 {
-    addMilliseconds(rhs.totalMilliseconds() % TimeUnitRatio::k_MS_PER_D);
+    addInterval(rhs);
     return *this;
 }
 
 inline
 Time& Time::operator-=(const DatetimeInterval& rhs)
 {
-    addMilliseconds(-rhs.totalMilliseconds() % TimeUnitRatio::k_MS_PER_D);
+    addInterval(-rhs);
     return *this;
-}
-
-inline
-bsls::Types::Int64 Time::addInterval(const DatetimeInterval& interval)
-{
-    return addMilliseconds(interval.totalMilliseconds());
 }
 
 inline

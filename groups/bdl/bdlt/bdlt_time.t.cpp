@@ -1813,7 +1813,7 @@ if (veryVerbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -1854,7 +1854,7 @@ if (veryVerbose)
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -1890,7 +1890,7 @@ if (veryVerbose)
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1936,7 +1936,7 @@ if (veryVerbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1985,15 +1985,15 @@ if (veryVerbose)
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -2118,7 +2118,7 @@ if (veryVerbose)
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt32(SERIAL_Y);  // Stream out "new" value.
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2144,7 +2144,7 @@ if (veryVerbose)
             out.putInt32(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2167,7 +2167,7 @@ if (veryVerbose)
             out.putInt32(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2192,7 +2192,7 @@ if (veryVerbose)
             out.putInt32(-1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2217,7 +2217,7 @@ if (veryVerbose)
             out.putInt32(24*60*60*1000 + 1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2698,18 +2698,23 @@ if (veryVerbose)
                 int         d_minute;   // minute field value
                 int         d_second;   // second field value
                 int         d_msec;     // millisecond field value
+                int         d_usec;     // microsecond field value
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
-                //LINE  HOUR   MIN    SEC    MSEC     OUTPUT FORMAT
-                //----  -----  ----   ----   -----    --------------
-                { L_,      0,    0,     0,      0,    "00:00:00.000000"  },
-                { L_,      0,    0,     0,    999,    "00:00:00.999000"  },
-                { L_,      0,    0,    59,      0,    "00:00:59.000000"  },
-                { L_,      0,   59,     0,      0,    "00:59:00.000000"  },
-                { L_,     23,    0,     0,      0,    "23:00:00.000000"  },
-                { L_,     23,   22,    21,    209,    "23:22:21.209000"  },
-                { L_,     23,   22,    21,    210,    "23:22:21.210000"  },
-                { L_,     24,    0,     0,      0,    "24:00:00.000000"  },
+            //LINE  HOUR   MIN    SEC    MSEC    USEC     OUTPUT FORMAT
+            //----  -----  ----   ----   -----   -----    --------------
+            { L_,      0,    0,     0,      0,      0,    "00:00:00.000000"  },
+            { L_,      0,    0,     0,      0,    999,    "00:00:00.000999"  },
+            { L_,      0,    0,     0,    999,      0,    "00:00:00.999000"  },
+            { L_,      0,    0,    59,      0,      0,    "00:00:59.000000"  },
+            { L_,      0,   59,     0,      0,      0,    "00:59:00.000000"  },
+            { L_,     23,    0,     0,      0,      0,    "23:00:00.000000"  },
+            { L_,     23,   22,    21,    209,      0,    "23:22:21.209000"  },
+            { L_,     23,   22,    21,    210,      0,    "23:22:21.210000"  },
+            { L_,     23,   22,    21,    210,      1,    "23:22:21.210001"  },
+            { L_,     23,   22,    21,    210,     17,    "23:22:21.210017"  },
+            { L_,     23,   22,    21,    210,    412,    "23:22:21.210412"  },
+            { L_,     24,    0,     0,      0,      0,    "24:00:00.000000"  },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2727,10 +2732,11 @@ if (veryVerbose)
                 const int         MINUTE = DATA[di].d_minute;
                 const int         SECOND = DATA[di].d_second;
                 const int         MSEC   = DATA[di].d_msec;
+                const int         USEC   = DATA[di].d_usec;
                 const char *const FMT    = DATA[di].d_fmt_p;
 
                 Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
                 ostringstream out(std::string(CTRL_BUF, SIZE));
@@ -2760,18 +2766,23 @@ if (veryVerbose)
                 int         d_minute;   // minute field value
                 int         d_second;   // second field value
                 int         d_msec;     // millisecond field value
+                int         d_usec;     // microsecond field value
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
-                //LINE  HOUR   MIN    SEC    MSEC     OUTPUT FORMAT
-                //----  -----  ----   ----   -----    --------------
-                { L_,      0,    0,     0,      0,    "00:00:00.000000"  },
-                { L_,      0,    0,     0,    999,    "00:00:00.999000"  },
-                { L_,      0,    0,    59,      0,    "00:00:59.000000"  },
-                { L_,      0,   59,     0,      0,    "00:59:00.000000"  },
-                { L_,     23,    0,     0,      0,    "23:00:00.000000"  },
-                { L_,     23,   22,    21,    209,    "23:22:21.209000"  },
-                { L_,     23,   22,    21,    210,    "23:22:21.210000"  },
-                { L_,     24,    0,     0,      0,    "24:00:00.000000"  },
+            //LINE  HOUR   MIN    SEC    MSEC    USEC     OUTPUT FORMAT
+            //----  -----  ----   ----   -----   -----    --------------
+            { L_,      0,    0,     0,      0,      0,    "00:00:00.000000"  },
+            { L_,      0,    0,     0,      0,    999,    "00:00:00.000999"  },
+            { L_,      0,    0,     0,    999,      0,    "00:00:00.999000"  },
+            { L_,      0,    0,    59,      0,      0,    "00:00:59.000000"  },
+            { L_,      0,   59,     0,      0,      0,    "00:59:00.000000"  },
+            { L_,     23,    0,     0,      0,      0,    "23:00:00.000000"  },
+            { L_,     23,   22,    21,    209,      0,    "23:22:21.209000"  },
+            { L_,     23,   22,    21,    210,      0,    "23:22:21.210000"  },
+            { L_,     23,   22,    21,    210,      1,    "23:22:21.210001"  },
+            { L_,     23,   22,    21,    210,     17,    "23:22:21.210017"  },
+            { L_,     23,   22,    21,    210,    412,    "23:22:21.210412"  },
+            { L_,     24,    0,     0,      0,      0,    "24:00:00.000000"  },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2789,10 +2800,11 @@ if (veryVerbose)
                 const int         MINUTE = DATA[di].d_minute;
                 const int         SECOND = DATA[di].d_second;
                 const int         MSEC   = DATA[di].d_msec;
+                const int         USEC   = DATA[di].d_usec;
                 const char *const FMT    = DATA[di].d_fmt_p;
 
                 Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
                 ostringstream out(bsl::string(CTRL_BUF, SIZE));
