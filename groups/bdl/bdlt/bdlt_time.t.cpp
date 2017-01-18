@@ -63,7 +63,7 @@ using namespace bsl;
 //
 // CREATORS
 // [ 2] Time();
-// [11] Time(int hour, int minute, int second = 0, int millisecond = 0);
+// [11] Time(int hour, int minute, int sec = 0, int ms = 0, int us = 0);
 // [ 7] Time(const Time& original);
 // [ 2] ~Time();
 //
@@ -1684,13 +1684,14 @@ if (veryVerbose)
         //:   multiplied by the appropriate factors when initializing the
         //:   internal total-milliseconds integer representation.
         //:
-        //: 2 The default value 24:00:00.000 must be constructible explicitly.
+        //: 2 The default value 24:00:00.000000 must be constructible
+        //:   explicitly.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set 'S' of times as '(h, m, s, ms)' tuples having
-        //:   widely varying values.  For each '(h, m, s, ms)' in 'S',
+        //: 1 Specify a set 'S' of times as '(h, m, s, ms, us)' tuples having
+        //:   widely varying values.  For each '(h, m, s, ms, us)' in 'S',
         //:   construct an object 'X' using all four arguments and an object
         //:   'Y' using the first three arguments, and verify that 'X' and 'Y'
         //:   have the expected values.  (C-1)
@@ -1701,7 +1702,7 @@ if (veryVerbose)
         //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
-        //   Time(int hour, int minute, int second = 0, int millisecond = 0);
+        //   Time(int hour, int minute, int sec = 0, int ms = 0, int us = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1711,12 +1712,22 @@ if (veryVerbose)
         if (verbose) cout << "\nFor ordinary computational values." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 23, 59, 59, 999  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 217 },
+                { 23, 59, 59, 999, 999 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -1727,6 +1738,10 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
+
+                Obj        w(HOUR, MINUTE, SECOND, MSEC, USEC);
+                const Obj& W = w;
 
                 Obj x(HOUR, MINUTE, SECOND, MSEC);  const Obj& X = x;
 
@@ -1735,36 +1750,51 @@ if (veryVerbose)
                 Obj z(HOUR, MINUTE);                const Obj& Z = z;
 
                 if (veryVerbose) {
-                    T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P_(X);
-                    P_(Y)  P(Z);
+                    T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC);
+                    P_(W);  P_(X);
+                    P_(Y);  P(Z);
                 }
+                LOOP_ASSERT(i, HOUR   == W.hour());
+                LOOP_ASSERT(i, MINUTE == W.minute());
+                LOOP_ASSERT(i, SECOND == W.second());
+                LOOP_ASSERT(i, MSEC   == W.millisecond());
+                LOOP_ASSERT(i, USEC   == W.microsecond());
+
                 LOOP_ASSERT(i, HOUR   == X.hour());
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
+
                 LOOP_ASSERT(i, HOUR   == Y.hour());
                 LOOP_ASSERT(i, MINUTE == Y.minute());
                 LOOP_ASSERT(i, SECOND == Y.second());
                 LOOP_ASSERT(i, 0      == Y.millisecond());
+                LOOP_ASSERT(i, 0      == Y.microsecond());
+
                 LOOP_ASSERT(i, HOUR   == Z.hour());
                 LOOP_ASSERT(i, MINUTE == Z.minute());
                 LOOP_ASSERT(i, 0      == Z.second());
                 LOOP_ASSERT(i, 0      == Z.millisecond());
+                LOOP_ASSERT(i, 0      == Z.microsecond());
             }
         }
 
         if (verbose) cout << "\nFor the default values." << endl;
         {
-            Obj d;               const Obj& D = d;
+            Obj d;                  const Obj& D = d;
 
-            Obj x(24, 0, 0, 0);  const Obj& X = x;
+            Obj w(24, 0, 0, 0, 0);  const Obj& W = w;
 
-            Obj y(24, 0, 0);     const Obj& Y = y;
+            Obj x(24, 0, 0, 0);     const Obj& X = x;
 
-            Obj z(24, 0);        const Obj& Z = z;
+            Obj y(24, 0, 0);        const Obj& Y = y;
 
-            if (veryVerbose) { T_;  P_(D);  P_(X);  P_(Y)  P(Z); }
+            Obj z(24, 0);           const Obj& Z = z;
 
+            if (veryVerbose) { T_;  P_(D);  P_(W);  P_(X);  P_(Y)  P(Z); }
+
+            ASSERT(D == W);
             ASSERT(D == X);
             ASSERT(D == Y);
             ASSERT(D == Z);
@@ -1776,10 +1806,11 @@ if (veryVerbose)
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_PASS(Obj mX(24, 0, 0, 0));
-            ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 1));
-            ASSERT_SAFE_FAIL(Obj mX(24, 0, 1, 0));
-            ASSERT_SAFE_FAIL(Obj mX(24, 1, 0, 0));
+            ASSERT_SAFE_PASS(Obj mX(24, 0, 0, 0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 0, 1));
+            ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 1, 0));
+            ASSERT_SAFE_FAIL(Obj mX(24, 0, 1, 0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(24, 1, 0, 0, 0));
 
             ASSERT_SAFE_FAIL(Obj mX(-1, 0, 0, 0));
             ASSERT_SAFE_PASS(Obj mX( 0, 0, 0, 0));
@@ -1800,6 +1831,11 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(Obj mX(0, 0, 0,    0));
             ASSERT_SAFE_PASS(Obj mX(0, 0, 0,  999));
             ASSERT_SAFE_FAIL(Obj mX(0, 0, 0, 1000));
+
+            ASSERT_SAFE_FAIL(Obj mX(0, 0, 0, 0,   -1));
+            ASSERT_SAFE_PASS(Obj mX(0, 0, 0, 0,    0));
+            ASSERT_SAFE_PASS(Obj mX(0, 0, 0, 0,  999));
+            ASSERT_SAFE_FAIL(Obj mX(0, 0, 0, 0, 1000));
         }
 
       } break;
