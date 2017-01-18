@@ -57,8 +57,311 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// TBD: add this
+// This section illustrates intended use of this component.
 //
+///Example 1: Using 'bslma::ConstructionUtil' to Implement a Container
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates the intended use of 'bslma::ConstructionUtil' to
+// implement a simple container class that uses the 'bslma::Allocator' protocol
+// for memory management.
+//
+// First, because allocation and construction are done in two separate steps,
+// we need to define a proctor type that will deallocate the allocated memory
+// in case the constructor throws an exception:
+//..
+//  template <class TYPE>
+//  class MyContainerProctor {
+//      // This class implements a proctor to release memory allocated during
+//      // the construction of a 'MyContainer' object if the constructor for
+//      // the container's data element throws an exception.  Such a proctor
+//      // should be 'release'd once the element is safely constructed.
+//
+//      // DATA
+//      bslma::Allocator *d_allocator_p;
+//      TYPE             *d_address_p;    // proctored memory
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      MyContainerProctor(const MyContainerProctor&);             // = delete
+//      MyContainerProctor& operator=(const MyContainerProctor&);  // = delete
+//
+//    public:
+//      // CREATORS
+//      MyContainerProctor(bslma::Allocator *allocator, TYPE *address)
+//      : d_allocator_p(allocator)
+//      , d_address_p(address)
+//      {
+//      }
+//
+//      ~MyContainerProctor()
+//      {
+//          if (d_address_p) {
+//              d_allocator_p->deallocate(d_address_p);
+//          }
+//      }
+//
+//      // MANIPULATORS
+//      void release()
+//      {
+//          d_address_p = 0;
+//      }
+//  };
+//..
+// Then, we create a container class that holds a single element and uses
+// 'bslma' allocators:
+//..
+//  #include <bslma_constructionutil.h>
+//
+//  template <class TYPE>
+//  class MyContainer {
+//      // This class provides a container that always holds exactly one
+//      // element, dynamically allocated using the specified 'bslma'
+//      // allocator.
+//
+//      // DATA
+//      TYPE             *d_value_p;
+//      bslma::Allocator *d_allocator_p;
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyContainer, bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      MyContainer(bslma::Allocator *basicAllocator = 0);
+//          // Create a container with a default-constructed element.
+//          // Optionally specify a 'basicAllocator' used to supply memory.  If
+//          // 'basicAllocator' is 0, the currently installed default allocator
+//          // is used.
+//
+//      template <class OTHER>
+//      explicit MyContainer(
+//          BSLS_COMPILERFEATURES_FORWARD_REF(OTHER) value,
+//          typename bsl::enable_if<bsl::is_convertible<OTHER, TYPE>::value,
+//                                  void *>::type * = 0)
+//          // Create a container with an element constructed by
+//          // (perfectly) forwarding the specified 'value' and that uses the
+//          // currently installed default allocator to supply memory.  Note
+//          // that this constructor participates in overload resolution only
+//          // if 'OTHER' is implicitly convertible to 'TYPE'.
+//      : d_allocator_p(bslma::Default::defaultAllocator())
+//      {
+//          d_value_p =
+//              static_cast<TYPE *>(d_allocator_p->allocate(sizeof(TYPE)));
+//
+//          MyContainerProctor<TYPE> proctor(d_allocator_p, d_value_p);
+//
+//          // Call 'construct' by forwarding 'value'.
+//
+//          bslma::ConstructionUtil::construct(
+//              d_value_p,
+//              d_allocator_p,
+//              BSLS_COMPILERFEATURES_FORWARD(OTHER, value));
+//          proctor.release();
+//      }
+//
+//      template <class OTHER>
+//      explicit MyContainer(
+//          BSLS_COMPILERFEATURES_FORWARD_REF(OTHER)  value,
+//          bslma::Allocator                         *basicAllocator);
+//          // Create a container with an element constructed by
+//          // (perfectly) forwarding the specified 'value' and that uses the
+//          // specified 'basicAllocator' to supply memory.  If
+//          // 'basicAllocator' is 0, the currently installed default allocator
+//          // is used.  Note that this constructor participates in overload
+//          // resolution only if 'OTHER' is implicitly convertible to 'TYPE'.
+//
+//      MyContainer(const MyContainer&  original,
+//                  bslma::Allocator   *basicAllocator = 0);
+//          // Create a container having the same value as the specified
+//          // 'original' object.  Optionally specify a 'basicAllocator' used
+//          // to supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
+//
+//      ~MyContainer();
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      TYPE& front()
+//          // Return a non-'const' reference to the element contained in this
+//          // object.
+//      {
+//          return *d_value_p;
+//      }
+//
+//      // ACCESSORS
+//      const TYPE& front() const
+//          // Return a 'const' reference to the element contained in this
+//          // object.
+//      {
+//          return *d_value_p;
+//      }
+//
+//      bslma::Allocator *allocator() const
+//          // Return the allocator used by this object to supply memory.
+//      {
+//          return d_allocator_p;
+//      }
+//
+//      // etc.
+//  };
+//..
+// Next, we implement the constructors that allocate memory and construct a
+// 'TYPE' object in the allocated memory.  We perform the allocation using the
+// 'allocate' method of 'bslma::Allocator' and the construction using the
+// 'construct' method of 'ConstructionUtil' that provides the correct semantics
+// for passing the allocator to the constructed object when appropriate:
+//..
+//  template <class TYPE>
+//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_value_p = static_cast<TYPE *>(d_allocator_p->allocate(sizeof(TYPE)));
+//      MyContainerProctor<TYPE> proctor(d_allocator_p, d_value_p);
+//
+//      // Call 'construct' with no constructor arguments (aside from the
+//      // allocator).
+//
+//      bslma::ConstructionUtil::construct(d_value_p, d_allocator_p);
+//      proctor.release();
+//  }
+//
+//  template <class TYPE>
+//  template <class OTHER>
+//  MyContainer<TYPE>::MyContainer(
+//                    BSLS_COMPILERFEATURES_FORWARD_REF(OTHER)  value,
+//                    bslma::Allocator                         *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_value_p = static_cast<TYPE *>(d_allocator_p->allocate(sizeof(TYPE)));
+//      MyContainerProctor<TYPE> proctor(d_allocator_p, d_value_p);
+//
+//      // Call 'construct' by forwarding 'value'.
+//
+//      bslma::ConstructionUtil::construct(
+//          d_value_p,
+//          d_allocator_p,
+//          BSLS_COMPILERFEATURES_FORWARD(OTHER, value));
+//      proctor.release();
+//  }
+//..
+// Next, we define the copy constructor for 'MyContainer'.  Note that we don't
+// propagate the allocator from the 'original' container, but use
+// 'basicAllocator' instead:
+//..
+//  template <class TYPE>
+//  MyContainer<TYPE>::MyContainer(const MyContainer&  original,
+//                                 bslma::Allocator   *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_value_p = static_cast<TYPE *>(d_allocator_p->allocate(sizeof(TYPE)));
+//      MyContainerProctor<TYPE> proctor(d_allocator_p, d_value_p);
+//
+//      // Call 'construct' so as to copy-construct the element contained by
+//      // 'original'.
+//
+//      bslma::ConstructionUtil::construct(d_value_p,
+//                                         d_allocator_p,
+//                                         *original.d_value_p);
+//      proctor.release();
+//  }
+//..
+// Now, the destructor destroys the object and deallocates the memory used to
+// hold the element using the allocator:
+//..
+//  template <class TYPE>
+//  MyContainer<TYPE>::~MyContainer()
+//  {
+//      d_value_p->~TYPE();
+//      d_allocator_p->deallocate(d_value_p);
+//  }
+//..
+// Finally, we perform a simple test of 'MyContainer', instantiating it with
+// element type 'int':
+//..
+//  int usageExample1()
+//  {
+//      bslma::TestAllocator testAlloc;
+//      MyContainer<int> C1(123, &testAlloc);
+//      assert(C1.allocator() == &testAlloc);
+//      assert(C1.front()     == 123);
+//
+//      MyContainer<int> C2(C1);
+//      assert(C2.allocator() == bslma::Default::defaultAllocator());
+//      assert(C2.front()     == 123);
+//
+//      return 0;
+//  }
+//..
+///Example 2: 'bslma' Allocator Propagation
+///- - - - - - - - - - - - - - - - - - - -
+// This example demonstrates that 'MyContainer' does indeed propagate the
+// allocator to its contained element.
+//
+// First, we create a representative element class, 'MyType', that allocates
+// memory using the 'bslma' allocator protocol:
+//..
+//  #include <bslma_default.h>
+//
+//  class MyType {
+//
+//      // DATA
+//      // ...
+//      bslma::Allocator *d_allocator_p;
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      explicit MyType(bslma::Allocator *basicAllocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {
+//          // ...
+//      }
+//
+//      MyType(const MyType&, bslma::Allocator *basicAllocator = 0)
+//      : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {
+//          // ...
+//      }
+//
+//      // ...
+//
+//      // ACCESSORS
+//      bslma::Allocator *allocator() const
+//      {
+//          return d_allocator_p;
+//      }
+//
+//      // ...
+//  };
+//..
+// Finally, we instantiate 'MyContainer' using 'MyType' and verify that, when
+// we provide the address of an allocator to the constructor of the container,
+// the same address is passed to the constructor of the contained element.  We
+// also verify that, when the container is copy-constructed without supplying
+// an allocator, the copy uses the default allocator, not the allocator from
+// the original object.  Moreover, we verify that the element stored in the
+// copy also uses the default allocator:
+//..
+//  #include <bslmf_issame.h>
+//
+//  int usageExample2()
+//  {
+//      bslma::TestAllocator testAlloc;
+//      MyContainer<MyType> C1(&testAlloc);
+//      assert(C1.allocator()         == &testAlloc);
+//      assert(C1.front().allocator() == &testAlloc);
+//
+//      MyContainer<MyType> C2(C1);
+//      assert(C2.allocator()         != C1.allocator());
+//      assert(C2.allocator()         == bslma::Default::defaultAllocator());
+//      assert(C2.front().allocator() != &testAlloc);
+//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
+//
+//      return 0;
+//  }
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -68,16 +371,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
-#include <bslma_destructorproctor.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_USESALLOCATORARGT
-#include <bslmf_usesallocatorargt.h>
+#ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
+#include <bslma_destructorproctor.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -110,6 +409,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_USESALLOCATORARGT
+#include <bslmf_usesallocatorargt.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_UTIL
