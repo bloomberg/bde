@@ -1,11 +1,21 @@
-bsl-internal (3.0.11.0) unstable; urgency=low
+bsl-internal (3.0.12.0) unstable; urgency=low
 
+  * 120584d Merge pull request #950 from mgiroux/review/bump-patchversion-for-3.0.12
+  * 71fb781 Patch version bumped to 3.0.12
+  * af0a4cf Merge pull request #948 from jmendelsohn4/drqs-95172579/3.0.x/bdlt_datetimeinterval_remove_range_logging
+  * 09786be Merge pull request #912 from afeher/on-release__add-decimal64-support
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 17 Jan 2017 12:50:18 -0500
+
+bsl-internal (3.0.11.0) git; urgency=low
+
+  * ca3b87e Changelog for version 3.0.11.0
   * 11b3062 Merge pull request #908 from mgiroux/review/bump-patchversion-to-3.0.11
   * 676724b Bump patchversion to 3.0.11
   * 00f6f2e Merge pull request #905 from spackard/releases/3.0.x
   * 783f240 Merge pull request #901 from hversche/pr/899-rebased-releases/3.0.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 19 Dec 2016 11:01:30 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 19 Dec 2016 12:09:46 -0500
 
 bsl-internal (3.0.10.0) git; urgency=low
 
