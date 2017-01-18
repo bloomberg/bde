@@ -157,7 +157,7 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     return PtrOrSize_t();
 }
 
-void bsl::Function_Rep::assignRep(ManagerOpCode  moveOrCopy, 
+void bsl::Function_Rep::assignRep(ManagerOpCode  moveOrCopy,
                                   Function_Rep  *rhs_p)
 {
     Function_Rep tempRep;
@@ -280,7 +280,7 @@ void bsl::Function_Rep::nothing(...)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2014-2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
