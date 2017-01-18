@@ -104,22 +104,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Fundamental-type-specific print functions.
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%lu", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-// inline void dbg_print(Int64 val) { printf("%lld", val); fflush(stdout); }
-// inline void dbg_print(Uint64 val) { printf("%llu", val); fflush(stdout); }
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-
 bool         verbose = false;
 bool     veryVerbose = false;
 bool veryVeryVerbose = false;
@@ -2953,7 +2937,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
 }
 
-// Functions for testing the workaround to the SunCC compiler bug (case 19)
+// Functions for testing the workaround to the SunCC compiler bug (case 18)
 template <class RET_TYPE>
 void sun1(const bsl::function<RET_TYPE()>&)
 {
@@ -2962,6 +2946,94 @@ void sun1(const bsl::function<RET_TYPE()>&)
 template <class TYPE>
 void sun2(const TYPE&)
 {
+}
+
+// The following code tests a regression of DRQS94831150.  Without the fix, it
+// failed to compile on Windows cl-18.00 and earlier.
+namespace {
+
+struct OuterClass {
+    // A class containing a nested class.
+
+    struct NestedClass {
+        // A nested POD class.
+
+        int d_data;     // data member used to test for correct return value
+    };
+
+    static NestedClass staticFunc(int value);
+        // Return a 'NestedClass' whose 'd_data' member has the specified
+        // 'value'.  The address of this method is an ordinary pointer to
+        // function.  Note that this function returning a nested POD class by
+        // value is the trigger for the MSVC compiler bug.
+
+    NestedClass memberFunc(int value);
+        // Return a 'NestedClass' whose 'd_data' member has the specified
+        // 'value'.  The address of this method is a pointer to
+        // member-function.  Note that this function returning a nested POD
+        // class by value is the trigger for the MSVC compiler bug.
+
+    struct smallFunctor {
+        // Small (empty) functor to return 'NestedClass' by value.
+
+        NestedClass operator()(int value)
+            // Return a 'NestedClass' whose 'd_data' member has the specified
+            // 'value'.
+        {
+            NestedClass result = { value };
+            return result;
+        }
+    };
+
+    struct largeFunctor {
+        // Small (empty) functor to return 'NestedClass' by value.
+
+        // PUBLIC DATA
+        int d_padding[20];      // padding to ensure the 'function' small
+                                // object optimization does not kick in.
+
+        // Manipulators
+        NestedClass operator()(int value)
+            // Return a 'NestedClass' whose 'd_data' member has the specified
+            // 'value'.
+        {
+            NestedClass result = { value };
+            return result;
+        }
+    };
+
+    // PUBLIC DATA
+    bsl::function<NestedClass(int)>              d_f1;
+    bsl::function<NestedClass(int)>              d_f2;
+    bsl::function<NestedClass(int)>              d_f3;
+        // 'function' taking one 'int' argument and returning a 'NestedClass'.
+    bsl::function<NestedClass(OuterClass&, int)> d_f4;
+        // 'function' taking argument of class 'OuterClass' and an 'int'
+        // argument, and returning a 'NestedClass'.
+
+    OuterClass()
+        // Constructor initializes 'function' members from each of the
+        // invocable types above.
+        : d_f1(&OuterClass::staticFunc)
+        , d_f2(smallFunctor())
+        , d_f3(largeFunctor())
+        , d_f4(&OuterClass::memberFunc)
+    {
+    }
+};
+
+OuterClass::NestedClass OuterClass::staticFunc(int value)
+{
+    NestedClass result = { value };
+    return result;
+}
+
+OuterClass::NestedClass OuterClass::memberFunc(int value)
+{
+    NestedClass result = { value };
+    return result;
+}
+
 }
 
 //=============================================================================
@@ -3005,36 +3077,8 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 19: {
-        // --------------------------------------------------------------------
-        // SUNCC BUG
-        //
-        // Concerns:
-        //: The SunCC compiler fails to deduce an argument of type _pointer to
-        //: function template specialization taking argument of type
-        //: 'bsl::function<T()>' if 'bsl::function' uses partial template
-        //: specialzation. The concern is to ensure that this bug does not
-        //: manafest with the current implementation of 'bsl::function'.
-        //
-        // Test plan:
-        //: 1 Create a function template 'sun1' taking an argument of type
-        //:   'bsl::function<T()>'.
-        //: 2 Create a function template 'sun2' taking an argument of type
-        //:   'const T&'.
-        //: 3 Call 'sun2(&sun1<int>)' and verify that it compiles and runs.
-        //
-        // Testing:
-        //      Workaround for SunCC bug
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nCONVERSION TO 'bdef_Function'"
-                            "\n=============================\n");
-
-        sun2(&sun1<int>);
-
-      } break;
-      case 18: {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case 20: {
         // --------------------------------------------------------------------
         // CONVERSION TO/FROM 'bdef_Function'
         //
@@ -3093,8 +3137,99 @@ int main(int argc, char *argv[])
         // Step 4
         ASSERT(1 == bdefOverload(f1));
         ASSERT(2 == bdefOverload(F1));
-
+      } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+      case 19: {
+        // --------------------------------------------------------------------
+        // DRQS94831150 BUG FIX
+        //
+        // Concerns:
+        //: o The MSVC 2013 and earlier MSVC compilers on Windows failed to
+        //:   compile an earlier version of the 'bsl::function' constructor
+        //:   when the template arguments belong to a class that is not yet
+        //:   closed.  The complilation error was an incorrect diagnosis of a
+        //:   mismatched calling convention when converting pointers and
+        //:   appeared to be related to the return type being a POD class.
+        //:   The concern of this test case is that this bug does not manafest
+        //:   with the current implementation of 'bsl::function', snd that
+        //:   calling such a stored function does not corrupt the result.
+        //
+        // Plan:
+        //: 1 Create a class, 'OuterClass', that has the following members:
+        //:    o A nested POD-class type, 'NestedClass',
+        //:    o A static member function returning 'NestedClass',
+        //:    o A non-static member function returning 'NestedClass',
+        //:    o A small (empty) functor whose invocation function returns
+        //:      'NestedClass',
+        //:    o A large functor (not suitable for small-object optimization)
+        //:      whose invocation function returns 'NestedClass',
+        //:    o Four member variables of type 'bsl::function'
+        //: 2 Add a constructor to 'OuterClass' that initializes its four
+        //:   member variables with each of the four invocable types.
+        //: 3 Create an instance of 'OuterClass' to force compilation of the
+        //:   constructor.
+        //: 4 Call each functor and verify that the returned 'NestedClass' has
+        //:   the correcct value.
+        //: 5 For the function pointer and pointer-to-member cases, confirm
+        //:   that the expected type is held in the 'target' object.
+        //
+        // Testing
+        //     Fix for DRQS94831150
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING DRQS94831150 BUG FIX"
+                            "\n============================\n");
+
+        OuterClass testObj;
+
+        ASSERT(42 == testObj.d_f1(42).d_data);
+        ASSERT(13 == testObj.d_f2(13).d_data);
+        ASSERT(69 == testObj.d_f3(69).d_data);
+        ASSERT(37 == testObj.d_f4(testObj, 37).d_data);
+
+        typedef OuterClass::NestedClass (*SimpleFuncPtr_t)(int);
+        SimpleFuncPtr_t *f1 = testObj.d_f1.target<SimpleFuncPtr_t>();
+        ASSERT(f1);
+        if (f1) {
+            ASSERTV((void*)&OuterClass::staticFunc, (void*)f1,
+                           &OuterClass::staticFunc   ==   *f1);
+        }
+
+        typedef OuterClass::NestedClass (OuterClass::*SimpleMemFuncPtr_t)(int);
+        SimpleMemFuncPtr_t *f4 = testObj.d_f4.target<SimpleMemFuncPtr_t>();
+        ASSERT(f4);
+        if (f4) {
+            ASSERTV(&OuterClass::memberFunc == *f4);
+        }
+
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // SUNCC BUG FIX
+        //
+        // Concerns:
+        //: o The SunCC compiler fails to deduce an argument of type _pointer
+        //:   to function template specialization taking argument of type
+        //:   'bsl::function<T()>' if 'bsl::function' uses partial template
+        //:   specialzation. The concern is to ensure that this bug does not
+        //:   manafest with the current implementation of 'bsl::function'.
+        //
+        // Test plan:
+        //: 1 Create a function template 'sun1' taking an argument of type
+        //:   'bsl::function<T()>'.
+        //: 2 Create a function template 'sun2' taking an argument of type
+        //:   'const T&'.
+        //: 3 Call 'sun2(&sun1<int>)' and verify that it compiles and runs.
+        //
+        // Testing:
+        //      Workaround for SunCC bug
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SUNCC BUG FIX"
+                            "\n=====================\n");
+
+        sun2(&sun1<int>);
+
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -6191,7 +6326,6 @@ int main(int argc, char *argv[])
             ASSERT(fv);
             ASSERT(0x400f == fv(IW, 8));
         }
-
       } break;
 
       default: {
@@ -6214,7 +6348,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014-2015 Bloomberg Finance L.P.
+// Copyright 2014-2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

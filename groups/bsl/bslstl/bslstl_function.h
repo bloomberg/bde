@@ -142,10 +142,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_removereference.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_SELECTTRAIT
-#include <bslmf_selecttrait.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_USESALLOCATORARGT
 #include <bslmf_usesallocatorargt.h>
 #endif
@@ -792,6 +788,8 @@ class Function_Imp<RET(ARGS...)> :
     // specialization (as 'Function_Imp' does). 'bsl::function' is a thin
     // wrapper that does not have a partial specialization.
 
+    using Function_Rep::d_objbuf; // Make this member accessible to my friends.
+
     // PRIVATE TYPES
     typedef RET Invoker(const Function_Rep* rep,
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args);
@@ -819,71 +817,43 @@ class Function_Imp<RET(ARGS...)> :
         // the copy case, 'FUNC' might be a 'const'-qualified type.
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-        // Return the invoker for an invocable of
-        // pointer-to-(non-member)function.  Defined inline to work around Sun
-        // CC bug.
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;                         // RETURN
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            // G++ 4.3.5 64-bit with optimization has an error which causes
-            // this function to seemingly always return null unless this
-            // useless use of 'f' is present.
-            Function_Rep::nothing(f);
-#endif
-            return NULL;                                              // RETURN
-        }
-    }
+    struct FunctionPtrInvoker {
+        // Invoker for plain pointer-to-function objects.
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-        // Return the invoker for an invocable of pointer-to-member-function
-        // type.  Defined inline to work around Sun CC bug.
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;                          // RETURN
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            // G++ 4.3.5 64-bit with optimization has an error which causes
-            // this function to seemingly always return null unless this
-            // useless use of 'f' is present.
-            Function_Rep::nothing(f);
-#endif
-            return NULL;                                              // RETURN
-        }
-    }
+    struct MemFuncPtrInvoker {
+        // Invoker for pointer-to-member-function objects.
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-        // Return the invoker for an invocable of in-place functor type.
-        // Defined inline to work around Sun CC bug.
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        // Invoker for functor-class objects that are suitable for the
+        // small-object optimization and are thus allocated inplace.
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-        // Return the invoker for an invocable of out-of-place functor type.
-        // Defined inline to work around Sun CC bug.
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        // Invoker for functor-class objects that are not suitable for the
+        // small-object optimization and are thus allocated from the allocator.
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -897,49 +867,43 @@ class Function_Imp<RET(ARGS...)> :
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        // Determine dispatch based on the traits of 'FuncType'.
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        // Choose the type of invoker needed for this 'FUNC'. Note that the
+        // parameter to 'Soo::Inplace' is 'FUNC', not 'UwFuncType'. That is
+        // because 'Soo::Inplace' takes the wrapper into account when
+        // determining whether the type should be inplace or not.
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE, // FUNC, not UwFuncType!
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        // If a pointer-to-function or pointer-to-member-function is null,
+        // then return null.
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            // G++ 4.3.5 64-bit with optimization has an error which causes
+            // this function to seemingly always return null unless this
+            // useless use of 'f' is present.
+            Function_Rep::nothing(f);
+#endif
+            return NULL;                                              // RETURN
+        }
 
-        // The only reason that the original and unwrapped 'FUNC' would result
-        // in different 'SooFuncSize' is if 'FUNC' is wrapping a small object
-        // that would otherwise have a throwing move.  In that case, we force
-        // the dispatch to choose 'Soo::IsInplaceFunc', otherwise we dispatch
-        // on the selection traits of the original 'FUNC' type.
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        // Dispatch to the correct variant of 'invokerForFunc'
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        // Return a pointer to the actual invoker function
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     // UNSPECIFIED BOOL
@@ -1026,7 +990,7 @@ class Function_Imp<RET(ARGS...)> :
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=12 bslstl_function.h
+// Generator command line: sim_cpp11_features.pl bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT 12
 #endif
@@ -1041,6 +1005,8 @@ class Function_Imp<RET()> :
         public Function_ArgTypes<RET()>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep);
 
     void setInvoker(Invoker *p);
@@ -1054,56 +1020,33 @@ class Function_Imp<RET()> :
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1113,38 +1056,33 @@ class Function_Imp<RET()> :
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -1206,6 +1144,8 @@ class Function_Imp<RET(ARGS_01)> :
         public Function_ArgTypes<RET(ARGS_01)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01);
 
@@ -1220,56 +1160,37 @@ class Function_Imp<RET(ARGS_01)> :
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1279,42 +1200,33 @@ class Function_Imp<RET(ARGS_01)> :
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -1379,6 +1291,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_02)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02);
@@ -1394,56 +1308,41 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1453,46 +1352,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -1563,6 +1449,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_03)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1579,56 +1467,45 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1638,50 +1515,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -1758,6 +1618,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_04)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1775,56 +1637,49 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -1834,54 +1689,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -1964,6 +1798,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_05)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -1982,56 +1818,53 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2041,58 +1874,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -2181,6 +1989,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_06)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -2200,56 +2010,57 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2259,62 +2070,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -2409,6 +2191,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_07)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -2429,56 +2213,61 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2488,66 +2277,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -2648,6 +2404,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_08)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -2669,56 +2427,65 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2728,70 +2495,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -2898,6 +2628,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_09)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -2920,56 +2652,69 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -2979,74 +2724,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -3159,6 +2863,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_10)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -3182,56 +2888,73 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -3241,78 +2964,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -3431,6 +3109,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_11)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -3455,56 +3135,77 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -3514,82 +3215,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -3714,6 +3366,8 @@ class Function_Imp<RET(ARGS_01,
                                      ARGS_12)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -3739,56 +3393,81 @@ class Function_Imp<RET(ARGS_01,
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -3798,86 +3477,33 @@ class Function_Imp<RET(ARGS_01,
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -3976,6 +3602,8 @@ class Function_Imp<RET(ARGS...)> :
         public Function_ArgTypes<RET(ARGS...)>,
         public Function_Rep  {
 
+    using Function_Rep::d_objbuf;
+
     typedef RET Invoker(const Function_Rep* rep,
               typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args);
 
@@ -3990,56 +3618,37 @@ class Function_Imp<RET(ARGS...)> :
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                                   BloombergLP::bslmf::SelectTraitCase<
-                                       BloombergLP::bslmf::IsFunctionPointer>)
-    {
-        if (f) {
-            return &functionPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC& f,
-                              BloombergLP::bslmf::SelectTraitCase<
-                                  BloombergLP::bslmf::IsMemberFunctionPointer>)
-    {
-        if (f) {
-            return &memFuncPtrInvoker<FUNC>;
-        }
-        else {
-#if BSLS_PLATFORM_CMP_GNU              &&                                     \
-    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
-    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
-    __GNUC_GNU_INLINE__
-            Function_Rep::nothing(f);
-#endif
-            return NULL;
-        }
-    }
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-    {
-        return &inplaceFunctorInvoker<FUNC>;
-    }
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(const FUNC&) { return false; }
+    };
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                                   BloombergLP::bslmf::SelectTraitCase<>)
-    {
-        return &outofplaceFunctorInvoker<FUNC>;
-    }
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
@@ -4049,42 +3658,33 @@ class Function_Imp<RET(ARGS...)> :
         typedef typename
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
-        typedef typename
-            BloombergLP::bslmf::SelectTrait<
-                UwFuncType,
-                BloombergLP::bslmf::IsFunctionPointer,
-                BloombergLP::bslmf::IsMemberFunctionPointer,
-                Soo::IsInplaceFunc
-            >::Type UwFuncSelection;
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
 
-        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
-        const std::size_t kUNWRAPPED_SOOSIZE
-                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
 
-        typedef typename
-            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-            BloombergLP::bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-            UwFuncSelection>::type FuncSelection;
-
-        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                FuncSelection());
+        return &InvokerClass::exec;
     }
-
-    template <class FUNC>
-    static RET functionPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class FUNC>
-    static RET memFuncPtrInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class FUNC>
-    static RET inplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class FUNC>
-    static RET outofplaceFunctorInvoker(const Function_Rep *rep,
-                   typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
@@ -4256,9 +3856,9 @@ void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b);
 
 
 #ifndef BSLS_PLATFORM_CMP_SUN
-#define BSLSTL_FUNCTION_CAST_RESULT(X) static_cast<RET>(X)
+#define BSLSTL_FUNCTION_CAST_RESULT(RET, X) static_cast<RET>(X)
 #else
-#define BSLSTL_FUNCTION_CAST_RESULT(X) (RET)(X)
+#define BSLSTL_FUNCTION_CAST_RESULT(RET, X) (RET)(X)
 #endif
 
 
@@ -4435,7 +4035,7 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=12 bslstl_function.h
+// Generator command line: sim_cpp11_features.pl bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT 12
 #endif
@@ -4449,66 +4049,53 @@ template <class FUNC,
           class OBJ_ARG_TYPE,
           class RET
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
-,
-          class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
-,
-          class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 1
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
-,
-          class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 2
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
-,
-          class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 3
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
-,
-          class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 4
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
-,
-          class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 5
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
-,
-          class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 6
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
-,
-          class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 7
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
-,
-          class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 8
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
-,
-          class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 9
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
-,
-          class ARGS_10 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 10
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 11
-,
-          class ARGS_11 = BSLS_COMPILERFEATURES_NILT
+        , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 11
-,
-          class = BSLS_COMPILERFEATURES_NILT>
+        , class = BSLS_COMPILERFEATURES_NILT>
 struct Function_MemFuncInvokeImp;
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
@@ -7821,22 +7408,26 @@ BloombergLP::bslma::Allocator *bsl::Function_Rep::allocator() const
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
-// PRIVATE STATIC MEMBER FUNCTIONS
+// STATIC METHODS OF PRIVATE NESTED *Invoker CLASS TEMPLATES
+
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS...)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
+RET bsl::Function_Imp<RET(ARGS...)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+              typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
     // Note that 'FUNC' might be different than 'RET(*)(ARGS...)'. All that is
     // required is that it be Callable with 'ARGS...' and return something
     // convertible to 'RET'.
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
                     forwardToTarget(args)...));
 }
@@ -7844,49 +7435,60 @@ RET bsl::Function_Imp<RET(ARGS...)>::functionPtrInvoker(
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
+RET bsl::Function_Imp<RET(ARGS...)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
     using namespace BloombergLP;
 
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
     // Workaround Sun compiler issue - it thinks we're trying to cast away
     // const or volatile if we use reinterpret_cast.
-    // FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    // FUNC f = reinterpret_cast<const FUNC&>(imp_p->d_objbuf.d_memFunc_p);
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args...);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args...));
 }
 
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS...)>::inplaceFunctorInvoker(
+RET bsl::Function_Imp<RET(ARGS...)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
 RET
-bsl::Function_Imp<RET(ARGS...)>::outofplaceFunctorInvoker(
+bsl::Function_Imp<RET(ARGS...)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);  // Known valid downcast
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
+
+// PRIVATE STATIC MEMBER FUNCTIONS
 
 template <class RET, class... ARGS>
 inline
@@ -8159,7 +7761,7 @@ bsl::Function_Imp<RET(ARGS...)>::
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=12 bslstl_function.h
+// Generator command line: sim_cpp11_features.pl bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT 12
 #endif
@@ -8167,16 +7769,20 @@ bsl::Function_Imp<RET(ARGS...)>::
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT_C BSLSTL_FUNCTION_VARIADIC_LIMIT
 #endif
 
+
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET()>::functionPtrInvoker(
-    const Function_Rep                                         *rep)
+RET bsl::Function_Imp<RET()>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f());
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -8185,13 +7791,16 @@ RET bsl::Function_Imp<RET()>::functionPtrInvoker(
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS_01)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
+RET bsl::Function_Imp<RET(ARGS_01)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01)));
 }
@@ -8203,14 +7812,18 @@ template <class RET, class ARGS_01,
 template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS_01,
-                          ARGS_02)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
+                          ARGS_02)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8226,15 +7839,20 @@ template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
-                          ARGS_03)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
+                          ARGS_03)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8254,16 +7872,22 @@ inline
 RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
                           ARGS_03,
-                          ARGS_04)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
+                          ARGS_04)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8287,17 +7911,24 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
                           ARGS_03,
                           ARGS_04,
-                          ARGS_05)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
+                          ARGS_05)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8325,18 +7956,26 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_03,
                           ARGS_04,
                           ARGS_05,
-                          ARGS_06)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
+                          ARGS_06)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8368,19 +8007,28 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_04,
                           ARGS_05,
                           ARGS_06,
-                          ARGS_07)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
+                          ARGS_07)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8416,20 +8064,30 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_05,
                           ARGS_06,
                           ARGS_07,
-                          ARGS_08)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
+                          ARGS_08)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8469,21 +8127,32 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_06,
                           ARGS_07,
                           ARGS_08,
-                          ARGS_09)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
+                          ARGS_09)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8527,22 +8196,34 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_07,
                           ARGS_08,
                           ARGS_09,
-                          ARGS_10)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
+                          ARGS_10)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8590,23 +8271,36 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_08,
                           ARGS_09,
                           ARGS_10,
-                          ARGS_11)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
+                          ARGS_11)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8658,24 +8352,38 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_09,
                           ARGS_10,
                           ARGS_11,
-                          ARGS_12)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
-    typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
+                          ARGS_12)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
                     forwardToTarget(args_01),
                     BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
@@ -8708,15 +8416,19 @@ RET bsl::Function_Imp<RET(ARGS_01,
 template <class RET>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
+RET bsl::Function_Imp<RET()>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep)
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 0u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -8724,16 +8436,20 @@ RET bsl::Function_Imp<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS_01)>::memFuncPtrInvoker(const Function_Rep *rep,
+RET bsl::Function_Imp<RET(ARGS_01)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 1u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -8743,19 +8459,24 @@ template <class RET, class ARGS_01,
 template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS_01,
-                          ARGS_02)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_02)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 2u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -8767,22 +8488,28 @@ template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
-                          ARGS_03)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_03)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 3u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -8796,7 +8523,8 @@ inline
 RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
                           ARGS_03,
-                          ARGS_04)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_04)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -8804,17 +8532,23 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
                                             ARGS_04>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 4u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -8830,7 +8564,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
                           ARGS_03,
                           ARGS_04,
-                          ARGS_05)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_05)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -8839,7 +8574,14 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8847,11 +8589,11 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_05>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 5u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -8869,7 +8611,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_03,
                           ARGS_04,
                           ARGS_05,
-                          ARGS_06)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_06)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -8879,7 +8622,15 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8888,12 +8639,12 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_06>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 6u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -8913,7 +8664,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_04,
                           ARGS_05,
                           ARGS_06,
-                          ARGS_07)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_07)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -8924,7 +8676,16 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8934,13 +8695,13 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_07>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 7u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -8962,7 +8723,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_05,
                           ARGS_06,
                           ARGS_07,
-                          ARGS_08)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_08)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -8974,7 +8736,17 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -8985,14 +8757,14 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_08>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 8u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -9016,7 +8788,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_06,
                           ARGS_07,
                           ARGS_08,
-                          ARGS_09)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_09)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -9029,7 +8802,18 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -9041,15 +8825,15 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_09>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT( 9u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -9075,7 +8859,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_07,
                           ARGS_08,
                           ARGS_09,
-                          ARGS_10)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_10)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -9089,7 +8874,19 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -9102,16 +8899,16 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_10>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(10u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09,
-                                       args_10);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -9139,7 +8936,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_08,
                           ARGS_09,
                           ARGS_10,
-                          ARGS_11)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_11)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -9154,7 +8952,20 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -9168,17 +8979,17 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_11>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(11u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09,
-                                       args_10,
-                                       args_11);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10,
+                                                                  args_11));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -9208,7 +9019,8 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_09,
                           ARGS_10,
                           ARGS_11,
-                          ARGS_12)>::memFuncPtrInvoker(const Function_Rep *rep,
+                          ARGS_12)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
@@ -9224,7 +9036,21 @@ RET bsl::Function_Imp<RET(ARGS_01,
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS_01,
                                             ARGS_02,
                                             ARGS_03,
@@ -9239,18 +9065,18 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                             ARGS_12>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(12u == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args_01,
-                                       args_02,
-                                       args_03,
-                                       args_04,
-                                       args_05,
-                                       args_06,
-                                       args_07,
-                                       args_08,
-                                       args_09,
-                                       args_10,
-                                       args_11,
-                                       args_12);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10,
+                                                                  args_11,
+                                                                  args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
@@ -9259,13 +9085,15 @@ RET bsl::Function_Imp<RET(ARGS_01,
 template <class RET>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET()>::inplaceFunctorInvoker(
+RET bsl::Function_Imp<RET()>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f());
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f());
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -9273,14 +9101,16 @@ RET bsl::Function_Imp<RET()>::inplaceFunctorInvoker(
 template <class RET, class ARGS_01>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS_01)>::inplaceFunctorInvoker(
+RET bsl::Function_Imp<RET(ARGS_01)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -9290,16 +9120,19 @@ template <class RET, class ARGS_01,
 template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS_01,
-                          ARGS_02)>::inplaceFunctorInvoker(
+                          ARGS_02)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -9311,18 +9144,22 @@ template <class FUNC>
 inline
 RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
-                          ARGS_03)>::inplaceFunctorInvoker(
+                          ARGS_03)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -9336,20 +9173,25 @@ inline
 RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
                           ARGS_03,
-                          ARGS_04)>::inplaceFunctorInvoker(
+                          ARGS_04)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -9365,7 +9207,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_02,
                           ARGS_03,
                           ARGS_04,
-                          ARGS_05)>::inplaceFunctorInvoker(
+                          ARGS_05)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9373,14 +9215,20 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -9398,7 +9246,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_03,
                           ARGS_04,
                           ARGS_05,
-                          ARGS_06)>::inplaceFunctorInvoker(
+                          ARGS_06)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9407,15 +9255,22 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -9435,7 +9290,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_04,
                           ARGS_05,
                           ARGS_06,
-                          ARGS_07)>::inplaceFunctorInvoker(
+                          ARGS_07)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9445,16 +9300,24 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -9476,7 +9339,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_05,
                           ARGS_06,
                           ARGS_07,
-                          ARGS_08)>::inplaceFunctorInvoker(
+                          ARGS_08)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9487,17 +9350,26 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -9521,7 +9393,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_06,
                           ARGS_07,
                           ARGS_08,
-                          ARGS_09)>::inplaceFunctorInvoker(
+                          ARGS_09)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9533,18 +9405,28 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -9570,7 +9452,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_07,
                           ARGS_08,
                           ARGS_09,
-                          ARGS_10)>::inplaceFunctorInvoker(
+                          ARGS_10)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9583,19 +9465,30 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09,
-                    args_10));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -9623,7 +9516,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_08,
                           ARGS_09,
                           ARGS_10,
-                          ARGS_11)>::inplaceFunctorInvoker(
+                          ARGS_11)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9637,20 +9530,32 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09,
-                    args_10,
-                    args_11));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -9680,7 +9585,7 @@ RET bsl::Function_Imp<RET(ARGS_01,
                           ARGS_09,
                           ARGS_10,
                           ARGS_11,
-                          ARGS_12)>::inplaceFunctorInvoker(
+                          ARGS_12)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9695,21 +9600,34 @@ RET bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
             typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args_01,
-                    args_02,
-                    args_03,
-                    args_04,
-                    args_05,
-                    args_06,
-                    args_07,
-                    args_08,
-                    args_09,
-                    args_10,
-                    args_11,
-                    args_12));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
@@ -9719,11 +9637,14 @@ template <class RET>
 template <class FUNC>
 inline
 RET
-bsl::Function_Imp<RET()>::outofplaceFunctorInvoker(
+bsl::Function_Imp<RET()>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f());
+    typedef Function_Imp<RET()> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f());
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -9732,12 +9653,15 @@ template <class RET, class ARGS_01>
 template <class FUNC>
 inline
 RET
-bsl::Function_Imp<RET(ARGS_01)>::outofplaceFunctorInvoker(
+bsl::Function_Imp<RET(ARGS_01)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01));
+    typedef Function_Imp<RET(ARGS_01)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -9748,14 +9672,18 @@ template <class FUNC>
 inline
 RET
 bsl::Function_Imp<RET(ARGS_01,
-                      ARGS_02)>::outofplaceFunctorInvoker(
+                      ARGS_02)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -9768,16 +9696,21 @@ inline
 RET
 bsl::Function_Imp<RET(ARGS_01,
                       ARGS_02,
-                      ARGS_03)>::outofplaceFunctorInvoker(
+                      ARGS_03)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -9792,18 +9725,24 @@ RET
 bsl::Function_Imp<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
-                      ARGS_04)>::outofplaceFunctorInvoker(
+                      ARGS_04)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -9820,7 +9759,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
                       ARGS_04,
-                      ARGS_05)>::outofplaceFunctorInvoker(
+                      ARGS_05)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9828,12 +9767,19 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -9852,7 +9798,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_03,
                       ARGS_04,
                       ARGS_05,
-                      ARGS_06)>::outofplaceFunctorInvoker(
+                      ARGS_06)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9861,13 +9807,21 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -9888,7 +9842,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_04,
                       ARGS_05,
                       ARGS_06,
-                      ARGS_07)>::outofplaceFunctorInvoker(
+                      ARGS_07)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9898,14 +9852,23 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -9928,7 +9891,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_05,
                       ARGS_06,
                       ARGS_07,
-                      ARGS_08)>::outofplaceFunctorInvoker(
+                      ARGS_08)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9939,15 +9902,25 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -9972,7 +9945,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_06,
                       ARGS_07,
                       ARGS_08,
-                      ARGS_09)>::outofplaceFunctorInvoker(
+                      ARGS_09)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -9984,16 +9957,27 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -10020,7 +10004,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_07,
                       ARGS_08,
                       ARGS_09,
-                      ARGS_10)>::outofplaceFunctorInvoker(
+                      ARGS_10)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -10033,17 +10017,29 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09,
-                                         args_10));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -10072,7 +10068,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_08,
                       ARGS_09,
                       ARGS_10,
-                      ARGS_11)>::outofplaceFunctorInvoker(
+                      ARGS_11)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -10086,18 +10082,31 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09,
-                                         args_10,
-                                         args_11));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -10128,7 +10137,7 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_09,
                       ARGS_10,
                       ARGS_11,
-                      ARGS_12)>::outofplaceFunctorInvoker(
+                      ARGS_12)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
@@ -10143,21 +10152,36 @@ bsl::Function_Imp<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
             typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args_01,
-                                         args_02,
-                                         args_03,
-                                         args_04,
-                                         args_05,
-                                         args_06,
-                                         args_07,
-                                         args_08,
-                                         args_09,
-                                         args_10,
-                                         args_11,
-                                         args_12));
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -16904,16 +16928,20 @@ bsl::Function_Imp<RET(ARGS_01,
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
+
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS...)>::functionPtrInvoker(
-    const Function_Rep                                         *rep,
-    typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
+RET bsl::Function_Imp<RET(ARGS...)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+              typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...  args)
 {
-    FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
                   f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
                     forwardToTarget(args)...));
 }
@@ -16921,42 +16949,52 @@ RET bsl::Function_Imp<RET(ARGS...)>::functionPtrInvoker(
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
+RET bsl::Function_Imp<RET(ARGS...)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
     using namespace BloombergLP;
 
-    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
-    return (RET) InvokeType::invoke(f, args...);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args...));
 }
 
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
-RET bsl::Function_Imp<RET(ARGS...)>::inplaceFunctorInvoker(
+RET bsl::Function_Imp<RET(ARGS...)>::InplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
 
-    return BSLSTL_FUNCTION_CAST_RESULT(
-                  f(args...));
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
 
 template <class RET, class... ARGS>
 template <class FUNC>
 inline
 RET
-bsl::Function_Imp<RET(ARGS...)>::outofplaceFunctorInvoker(
+bsl::Function_Imp<RET(ARGS...)>::OutofplaceFunctorInvoker<FUNC>::exec(
                const Function_Rep                                        *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return BSLSTL_FUNCTION_CAST_RESULT(f(args...));
+    typedef Function_Imp<RET(ARGS...)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args...));
 }
+
 
 template <class RET, class... ARGS>
 inline
@@ -17348,7 +17386,7 @@ struct IsBitwiseMoveable<bsl::Function_NothrowWrapper<FUNC> >
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2014-2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
