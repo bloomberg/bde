@@ -239,7 +239,7 @@ static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
 
 static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
 {
-    // Resume the queue with the speciffid 'queueId' in the specified 'pool'.
+    // Resume the queue with the specified 'queueId' in the specified 'pool'.
     // On success, increment the specified 'counter'.
 
     if (0 == pool->resumeQueue(queueId)) {
@@ -1246,6 +1246,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == numSuccesses);
                 controlBarrier.wait();
                 controlBarrier.wait();
+                bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
                 ASSERT(2 == count);
                 controlBarrier.wait();
                 controlBarrier.wait();

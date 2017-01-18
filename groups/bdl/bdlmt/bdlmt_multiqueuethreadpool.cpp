@@ -87,8 +87,8 @@ void MultiQueueThreadPool_Queue::popFront(Job *job)
     BSLS_ASSERT(!d_list.empty());
 
     *job = d_list.front();
-    ++d_numDequeued;
     d_list.pop_front();
+    ++d_numDequeued;
 }
 
 inline
