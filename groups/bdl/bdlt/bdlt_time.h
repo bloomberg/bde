@@ -176,7 +176,7 @@ class Time {
     // 24, and any other attribute non-zero) will result in undefined behavior.
 
     // CLASS DATA
-    static const bsls::Types::Int64 k_REP_MASK  = 0x4000000000000000ULL;
+    static const bsls::Types::Int64 k_REP_MASK  = 0x0000004000000000ULL;
 
     static bsls::AtomicInt64 s_invalidRepresentationCount;
 
@@ -208,10 +208,9 @@ class Time {
 
     bsls::Types::Int64 updatedRepresentation() const;
         // If 'd_value' is a valid representation, return 'd_value'.
-        // Otherwise, return the representation of the datetime corresponding
-        // to the datetime implied by assuming the value in 'd_value' is the
-        // concatenation of a 'Date' and a 'Time', and log or assert the
-        // detection of an invalid date.
+        // Otherwise, return the representation of the time corresponding to
+        // the time implied by assuming the value in 'd_value' is the total
+        // milliseconds since 0:00:00.000000.
 
   public:
     // CLASS METHODS
