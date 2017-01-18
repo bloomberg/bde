@@ -239,7 +239,7 @@ static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
 
 static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
 {
-    // Resume the queue with the speciffid 'queueId' in the specified 'pool'.
+    // Resume the queue with the specified 'queueId' in the specified 'pool'.
     // On success, increment the specified 'counter'.
 
     if (0 == pool->resumeQueue(queueId)) {
@@ -331,7 +331,7 @@ struct Reproducer {
 
         bslmt::ThreadUtil::microSleep(SLEEP_HARDLY_TIME);
         d_handleIdx += d_handleIdxIncrement;
-        d_handleIdx %= d_handles->size();
+        d_handleIdx %= static_cast<int>(d_handles->size());
         if (s_counter > 0) {
             --s_counter;
             d_threadPool->enqueueJob((*d_handles)[d_handleIdx], *this);
@@ -1246,6 +1246,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == numSuccesses);
                 controlBarrier.wait();
                 controlBarrier.wait();
+                bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
                 ASSERT(2 == count);
                 controlBarrier.wait();
                 controlBarrier.wait();
