@@ -83,7 +83,7 @@ using namespace bsl;
 // [12] void setSecond(int second);
 // [12] void setMillisecond(int millisecond);
 // [12] void setMicrosecond(int microsecond);
-// [ 2] void setTime(int hour, int min = 0, int sec = 0, int msec = 0);
+// [ 2] void setTime(int h, int m = 0, int s = 0, int ms = 0, int us = 0);
 // [17] int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
@@ -3223,7 +3223,7 @@ if (veryVerbose)
         // Testing:
         //   Time();
         //   ~Time();
-        //   void setTime(int hour, int min = 0, int sec = 0, int msec = 0);
+        //   void setTime(int h, int m = 0, int s = 0, int ms = 0, int us = 0);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3238,16 +3238,27 @@ if (veryVerbose)
 
         ASSERT(24 == X.hour());          ASSERT(0 == X.minute());
         ASSERT( 0 == X.second());        ASSERT(0 == X.millisecond());
+        ASSERT( 0 == X.microsecond());
 
         if (verbose) cout << "\nTesting 'setTime'." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 217 },
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -3258,8 +3269,25 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 Obj x;  const Obj& X = x;
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                if (veryVerbose) {
+                    T_;
+                    P_(HOUR);
+                    P_(MINUTE);
+                    P_(SECOND);
+                    P_(MSEC);
+                    P_(USEC);
+                    P(X);
+                }
+                LOOP_ASSERT(i, HOUR   == X.hour());
+                LOOP_ASSERT(i, MINUTE == X.minute());
+                LOOP_ASSERT(i, SECOND == X.second());
+                LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
+
                 x.setTime(HOUR, MINUTE, SECOND, MSEC);
                 if (veryVerbose) {
                     T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P(X);
@@ -3268,6 +3296,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
 
                 x.setTime(HOUR, MINUTE, SECOND);
                 if (veryVerbose) {
@@ -3277,6 +3306,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, 0      == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
 
                 x.setTime(HOUR, MINUTE);
                 if (veryVerbose) { T_;  P_(HOUR);  P_(MINUTE);  P(X); }
@@ -3284,6 +3314,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, 0      == X.second());
                 LOOP_ASSERT(i, 0      == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
 
                 x.setTime(HOUR);
                 if (veryVerbose) { T_;  P_(HOUR);  P(X); }
@@ -3291,6 +3322,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, 0      == X.minute());
                 LOOP_ASSERT(i, 0      == X.second());
                 LOOP_ASSERT(i, 0      == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
             }
         }
 
@@ -3302,10 +3334,11 @@ if (veryVerbose)
 
             Obj mX;
 
-            ASSERT_SAFE_PASS(mX.setTime(24, 0, 0, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 1));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 1, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 1, 0, 0));
+            ASSERT_SAFE_PASS(mX.setTime(24, 0, 0, 0, 0));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 0, 1));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 1, 0));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 1, 0, 0));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 1, 0, 0, 0));
 
             ASSERT_SAFE_FAIL(mX.setTime(-1, 0, 0, 0));
             ASSERT_SAFE_PASS(mX.setTime( 0, 0, 0, 0));
@@ -3326,6 +3359,11 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0,    0));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0,  999));
             ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 1000));
+
+            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 0,   -1));
+            ASSERT_SAFE_PASS(mX.setTime(0, 0, 0, 0,    0));
+            ASSERT_SAFE_PASS(mX.setTime(0, 0, 0, 0,  999));
+            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 0, 1000));
         }
 
       } break;
