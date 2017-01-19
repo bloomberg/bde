@@ -279,21 +279,21 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
     // Listening socket launching.
 
     rc = btlso::SocketImpUtil::startup(&errCode);
-    ASSERT(0 == rc);
+    ASSERTV(rc, 0 == rc);
 
     rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                         &serverSocket,
                                         btlso::SocketImpUtil::k_SOCKET_STREAM,
                                         &errCode);
-    ASSERT(0 == rc);
+    ASSERTV(rc, 0 == rc);
 
     rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
                                                         *IP_ADDR,
                                                         &errCode);
-    ASSERT(0 == rc);
+    ASSERTV(rc, 0 == rc);
 
     rc = btlso::SocketImpUtil::listen(serverSocket, BACKLOG, &errCode);
-    ASSERT(0 == rc);
+    ASSERTV(rc, 0 == rc);
 
     barrier->wait();
 
@@ -310,7 +310,7 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
         rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
                                                               serverSocket,
                                                               &errCode);
-        ASSERT(0 == rc);
+        ASSERTV(rc, 0 == rc);
 
         // Data reading.
 
@@ -325,7 +325,7 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
         ASSERTV(LINE, EXPECTED_SIZE, rc, EXPECTED_SIZE == rc);
 
         readBuffer[EXPECTED_SIZE] = 0;
-        ASSERT(0 == bsl::strcmp(EXPECTED_MESSAGE, readBuffer));
+        ASSERTV(rc, 0 == bsl::strcmp(EXPECTED_MESSAGE, readBuffer));
 
         // Connection closing.
 
@@ -333,19 +333,19 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
                                          sessionSocket,
                                          btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
                                          &errCode);
-        ASSERT(0 == rc);
+        ASSERTV(rc, 0 == rc);
 
         rc = btlso::SocketImpUtil::close(sessionSocket,
                                          &errCode);
-        ASSERT(0 == rc);
+        ASSERTV(rc, 0 == rc);
     }
 
     rc = btlso::SocketImpUtil::close(serverSocket,
                                      &errCode);
-    ASSERT(0 == rc);
+    ASSERTV(rc, 0 == rc);
 
     rc = btlso::SocketImpUtil::cleanup(&errCode);
-    ASSERT(0 == rc);
+    ASSERTV(rc, 0 == rc);
 }
 
 void writevToClientFunction(const btlso::IPv4Address& IP_ADDR)
@@ -365,18 +365,18 @@ void writevToClientFunction(const btlso::IPv4Address& IP_ADDR)
          // Connection opening.
 
          rc = btlso::SocketImpUtil::startup(&errorCode);
-         ASSERT(0 == rc);
+         ASSERTV(rc, 0 == rc);
 
          rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                          &sendSocket,
                                          btlso::SocketImpUtil::k_SOCKET_STREAM,
                                          &errorCode);
-         ASSERT(0 == rc);
+         ASSERTV(rc, 0 == rc);
 
          rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
                                                                 IP_ADDR,
                                                                 &errorCode);
-         ASSERT(0 == rc);
+         ASSERTV(rc, 0 == rc);
 
          // Data preparing.
 
@@ -401,13 +401,13 @@ void writevToClientFunction(const btlso::IPv4Address& IP_ADDR)
                                          sendSocket,
                                          btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
                                          &errorCode);
-         ASSERT(0 == rc);
+         ASSERTV(rc, 0 == rc);
 
          rc = btlso::SocketImpUtil::close(sendSocket, &errorCode);
-         ASSERT(0 == rc);
+         ASSERTV(rc, 0 == rc);
 
          rc = btlso::SocketImpUtil::cleanup(&errorCode);
-         ASSERT(0 == rc);
+         ASSERTV(rc, 0 == rc);
 
          delete [] buffers;
      }
