@@ -1046,6 +1046,18 @@ void TcpTimerEventManager::controlCb()
           } break;
           case TcpTimerEventManager_Request::e_DEREGISTER_ALL_SOCKET_EVENTS: {
             d_manager_p->deregisterAll();
+
+            // Register the server fd of 'd_controlChannel_p' for READs.
+
+            btlso::EventManager::Callback cb(
+               bsl::allocator_arg_t(),
+               bsl::allocator<btlso::EventManager::Callback>(d_allocator_p),
+               bdlf::MemFnUtil::memFn(&TcpTimerEventManager::controlCb, this));
+
+            d_manager_p->registerSocketEvent(d_controlChannel_p->serverFd(),
+                                             btlso::EventType::e_READ,
+                                             cb);
+            d_numTotalSocketEvents = 0;
           } break;
           case TcpTimerEventManager_Request::e_DEREGISTER_SOCKET_EVENT: {
             d_manager_p->deregisterSocketEvent(req->socketHandle(),
