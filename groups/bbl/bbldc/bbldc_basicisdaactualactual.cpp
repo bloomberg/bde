@@ -27,24 +27,14 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
     const int daysInEndYear   =
                           365 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
 
-    double rv;
-    if (daysInBeginYear == daysInEndYear) {
-        // Minimize rounding error since all input values are integers.
+    int numerator = (endYear - beginYear - 1) * daysInBeginYear * daysInEndYear
+                  + (bdlt::Date(beginYear + 1, 1, 1) - beginDate) *
+                                                                  daysInEndYear
+                  + (endDate - bdlt::Date(endYear, 1, 1)) * daysInBeginYear;
 
-        int days = (endYear - beginYear - 1) * daysInBeginYear
-                 + (bdlt::Date(beginYear + 1, 1, 1) - beginDate)
-                 + (endDate - bdlt::Date(endYear, 1, 1));
+    int denominator = daysInBeginYear * daysInEndYear;
 
-        rv = static_cast<double>(days) / static_cast<double>(daysInBeginYear);
-    }
-    else {
-        rv = static_cast<double>(endYear - beginYear - 1)
-           + static_cast<double>(bdlt::Date(beginYear + 1, 1, 1) - beginDate)
-                                         / static_cast<double>(daysInBeginYear)
-           + static_cast<double>(endDate - bdlt::Date(endYear, 1, 1))
-                                          / static_cast<double>(daysInEndYear);
-    }
-    return rv;
+    return static_cast<double>(numerator) / static_cast<double>(denominator);
 }
 
 }  // close package namespace
