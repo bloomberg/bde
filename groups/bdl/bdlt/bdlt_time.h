@@ -632,8 +632,11 @@ bool Time::isValid(int hour,
                                   // Aspects
 
 inline
-int Time::maxSupportedBdexVersion(int /* versionSelector */)
+int Time::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20170401) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 
@@ -711,7 +714,19 @@ STREAM& Time::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
-            // TBD version 2
+          case 2: {
+            bsls::Types::Int64 tmp;
+            stream.getInt64(tmp);
+
+            if (   stream
+                && 0 <= tmp
+                && TimeUnitRatio::k_US_PER_D >= tmp) {
+                setMicrosecondsFromMidnight(tmp);
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
           case 1: {
             int tmp;
             stream.getInt32(tmp);
@@ -779,7 +794,9 @@ STREAM& Time::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
-            // TBD version 2
+          case 2: {
+            stream.putInt64(microsecondsFromMidnight());
+          } break;
           case 1: {
             stream.putInt32(static_cast<int>(microsecondsFromMidnight()
                                                 / TimeUnitRatio::k_US_PER_MS));

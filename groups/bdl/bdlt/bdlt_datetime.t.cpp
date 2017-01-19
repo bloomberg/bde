@@ -4787,12 +4787,14 @@ if (veryVerbose)
                                          &&    0 <= T1.time().second()
                                          &&   60 >  T1.time().second()
                                          &&    0 <= T1.time().millisecond()
-                                         && 1000 >  T1.time().millisecond())
+                                         && 1000 >  T1.time().millisecond()
+                                         &&    0 <= T1.time().microsecond()
+                                         && 1000 >  T1.time().microsecond())
                                      || (     24 == T1.time().hour()
                                          &&    0 == T1.time().minute()
                                          &&    0 == T1.time().second()
                                          &&    0 == T1.time().millisecond()
-                                         &&    0 == T1.microsecond())));
+                                         &&    0 == T1.time().microsecond())));
 
                         LOOP_ASSERT(i,
                                     bdlt::Date::isValidYearDay(
@@ -4806,12 +4808,14 @@ if (veryVerbose)
                                          &&    0 <= T2.time().second()
                                          &&   60 >  T2.time().second()
                                          &&    0 <= T2.time().millisecond()
-                                         && 1000 >  T2.time().millisecond())
+                                         && 1000 >  T2.time().millisecond()
+                                         &&    0 <= T2.time().microsecond()
+                                         && 1000 >  T2.time().microsecond())
                                      || (     24 == T2.time().hour()
                                          &&    0 == T2.time().minute()
                                          &&    0 == T2.time().second()
                                          &&    0 == T2.time().millisecond()
-                                         &&    0 == T2.microsecond())));
+                                         &&    0 == T2.time().microsecond())));
 
                         LOOP_ASSERT(i,
                                     bdlt::Date::isValidYearDay(
@@ -4825,12 +4829,14 @@ if (veryVerbose)
                                          &&    0 <= T3.time().second()
                                          &&   60 >  T3.time().second()
                                          &&    0 <= T3.time().millisecond()
-                                         && 1000 >  T3.time().millisecond())
+                                         && 1000 >  T3.time().millisecond()
+                                         &&    0 <= T3.time().microsecond()
+                                         && 1000 >  T3.time().microsecond())
                                      || (     24 == T3.time().hour()
                                          &&    0 == T3.time().minute()
                                          &&    0 == T3.time().second()
                                          &&    0 == T3.time().millisecond()
-                                         &&    0 == T3.microsecond())));
+                                         &&    0 == T3.time().microsecond())));
 
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                 }
