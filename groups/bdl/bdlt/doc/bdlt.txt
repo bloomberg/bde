@@ -158,7 +158,7 @@
 :      Provide low-level support functions for date-value manipulation.
 :
 : 'bdlt_time':
-:      Provide a value-semantic time-of-day type (millisecond resolution).
+:      Provide a value-semantic type representing time-of-day.
 :
 : 'bdlt_timetz':
 :      Provide a representation of a time with time zone offset.
@@ -177,7 +177,7 @@
 /Value Types: 'Date', 'Time' and 'Datetime'
 / - - - - - - - - - - - - - - - - - - - - -
  The 'bdlt' package defines 'bdlt::Date' to represent date values, 'bdlt::Time'
- to represent time values (to millisecond resolution) within a day, and the
+ to represent time values (to microsecond resolution) within a day, and the
  combined 'bdlt::Datetime' to represent all points in time (to microsecond
  resolution) across the range of date values.  The ranges of each type are
  shown below.
@@ -185,7 +185,7 @@
   Type     Range
   -------  ------------------------------------------------------------
   Date     [0001/01/01                 ..  9999/12/31                 ]
-  Time     [           00:00:00.000    ..             23:59:59.999    ]
+  Time     [           00:00:00.000000 ..             23:59:59.999999 ]
   Datetime [0001/01/01_00:00:00.000000 ..  9999/12/31_23:59:59.999999 ]
 ..
  Further note that:
@@ -194,7 +194,7 @@
 
  The above classes define values representing points on a timeline (e.g., dates
  on a calendar, positions on a clock) whereas the 'bdlt::DatetimeInterval'
- class represents the *difference* (to millisecond resolution) between those
+ class represents the *difference* (to microsecond resolution) between those
  points.
 ..
   Type             Difference Type
