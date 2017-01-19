@@ -536,6 +536,38 @@ int main(int argc, char *argv[])
                                         A,
                                         1.0));
         }
+        {
+            if (verbose) cout <<
+                "\nTesting: 'yearsDiff(date, date)'" << endl;
+
+            const bdlt::Date startDate = bdlt::Date(1900,  1,  1);
+            const bdlt::Date endDate   = bdlt::Date(2200, 12, 31);
+
+            for (bdlt::Date date = startDate; date <= endDate; ++date) {
+                bsl::vector<bdlt::Date>        mP;
+                const bsl::vector<bdlt::Date>& P = mP;
+                {
+                    mP.push_back(startDate);
+                    mP.push_back(endDate);
+                }
+
+                const double RESULT1 = Util::yearsDiff(date, date, P, 1.0);
+
+                ASSERTV(date, RESULT1, 0.0 == RESULT1);
+
+                if (startDate != date && endDate != date) {
+                    {
+                        mP.pop_back();
+                        mP.push_back(date);
+                        mP.push_back(endDate);
+                    }
+
+                    const double RESULT2 = Util::yearsDiff(date, date, P, 1.0);
+
+                    ASSERTV(date, RESULT2, 0.0 == RESULT2);
+                }
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -716,7 +748,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

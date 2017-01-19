@@ -22,23 +22,36 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
     const int beginYear = beginDate.year();
     const int endYear   = endDate.year();
 
-    const double daysInBeginYear =
-                        365.0 + bdlt::SerialDateImpUtil::isLeapYear(beginYear);
-    const double daysInEndYear   =
-                        365.0 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
+    const int daysInBeginYear =
+                          365 + bdlt::SerialDateImpUtil::isLeapYear(beginYear);
+    const int daysInEndYear   =
+                          365 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
 
-    return static_cast<double>(endYear - beginYear - 1)
-         + static_cast<double>(bdlt::Date(beginYear + 1, 1, 1) - beginDate)
-                                                              / daysInBeginYear
-         + static_cast<double>(endDate - bdlt::Date(endYear, 1, 1))
-                                                               / daysInEndYear;
+    double rv;
+    if (daysInBeginYear == daysInEndYear) {
+        // Minimize rounding error since all input values are integers.
+
+        int days = (endYear - beginYear - 1) * daysInBeginYear
+                 + (bdlt::Date(beginYear + 1, 1, 1) - beginDate)
+                 + (endDate - bdlt::Date(endYear, 1, 1));
+
+        rv = static_cast<double>(days) / static_cast<double>(daysInBeginYear);
+    }
+    else {
+        rv = static_cast<double>(endYear - beginYear - 1)
+           + static_cast<double>(bdlt::Date(beginYear + 1, 1, 1) - beginDate)
+                                         / static_cast<double>(daysInBeginYear)
+           + static_cast<double>(endDate - bdlt::Date(endYear, 1, 1))
+                                          / static_cast<double>(daysInEndYear);
+    }
+    return rv;
 }
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
