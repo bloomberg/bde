@@ -84,7 +84,7 @@ using namespace bsl;
 // [12] void setMillisecond(int millisecond);
 // [12] void setMicrosecond(int microsecond);
 // [ 2] void setTime(int h, int m = 0, int s = 0, int ms = 0, int us = 0);
-// [17] int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
+// [17] int setTimeIfValid(h, m = 0, s = 0, ms = 0, us = 0);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
@@ -409,7 +409,7 @@ if (veryVerbose)
         //:   to expected "valid" values.  (C-1..4)
         //
         // Testing:
-        //   int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
+        //   int setTimeIfValid(h, m = 0, s = 0, ms = 0, us = 0);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   int validateAndSetTime(h, m = 0, s = 0, ms = 0);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -427,34 +427,40 @@ if (veryVerbose)
                 int d_minute;       // specification minute
                 int d_second;       // specification second
                 int d_millisecond;  // specification millisecond
+                int d_microsecond;  // specification microsecond
                 int d_valid;        // expected return value
             } DATA[] = {
-                //LINE HOUR   MIN  SEC   MSEC   VALID
-                //---- ----   ---  ---   ----   ------
-                { L_,     0,    0,   0,     0,    1   },
+                //LINE HOUR   MIN  SEC   MSEC   USEC   VALID
+                //---- ----   ---  ---   ----   ----   ------
+                { L_,     0,    0,   0,     0,     0,       1 },
 
-                { L_,     0,    0,   0,    -1,    0   },
-                { L_,     0,    0,   0,   999,    1   },
-                { L_,     0,    0,   0,  1000,    0   },
+                { L_,     0,    0,   0,     0,    -1,       0 },
+                { L_,     0,    0,   0,     0,   999,       1 },
+                { L_,     0,    0,   0,     0,  1000,       0 },
 
-                { L_,     0,    0,  -1,     0,    0   },
-                { L_,     0,    0,  59,     0,    1   },
-                { L_,     0,    0,  60,     0,    0   },
+                { L_,     0,    0,   0,    -1,     0,       0 },
+                { L_,     0,    0,   0,   999,     0,       1 },
+                { L_,     0,    0,   0,  1000,     0,       0 },
 
-                { L_,     0,   -1,   0,     0,    0   },
-                { L_,     0,   59,   0,     0,    1   },
-                { L_,     0,   60,   0,     0,    0   },
+                { L_,     0,    0,  -1,     0,     0,       0 },
+                { L_,     0,    0,  59,     0,     0,       1 },
+                { L_,     0,    0,  60,     0,     0,       0 },
 
-                { L_,    -1,    0,   0,     0,    0   },
-                { L_,    23,    0,   0,     0,    1   },
-                { L_,    24,    0,   0,     0,    1   },
-                { L_,    25,    0,   0,     0,    0   },
+                { L_,     0,   -1,   0,     0,     0,       0 },
+                { L_,     0,   59,   0,     0,     0,       1 },
+                { L_,     0,   60,   0,     0,     0,       0 },
 
-                { L_,    24,    0,   0,     1,    0   },
-                { L_,    24,    0,   1,     0,    0   },
-                { L_,    24,    1,   0,     0,    0   },
+                { L_,    -1,    0,   0,     0,     0,       0 },
+                { L_,    23,    0,   0,     0,     0,       1 },
+                { L_,    24,    0,   0,     0,     0,       1 },
+                { L_,    25,    0,   0,     0,     0,       0 },
 
-                { L_,    23,   59,  59,   999,    1   },
+                { L_,    24,    0,   0,     0,     1,       0 },
+                { L_,    24,    0,   0,     1,     0,       0 },
+                { L_,    24,    0,   1,     0,     0,       0 },
+                { L_,    24,    1,   0,     0,     0,       0 },
+
+                { L_,    23,   59,  59,   999,   999,       1 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -465,20 +471,27 @@ if (veryVerbose)
                 const int MINUTE       = DATA[i].d_minute;
                 const int SECOND       = DATA[i].d_second;
                 const int MILLISECOND  = DATA[i].d_millisecond;
+                const int MICROSECOND  = DATA[i].d_microsecond;
                 const int VALID        = DATA[i].d_valid;
 
                 if (veryVerbose) { T_; P_(LINE);   P_(VALID);
                                        P_(HOUR);   P_(MINUTE);
-                                       P_(SECOND); P(MILLISECOND);
+                                       P_(SECOND); P_(MILLISECOND);
+                                       P(MICROSECOND);
                 }
                 Obj x;  const Obj& X = x;
                 if (1 == VALID) {
-                    const Obj R(HOUR, MINUTE, SECOND, MILLISECOND);
+                    const Obj R(HOUR,
+                                MINUTE,
+                                SECOND,
+                                MILLISECOND,
+                                MICROSECOND);
                     LOOP_ASSERT(LINE,
                                 0 == x.setTimeIfValid(HOUR,
-                                                          MINUTE,
-                                                          SECOND,
-                                                          MILLISECOND));
+                                                      MINUTE,
+                                                      SECOND,
+                                                      MILLISECOND,
+                                                      MICROSECOND));
                     LOOP_ASSERT(LINE, R == X);
 
                     if (veryVerbose) { P_(VALID);  P_(R);  P(X); }
@@ -487,9 +500,10 @@ if (veryVerbose)
                     const Obj R;
                     LOOP_ASSERT(LINE,
                                 -1 == x.setTimeIfValid(HOUR,
-                                                           MINUTE,
-                                                           SECOND,
-                                                           MILLISECOND));
+                                                       MINUTE,
+                                                       SECOND,
+                                                       MILLISECOND,
+                                                       MICROSECOND));
                     LOOP_ASSERT(LINE, R == X);
 
                     if (veryVerbose) { P_(VALID);  P_(R);  P(X); }
@@ -510,6 +524,7 @@ if (veryVerbose)
             ASSERT( 0 == X.minute());
             ASSERT( 0 == X.second());
             ASSERT( 0 == X.millisecond());
+            ASSERT( 0 == X.microsecond());
         }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
@@ -605,6 +620,7 @@ if (veryVerbose)
             ASSERT( 0 == X.minute());
             ASSERT( 0 == X.second());
             ASSERT( 0 == X.millisecond());
+            ASSERT( 0 == X.microsecond());
         }
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -1392,15 +1408,31 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0,   1  },
-                {  0,  0,  0, 999  },  {  0,  0,  1,   0  },
-                {  0,  0, 59, 999  },  {  0,  1,  0,   0  },
-                {  0,  1,  0,   1  },  {  0, 59, 59, 999  },
-                {  1,  0,  0,   0  },  {  1,  0,  0,   1  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 23, 59, 59, 999  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0,   1 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0,   1,   0 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0,  1,   0,   0 },
+                {  0,  0, 59, 999,   0 },
+                {  0,  1,  0,   0,   0 },
+                {  0,  1,  0,   1,   0 },
+                {  0, 59, 59, 999,   0 },
+                {  1,  0,  0,   0,   0 },
+                {  1,  0,  0,   1,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210,   1 },
+                { 23, 22, 21, 210, 102 },
+                { 23, 22, 21, 211,  17 },
+                { 23, 59, 59, 999, 999 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -1410,14 +1442,16 @@ if (veryVerbose)
                 Obj        v(VALUES[i].d_hour,
                              VALUES[i].d_minute,
                              VALUES[i].d_second,
-                             VALUES[i].d_msec);
+                             VALUES[i].d_msec,
+                             VALUES[i].d_usec);
                 const Obj& V = v;
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     Obj        u(VALUES[j].d_hour,
                                  VALUES[j].d_minute,
                                  VALUES[j].d_second,
-                                 VALUES[j].d_msec);
+                                 VALUES[j].d_msec,
+                                 VALUES[j].d_usec);
                     const Obj& U = u;
                     if (veryVerbose) { T_;  P_(i);  P_(j);  P_(V);  P(U); }
                     LOOP2_ASSERT(i, j, (j <  i) == (U <  V));
@@ -2722,17 +2756,32 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },
-                {  0,  0,  0,   1  },  {  0,  0,  1,   0  },
-                {  0,  1,  0,   0  },  {  1,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0,   1 },
+                {  0,  0,  0,   1,   0 },
+                {  0,  0,  1,   0,   0 },
+                {  0,  1,  0,   0,   0 },
+                {  1,  0,  0,   0,   0 },
 
-                { 23, 22, 21, 209  },
-                { 23, 22, 21, 208  },  { 23, 22, 20, 209  },
-                { 23, 21, 21, 209  },  { 22, 22, 21, 209  },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 208,   0 },
+                { 23, 22, 20, 209,   0 },
+                { 23, 21, 21, 209,   0 },
+                { 22, 22, 21, 209,   0 },
+                { 23, 22, 21, 209, 102 },
+                { 23, 22, 21, 208,  17 },
+                { 23, 22, 20, 209, 102 },
+                { 23, 21, 21, 209,  17 },
+                { 22, 22, 21, 209, 102 },
 
-                { 24,  0,  0,   0  },  // 24:00:00.000 explicitly included
+                // 24:00:00.000.000 explicitly included
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -2740,12 +2789,18 @@ if (veryVerbose)
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 Obj u;  const Obj& U = u;
-                u.setTime(VALUES[i].d_hour,    VALUES[i].d_minute,
-                          VALUES[i].d_second,  VALUES[i].d_msec);
+                u.setTime(VALUES[i].d_hour,
+                          VALUES[i].d_minute,
+                          VALUES[i].d_second,
+                          VALUES[i].d_msec,
+                          VALUES[i].d_usec);
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     Obj v;  const Obj& V = v;
-                    v.setTime(VALUES[j].d_hour,   VALUES[j].d_minute,
-                              VALUES[j].d_second, VALUES[j].d_msec);
+                    v.setTime(VALUES[j].d_hour,
+                              VALUES[j].d_minute,
+                              VALUES[j].d_second,
+                              VALUES[j].d_msec,
+                              VALUES[j].d_usec);
                     bool isSame = i == j;
                     if (veryVerbose) { T_;  P_(i);  P_(j);  P_(U);  P(V); }
                     LOOP2_ASSERT(i, j,  isSame == (U == V));
