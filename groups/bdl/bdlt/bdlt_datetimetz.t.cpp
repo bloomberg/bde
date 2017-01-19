@@ -157,7 +157,7 @@ typedef bdlt::DatetimeTz    Obj;
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
-#define VERSION_SELECTOR 20140601
+#define VERSION_SELECTOR 99991231
 
 //=============================================================================
 //              Classes, functions, etc., needed for Usage Example
@@ -1173,13 +1173,16 @@ if (verbose) {
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
-            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            ASSERT(2 == Obj::maxSupportedBdexVersion(20170401));
+            ASSERT(2 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
 
             using bslx::VersionFunctions::maxSupportedBdexVersion;
 
             ASSERT(1 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 0));
-            ASSERT(1 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
+            ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
+                                                20170401));
+            ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 VERSION_SELECTOR));
         }
 

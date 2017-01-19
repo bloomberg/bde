@@ -140,7 +140,7 @@ typedef bdlt::TimeTz        Obj;
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
-#define VERSION_SELECTOR 20140601
+#define VERSION_SELECTOR 99991231
 
 //=============================================================================
 //                               MAIN PROGRAM
@@ -1130,13 +1130,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
 
         // Scalar object values used in various stream tests.
-        const bdlt::Time A(24,  0,  0,   0);
-        const bdlt::Time B( 0,  0,  0,   0);
-        const bdlt::Time C( 9, 12, 24, 102);
-        const bdlt::Time D( 9, 20, 30, 206);
-        const bdlt::Time E(17, 34, 52, 503);
-        const bdlt::Time F(23, 56, 57, 702);
-        const bdlt::Time G(18, 59, 59, 999);
+        const bdlt::Time A(24,  0,  0,   0,   0);
+        const bdlt::Time B( 0,  0,  0,   0,   0);
+        const bdlt::Time C( 9, 12, 24, 102, 101);
+        const bdlt::Time D( 9, 20, 30, 206, 213);
+        const bdlt::Time E(17, 34, 52, 503, 359);
+        const bdlt::Time F(23, 56, 57, 702, 724);
+        const bdlt::Time G(18, 59, 59, 999, 999);
 
         const Obj VA(A,     0);
         const Obj VB(B,     1);
