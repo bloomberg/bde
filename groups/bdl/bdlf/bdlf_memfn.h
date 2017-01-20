@@ -208,10 +208,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
@@ -356,10 +352,6 @@ class MemFn {
     PROTOTYPE d_func_p;  // pointer to member function
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFn, bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFn, bslmf::IsBitwiseMoveable);
-
     // CREATORS
     explicit
     MemFn(PROTOTYPE func);
@@ -859,10 +851,6 @@ class MemFnInstance {
 
     // PRIVATE ACCESSORS
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFnInstance, bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFnInstance, bslmf::IsBitwiseMoveable);
-
     // CREATORS
     MemFnInstance(PROTOTYPE         func,
                   const INSTANCE&   object,
@@ -1186,9 +1174,45 @@ MemFnUtil::memFn(PROTOTYPE func, const INSTANCE& object)
 {
     return MemFnInstance<PROTOTYPE, INSTANCE>(func, object);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class PROTOTYPE, class INSTANCE>
+struct UsesBslmaAllocator<bdlf::MemFnInstance<PROTOTYPE, INSTANCE> > :
+                                                                 bsl::true_type
+{};
+
+}  // close namespace bslma
+namespace bslmf {
+
+template <class PROTOTYPE, class INSTANCE>
+struct IsBitwiseMoveable<bdlf::MemFnInstance<PROTOTYPE, INSTANCE> > :
+                                                                 bsl::true_type
+{};
+
+template <class PROTOTYPE>
+struct IsBitwiseMoveable<bdlf::MemFn<PROTOTYPE> > : bsl::true_type
+{};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <class PROTOTYPE>
+struct is_trivially_copyable<BloombergLP::bdlf::MemFn<PROTOTYPE> > :
+                                                                 bsl::true_type
+{};
+
+}  // close namespace bsl
 
 #endif
 

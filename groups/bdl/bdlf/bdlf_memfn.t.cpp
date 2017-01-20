@@ -15,6 +15,8 @@
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
 
+#include <bslmf_assert.h>
+
 #include <bsl_algorithm.h>    // bsl::find_if, bsl::for_each
 #include <bsl_iostream.h>     // bsl::cout
 #include <bsl_list.h>         // bsl::list
@@ -590,6 +592,10 @@ DEFINE_TEST_CASE(9) {
             typedef BloombergLP::bdlf::MemFnInstance<
                         bool (ConstructibleFromPointerToSelf::*)(),
                                   ConstructibleFromPointerToSelf *>  MemFnType;
+
+            BSLMF_ASSERT(bslma::UsesBslmaAllocator<MemFnType>::value);
+            BSLMF_ASSERT(bslmf::IsBitwiseMoveable<MemFnType>::value);
+            BSLMF_ASSERT(!bsl::is_trivially_copyable<MemFnType>::value);
 
             ConstructibleFromPointerToSelf mX(0); mX.d_instance_p = &mX;
             MemFnType func(&ConstructibleFromPointerToSelf::memberFunction,
@@ -1320,8 +1326,13 @@ DEFINE_TEST_CASE(1) {
         TestObject x;
         TestObject const &X=x;
 
-        bdlf::MemFn<int (TestObject::*)(int)> f1(&TestObject::test1);
+        typedef bdlf::MemFn<int (TestObject::*)(int)> MF;
+        MF f1(&TestObject::test1);
         f1(x,10);
+
+        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<MF>::value);
+        BSLMF_ASSERT(bsl::is_trivially_copyable<MF>::value);
+        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<MF>::value);
 
         typedef bslmf::MemberFunctionPointerTraits<int (TestObject::*)(int)>
                                                                         Traits;
