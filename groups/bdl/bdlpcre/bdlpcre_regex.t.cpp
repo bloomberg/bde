@@ -438,6 +438,15 @@ void printValue(ostream& out, const string& value)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                       GLOBAL TEST VALUES
+// ----------------------------------------------------------------------------
+
+static bool verbose;
+static bool veryVerbose;
+static bool veryVeryVerbose;
+static bool veryVeryVeryVerbose;
+
+// ============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 typedef RegEx Obj;
@@ -531,6 +540,12 @@ extern "C" void *testMatchFunction(void *threadArg)
     // This thread function performs match test for precompiled 'RegEx' object.
 {
     const MatchJob *matchJob = static_cast<const MatchJob *>(threadArg);
+
+    if (veryVeryVerbose) {
+        cout << "Match thread started with id: "
+             << bslmt::ThreadUtil::selfIdAsUint64()
+             << endl;
+    }
 
     for (int i = 0; i < 1024; ++i) {
         matchJob->doMatch();
@@ -626,11 +641,12 @@ extern "C" void *testMatchFunction(void *threadArg)
 
 int main(int argc, char *argv[])
 {
-    int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int  test           = argc > 1 ? atoi(argv[1]) : 0;
+
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -704,6 +720,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: 'match' IS THREAD-SAFE
         // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'match' THREAD SAFETY" << endl
+                          << "=============================" << endl;
 
         const char *SIMPLE_PATTERN     = "X(abc)*Z";
         const char *EMAIL_PATTERN      = "[A-Za-z0-9._-]+@[[A-Za-z0-9.-]+";
