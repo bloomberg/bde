@@ -264,11 +264,15 @@ static const struct {
 enum { WRITEVTO_TEST_DATA_LEN =
                       sizeof WRITEVTO_TEST_DATA / sizeof *WRITEVTO_TEST_DATA };
 
-void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
-                            bslmt::Barrier     *barrier)
+static int WRITEVTO_PORT_NUMBER = 0;
+    // Global variable, communicating port number of server listening socket to
+    // client.
+
+void writevToServerFunction(bslmt::Barrier *barrier)
     // Trigger data sending, using the specified 'barrier', and read it from
-    // the connection established on the specified 'IP_ADDR'.
+    // the connection established with a client.
 {
+    btlso::IPv4Address          localAddr("127.0.0.1", 0);
     btlso::SocketHandle::Handle serverSocket;
     const int                   BACKLOG      = 32;
     const int                   RECEIVE_SIZE = 32;
@@ -288,9 +292,13 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
     ASSERTV(rc, 0 == rc);
 
     rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
-                                                        *IP_ADDR,
+                                                        localAddr,
                                                         &errCode);
     ASSERTV(rc, 0 == rc);
+
+    rc = btlso::SocketImpUtil::getLocalAddress(&localAddr,serverSocket);
+    ASSERTV(rc, 0 == rc);
+    WRITEVTO_PORT_NUMBER = localAddr.portNumber();
 
     rc = btlso::SocketImpUtil::listen(serverSocket, BACKLOG, &errCode);
     ASSERTV(rc, 0 == rc);
@@ -314,7 +322,7 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
 
         // Data reading.
 
-        rc = btlso::SocketImpUtil::readFrom<btlso::IPv4Address>(IP_ADDR,
+        rc = btlso::SocketImpUtil::readFrom<btlso::IPv4Address>(&localAddr,
                                                                 readBuffer,
                                                                 sessionSocket,
                                                                 RECEIVE_SIZE,
@@ -329,12 +337,6 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
 
         // Connection closing.
 
-        rc = btlso::SocketImpUtil::shutDown(
-                                         sessionSocket,
-                                         btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-                                         &errCode);
-        ASSERTV(rc, 0 == rc);
-
         rc = btlso::SocketImpUtil::close(sessionSocket,
                                          &errCode);
         ASSERTV(rc, 0 == rc);
@@ -348,69 +350,71 @@ void writevToServerFunction(btlso::IPv4Address *IP_ADDR,
     ASSERTV(rc, 0 == rc);
 }
 
-void writevToClientFunction(const btlso::IPv4Address& IP_ADDR)
-    // Setup connection to the 'IP_ADDR' and send data, got from the
+void writevToClientFunction()
+    // Setup connection to the server and send data, got from the
     // 'WRITEVTO_TEST_DATA' table.
 {
-     for (int i = 0; i < WRITEVTO_TEST_DATA_LEN; ++i ) {
-         const int LINE          = WRITEVTO_TEST_DATA[i].d_line;
-         const int NUM_BUFFERS   = WRITEVTO_TEST_DATA[i].d_numInputs;
-         const int EXPECTED_SIZE =
-                               bsl::strlen(WRITEVTO_TEST_DATA[i].d_expected_p);
+    btlso::IPv4Address serverAddress("127.0.0.1", WRITEVTO_PORT_NUMBER);
 
-         btlso::SocketHandle::Handle sendSocket;
-         int                         rc        = 0;
-         int                         errorCode = 0;
+    for (int i = 0; i < WRITEVTO_TEST_DATA_LEN; ++i ) {
+        const int LINE          = WRITEVTO_TEST_DATA[i].d_line;
+        const int NUM_BUFFERS   = WRITEVTO_TEST_DATA[i].d_numInputs;
+        const int EXPECTED_SIZE =
+            static_cast<int>(bsl::strlen(WRITEVTO_TEST_DATA[i].d_expected_p));
 
-         // Connection opening.
+        btlso::SocketHandle::Handle sendSocket;
+        int                         rc        = 0;
+        int                         errorCode = 0;
 
-         rc = btlso::SocketImpUtil::startup(&errorCode);
-         ASSERTV(rc, 0 == rc);
+        // Connection opening.
 
-         rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+        rc = btlso::SocketImpUtil::startup(&errorCode);
+        ASSERTV(rc, 0 == rc);
+
+        rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                          &sendSocket,
                                          btlso::SocketImpUtil::k_SOCKET_STREAM,
                                          &errorCode);
-         ASSERTV(rc, 0 == rc);
+        ASSERTV(rc, 0 == rc);
 
-         rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
-                                                                IP_ADDR,
-                                                                &errorCode);
-         ASSERTV(rc, 0 == rc);
+        rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
+                                                               serverAddress,
+                                                               &errorCode);
+        ASSERTV(rc, 0 == rc);
 
-         // Data preparing.
+        // Data preparing.
 
-         btls::Ovec *buffers = new btls::Ovec[NUM_BUFFERS];
-         for (int j = 0; j < NUM_BUFFERS; ++j) {
-             const char *INPUT = WRITEVTO_TEST_DATA[i].d_inputs[j];
-             buffers[j].setBuffer(INPUT, bsl::strlen(INPUT));
-         }
+        btls::Ovec *buffers = new btls::Ovec[NUM_BUFFERS];
+        for (int j = 0; j < NUM_BUFFERS; ++j) {
+            const char *INPUT = WRITEVTO_TEST_DATA[i].d_inputs[j];
+            buffers[j].setBuffer(INPUT, static_cast<int>(bsl::strlen(INPUT)));
+        }
 
-         // Data sending.
+        // Data sending.
 
-         rc = btlso::SocketImpUtil::writevTo(sendSocket,
-                                             IP_ADDR,
-                                             buffers,
-                                             NUM_BUFFERS,
-                                             &errorCode);
-         ASSERTV(LINE, EXPECTED_SIZE, rc, EXPECTED_SIZE == rc);
+        rc = btlso::SocketImpUtil::writevTo(sendSocket,
+                                            serverAddress,
+                                            buffers,
+                                            NUM_BUFFERS,
+                                            &errorCode);
+        ASSERTV(LINE, EXPECTED_SIZE, rc, EXPECTED_SIZE == rc);
 
-         // Connection closing.
+        // Connection closing.
 
-         rc = btlso::SocketImpUtil::shutDown(
-                                         sendSocket,
-                                         btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-                                         &errorCode);
-         ASSERTV(rc, 0 == rc);
+        rc = btlso::SocketImpUtil::shutDown(
+                                        sendSocket,
+                                        btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+                                        &errorCode);
+        ASSERTV(rc, 0 == rc);
 
-         rc = btlso::SocketImpUtil::close(sendSocket, &errorCode);
-         ASSERTV(rc, 0 == rc);
+        rc = btlso::SocketImpUtil::close(sendSocket, &errorCode);
+        ASSERTV(rc, 0 == rc);
 
-         rc = btlso::SocketImpUtil::cleanup(&errorCode);
-         ASSERTV(rc, 0 == rc);
+        rc = btlso::SocketImpUtil::cleanup(&errorCode);
+        ASSERTV(rc, 0 == rc);
 
-         delete [] buffers;
-     }
+        delete [] buffers;
+    }
 }
 
 //=============================================================================
@@ -568,27 +572,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING 'writevTo'" << endl
                           << "==================" << endl;
 
-        btlso::IPv4Address        IP_ADDR("127.0.0.1", 8143);
         bslmt::Barrier            barrier(2);
         bslmt::ThreadUtil::Handle stid;
         bslmt::ThreadUtil::Handle ctid;
 
         // Run server thred.
 
-        bslmt::ThreadUtil::create(
-                              &stid,
-                              bdlf::BindUtil::bind(&writevToServerFunction,
-                                                   &IP_ADDR,
-                                                   &barrier));
+        bslmt::ThreadUtil::create(&stid,
+                                  bdlf::BindUtil::bind(&writevToServerFunction,
+                                                       &barrier));
 
         barrier.wait();
 
         // Run client thread.
 
-        bslmt::ThreadUtil::create(
-                              &ctid,
-                              bdlf::BindUtil::bind(&writevToClientFunction,
-                                                   IP_ADDR));
+        bslmt::ThreadUtil::create(&ctid, &writevToClientFunction);
 
         ASSERT(0 == bslmt::ThreadUtil::join(ctid));
         ASSERT(0 == bslmt::ThreadUtil::join(stid));
