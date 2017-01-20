@@ -153,8 +153,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Legend
 //  ------
 //  'SIMPLE_PATTERN':
-//      Pattern - (abc)*
-//      Subject -  XXXabcZZZ
+//      Pattern - X(abc)*Z
+//      Subject - XXXabcabcZZZ
 //
 //  'EMAIL_PATTERN':
 //      Pattern - [A-Za-z0-9._-]+@[[A-Za-z0-9.-]+
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  +--------------------+---------------------+---------------------+
 //  | Pattern            | 'match' without-JIT |  'match' using-JIT  |
 //  +====================+=====================+=====================+
-//  | SIMPLE_PATTERN     |    0.0161 (~3.1x)   |        0.0052       |
+//  | SIMPLE_PATTERN     |    0.0559 (~5.1x)   |        0.0108       |
 //  +--------------------+---------------------+---------------------+
 //  | EMAIL_PATTERN      |    0.0222 (~2.6x)   |        0.0086       |
 //  +--------------------+---------------------+---------------------+
@@ -188,7 +188,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  +--------------------+-----------------------+-----------------------+
 //  | Pattern            | 'prepare' without-JIT |  'prepare' using-JIT  |
 //  +====================+=======================+=======================+
-//  | SIMPLE_PATTERN     |         0.1806        |     1.9612 (~10.9x)   |
+//  | SIMPLE_PATTERN     |         0.2514        |     2.1426 (~8.5x)   |
 //  +--------------------+-----------------------+-----------------------+
 //  | EMAIL_PATTERN      |         0.3386        |     2.5758 (~7.6x)    |
 //  +--------------------+-----------------------+-----------------------+
@@ -599,9 +599,19 @@ class RegEx {
     RegEx& operator=(const RegEx&);
 
     // PRIVATE ACCESSORS
+    int allocateMatchContext(RegEx_MatchContext *matchContext,
+                             pcre2_code         *patternCode) const;
+        // Allocate buffers needed by PCRE2 library to do the match for the
+        // specified 'patternCode' and load the specified 'matchContext' with
+        // the pointers to the match buffers.
+
+    void deallocateMatchContext(RegEx_MatchContext *matchContext) const;
+        // Deallocate the match buffers pointed by the specified
+        // 'matchContext'.
+
     int acquireMatchContext(RegEx_MatchContext *matchContext) const;
-        // Create buffers needed by PCRE2 library to do the match and load the
-        // specified 'matchContext' with the pointers to the match buffers.
+        // Load the specified 'matchContext' with the pointers to the match
+        // contexts for the current tread.
 
     void releaseMatchContext(RegEx_MatchContext *matchContext) const;
         // Release the match buffers pointed by the specified 'matchContext'.

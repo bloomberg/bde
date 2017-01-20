@@ -3711,7 +3711,9 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> result;
             X.match(&result, SUBJECT, SUBJECT_LEN, 0);
 
-            P_(PATTERN) P_(SUBJECT) P_(result.first) P(result.second);
+            if (veryVeryVerbose) {
+                P_(PATTERN) P_(SUBJECT) P_(result.first) P(result.second);
+            }
 
             ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
 
@@ -3780,7 +3782,7 @@ int main(int argc, char *argv[])
             timer.stop();
             double prepareJitTime = timer.elapsedTime();
 
-            if (veryVeryVerbose) {
+            if (veryVerbose) {
                 cout << "\tResults:" << endl
                      << "\t\t'match'            time: " << matchTime << endl
                      << "\t\t'match'   with JIT time: " << matchJitTime << endl
@@ -3825,7 +3827,7 @@ int main(int argc, char *argv[])
         bsl::string     errorMsg;
         size_t          errorOffset;
 
-        const char PATTERN[] = "[abc]*";
+        const char PATTERN[] = "[abc]+";
         char       SUBJECT[SUBJECT_LENGTH];
         for (int i = 0; i < SUBJECT_LENGTH; ++i) {
             SUBJECT[i] = 'a';

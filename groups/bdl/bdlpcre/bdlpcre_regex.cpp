@@ -85,17 +85,13 @@ enum {
 bsls::AtomicOperations::AtomicTypes::Int RegEx::s_depthLimit = {10000000};
 
 // PRIVATE ACCESSORS
-int RegEx::acquireMatchContext(RegEx::RegEx_MatchContext *matchContext) const
+int RegEx::allocateMatchContext(RegEx::RegEx_MatchContext *matchContext,
+                                pcre2_code                *patternCode) const
 {
-    if (d_mainThreadId == bslmt::ThreadUtil::selfIdAsUint64()) {
-        *matchContext = d_mainMatchContext;
-        return k_SUCCESS;                                             // RETURN
-    }
-
     // Match Data
     matchContext->d_matchData_p = pcre2_match_data_create_from_pattern(
-                                                               d_patternCode_p,
-                                                               0);
+                                                                   patternCode,
+                                                                   0);
 
     if (0 == matchContext->d_matchData_p) {
         return k_FAILURE;                                             // RETURN
@@ -133,6 +129,24 @@ int RegEx::acquireMatchContext(RegEx::RegEx_MatchContext *matchContext) const
     return k_SUCCESS;
 }
 
+void
+RegEx::deallocateMatchContext(RegEx::RegEx_MatchContext *matchContext) const
+{
+    pcre2_match_data_free(matchContext->d_matchData_p);
+    pcre2_jit_stack_free(matchContext->d_jitStack_p);
+    pcre2_match_context_free(matchContext->d_matchContext_p);
+}
+
+int RegEx::acquireMatchContext(RegEx::RegEx_MatchContext *matchContext) const
+{
+    if (d_mainThreadId == bslmt::ThreadUtil::selfIdAsUint64()) {
+        *matchContext = d_mainMatchContext;
+        return k_SUCCESS;                                             // RETURN
+    }
+
+    return allocateMatchContext(matchContext, d_patternCode_p);
+}
+
 void RegEx::releaseMatchContext(RegEx::RegEx_MatchContext *matchContext) const
 {
 
@@ -140,9 +154,7 @@ void RegEx::releaseMatchContext(RegEx::RegEx_MatchContext *matchContext) const
         return;                                                       // RETURN
     }
 
-    pcre2_match_data_free(matchContext->d_matchData_p);
-    pcre2_jit_stack_free(matchContext->d_jitStack_p);
-    pcre2_match_context_free(matchContext->d_matchContext_p);
+    deallocateMatchContext(matchContext);
 }
 
 int RegEx::privateMatch(const char         *subject,
@@ -319,9 +331,7 @@ void RegEx::clear()
 {
     if (isPrepared()) {
         pcre2_code_free(d_patternCode_p);
-        pcre2_jit_stack_free(d_mainMatchContext.d_jitStack_p);
-        pcre2_match_context_free(d_mainMatchContext.d_matchContext_p);
-        pcre2_match_data_free(d_mainMatchContext.d_matchData_p);
+        deallocateMatchContext(&d_mainMatchContext);
         d_patternCode_p = 0;
         d_flags         = 0;
         d_jitStackSize  = 0;
@@ -351,8 +361,9 @@ int RegEx::prepare(bsl::string *errorMessage,
 
     clear();
 
-    d_pattern = pattern;
-    d_flags   = flags;
+    d_pattern      = pattern;
+    d_flags        = flags;
+    d_jitStackSize = jitStackSize;
 
     unsigned int pcreFlags = 0;
     pcreFlags |= flags & k_FLAG_CASELESS      ? PCRE2_CASELESS  : 0;
@@ -409,17 +420,10 @@ int RegEx::prepare(bsl::string *errorMessage,
         }
     }
 
-    // Allocate match buffers for the main thread
-
-    // Match Data
-    d_mainMatchContext.d_matchData_p = pcre2_match_data_create_from_pattern(
-                                                                   patternCode,
-                                                                   0);
-
-    if (0 == d_mainMatchContext.d_matchData_p) {
+    if (k_SUCCESS != allocateMatchContext(&d_mainMatchContext, patternCode)) {
         pcre2_code_free(patternCode);
         if (errorMessage) {
-            errorMessage->assign("Unable to create match data.");
+            errorMessage->assign("Unable to create match contexts.");
         }
         if (errorOffset) {
             *errorOffset = 0;
@@ -427,57 +431,9 @@ int RegEx::prepare(bsl::string *errorMessage,
         return k_FAILURE;                                             // RETURN
     }
 
-
-    // Match context
-    d_mainMatchContext.d_matchContext_p =
-                                  pcre2_match_context_create(d_pcre2Context_p);
-    if (0 == d_mainMatchContext.d_matchContext_p) {
-        pcre2_match_data_free(d_mainMatchContext.d_matchData_p);
-        pcre2_code_free(patternCode);
-        if (errorMessage) {
-            errorMessage->assign("Unable to create match context.");
-        }
-        if (errorOffset) {
-            *errorOffset = 0;
-        }
-        return k_FAILURE;                                     // RETURN
-    }
-
-    pcre2_set_match_limit(d_mainMatchContext.d_matchContext_p, d_depthLimit);
-
-    // Jit stack
-    if (jitStackSize) {
-        if (flags & k_FLAG_JIT && isJitAvailable()) {
-            d_mainMatchContext.d_jitStack_p = pcre2_jit_stack_create(
-                                                             jitStackSize,
-                                                             jitStackSize,
-                                                             d_pcre2Context_p);
-            if (0 == d_mainMatchContext.d_jitStack_p) {
-                pcre2_match_context_free(d_mainMatchContext.d_matchContext_p);
-                pcre2_match_data_free(d_mainMatchContext.d_matchData_p);
-                pcre2_code_free(patternCode);
-                if (errorMessage) {
-                    errorMessage->assign("Unable to create JIT stack.");
-                }
-                if (errorOffset) {
-                    *errorOffset = 0;
-                }
-                return k_FAILURE;                                     // RETURN
-            }
-
-            d_jitStackSize = jitStackSize;
-
-            pcre2_jit_stack_assign(d_mainMatchContext.d_matchContext_p,
-                                   0,
-                                   d_mainMatchContext.d_jitStack_p);
-        }
-    }
-
     // Set the data members and set the object to the "prepared" state.
 
-    d_pattern       = pattern;
     d_patternCode_p = patternCode;
-    d_flags         = flags;
     d_mainThreadId  = bslmt::ThreadUtil::selfIdAsUint64();
 
     return k_SUCCESS;
