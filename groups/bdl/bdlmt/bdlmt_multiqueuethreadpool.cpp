@@ -412,6 +412,7 @@ MultiQueueThreadPool::MultiQueueThreadPool(
 , d_queueRegistry(basicAllocator)
 , d_state(STATE_STOPPED)
 {
+    // preconditions asserted in 'ThreadPool' constructor
     d_threadPool_p = new (*d_allocator_p) ThreadPool(threadAttributes,
                                                      minThreads,
                                                      maxThreads,
