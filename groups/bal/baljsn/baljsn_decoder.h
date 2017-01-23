@@ -732,9 +732,10 @@ int Decoder::decodeImp(TYPE *value,
         return -1;                                                    // RETURN
     }
 
-    const int                                 BUF_SIZE = 128;
-    bdlma::LocalSequentialAllocator<BUF_SIZE> bufferAllocator;
-    bsl::string                               tmpString(&bufferAllocator);
+    // This used to be 'BUF_SIZE' but that caused a #define conflict.
+    const int                                     BAL_BUF_SIZE = 128;
+    bdlma::LocalSequentialAllocator<BAL_BUF_SIZE> bufferAllocator;
+    bsl::string                                   tmpString(&bufferAllocator);
 
     rc = baljsn::ParserUtil::getValue(&tmpString, dataValue);
     if (rc) {
