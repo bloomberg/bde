@@ -204,19 +204,20 @@ BSLS_IDENT("$Id$ $CSID$")
 // context) that cannot be shared between threads.
 //
 // 'bdlpcre::RegEx' component implements the following strategy:
-//: o Match context for the main thread ( the thread used to call 'prepare' )
+//: o The match context for the main thread (the thread used to call 'prepare')
 //:   is pre-allocated when the pattern is compiled and re-used by 'match'
 //:   method unless it is called from a different thread.
 //:
-//: o Match context for all other threads are allocated and deallocated on
-//:   demand (i.e. when the 'match' method is invoked from a non-main thread).
+//: o Match contexts for other threads are allocated and deallocated within
+//:   each call to 'match' (i.e. when the 'match' method is invoked from
+//:   another thread(s)).
 //
 // The table below demonstrate the difference of invoking the 'match' method
 // from main and non-main threads:
 //..
 //   Table 3: Performance cost for 'match' in multi-threaded application
 //  +--------------------+-----------------------+----------------------------+
-//  | Pattern            | 'match' (main thread) |  'match' (non-main thread) |
+//  | Pattern            | 'match' (main thread) |  'match' (other thread(s)) |
 //  +====================+=======================+============================+
 //  | SIMPLE_PATTERN     |    0.0549 (~1.4x)     |           0.0759           |
 //  +--------------------+-----------------------+----------------------------+
