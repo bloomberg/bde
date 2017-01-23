@@ -761,7 +761,7 @@ class unordered_multiset
 
   private:
 
-      // PRIVATE TYPE
+    // PRIVATE TYPE
     typedef bsl::allocator_traits<ALLOCATOR>                 AllocatorTraits;
         // This typedef is an alias for the allocator traits type associated
         // with this container.
@@ -1960,8 +1960,10 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                                              std::initializer_list<KEY> values)
 {
-    clear();
-    insert(values.begin(), values.end());
+    unordered_multiset tmp(values, d_impl.allocator());
+
+    d_impl.swap(tmp.d_impl);
+
     return *this;
 }
 #endif
@@ -2633,7 +2635,8 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
-    if (HashTableLink *target = d_impl.find(key)) {
+    HashTableLink *target = d_impl.find(key);
+    if (target) {
         target = d_impl.remove(target);
         size_type result = 1;
         while (target &&
@@ -2719,8 +2722,9 @@ void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                         INPUT_ITERATOR last)
 {
-    if (difference_type maxInsertions =
-            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
+    difference_type maxInsertions =
+              ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+    if (maxInsertions) {
         this->reserve(this->size() + maxInsertions);
     }
 

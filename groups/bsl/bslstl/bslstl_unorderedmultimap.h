@@ -1710,8 +1710,10 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
                                       std::initializer_list<value_type> values)
 {
-    clear();
-    insert(values.begin(), values.end());
+    unordered_multimap tmp(values.begin(), values.end(), d_impl.allocator());
+
+    d_impl.swap(tmp.d_impl);
+
     return *this;
 }
 #endif

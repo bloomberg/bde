@@ -1263,7 +1263,7 @@ class unordered_map {
         // bucket allocation strategy of the hash-table (but never fewer).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    explicit unordered_map(
+    unordered_map(
             std::initializer_list<value_type> values,
             size_type                         initialNumBuckets = 0,
             const HASH&                       hashFunction      = HASH(),
@@ -2971,7 +2971,7 @@ struct IsBitwiseMoveable<
           ALLOCATOR> >::type
 {};
 
-}
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

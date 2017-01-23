@@ -7331,8 +7331,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj mX;  const Obj& X = mX;
-        Obj mY;  const Obj& Y = mY;
+        Obj mX;  const Obj& X = mX;    (void) X;
+        Obj mY;  const Obj& Y = mY;    (void) Y;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
@@ -7354,7 +7354,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
@@ -7381,7 +7381,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
@@ -7402,8 +7402,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj x;
-        Obj y;
+        Obj x;    (void) x;
+        Obj y;    (void) y;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
@@ -7420,7 +7420,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
@@ -7439,7 +7439,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
@@ -7457,8 +7457,8 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase38()
     //..
 
     {
-        Obj mX;
-        Obj mY;
+        Obj mX;    (void) mX;
+        Obj mY;    (void) mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
@@ -8322,11 +8322,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_inline()
     bslma::TestAllocator ta("ta", veryVeryVeryVerbose);    // testValues
     bslma::TestAllocator fa("fa", veryVeryVeryVerbose);    // footprint
     bslma::TestAllocator oa("oa", veryVeryVeryVerbose);    // other
+    bslma::TestAllocator da("da", veryVeryVeryVerbose);    // default
+    bslma::DefaultAllocatorGuard dag(&da);
 
     const char   testValuesSpec[] = { "ABC" };
     const size_t testValuesSpecLen = sizeof(testValuesSpec) - 1;
 
-    TestValues  testValues(testValuesSpec, &ta);
+    CTestValues  testValues(testValuesSpec, &ta);
     ASSERT(testValues.size() == testValuesSpecLen);
     for (size_t ii = 0; ii < testValuesSpecLen; ++ii, ++numIters) {
         ASSERTV(NameOf<KEY>(), ii,
@@ -8345,9 +8347,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_inline()
         bool hfPassed = false;
         bool ecPassed = false;
         bool oaPassed = false;
-
-        bslma::TestAllocator da("da", veryVeryVeryVerbose);    // default
-        bslma::DefaultAllocatorGuard dag(&da);
 
         Obj *p = 0;
 
@@ -8492,6 +8491,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33_inline()
         ASSERTV(!k_TYPE_ALLOC || !PLAT_EXC || 0 < numThrows);
         ASSERTV(u::verifySpec(X, "ABC"));
         ASSERTV(u::verifySpec(Y, "CDE"));
+    }
+
+    {
+        typedef bsl::pair<int, Obj> MyPair;
+
+        bslma::DefaultAllocatorGuard dag(&ta);
+
+        const MyPair& mp = MyPair(5, u_INIT_LIST);
+
+        ASSERT(3 == mp.second.size());
     }
 
 #undef u_INIT_LIST
