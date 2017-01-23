@@ -457,6 +457,10 @@ typedef RegEx Obj;
 
 namespace {
 
+                        // ========
+                        // MatchJob
+                        // ========
+
 class MatchJob {
     // This class is used to test thread safety of the 'match' method.
 
@@ -480,7 +484,7 @@ class MatchJob {
     // ACCESSORS
     void doMatch() const;
         // Invoke 'match' method on the 'RegEx' object supplied at the
-        // construction  and verify that the result matches the expected.
+        // construction and verify that the result matches the expected.
 };
 
 // ACCESSORS
@@ -539,7 +543,7 @@ void MatchJob::doMatch() const
 extern "C" void *testMatchFunction(void *threadArg)
     // This thread function performs match test for precompiled 'RegEx' object.
 {
-    const MatchJob *matchJob = static_cast<const MatchJob *>(threadArg);
+    const MatchJob *job = static_cast<const MatchJob *>(threadArg);
 
     if (veryVeryVerbose) {
         cout << "Match thread started with id: "
@@ -548,8 +552,72 @@ extern "C" void *testMatchFunction(void *threadArg)
     }
 
     for (int i = 0; i < 1024; ++i) {
-        matchJob->doMatch();
+        job->doMatch();
     }
+    return 0;
+}
+
+                        // ==========
+                        // PrepareJob
+                        // ==========
+
+class PrepareJob {
+    // This class is used to do performance tests.  This class prepares a
+    // pattern in a separate thread, forcing subsequent matches to use non
+    // optimal code path (with context allocation).
+
+  private:
+    // DATA
+    RegEx      *d_regEx_p;       // unprepared RegEx
+    const char *d_pattern_p;     // pointer to the pattern
+    int         d_flags;         // flags to 'prepare'
+    size_t      d_jitStackSize;  // JIT stack size
+
+  public:
+    // CREATORS
+    PrepareJob(RegEx      *regEx,
+               const char *pattern,
+               int         flags,
+               size_t      jitStackSize)
+        // Create match prepare object with the specified 'regEx', 'pattern',
+        // 'flags', and 'jitStackSize'
+    : d_regEx_p(regEx)
+    , d_pattern_p(pattern)
+    , d_flags(flags)
+    , d_jitStackSize(jitStackSize)
+    {
+    };
+
+    // MANIPULATORS
+    void doPrepare();
+        // Invoke 'prepare' method on the 'RegEx' object supplied at the
+        // construction.
+};
+
+// MANIPULATORS
+void PrepareJob::doPrepare()
+{
+    int retCode = d_regEx_p->prepare(0,
+                                     0,
+                                     d_pattern_p,
+                                     d_flags,
+                                     d_jitStackSize);
+
+    ASSERTV(retCode, 0 == retCode);
+}
+
+extern "C" void *testPrepareFunction(void *threadArg)
+    // This thread function performs match test for precompiled 'RegEx' object.
+{
+    PrepareJob *job = static_cast<PrepareJob *>(threadArg);
+
+    if (veryVeryVerbose) {
+        cout << "Prepare thread started with id: "
+             << bslmt::ThreadUtil::selfIdAsUint64()
+             << endl;
+    }
+
+    job->doPrepare();
     return 0;
 }
 
@@ -3727,6 +3795,24 @@ int main(int argc, char *argv[])
                                      0);
             ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
 
+
+            Obj         mY;
+            const Obj&  Y = mY;
+
+            {
+                PrepareJob job(&mY, PATTERN, 0, 0);
+
+                bslmt::ThreadUtil::Handle handle;
+
+                int rc = bslmt::ThreadUtil::create(&handle,
+                                                   testPrepareFunction,
+                                                   &job);
+                ASSERTV(rc, 0 == rc);
+
+                rc = bslmt::ThreadUtil::join(handle);
+                ASSERTV(rc, 0 == rc);
+            }
+
             pair<size_t, size_t> result;
             X.match(&result, SUBJECT, SUBJECT_LEN, 0);
 
@@ -3741,10 +3827,19 @@ int main(int argc, char *argv[])
                X.match(SUBJECT, SUBJECT_LEN, 0);
             }
             timer.stop();
-            double matchTime = timer.elapsedTime();
+            double matchTimeX = timer.elapsedTime();
+
+            timer.reset();
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+               Y.match(SUBJECT, SUBJECT_LEN, 0);
+            }
+            timer.stop();
+            double matchTimeY = timer.elapsedTime();
 
             timer.reset();
             mX.clear();
+            mY.clear();
 
             // Testing 'prepare' without JIT compilation support.
 
@@ -3775,15 +3870,38 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
             ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
 
+            {
+                PrepareJob job(&mY, PATTERN, Obj::k_FLAG_JIT, 0);
+
+                bslmt::ThreadUtil::Handle handle;
+
+                int rc = bslmt::ThreadUtil::create(&handle,
+                                                   testPrepareFunction,
+                                                   &job);
+                ASSERTV(rc, 0 == rc);
+
+                rc = bslmt::ThreadUtil::join(handle);
+                ASSERTV(rc, 0 == rc);
+            }
+
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
                X.match(SUBJECT, SUBJECT_LEN, 0);
             }
             timer.stop();
-            double matchJitTime = timer.elapsedTime();
+            double matchJitTimeX = timer.elapsedTime();
+
+            timer.reset();
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+               Y.match(SUBJECT, SUBJECT_LEN, 0);
+            }
+            timer.stop();
+            double matchJitTimeY = timer.elapsedTime();
 
             timer.reset();
             mX.clear();
+            mY.clear();
 
             // Testing 'prepare' with JIT compilation support.
 
@@ -3803,20 +3921,25 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) {
                 cout << "\tResults:" << endl
-                     << "\t\t'match'            time: " << matchTime << endl
-                     << "\t\t'match'   with JIT time: " << matchJitTime << endl
+                     << "\t\t'match'          time: " << matchTimeX << endl
+                     << "\t\t'match'(JIT)     time: " << matchJitTimeX << endl
                      << endl
-                     << "\t\t'prepare'          time: " << prepareTime << endl
-                     << "\t\t'prepare' with JIT time: " << prepareJitTime
+                     << "\t\t'match'(mt)      time: " << matchTimeY << endl
+                     << "\t\t'match'(mt; JIT) time: " << matchJitTimeY << endl
+                     << endl
+                     << "\t\t'prepare'        time: " << prepareTime << endl
+                     << "\t\t'prepare'(JIT)   time: " << prepareJitTime
                      << endl;
             }
 
-            ASSERTV(LINE, matchTime, matchJitTime, matchTime > matchJitTime);
             ASSERTV(LINE,
-                    matchTime,
-                    matchJitTime,
+                    matchTimeX,
+                    matchJitTimeX,
+                    matchTimeX > matchJitTimeX);
+            ASSERTV(LINE,
+                    prepareTime,
+                    prepareJitTime,
                     prepareTime < prepareJitTime);
-
         }
       } break;
       case -2: {

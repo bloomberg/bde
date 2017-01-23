@@ -112,14 +112,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // negative class such as '[^a]' always matches newline characters, independent
 // of the setting of this option.
 //
-///Thread Safety
-///-------------
-// 'bdlpcre::RegEx' is *const* *thread-safe*, meaning that accessors may be
-// invoked concurrently from different threads, but it is not safe to access or
-// modify a 'bdlpcre::RegEx' in one thread while another thread modifies the
-// same object.  Specifically, the 'match' method can be called from multiple
-// threads after the pattern has been prepared.
-//
 ///JIT Compiling optimization
 ///--------------------------
 // Just-in-time compiling is a heavyweight optimization that can greatly speed
@@ -197,6 +189,45 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Note that the tests were run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
 // compiled with gcc-4.8.2 in optimized mode.
+//
+///Thread Safety
+///-------------
+// 'bdlpcre::RegEx' is *const* *thread-safe*, meaning that accessors may be
+// invoked concurrently from different threads, but it is not safe to access or
+// modify a 'bdlpcre::RegEx' in one thread while another thread modifies the
+// same object.  Specifically, the 'match' method can be called from multiple
+// threads after the pattern has been prepared.
+//
+// Note that 'bdlpcre::RegEx' incurs some overhead in order to provide
+// thread-safe pattern matching functionality.  To perform the pattern match,
+// the underlaying PCRE2 library requires a set of buffers (so called match
+// context) that cannot be shared between threads.
+//
+// 'bdlpcre::RegEx' component implements the following strategy:
+//: o Match context for the main thread ( the thread used to call 'prepare' )
+//:   is pre-allocated when the pattern is compiled and re-used by 'match'
+//:   method unless it is called from a different thread.
+//:
+//: o Match context for all other threads are allocated and deallocated on
+//:   demand (i.e. when the 'match' method is invoked from a non-main thread).
+//
+// The table below demonstrate the difference of invoking the 'match' method
+// from main and non-main threads:
+//..
+//   Table 3: Performance cost for 'match' in multi-threaded application
+//  +--------------------+-----------------------+----------------------------+
+//  | Pattern            | 'match' (main thread) |  'match' (non-main thread) |
+//  +====================+=======================+============================+
+//  | SIMPLE_PATTERN     |    0.0549 (~1.4x)     |           0.0759           |
+//  +--------------------+-----------------------+----------------------------+
+//  | EMAIL_PATTERN      |    0.0259 (~1.8x)     |           0.0464           |
+//  +--------------------+-----------------------+----------------------------+
+//  | IP_ADDRESS_PATTERN |    0.0377 (~1.5x)     |           0.0560           |
+//  +--------------------+-----------------------+----------------------------+
+//..
+// Note that JIT stack is functionally part of the match context. Using large
+// JIT stack can incur additional performance penalty in the multi-threaded
+// applications.
 //
 ///Note on memory allocation exceptions
 ///------------------------------------
