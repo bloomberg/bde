@@ -41,6 +41,7 @@ bsls_dbghelpdllimpl_windows
 bsls_exceptionutil
 bsls_ident
 bsls_int64
+bsls_libraryfeatures
 bsls_linkcoercion
 bsls_log
 bsls_logseverity

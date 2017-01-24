@@ -1578,6 +1578,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_cpp11.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -2155,7 +2159,7 @@ class shared_ptr {
         // no memory will be allocated, and this 'shared_ptr' will adopt the
         // 'ManagedPtr's ownership of that shared object.
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     explicit shared_ptr(
@@ -2461,7 +2465,7 @@ class shared_ptr {
         // assignment.
 #endif
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
     template <class COMPATIBLE_TYPE>
     typename enable_if<
         is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
@@ -5429,7 +5433,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
     }
 }
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
@@ -5724,7 +5728,7 @@ shared_ptr<ELEMENT_TYPE>::operator=(
     return *this;
 }
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
