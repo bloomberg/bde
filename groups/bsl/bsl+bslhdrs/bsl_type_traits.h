@@ -25,6 +25,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#if __cplusplus < 201103L \
+    && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
+#   error This file requires compiler and library support for \
+          the ISO C++ 2011 standard.
+#endif
+
 #include <type_traits>
 
 // PLATFORM SUPPORT MACROS
