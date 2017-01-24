@@ -489,12 +489,7 @@ void verify(SKIPLIST *list, const ARRAY& array, int length, int line)
         ASSERT_LL(h.data(), array[i].data, array[i].l, line);
 
         int ret = list->skipForwardRaw(&p);
-        if( i != length-1 ) {
-            ASSERT(ret==0);
-        }
-        else { 
-            ASSERT(ret == SKIPLIST::e_OUT_OF_BOUNDS);
-        }
+        ASSERT(ret==0);
 
         ret = list->next(&h, h);
         ASSERT(ret == 0 || i == length-1);
@@ -530,12 +525,7 @@ void verifyReverse(const SKIPLIST& list,
         ASSERT_LL(p2.data(), array[i].data, array[i].l, line);
 
         int ret = list.skipBackward(&p);
-        if(i != 0) {
-            ASSERT(ret==0);
-        }
-        else {
-            ASSERT(ret==SKIPLIST::e_OUT_OF_BOUNDS);
-        }
+        ASSERT(ret==0);
 
         ret = list.previous(&p2, p2);
         ASSERT(ret == 0 || i == 0);
@@ -559,12 +549,7 @@ void verifyEx(SKIPLIST* list, const ARRAY& array, int length, int line)
         ASSERT_LL(list->level(p), array[i].level, array[i].l, line);
 
         int ret = list->skipForwardRaw(&p);
-        if( i != length-1 ) { 
-            ASSERT(ret==0);
-        }
-        else { 
-            ASSERT(ret == SKIPLIST::e_OUT_OF_BOUNDS);
-        }
+        ASSERT(ret==0);
     }
 
     if (p) {
@@ -816,7 +801,7 @@ int main(int argc, char *argv[])
             { L_ , 8, "first 8", 4},
         };
         if (verbose) cout << endl
-                          << "lowerBoundR/upperBoundR test" << endl
+                          << "findLowerBoundR/findUpperBoundR test" << endl
                           << "==============" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -829,50 +814,50 @@ int main(int argc, char *argv[])
 
             SkipList::PairHandle h;
             //validate error when trying to find something greater than max key
-            ASSERT(Obj.lowerBoundR(&h, 10));
-            ASSERT(Obj.upperBoundR(&h, 10));
+            ASSERT(Obj.findLowerBoundR(&h, 10));
+            ASSERT(Obj.findUpperBoundR(&h, 10));
 
             //validate success when trying to find something smaller 
             //than min key
-            ASSERT(!Obj.lowerBoundR(&h,-1));
+            ASSERT(!Obj.findLowerBoundR(&h,-1));
             ASSERT(h.key() == 0);
             ASSERT(h.data() == "0"); 
             
-            ASSERT(!Obj.upperBoundR(&h,-1));
+            ASSERT(!Obj.findUpperBoundR(&h,-1));
             ASSERT(h.key() == 0);
             ASSERT(h.data() == "0"); 
 
             //check front edge
-            ASSERT(!Obj.upperBoundR(&h, 0));
+            ASSERT(!Obj.findUpperBoundR(&h, 0));
             ASSERT(h.key() == 1);
             ASSERT(h.data() == "fwd 1"); 
             
-            ASSERT(!Obj.lowerBoundR(&h, 0));
+            ASSERT(!Obj.findLowerBoundR(&h, 0));
             ASSERT(h.key() == 0);
             ASSERT(h.data() == "0"); 
             
             //check somewhere inside of list
-            ASSERT(!Obj.lowerBoundR(&h,6));
+            ASSERT(!Obj.findLowerBoundR(&h,6));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
             
-            ASSERT(!Obj.upperBoundR(&h,6));
+            ASSERT(!Obj.findUpperBoundR(&h,6));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
 
             //check back edge
-            ASSERT(Obj.upperBoundR(&h, 8));
+            ASSERT(Obj.findUpperBoundR(&h, 8));
             
-            ASSERT(!Obj.lowerBoundR(&h, 8));
+            ASSERT(!Obj.findLowerBoundR(&h, 8));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
 
             //check middle
-            ASSERT(!Obj.upperBoundR(&h, 4));
+            ASSERT(!Obj.findUpperBoundR(&h, 4));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
             
-            ASSERT(!Obj.lowerBoundR(&h, 4));
+            ASSERT(!Obj.findLowerBoundR(&h, 4));
             ASSERT(h.key() == 4);
             ASSERT(h.data() == "first 4"); 
             
@@ -904,7 +889,7 @@ int main(int argc, char *argv[])
             { L_ , 8, "first 8", 4},
         };
         if (verbose) cout << endl
-                          << "lowerBound/upperBound test" << endl
+                          << "findLowerBound/findUpperBound test" << endl
                           << "==============" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -917,50 +902,50 @@ int main(int argc, char *argv[])
 
             SkipList::PairHandle h;
             //validate error when trying to find something greater than max key
-            ASSERT(Obj.lowerBound(&h, 10));
-            ASSERT(Obj.upperBound(&h, 10));
+            ASSERT(Obj.findLowerBound(&h, 10));
+            ASSERT(Obj.findUpperBound(&h, 10));
 
             //validate success when trying to find something smaller 
             //than min key
-            ASSERT(!Obj.lowerBound(&h,-1));
+            ASSERT(!Obj.findLowerBound(&h,-1));
             ASSERT(h.key() == 0);
             ASSERT(h.data() == "0"); 
             
-            ASSERT(!Obj.upperBound(&h,-1));
+            ASSERT(!Obj.findUpperBound(&h,-1));
             ASSERT(h.key() == 0);
             ASSERT(h.data() == "0"); 
 
             //check front edge
-            ASSERT(!Obj.upperBound(&h, 0));
+            ASSERT(!Obj.findUpperBound(&h, 0));
             ASSERT(h.key() == 1);
             ASSERT(h.data() == "fwd 1"); 
             
-            ASSERT(!Obj.lowerBound(&h, 0));
+            ASSERT(!Obj.findLowerBound(&h, 0));
             ASSERT(h.key() == 0);
             ASSERT(h.data() == "0"); 
           
             //check somewhere inside of list
-            ASSERT(!Obj.lowerBound(&h,6));
+            ASSERT(!Obj.findLowerBound(&h,6));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
             
-            ASSERT(!Obj.upperBound(&h,6));
+            ASSERT(!Obj.findUpperBound(&h,6));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
 
             //check back edge
-            ASSERT(Obj.upperBound(&h, 8));
+            ASSERT(Obj.findUpperBound(&h, 8));
             
-            ASSERT(!Obj.lowerBound(&h, 8));
+            ASSERT(!Obj.findLowerBound(&h, 8));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
 
             //check middle
-            ASSERT(!Obj.upperBound(&h, 4));
+            ASSERT(!Obj.findUpperBound(&h, 4));
             ASSERT(h.key() == 8);
             ASSERT(h.data() == "first 8"); 
             
-            ASSERT(!Obj.lowerBound(&h, 4));
+            ASSERT(!Obj.findLowerBound(&h, 4));
             ASSERT(h.key() == 4);
             ASSERT(h.data() == "first 4"); 
             
@@ -1195,20 +1180,20 @@ int main(int argc, char *argv[])
             ASSERT(p5->key() == 5);
             ASSERT(p5->data() == "jumped");
 
-            ASSERT(SkipList::e_OUT_OF_BOUNDS == obj.skipBackward(&h1));
+            ASSERT(0 == obj.skipBackward(&h1));
             ASSERT(!h1.isValid());
 
-            ASSERT(SkipList::e_OUT_OF_BOUNDS == obj.skipForwardRaw(&p6));
+            ASSERT(0 == obj.skipForwardRaw(&p6));
             ASSERT(0 == p6);
 
             SkipList::Pair *f;
             ASSERT(0 == obj.frontRaw(&f));
-            ASSERT(SkipList::e_OUT_OF_BOUNDS == obj.skipBackwardRaw(&f));
+            ASSERT(0 == obj.skipBackwardRaw(&f));
             ASSERT(0 == f);
 
             SkipList::PairHandle b;
             ASSERT(0 == obj.back(&b));
-            ASSERT(SkipList::e_OUT_OF_BOUNDS == obj.skipForward(&b));
+            ASSERT(0 == obj.skipForward(&b));
             ASSERT(!b.isValid());
 
             obj.remove(h3);
