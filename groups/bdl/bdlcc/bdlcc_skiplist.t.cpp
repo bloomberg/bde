@@ -802,7 +802,7 @@ int main(int argc, char *argv[])
         };
         if (verbose) cout << endl
                           << "findLowerBoundR/findUpperBoundR test" << endl
-                          << "==============" << endl;
+                          << "====================================" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::TestAllocator da(veryVeryVerbose);
@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
         };
         if (verbose) cout << endl
                           << "findLowerBound/findUpperBound test" << endl
-                          << "==============" << endl;
+                          << "==================================" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::TestAllocator da(veryVeryVerbose);

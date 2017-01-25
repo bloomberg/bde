@@ -759,20 +759,20 @@ class SkipList {
   public:
     // CONSTANTS
     enum {
-        e_SUCCESS       = 0,
-        e_NOT_FOUND     = 1,
-        e_DUPLICATE     = 2,
-        e_INVALID       = 3
+        e_SUCCESS   = 0,
+        e_NOT_FOUND = 1,
+        e_DUPLICATE = 2,
+        e_INVALID   = 3
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEC_SUCCESS       = e_SUCCESS
-      , BCEC_NOT_FOUND     = e_NOT_FOUND
-      , BCEC_DUPLICATE     = e_DUPLICATE
-      , BCEC_INVALID       = e_INVALID
-      , RET_SUCCESS        = e_SUCCESS
-      , RET_NOT_FOUND      = e_NOT_FOUND
-      , RET_DUPLICATE      = e_DUPLICATE
-      , RET_INVALID        = e_INVALID
+      , BCEC_SUCCESS   = e_SUCCESS
+      , BCEC_NOT_FOUND = e_NOT_FOUND
+      , BCEC_DUPLICATE = e_DUPLICATE
+      , BCEC_INVALID   = e_INVALID
+      , RET_SUCCESS    = e_SUCCESS
+      , RET_NOT_FOUND  = e_NOT_FOUND
+      , RET_DUPLICATE  = e_DUPLICATE
+      , RET_INVALID    = e_INVALID
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
