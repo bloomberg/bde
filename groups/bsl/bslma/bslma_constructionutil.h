@@ -119,6 +119,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
@@ -1019,7 +1027,6 @@ struct ConstructionUtil_Imp {
         // constructor throws, 'address' is left in an uninitialized state.
         // Note that the behavior is undefined if 'TARGET_TYPE' supports
         // 'bslma'-style allocators.
-
 
     // In order to implement
     //             'allocator_traits<A>::construct(m, p    )'

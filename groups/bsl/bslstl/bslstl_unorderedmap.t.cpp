@@ -33,7 +33,9 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -43,7 +45,7 @@
 #include <algorithm>
 #include <functional>
 #include <stdexcept>   // to confirm that the contractual exceptions are thrown
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
 # include <tuple>      // for 'native_std::forward_as_tuple'
 # include <utility>    // for 'native_std::piecewise_construct'
 #endif
@@ -6460,8 +6462,7 @@ class TestDriver {
         return *t;
     }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
     template <int NUM_KEY_ARGS,
               int NK1,
               int NK2,
@@ -6728,8 +6729,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
     }
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 template <int NUM_KEY_ARGS,
           int NK1,
@@ -8566,8 +8566,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32a()
     //   iterator emplace_hint(const_iterator hint, Args&&... args);
     // ------------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- || !defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
     if (verbose) printf("EMPLACE WITH HINT: not tested\n");
 #else
     if (verbose) printf(
@@ -8934,8 +8933,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a()
     //   iterator emplace(Args&&...);
     // ------------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- || !defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
     if (verbose) printf("Testcase31a -- no test\n");
 #else
     if (verbose) printf(

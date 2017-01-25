@@ -37,10 +37,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
 //
-//  BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER: tuple header is available
-//  BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT: piece-wise construct def
-//  BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS: standard algorithms C++11 added
-//
 //@SEE_ALSO: bsls_platform
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros to
@@ -138,33 +134,11 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
 //:     This macro is defined if the compiler supports the 'char16_t' and
 //:     'char32_t' types.
-//
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
 //
-///Special Note: Library Features
-///------------------------------
-// The following are macros that are related to library support but are housed
-// here temporarily until we can define more clearly a new component.
-//
-//: 'BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER':
-//:     This macro is defined if the standard 'tuple' header is provided by the
-//:     standard library.
-//:
-//: 'BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT':
-//:     This macro is defined if the definition of 'piecewise_construct_t'
-//:     is provided in the '<utility>' header of the standard library.
-//:
-//: 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS':
-//:     This macro is defined if all of the following algorithms are
-//:     implemented by the compiler vendor's standard library implementation:
-//:     'all_of', 'any_of', 'copy_if', 'copy_n', 'find_if_not', 'iota',
-//:     'is_heap', 'is_partitioned', 'is_permutation', 'is_sorted',
-//:     'is_sorted_until', 'minmax', 'minmax_element', 'move', 'move_backward',
-//:     'none_of', 'partition_copy', 'partition_point', 'shuffle',
-//:     'uninitialized_copy_n'.
-//:
 ///Usage
 ///-----
 // The following code snippets illustrate use of this component.
@@ -424,54 +398,6 @@ BSLS_IDENT("$Id: $")
 //:   o MSVC 2015
 //:   o xlC 11.1
 //:   o Oracle CC 12.4
-//
-///'BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// TBD: confirm below
-// This macro is defined if the 'tuple' header is available in std library.
-//
-//: o Compiler support:
-//:   o gcc 4.3
-//:   o clang 3.1
-//:   o MSVC 2010
-//:   o xlC not supported
-//:   o Oracle CC not supported
-//
-///'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// TBD: confirm below
-// This macro is defined if the 'tuple' header is available in std library.
-//
-//: o Compiler support:
-//:   o gcc 4.5 (do not support rvalue references from earlier specification)
-//:   o clang 3.1
-//:   o MSVC 2010
-//:   o xlC not supported
-//:   o Oracle CC not supported
-//
-///'BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// TBD: confirm below
-// This macro is defined if the 'tuple' header is available in std library.
-//
-//: o Compiler support:
-//:   o gcc 4.7
-//:   o clang 3.1
-//:   o MSVC 2012
-//:   o xlC not supported
-//:   o Oracle CC not supported
-//
-// Note that bugs in MSVC 2013 support for variadic templates preclude
-// enabling the feature for BSL.
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if all of the following algorithms are implemented by
-// the compiler vendor's standard library implementation:
-// 'all_of', 'any_of', 'copy_if', 'copy_n', 'find_if_not', 'iota', 'is_heap',
-// 'is_partitioned', 'is_permutation', 'is_sorted', 'is_sorted_until',
-// 'minmax', 'minmax_element', 'move', 'move_backward', 'none_of',
-// 'partition_copy', 'partition_point', 'shuffle', 'uninitialized_copy_n'.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -798,55 +724,6 @@ namespace bsls {
 #   define BSLS_COMPILERFEATURES_FORWARD(T,V)       \
         ::BloombergLP::bsls::Util::forward<T>(V)
 #endif
-
-// TBD: confirm this
-// gcc (library features) - insist on gcc 4.8 for C++11 library support
-#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#if BSLS_PLATFORM_CMP_VERSION >= 40800
-#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
-#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
-#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
-#endif
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#if defined(__APPLE_CC__)
-#if __APPLE_CC__ >= 6000
-#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
-#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
-#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
-#endif
-#else
-#if BSLS_PLATFORM_CMP_VERSION >= 30100
-#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
-#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
-#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
-#endif
-#endif
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
-#define BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
-#define BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER
-#define BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
-#endif
-#endif
-
-// Our use of piecewise construction requires variadic templates.  Rather than
-// testing for both features everywhere, just remove the former if we do not
-// have the latter.
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-#  undef BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT
-#endif
-
-// TBD: This is a sufficient but not a necessary condition.
-#if __cplusplus >= 201103L
-#define BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
-#endif
-
 #endif
 
 // ----------------------------------------------------------------------------
