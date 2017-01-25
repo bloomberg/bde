@@ -3399,8 +3399,16 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
     if (&lhs == &rhs) {
         return true;                                                  // RETURN
     }
-    bslmt::LockGuard<bslmt::Mutex> lhsGuard(&lhs.d_lock);
-    bslmt::LockGuard<bslmt::Mutex> rhsGuard(&rhs.d_lock);
+
+    // Lock the lock with the lower address first, to force the order of
+    // locking, and avoid deadlock
+    bslmt::Mutex *firstLock_p =
+        &lhs.d_lock < &rhs.d_lock ? &lhs.d_lock : &rhs.d_lock;
+    bslmt::Mutex *lastLock_p =
+        &lhs.d_lock < &rhs.d_lock ? &rhs.d_lock : &lhs.d_lock;
+
+    bslmt::LockGuard<bslmt::Mutex> lhsGuard(firstLock_p);
+    bslmt::LockGuard<bslmt::Mutex> rhsGuard(lastLock_p);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
@@ -3441,8 +3449,16 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
     if (&lhs == &rhs) {
         return false;                                                 // RETURN
     }
-    bslmt::LockGuard<bslmt::Mutex> lhsGuard(&lhs.d_lock);
-    bslmt::LockGuard<bslmt::Mutex> rhsGuard(&rhs.d_lock);
+
+    // Lock the lock with the lower address first, to force the order of
+    // locking, and avoid deadlock
+    bslmt::Mutex *firstLock_p =
+        &lhs.d_lock < &rhs.d_lock ? &lhs.d_lock : &rhs.d_lock;
+    bslmt::Mutex *lastLock_p =
+        &lhs.d_lock < &rhs.d_lock ? &rhs.d_lock : &lhs.d_lock;
+
+    bslmt::LockGuard<bslmt::Mutex> lhsGuard(firstLock_p);
+    bslmt::LockGuard<bslmt::Mutex> rhsGuard(lastLock_p);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
