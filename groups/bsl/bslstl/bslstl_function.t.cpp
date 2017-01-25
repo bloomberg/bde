@@ -8,7 +8,9 @@
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removeconst.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_types.h>
 

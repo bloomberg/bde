@@ -20,6 +20,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_util.h>
 

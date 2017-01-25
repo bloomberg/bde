@@ -24,6 +24,8 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
@@ -1226,8 +1228,7 @@ class TestDriver {
         return t;
     }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
     template <int N_ARGS_KEY,
               int NK1,
               int NK2,
@@ -1525,8 +1526,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
     return ret;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 template <int N_ARGS_KEY,
           int NK1,
@@ -2990,8 +2990,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a()
     //   iterator emplace_hint(const_iterator hint, Args&&... args);
     // ------------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- || !defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
     if (verbose) printf("EMPLACE WITH HINT: not tested\n");
 #else
     if (verbose) printf(
@@ -3443,8 +3442,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a()
     //   iterator emplace(Args&&... args);
     // ------------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- || !defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
     if (verbose) printf("Testcase31a -- no test\n");
 #else
     if (verbose) printf("TESTING FORWARDING OF ARGUMENTS WITH EMPLACE\n"
