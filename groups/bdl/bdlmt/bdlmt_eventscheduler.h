@@ -179,8 +179,7 @@ BSLS_IDENT("$Id: $")
 //                                  bdlf::BindUtil::bind(&saveData, &values)));
 //   scheduler.start();
 //   bdlt::Datetime start = bdlt::CurrentTime::utc();
-//   while ((bdlt::CurrentTime::utc() -
-//                                          start).totalSeconds() < 7) {
+//   while ((bdlt::CurrentTime::utc() - start).totalSeconds() < 7) {
 //     ++g_data;
 //   }
 //   scheduler.stop();
@@ -229,8 +228,8 @@ BSLS_IDENT("$Id: $")
 //     };
 //
 //     bsl::vector<Connection*> d_connections; // maintained connections
-//     bdlmt::EventScheduler      d_scheduler;   // timeout event scheduler
-//     bsls::TimeInterval        d_ioTimeout;   // time out
+//     bdlmt::EventScheduler    d_scheduler;   // timeout event scheduler
+//     bsls::TimeInterval       d_ioTimeout;   // time out
 //
 //     void newConnection(Connection *connection);
 //         // Add the specified 'connection' to this server and schedule
@@ -552,7 +551,7 @@ class EventScheduler {
         // undefined if neither d_currentEvent nor d_currentRecurringEvent is
         // valid.  Note that the argument and return value of this method are
         // expressed in terms of the number of microseconds elapsed since some
-        // epoch, which is detemined by the clock indicated at construction
+        // epoch, which is determined by the clock indicated at construction
         // (see {Supported Clock-Types} in the component documentation).
         // Also note that this method may update the value of 'now' with the
         // current system time if necessary.
@@ -675,91 +674,95 @@ class EventScheduler {
         // 'handle' is used for any purpose after being released.
 
     int rescheduleEvent(const Event               *handle,
-                        const bsls::TimeInterval&  newTime);
+                        const bsls::TimeInterval&  newEpochTime);
         // Reschedule the event referred to by the specified 'handle' at the
-        // specified 'newTime'.  Return 0 on successful reschedule, and a
+        // specified 'newEpochTime'.  Return 0 on successful reschedule, and a
         // non-zero value if the 'handle' is invalid *or* if the event has
-        // already been dispatched.  The 'newTime' is an absolute time
-        // represented as an interval from some epoch, which is detemined by
+        // already been dispatched.  The 'newEpochTime' is an absolute time
+        // represented as an interval from some epoch, which is determined by
         // the clock indicated at construction (see {Supported Clock-Types}
         // in the component documentation).
 
     int rescheduleEventAndWait(const Event               *handle,
-                               const bsls::TimeInterval&  newTime);
+                               const bsls::TimeInterval&  newEpochTime);
         // Reschedule the event referred to by the specified 'handle' at the
-        // specified 'newTime'.  Block until the event having 'handle' (if it
-        // is valid) is either successfully rescheduled or dispatched before
+        // specified 'newEpochTime'.  Block until the event having 'handle' (if
+        // it is valid) is either successfully rescheduled or dispatched before
         // the call returns.  Return 0 on successful reschedule, and a non-zero
         // value if 'handle' is invalid *or* if the event has already been
-        // dispatched.  The 'newTime' is an absolute time represented as an
-        // interval from some epoch, which is detemined by the clock indicated
-        // at construction (see {Supported Clock-Types} in the component
-        // documentation).  The behavior is undefined if this method is invoked
-        // from the dispatcher thread.
+        // dispatched.  The 'newEpochTime' is an absolute time represented as
+        // an interval from some epoch, which is determined by the clock
+        // indicated at construction (see {Supported Clock-Types} in the
+        // component documentation).  The behavior is undefined if this method
+        // is invoked from the dispatcher thread.
 
-    void scheduleEvent(const bsls::TimeInterval&     time,
+    void scheduleEvent(const bsls::TimeInterval&     epochTime,
                        const bsl::function<void()>&  callback);
     void scheduleEvent(EventHandle                  *event,
-                       const bsls::TimeInterval&     time,
+                       const bsls::TimeInterval&     epochTime,
                        const bsl::function<void()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
-        // 'time'.  Load into the optionally specified 'event' a handle that
-        // can be used to cancel the event (by invoking 'cancelEvent').  The
-        // 'time' is an absolute time represented as an interval from some
-        // epoch, which is detemined by the clock indicated at construction
-        // (see {Supported Clock-Types} in the component documentation).
-        // Note that 'time' may be in the past, in which case the event will be
-        // executed as soon as possible.
+        // 'epochTime'.  Load into the optionally specified 'event' a handle
+        // that can be used to cancel the event (by invoking 'cancelEvent'). 
+        // The 'epochTime' is an absolute time represented as an interval from
+        // some epoch, which is determined by the clock indicated at
+        // construction (see {Supported Clock-Types} in the component
+        // documentation). Note that 'time' may be in the past, in which case
+        // the event will be executed as soon as possible.
 
     void scheduleEventRaw(Event                        **event,
-                          const bsls::TimeInterval&      time,
+                          const bsls::TimeInterval&      epochTime,
                           const bsl::function<void()>&   callback);
         // Schedule the specified 'callback' to be dispatched at the specified
-        // 'time'.  Load into the specified 'event' pointer a handle that can
-        // be used to cancel the event (by invoking 'cancelEvent').  The 'time'
-        // is an absolute time represented as an interval from some epoch,
-        // which is detemined by the clock indicated at construction (see
-        // {Supported Clock-Types} in the component documentation).  The
+        // 'epochTime'.  Load into the specified 'event' pointer a handle that
+        // can be used to cancel the event (by invoking 'cancelEvent').  The
+        // 'epochTime' is an absolute time represented as an interval from some
+        // epoch, which is determined by the clock indicated at construction
+        // (see {Supported Clock-Types} in the component documentation).  The
         // 'event' pointer must be released by invoking 'releaseEventRaw' when
         // it is no longer needed.
 
     void scheduleRecurringEvent(
                const bsls::TimeInterval&    interval,
                const bsl::function<void()>& callback,
-               const bsls::TimeInterval&    startTime = bsls::TimeInterval(0));
+               const bsls::TimeInterval&    startEpochTime
+                                                      = bsls::TimeInterval(0));
     void scheduleRecurringEvent(
               RecurringEventHandle         *event,
               const bsls::TimeInterval&     interval,
               const bsl::function<void()>&  callback,
-              const bsls::TimeInterval&     startTime = bsls::TimeInterval(0));
+              const bsls::TimeInterval&     startEpochTime
+                                                      = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
-        // optionally specified 'startTime'.  If 'startTime' is not specified,
-        // the first event is dispatched at one 'interval' from now.  Load into
-        // the optionally specified 'event' a handle that can be used to cancel
-        // the event (by invoking 'cancelEvent').  The 'startTime' is an
-        // absolute time represented as an interval from some epoch, which is
-        // detemined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  The behavior is
-        // undefined if 'interval' is exactly 0 seconds.
+        // optionally specified 'startEpochTime'.  If 'startEpochTime' is not
+        // specified, the first event is dispatched at one 'interval' from now.
+        // Load into the optionally specified 'event' a handle that can be used
+        // to cancel the event (by invoking 'cancelEvent').  The
+        // 'startEpochTime' is an absolute time represented as an interval from
+        // some epoch, which is determined by the clock indicated at
+        // construction (see {Supported Clock-Types} in the component
+        // documentation).  The behavior is undefined if 'interval' is exactly
+        // 0 seconds.
 
     void scheduleRecurringEventRaw(
              RecurringEvent               **event,
              const bsls::TimeInterval&      interval,
              const bsl::function<void()>&   callback,
-             const bsls::TimeInterval&      startTime = bsls::TimeInterval(0));
+             const bsls::TimeInterval&      startEpochTime
+                                                      = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
-        // optionally specified 'startTime'.  If 'startTime' is not specified,
-        // the first event is dispatched at one 'interval' from now.  Load into
-        // the specified 'event' pointer a handle that can be used to cancel
-        // the event (by invoking 'cancelEvent').  The 'startTime' is an
-        // absolute time represented as an interval from some epoch, which is
-        // detemined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  The 'event' pointer
-        // must be released by invoking 'releaseEventRaw' when it is no longer
-        // needed.  The behavior is undefined if 'interval' is exactly 0
-        // seconds.
+        // optionally specified 'startEpochTime'.  If 'startEpochTime' is not
+        // specified, the first event is dispatched at one 'interval' from now.
+        // Load into the specified 'event' pointer a handle that can be used to
+        // cancel the event (by invoking 'cancelEvent').  The 'startEpochTime'
+        // is an absolute time represented as an interval from some epoch,
+        // which is determined by the clock indicated at construction (see
+        // {Supported Clock-Types} in the component documentation).  The
+        // 'event' pointer must be released by invoking 'releaseEventRaw' when
+        // it is no longer needed.  The behavior is undefined if 'interval' is
+        // exactly 0 seconds.
 
     int start();
         // Begin dispatching events on this scheduler using default attributes
@@ -882,9 +885,9 @@ class EventSchedulerRecurringEventHandle
 
     // PRIVATE TYPES
     typedef bsl::pair<bsl::function<void()>, bsls::TimeInterval>
-                                                     RecurringEventData;
+                                                       RecurringEventData;
     typedef bdlcc::SkipList<bsls::Types::Int64,
-                          RecurringEventData>        RecurringEventQueue;
+                            RecurringEventData>        RecurringEventQueue;
 
     // DATA
     RecurringEventQueue::PairHandle  d_handle;
@@ -1110,10 +1113,10 @@ int EventScheduler::cancelEvent(const RecurringEvent *handle)
 }
 
 inline
-void EventScheduler::scheduleEvent(const bsls::TimeInterval&    time,
+void EventScheduler::scheduleEvent(const bsls::TimeInterval&    epochTime,
                                    const bsl::function<void()>& callback)
 {
-    scheduleEventRaw(0, time, callback);
+    scheduleEventRaw(0, epochTime, callback);
 }
 
 inline
@@ -1133,11 +1136,11 @@ void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 
 inline
 void EventScheduler::scheduleRecurringEvent(
-                                        const bsls::TimeInterval&    interval,
-                                        const bsl::function<void()>& callback,
-                                        const bsls::TimeInterval&    startTime)
+                                   const bsls::TimeInterval&    interval,
+                                   const bsl::function<void()>& callback,
+                                   const bsls::TimeInterval&    startEpochTime)
 {
-    scheduleRecurringEventRaw(0, interval, callback, startTime);
+    scheduleRecurringEventRaw(0, interval, callback, startEpochTime);
 }
 
 // ACCESSORS
@@ -1185,7 +1188,7 @@ int EventScheduler::numRecurringEvents() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
