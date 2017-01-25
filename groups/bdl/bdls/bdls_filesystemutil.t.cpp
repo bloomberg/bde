@@ -817,6 +817,7 @@ int main(int argc, char *argv[])
         // it would match the root pattern, because pattern matching is
         // not performed on the root.
 
+        bsl::string hiddenDir;
         bsl::string ossStr;
         bsl::ostringstream oss, ossB;
         for (int ii = 0; ii < 5; ++ii) {
@@ -825,10 +826,7 @@ int main(int argc, char *argv[])
 
             ossStr = oss.str();
 
-            bool dontHide = true;
-            if (e_IS_UNIX && 4 == ii) {
-                dontHide = false;
-            }
+            const bool hide = e_IS_UNIX && 2 == ii;
 
             woofExpVec.push_back(ossStr);
             ASSERT(0 == Obj::createDirectories(ossStr, 1));
@@ -839,7 +837,7 @@ int main(int argc, char *argv[])
 
                 const bsl::string& ossBStr = ossB.str();
 
-                if (dontHide) {
+                if (!hide) {
                     meowExpVec.push_back(ossBStr);
                 }
                 ::localTouch(ossBStr);
@@ -849,15 +847,17 @@ int main(int argc, char *argv[])
 
             const bsl::string& ossCStr = oss.str();
 
-            if (dontHide) {
+            if (!hide) {
                 woofExpVec.     push_back(ossCStr);
                 woofPathsExpVec.push_back(ossCStr);
             }
             ::localTouch(ossCStr);
 
-            if (!dontHide) {
-                ::chmod(ossStr.c_str(), 0177);    // not readable or writable
-                                                  // by user
+            if (hide) {
+                ASSERT(hiddenDir.empty());
+                hiddenDir = ossStr;
+                ::chmod(hiddenDir.c_str(), 0177);   // not readable or writable
+                                                    // by user
             }
         }
 
@@ -956,9 +956,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
         }
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-        ::chmod(ossStr.c_str(), 0777);    // writeable so we can delete
+        if (!hiddenDir.empty()) {
+            ::chmod(hiddenDir.c_str(), 0777);    // writeable so we can delete
+        }
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         // Windows remove has some strange problem here.  Everything will be
         // cleaned up at the end of 'main' anyway, and this code is just
         // intended to test some changes made to Unix 'remove'.

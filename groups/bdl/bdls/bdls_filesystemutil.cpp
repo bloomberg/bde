@@ -197,18 +197,41 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
 #endif
 }
 
-extern "C"
-int BloombergLP_bdls_FileSystemUtil_errFuncForGlob(const char *, int errorNum)
-    // This function is called whenever 'glob' encounters an error on a file or
-    // directory.  'errorNum' is the 'errno' value returned for the call.  We
-    // signal that 'glob' is to abort its traversal by returning non-zero.
+
+
+extern "C" {
+
+// The following function must have a long, unique name.  Even though it's
+// declared 'static', on Solaris CC it winds up having global linkage.
+
+static
+int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
+                                                          const char *,
+                                                          int         errorNum)
+    // Return 0 if the specified 'errorNum' is an 'errno'-type value describing
+    // that access wasn't granted due to file permissions, which will manifest
+    // itself as one of the values 'EPERM', 'EACCES', or 'ENOENT' and 1
+    // otherwise.
 {
+    // One use of this function is to pass it to 'glob', which will use the
+    // function to indicate whether or not to stop traversing files based on
+    // the type of error encountered.
+
     // The only error condition we will tolerate is if we weren't permitted to
     // open one of the files, which may manifest as one of the following 3
     // values.
 
     return EPERM != errorNum && EACCES != errorNum && ENOENT != errorNum;
 }
+
+// Copy that hideously long name to function ptr to make referring to it more
+// convenient.
+
+typedef int (*IsNotFilePermissionsErrorFuncPtr)(const char *, int);
+static const IsNotFilePermissionsErrorFuncPtr isNotFilePermissionsError_p =
+                    &bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError;
+
+}  // close extern "C"
 
 #endif
 
@@ -1669,10 +1692,7 @@ int FilesystemUtil::visitPaths(
 
     glob_t pglob;
 
-    int rc = glob(pattern,
-                  GLOB_NOSORT,
-                  &BloombergLP_bdls_FileSystemUtil_errFuncForGlob,
-                  &pglob);
+    int rc = glob(pattern, GLOB_NOSORT, isNotFilePermissionsError_p, &pglob);
     bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
     switch (rc) {
       case 0: {
@@ -1702,7 +1722,9 @@ int FilesystemUtil::visitPaths(
       case GLOB_NOSPACE: {
         // out of memory
 
+#if defined(BDE_BUILD_TARGET_EXC)
         bsls::BslExceptionUtil::throwBadAlloc();
+#endif
 
         // Should only get here if exceptions are disabled.
 
@@ -1758,7 +1780,7 @@ int FilesystemUtil::visitTree(
 
         int rc = ::glob(fullPattern.c_str(),
                         GLOB_NOSORT,
-                        &BloombergLP_bdls_FileSystemUtil_errFuncForGlob,
+                        isNotFilePermissionsError_p,
                         &pglob);
         bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
         bsl::size_t numFound;
@@ -1770,7 +1792,11 @@ int FilesystemUtil::visitTree(
             numFound = 0;
           } break;
           case GLOB_NOSPACE: {
+            // out of memory
+
+#if defined(BDE_BUILD_TARGET_EXC)
             bsls::BslExceptionUtil::throwBadAlloc();
+#endif
 
             // Should only get here if exceptions are disabled.
 
@@ -1813,10 +1839,9 @@ int FilesystemUtil::visitTree(
     {
         DIR *dir = opendir(rootDir.c_str());
         if (0 == dir) {
-            return EPERM == errno || EACCES == errno || ENOENT == errno
-                   ? 0
-                   : -7;                                              // RETURN
-       }
+            return (*isNotFilePermissionsError_p)(0, errno) ? -7 : 0;
+                                                                      // RETURN
+        }
         bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
         // The amount of space available in the 'd_name' member of the dirent
