@@ -2357,7 +2357,7 @@ void SkipList<KEY, DATA>::lookupImpLowerBoundR(Node      *location[],
     Node *q = d_tail_p;
     for (int k = d_listLevel; k >= 0; --k) {
         Node *p = q->d_ptrs[k].d_prev_p;
-        while (p != d_head_p && key <= p->d_key) {
+        while (p != d_head_p && !(p->d_key < key)) {
             q = p;
             p = p->d_ptrs[k].d_prev_p;
         }
@@ -2372,7 +2372,7 @@ void SkipList<KEY, DATA>::lookupImpUpperBound(Node      *location[],
     Node *p = d_head_p;
     for (int k = d_listLevel; k >= 0; --k) {
         Node *q = p->d_ptrs[k].d_next_p;
-        while (q != d_tail_p && key >= q->d_key) {
+        while (q != d_tail_p && !(key < q->d_key)) {
             p = q;
             q = p->d_ptrs[k].d_next_p;
         }
