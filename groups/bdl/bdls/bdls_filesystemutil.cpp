@@ -1839,8 +1839,7 @@ int FilesystemUtil::visitTree(
     {
         DIR *dir = opendir(rootDir.c_str());
         if (0 == dir) {
-            return (*isNotFilePermissionsError_p)(0, errno) ? -7 : 0;
-                                                                      // RETURN
+            return (*isNotFilePermissionsError_p)(0, errno) ? -7 : 0; // RETURN
         }
         bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
