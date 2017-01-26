@@ -261,8 +261,8 @@ int main(int argc, char *argv[])
                 const double NRESULT_B = Util::yearsDiff(Y, X, CB);
                 const double sum_A     = RESULT_A + NRESULT_A;
                 const double sum_B     = RESULT_B + NRESULT_B;
-                LOOP_ASSERT(LINE, -1.0e-15 <= sum_A && sum_A <= 1.0e-15);
-                LOOP_ASSERT(LINE, -1.0e-15 <= sum_B && sum_B <= 1.0e-15);
+                LOOP_ASSERT(LINE, 0.0 == sum_A);
+                LOOP_ASSERT(LINE, 0.0 == sum_B);
             }
         }
         {

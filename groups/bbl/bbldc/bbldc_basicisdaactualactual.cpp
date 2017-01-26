@@ -19,22 +19,39 @@ namespace bbldc {
 double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate)
 {
-    const int beginYear = beginDate.year();
-    const int endYear   = endDate.year();
+    if (beginDate == endDate) {
+        return 0.0;                                                   // RETURN
+    }
 
-    const int daysInBeginYear =
-                          365 + bdlt::SerialDateImpUtil::isLeapYear(beginYear);
-    const int daysInEndYear   =
-                          365 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
+    const bool negationFlag = beginDate > endDate;
 
-    int numerator = (endYear - beginYear - 1) * daysInBeginYear * daysInEndYear
-                  + (bdlt::Date(beginYear + 1, 1, 1) - beginDate) *
-                                                                  daysInEndYear
-                  + (endDate - bdlt::Date(endYear, 1, 1)) * daysInBeginYear;
+    const bdlt::Date minDate = negationFlag ? endDate   : beginDate;
+    const bdlt::Date maxDate = negationFlag ? beginDate : endDate;
 
-    int denominator = daysInBeginYear * daysInEndYear;
+    const int minYear = minDate.year();
+    const int maxYear = maxDate.year();
 
-    return static_cast<double>(numerator) / static_cast<double>(denominator);
+    const int daysInMinYear =
+                            365 + bdlt::SerialDateImpUtil::isLeapYear(minYear);
+    const int daysInMaxYear =
+                            365 + bdlt::SerialDateImpUtil::isLeapYear(maxYear);
+
+    const int yDiff = maxYear - minYear - 1;
+    const int minYearDayDiff = bdlt::Date(minYear + 1, 1, 1) - minDate;
+    const int maxYearDayDiff = maxDate - bdlt::Date(maxYear, 1, 1);
+    double    result = yDiff;
+    if (daysInMinYear == daysInMaxYear) {
+        result += (minYearDayDiff + maxYearDayDiff)
+            / static_cast<double>(daysInMaxYear);
+    }
+    else {
+        result += minYearDayDiff / static_cast<double>(daysInMinYear)
+                + maxYearDayDiff / static_cast<double>(daysInMaxYear);
+    }
+    if (negationFlag) {
+        result = -result;
+    }
+    return result;
 }
 
 }  // close package namespace

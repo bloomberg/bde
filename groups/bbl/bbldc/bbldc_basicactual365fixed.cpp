@@ -15,7 +15,15 @@ namespace bbldc {
 double BasicActual365Fixed::yearsDiff(const bdlt::Date& beginDate,
                                       const bdlt::Date& endDate)
 {
-    return (endDate - beginDate) / 365.0;
+    const bool negationFlag = beginDate > endDate;
+
+    const bdlt::Date minDate = negationFlag ? endDate   : beginDate;
+    const bdlt::Date maxDate = negationFlag ? beginDate : endDate;
+    double           result = (maxDate - minDate) / 365.0;
+    if (negationFlag) {
+        result = -result;
+    }
+    return result;
 }
 
 }  // close package namespace
