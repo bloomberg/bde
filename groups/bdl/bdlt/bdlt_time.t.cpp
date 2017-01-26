@@ -202,9 +202,49 @@ int main(int argc, char *argv[])
     const bool     veryVeryVerbose = argc > 4;
     const bool veryVeryVeryVerbose = argc > 5;
 
+    // Create an object with an invalid internal representation.
+
+    Obj mInvalid;  const Obj& INVALID = mInvalid;
+    {
+        memset(reinterpret_cast<char *>(&mInvalid), 0, sizeof(Obj));
+    }
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      // --------------------------------------------------------------------
+      // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
+      // --------------------------------------------------------------------
+      case 20: {
+        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+
+        // In SAFE build mode, verify all methods that should ASSERT do ASSERT.
+
+        {
+            int hour = 0;
+
+            ASSERT_SAFE_FAIL(INVALID.getTime(&hour));
+        }
+        ASSERT_SAFE_FAIL(INVALID.hour());
+        ASSERT_SAFE_FAIL(INVALID.minute());
+        ASSERT_SAFE_FAIL(INVALID.second());
+        ASSERT_SAFE_FAIL(INVALID.millisecond());
+        ASSERT_SAFE_FAIL(INVALID.microsecond());
+        ASSERT_SAFE_FAIL(mInvalid += bdlt::DatetimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid -= bdlt::DatetimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid.addHours(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMinutes(0));
+        ASSERT_SAFE_FAIL(mInvalid.addSeconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMilliseconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMicroseconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addInterval(bdlt::DatetimeInterval(0)));
+        ASSERT_SAFE_FAIL(mInvalid.addTime(0));
+        ASSERT_SAFE_FAIL(mInvalid.setHour(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMinute(0));
+        ASSERT_SAFE_FAIL(mInvalid.setSecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMillisecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMicrosecond(0));
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -297,7 +337,6 @@ if (veryVerbose)
 //..
 //  14:39:07.000000
 //..
-
       } break;
       case 18: {
         // --------------------------------------------------------------------
