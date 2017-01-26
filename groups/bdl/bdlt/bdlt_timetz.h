@@ -447,7 +447,7 @@ STREAM& TimeTz::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
-          case 2:
+          case 2:                                               // FALL THROUGH
           case 1: {
             Time time;
             time.bdexStreamIn(stream, version);
@@ -507,7 +507,7 @@ STREAM& TimeTz::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
-          case 2:
+          case 2:                                               // FALL THROUGH
           case 1: {
             d_localTime.bdexStreamOut(stream, version);
             stream.putInt32(d_offset);
