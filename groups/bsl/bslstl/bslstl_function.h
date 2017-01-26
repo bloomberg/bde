@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a polymorphic function object
 // (functor) that can be invoked like a function and that wraps a run-time
-// invokable object such as a function pointer, member function pointer, or
+// invocable object such as a function pointer, member function pointer, or
 // functor.  The return type and the number and type of arguments at
 // invocation are specified by the template parameter, which is a function
 // prototype.  A "functor" is similar to a C/C++ function pointer, but unlike
@@ -170,6 +170,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_objectbuffer.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
 #endif
@@ -206,13 +210,12 @@ template <class PROTOTYPE>
 class bdef_Function;
     // Forward declaration of legacy 'bdef_Function' in order to implement
     // by-reference conversion from 'bsl::function<F>'.  This declaration
-    // produces a by-name cyclic dependency between 'bsl' and 'bde' in order
-    // to allow legacy code to transition to 'bsl::function' from (the
-    // deprecated) 'bdef_Function'. The conversion, and therefore this forward
-    // reference, should not appear in the open-source version of this
-    // component.
+    // produces a by-name cyclic dependency between 'bsl' and 'bde' in order to
+    // allow legacy code to transition to 'bsl::function' from (the deprecated)
+    // 'bdef_Function'.  The conversion, and therefore this forward reference,
+    // should not appear in the open-source version of this component.
 
-} //  close enterprise namespace
+}  // close enterprise namespace
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -248,7 +251,7 @@ struct Function_DisableIfLosslessCnvrsn
     // this metafunction always yields a 'type' member if, after stripping off
     // any reference and/or 'const' qualifier from 'FROM_TYPE', it is different
     // from 'TO_TYPE'.  However, this template can be specialized to suppress
-    // 'type' for other parameters that supply lossless conversions. This
+    // 'type' for other parameters that supply lossless conversions.  This
     // metafunction is used to prevent types that provide lossless conversions
     // to 'bsl::function' from matching template parameters in 'function'
     // constructors and assignment operators, prefering, instead, the
@@ -287,11 +290,11 @@ struct Function_DisableIfLosslessCnvrsn<FROM_TYPE&&, TO_TYPE, RESULT_TYPE>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 
+#ifdef BDE_BUILD_TARGET_EXC
+
                         // =======================
                         // class bad_function_call
                         // =======================
-
-#ifdef BDE_BUILD_TARGET_EXC
 
 class bad_function_call : public native_std::exception {
     // Standard exception object thrown when attempting to invoke a null
@@ -323,17 +326,17 @@ class Function_NothrowWrapper
     // 'bsl::function' as though it were a function object with a 'noexcept'
     // move constructor (even though it does not have the interface of a
     // function object).  This wrapper is especially useful in C++03 mode,
-    // where 'noexcept' does not exist, so even non-throwing operations
-    // are assumed to throw unless they delcare the bitwise movable trait.
-    // Note that, in the unlikely event that moving the wrapped object *does*
-    // throw at runtime, the result will likely be a call to 'terminate()'.
+    // where 'noexcept' does not exist, so even non-throwing operations are
+    // assumed to throw unless they delcare the bitwise movable trait.  Note
+    // that, in the unlikely event that moving the wrapped object *does* throw
+    // at runtime, the result will likely be a call to 'terminate()'.
 
     FUNC d_func;
 
   public:
     typedef FUNC UnwrappedType;
 
-    Function_NothrowWrapper(const FUNC& other) : d_func(other) { }
+    Function_NothrowWrapper(const FUNC& other) : d_func(other) { }  // IMPLICIT
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     Function_NothrowWrapper(FUNC&& other)
@@ -437,8 +440,8 @@ class Function_SmallObjectOptimization {
 #if    defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)           \
     && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         template <class SOME_TYPE>
-            static typename bsl::add_rvalue_reference<SOME_TYPE>::type
-                myDeclVal() noexcept;
+        static typename bsl::add_rvalue_reference<SOME_TYPE>::type myDeclVal()
+                                                                      noexcept;
             // The older versions of clang on OS/X do not provide declval even
             // in c++11 mode.
 #endif
@@ -514,12 +517,12 @@ class Function_Rep {
         void        *d_asPtr;
 
       public:
-        PtrOrSize_t(std::size_t s) : d_asSize_t(s) { }
-        PtrOrSize_t(void *p) : d_asPtr(p) { }
+        PtrOrSize_t(std::size_t s) : d_asSize_t(s) { }              // IMPLICIT
+        PtrOrSize_t(void *p) : d_asPtr(p) { }                       // IMPLICIT
         PtrOrSize_t() : d_asPtr(0) { }
 
-        std::size_t asSize_t() const { return d_asSize_t; }
         void *asPtr() const { return d_asPtr; }
+        std::size_t asSize_t() const { return d_asSize_t; }
     };
 
     enum ManagerOpCode {
@@ -641,25 +644,26 @@ class Function_Rep {
         // but will point to an allocator with the same type managing the same
         // memory resource.
 
-    void *initRep(std::size_t sooFuncSize, Allocator* alloc,
+    void *initRep(std::size_t sooFuncSize, Allocator* basicAllocator,
                   integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>);
-    void *initRep(std::size_t sooFuncSize, const bsl::allocator<char>& alloc,
+    void *initRep(std::size_t sooFuncSize,
+                  const bsl::allocator<char>& basicAllocator,
                   integral_constant<AllocCategory, e_BSL_ALLOCATOR>);
     template <class ALLOC>
-    void *initRep(std::size_t sooFuncSize, const ALLOC& alloc,
+    void *initRep(std::size_t sooFuncSize, const ALLOC& basicAllocator,
                   integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>);
     template <class ALLOC>
-    void *initRep(std::size_t sooFuncSize, const ALLOC& alloc,
+    void *initRep(std::size_t sooFuncSize, const ALLOC& basicAllocator,
                   integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>);
         // Initialize this object's 'd_objbuf', 'd_allocator_p', and
         // 'd_allocManager_p' fields, allocating (if necessary) enough storage
-        // to hold a function object of the specified 'sooFuncSize' and
-        // holding a copy of 'alloc'.  If the function and allocator fit
-        // within 'd_objbuf', then no memory is allocated.  The actual wrapped
-        // function object is not initialized, nor is 'd_funcManager_p' set.
-        // Note that, for STL-style allocators, including 'bsl::allocator',
-        // the element type should be rebound to 'char' before calling
-        // 'initRep'.
+        // to hold a function object of the specified 'sooFuncSize' and holding
+        // a copy of the specified 'basicAllocator'.  If the function and
+        // allocator fit within 'd_objbuf', then no memory is allocated.  The
+        // actual wrapped function object is not initialized, nor is
+        // 'd_funcManager_p' set.  Note that, for STL-style allocators,
+        // including 'bsl::allocator', the element type should be rebound to
+        // 'char' before calling 'initRep'.
 
     bool equalAlloc(Allocator* alloc,
                     integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>) const;
@@ -781,12 +785,13 @@ class Function_Imp<RET(ARGS...)> :
         public Function_ArgTypes<RET(ARGS...)>,
         public Function_Rep  {
     // Implementation "guts" of 'bsl::function' (see class and component
-    // documentation for 'bsl::function').  IMPLEMENTATION NOTE: This
-    // implementation class is defined, in addition to the primary template,
-    // to work around issues with the Sun CC compiler, which has trouble with
-    // argument type deduction when a template argument has a partial
-    // specialization (as 'Function_Imp' does). 'bsl::function' is a thin
-    // wrapper that does not have a partial specialization.
+    // documentation for 'bsl::function').
+    //
+    // IMPLEMENTATION NOTE: This implementation class is defined, in addition
+    // to the primary template, to work around issues with the Sun CC compiler,
+    // which has trouble with argument type deduction when a template argument
+    // has a partial specialization (as 'Function_Imp' does).  'bsl::function'
+    // is a thin wrapper that does not have a partial specialization.
 
     using Function_Rep::d_objbuf; // Make this member accessible to my friends.
 
@@ -805,16 +810,17 @@ class Function_Imp<RET(ARGS...)> :
     template<class FUNC, class ALLOC>
     void initFromTarget(FUNC *func, const ALLOC& alloc);
         // Initialize this object to wrap the specified '*func' target
-        // invocable, using the specified 'alloc' allocator. The '*func'
+        // invocable, using the specified 'alloc' allocator.  The '*func'
         // object is moved-from.
 
     template<class FUNC>
     void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
         // Move or copy the specified '*func' into the invocable target of
-        // '*this', depending on the value of 'moveOrCopy'. The previous
-        // target is discarded. The behavior is undefined unless 'moveOrCopy'
-        // is either 'e_MOVE_CONSTRUCT' or 'e_COPY_CONSTRUCT'. Note that, for
-        // the copy case, 'FUNC' might be a 'const'-qualified type.
+        // '*this', depending on the value of the specified 'moveOrCopy'.  The
+        // previous target is discarded.  The behavior is undefined unless
+        // 'moveOrCopy' is either 'e_MOVE_CONSTRUCT' or 'e_COPY_CONSTRUCT'.
+        // Note that, for the copy case, 'FUNC' might be a 'const'-qualified
+        // type.
 
     template <class FUNC>
     struct FunctionPtrInvoker {
@@ -857,8 +863,9 @@ class Function_Imp<RET(ARGS...)> :
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC& f)
-        // Return the invoker for an invocable of the specified 'FUNC' type.
-        // Defined inline to work around Sun CC bug.
+        // Return the invoker for the specified 'f' of the invokable 'FUNC'
+        // type.  Note that this method is defined inline to work around Sun CC
+        // bug.
     {
         typedef Function_SmallObjectOptimization Soo;
 
@@ -868,7 +875,7 @@ class Function_Imp<RET(ARGS...)> :
             Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
         // Choose the type of invoker needed for this 'FUNC'. Note that the
-        // parameter to 'Soo::Inplace' is 'FUNC', not 'UwFuncType'. That is
+        // parameter to 'Soo::Inplace' is 'FUNC', not 'UwFuncType'.  That is
         // because 'Soo::Inplace' takes the wrapper into account when
         // determining whether the type should be inplace or not.
         typedef typename bsl::conditional<
@@ -3747,18 +3754,17 @@ class function : public Function_Imp<PROTOTYPE> {
     // An instantiation of this class template generalizes the notion of a
     // pointer to a function taking the specified 'ARGS' types and returning
     // the specified 'RET' type, i.e., a function pointer of type
-    // 'RET(*)(ARGS)'.  An object of this class wraps a run-time invokable
+    // 'RET(*)(ARGS)'.  An object of this class wraps a run-time invocable
     // object specified at construction, such as a function pointer, member
     // function pointer, or functor.  Note that 'function' is defined only for
     // template parameters that specify a function prototype; the primary
     // template (taking an arbitrary template parameter) is not defined.
     //
-    // IMPLEMENTATION NOTE: This class is a thin wrapper around
-    // 'Function_Imp' in order to work around a SunCC bug. Note that
-    // 'Function_Imp' is partially specialized on the return type and argument
-    // types in the 'PROTOTYPE' whereas this template has no parital
-    // specializations. This indirection prevents argument deduction errors in
-    // the SunCC compiler.
+    // IMPLEMENTATION NOTE: This class is a thin wrapper around 'Function_Imp'
+    // in order to work around a SunCC bug.  Note that 'Function_Imp' is
+    // partially specialized on the return type and argument types in the
+    // 'PROTOTYPE' whereas this template has no parital specializations.  This
+    // indirection prevents argument deduction errors in the SunCC compiler.
 
   private:
     typedef Function_Imp<PROTOTYPE>            Base;
@@ -3769,27 +3775,32 @@ class function : public Function_Imp<PROTOTYPE> {
     static const Base& upcast(const function& f);
         // Upcast specified  'function' reference to 'Function_Imp' reference.
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
     // Since 'function' does not support 'operator==' and 'operator!=', they
     // must be deliberately supressed; otherwise 'function' objects would be
     // implicitly comparable by implicit conversion to 'UnspecifiedBool'.
     bool operator==(const function&) const;  // Declared but not defined
     bool operator!=(const function&) const;  // Declared but not defined
+#endif
 
   public:
 
     // CREATORS
     function() BSLS_NOTHROW_SPEC;
 
-    function(nullptr_t) BSLS_NOTHROW_SPEC;
+    function(nullptr_t) BSLS_NOTHROW_SPEC;                          // IMPLICIT
 
     function(const function& other);
+
+    function(BloombergLP::bslmf::MovableRef<function> other);
 
     template <class FUNC>
     function(
         FUNC func,
         typename Function_DisableIfLosslessCnvrsn<FUNC, function, int>::type =
-            0)
-        : Base(BloombergLP::bslma::Default::defaultAllocator(), func) {
+            0)                                                      // IMPLICIT
+        : Base(BloombergLP::bslma::Default::defaultAllocator(), func)
+    {
         // Must be in-place inline because the use of 'DisableIf' will
         // otherwise break the MSVC 2010 compiler.
     }
@@ -3813,8 +3824,6 @@ class function : public Function_Imp<PROTOTYPE> {
         // otherwise break the MSVC 2010 compiler.
     }
 
-    function(BloombergLP::bslmf::MovableRef<function> other);
-
     template <class ALLOC>
     function(allocator_arg_t,
              const ALLOC&                             alloc,
@@ -3835,7 +3844,7 @@ class function : public Function_Imp<PROTOTYPE> {
         return *this;
     }
 
-    function& operator=(nullptr_t);
+    function& operator=(nullptr_t) BSLS_NOTHROW_SPEC;
 };
 
 // FREE FUNCTIONS
@@ -3852,7 +3861,7 @@ template <class PROTOTYPE>
 bool operator!=(nullptr_t, const function<PROTOTYPE>&) BSLS_NOTHROW_SPEC;
 
 template <class PROTOTYPE>
-void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b);
+void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b) BSLS_NOTHROW_SPEC;
 
 
 #ifndef BSLS_PLATFORM_CMP_SUN
@@ -3863,7 +3872,7 @@ void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b);
 
 
 // ============================================================================
-//                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------------------
@@ -7194,18 +7203,18 @@ bsl::Function_Rep::Manager bsl::Function_Rep::getFunctionManager()
 
 inline
 void *bsl::Function_Rep::initRep(std::size_t                 sooFuncSize,
-                                 const bsl::allocator<char>& alloc,
+                                 const bsl::allocator<char>& basicAllocator,
                                  integral_constant<AllocCategory,
                                                    e_BSL_ALLOCATOR>)
 {
-    return initRep(sooFuncSize, alloc.mechanism(),
+    return initRep(sooFuncSize, basicAllocator.mechanism(),
                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 }
 
 template <class ALLOC>
 inline
 void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
-                                 const ALLOC& alloc,
+                                 const ALLOC& basicAllocator,
                                  integral_constant<AllocCategory,
                                                    e_ERASED_STATEFUL_ALLOC>)
 {
@@ -7247,13 +7256,13 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
         // Function object fits in-place, but allocator is out-of-place
         function_p = &d_objbuf;
         // Allocate allocator adaptor from allocator itself
-        allocator_p = Adaptor(alloc).allocate(allocSize);
+        allocator_p = Adaptor(basicAllocator).allocate(allocSize);
     }
     else {
         // Not in-place.  Allocate (from the allocator) a single block to hold
         // the function and allocator adaptor.
         Function_PairBufDesc pairDesc(funcSize, allocSize);
-        void *pair_p = Adaptor(alloc).allocate(pairDesc.totalSize());
+        void *pair_p = Adaptor(basicAllocator).allocate(pairDesc.totalSize());
         d_objbuf.d_object_p = pair_p;
         function_p = pairDesc.first(pair_p);
         allocator_p = pairDesc.second(pair_p);
@@ -7261,7 +7270,7 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
 
     // Construct allocator adaptor in its correct location.
     // Note that allocator copy constructor is not allowed to throw.
-    d_allocator_p = ::new((void*) allocator_p) Adaptor(alloc);
+    d_allocator_p = ::new((void*) allocator_p) Adaptor(basicAllocator);
     d_allocManager_p = &ownedAllocManager<ALLOC>;
 
     return function_p;
@@ -7270,7 +7279,7 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
 template <class ALLOC>
 inline
 void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
-                                 const ALLOC& alloc,
+                                 const ALLOC& basicAllocator,
                                  integral_constant<AllocCategory,
                                                    e_ERASED_STATELESS_ALLOC>)
 {
@@ -7281,7 +7290,8 @@ void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
     // 'ALLOC' should have been rebound to a common element type, so only one
     // singleton will be created for 'Foo<int(*)()>' and 'Foo<Bar>', where
     // 'Foo' is an STL-style allocator template.
-    static typename bslma::AllocatorAdaptor<ALLOC>::Type allocInstance(alloc);
+    static typename bslma::AllocatorAdaptor<ALLOC>::Type
+                                                 allocInstance(basicAllocator);
 
     return initRep(sooFuncSize, &allocInstance,
                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
@@ -7658,7 +7668,7 @@ template <class RET, class... ARGS>
 template<class FUNC>
 inline
 void bsl::Function_Imp<RET(ARGS...)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -7700,9 +7710,9 @@ bsl::Function_Imp<RET(ARGS...)>::operator=(nullptr_t)
 
 // TBD: Need to implement reference_wrapper.
 // template <class RET, class... ARGS>
-// template<class FUNC>
-// function& bsl::Function_Imp<RET(ARGS...)>::operator=(reference_wrapper<FUNC>)
-//     BSLS_NOTHROW_SPEC
+// template <class FUNC>
+// function& bsl::Function_Imp<RET(ARGS...)>::operator=(
+//                                   reference_wrapper<FUNC>) BSLS_NOTHROW_SPEC
 
 template <class RET, class... ARGS>
 inline
@@ -17324,7 +17334,7 @@ bsl::function<PROTOTYPE>::operator=(
 
 template <class PROTOTYPE>
 inline bsl::function<PROTOTYPE>&
-bsl::function<PROTOTYPE>::operator=(nullptr_t) {
+bsl::function<PROTOTYPE>::operator=(nullptr_t) BSLS_NOTHROW_SPEC {
     Base::operator=(nullptr_t());
     return *this;
 }
@@ -17365,6 +17375,7 @@ bool bsl::operator!=(bsl::nullptr_t,
 template <class PROTOTYPE>
 inline
 void bsl::swap(bsl::function<PROTOTYPE>& a, bsl::function<PROTOTYPE>& b)
+                                                              BSLS_NOTHROW_SPEC
 {
     a.swap(b);
 }
@@ -17380,8 +17391,8 @@ struct IsBitwiseMoveable<bsl::Function_NothrowWrapper<FUNC> >
 {
 };
 
-} // close namespace bslmf
-} // close namespace BloombergLP
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 
