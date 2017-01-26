@@ -147,7 +147,12 @@ void serverFunction(const btlso::IPv4Address&  IP_ADDR,
      } while (rc > 0);
      rc = btlso::SocketImpUtil::shutDown(sessionSocket,
                                          btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
-                                         &errCode);       ASSERT(0 == rc);
+                                         &errCode);
+#if BSLS_PLATFORM_OS_DARWIN
+     ASSERT(0 == rc || ENOTCONN == errCode);
+#else
+     ASSERT(0 == rc);
+#endif
      rc = btlso::SocketImpUtil::close(sessionSocket,
                                       &errCode);        ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::close(serverSocket,
