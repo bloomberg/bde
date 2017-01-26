@@ -2100,7 +2100,9 @@ if (veryVerbose)
                         if (1 == VERSION) {
                             // Version 1 loses microseconds; replace.
 
-                            mT.setMicrosecond(X.microsecond());
+                            if (24 != T.hour()) {
+                                mT.setMicrosecond(X.microsecond());
+                            }
                         }
 
                         LOOP2_ASSERT(i, j, X == T);
@@ -2259,7 +2261,9 @@ if (veryVerbose)
                             if (1 == VERSION) {
                                 // Version 1 loses microseconds; replace.
 
-                                mT1.setMicrosecond(X1.microsecond());
+                                if (24 != T1.hour()) {
+                                    mT1.setMicrosecond(X1.microsecond());
+                                }
                             }
                             LOOP_ASSERT(i, &in == &rvIn1);
                             LOOP_ASSERT(i,  in);
@@ -2278,7 +2282,9 @@ if (veryVerbose)
                             if (1 == VERSION) {
                                 // Version 1 loses microseconds; replace.
 
-                                mT1.setMicrosecond(X1.microsecond());
+                                if (24 != T1.hour()) {
+                                    mT1.setMicrosecond(X1.microsecond());
+                                }
                             }
                             LOOP_ASSERT(i, &in == &rvIn1);
                             LOOP_ASSERT(i,  in);
@@ -2287,7 +2293,9 @@ if (veryVerbose)
                             if (1 == VERSION) {
                                 // Version 1 loses microseconds; replace.
 
-                                mT2.setMicrosecond(X2.microsecond());
+                                if (24 != T2.hour()) {
+                                    mT2.setMicrosecond(X2.microsecond());
+                                }
                             }
                             LOOP_ASSERT(i, &in == &rvIn2);
                             LOOP_ASSERT(i,  in);
