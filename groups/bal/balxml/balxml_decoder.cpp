@@ -490,7 +490,7 @@ Decoder::parse(Decoder_ElementContext *context)
 
           case Reader::e_NODE_TYPE_ELEMENT:
             {
-                bsl::string name(d_reader->nodeLocalName(), d_allocator);
+                bsl::string name = d_reader->nodeLocalName();
 
                 if (0 != context->parseSubElement(name.c_str(), this)) {
                     BALXML_DECODER_LOG_ERROR(this)
