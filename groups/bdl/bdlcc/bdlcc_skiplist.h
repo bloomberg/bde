@@ -241,7 +241,7 @@ BSLS_IDENT("$Id: $")
 //                    &d_dispatcher,
 //                    bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
 //                                        this));
-//        0 == rc);
+//        BSLS_ASSERT_SAFE(0 == rc);
 //    }
 //
 //    ~SimpleScheduler()
