@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 ///"R" Methods: Optimized Search From The Back Of The List
 ///-------------------------------------------------------
 // The regular methods (no R suffix) of 'bdlcc::SkipList' that result in a
-// search through the list, search from the front of the list, (i.e., in
+// search through the list, search from the front of the list (i.e., in
 // ascending order).
 //
 // All methods of 'bdlcc::SkipList' that result in a search through the list
@@ -977,7 +977,7 @@ class SkipList {
         // method acquires and releases the lock.
 
     Node *findNodeUpperBound(const KEY& key) const;
-        // Return the first node in this list whose is key greater than the
+        // Return the first node in this list whose key is greater than the
         // specified 'key', found by searching the list from the front (in
         // ascending order of key value), and 0 if no such node exists.  This
         // method acquires and releases the lock.
@@ -1021,7 +1021,7 @@ class SkipList {
         // key is greater than the specified 'key' at each level in the list,
         // found by searching the list from the back (in descending order of
         // key value); if no such node exists at a given level, the
-        // head-of-list sentinel is populated for that level.  This method must
+        // tail-of-list sentinel is populated for that level.  This method must
         // be called under the lock.
 
     Node *nextNode(Node *node) const;
