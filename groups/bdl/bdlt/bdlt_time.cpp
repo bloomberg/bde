@@ -102,6 +102,76 @@ bsls::Types::Int64 modulo(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     return result;
 }
 
+int printToBufferFormatted(char       *result,
+                           int         numBytes,
+                           const char *spec,
+                           int         hour,
+                           int         minute,
+                           int         second,
+                           int         microsecond,
+                           int         fractionalSecondPrecision)
+{
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows uses a different variant of snprintf that does not necessarily
+    // null-terminate and returns -1 on overflow.
+
+    int numCharsWritten;
+    int rc;
+
+    if (0 == fractionalSecondPrecision) {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       hour,
+                       minute,
+                       second);
+
+        // Format of 'bdlt::Time' has 8 characters if there are no
+        // fractional seconds.
+
+        numCharsWritten = 8;
+    }
+    else {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       hour,
+                       minute,
+                       second,
+                       microsecond);
+
+        // Format of 'bdlt::Time' has 9 characters + fractional seconds.
+
+        numCharsWritten = 9 + fractionalSecondPrecision;
+    }
+
+    if ((0 > rc || rc == numBytes) && numBytes > 0) {
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                      // overflow.
+    }
+
+    return numCharsWritten;
+
+#else
+
+    return 0 == fractionalSecondPrecision
+           ? snprintf(result,
+                      numBytes,
+                      spec,
+                      hour,
+                      minute,
+                      second)
+           : snprintf(result,
+                      numBytes,
+                      spec,
+                      hour,
+                      minute,
+                      second,
+                      microsecond);
+#endif
+}
+
                                 // ----------
                                 // class Time
                                 // ----------
@@ -411,34 +481,103 @@ void Time::getTime(int *hour,
     }
 }
 
+int Time::printToBuffer(char *result,
+                        int   numBytes,
+                        int   fractionalSecondPrecision) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 <= fractionalSecondPrecision     );
+    BSLS_ASSERT(     fractionalSecondPrecision <= 6);
+
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+    int microsecond;
+
+    getTime(&hour, &minute, &second, &millisecond, &microsecond);
+
+    int value;
+
+    switch (fractionalSecondPrecision) {
+      case 0: {
+        char spec[] = "%02d:%02d:%02d";
+
+        return printToBufferFormatted(result,
+                                      numBytes,
+                                      spec,
+                                      hour,
+                                      minute,
+                                      second,
+                                      0,
+                                      0);                             // RETURN
+      } break;
+      case 1: {
+        value = millisecond / 100;
+      } break;
+      case 2: {
+        value = millisecond / 10 ;
+      } break;
+      case 3: {
+        value = millisecond;
+      } break;
+      case 4: {
+        value = millisecond * 10 + microsecond / 100;
+      } break;
+      case 5: {
+        value = millisecond * 100 + microsecond / 10;
+      } break;
+      default: {
+        value = millisecond * 1000 + microsecond;
+      } break;
+    }
+
+    char spec[] = "%02d:%02d:%02d.%0Xd";
+
+    const int PRECISION_INDEX = sizeof spec - 3;
+
+    spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
+
+    return printToBufferFormatted(result,
+                                  numBytes,
+                                  spec,
+                                  hour,
+                                  minute,
+                                  second,
+                                  value,
+                                  fractionalSecondPrecision);
+}
+
+                                  // Aspects
+
 bsl::ostream& Time::print(bsl::ostream& stream,
                           int           level,
                           int           spacesPerLevel) const
 {
-    if (stream.bad()) {
-        return stream;                                                // RETURN
-    }
+    // Format the output to a buffer first instead of inserting into 'stream'
+    // directly to improve performance and in case the caller has done
+    // something like:
+    //..
+    //  os << bsl::setw(20) << myTime;
+    //..
+    // The user-specified width will be effective when 'buffer' is written to
+    // the 'stream' (below).
 
-    //      Format: HH: MM: SS. ssssss '\0'
-    const int size = 3 + 3 + 3 + 6 + 1;
-    char      buffer[size];
+    const int k_BUFFER_SIZE = 32;   // Buffer sized to hold a *bad* time.
+    char      buffer[k_BUFFER_SIZE];
 
-    int hour, min, sec, mSec, uSec;
+    int rc = printToBuffer(buffer,
+                           k_BUFFER_SIZE,
+                           k_DEFAULT_FRACTIONAL_SECOND_PRECISION);
 
-    getTime(&hour, &min, &sec, &mSec, &uSec);
-
-    bsl::sprintf(buffer,
-                 "%02d:%02d:%02d.%03d%03d",
-                 hour,
-                 min,
-                 sec,
-                 mSec,
-                 uSec);
+    (void)rc;
+    BSLS_ASSERT(15 == rc);  // The time format contains 15 characters.
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start(true);  // 'true' -> suppress '['
+    printer.start(true);    // 'true' -> suppress '['
     stream << buffer;
-    printer.end(true);    // 'true' -> suppress ']'
+    printer.end(true);      // 'true' -> suppress ']'
 
     return stream;
 }

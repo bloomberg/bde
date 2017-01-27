@@ -178,6 +178,10 @@ class Time {
     // CLASS DATA
     static const bsls::Types::Int64 k_REP_MASK  = 0x0000004000000000ULL;
 
+    enum {
+        k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
+    };
+
     static bsls::AtomicInt64 s_invalidRepresentationCount;
 
     // DATA
@@ -420,6 +424,24 @@ class Time {
 
     int microsecond() const;
         // Return the value of the 'microsecond' attribute of this time object.
+
+    int printToBuffer(char *result,
+                      int   numBytes,
+                      int   fractionalSecondPrecision = 6) const;
+        // Efficiently write to the specified 'result' buffer no more than the
+        // specified 'numBytes' of a representation of the value of this
+        // object.  Optionally specify 'fractionalSecondPrecision' digits to
+        // guide how many fractional second digits to output.  If
+        // 'fractionalSecondPrecision' is not specified then 6 fractional
+        // second digits will be output (3 digits for milliseconds and 3 digits
+        // for microseconds).  Return the number of characters (not including
+        // the null character) that would have been written if the limit due to
+        // 'numBytes' were not imposed.  'result' is null-terminated unless
+        // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes',
+        // '0 <= fractionalSecondPrecision <= 6', and 'result' refers to at
+        // least 'numBytes' contiguous bytes.  Note that the return value is
+        // greater than or equal to 'numBytes' if the output representation was
+        // truncated to avoid 'result' overrun.
 
                                   // Aspects
 

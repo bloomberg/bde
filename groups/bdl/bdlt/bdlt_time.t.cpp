@@ -94,8 +94,10 @@ using namespace bsl;
 // [ 4] int second() const;
 // [ 4] int millisecond() const;
 // [ 4] int microsecond() const;
-// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [ 5] int printToBuffer(char *result, int size, int precision) const;
+//
 // [ 5] ostream& print(ostream& os, int level = 0, int spl = 4) const;
+// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
 // FREE OPERATORS
 // [18] void hashAppend(HASHALG&, const Time&);
@@ -234,7 +236,7 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
-      case 40: {
+      case 41: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.setMicrosecond(0);
@@ -243,7 +245,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 39: {
+      case 40: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.setMillisecond(0);
@@ -252,7 +254,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 38: {
+      case 39: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.setSecond(0);
@@ -261,7 +263,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 37: {
+      case 38: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.setMinute(0);
@@ -270,7 +272,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 36: {
+      case 37: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.setHour(0);
@@ -279,7 +281,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 35: {
+      case 36: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addTime(0);
@@ -288,7 +290,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 34: {
+      case 35: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addInterval(bdlt::DatetimeInterval(0));
@@ -297,7 +299,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 33: {
+      case 34: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addMicroseconds(0);
@@ -306,7 +308,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 32: {
+      case 33: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addMilliseconds(0);
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 31: {
+      case 32: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addSeconds(0);
@@ -324,7 +326,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 30: {
+      case 31: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addMinutes(0);
@@ -333,7 +335,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 29: {
+      case 30: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid.addHours(0);
@@ -342,7 +344,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 28: {
+      case 29: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid -= bdlt::DatetimeInterval();
@@ -351,12 +353,24 @@ int main(int argc, char *argv[])
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
-      case 27: {
+      case 28: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
         mInvalid += bdlt::DatetimeInterval();
         ASSERT(1 == s_countingLogMessageHandlerCount);
         INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 27: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        const int PRECISION = 6;
+
+        char buffer[64];
+        INVALID.printToBuffer(buffer, sizeof buffer, PRECISION);
+
         ASSERT(1 == s_countingLogMessageHandlerCount);
 #endif
       } break;
@@ -424,6 +438,16 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(INVALID.second());
         ASSERT_SAFE_FAIL(INVALID.millisecond());
         ASSERT_SAFE_FAIL(INVALID.microsecond());
+        {
+            const int PRECISION = 6;
+
+            char buffer[64];  (void)buffer;
+            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer,
+                                                   sizeof buffer,
+                                                   PRECISION));
+            (void)PRECISION;  // quash compiler warning in non-safe build modes
+        }
+
         ASSERT_SAFE_FAIL(mInvalid += bdlt::DatetimeInterval());
         ASSERT_SAFE_FAIL(mInvalid -= bdlt::DatetimeInterval());
         ASSERT_SAFE_FAIL(mInvalid.addHours(0));
@@ -3212,177 +3236,416 @@ if (veryVerbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING PRINT
-        //   Verify the methods produce the expected output format.
+        // PRINT, OUTPUT OPERATOR, AND 'printToBuffer'
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 Methods produce expected output format.
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.  In
+        //:   particular:
+        //:
+        //:   1 The attributes always appear on a single line.
+        //:
+        //:   2 A negative value of 'level' always suppresses all indentation
+        //:     (since there is never a second line to indent).,
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
+        //:
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        //:
+        //: 9 The 'printToBuffer' method:
+        //:   1 Writes in the expected format.
+        //:   2 Never writes more than the specified limit.
+        //:   3 Writes in the specified buffer.
+        //:   4 QoI: Asserted precondition violations are detected when
+        //:     enabled.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostringstream' to write the
-        //:   object's value to a string buffer and then compare to expected
-        //:   output format.  (C-1)
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4, 7)
+        //:
+        //: 2 Using the table-driven technique: (C-1..3, 5..6, 8)
+        //:
+        //:   1 Define fourteen carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values for each
+        //:     corresponding salient attribute, and various values for the two
+        //:     formatting parameters, along with the expected output.
+        //:
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        //:     3 { B } x { 2 } x { 3 } --> 1 expected o/p
+        //:     4 { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        //:     5 { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        //:
+        //:   2 For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 8)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3, 6)
+        //:
+        //:   3 Test 'printToBuffer' using a table-driven approach.  (C-9)
+        //:
+        //:     1 Define an assortment of different input values and limits on
+        //:       the number of bytes written.
+        //:
+        //:     2 For each input value, write the result into an over-sized
+        //:       buffer that is pre-filled with an "unset" character.  Data is
+        //:       written into the middle of the buffer.  After writing,
+        //:       confirm that all characters outside the targeted range have
+        //:       their initial value.
+        //:
+        //:     4 Verify that, in appropriate build modes, defensive checks are
+        //:       triggered for invalid attribute values, but not triggered for
+        //:       adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
-        //   ostream& operator<<(ostream& stream, const Time& time);
+        //   ostream& operator<<(ostream &stream, const Time &object);
+        //   int printToBuffer(char *result, int size, int precision) const;
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   ostream& streamOut(ostream& stream) const;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING PRINT" << endl
-                          << "=============" << endl;
+        if (verbose) cout
+                      << endl
+                      << "PRINT, OUTPUT OPERATOR, AND 'printToBuffer'" << endl
+                      << "===========================================" << endl;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
         {
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = bdlt::operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations." << endl;
+
+        const Obj TA( 0,  0,  0,   0);
+        const Obj TZ(23, 59, 59, 999);
+
+        static const struct {
+            int         d_line;           // source line number
+            int         d_level;
+            int         d_spacesPerLevel;
+            int         d_hour;
+            int         d_minute;
+            int         d_second;
+            int         d_millisecond;
+            int         d_microsecond;
+            const char *d_expected_p;
+        } DATA[] = {
+
 #define NL "\n"
-            static const struct {
-                int         d_lineNum;  // source line number
-                int         d_indent;   // indentation level
-                int         d_spaces;   // spaces per indentation level
-                const char *d_fmt_p;    // expected output format
-            } DATA[] = {
-                //LINE  INDENT +/-  SPACES  FORMAT                // ADJUST
-                //----  ----------  ------  --------------
-                { L_,    0,         -1,     "24:00:00.000000"                },
 
-                { L_,    0,          0,     "24:00:00.000000"           NL   },
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
+        // ------------------------------------------------------------------
 
-                { L_,    0,          2,     "24:00:00.000000"           NL   },
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_,  0,  0,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_,  0,  1,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_,  0, -1,  0,  0,  0,   0,   0, "00:00:00.000000"    },
 
-                { L_,    1,          1,     " 24:00:00.000000"          NL   },
+        { L_,  0, -8,  0,  0,  0,   0,   0, "00:00:00.000000" NL }, // default
 
-                { L_,    1,          2,     "  24:00:00.000000"         NL   },
+        // ------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        // ------------------------------------------------------------------
 
-                { L_,   -1,          2,     "24:00:00.000000"           NL   },
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_,  3,  0,  0,  0,  0,   0,   0, "00:00:00.000000"             NL },
+        { L_,  3,  2,  0,  0,  0,   0,   0, "      00:00:00.000000"       NL },
+        { L_,  3, -2,  0,  0,  0,   0,   0, "      00:00:00.000000"          },
 
-                { L_,   -2,          1,     "24:00:00.000000"           NL   },
+        { L_,  3, -8,  0,  0,  0,   0,   0, "            00:00:00.000000" NL },
+                                                                 // default
 
-                { L_,    2,          1,     "  24:00:00.000000"         NL   },
+        { L_, -3,  0,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_, -3,  2,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_, -3, -2,  0,  0,  0,   0,   0, "00:00:00.000000"    },
 
-                { L_,    1,          3,     "   24:00:00.000000"        NL   },
-            };
+        { L_, -3, -8,  0,  0,  0,   0,   0, "00:00:00.000000" NL }, // default
+
+        // -----------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_,  2,  3, 23, 59, 59, 999, 999, "      23:59:59.999999" NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_, -8, -8,  0,  0,  0,   0,   0, "00:00:00.000000" NL }, // default
+        { L_, -8, -8, 23, 59, 59, 999, 999, "23:59:59.999999" NL }, // default
+
+        // -----------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_, -9, -9,  0,  0,  0,   0,   0, "00:00:00.000000" },
+        { L_, -9, -9, 23, 59, 59, 999, 999, "23:59:59.999999" }
+
 #undef NL
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            const int SIZE = 128;  // Must be big enough to hold output string.
-
-            const char Z1 = static_cast<char>(0xFF);  // Value 1 used for an
-                                                      // unset 'char'.
-
-            const char Z2 = static_cast<char>(0x00);  // Value 2 used for an
-                                                      // unset 'char'.
-
-            char mCtrlBuf1[SIZE];  memset(mCtrlBuf1, Z1, SIZE);
-            char mCtrlBuf2[SIZE];  memset(mCtrlBuf2, Z2, SIZE);
-
-            const char *CTRL_BUF1 = mCtrlBuf1;
-            const char *CTRL_BUF2 = mCtrlBuf2;
-
-            Obj mX;  const Obj& X = mX;  // 24:00:00.000
-
-            for (int ti = 0; ti < NUM_DATA;  ++ti) {
-//              const int         LINE = DATA[ti].d_lineNum; // unused
-                const int         IND  = DATA[ti].d_indent;
-                const int         SPL  = DATA[ti].d_spaces;
-                const char *const FMT  = DATA[ti].d_fmt_p;
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE = DATA[ti].d_line;
+                const int         L    = DATA[ti].d_level;
+                const int         SPL  = DATA[ti].d_spacesPerLevel;
+                const int         HOUR = DATA[ti].d_hour;
+                const int         MIN  = DATA[ti].d_minute;
+                const int         SEC  = DATA[ti].d_second;
+                const int         MS   = DATA[ti].d_millisecond;
+                const int         US   = DATA[ti].d_microsecond;
+                const char *const EXP  = DATA[ti].d_expected_p;
 
                 if (veryVerbose) {
-                    cout << "EXPECTED FORMAT:" << endl << FMT << endl;
-                }
-                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
-                X.print(out1, IND, SPL) << ends;
-                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
-                X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) {
-                    cout << "ACTUAL FORMAT:" << endl << out1.str() << endl;
+                    T_ P_(L) P_(SPL) P_(HOUR) P_(MIN) P_(SEC) P_(MS) P(US);
                 }
 
-                const int SZ = static_cast<int>(strlen(FMT)) + 1;
-                const int REST = SIZE - SZ;
-                LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti,
-                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti,
-                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(out1.str().c_str(), FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(out2.str().c_str(), FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(out1.str().c_str() + SZ,
-                                            CTRL_BUF1 + SZ,
-                                            REST));
-                LOOP_ASSERT(ti, 0 == memcmp(out2.str().c_str() + SZ,
-                                            CTRL_BUF2 + SZ,
-                                            REST));
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                Obj x;  const Obj& X = x;
+
+                x.setTime(HOUR, MIN, SEC, MS, US);
+
+                bslma::TestAllocator oa("scratch",  veryVeryVeryVerbose);
+                stringstream ss(&oa);
+
+                if (-9 == L && -9 == SPL) {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &ss == &(ss << X));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
+
+                    if (-8 != SPL) {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss, L));
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss));
+                    }
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                // Verify output is formatted as expected.
+
+                // Avoid invoking 'ss.str()' which returns a string by value
+                // and may introduce use of the default allocator.
+
+                bsl::string result(bsl::istreambuf_iterator<char>(ss),
+                                   bsl::istreambuf_iterator<char>(),
+                                   &oa);
+
+                if (veryVeryVerbose) { P(result) }
+
+                LOOP3_ASSERT(LINE, EXP, result, EXP == result);
             }
         }
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting 'printToBuffer'." << endl;
         {
             static const struct {
-                int         d_lineNum;  // source line number
-                int         d_hour;     // hour field value
-                int         d_minute;   // minute field value
-                int         d_second;   // second field value
-                int         d_msec;     // millisecond field value
-                int         d_usec;     // microsecond field value
-                const char *d_fmt_p;    // expected output format
+                int         d_line;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_msec;
+                int         d_usec;
+                int         d_precision;
+                int         d_numBytes;
+                const char *d_expected_p;
             } DATA[] = {
-            //LINE  HOUR   MIN    SEC    MSEC    USEC     OUTPUT FORMAT
-            //----  -----  ----   ----   -----   -----    --------------
-            { L_,      0,    0,     0,      0,      0,    "00:00:00.000000"  },
-            { L_,      0,    0,     0,      0,    999,    "00:00:00.000999"  },
-            { L_,      0,    0,     0,    999,      0,    "00:00:00.999000"  },
-            { L_,      0,    0,    59,      0,      0,    "00:00:59.000000"  },
-            { L_,      0,   59,     0,      0,      0,    "00:59:00.000000"  },
-            { L_,     23,    0,     0,      0,      0,    "23:00:00.000000"  },
-            { L_,     23,   22,    21,    209,      0,    "23:22:21.209000"  },
-            { L_,     23,   22,    21,    210,      0,    "23:22:21.210000"  },
-            { L_,     23,   22,    21,    210,      1,    "23:22:21.210001"  },
-            { L_,     23,   22,    21,    210,     17,    "23:22:21.210017"  },
-            { L_,     23,   22,    21,    210,    412,    "23:22:21.210412"  },
-            { L_,     24,    0,     0,      0,      0,    "24:00:00.000000"  },
+        //------^
+        //LN  HR  M   S   MS   US   PREC  LIMIT  EXPECTED
+        //--  --  --  --  ---  ---  ----  -----  -----------------
+        { L_,  0,  0,  0,   0,   0,    0,   100, "00:00:00"        },
+        { L_,  0,  0,  0,   0,   0,    1,   100, "00:00:00.0"      },
+        { L_,  0,  0,  0,   0,   0,    3,   100, "00:00:00.000"    },
+        { L_,  0,  0,  0,   0,   0,    6,   100, "00:00:00.000000" },
+        { L_,  0,  0,  0,   0,   7,    0,   100, "00:00:00"        },
+        { L_,  0,  0,  0,   0,   7,    1,   100, "00:00:00.0"      },
+        { L_,  0,  0,  0,   0,   7,    3,   100, "00:00:00.000"    },
+        { L_,  0,  0,  0,   0,   7,    5,   100, "00:00:00.00000"  },
+        { L_,  0,  0,  0,   0,   7,    6,   100, "00:00:00.000007" },
+        { L_,  0,  0,  0,   0,  17,    6,   100, "00:00:00.000017" },
+        { L_,  0,  0,  0,   0, 317,    3,   100, "00:00:00.000"    },
+        { L_,  0,  0,  0,   0, 317,    4,   100, "00:00:00.0003"   },
+        { L_,  0,  0,  0,   0, 317,    5,   100, "00:00:00.00031"  },
+        { L_,  0,  0,  0,   0, 317,    6,   100, "00:00:00.000317" },
+        { L_, 23, 22, 21, 209,   0,    6,   100, "23:22:21.209000" },
+        { L_, 23, 22, 21, 210,   0,    6,   100, "23:22:21.210000" },
+        { L_, 23, 22, 21, 211,   0,    6,   100, "23:22:21.211000" },
+        { L_, 24,  0,  0,   0,   0,    6,   100, "24:00:00.000000" },
+        { L_, 23, 59, 59, 999,   0,    6,   100, "23:59:59.999000" },
+        { L_, 23, 59, 59, 999,   5,    6,   100, "23:59:59.999005" },
+        { L_, 23, 59, 59, 999,  65,    6,   100, "23:59:59.999065" },
+        { L_, 23, 59, 59, 999, 765,    0,   100, "23:59:59"        },
+        { L_, 23, 59, 59, 999, 765,    1,   100, "23:59:59.9"      },
+        { L_, 23, 59, 59, 999, 765,    2,   100, "23:59:59.99"     },
+        { L_, 23, 59, 59, 999, 765,    3,   100, "23:59:59.999"    },
+        { L_, 23, 59, 59, 999, 765,    4,   100, "23:59:59.9997"   },
+        { L_, 23, 59, 59, 999, 765,    5,   100, "23:59:59.99976"  },
+        { L_, 23, 59, 59, 999, 765,    6,   100, "23:59:59.999765" },
+        { L_, 23, 59, 59, 999,   0,    6,     0, ""                },
+        { L_, 23, 59, 59, 999,   0,    6,     1, ""                },
+        { L_, 23, 59, 59, 999,   0,    6,     2, "2"               },
+        { L_, 23, 59, 59, 999,   0,    6,    12, "23:59:59.99"     },
+        { L_, 23, 59, 59, 999,   0,    6,    13, "23:59:59.999"    },
+        { L_, 23, 59, 59, 999,   0,    6,    14, "23:59:59.9990"   },
+        { L_, 23, 59, 59, 999,   0,    6,    15, "23:59:59.99900"  },
+        { L_, 23, 59, 59, 999,   0,    6,    16, "23:59:59.999000" },
+        //------v
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            const int SIZE = 1000;     // Must be able to hold output string.
+            const int  BUF_SIZE = 1000;               // Over-sized for output.
+            const char XX       = static_cast<char>(0xFF);
+                                                      // Used as "unset"
+                                                      // character.
+            char       mCtrlBuf[BUF_SIZE];
+            memset(mCtrlBuf, XX, sizeof(mCtrlBuf));
+            const char *const CTRL_BUF = mCtrlBuf;    // Referenced in overrun
+                                                      // checks.
 
-            const char XX = static_cast<char>(0xFF);  // Value used for an
-                                                      // unset 'char'.
+            for (int ti = 0; ti < NUM_DATA;  ++ti) {
+                const int         LINE     = DATA[ti].d_line;
+                const int         HOUR     = DATA[ti].d_hour;
+                const int         MINUTE   = DATA[ti].d_minute;
+                const int         SECOND   = DATA[ti].d_second;
+                const int         MSEC     = DATA[ti].d_msec;
+                const int         USEC     = DATA[ti].d_usec;
+                const int         PREC     = DATA[ti].d_precision;
+                const int         LIMIT    = DATA[ti].d_numBytes;
+                const char *const EXPECTED = DATA[ti].d_expected_p;
+                const int         EXP_LEN  = 0 == PREC ? 8 : 9 + PREC;
 
-            char        mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
-            const char *CTRL_BUF = mCtrlBuf; // Used for extra character check.
+                if (veryVerbose) {
+                    T_  P_(HOUR)
+                        P_(MINUTE)
+                        P_(SECOND)
+                        P_(MSEC)
+                        P(USEC)
+                    T_  P_(PREC)
+                    T_  P_(LIMIT)
+                    T_  P(EXPECTED)
+                }
 
-            for (int di = 0; di < NUM_DATA;  ++di) {
-                const int         LINE   = DATA[di].d_lineNum;
-                const int         HOUR   = DATA[di].d_hour;
-                const int         MINUTE = DATA[di].d_minute;
-                const int         SECOND = DATA[di].d_second;
-                const int         MSEC   = DATA[di].d_msec;
-                const int         USEC   = DATA[di].d_usec;
-                const char *const FMT    = DATA[di].d_fmt_p;
+                char buf[BUF_SIZE];
+
+                // Preset 'buf' to "unset" values.
+                memset(buf, XX, sizeof(buf));
 
                 Obj x;  const Obj& X = x;
                 x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
-                if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
-                ostringstream out(std::string(CTRL_BUF, SIZE));
-                out << X << ends;
-                if (veryVerbose) {
-                    cout << "\tACTUAL FORMAT:   " << out.str() << endl;
-                }
+                char      *p = buf + sizeof(buf)/2;
+                const int  RC = X.printToBuffer(p, LIMIT, PREC);
 
-                const int SZ = static_cast<int>(strlen(FMT)) + 1;
-                LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE,
-                            XX == out.str()[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str(), FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str() + SZ,
-                                              CTRL_BUF + SZ,
-                                              SIZE - SZ));
+                LOOP2_ASSERT(LINE, RC, EXP_LEN == RC);
+
+                const int LENGTH = 0 == LIMIT
+                                   ? 0
+                                   : static_cast<int>(strlen(p) + 1);
+                LOOP_ASSERT(LINE, LENGTH <= LIMIT);
+
+                if (veryVerbose) cout
+                                   << "\tACTUAL FORMAT: "
+                                   << (0 < LENGTH ? p : "<all-unset-expected>")
+                                   << endl;
+                LOOP_ASSERT(LINE, 0 == memcmp(buf, CTRL_BUF, p - buf));
+                if (0 < LENGTH) {
+                    LOOP3_ASSERT(LINE, p, EXPECTED,
+                                 0 == memcmp(p, EXPECTED, LENGTH));
+                }
+                LOOP_ASSERT(LINE, 0 == memcmp(p + LENGTH,
+                                              CTRL_BUF,
+                                              (buf + sizeof(buf)) -
+                                              (p   + LENGTH)));
             }
         }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
+            {
+                const int SIZE = 128;
+                char      buf[SIZE];
+
+                const Obj X;
+
+                const int PRECISION = 6;
+
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, 0));
+
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , -1));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
+            }
+        }
+
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
