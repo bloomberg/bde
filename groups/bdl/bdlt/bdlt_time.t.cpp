@@ -148,6 +148,25 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+
+static int s_countingLogMessageHandlerCount = 0;
+
+static void countingLogMessageHandler(bsls::LogSeverity::Enum,
+                                      const char *,
+                                      const int,
+                                      const char *)
+    // Increment 's_countingLogMessageHandlerCount'.
+{
+    ++s_countingLogMessageHandlerCount;
+}
+
+#endif
+
+// ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
@@ -215,6 +234,181 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
+      case 40: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMicrosecond(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 39: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMillisecond(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 38: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setSecond(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 37: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMinute(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 36: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setHour(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 35: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addTime(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 34: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addInterval(bdlt::DatetimeInterval(0));
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 33: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMicroseconds(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 32: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMilliseconds(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 31: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addSeconds(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 30: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMinutes(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 29: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addHours(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 28: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid -= bdlt::DatetimeInterval();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 27: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid += bdlt::DatetimeInterval();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 26: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.microsecond();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 25: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.millisecond();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 24: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.second();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 23: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.minute();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 22: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 21: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        int exp = 0;
+        for (bsls::Types::Uint64 i = 1; i <= 4096; ++i) {
+            if (i == (1ULL << exp)) {
+                ++exp;
+            }
+            INVALID.hour();
+            ASSERT(exp == s_countingLogMessageHandlerCount);
+        }
+#endif
+      } break;
       case 20: {
         bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
 
