@@ -19,10 +19,6 @@ namespace bbldc {
 double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate)
 {
-    if (beginDate == endDate) {
-        return 0.0;                                                   // RETURN
-    }
-
     const bool negationFlag = beginDate > endDate;
 
     const bdlt::Date minDate = negationFlag ? endDate   : beginDate;
@@ -39,15 +35,10 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
     const int yDiff = maxYear - minYear - 1;
     const int minYearDayDiff = bdlt::Date(minYear + 1, 1, 1) - minDate;
     const int maxYearDayDiff = maxDate - bdlt::Date(maxYear, 1, 1);
-    double    result = yDiff;
-    if (daysInMinYear == daysInMaxYear) {
-        result += (minYearDayDiff + maxYearDayDiff)
-            / static_cast<double>(daysInMaxYear);
-    }
-    else {
-        result += minYearDayDiff / static_cast<double>(daysInMinYear)
-                + maxYearDayDiff / static_cast<double>(daysInMaxYear);
-    }
+    double    result = (yDiff * daysInMinYear * daysInMaxYear
+    		         + minYearDayDiff * daysInMaxYear
+					 + maxYearDayDiff * daysInMinYear)
+					 / static_cast<double>(daysInMinYear * daysInMaxYear);
     if (negationFlag) {
         result = -result;
     }
