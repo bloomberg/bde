@@ -1722,11 +1722,9 @@ int FilesystemUtil::visitPaths(
       case GLOB_NOSPACE: {
         // out of memory
 
-#if defined(BDE_BUILD_TARGET_EXC)
-        bsls::BslExceptionUtil::throwBadAlloc();
-#endif
+        // If exceptions are disabled, 'throwBadAlloc' should abort.
 
-        // Should only get here if exceptions are disabled.
+        bsls::BslExceptionUtil::throwBadAlloc();
 
         return -11;                                                   // RETURN
       } break;
@@ -1794,9 +1792,9 @@ int FilesystemUtil::visitTree(
           case GLOB_NOSPACE: {
             // out of memory
 
-#if defined(BDE_BUILD_TARGET_EXC)
+            // If exceptions are disabled, 'throwBadAlloc' should abort.
+
             bsls::BslExceptionUtil::throwBadAlloc();
-#endif
 
             // Should only get here if exceptions are disabled.
 
