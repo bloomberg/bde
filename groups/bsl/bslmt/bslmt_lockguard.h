@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // otherwise.  The synchronization object can be any type (e.g., 'bslmt::Mutex'
 // or 'bslmt::RecursiveMutex') that provides the following methods:
 //..
-//  void tryLock();
+//  int  tryLock();
 //  void unlock();
 //..
 // Note that none of these guard types assumes ownership of the external
