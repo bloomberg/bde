@@ -521,16 +521,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include <bslma_managedptr.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
-#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
@@ -571,20 +571,7 @@ namespace BloombergLP {
 
 namespace bdlpcre {
 
-                        // =========================
-                        // struct RegEx_MatchContext
-                        // =========================
-struct RegEx_MatchContext {
-    // This component local POD 'struct' holds the pointers to the buffers used
-    // by the PCRE2 matching API.  This 'struct' is used only by private
-    // 'bdlpcre::RegEx' methods.
-
-  public:
-    // DATA
-    pcre2_match_context   *d_matchContext_p;    // PCRE2 match context
-    pcre2_match_data      *d_matchData_p;       // PCRE2 match data
-    pcre2_jit_stack       *d_jitStack_p;        // PCRE2 JIT stack
-};
+class RegEx_MatchContextImp;
 
                              // ===========
                              // class RegEx
@@ -598,10 +585,6 @@ class RegEx {
     // 'match' methods.  Note that the underlying implementation uses the
     // open-source Perl Compatible Regular Expressions (PCRE2) library that was
     // developed at the University of Cambridge ('http://www.pcre.org/').
-
-    // PRIVATE TYPES
-    typedef bslmt::ThreadUtil::Handle  ThreadHandle;
-        // Alias for thread handle type.
 
     // CLASS DATA
     static
@@ -625,10 +608,8 @@ class RegEx {
 
     size_t                 d_jitStackSize;      // PCRE JIT stack size
 
-    ThreadHandle           d_mainThread;        // main thread ID
-
-    RegEx_MatchContext     d_mainMatchContext;  // match context for main
-                                                // thread
+    bslma::ManagedPtr<RegEx_MatchContextImp>
+                           d_matchContextImp;   // match context helper
 
     bslma::Allocator      *d_allocator_p;       // allocator to supply memory
 
@@ -638,35 +619,29 @@ class RegEx {
     RegEx& operator=(const RegEx&);
 
     // PRIVATE ACCESSORS
-    int loadMatchContext(RegEx_MatchContext *matchContext) const;
-        // Load the specified 'matchContext' with the pointers to the match
-        // contexts for the current thread.  The behaviour is undefined unless
-        // 'matchContext' is a valid pointer.
-
-    void unloadMatchContext(RegEx_MatchContext *matchContext) const;
-        // Unload the match buffers pointed by the specified 'matchContext'.
-        // The behaviour is undefined unless 'matchContext' is a valid pointer.
-
-    int privateMatch(const char         *subject,
-                     size_t              subjectLength,
-                     size_t              subjectOffset,
-                     bool                skipValidation,
-                     RegEx_MatchContext *matchContext) const;
+    int privateMatch(const char          *subject,
+                     size_t               subjectLength,
+                     size_t               subjectOffset,
+                     bool                 skipValidation,
+                     pcre2_match_data    *matchData,
+                     pcre2_match_context *matchContext) const;
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
         // ('pattern()').  Begin matching at the specified 'subjectOffset' in
         // 'subject'.  The specified 'skipValidation' flag indicates whether
-        // UTF string validity check should be bypassed or not.  Use the match
-        // buffers from the specified 'matchContext'.  Return 0 on success,
-        // 1 if the depth limit was exceeded, 2 if memory available for the JIT
-        // stack is not large enough (applicable only if 'pattern()' was
-        // prepared with 'k_FLAG_JIT'), and another non-zero value otherwise.
-        // The behavior is undefined unless 'isPrepared() == true',
-        // 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.
+        // UTF string validity check should be bypassed or not.  Use the
+        // specified 'matchData' and 'matchContext' as PCRE2 match data and
+        // context buffers respectively.  Return 0 on success, 1 if the depth
+        // limit was exceeded, 2 if memory available for the JIT stack is not
+        // large enough (applicable only if 'pattern()' was prepared with
+        // 'k_FLAG_JIT'), and another non-zero value otherwise.  The behavior
+        // is undefined unless 'isPrepared() == true',
+        // 'subject || subjectLength == 0', 'subjectOffset <= subjectLength',
+        // and 'matchData' and 'matchContext' point to a valid PCRE2 match data
+        // buffers.  The behavior is also undefined if 'pattern()' was prepared
+        // with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
+        // 'subject' need not be null-terminated and may contain embedded null
+        // characters.
 
     void extractMatchResult(pcre2_match_data          *matchData,
                             bsl::pair<size_t, size_t> *result) const;
@@ -1056,23 +1031,6 @@ RegEx::~RegEx()
     clear();
     pcre2_compile_context_free(d_compileContext_p);
     pcre2_general_context_free(d_pcre2Context_p);
-
-}
-
-// MANIPULATORS
-inline
-int RegEx::setDepthLimit(int depthLimit)
-{
-    int previous = d_depthLimit;
-
-    d_depthLimit = depthLimit;
-
-    if (isPrepared()) {
-        pcre2_set_match_limit(d_mainMatchContext.d_matchContext_p,
-                              d_depthLimit);
-    }
-
-    return previous;
 }
 
 // ACCESSORS
