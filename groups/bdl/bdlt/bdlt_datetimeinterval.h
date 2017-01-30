@@ -10,37 +10,38 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a representation of an interval of time.
 //
 //@CLASSES:
-//  bdlt::DatetimeInterval: time interval with millisecond resolution
+//  bdlt::DatetimeInterval: time interval with microsecond resolution
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component implements a time interval class,
 // 'bdlt::DatetimeInterval', capable of representing the (signed) difference
 // between two arbitrary points in time.  The time interval represented by a
-// 'bdlt::DatetimeInterval' object has millisecond resolution.
+// 'bdlt::DatetimeInterval' object has microsecond resolution.
 //
 ///The Representation of a Time Interval
 ///-------------------------------------
 // A time interval has a value that is independent of its representation.
 // Conceptually, the interval between two points in time could be described
-// using a (signed) real number of seconds (or minutes, or hours, etc.).  A
+// using a (signed) real number of seconds (or minutes, or hours, etc.). A
 // 'bdlt::DatetimeInterval' represents this value as five fields: days, hours,
-// minutes, seconds, and milliseconds.  In the "canonical representation" of a
-// time interval, the days field may have any 32-bit integer value, with the
-// hours, minutes, seconds, and milliseconds fields limited to the respective
-// ranges '[-23 .. 23]', '[-59 .. 59]', '[-59 .. 59]', and '[-999 .. 999]',
-// with the additional constraint that the five fields are either all
-// non-negative or all non-positive.  When setting the value of a time interval
-// via its five-field representation, any integer value may be used in any
-// field, with the constraint that the resulting number of days be
-// representable as a 32-bit integer and the slightly-less-convenient condition
-// that no one field, or intermediate sum of fields, can overflow a 64-bit
-// integer of *milliseconds*.  Similarly, the field values may be accessed in
-// the canonical representation using the 'days', 'hours', 'minutes',
-// 'seconds', and 'milliseconds' methods.  The total value of the time interval
-// may be accessed in the respective field units via the 'totalDays',
-// 'totalHours', 'totalMinutes', 'totalSeconds', and 'totalMilliseconds'
-// methods.  Note that, with the exception of 'totalMilliseconds' (which
+// minutes, seconds, milliseconds, and microseconds.  In the "canonical
+// representation" of a time interval, the days field may have any 32-bit
+// integer value, with the hours, minutes, seconds, milliseconds, microseconds
+// fields limited to the respective ranges '[-23 .. 23]', '[-59 .. 59]',
+// '[-59 .. 59]', '[-999 .. 999]', and '[-999 .. 999]', with the additional
+// constraint that the five fields are either all non-negative or all
+// non-positive.  When setting the value of a time interval via its five-field
+// representation, any integer value may be used in any field, with the
+// constraint that the resulting number of days be representable as a 32-bit
+// integer and the slightly-less-convenient condition that no one field, or
+// intermediate sum of fields, can overflow a 84-bit integer of *microseconds*.
+// Similarly, the field values may be accessed in the canonical representation
+// using the 'days', 'hours', 'minutes', 'seconds', 'milliseconds', and
+// 'microseconds' methods.  The total value of the time interval may be
+// accessed in the respective field units via the 'totalDays', 'totalHours',
+// 'totalMinutes', 'totalSeconds', 'totalMilliseconds', and 'totalMicroseconds'
+// methods.  Note that, with the exception of 'totalMicroseconds' (which
 // returns an exact result), the other "total" accessors round toward 0.
 //
 // The following summarizes the canonical representation of the value of a
@@ -53,11 +54,12 @@ BSLS_IDENT("$Id: $")
 //  minutes        [ -59 ..  59]         all fields non-pos. or all non-neg.
 //  seconds        [ -59 ..  59]         all fields non-pos. or all non-neg.
 //  milliseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
+//  microseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
 //..
 ///Extremal Time Intervals
 ///-----------------------
 // The 'bdlt::DatetimeInterval' class provides two integral constants,
-// 'k_MILLISECONDS_MAX' and 'k_MILLISECONDS_MIN', that define (respectively)
+// 'k_MICROSECONDS_MAX' and 'k_MICROSECONDS_MIN', that define (respectively)
 // the maximum and minimum intervals representable by 'DatetimeInterval'
 // objects.
 //
@@ -77,6 +79,7 @@ BSLS_IDENT("$Id: $")
 //                                     assert(  0 == i1.minutes());
 //                                     assert(  0 == i1.seconds());
 //                                     assert(  0 == i1.milliseconds());
+//                                     assert(  0 == i1.microseconds());
 //..
 // Then, set the value of 'i1' to -5 days, and then add 16 hours to that value:
 //..
@@ -86,6 +89,7 @@ BSLS_IDENT("$Id: $")
 //                                     assert(  0 == i1.minutes());
 //                                     assert(  0 == i1.seconds());
 //                                     assert(  0 == i1.milliseconds());
+//                                     assert(  0 == i1.microseconds());
 //..
 // Next, create 'i2' as a copy of 'i1':
 //..
@@ -94,6 +98,7 @@ BSLS_IDENT("$Id: $")
 //                                     assert(  0 == i2.minutes());
 //                                     assert(  0 == i2.seconds());
 //                                     assert(  0 == i2.milliseconds());
+//                                     assert(  0 == i2.microseconds());
 //..
 // Then, add 2 days and 4 seconds to the value of 'i2' (in two steps), and
 // confirm that 'i2' has a value that is greater than that of 'i1':
@@ -104,6 +109,7 @@ BSLS_IDENT("$Id: $")
 //                                     assert(-59 == i2.minutes());
 //                                     assert(-56 == i2.seconds());
 //                                     assert(  0 == i2.milliseconds());
+//                                     assert(  0 == i2.microseconds());
 //                                     assert(i2 > i1);
 //..
 // Next, add 2 days and 4 seconds to the value of 'i1' in one step by using the
@@ -117,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //..
 // The output operator produces the following format on 'stdout':
 //..
-//  -2_07:59:56.000
+//  -2_07:59:56.000000
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -156,6 +162,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -177,26 +187,31 @@ namespace bdlt {
 
 class DatetimeInterval {
     // Each object of this class represents a (signed) time interval with
-    // millisecond resolution.  See {The Representation of a Time Interval} for
+    // microsecond resolution.  See {The Representation of a Time Interval} for
     // details.
 
-    // CLASS DATA
-    static bsls::AtomicInt64 s_maxSentinelCount;
-    static bsls::AtomicInt64 s_minSentinelCount;
-    static bsls::AtomicInt64 s_otherProposedRangeViolationCount;
-
     // DATA
-    bsls::Types::Int64 d_milliseconds;  // interval in (signed) milliseconds
+    int32_t            d_days;          // field for days
+    bsls::Types::Int64 d_microseconds;  // field for microseconds
 
-  private:
+    // FRIENDS
+    friend bool operator==(const DatetimeInterval&, const DatetimeInterval&);
+    friend bool operator!=(const DatetimeInterval&, const DatetimeInterval&);
+    friend bool operator< (const DatetimeInterval&, const DatetimeInterval&);
+    friend bool operator<=(const DatetimeInterval&, const DatetimeInterval&);
+    friend bool operator> (const DatetimeInterval&, const DatetimeInterval&);
+    friend bool operator>=(const DatetimeInterval&, const DatetimeInterval&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const DatetimeInterval&);
+
     // PRIVATE MANIPULATORS
-    void logProposedRangeViolation();
-        // Log a message indicating the type of range violation detected.
-
-    void verifyProposedRange();
-        // If 'k_PROPOSED_MILLISECONDS_MIN > d_milliseconds' or
-        // 'k_PROPOSED_MILLISECONDS_MAX < d_milliseconds', log a message
-        // indicating the type of range violation detected.
+    void assign(bsls::Types::Int64 days, bsls::Types::Int64 microseconds);
+        // Set this datetime interval to have the valud given by the sum of the
+        // specified 'days' and 'microseconds'.  The behavior is undefined
+        // unless the total number of days, after converting to the connical
+        // representation of the 'microseconds' having a magnitude of less than
+        // a day and 'days' and 'microseconds' are either both non-negative or
+        // non-positive, can be represented as a signed 32-bit integer.
 
   public:
     // PUBLIC CLASS DATA
@@ -206,20 +221,8 @@ class DatetimeInterval {
 
     static const bsls::Types::Int64 k_MILLISECONDS_MIN =
                    -k_MILLISECONDS_MAX - TimeUnitRatio::k_MILLISECONDS_PER_DAY;
-        // The minimum interval that is representable by a
-        // 'DatetimeInterval', in milliseconds.
-
-    static const bsls::Types::Int64 k_PROPOSED_MILLISECONDS_MAX =
-                                                             315538070399999LL;
-        // The proposed maximum interval that is representable by a
-        // 'DatetimeInterval', in milliseconds.  Note that this value should
-        // not be used outside of this component.
-
-    static const bsls::Types::Int64 k_PROPOSED_MILLISECONDS_MIN =
-                                                            -315538070399999LL;
-        // The proposed minimum interval that is representable by a
-        // 'DatetimeInterval', in milliseconds.  Note that this value should
-        // not be used outside of this component.
+        // The minimum interval that is representable by a 'DatetimeInterval',
+        // in milliseconds.
 
     // CLASS METHODS
 
@@ -240,21 +243,23 @@ class DatetimeInterval {
     DatetimeInterval();
         // Create a time interval object having the value 0.
 
+    // TBD doc
     explicit
     DatetimeInterval(int                days,
                      bsls::Types::Int64 hours = 0,
                      bsls::Types::Int64 minutes = 0,
                      bsls::Types::Int64 seconds = 0,
-                     bsls::Types::Int64 milliseconds = 0);
+                     bsls::Types::Int64 milliseconds = 0,
+                     bsls::Types::Int64 microseconds = 0);
         // Create a time interval object having the value given by the
         // specified 'days', and the optionally specified 'hours', 'minutes',
-        // 'seconds', and 'milliseconds'.  Unspecified arguments default to 0.
-        // The behavior is undefined unless: (1) the resulting time interval
-        // value is valid (i.e., the days field must not overflow a 32-bit
-        // integer), and (2) no intermediate sum of the arguments (converted to
-        // milliseconds) overflows a 64-bit integer, regardless of the order of
-        // summation.  Note that the arguments may be supplied using a mixture
-        // of positive, negative, and 0 values.
+        // 'seconds', 'milliseconds', and 'microseconds'.  Unspecified
+        // arguments default to 0.  The behavior is undefined unless: (1) the
+        // resulting time interval value is valid (i.e., the days field must
+        // not overflow a 32-bit integer), and (2) no intermediate sum of the
+        // arguments (converted to microseconds) overflows a 84-bit integer,
+        // regardless of the order of summation.  Note that the arguments may
+        // be supplied using a mixture of positive, negative, and 0 values.
 
     DatetimeInterval(const DatetimeInterval& original);
         // Create a time interval object having the value of the specified
@@ -284,20 +289,23 @@ class DatetimeInterval {
         // interval value is valid (i.e., the days field must not overflow a
         // 32-bit integer).
 
+    // TBD doc
     void setInterval(int                days,
                      bsls::Types::Int64 hours = 0,
                      bsls::Types::Int64 minutes = 0,
                      bsls::Types::Int64 seconds = 0,
-                     bsls::Types::Int64 milliseconds = 0);
+                     bsls::Types::Int64 milliseconds = 0,
+                     bsls::Types::Int64 microseconds = 0);
         // Set the time interval represented by this object to the value given
         // by the specified 'days', and the optionally specified 'hours',
-        // 'minutes', 'seconds', and 'milliseconds'.  Unspecified arguments
-        // default to 0.  The behavior is undefined unless: (1) the resulting
-        // time interval value is valid (i.e., the days field must not overflow
-        // a 32-bit integer), and (2) no intermediate sum of the arguments
-        // (converted to milliseconds) overflows a 64-bit integer, regardless
-        // of the order of summation.  Note that the arguments may be supplied
-        // using a mixture of positive, negative, and 0 values.
+        // 'minutes', 'seconds', 'milliseconds', and 'microseconds'.
+        // Unspecified arguments default to 0.  The behavior is undefined
+        // unless: (1) the resulting time interval value is valid (i.e., the
+        // days field must not overflow a 32-bit integer), and (2) no
+        // intermediate sum of the arguments (converted to microseconds)
+        // overflows a 84-bit integer, regardless of the order of summation.
+        // Note that the arguments may be supplied using a mixture of positive,
+        // negative, and 0 values.
 
     void setTotalDays(int days);
         // Set the overall value of this object to indicate the specified
@@ -327,20 +335,29 @@ class DatetimeInterval {
         // resulting time interval value is valid (i.e., the days field must
         // not overflow a 32-bit integer).
 
+    void setTotalMicroseconds(bsls::Types::Int64 microseconds);
+        // Set the overall value of this object to indicate the specified
+        // number of 'milliseconds'.  The behavior is undefined unless the
+        // resulting time interval value is valid (i.e., the days field must
+        // not overflow a 32-bit integer).
+
+    // TBD doc
     void addInterval(int                days,
                      bsls::Types::Int64 hours = 0,
                      bsls::Types::Int64 minutes = 0,
                      bsls::Types::Int64 seconds = 0,
-                     bsls::Types::Int64 milliseconds = 0);
+                     bsls::Types::Int64 milliseconds = 0,
+                     bsls::Types::Int64 microseconds = 0);
         // Add to this time interval the specified number of 'days', and the
-        // optionally specified number of 'hours', 'minutes', 'seconds', and
-        // 'milliseconds'.  Unspecified arguments default to 0.  The behavior
-        // is undefined unless: (1) the resulting time interval value is valid
-        // (i.e., the days field must not overflow a 32-bit integer), and (2)
-        // no intermediate sum of this time interval and the arguments
-        // (converted to milliseconds) overflows a 64-bit integer, regardless
-        // of the order of summation.  Note that the arguments may be supplied
-        // using a mixture of positive, negative, and 0 values.
+        // optionally specified number of 'hours', 'minutes', 'seconds',
+        // 'milliseconds', and 'microseconds'.  Unspecified arguments default
+        // to 0.  The behavior is undefined unless: (1) the resulting time
+        // interval value is valid (i.e., the days field must not overflow a
+        // 32-bit integer), and (2) no intermediate sum of this time interval
+        // and the arguments (converted to microseconds) overflows a 84-bit
+        // integer, regardless of the order of summation.  Note that the
+        // arguments may be supplied using a mixture of positive, negative, and
+        // 0 values.
 
     void addDays(int days);
         // Add to this time interval the specified number of 'days'.  The
@@ -364,6 +381,11 @@ class DatetimeInterval {
 
     void addMilliseconds(bsls::Types::Int64 milliseconds);
         // Add to this time interval the specified number of 'milliseconds'.
+        // The behavior is undefined unless the resulting time interval value
+        // is valid (i.e., the days field must not overflow a 32-bit integer).
+
+    void addMicroseconds(bsls::Types::Int64 microseconds);
+        // Add to this time interval the specified number of 'microseconds'.
         // The behavior is undefined unless the resulting time interval value
         // is valid (i.e., the days field must not overflow a 32-bit integer).
 
@@ -408,6 +430,11 @@ class DatetimeInterval {
         // value of this time interval.  Note that the return value may be
         // negative.
 
+    int microseconds() const;
+        // Return the microseconds field in the canonical representation of the
+        // value of this time interval.  Note that the return value may be
+        // negative.
+
     int totalDays() const;
         // Return the value of this time interval in integral days, rounded
         // toward 0.  Note that the return value may be negative.  Also note
@@ -434,6 +461,12 @@ class DatetimeInterval {
     bsls::Types::Int64 totalMilliseconds() const;
         // Return the value of this time interval in integral milliseconds.
         // Note that the return value may be negative.
+
+    bsls::Types::Int64 totalMicroseconds() const;
+        // Return the value of this time interval as an integral number of
+        // microseconds, rounded towards zero.  The behavior is undefined
+        // unless the number of microseconds can be represented with a 64-bit
+        // signed integer.  Note that the return value may be negative.
 
                                   // Aspects
 
@@ -558,36 +591,24 @@ void hashAppend(HASHALG& hashAlg, const DatetimeInterval& object);
                           // class DatetimeInterval
                           // ----------------------
 
-// PRIVATE MANIPULATORS
-inline
-void DatetimeInterval::verifyProposedRange()
-{
-    // TBD re-enable this logging (or remove all traces)
-    /*
-    if (   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                  k_PROPOSED_MILLISECONDS_MIN > d_milliseconds)
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                               k_PROPOSED_MILLISECONDS_MAX < d_milliseconds)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        logProposedRangeViolation();
-    }
-    */
-}
-
 // CLASS METHODS
 
                                   // Aspects
 
 inline
-int DatetimeInterval::maxSupportedBdexVersion(int /* versionSelector */)
+int DatetimeInterval::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20170401) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 
 // CREATORS
 inline
 DatetimeInterval::DatetimeInterval()
-: d_milliseconds(0)
+: d_days(0)
+, d_microseconds(0)
 {
 }
 
@@ -596,22 +617,21 @@ DatetimeInterval::DatetimeInterval(int                days,
                                    bsls::Types::Int64 hours,
                                    bsls::Types::Int64 minutes,
                                    bsls::Types::Int64 seconds,
-                                   bsls::Types::Int64 milliseconds)
-: d_milliseconds(milliseconds
-           + seconds * TimeUnitRatio::k_MS_PER_S
-           + minutes * TimeUnitRatio::k_MS_PER_M
-           + hours   * TimeUnitRatio::k_MS_PER_H
-           + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D)
+                                   bsls::Types::Int64 milliseconds,
+                                   bsls::Types::Int64 microseconds)
 {
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    setInterval(days,
+                hours,
+                minutes,
+                seconds,
+                milliseconds,
+                microseconds);
 }
 
 inline
 DatetimeInterval::DatetimeInterval(const DatetimeInterval& original)
-: d_milliseconds(original.d_milliseconds)
+: d_days(original.d_days)
+, d_microseconds(original.d_microseconds)
 {
 }
 
@@ -619,19 +639,17 @@ DatetimeInterval::DatetimeInterval(const DatetimeInterval& original)
 inline
 DatetimeInterval& DatetimeInterval::operator=(const DatetimeInterval& rhs)
 {
-    d_milliseconds = rhs.d_milliseconds;
+    d_days = rhs.d_days;
+    d_microseconds = rhs.d_microseconds;
     return *this;
 }
 
 inline
 DatetimeInterval& DatetimeInterval::operator+=(const DatetimeInterval& rhs)
 {
-    d_milliseconds += rhs.d_milliseconds;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(static_cast<bsls::Types::Int64>(d_days) +
+                                   static_cast<bsls::Types::Int64>(rhs.d_days),
+           d_microseconds + rhs.d_microseconds);
 
     return *this;
 }
@@ -639,162 +657,108 @@ DatetimeInterval& DatetimeInterval::operator+=(const DatetimeInterval& rhs)
 inline
 DatetimeInterval& DatetimeInterval::operator-=(const DatetimeInterval& rhs)
 {
-    d_milliseconds -= rhs.d_milliseconds;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(static_cast<bsls::Types::Int64>(d_days) -
+                                   static_cast<bsls::Types::Int64>(rhs.d_days),
+           d_microseconds - rhs.d_microseconds);
 
     return *this;
 }
 
 inline
-void DatetimeInterval::setInterval(int                days,
-                                   bsls::Types::Int64 hours,
-                                   bsls::Types::Int64 minutes,
-                                   bsls::Types::Int64 seconds,
-                                   bsls::Types::Int64 milliseconds)
-{
-    d_milliseconds = milliseconds
-           + seconds * TimeUnitRatio::k_MS_PER_S
-           + minutes * TimeUnitRatio::k_MS_PER_M
-           + hours   * TimeUnitRatio::k_MS_PER_H
-           + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
-}
-
-inline
 void DatetimeInterval::setTotalDays(int days)
 {
-    d_milliseconds =
-             static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
-
-    verifyProposedRange();
+    d_days         = days;
+    d_microseconds = 0;
 }
 
 inline
 void DatetimeInterval::setTotalHours(bsls::Types::Int64 hours)
 {
-    d_milliseconds = hours * TimeUnitRatio::k_MS_PER_H;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(hours / TimeUnitRatio::k_H_PER_D,
+           hours % TimeUnitRatio::k_H_PER_D * TimeUnitRatio::k_US_PER_H);
 }
 
 inline
 void DatetimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
 {
-    d_milliseconds = minutes * TimeUnitRatio::k_MS_PER_M;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(minutes / TimeUnitRatio::k_M_PER_D,
+           minutes % TimeUnitRatio::k_M_PER_D * TimeUnitRatio::k_US_PER_M);
 }
 
 inline
 void DatetimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 {
-    d_milliseconds = seconds * TimeUnitRatio::k_MS_PER_S;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(seconds / TimeUnitRatio::k_S_PER_D,
+           seconds % TimeUnitRatio::k_S_PER_D * TimeUnitRatio::k_US_PER_S);
 }
 
 inline
 void DatetimeInterval::setTotalMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    d_milliseconds = milliseconds;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(milliseconds / TimeUnitRatio::k_MS_PER_D,
+           milliseconds % TimeUnitRatio::k_MS_PER_D
+                                                 * TimeUnitRatio::k_US_PER_MS);
 }
 
 inline
-void DatetimeInterval::addInterval(int                days,
-                                   bsls::Types::Int64 hours,
-                                   bsls::Types::Int64 minutes,
-                                   bsls::Types::Int64 seconds,
-                                   bsls::Types::Int64 milliseconds)
+void DatetimeInterval::setTotalMicroseconds(bsls::Types::Int64 microseconds)
 {
-    d_milliseconds += milliseconds
-           + seconds * TimeUnitRatio::k_MS_PER_S
-           + minutes * TimeUnitRatio::k_MS_PER_M
-           + hours   * TimeUnitRatio::k_MS_PER_H
-           + static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(microseconds / TimeUnitRatio::k_US_PER_D,
+           microseconds % TimeUnitRatio::k_US_PER_D);
 }
 
 inline
 void DatetimeInterval::addDays(int days)
 {
-    d_milliseconds +=
-             static_cast<bsls::Types::Int64>(days) * TimeUnitRatio::k_MS_PER_D;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(static_cast<bsls::Types::Int64>(d_days)
+                                       + static_cast<bsls::Types::Int64>(days),
+           d_microseconds);
 }
 
 inline
 void DatetimeInterval::addHours(bsls::Types::Int64 hours)
 {
-    d_milliseconds += hours * TimeUnitRatio::k_MS_PER_H;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(static_cast<bsls::Types::Int64>(d_days)
+                                            + hours / TimeUnitRatio::k_H_PER_D,
+           d_microseconds +
+                 hours % TimeUnitRatio::k_H_PER_D * TimeUnitRatio::k_US_PER_H);
 }
 
 inline
 void DatetimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
-    d_milliseconds += minutes * TimeUnitRatio::k_MS_PER_M;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(static_cast<bsls::Types::Int64>(d_days)
+                                          + minutes / TimeUnitRatio::k_M_PER_D,
+           d_microseconds +
+               minutes % TimeUnitRatio::k_M_PER_D * TimeUnitRatio::k_US_PER_M);
 }
 
 inline
 void DatetimeInterval::addSeconds(bsls::Types::Int64 seconds)
 {
-    d_milliseconds += seconds * TimeUnitRatio::k_MS_PER_S;
-
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+    assign(static_cast<bsls::Types::Int64>(d_days)
+                                          + seconds / TimeUnitRatio::k_S_PER_D,
+           d_microseconds +
+               seconds % TimeUnitRatio::k_S_PER_D * TimeUnitRatio::k_US_PER_S);
 }
 
 inline
 void
 DatetimeInterval::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    d_milliseconds += milliseconds;
+    assign(static_cast<bsls::Types::Int64>(d_days)
+                                    + milliseconds / TimeUnitRatio::k_MS_PER_D,
+           d_microseconds + milliseconds % TimeUnitRatio::k_MS_PER_D
+                                                 * TimeUnitRatio::k_US_PER_MS);
+}
 
-    verifyProposedRange();
-
-    BSLS_ASSERT_SAFE(k_MILLISECONDS_MIN <= d_milliseconds);
-    BSLS_ASSERT_SAFE(    d_milliseconds <= k_MILLISECONDS_MAX);
+inline
+void
+DatetimeInterval::addMicroseconds(bsls::Types::Int64 microseconds)
+{
+    assign(static_cast<bsls::Types::Int64>(d_days)
+                                    + microseconds / TimeUnitRatio::k_US_PER_D,
+           d_microseconds + microseconds % TimeUnitRatio::k_US_PER_D);
 }
 
                                   // Aspects
@@ -808,11 +772,9 @@ STREAM& DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
             bsls::Types::Int64 tmp;
             stream.getInt64(tmp);
 
-            if (stream
-             && k_MILLISECONDS_MIN <= tmp && k_MILLISECONDS_MAX >= tmp) {
-                d_milliseconds = tmp;
-
-                verifyProposedRange();
+            if (   stream
+                && k_MILLISECONDS_MIN <= tmp && k_MILLISECONDS_MAX >= tmp) {
+                setTotalMilliseconds(tmp);
             }
             else {
                 stream.invalidate();
@@ -830,71 +792,90 @@ STREAM& DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
 inline
 int DatetimeInterval::days() const
 {
-    return static_cast<int>(d_milliseconds / TimeUnitRatio::k_MS_PER_D);
+    return d_days;
 }
 
 inline
 int DatetimeInterval::hours() const
 {
-    return static_cast<int>(
-       d_milliseconds % TimeUnitRatio::k_MS_PER_D / TimeUnitRatio::k_MS_PER_H);
+    return static_cast<int>(d_microseconds / TimeUnitRatio::k_US_PER_H);
 }
 
 inline
 int DatetimeInterval::minutes() const
 {
-    return static_cast<int>(
-       d_milliseconds % TimeUnitRatio::k_MS_PER_H / TimeUnitRatio::k_MS_PER_M);
+    return static_cast<int>(d_microseconds / TimeUnitRatio::k_US_PER_M
+                                                   % TimeUnitRatio::k_M_PER_H);
 }
 
 inline
 int DatetimeInterval::seconds() const
 {
-    return static_cast<int>(
-       d_milliseconds % TimeUnitRatio::k_MS_PER_M / TimeUnitRatio::k_MS_PER_S);
+    return static_cast<int>(d_microseconds / TimeUnitRatio::k_US_PER_S
+                                                   % TimeUnitRatio::k_S_PER_M);
 }
 
 inline
 int DatetimeInterval::milliseconds() const
 {
-    return static_cast<int>(d_milliseconds % TimeUnitRatio::k_MS_PER_S);
+    return static_cast<int>(d_microseconds / TimeUnitRatio::k_US_PER_MS
+                                                  % TimeUnitRatio::k_MS_PER_S);
+}
+
+inline
+int DatetimeInterval::microseconds() const
+{
+    return static_cast<int>(d_microseconds % TimeUnitRatio::k_US_PER_MS);
 }
 
 inline
 int DatetimeInterval::totalDays() const
 {
-    return static_cast<int>(d_milliseconds / TimeUnitRatio::k_MS_PER_D);
+    return d_days;
 }
 
 inline
 bsls::Types::Int64 DatetimeInterval::totalHours() const
 {
-    return d_milliseconds / TimeUnitRatio::k_MS_PER_H;
+    return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_H_PER_D
+                                  + d_microseconds / TimeUnitRatio::k_US_PER_H;
 }
 
 inline
 bsls::Types::Int64 DatetimeInterval::totalMinutes() const
 {
-    return d_milliseconds / TimeUnitRatio::k_MS_PER_M;
+    return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_M_PER_D
+                                  + d_microseconds / TimeUnitRatio::k_US_PER_M;
 }
 
 inline
 bsls::Types::Int64 DatetimeInterval::totalSeconds() const
 {
-    return d_milliseconds / TimeUnitRatio::k_MS_PER_S;
+    return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_S_PER_D
+                                  + d_microseconds / TimeUnitRatio::k_US_PER_S;
 }
 
 inline
 double DatetimeInterval::totalSecondsAsDouble() const
 {
-    return static_cast<double>(d_milliseconds) /
-                                             (1.0 * TimeUnitRatio::k_MS_PER_S);
+    return static_cast<double>(totalSeconds())
+              + static_cast<double>(d_microseconds % TimeUnitRatio::k_US_PER_S)
+                                           / (1.0 * TimeUnitRatio::k_US_PER_S);
 }
 
 inline
 bsls::Types::Int64 DatetimeInterval::totalMilliseconds() const
 {
-    return d_milliseconds;
+    return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_MS_PER_D
+                                 + d_microseconds / TimeUnitRatio::k_US_PER_MS;
+}
+
+inline
+bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
+{
+    // TBD range issue
+    return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_US_PER_D
+                                                              + d_microseconds;
 }
 
                                   // Aspects
@@ -905,7 +886,7 @@ STREAM& DatetimeInterval::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            stream.putInt64(d_milliseconds);
+            stream.putInt64(totalMilliseconds());
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -941,10 +922,9 @@ inline
 bdlt::DatetimeInterval bdlt::operator+(const DatetimeInterval& lhs,
                                        const DatetimeInterval& rhs)
 {
-    DatetimeInterval interval;
+    DatetimeInterval interval(lhs);
 
-    interval.setTotalMilliseconds(
-                            lhs.totalMilliseconds() + rhs.totalMilliseconds());
+    interval += rhs;
 
     return interval;
 }
@@ -953,10 +933,9 @@ inline
 bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& lhs,
                                        const DatetimeInterval& rhs)
 {
-    DatetimeInterval interval;
+    DatetimeInterval interval(lhs);
 
-    interval.setTotalMilliseconds(
-                            lhs.totalMilliseconds() - rhs.totalMilliseconds());
+    interval -= rhs;
 
     return interval;
 }
@@ -964,11 +943,9 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& lhs,
 inline
 bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& value)
 {
-    BSLS_ASSERT_SAFE(INT_MIN < value.days());
-
     DatetimeInterval interval;
 
-    interval.setTotalMilliseconds(-value.totalMilliseconds());
+    interval -= value;
 
     return interval;
 }
@@ -976,39 +953,49 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& value)
 inline
 bool bdlt::operator==(const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
-    return lhs.totalMilliseconds() == rhs.totalMilliseconds();
+    return lhs.d_days == rhs.d_days
+        && lhs.d_microseconds == rhs.d_microseconds;
 }
 
 inline
 bool bdlt::operator!=(const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
-    return lhs.totalMilliseconds() != rhs.totalMilliseconds();
+    return lhs.d_days != rhs.d_days
+        || lhs.d_microseconds != rhs.d_microseconds;
 }
 
 inline
 bool bdlt::operator< (const DatetimeInterval& lhs,
                       const DatetimeInterval& rhs)
 {
-    return lhs.totalMilliseconds() < rhs.totalMilliseconds();
+    return lhs.d_days < rhs.d_days
+        || (   lhs.d_days == rhs.d_days
+            && lhs.d_microseconds < rhs.d_microseconds);
 }
 
 inline
 bool bdlt::operator<=(const DatetimeInterval& lhs,
                       const DatetimeInterval& rhs)
 {
-    return lhs.totalMilliseconds() <= rhs.totalMilliseconds();
+    return lhs.d_days < rhs.d_days
+        || (   lhs.d_days == rhs.d_days
+            && lhs.d_microseconds <= rhs.d_microseconds);
 }
 
 inline
 bool bdlt::operator> (const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
-    return lhs.totalMilliseconds() > rhs.totalMilliseconds();
+    return lhs.d_days > rhs.d_days
+        || (   lhs.d_days == rhs.d_days
+            && lhs.d_microseconds > rhs.d_microseconds);
 }
 
 inline
 bool bdlt::operator>=(const DatetimeInterval& lhs, const DatetimeInterval& rhs)
 {
-    return lhs.totalMilliseconds() >= rhs.totalMilliseconds();
+    return lhs.d_days > rhs.d_days
+        || (   lhs.d_days == rhs.d_days
+            && lhs.d_microseconds >= rhs.d_microseconds);
 }
 
 inline
@@ -1023,7 +1010,8 @@ template <class HASHALG>
 void bdlt::hashAppend(HASHALG& hashAlg, const DatetimeInterval& object)
 {
     using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, object.totalMilliseconds());
+    hashAppend(hashAlg, object.d_days);
+    hashAppend(hashAlg, object.d_microseconds);
 }
 
 }  // close enterprise namespace
@@ -1043,7 +1031,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::DatetimeInterval> :
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

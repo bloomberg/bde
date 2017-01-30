@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsl_cstdio.h>    // 'sprintf'
+#include <bsl_limits.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -26,39 +27,87 @@ namespace bdlt {
                           // class DatetimeInterval
                           // ----------------------
 
-// CLASS DATA
-bsls::AtomicInt64 DatetimeInterval::s_maxSentinelCount(0);
-bsls::AtomicInt64 DatetimeInterval::s_minSentinelCount(0);
-bsls::AtomicInt64 DatetimeInterval::s_otherProposedRangeViolationCount(0);
-
 // PRIVATE MANIPULATORS
-void DatetimeInterval::logProposedRangeViolation()
+void DatetimeInterval::assign(bsls::Types::Int64 days,
+                              bsls::Types::Int64 microseconds)
 {
-    if (k_MILLISECONDS_MIN == d_milliseconds) {
-        bdlb::BitUtil::uint64_t count =
-                    static_cast<bdlb::BitUtil::uint64_t>(++s_minSentinelCount);
-        if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR,
-                      "detected 'bdlt::DatetimeInterval::k_MILLISECONDS_MIN'");
-        }
+    days         += microseconds / TimeUnitRatio::k_US_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    if (days > 0 && microseconds < 0) {
+        --days;
+        microseconds += TimeUnitRatio::k_US_PER_D;
     }
-    else if (k_MILLISECONDS_MAX == d_milliseconds) {
-        bdlb::BitUtil::uint64_t count =
-                    static_cast<bdlb::BitUtil::uint64_t>(++s_maxSentinelCount);
-        if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR,
-                      "detected 'bdlt::DatetimeInterval::k_MILLISECONDS_MAX'");
-        }
+    else if (days < 0 && microseconds > 0) {
+        ++days;
+        microseconds -= TimeUnitRatio::k_US_PER_D;
     }
-    else {
-        bdlb::BitUtil::uint64_t count = static_cast<bdlb::BitUtil::uint64_t>(
-                                         ++s_otherProposedRangeViolationCount);
-        if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-            BSLS_LOG_ERROR("detected 'bdlt::DatetimeInterval' "
-                                          "proposed range violation (%lld ms)",
-                     d_milliseconds);
-        }
-    }
+
+    BSLS_ASSERT(days <= bsl::numeric_limits<bsl::int32_t>::max());
+    BSLS_ASSERT(days >= bsl::numeric_limits<bsl::int32_t>::min());
+
+    d_days         = static_cast<int>(days);
+    d_microseconds = microseconds;
+}
+
+// MANIPULATORS
+void DatetimeInterval::addInterval(int                days,
+                                   bsls::Types::Int64 hours,
+                                   bsls::Types::Int64 minutes,
+                                   bsls::Types::Int64 seconds,
+                                   bsls::Types::Int64 milliseconds,
+                                   bsls::Types::Int64 microseconds)
+{
+    bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
+                         + hours        / TimeUnitRatio::k_H_PER_D
+                         + minutes      / TimeUnitRatio::k_M_PER_D
+                         + seconds      / TimeUnitRatio::k_S_PER_D
+                         + milliseconds / TimeUnitRatio::k_MS_PER_D
+                         + microseconds / TimeUnitRatio::k_US_PER_D;
+
+    hours        %= TimeUnitRatio::k_H_PER_D;
+    minutes      %= TimeUnitRatio::k_M_PER_D;
+    seconds      %= TimeUnitRatio::k_S_PER_D;
+    milliseconds %= TimeUnitRatio::k_MS_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    bsls::Types::Int64 us = hours        * TimeUnitRatio::k_US_PER_H
+                          + minutes      * TimeUnitRatio::k_US_PER_M
+                          + seconds      * TimeUnitRatio::k_US_PER_S
+                          + milliseconds * TimeUnitRatio::k_US_PER_MS
+                          + microseconds;
+
+    assign(static_cast<bsls::Types::Int64>(d_days) + d,
+           d_microseconds + us);
+}
+
+void DatetimeInterval::setInterval(int                days,
+                                   bsls::Types::Int64 hours,
+                                   bsls::Types::Int64 minutes,
+                                   bsls::Types::Int64 seconds,
+                                   bsls::Types::Int64 milliseconds,
+                                   bsls::Types::Int64 microseconds)
+{
+    bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
+                         + hours        / TimeUnitRatio::k_H_PER_D
+                         + minutes      / TimeUnitRatio::k_M_PER_D
+                         + seconds      / TimeUnitRatio::k_S_PER_D
+                         + milliseconds / TimeUnitRatio::k_MS_PER_D
+                         + microseconds / TimeUnitRatio::k_US_PER_D;
+
+    hours        %= TimeUnitRatio::k_H_PER_D;
+    minutes      %= TimeUnitRatio::k_M_PER_D;
+    seconds      %= TimeUnitRatio::k_S_PER_D;
+    milliseconds %= TimeUnitRatio::k_MS_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    bsls::Types::Int64 us = hours        * TimeUnitRatio::k_US_PER_H
+                          + minutes      * TimeUnitRatio::k_US_PER_M
+                          + seconds      * TimeUnitRatio::k_US_PER_S
+                          + milliseconds * TimeUnitRatio::k_US_PER_MS
+                          + microseconds;
+
+    assign(d, us);
 }
 
 // ACCESSORS
@@ -114,7 +163,7 @@ bsl::ostream& DatetimeInterval::streamOut(bsl::ostream& stream) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

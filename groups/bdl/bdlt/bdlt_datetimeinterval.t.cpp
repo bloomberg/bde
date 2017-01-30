@@ -259,19 +259,6 @@ BSLMF_ASSERT(true == bsl::is_trivially_copyable<Obj>::value);
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static int s_countingLogMessageHandlerCount = 0;
-static std::string s_lastLogMessage;
-
-static void countingLogMessageHandler(bsls::LogSeverity::Enum,
-                                      const char *,
-                                      const int,
-                                      const char              *msg)
-    // Increment 's_countingLogMessageHandlerCount'.
-{
-    ++s_countingLogMessageHandlerCount;
-    s_lastLogMessage = msg;
-}
-
 static
 Int64 flds2Msecs(int d, Int64 h = 0, Int64 m = 0, Int64 s = 0, Int64 ms = 0)
     // Return the sum of the specified 'd' days and the optionally specified
@@ -568,291 +555,6 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-            // TBD re-enable this logging testing (or remove all traces)
-            /*            
-      // --------------------------------------------------------------------
-      // VERIFYING HANDLING OF PROPOSED INVALID INTERNAL REPRESENTATIONS
-      // --------------------------------------------------------------------
-      case 41: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
-        const Obj& X = mX;
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-
-        -X;
-
-        ASSERT(2 == s_countingLogMessageHandlerCount);
-      } break;
-      case 40: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN);
-        const Obj& X = mX;
-
-        Obj mY(0, 0, 0, 0, 1);  const Obj& Y = mY;
-
-        ASSERT(0 == s_countingLogMessageHandlerCount);
-
-        X - Y;
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 39: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
-        const Obj& X = mX;
-
-        Obj mY(0, 0, 0, 0, 1);  const Obj& Y = mY;
-
-        ASSERT(0 == s_countingLogMessageHandlerCount);
-
-        X + Y;
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 38: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
-
-        Out out(VERSION_SELECTOR, &allocator);
-
-        out.putInt64(Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
-
-        const char *const OD  = out.data();
-        const int         LOD = static_cast<int>(out.length());
-
-        In in(OD, LOD);
-
-        Obj mX;
-
-        mX.bdexStreamIn(in, 1);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 37: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.addMilliseconds(Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 36: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.addSeconds((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_S);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 35: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.addMinutes((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_M);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 34: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.addHours((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_H);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 33: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.addDays((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_D);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 32: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.addInterval(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN - 1);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 31: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.setTotalMilliseconds(Obj::k_PROPOSED_MILLISECONDS_MAX + 1);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 30: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.setTotalSeconds((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_S);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 29: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.setTotalMinutes((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_M);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 28: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.setTotalHours((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_H);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 27: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.setTotalDays((Obj::k_PROPOSED_MILLISECONDS_MAX + 1)
-                                            / bdlt::TimeUnitRatio::k_MS_PER_D);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 26: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX;
-
-        mX.setInterval(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MIN - 1);
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 25: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX(0, 0, 0, 0, -1);
-        Obj mY(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
-
-        const Obj& Y = mY;
-
-        mX -= Y;
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 24: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        Obj mX(0, 0, 0, 0, 1);
-        Obj mY(0, 0, 0, 0, Obj::k_PROPOSED_MILLISECONDS_MAX);
-
-        const Obj& Y = mY;
-
-        mX += Y;
-
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-      } break;
-      case 23: {
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-
-        {
-            Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date(),
-                   23,
-                   59,
-                   59,
-                   999);
-            const Obj& X = mX;
-
-            ASSERT(Obj::k_PROPOSED_MILLISECONDS_MAX == X.totalMilliseconds());
-        }
-        {
-            Obj mX(bdlt::Date() - bdlt::Date(9999, 12, 31),
-                   -23,
-                   -59,
-                   -59,
-                   -999);
-            const Obj& X = mX;
-
-            ASSERT(Obj::k_PROPOSED_MILLISECONDS_MIN == X.totalMilliseconds());
-        }
-
-        ASSERT(0 == s_countingLogMessageHandlerCount);
-
-        int EXP = 0;
-
-        {
-            Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date() + 1);
-
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-
-            ASSERT(s_lastLogMessage ==
-                            "detected 'bdlt::DatetimeInterval' proposed range "
-                                             "violation (315538070400000 ms)");
-        }
-
-        {
-            Obj mX(bdlt::Date() - bdlt::Date(9999, 12, 31) - 1);
-
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-
-            ASSERT(s_lastLogMessage ==
-                            "detected 'bdlt::DatetimeInterval' proposed range "
-                                            "violation (-315538070400000 ms)");
-        }
-
-        for (int i = 0, j = 2; i < 8; ++i, j *= 2) {
-            for (int k = 0; k < j; ++k) {
-                Obj mX(bdlt::Date(9999, 12, 31) - bdlt::Date() + 1);
-            }
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-        }
-
-        {
-            Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MIN);
-
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-        }
-        for (int i = 0, j = 1; i < 8; ++i, j *= 2) {
-            for (int k = 0; k < j; ++k) {
-                Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MIN);
-            }
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-        }
-
-        {
-            Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MAX);
-
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-        }
-        for (int i = 1, j = 1; i < 8; ++i, j *= 2) {
-            for (int k = 0; k < j; ++k) {
-                Obj mX(0, 0, 0, 0, Obj::k_MILLISECONDS_MAX);
-            }
-            ASSERT(++EXP == s_countingLogMessageHandlerCount);
-        }
-      } break;
-            */
       case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -891,6 +593,7 @@ int main(int argc, char *argv[])
                                        ASSERT(  0 == i1.minutes());
                                        ASSERT(  0 == i1.seconds());
                                        ASSERT(  0 == i1.milliseconds());
+                                       ASSERT(  0 == i1.microseconds());
 //..
 // Then, set the value of 'i1' to -5 days, and then add 16 hours to that value:
 //..
@@ -900,6 +603,7 @@ int main(int argc, char *argv[])
                                        ASSERT(  0 == i1.minutes());
                                        ASSERT(  0 == i1.seconds());
                                        ASSERT(  0 == i1.milliseconds());
+                                       ASSERT(  0 == i1.microseconds());
 //..
 // Next, create 'i2' as a copy of 'i1':
 //..
@@ -908,6 +612,7 @@ int main(int argc, char *argv[])
                                        ASSERT(  0 == i2.minutes());
                                        ASSERT(  0 == i2.seconds());
                                        ASSERT(  0 == i2.milliseconds());
+                                       ASSERT(  0 == i2.microseconds());
 //..
 // Then, add 2 days and 4 seconds to the value of 'i2' (in two steps), and
 // confirm that 'i2' has a value that is greater than that of 'i1':
@@ -918,6 +623,7 @@ int main(int argc, char *argv[])
                                        ASSERT(-59 == i2.minutes());
                                        ASSERT(-56 == i2.seconds());
                                        ASSERT(  0 == i2.milliseconds());
+                                       ASSERT(  0 == i2.microseconds());
                                        ASSERT(i2 > i1);
 //..
 // Next, add 2 days and 4 seconds to the value of 'i1' in one step by using the
@@ -932,7 +638,7 @@ if (veryVerbose)
 //..
 // The output operator produces the following format on 'stdout':
 //..
-//  -2_07:59:56.000
+//  -2_07:59:56.000000
 //..
 
       } break;
@@ -6473,7 +6179,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
