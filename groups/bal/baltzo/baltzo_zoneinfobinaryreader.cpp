@@ -99,7 +99,8 @@ struct RawLeapInfo64 {
 BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
 
 const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488;
-    // Transition time value, added by Zone Info Compiler by default.
+    // Transition time value, added by Zone Info Compiler by default.  It is
+    // equal to 2^59 seconds or ~18.3 billion years before epoch.
 
 }  // close unnamed namespace
 
@@ -170,11 +171,10 @@ static inline
 int readRawTz(bsl::string   *result,
               bsl::istream&  stream)
     // Read the trailing POSIX(-like) TZ environment string  from the specified
-    // 'stream' and append it to the specified 'result'.  Return '-1' if an
-    // error occurs during first symbol reading, '-2' if the first symbol
-    // differs from the newline '\n' character and '0' otherwise.  The first
-    // character is discarded from the stream whether it is newline character
-    // or not.  The final '\n' is not appended to the 'result'.
+    // 'stream' and append it to the specified 'result'.  Return 0 on success,
+    // and non-zero value otherwise.  The first character is discarded from the
+    // stream whether it is newline character or not.  The final '\n' is not
+    // appended to the 'result'.
 {
     BSLS_ASSERT(result);
 
@@ -496,7 +496,7 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
                         "Unable to read 'tz' information from Zoneinfo file.");
             return -33;                                               // RETURN
         }
-        zoneinfoResult->setExtendedTransitionsDescription(tz);
+        zoneinfoResult->setPosixTZ(tz);
     }
 
     return 0;

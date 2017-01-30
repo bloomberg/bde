@@ -2433,7 +2433,7 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&     data,
 
     int length = data.timeZoneStringLength();
 
-    bsl::string zoneInfoString = X.extendedTransitionsDescription();
+    bsl::string zoneInfoString = X.posixTZ();
     bsl::string zoneInfoDataString(data.getTimeZoneString(),
                                    data.timeZoneStringLength());
 
@@ -2920,7 +2920,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        TZ.setExtendedTransitionsDescription("abc\n");
+        TZ.setPosixTZ("abc\n");
 
         ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
     }
@@ -3343,8 +3343,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(iter->utcTime(), FIRST_TRANSITION == iter->utcTime());
 
-            LOOP_ASSERT(TZ.extendedTransitionsDescription(),
-                        EASTER_TZ == TZ.extendedTransitionsDescription());
+            LOOP_ASSERT(TZ.posixTZ(), EASTER_TZ == TZ.posixTZ());
         }
       } break;
       case 10: {
