@@ -113,13 +113,12 @@ class RegEx_MatchContextImp {
     // Alias for thread handle type.
 
     // DATA
-    ThreadHandle           d_mainThread;        // main thread ID
-    pcre2_general_context *d_pcre2Context_p;
-    pcre2_code            *d_pcre2PatternCode_p;
-    int                    d_depthLimit;
-    size_t                 d_jitStackSize;
-
-    RegEx_MatchContext     d_mainThreadMatchContext;
+    pcre2_general_context *d_pcre2Context_p;          // PCRE2 general context
+    pcre2_code            *d_pcre2PatternCode_p;      // PCRE2 compiled pattern
+    int                    d_depthLimit;              // match depth limit
+    size_t                 d_jitStackSize;            // JIT stack size
+    ThreadHandle           d_mainThread;              // main thread ID
+    RegEx_MatchContext     d_mainThreadMatchContext;  // main thread match ctx
 
   private:
     // PRIVATE ACCESSORS
@@ -170,11 +169,11 @@ class RegEx_MatchContextImp {
 
 // CREATORS
 RegEx_MatchContextImp::RegEx_MatchContextImp()
-: d_mainThread(bslmt::ThreadUtil::invalidHandle())
-, d_pcre2Context_p(0)
+: d_pcre2Context_p(0)
 , d_pcre2PatternCode_p(0)
 , d_depthLimit(0)
 , d_jitStackSize(0)
+, d_mainThread(bslmt::ThreadUtil::invalidHandle())
 , d_mainThreadMatchContext()
 {
 }
