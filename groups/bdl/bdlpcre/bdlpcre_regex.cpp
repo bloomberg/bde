@@ -30,10 +30,11 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 #include <bsls_exceptionutil.h>
 
 #include <bsl_cstring.h>    // bsl::memset
+#include <bsl_iostream.h>
+#include <bsl_new.h>        // placement 'new' syntax
 #include <bsl_string.h>
 #include <bsl_utility.h>    // bsl::pair
 #include <bsl_vector.h>
-#include <bsl_iostream.h>
 
 extern "C" {
 
@@ -466,10 +467,8 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
 , d_jitStackSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    // Creating match context
-    RegEx_MatchContextImp *matchImp = new (*d_allocator_p)
-                                                       RegEx_MatchContextImp();
-    d_matchContextImp.load(matchImp, d_allocator_p);
+    d_matchContextImp.load(new (*d_allocator_p) RegEx_MatchContextImp(),
+                           d_allocator_p);
 
     d_pcre2Context_p = pcre2_general_context_create(
                                             &bdlpcre_malloc,
