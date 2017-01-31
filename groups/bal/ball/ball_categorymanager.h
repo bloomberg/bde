@@ -197,6 +197,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwriterlock.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
@@ -232,10 +236,10 @@ class CategoryManager {
                                                       // indices in
                                                       // 'd_categories'
 
-    volatile int                     d_ruleSequenceNum;
-                                                      // sequence number
-                                                      // indicating the number
-                                                      // of rule changes
+    volatile bsls::Types::Int64      d_ruleSetTimestamp;
+                                                      // timestamp at which the
+                                                      // rule set was last
+                                                      // updated
 
     RuleSet                          d_ruleSet;       // rule set that contains
                                                       // all registered rules
@@ -408,9 +412,12 @@ class CategoryManager {
         //..
 
     // ACCESSORS
-    int ruleSequenceNumber() const;
-        // Return the rule sequence number indicating the number of rule
-        // changes.
+    bsls::Types::Int64 ruleSetTimestamp() const;
+        // Return the timestamp indicating when the rule set of this category
+        // manager was last modified.  Calls to this method before and after
+        // the rule set is changed return monotonically increasing values; the
+        // representation of the return value is otherwise implementation
+        // defined.
 
     const Category& operator[](int index) const;
         // Return a reference to the non-modifiable category at the specified
@@ -451,16 +458,6 @@ class CategoryManager {
                         // class CategoryManager
                         // ---------------------
 
-// CREATORS
-inline
-CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
-: d_registry(bdlb::CStringLess(), basicAllocator)
-, d_ruleSet(bslma::Default::allocator(basicAllocator))
-, d_categories(basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
-
 // MANIPULATORS
 inline
 Category& CategoryManager::operator[](int index)
@@ -488,9 +485,9 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
 
 // ACCESSORS
 inline
-int CategoryManager::ruleSequenceNumber() const
+bsls::Types::Int64 CategoryManager::ruleSetTimestamp() const
 {
-    return d_ruleSequenceNum;
+    return d_ruleSetTimestamp;
 }
 
 inline

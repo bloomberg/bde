@@ -9,6 +9,8 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 
+#include <bdlt_currenttime.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
@@ -38,9 +40,6 @@ namespace {
 class CategoryProctor {
     // This class facilitates exception neutrality by proctoring memory
     // management for 'Category' objects.
-    //
-    // This class should *not* be used directly by client code.  It is an
-    // implementation detail of the 'ball' logging system.
 
     // PRIVATE TYPES
     typedef bsl::vector<ball::Category *> CategoryVector;
@@ -138,8 +137,7 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
                                           int         triggerLevel,
                                           int         triggerAllLevel)
 {
-    // Create a new category and add it to the collection of categories
-    // and the category registry.
+    // Create a new category and add it to the category registry.
 
     Category *category = new (*d_allocator_p) Category(categoryName,
                                                        recordLevel,
@@ -147,8 +145,7 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
                                                        triggerLevel,
                                                        triggerAllLevel,
                                                        d_allocator_p);
-    // rollback on failure
-    CategoryProctor proctor(category, d_allocator_p);
+    CategoryProctor proctor(category, d_allocator_p);  // rollback on exception
 
     d_categories.push_back(category);
     proctor.setCategories(&d_categories);
@@ -161,6 +158,15 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
 }
 
 // CREATORS
+CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
+: d_registry(bdlb::CStringLess(), basicAllocator)
+, d_ruleSetTimestamp(bdlt::CurrentTime::now().totalNanoseconds())
+, d_ruleSet(bslma::Default::allocator(basicAllocator))
+, d_categories(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
 CategoryManager::~CategoryManager()
 {
     BSLS_ASSERT(d_allocator_p);
@@ -241,8 +247,10 @@ Category *CategoryManager::addCategory(CategoryHolder *categoryHolder,
                 }
             }
         }
-        // We have a 'writeLock' on 'd_registryLock' so the supplied category
-        // holder is the only category holder for the created category.
+
+        // We have a write lock on 'd_registryLock', so the supplied category
+        // holder is the only holder for the created category.
+
         if (categoryHolder) {
             categoryHolder->setThreshold(bsl::max(category->threshold(),
                                                   category->ruleThreshold()));
@@ -365,7 +373,7 @@ int CategoryManager::addRule(const Rule& value)
         return 0;                                                     // RETURN
     }
 
-    ++d_ruleSequenceNum;
+    d_ruleSetTimestamp = bdlt::CurrentTime::now().totalNanoseconds();
 
     const Rule *rule = d_ruleSet.getRuleById(ruleId);
 
@@ -407,7 +415,7 @@ int CategoryManager::removeRule(const Rule& value)
         return 0;                                                     // RETURN
     }
 
-    ++d_ruleSequenceNum;
+    d_ruleSetTimestamp = bdlt::CurrentTime::now().totalNanoseconds();
 
     const Rule *rule = d_ruleSet.getRuleById(ruleId);
 
@@ -419,11 +427,10 @@ int CategoryManager::removeRule(const Rule& value)
 
             RuleSet::MaskType relevantRuleMask = category->relevantRuleMask();
 
-            int j = 0;
-            int numBits = bdlb::BitUtil::sizeInBits(relevantRuleMask);
-            BSLS_ASSERT(numBits == RuleSet::maxNumRules());
+            int j;
+
             while ((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
-                                                                  != numBits) {
+                                                 != RuleSet::e_MAX_NUM_RULES) {
                 relevantRuleMask =
                     bdlb::BitUtil::withBitCleared(relevantRuleMask, j);
 
@@ -461,7 +468,9 @@ int CategoryManager::removeRules(const RuleSet& ruleSet)
 void CategoryManager::removeAllRules()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
-    ++d_ruleSequenceNum;
+
+    d_ruleSetTimestamp = bdlt::CurrentTime::now().totalNanoseconds();
+
     for (int i = 0; i < length(); ++i) {
         if (d_categories[i]->relevantRuleMask()) {
             CategoryManagerImpUtil::setRelevantRuleMask(d_categories[i], 0);

@@ -7,22 +7,24 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <ball_categorymanager.h>
-
-#include <bslmt_barrier.h>
-#include <bslmt_lockguard.h>
 
 #include <bdlb_bitutil.h>
 
+#include <bdlt_currenttime.h>
+
 #include <bdlsb_fixedmemoutstreambuf.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+
 #include <bsls_platform.h>
-#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_bitset.h>
@@ -40,10 +42,10 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#include <bsl_c_stdlib.h>             // for rand_r
+#include <bsl_c_stdlib.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                                   TEST PLAN
@@ -79,9 +81,9 @@ using namespace bsl;  // automatically added by script
 // 'ball::CategoryManager' public interface:
 // [ 2] ball::CategoryManager(bslma::Allocator *ba = 0);
 // [ 2] ~ball::CategoryManager();
-// [ 6] ball::Category& operator[](int index)
+// [ 6] ball::Category& operator[](int index);
 // [ 5] ball::Category *addCategory(const char *name, int, int, int, int);
-// [11] ball::Category *addCategory(Holder *, const char *, int, int, int, int);
+// [11] ball::Category *addCategory(Holder *, name, int, int, int, int);
 // [ 3] ball::Category *lookupCategory(const char *name);
 // [11] ball::Category *lookupCategory(Holder *, const char *name);
 // [11] void resetCategoryHolders();
@@ -92,10 +94,10 @@ using namespace bsl;  // automatically added by script
 // [ 9] int removeRules(const ball::RuleSet& ruleSet);
 // [ 8] void removeAllRules();
 // [13] bslmt::Mutex& rulesetMutex();
-// [ 8] const ball::Category& operator[](int index) const
+// [ 6] const ball::Category& operator[](int index) const;
 // [ 3] const ball::Category *lookupCategory(const char *name) const;
 // [ 3] int length() const;
-// [ 8] int ruleSequenceNumber() const;
+// [ 8] bsls::Types::Int64 ruleSetTimestamp() const;
 // [13] ball::RuleSet& ruleSet() const;
 //
 // 'ball::CategoryHolder' public interface:
@@ -115,75 +117,58 @@ using namespace bsl;  // automatically added by script
 // [13] CONCURRENCY TEST: RULES
 // [14] USAGE EXAMPLE
 
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
+namespace {
 
-void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                     STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                           GLOBAL MACROS FOR TESTING
 //-----------------------------------------------------------------------------
-#define PA(X) cout << #X " = " << ((void *) X) << endl;
+#define PA(X)  cout << #X " = " << ((void *) X) << endl;
 #define PA_(X) cout << #X " = " << ((void *) X) << ", " << flush;
 
 // The following variable and macros provide a thread-safe framework
-// for using bsl::cout.
+// for using 'bsl::cout'.
 
 static bslmt::Mutex coutMutex;
 
@@ -220,11 +205,19 @@ typedef ball::CategoryManager         Obj;
 
 typedef ball::Category                Entry;
 typedef ball::CategoryHolder          Holder;
+typedef ball::RuleSet::MaskType       MaskType;
 typedef ball::ThresholdAggregate      Thresholds;
-typedef const char*                  Name;
-typedef bslma::TestAllocator         TestAllocator;
-typedef bslma::DefaultAllocatorGuard DefaultAllocGuard;
 
+typedef const char                   *Name;
+
+typedef bslma::TestAllocator          TestAllocator;
+typedef bslma::DefaultAllocatorGuard  DefaultAllocGuard;
+
+typedef bsls::Types::Int64            Int64;
+
+static int verbose;
+static int veryVerbose;
+static int veryVeryVerbose;
 
 Name NAMES[] = {
     "",
@@ -267,11 +260,12 @@ const int *LA = LEVELS[0],
           *LG = LEVELS[6];
 
 //-----------------------------------------------------------------------------
+
                              // =================
                              // class my_ListType
                              // =================
 
-class my_ListType : public bsl::vector<void*> {
+class my_ListType : public bsl::vector<void *> {
     // Objects of this type are passed in thread arguments to
     // functions declared 'extern "C"'.
     //
@@ -304,11 +298,11 @@ struct my_ThreadParameters {
     // barrier object to coordinate thread activity, and a container to store
     // the results of any computations.
 
-    bslmt::Barrier *d_barrier_p;  // coordinates activity between threads (held)
-    my_ListType   *d_results_p;  // container to store results (held)
-    Obj           *d_cm_p;       // a category manager (held)
-    bsl::string   *d_names_p;    // a list of category names (held)
-    int            d_size;       // number of category names in list
+    bslmt::Barrier *d_barrier_p; // coordinates activity between threads (held)
+    my_ListType    *d_results_p; // container to store results (held)
+    Obj            *d_cm_p;      // a category manager (held)
+    bsl::string    *d_names_p;   // a list of category names (held)
+    int             d_size;      // number of category names in list
 };
 
 //=============================================================================
@@ -333,8 +327,6 @@ int calculateThreshold(int record, int pass, int trigger, int triggerAll)
 template <bsl::size_t BITS>
 bsl::string bitset2string(const bsl::bitset<BITS>& bs)
 {
-using namespace bsl;  // automatically added by script
-
     return bs.template to_string<char, char_traits<char>, allocator<char> >();
 }
 
@@ -352,18 +344,17 @@ void *case9ThreadW(void *arg)
     // the fact that the 'addCategory' method fails if the category is already
     // present.
 
-    my_ThreadParameters& params = *static_cast<my_ThreadParameters*>(arg);
-    Obj&                 cm = *params.d_cm_p;
-    bsl::string         *names = params.d_names_p;
-    const int            NUM_NAMES = params.d_size;
-    my_ListType&         results = *params.d_results_p;
+    my_ThreadParameters&  params    = *static_cast<my_ThreadParameters*>(arg);
+    Obj&                  cm        = *params.d_cm_p;
+    bsl::string          *names     = params.d_names_p;
+    const int             NUM_NAMES = params.d_size;
+    my_ListType&          results   = *params.d_results_p;
 
     params.d_barrier_p->wait();
 
     for (int i = 0; i < NUM_NAMES; ++i) {
         if (veryVeryVerbose) {
-            MTCOUT << "Add category '" << names[i] << "'"
-                   << MTENDL;
+            MTCOUT << "Add category '" << names[i] << "'" << MTENDL;
         }
 
         Holder mH;
@@ -398,11 +389,11 @@ void *case9ThreadQ(void *arg)
     // in the 'results' container.  After all categories have been
     // retrieved, sort 'results', and return.
 
-    my_ThreadParameters& params = *static_cast<my_ThreadParameters*>(arg);
-    Obj&                 cm = *params.d_cm_p;
-    bsl::string         *names = params.d_names_p;
-    const int            NUM_NAMES = params.d_size;
-    my_ListType&         results = *params.d_results_p;
+    my_ThreadParameters&  params    = *static_cast<my_ThreadParameters*>(arg);
+    Obj&                  cm        = *params.d_cm_p;
+    bsl::string          *names     = params.d_names_p;
+    const int             NUM_NAMES = params.d_size;
+    my_ListType&          results   = *params.d_results_p;
 
     params.d_barrier_p->wait();
 
@@ -439,16 +430,15 @@ void *case9ThreadQ(void *arg)
 }
 
 struct RuleThreadTestArgs {
-    Obj           *d_mx;
+    Obj            *d_mx;
     bslmt::Barrier *d_barrier;
 };
 
 extern "C" void *ruleThreadTest(void *args)
 {
     Obj&            mX      = *((RuleThreadTestArgs *)args)->d_mx;
-    bslmt::Barrier&  barrier = *((RuleThreadTestArgs *)args)->d_barrier;
-    const Obj&      MX      = mX;
-
+    bslmt::Barrier& barrier = *((RuleThreadTestArgs *)args)->d_barrier;
+    const Obj&      X       = mX;
 
     Holder initialValue; initialValue.reset();
     bsl::vector<Holder> holders(NUM_NAMES, initialValue);
@@ -476,8 +466,8 @@ extern "C" void *ruleThreadTest(void *args)
         rule2.addPredicate(ball::Predicate("shared", 1));
         ball::Rule rule3(NAMES[i], 255, 255, 255, 255);
         rule3.addPredicate(ball::Predicate(
-                        "thread",
-                        (bsls::Types::Int64) bslmt::ThreadUtil::selfIdAsInt()));
+                                     "thread",
+                                     (Int64)bslmt::ThreadUtil::selfIdAsInt()));
         ball::Rule rule4(US, 255, 255, 255, 255);
 
         mX.addRule(rule1);
@@ -487,11 +477,10 @@ extern "C" void *ruleThreadTest(void *args)
         ASSERT(1 == mX.addRule(rule4));
         ASSERT(0 == mX.addRule(rule4));
 
-
         mX.rulesetMutex().lock();
-        int ruleId1 = MX.ruleSet().ruleId(rule1);
-        int ruleId3 = MX.ruleSet().ruleId(rule3);
-        int ruleId4 = MX.ruleSet().ruleId(rule4);
+        int ruleId1 = X.ruleSet().ruleId(rule1);
+        int ruleId3 = X.ruleSet().ruleId(rule3);
+        int ruleId4 = X.ruleSet().ruleId(rule4);
         mX.rulesetMutex().unlock();
 
         ASSERT(0 <= ruleId1);
@@ -501,10 +490,11 @@ extern "C" void *ruleThreadTest(void *args)
             bool exp = i == j;
             const Entry *entry = mX.lookupCategory(NAMES[j]);
             ASSERT(exp == bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),
-                                                 ruleId1));
+                                                  ruleId1));
             ASSERT(exp == bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),
-                                                 ruleId3));
-            ASSERT(!bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),ruleId4));
+                                                  ruleId3));
+            ASSERT(!bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),
+                                            ruleId4));
         }
 
         mX.removeRule(rule2);
@@ -518,15 +508,15 @@ extern "C" void *ruleThreadTest(void *args)
         ASSERT(1 <= mX.addRules(ruleSet));
 
         mX.rulesetMutex().lock();
-        ruleId4 = MX.ruleSet().ruleId(rule4);
+        ruleId4 = X.ruleSet().ruleId(rule4);
         mX.rulesetMutex().unlock();
 
         const Entry *entry = mX.lookupCategory(US);
         ASSERT(bdlb::BitUtil::isBitSet(entry->relevantRuleMask(), ruleId4));
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&mX.rulesetMutex());
-            int seqNumber = MX.ruleSequenceNumber();
-            const ball::RuleSet& rules = MX.ruleSet();
+            Int64 timestamp = X.ruleSetTimestamp();
+            const ball::RuleSet& rules = X.ruleSet();
             int numRules      = rules.numRules();
             int numPredicates = rules.numPredicates();
 
@@ -541,7 +531,7 @@ extern "C" void *ruleThreadTest(void *args)
             ASSERT(ruleId4 == rules.ruleId(rule4));
             ASSERT(ruleId1 == rules.ruleId(rule1));
 
-            ASSERT(seqNumber     == MX.ruleSequenceNumber());
+            ASSERT(timestamp     == X.ruleSetTimestamp());
             ASSERT(count         == rules.numRules());
             ASSERT(numRules      == rules.numRules());
             ASSERT(numPredicates == rules.numPredicates());
@@ -551,7 +541,6 @@ extern "C" void *ruleThreadTest(void *args)
 
     }
     barrier.wait();
-
 
     return 0;
 }
@@ -614,7 +603,8 @@ int main(int argc, char *argv[])
         }
 
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            const ball::Category *category = cm.lookupCategory(myCategories[i]);
+            const ball::Category *category =
+                                            cm.lookupCategory(myCategories[i]);
             out << "[ " << myCategories[i]
                 << ", " << category->recordLevel()
                 << ", " << category->passLevel()
@@ -635,7 +625,8 @@ int main(int argc, char *argv[])
         }
 
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            const ball::Category *category = cm.lookupCategory(myCategories[i]);
+            const ball::Category *category =
+                                            cm.lookupCategory(myCategories[i]);
             out << "[ " << myCategories[i]
                 << ", " << category->recordLevel()
                 << ", " << category->passLevel()
@@ -648,7 +639,7 @@ int main(int argc, char *argv[])
         out.seekp(0);  // reset ostrstream
 
         for (int i = 0; i < cm.length(); ++i) {
-            ball::Category&   category = cm[i];
+            ball::Category& category = cm[i];
             category.setLevels(category.recordLevel() + 1,
                                category.passLevel() + 1,
                                category.triggerLevel() + 1,
@@ -656,7 +647,7 @@ int main(int argc, char *argv[])
         }
 
         for (int i = 0; i < cm.length(); ++i) {
-            const ball::Category&   category = cm[i];
+            const ball::Category& category = cm[i];
             out << "[ " << category.categoryName()
                 << ", " << category.recordLevel()
                 << ", " << category.passLevel()
@@ -687,15 +678,15 @@ int main(int argc, char *argv[])
         handles.resize(NUM_THREADS);
 
         bslma::TestAllocator ta(veryVeryVerbose);
-        Obj                 mX(&ta);
+        Obj                  mX(&ta);
         bslmt::Barrier       barrier(NUM_THREADS);
-        RuleThreadTestArgs  args = { &mX, &barrier };
+        RuleThreadTestArgs   args = { &mX, &barrier };
 
         // Create threads.
         for (int i = 0; i < NUM_THREADS; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
-                                                 &ruleThreadTest,
-                                                 &args));
+                                                  &ruleThreadTest,
+                                                  &args));
         }
         for (int i = 0; i < NUM_THREADS; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
@@ -766,7 +757,7 @@ int main(int argc, char *argv[])
         Holder initialValue; initialValue.reset();
         const int NUM_HOLDERS = 10;
         bsl::vector<Holder> holders(NUM_HOLDERS, initialValue, &ta);
-        Obj mX(&ta); const Obj& MX = mX;
+        Obj mX(&ta);  const Obj& X = mX;
 
         const Entry *C = mX.addCategory("C", 255, 255, 255, 255);
         for (bsl::size_t i = 0; i < holders.size(); ++i) {
@@ -795,10 +786,10 @@ int main(int argc, char *argv[])
                 }
 
                 ball::Rule rule("C",
-                               thresholds[j].recordLevel(),
-                               thresholds[j].passLevel(),
-                               thresholds[j].triggerLevel(),
-                               thresholds[j].triggerAllLevel());
+                                thresholds[j].recordLevel(),
+                                thresholds[j].passLevel(),
+                                thresholds[j].triggerLevel(),
+                                thresholds[j].triggerAllLevel());
                 ASSERT(1 == mX.addRule(rule));
 
                 int newThreshold = bsl::max(
@@ -817,10 +808,10 @@ int main(int argc, char *argv[])
             int currentThreshold;
             for (int j = 0; j < NUM_VALUES; ++j) {
                 ball::Rule rule("C",
-                               VALUES[j],
-                               VALUES[j],
-                               VALUES[j],
-                               VALUES[j]);
+                                VALUES[j],
+                                VALUES[j],
+                                VALUES[j],
+                                VALUES[j]);
                 ASSERT(1 == mX.addRule(rule));
                 currentThreshold = bsl::max(VALUES[j], catThreshold);
                 for (bsl::size_t k = 0; k < holders.size(); ++k) {
@@ -865,7 +856,7 @@ int main(int argc, char *argv[])
         bsls::Types::Int64 numBytes = TA.numBytesInUse();
 
       BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-        Obj mX(&ta); const Obj& X = mX;
+        Obj mX(&ta);  const Obj& X = mX;
         const int UC = Holder::e_UNINITIALIZED_CATEGORY;
         {
             Holder mH; const Holder& H = mH;
@@ -1111,13 +1102,13 @@ int main(int argc, char *argv[])
         //   Confirm the state of X using the accessors.
         //
         // Testing:
-        // void reset();
-        // void setCategory(const ball::Category *category);
-        // void setThreshold(int threshold);
-        // void setNext(ball::CategoryHolder *holder);
-        // const ball::Category *category() const;
-        // int threshold() const;
-        // ball::CategoryHolder *next() const;
+        //   void reset();
+        //   void setCategory(const ball::Category *category);
+        //   void setThreshold(int threshold);
+        //   void setNext(ball::CategoryHolder *holder);
+        //   const ball::Category *category() const;
+        //   int threshold() const;
+        //   ball::CategoryHolder *next() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Test ball::CategoryHolder" << endl
@@ -1250,8 +1241,8 @@ int main(int argc, char *argv[])
         //   Finally, remove all the rules, and verify the return value.
         //
         // Testing:
-        //  int addRules(const ball::RuleSet& );
-        //  int removeRules(const ball::RuleSet& );
+        //   int addRules(const ball::RuleSet&);
+        //   int removeRules(const ball::RuleSet&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1259,7 +1250,7 @@ int main(int argc, char *argv[])
                           << "==============================" << endl;
 
         bslma::TestAllocator ta;
-        Obj mX(&ta); const Obj& MX = mX;
+        Obj mX(&ta);  const Obj& X = mX;
 
         for (int i = 0; i < NUM_NAMES; ++i) {
             mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
@@ -1267,41 +1258,40 @@ int main(int argc, char *argv[])
         }
 
         // Iterate over each possible set of rules.
-        ball::RuleSet::MaskType endMask = ~((~0) << NUM_NAMES);
+        MaskType endMask = ~(static_cast<MaskType>(~0) << NUM_NAMES);
 
-        for (ball::RuleSet::MaskType mask = 0; mask <= endMask; ++mask) {
-            int seqNumber = MX.ruleSequenceNumber();
+        for (MaskType mask = 0; mask <= endMask; ++mask) {
+            Int64 timestamp = X.ruleSetTimestamp();
             ball::RuleSet rules(&ta);
             for (int i= 0; i < NUM_NAMES; ++i) {
                 if (bdlb::BitUtil::isBitSet(mask, i)) {
                     ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                             LEVELS[i][2], LEVELS[i][3]);
+                                              LEVELS[i][2], LEVELS[i][3]);
                     rules.addRule(rule);
                 }
             }
 
             // Add the subset of rules indicated by the bitmask 'mask'.
-            ASSERT(rules.numRules()            == mX.addRules(rules));
-            ASSERT(bdlb::BitUtil::numBitsSet(mask) ==
-                   MX.ruleSet().numRules());
+            ASSERT(rules.numRules()                == mX.addRules(rules));
+            ASSERT(bdlb::BitUtil::numBitsSet(mask) == X.ruleSet().numRules());
             if (mask != 0) {
-                ASSERT(seqNumber < MX.ruleSequenceNumber());
-                seqNumber = MX.ruleSequenceNumber();
+                ASSERT(timestamp < X.ruleSetTimestamp());
+                timestamp = X.ruleSetTimestamp();
             }
 
             ASSERT(0         == mX.addRules(rules));
-            ASSERT(seqNumber == MX.ruleSequenceNumber());
+            ASSERT(timestamp == X.ruleSetTimestamp());
 
             // Verify the relevant rule masks for each category.
             for (int i = 0; i < NUM_NAMES; ++i) {
                 if (bdlb::BitUtil::isBitSet(mask, i)) {
                     ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                             LEVELS[i][2], LEVELS[i][3]);
-                    int ruleId = MX.ruleSet().ruleId(rule);
+                                              LEVELS[i][2], LEVELS[i][3]);
+                    int ruleId = X.ruleSet().ruleId(rule);
                     ASSERT(0 <= ruleId);
                     for (int j = 0; j < NUM_NAMES; ++j) {
                         bool  isSet = i == j;
-                        const Entry *cat = MX.lookupCategory(NAMES[j]);
+                        const Entry *cat = X.lookupCategory(NAMES[j]);
                         ASSERT(isSet == bdlb::BitUtil::isBitSet(
                                                    cat->relevantRuleMask(),
                                                    ruleId));
@@ -1312,7 +1302,7 @@ int main(int argc, char *argv[])
             ball::RuleSet allRules(&ta);
             for (int i = 0; i < NUM_NAMES; ++i) {
                 ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                         LEVELS[i][2], LEVELS[i][3]);
+                                          LEVELS[i][2], LEVELS[i][3]);
                 allRules.addRule(rule);
             }
 
@@ -1320,20 +1310,21 @@ int main(int argc, char *argv[])
             // added should be only those rules not belonging to the subset of
             // rules indicated by the bitmask 'mask'.
             ASSERT(bdlb::BitUtil::numBitsSet(endMask & ~mask) ==
-                   mX.addRules(allRules));
-            ASSERT(bdlb::BitUtil::numBitsSet(endMask) ==mX.ruleSet().numRules());
+                                                        mX.addRules(allRules));
+            ASSERT(bdlb::BitUtil::numBitsSet(endMask) ==
+                                                      mX.ruleSet().numRules());
             ASSERT(0 == mX.addRules(allRules));
 
-            seqNumber = MX.ruleSequenceNumber();
+            timestamp = X.ruleSetTimestamp();
 
             // Remove those rules indicated by the bitmask 'mask'.  Note that
             // the category manager should have a rule for every category.
             ASSERT(bdlb::BitUtil::numBitsSet(mask) == mX.removeRules(rules));
             ASSERT(bdlb::BitUtil::numBitsSet(~(~endMask | mask)) ==
-                                            MX.ruleSet().numRules());
+                                                      X.ruleSet().numRules());
 
             if (mask != 0) {
-                ASSERT(seqNumber < MX.ruleSequenceNumber());
+                ASSERT(timestamp < X.ruleSetTimestamp());
             }
             ASSERT(0 == mX.removeRules(rules));
 
@@ -1342,12 +1333,12 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_NAMES; ++i) {
                 if (!bdlb::BitUtil::isBitSet(mask, i)) {
                     ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                             LEVELS[i][2], LEVELS[i][3]);
-                    int ruleId = MX.ruleSet().ruleId(rule);
+                                              LEVELS[i][2], LEVELS[i][3]);
+                    int ruleId = X.ruleSet().ruleId(rule);
                     ASSERT(0 <= ruleId);
                     for (int j = 0; j < NUM_NAMES; ++j) {
                         bool  isSet = i == j;
-                        const Entry *cat = MX.lookupCategory(NAMES[j]);
+                        const Entry *cat = X.lookupCategory(NAMES[j]);
                         ASSERT(isSet == bdlb::BitUtil::isBitSet(
                                                    cat->relevantRuleMask(),
                                                    ruleId));
@@ -1358,8 +1349,8 @@ int main(int argc, char *argv[])
             // Remove all the rules.  Note that this removes the remaining
             // rules, i.e., those rules *not* indicated by the bitmask 'mask'.
             ASSERT(bdlb::BitUtil::numBitsSet(endMask & ~mask) ==
-                   mX.removeRules(allRules));
-            ASSERT(0 == MX.ruleSet().numRules());
+                                                     mX.removeRules(allRules));
+            ASSERT(0 == X.ruleSet().numRules());
         }
       } break;
       case 8: {
@@ -1383,84 +1374,99 @@ int main(int argc, char *argv[])
         //    points.
         //
         // Testing:
-        //   int addRules(const ball::RuleSet& );
-        //   int removeRule(const ball::Rule& );
+        //   int addRule(const ball::RuleSet&);
+        //   int removeRule(const ball::Rule&);
         //   void removeAllRules();
+        //   bsls::Types::Int64 ruleSetTimestamp() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "Test 'addRule', 'removeRule'  " << endl
                           << "==============================" << endl;
 
+        const Int64 now = bdlt::CurrentTime::now().totalNanoseconds();
+
         bslma::TestAllocator ta;
-        Obj mX(&ta); const Obj& MX = mX;
+
+        Obj mX(&ta);  const Obj& X = mX;
+
+        Int64 timestamp = X.ruleSetTimestamp();
+        ASSERT(now < timestamp);
 
         for (int i = 0; i < NUM_NAMES; ++i) {
             mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
                                      LEVELS[i][2], LEVELS[i][3]);
         }
+        ASSERT(timestamp == X.ruleSetTimestamp());
 
-        int seqNumber = MX.ruleSequenceNumber();
         for (int i = 0; i < NUM_NAMES; ++i) {
             ball::Rule rule1(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                      LEVELS[i][2], LEVELS[i][3]);
+                                       LEVELS[i][2], LEVELS[i][3]);
 
             // Add a rule for this category.
             ASSERT(1 == mX.addRule(rule1));
             ASSERT(0 == mX.addRule(rule1));
-            ASSERT(++seqNumber == MX.ruleSequenceNumber());
+            ASSERT(timestamp < X.ruleSetTimestamp());
+            timestamp = X.ruleSetTimestamp();
 
-            int ruleId1 = MX.ruleSet().ruleId(rule1);
+            int ruleId1 = X.ruleSet().ruleId(rule1);
             ASSERT(0 <= ruleId1);
 
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool  isSet = i == j;
-                const Entry *cat = MX.lookupCategory(NAMES[j]);
-                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
+                const Entry *cat = X.lookupCategory(NAMES[j]);
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(
+                                                       cat->relevantRuleMask(),
                                                        ruleId1));
             }
 
             ball::Rule rule2(NAMES[i], LEVELS[i][0], LEVELS[i][1],
-                                      LEVELS[i][2], LEVELS[i][3]);
+                                       LEVELS[i][2], LEVELS[i][3]);
             ball::Predicate p2("A", 1);
             rule2.addPredicate(p2);
 
             // Add a second rule for this category.
             ASSERT(1 == mX.addRule(rule2));
             ASSERT(0 == mX.addRule(rule2));
-            ASSERT(++seqNumber == MX.ruleSequenceNumber());
+            ASSERT(timestamp < X.ruleSetTimestamp());
+            timestamp = X.ruleSetTimestamp();
 
-            int ruleId2 = MX.ruleSet().ruleId(rule2);
+            int ruleId2 = X.ruleSet().ruleId(rule2);
             ASSERT(0 <= ruleId2)
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool isSet = i == j;
-                const Entry *cat = MX.lookupCategory(NAMES[j]);
-                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
+                const Entry *cat = X.lookupCategory(NAMES[j]);
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(
+                                                       cat->relevantRuleMask(),
                                                        ruleId1));
-                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(
+                                                       cat->relevantRuleMask(),
                                                        ruleId2));
-
             }
 
             // Remove the second rule for this category.
             ASSERT(1 == mX.removeRule(rule2));
             ASSERT(0 == mX.removeRule(rule2));
-            ASSERT(++seqNumber == MX.ruleSequenceNumber());
+            ASSERT(timestamp < X.ruleSetTimestamp());
+            timestamp = X.ruleSetTimestamp();
+
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool isSet = i == j;
-                const Entry *cat = MX.lookupCategory(NAMES[j]);
-                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
+                const Entry *cat = X.lookupCategory(NAMES[j]);
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(
+                                                       cat->relevantRuleMask(),
                                                        ruleId1));
-                ASSERT(false == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
+                ASSERT(false == bdlb::BitUtil::isBitSet(
+                                                       cat->relevantRuleMask(),
                                                        ruleId2));
             }
         }
 
         // Remove all the rules.
         mX.removeAllRules();
-        ASSERT(++seqNumber == MX.ruleSequenceNumber());
+        ASSERT(timestamp < X.ruleSetTimestamp());
         for (int i = 0; i < NUM_NAMES; ++i) {
-            const Entry *cat = MX.lookupCategory(NAMES[i]);
+            const Entry *cat = X.lookupCategory(NAMES[i]);
             ASSERT(0 == cat->relevantRuleMask());
         }
       } break;
@@ -1512,29 +1518,29 @@ int main(int argc, char *argv[])
         }
 
         bslma::TestAllocator ta(veryVeryVerbose);
-        Obj                 mX(&ta);
+        Obj                  mX(&ta);
         bslmt::Barrier       barrier(NUM_THREADS);
 
         struct {
-            bslmt::ThreadUtil::Handle d_handle;    // thread handle
-            my_ListType              d_results;   // container for results
-            my_ThreadParameters      d_params;    // bundled thread parameters
+            bslmt::ThreadUtil::Handle d_handle;   // thread handle
+            my_ListType               d_results;  // container for results
+            my_ThreadParameters       d_params;   // bundled thread parameters
         } threads[NUM_THREADS];
 
         // Create threads.
         for (int i = 0; i < NUM_THREADS; ++i) {
             threads[i].d_results.reserve(NUM_CATEGORIES);
             threads[i].d_params.d_results_p = &threads[i].d_results;
-            threads[i].d_params.d_cm_p = &mX;
-            threads[i].d_params.d_names_p = categoryNames;
-            threads[i].d_params.d_size = NUM_CATEGORIES;
+            threads[i].d_params.d_cm_p      = &mX;
+            threads[i].d_params.d_names_p   = categoryNames;
+            threads[i].d_params.d_size      = NUM_CATEGORIES;
             threads[i].d_params.d_barrier_p = &barrier;
             bslmt::ThreadUtil::ThreadFunction action = (i < NUM_W_THREADS)
-                                                      ? case9ThreadW
-                                                      : case9ThreadQ;
+                                                       ? case9ThreadW
+                                                       : case9ThreadQ;
             ASSERT(0 == bslmt::ThreadUtil::create(&threads[i].d_handle,
-                                                 action,
-                                                 &threads[i].d_params));
+                                                  action,
+                                                  &threads[i].d_params));
         }
 
         for (int i = 0; i < NUM_THREADS; ++i) {
@@ -1546,7 +1552,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_W_THREADS; ++i) {
             totalAddedCategories += threads[i].d_results.size();
             if (veryVeryVerbose) {
-                T_();
+                T_;
                 P_(i);
                 #if !defined(BSLS_PLATFORM_CMP_MSVC)
                 P_(threads[i].d_handle);
@@ -1568,14 +1574,14 @@ int main(int argc, char *argv[])
         }
         bsl::sort(results.begin(), results.end());
         if (veryVerbose) {
-            T_(); P(results.size());
+            T_; P(results.size());
         }
         ASSERT(NUM_CATEGORIES == results.size());
 
         // Validate "query" threads' results against 'results'.
         for (int i = NUM_W_THREADS; i < NUM_THREADS; ++i) {
             if (veryVerbose) {
-                T_();
+                T_;
                 P_(i);
                 #if !defined(BSLS_PLATFORM_CMP_MSVC)
                 P_(threads[i].d_handle);
@@ -1621,8 +1627,8 @@ int main(int argc, char *argv[])
                           << "===================" << endl;
 
         bslma::TestAllocator ta;
-        Obj                 mX(&ta);
-        const Obj&          X = mX;
+
+        Obj mX(&ta);  const Obj& X = mX;
 
         for (int i = 0; i < NUM_NAMES; ++i) {
             mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
@@ -2467,7 +2473,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   This "test" *exercises* basic functionality, but *tests* nothing.
-
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BREATHING TEST" << endl
@@ -2481,7 +2486,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) {
             cout << "Add category '" << VA << "' with:";
-            T_(); P_(LA[0]); P_(LA[1]); P_(LA[2]); P(LA[3]);
+            T_; P_(LA[0]); P_(LA[1]); P_(LA[2]); P(LA[3]);
         }
 
         ASSERT(mX.addCategory(VA, LA[0], LA[1], LA[2], LA[3]));
@@ -2511,7 +2516,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) {
             cout << "Add category '" << VB << "' with:";
-            T_(); P_(LB[0]); P_(LB[1]); P_(LB[2]); P(LB[3]);
+            T_; P_(LB[0]); P_(LB[1]); P_(LB[2]); P(LB[3]);
         }
 
         ASSERT(mX.addCategory(VB, LB[0], LB[1], LB[2], LB[3]));

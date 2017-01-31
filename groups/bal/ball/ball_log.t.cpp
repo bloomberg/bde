@@ -35,9 +35,9 @@
 
 #include <bdlsb_memoutstreambuf.h>
 
+#include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
-#include <bdlt_epochutil.h>
 
 #include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
@@ -214,6 +214,8 @@ typedef BloombergLP::ball::Log_Stream         LogStream;
 typedef BloombergLP::bslma::TestAllocator     TestAllocator;
 typedef BloombergLP::ball::CategoryManager    CategoryManager;
 typedef BloombergLP::ball::ThresholdAggregate Thresholds;
+typedef BloombergLP::bsls::Types::IntPtr      IntPtr;
+typedef BloombergLP::bsls::Types::Int64       Int64;
 
 const int TRACE = Sev::e_TRACE;
 const int DEBUG = Sev::e_DEBUG;
@@ -239,10 +241,10 @@ void executeInParallel(
                                      new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
-    for (int i = 0; i < numThreads; ++i) {
+    for (IntPtr i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
-    for (int i = 0; i < numThreads; ++i) {
+    for (IntPtr i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
     }
 
@@ -279,7 +281,7 @@ static void scribbleBuffer()
     bsl::memset(messageBuffer(), FILL, messageBufferSize());
 }
 
-static int isBufferScribbled()
+static bool isBufferUnchangedSinceScribbled()
     // Return 1 if no portion of the buffer returned by 'messageBuffer' has
     // been overwritten since 'scribbleBuffer' was last called, and 0
     // otherwise.
@@ -295,12 +297,12 @@ static int isBufferScribbled()
     return 1;
 }
 
-static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
-                        const BloombergLP::ball::Category      *category,
-                        int                                     severity,
-                        const char                             *fileName,
-                        int                                     lineNumber,
-                        const char                             *message)
+static bool isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
+                         const BloombergLP::ball::Category      *category,
+                         int                                     severity,
+                         const char                             *fileName,
+                         int                                     lineNumber,
+                         const char                             *message)
     // Return 1 if the last record published to the specified 'observer'
     // includes the name of the specified 'category' and the specified
     // 'severity', 'fileName', 'lineNumber', and 'message', and 0 otherwise.
@@ -308,7 +310,7 @@ static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
     const BloombergLP::ball::RecordAttributes& attributes =
                                   observer.lastPublishedRecord().fixedFields();
 
-    int status = 0    == bsl::strcmp(category->categoryName(),
+    bool status = 0   == bsl::strcmp(category->categoryName(),
                                      attributes.category())
         && severity   == attributes.severity()
         && 0          == bsl::strcmp(fileName, attributes.fileName())
@@ -327,7 +329,8 @@ static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
 }
 
 static int numIncCallback = 0;
-void incCallback(BloombergLP::ball::UserFields *list) {
+void incCallback(BloombergLP::ball::UserFields *list)
+{
     ASSERT(list);
     ++numIncCallback;
     return;
@@ -339,6 +342,7 @@ class CerrBufferGuard {
 
     bsl::streambuf *d_cerrBuf;
 
+  private:
     // NOT IMPLEMENTED
     CerrBufferGuard(const CerrBufferGuard&);
     CerrBufferGuard& operator=(const CerrBufferGuard&);
@@ -456,6 +460,7 @@ int veryVeryVerbose;
       // Process the specified 'data' associated with the specified bloomberg
       // 'uuid', 'luw', and 'terminalNumber'.
   {
+      (void) data;    // suppress 'unused' warnings
 //..
 // We add our attributes to the generic "default" attribute container.  In
 // practice we could create a more efficient attribute container
@@ -659,7 +664,7 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     int d_publishCount;
 
   public:
-    // CONSTRUCTORS
+    // CREATORS
     my_PublishCountingObserver() : d_publishCount(0)
     {
     }
@@ -675,7 +680,7 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
         ++d_publishCount;
     }
 
-    //ACCESSORS
+    // ACCESSORS
     int publishCount() const
     {
         return d_publishCount;
@@ -864,11 +869,11 @@ class my_Observer : public BloombergLP::ball::Observer {
     BloombergLP::bslmt::Mutex d_mutex;
 
   public:
-    // CONSTRUCTORS
+    // CREATORS
     my_Observer()  {}
     ~my_Observer() {}
 
-    //MANIPULATORS
+    // MANIPULATORS
     void publish(const BloombergLP::ball::Record&  record,
                  const BloombergLP::ball::Context&)
     {
@@ -877,7 +882,7 @@ class my_Observer : public BloombergLP::ball::Observer {
         d_mutex.unlock();
     }
 
-    //ACCESSORS
+    // ACCESSORS
     const bsl::vector<bsl::string>& get() const
     {
         return d_publishedMessages;
@@ -969,13 +974,14 @@ namespace BALL_LOG_TEST_CASE_MINUS_1 {
 using namespace BloombergLP;
 
 struct ThreadFunctor {
-    void operator()() {
+    void operator()()
+    {
         BALL_LOG_SET_CATEGORY( "CATEGORY_5" );
 
         bsls::Types::Int64 id =
                               (bsls::Types::Int64) bslmt::ThreadUtil::selfId();
 
-        while( true )
+        while ( true )
         {
             BALL_LOG_ERROR << "ERROR " << id << BALL_LOG_END;
         }
@@ -1002,7 +1008,7 @@ int main(int argc, char *argv[])
     BloombergLP::ball::TestObserver  testObserver(bsl::cout);
     BloombergLP::ball::TestObserver *TO = &testObserver;
 
-    TestAllocator ta(veryVeryVerbose); const TestAllocator& TA = ta;
+    TestAllocator ta(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 29: {
@@ -1100,66 +1106,172 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "Initialize logger manager" << bsl::endl;
 
+        BloombergLP::ball::DefaultObserver localObserver(&cout);
         BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc);
+        BloombergLP::ball::LoggerManagerScopedGuard lmg(&localObserver, lmc);
 
         BloombergLP::ball::Administration::addCategory(
                                       "EQUITY.NASD",
                                       BloombergLP::ball::Severity::e_TRACE,
-                                      BloombergLP::ball::Severity::e_WARN,
+                                      veryVerbose
+                                      ? BloombergLP::ball::Severity::e_INFO
+                                      : BloombergLP::ball::Severity::e_WARN,
                                       BloombergLP::ball::Severity::e_ERROR,
                                       BloombergLP::ball::Severity::e_FATAL);
 
-        if (verbose) bsl::cout << "ostrstream-based macro usage" << bsl::endl;
-        {
-            int         lotSize = 400;
-            const char *ticker  = "SUNW";
-            double      price   = 5.65;
+        BloombergLP::ball::Administration::addCategory(
+                                      "EQUITY.NASD.SUNW",
+                                      BloombergLP::ball::Severity::e_TRACE,
+                                      veryVerbose
+                                      ? BloombergLP::ball::Severity::e_INFO
+                                      : BloombergLP::ball::Severity::e_WARN,
+                                      BloombergLP::ball::Severity::e_ERROR,
+                                      BloombergLP::ball::Severity::e_FATAL);
 
-            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
+if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
+{
+///Example 3: 'printf'-Style Output
+/// - - - - - - - - - - - - - - - -
+// In the following example, we expand the 'logIt' function (defined above)
+// to log two messages using the 'BALL_LOGF_INFO' logging macro provided by
+// this component.  This variadic macro takes a format string and a
+// variable-length series of variables, similar to 'printf'.
+//..
+    int         lotSize = 400;
+    const char *ticker  = "SUNW";
+    double      price   = 5.65;
+//..
+    BALL_LOG_SET_CATEGORY("EQUITY.NASD")
+//..
+// Logging with category "EQUITY.NASD", which is configured for a pass-through
+// level of 'e_INFO', from here on.
+//..
+    BALL_LOGF_INFO("[1] %d shares of %s sold at %f\n",
+                   lotSize, ticker, price);
+//..
+// Which results in the following single-line message being output to category
+// "EQUITY.NASD.SUNW" at severity level 'ball::Severity::e_INFO':
+//..
+//  <details> INFO x.cpp 1150 EQUITY.NASD [1] 400 shares of SUNW sold at 5.65
+//..
+// Where 'x.cpp' is the expansion of the '__FILE__' macro, the name of the
+// source file containing the call, and '1150' is the line number of the call.
+//
+// Note that the first argument supplied to the 'BALL_LOGF_INFO' macro is a
+// 'printf'-style format specification.  The log record that is generated for
+// this message will include the date and time and some other information,
+// shown here as '<details>'.
+//
+// Next, we set the category to "EQUITY.NASD.SUNW", which has also been set up
+// with a pass-through level defaults to 'e_INFO':
+//..
+    {
+        BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
+//..
+        // Now logging with category "EQUITY.NASD.SUNW".
+//..
+        BALL_LOGF_INFO("[2] %d shares of %s sold at %f\n",
+                       lotSize, ticker, price);
+//..
+// Which results in the following single-line message to category
+// "EQUITY.NASD.SUNW":
+//..
+//  <details> INFO x.cpp 1174 EQUITY.NASD.SUNW [2] 400 shares of SUNW sold at
+//  5.650000
+//
+    }
+//..
+// The category "EQUITY.NASD.SUNW" just went out of scope and now category
+// "EQUITY.NASD" is visible again, so it applies to the following;
+//..
+    BALL_LOGF_INFO("[3] %d shares of %s sold at %f\n",
+                   lotSize, ticker, price);
+//..
+// Which results in the following single-line message being output:
+//..
+//  <details> INFO x.cpp 1188 EQUITY.NASD [3] 400 shares of SUNW sold at 5.65
+//..
+}
 
-            BALL_LOG_SET_CATEGORY("EQUITY.NASD")
-            // Logging with category "EQUITY.NASD" from here on.
-            BALL_LOG_TRACE << "[1] " << now << ": " << lotSize << " shares of "
-                           << ticker << " sold at " << price << BALL_LOG_END
-            if (veryVerbose) P(messageBuffer());
-            {
-                BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
-                // Now logging with category "EQUITY.NASD.SUNW".
-                BALL_LOG_TRACE << "[2] " << now << ": " << lotSize
-                               << " shares of " << ticker << " sold at "
-                               << price << BALL_LOG_END
-                if (veryVerbose) P(messageBuffer());
-            }
-            // Now logging with category "EQUITY.NASD" again.
-            BALL_LOG_TRACE << "[3] " << now << ": " << lotSize << " shares of "
-                           << ticker << " sold at " << price << BALL_LOG_END
-            if (veryVerbose) P(messageBuffer());
-        }
-
-        if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
-        {
-            int         lotSize = 400;
-            const char *ticker  = "SUNW";
-            double      price   = 5.65;
-
-            BALL_LOG_SET_CATEGORY("EQUITY.NASD")
-            // Logging with category "EQUITY.NASD" from here on.
-            BALL_LOG3_INFO("[4] %d shares of %s sold at %f\n",
-                           lotSize, ticker, price);
-            if (veryVerbose) P(messageBuffer());
-            {
-                BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
-                // Now logging with category "EQUITY.NASD.SUNW".
-                BALL_LOG3_INFO("[5] %d shares of %s sold at %f\n",
-                               lotSize, ticker, price);
-                if (veryVerbose) P(messageBuffer());
-            }
-            // Now logging with category "EQUITY.NASD" again.
-            BALL_LOG3_INFO("[6] %d shares of %s sold at %f\n",
-                           lotSize, ticker, price);
-            if (veryVerbose) P(messageBuffer());
-        }
+if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
+{
+///Example 4: C++ I/O Streams-Style Logging Macros
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// The second logging macro we use, 'BALL_LOG_INFO' allows streaming via the
+// 'bsl::ostream' 'class' and the the C++ stream operator '<<'.  An advantage
+// the C++ streaming style over the 'printf' style output is that complex types
+// often have the 'operator<<(ostream&, const TYPE&)' function overloaded so
+// that they are able to be easily streamed to output.  We demonstrate this
+// here using C++ streaming to stream a 'bdlt::Datetime'.
+//..
+    int         lotSize = 400;
+    const char *ticker  = "SUNW";
+    double      price   = 5.65;
+//..
+    BALL_LOG_SET_CATEGORY("EQUITY.NASD")
+//..
+// Logging with category "EQUITY.NASD", which is configured for a pass-through
+// level of 'e_INFO', from here on.
+//..
+    bdlt::Datetime now = bdlt::CurrentTime::local();
+    BALL_LOG_INFO << "[4] " << lotSize << " shares of " << ticker <<
+                     " sold at " << price << " at " << now << BALL_LOG_END
+//..
+// Which results in the following single-line message being output:
+//..
+//  <details> INFO x.cpp 1217 EQUITY.NASD [4] 400 shares of SUNW sold at 5.65
+/// at 31JAN2017_09:10:53.159488
+//..
+// Where 'x.cpp' is the expansion of the '__FILE__' macro, the name of the
+// source file containing the call, and '1217' is the line number of the call.
+//
+// Next, we set the category to "EQUITY.NASD.SUNW", which has never been
+// declared with 'ball::Administration::addCategory', so its pass-through level
+// defaults to 'e_INFO':
+//..
+    {
+        BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
+//..
+        // Now logging with category "EQUITY.NASD.SUNW".
+//..
+        now = bdlt::CurrentTime::local();
+        BALL_LOG_INFO << "[5] " << lotSize << " shares of " << ticker <<
+                         " sold at " << price << " at " << now << BALL_LOG_END
+//..
+// Which results in the following message to category "EQUITY.NASD.SUNW":
+//..
+//  <details> INFO x.cpp 1238 EQUITY.NASD.SUNW [5] 400 shares of SUNW sold at
+//  5.65 at 31JAN2017_10:33:57.851251
+//
+    }
+//..
+// The category "EQUITY.NASD.SUNW" just went out of scope and now category
+// "EQUITY.NASD" is visible again, so it applies to the following;
+//..
+    now = bdlt::CurrentTime::local();
+    BALL_LOG_INFO << "[6] " << lotSize << " shares of " << ticker <<
+                     " sold at " << price << " at " << now << BALL_LOG_END
+//..
+// Which results in the following single-line message being output:
+//..
+//  <details> INFO <file> 1252 EQUITY.NASD [6] 400 shares of SUNW sold at 5.65
+//  at 31JAN2017_09:10:53.159575
+//..
+// The current timestamp ('now') was appended to the messages as a simple
+// illustration of the added flexibility provided by the C++ stream-based
+// macros.  (Note that the current timestamp is automatically prepended as a
+// distinct field in all log records generated by the 'ball' logging system, in
+// the part labeled '<details>' here.)  This last message was logged to
+// category "EQUITY.NASD" at severity level 'ball::Severity::e_INFO'.
+//
+// The C++ stream-based macros, as opposed to the 'printf'-style macros, ensure
+// at compile-time that no run-time format mismatches will occur.  Use of the
+// stream-based logging style exclusively will likely lead to clearer, more
+// maintainable code with fewer initial defects.
+//
+// Note that all uses of the log-generating macros, both printf-style and C++
+// stream-based, *must* occur within function scope (i.e., not at file scope).
+}
 
         // Note that the following Usage example was moved from the .h file to
         // the .cpp file so as not to encourage direct use of the utility
@@ -1176,13 +1288,13 @@ int main(int argc, char *argv[])
                     const char *formatSpec =
                                          "[7] %d shares of %s sold at %f\n";
                     ball::Log::format(messageBuffer(),
-                                     messageBufferSize(),
-                                     formatSpec, 400, "SUNW", 5.65);
+                                      messageBufferSize(),
+                                      formatSpec, 400, "SUNW", 5.65);
                     ball::Log::logMessage(category,
                                          BloombergLP::ball::Severity::e_INFO,
                                          __FILE__, __LINE__,
                                          messageBuffer());
-                    if (veryVerbose) P(messageBuffer());
+                    if (veryVeryVerbose) P(messageBuffer());
                 }
             }
         }
@@ -1247,7 +1359,7 @@ int main(int argc, char *argv[])
         }
 
         const int DATA[] = { OFF, TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
-        const int NUM_DATA = sizeof (DATA) / sizeof (*DATA);
+        enum { NUM_DATA = sizeof (DATA) / sizeof (*DATA) };
 
         BloombergLP::ball::DefaultObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
@@ -1354,7 +1466,7 @@ int main(int argc, char *argv[])
                          Sev::e_TRACE,
                          Sev::e_TRACE + 1
         };
-        const int NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES);
+        enum { NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES) };
         bsl::vector<Thresholds> thresholds;
         for (int i = 0; i < NUM_VALUES; ++i) {
             thresholds.push_back(Thresholds(VALUES[i], 255, 255, 255));
@@ -1526,7 +1638,7 @@ int main(int argc, char *argv[])
                          Sev::e_TRACE,
                          Sev::e_TRACE + 1
         };
-        const int NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES);
+        enum { NUM_VALUES = sizeof (VALUES)/sizeof(*VALUES) };
 
         bsl::vector<Thresholds> thresholds;
         for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1967,7 +2079,7 @@ int main(int argc, char *argv[])
             { L_, true,       DC,     true,     "GN", DC - 2,       true  },
             { L_, true,       DC,     true,     "GO", DC - 1,       false  },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         CategoryManager CM;
 
@@ -2075,10 +2187,10 @@ int main(int argc, char *argv[])
   {  L_,  0,        0,        254,      0,       "ALL.1.2", __FILE__,     17 },
   {  L_,  0,        0,        0,        254,     "BALL1",   __FILE__,     18 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        TestAllocator ta(veryVeryVerbose); const TestAllocator& TA = ta;
-        TestAllocator da(veryVeryVerbose); const TestAllocator& DA = da;
+        TestAllocator ta(veryVeryVerbose);
+        TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
         CategoryManager CM(&ta);
@@ -2176,7 +2288,6 @@ int main(int argc, char *argv[])
 #endif
 
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();  (void)cerrBuf;
             bsl::cerr.rdbuf(os.rdbuf());
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
@@ -2284,7 +2395,6 @@ int main(int argc, char *argv[])
 #endif
 
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();  (void)cerrBuf;
             bsl::cerr.rdbuf(os.rdbuf());
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
@@ -3205,7 +3315,7 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::pair<int, int> >& v = vv[i];
             ASSERT(v.size() == EXP_N_TOTAL);
             int n_record = 0, n_publish = 0, n_trigger = 0;
-            for(int j = 0; j < (int)v.size(); ++j) {
+            for (int j = 0; j < (int)v.size(); ++j) {
                 if      (v[j].first == RECORD)  ++n_record;
                 else if (v[j].first == PUBLISH) ++n_publish;
                 else if (v[j].first == TRIGGER) ++n_trigger;
@@ -3550,7 +3660,7 @@ int main(int argc, char *argv[])
 
         scribbleBuffer();
         BALL_LOG0(severity, "Hello!");
-        ASSERT(0 == isBufferScribbled());
+        ASSERT(0 == isBufferUnchangedSinceScribbled());
         BALL_LOG1(severity, "Hello!", 1);
         BALL_LOG2(severity, "Hello!", 1, 2);
         BALL_LOG3(severity, "Hello!", 1, 2, 3);
@@ -3868,6 +3978,13 @@ int main(int argc, char *argv[])
         //   BALL_LOG[0-9]_WARN
         //   BALL_LOG[0-9]_ERROR
         //   BALL_LOG[0-9]_FATAL
+        //   BALL_LOGF
+        //   BALL_LOGF_TRACE
+        //   BALL_LOGF_DEBUG
+        //   BALL_LOGF_INFO
+        //   BALL_LOGF_WARN
+        //   BALL_LOGF_ERROR
+        //   BALL_LOGF_FATAL
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
@@ -3917,16 +4034,69 @@ int main(int argc, char *argv[])
         const int ERROR = BloombergLP::ball::Severity::e_ERROR;
         const int FATAL = BloombergLP::ball::Severity::e_FATAL;
 
+        BloombergLP::ball::Administration::addCategory("pass", 0, TRACE, 0, 0);
+
+        // Re "sieve" category: (1) if recorded, then also published;
+        // (2) never triggered.
+
+        BloombergLP::ball::Administration::addCategory("sieve",
+                                                       TRACE,
+                                                       TRACE,
+                                                       0,
+                                                       0);
+
+        BloombergLP::ball::Administration::addCategory(
+                                   "noTRACE",
+                                   BloombergLP::ball::Severity::e_TRACE - 1,
+                                   BloombergLP::ball::Severity::e_TRACE - 1,
+                                   BloombergLP::ball::Severity::e_TRACE - 1,
+                                   BloombergLP::ball::Severity::e_TRACE - 1);
+
+        BloombergLP::ball::Administration::addCategory(
+                                  "noDEBUG",
+                                  BloombergLP::ball::Severity::e_DEBUG - 1,
+                                  BloombergLP::ball::Severity::e_DEBUG - 1,
+                                  BloombergLP::ball::Severity::e_DEBUG - 1,
+                                  BloombergLP::ball::Severity::e_DEBUG - 1);
+
+        BloombergLP::ball::Administration::addCategory(
+                                  "noINFO",
+                                  BloombergLP::ball::Severity::e_INFO - 1,
+                                  BloombergLP::ball::Severity::e_INFO - 1,
+                                  BloombergLP::ball::Severity::e_INFO - 1,
+                                  BloombergLP::ball::Severity::e_INFO - 1);
+
+        BloombergLP::ball::Administration::addCategory(
+                                   "noWARN",
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1,
+                                   BloombergLP::ball::Severity::e_WARN - 1);
+
+        BloombergLP::ball::Administration::addCategory(
+                                  "noERROR",
+                                  BloombergLP::ball::Severity::e_ERROR - 1,
+                                  BloombergLP::ball::Severity::e_ERROR - 1,
+                                  BloombergLP::ball::Severity::e_ERROR - 1,
+                                  BloombergLP::ball::Severity::e_ERROR - 1);
+
+        BloombergLP::ball::Administration::addCategory(
+                                   "noFATAL",
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1,
+                                   BloombergLP::ball::Severity::e_FATAL - 1);
+
+        BALL_LOG_SET_CATEGORY("sieve")
+
+        BALL_LOG_TRACE << "This will load the category" << BALL_LOG_END
+
+        const Cat  *CAT  = BALL_LOG_CATEGORY;
+        const char *FILE = __FILE__;
+
         if (veryVerbose) bsl::cout << "\tTesting exception safety"
                                    << bsl::endl;
         {
-            BloombergLP::ball::Administration::addCategory(
-                                             "pass",
-                                             0,
-                                             TRACE,
-                                             0,
-                                             0);
-
             BALL_LOG_SET_CATEGORY("pass")
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG0"
@@ -3936,7 +4106,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG0(TRACE, FORMAT[0]);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG1"
@@ -3945,7 +4115,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG1(TRACE, FORMAT[1], 1);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG2"
@@ -3954,7 +4124,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG2(TRACE, FORMAT[2], 1, 2);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG3"
@@ -3963,7 +4133,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG3(TRACE, FORMAT[3], 1, 2, 3);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG4"
@@ -3972,7 +4142,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG4(TRACE, FORMAT[4], 1, 2, 3, 4);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG5"
@@ -3981,7 +4151,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG5(TRACE, FORMAT[5], 1, 2, 3, 4, 5);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG6"
@@ -3990,7 +4160,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG6(TRACE, FORMAT[6], 1, 2, 3, 4, 5, 6);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG7"
@@ -3999,7 +4169,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG7(TRACE, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG8"
@@ -4008,7 +4178,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG8(TRACE, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOG9"
@@ -4017,31 +4187,15 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BALL_LOG9(TRACE, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(0 == isBufferScribbled());
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
-
-        // Re "sieve" category: (1) if recorded, then also published;
-        // (2) never triggered.
-
-        BloombergLP::ball::Administration::addCategory(
-                                             "sieve",
-                                             TRACE,
-                                             TRACE,
-                                             0,
-                                             0);
-        BALL_LOG_SET_CATEGORY("sieve")
-
-        BALL_LOG_TRACE << "This will load the category" << BALL_LOG_END
-
-        const Cat  *CAT  = BALL_LOG_CATEGORY;
-        const char *FILE = __FILE__;
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOG0'" << bsl::endl;
         {
             scribbleBuffer();
             BALL_LOG0(255, FORMAT[0]);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG0(INFO, FORMAT[0]);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
@@ -4051,7 +4205,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG1(255, FORMAT[1], 1);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG1(INFO, FORMAT[1], 1);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
@@ -4061,7 +4215,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG2(255, FORMAT[2], 1, 2);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG2(INFO, FORMAT[2], 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
@@ -4071,7 +4225,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG3(255, FORMAT[3], 1, 2, 3);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG3(INFO, FORMAT[3], 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
@@ -4081,7 +4235,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG4(255, FORMAT[4], 1, 2, 3, 4);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG4(INFO, FORMAT[4], 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
@@ -4091,7 +4245,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG5(255, FORMAT[5], 1, 2, 3, 4, 5);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG5(INFO, FORMAT[5], 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
@@ -4101,7 +4255,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG6(255, FORMAT[6], 1, 2, 3, 4, 5, 6);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG6(INFO, FORMAT[6], 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
@@ -4111,7 +4265,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG7(255, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG7(INFO, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
@@ -4121,7 +4275,7 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG8(255, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG8(INFO, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
@@ -4131,18 +4285,11 @@ int main(int argc, char *argv[])
         {
             scribbleBuffer();
             BALL_LOG9(255, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(1 == isBufferScribbled());
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOG9(INFO, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
         }
-
-        BloombergLP::ball::Administration::addCategory(
-                                   "noTRACE",
-                                   BloombergLP::ball::Severity::e_TRACE - 1,
-                                   BloombergLP::ball::Severity::e_TRACE - 1,
-                                   BloombergLP::ball::Severity::e_TRACE - 1,
-                                   BloombergLP::ball::Severity::e_TRACE - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_TRACE'" << bsl::endl;
@@ -4151,7 +4298,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG0_TRACE(FORMAT[0]);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4166,7 +4313,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG1_TRACE(FORMAT[1], 1);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4181,7 +4328,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG2_TRACE(FORMAT[2], 1, 2);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4196,7 +4343,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG3_TRACE(FORMAT[3], 1, 2, 3);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4211,7 +4358,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG4_TRACE(FORMAT[4], 1, 2, 3, 4);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4226,7 +4373,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG5_TRACE(FORMAT[5], 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4241,7 +4388,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG6_TRACE(FORMAT[6], 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4256,7 +4403,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG7_TRACE(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4271,7 +4418,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG8_TRACE(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4286,20 +4433,13 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
                 BALL_LOG9_TRACE(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOG9_TRACE(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[9]));
         }
-
-        BloombergLP::ball::Administration::addCategory(
-                                  "noDEBUG",
-                                  BloombergLP::ball::Severity::e_DEBUG - 1,
-                                  BloombergLP::ball::Severity::e_DEBUG - 1,
-                                  BloombergLP::ball::Severity::e_DEBUG - 1,
-                                  BloombergLP::ball::Severity::e_DEBUG - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_DEBUG'" << bsl::endl;
@@ -4308,7 +4448,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG0_DEBUG(FORMAT[0]);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4323,7 +4463,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG1_DEBUG(FORMAT[1], 1);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4338,7 +4478,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG2_DEBUG(FORMAT[2], 1, 2);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4353,7 +4493,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG3_DEBUG(FORMAT[3], 1, 2, 3);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4368,7 +4508,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG4_DEBUG(FORMAT[4], 1, 2, 3, 4);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4383,7 +4523,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG5_DEBUG(FORMAT[5], 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4398,7 +4538,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG6_DEBUG(FORMAT[6], 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4413,7 +4553,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG7_DEBUG(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4428,7 +4568,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG8_DEBUG(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4443,20 +4583,13 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
                 BALL_LOG9_DEBUG(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOG9_DEBUG(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[9]));
         }
-
-        BloombergLP::ball::Administration::addCategory(
-                                  "noINFO",
-                                  BloombergLP::ball::Severity::e_INFO - 1,
-                                  BloombergLP::ball::Severity::e_INFO - 1,
-                                  BloombergLP::ball::Severity::e_INFO - 1,
-                                  BloombergLP::ball::Severity::e_INFO - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_INFO'" << bsl::endl;
@@ -4465,7 +4598,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG0_INFO(FORMAT[0]);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4480,7 +4613,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG1_INFO(FORMAT[1], 1);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4495,7 +4628,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG2_INFO(FORMAT[2], 1, 2);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4510,7 +4643,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG3_INFO(FORMAT[3], 1, 2, 3);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4525,7 +4658,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG4_INFO(FORMAT[4], 1, 2, 3, 4);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4540,7 +4673,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG5_INFO(FORMAT[5], 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4555,7 +4688,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG6_INFO(FORMAT[6], 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4570,7 +4703,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG7_INFO(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4585,7 +4718,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG8_INFO(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4600,20 +4733,13 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
                 BALL_LOG9_INFO(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOG9_INFO(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
         }
-
-        BloombergLP::ball::Administration::addCategory(
-                                   "noWARN",
-                                   BloombergLP::ball::Severity::e_WARN - 1,
-                                   BloombergLP::ball::Severity::e_WARN - 1,
-                                   BloombergLP::ball::Severity::e_WARN - 1,
-                                   BloombergLP::ball::Severity::e_WARN - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_WARN'" << bsl::endl;
@@ -4622,7 +4748,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG0_WARN(FORMAT[0]);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4637,7 +4763,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG1_WARN(FORMAT[1], 1);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4652,7 +4778,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG2_WARN(FORMAT[2], 1, 2);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4667,7 +4793,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG3_WARN(FORMAT[3], 1, 2, 3);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4682,7 +4808,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG4_WARN(FORMAT[4], 1, 2, 3, 4);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4697,7 +4823,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG5_WARN(FORMAT[5], 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4712,7 +4838,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG6_WARN(FORMAT[6], 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4727,7 +4853,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG7_WARN(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4742,7 +4868,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG8_WARN(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4757,20 +4883,13 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
                 BALL_LOG9_WARN(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOG9_WARN(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[9]));
         }
-
-        BloombergLP::ball::Administration::addCategory(
-                                  "noERROR",
-                                  BloombergLP::ball::Severity::e_ERROR - 1,
-                                  BloombergLP::ball::Severity::e_ERROR - 1,
-                                  BloombergLP::ball::Severity::e_ERROR - 1,
-                                  BloombergLP::ball::Severity::e_ERROR - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_ERROR'" << bsl::endl;
@@ -4779,7 +4898,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG0_ERROR(FORMAT[0]);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4794,7 +4913,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG1_ERROR(FORMAT[1], 1);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4809,7 +4928,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG2_ERROR(FORMAT[2], 1, 2);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4824,7 +4943,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG3_ERROR(FORMAT[3], 1, 2, 3);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4839,7 +4958,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG4_ERROR(FORMAT[4], 1, 2, 3, 4);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4854,7 +4973,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG5_ERROR(FORMAT[5], 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4869,7 +4988,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG6_ERROR(FORMAT[6], 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4884,7 +5003,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG7_ERROR(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4899,7 +5018,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG8_ERROR(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4914,20 +5033,13 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
                 BALL_LOG9_ERROR(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOG9_ERROR(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[9]));
         }
-
-        BloombergLP::ball::Administration::addCategory(
-                                   "noFATAL",
-                                   BloombergLP::ball::Severity::e_FATAL - 1,
-                                   BloombergLP::ball::Severity::e_FATAL - 1,
-                                   BloombergLP::ball::Severity::e_FATAL - 1,
-                                   BloombergLP::ball::Severity::e_FATAL - 1);
 
         if (veryVerbose)
             bsl::cout << "\tTesting 'BALL_LOG0_FATAL'" << bsl::endl;
@@ -4936,7 +5048,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG0_FATAL(FORMAT[0]);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4951,7 +5063,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG1_FATAL(FORMAT[1], 1);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4966,7 +5078,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG2_FATAL(FORMAT[2], 1, 2);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4981,7 +5093,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG3_FATAL(FORMAT[3], 1, 2, 3);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -4996,7 +5108,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG4_FATAL(FORMAT[4], 1, 2, 3, 4);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -5011,7 +5123,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG5_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -5026,7 +5138,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG6_FATAL(FORMAT[6], 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -5041,7 +5153,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG7_FATAL(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -5056,7 +5168,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG8_FATAL(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -5071,7 +5183,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
                 BALL_LOG9_FATAL(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferScribbled());
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
@@ -5793,6 +5905,1823 @@ int main(int argc, char *argv[])
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
             }
         }
+
+        if (verbose) bsl::cout << "Now repeat all the previous tests, only\n"
+                                  "using the variadic '*_LOGF_*' macros.\n";
+
+        ASSERT(!bsl::strcmp("sieve", CAT->categoryName()));
+
+        if (veryVerbose) bsl::cout << "\tTesting exception safety"
+                                   << bsl::endl;
+        {
+            BALL_LOG_SET_CATEGORY("pass")
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 0"
+                                           << bsl::endl;
+
+            BALL_LOGF(TRACE, FORMAT[0]);
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[0]);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 1"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[1], 1);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 2"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[2], 1, 2);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 3"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[3], 1, 2, 3);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 4"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[4], 1, 2, 3, 4);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 5"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 6"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 7"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 8"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGF - 9"
+                                           << bsl::endl;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            scribbleBuffer();
+            BALL_LOGF(TRACE, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 0'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[0]);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 1'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[1], 1);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 2'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[2], 1, 2);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 3'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[3], 1, 2, 3);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 4'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[4], 1, 2, 3, 4);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 5'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 6'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 7'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 8'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGF - 9'" << bsl::endl;
+        {
+            scribbleBuffer();
+            BALL_LOGF(255, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            const int LINE = L_ + 1;
+            BALL_LOGF(INFO, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 0" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[0]);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 1" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[1], 1);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 2" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[2], 1, 2);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 3" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[3], 1, 2, 3);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 4" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[4], 1, 2, 3, 4);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 5" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[5], 1, 2, 3, 4, 5);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 6" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 7" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 8" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_TRACE' - 9" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noTRACE")
+                scribbleBuffer();
+                BALL_LOGF_TRACE(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_TRACE(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 0" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[0]);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 1" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[1], 1);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 2" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[2], 1, 2);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 3" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[3], 1, 2, 3);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 4`" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[4], 1, 2, 3, 4);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 5" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[5], 1, 2, 3, 4, 5);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 6" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 7" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 8" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_DEBUG' - 9" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noDEBUG")
+                scribbleBuffer();
+                BALL_LOGF_DEBUG(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_DEBUG(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 0" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[0]);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 1" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[1], 1);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 2" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[2], 1, 2);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 3" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[3], 1, 2, 3);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 4" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[4], 1, 2, 3, 4);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 5" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[5], 1, 2, 3, 4, 5);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 6" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 7" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 8" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_INFO' - 9" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noINFO")
+                scribbleBuffer();
+                BALL_LOGF_INFO(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_INFO(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 0" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[0]);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 1" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[1], 1);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 2" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[2], 1, 2);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 3" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[3], 1, 2, 3);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 4" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[4], 1, 2, 3, 4);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 5" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[5], 1, 2, 3, 4, 5);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 6" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 7" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 8" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_WARN' - 9" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noWARN")
+                scribbleBuffer();
+                BALL_LOGF_WARN(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_WARN(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 0" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[0]);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 1" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[1], 1);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 2" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[2], 1, 2);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 3" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[3], 1, 2, 3);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 4" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[4], 1, 2, 3, 4);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 5" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[5], 1, 2, 3, 4, 5);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 6" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 7" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 8" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_ERROR' - 9" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noERROR")
+                scribbleBuffer();
+                BALL_LOGF_ERROR(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_ERROR(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 0" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[0]);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[0]);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[0]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 1" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[1], 1);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[1], 1);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[1]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 2" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[2], 1, 2);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[2], 1, 2);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[2]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 3" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[3], 1, 2, 3);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[3], 1, 2, 3);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[3]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 4" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[4], 1, 2, 3, 4);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[4], 1, 2, 3, 4);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[4]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 5" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 6" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[6]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 7" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[7]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 8" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[8]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting 'BALL_LOGF_FATAL' - 9" << bsl::endl;
+        {
+            {
+                BALL_LOG_SET_CATEGORY("noFATAL")
+                scribbleBuffer();
+                BALL_LOGF_FATAL(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                ASSERT(1 == isBufferUnchangedSinceScribbled());
+            }
+
+            const int LINE = L_ + 1;
+            BALL_LOGF_FATAL(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[9]));
+        }
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting Buffer Overflow with 'printf' Macro"
+                      << bsl::endl;
+        {
+            const int BUFLEN = messageBufferSize();
+            const int EXCESS = 128;
+            const int N      = BUFLEN + EXCESS;
+            char *longString = new char[N];
+            char *p   = longString;
+            char *end = longString + N;
+            while (p < end) {
+                *p++ = 'x';
+            }
+            *--p = '\0';
+
+            {
+                longString[BUFLEN - 2] = 'a';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'b';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'c';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'd';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'e';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'f';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'g';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'h';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'i';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'j';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF(DEBUG, "%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'k';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE(longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'l';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'm';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'n';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'o';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'p';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'q';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'r';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 's';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 't';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_TRACE("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'u';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG(longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'v';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'w';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'x';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'y';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'z';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'A';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'B';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'C';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'D';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_DEBUG("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'E';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO(longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'F';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'G';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'H';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'I';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'J';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'K';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'L';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'M';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'N';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_INFO("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'O';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN(longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'P';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'Q';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'R';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'S';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'T';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'U';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'V';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'W';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'X';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_WARN("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'Y';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR(longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'Z';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '0';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '1';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '2';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '3';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '4';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '5';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '6';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '7';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_ERROR("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '8';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL(longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = '9';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'a';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'b';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'c';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3, 4);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'd';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3, 4, 5);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'e';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3, 4, 5, 6);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'f';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3, 4, 5, 6, 7);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'g';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            {
+                longString[BUFLEN - 2] = 'h';
+                longString[BUFLEN - 1] = 'x';
+                const int LINE = L_ + 1;
+                BALL_LOGF_FATAL("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                longString[BUFLEN - 1] = '\0';
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+            }
+
+            delete [] longString;
+        }
+
+        // Note that the following is expressly meant to test the modifications
+        // made to the 'printf'-style macros to use the 'do { ... } while(0)'
+        // idiom (DRQS 13261698).  In particular, the 'if' statements are
+        // *INTENTIONALLY* *NOT* fully bracketed ('{}'-enclosed), contrary to
+        // the BDE coding standard.
+
+        if (veryVerbose)
+            bsl::cout << "\tTesting macros in unbracketed context."
+                      << bsl::endl;
+        {
+            int unbracketedLoggingFlag = 1;
+
+            {
+                const int LINE = L_ + 2;
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                    BALL_LOGF_TRACE(FORMAT[0]);
+                else
+                    ++unbracketedLoggingFlag;
+                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[0]));
+            }
+
+            {
+                const int LINE = L_ + 2;
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                    BALL_LOGF_DEBUG(FORMAT[1], 1);
+                else
+                    ++unbracketedLoggingFlag;
+                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[1]));
+            }
+
+            {
+                const int LINE = L_ + 2;
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                    BALL_LOGF_INFO(FORMAT[2], 1, 2);
+                else
+                    ++unbracketedLoggingFlag;
+                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
+            }
+
+            {
+                const int LINE = L_ + 2;
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                    BALL_LOGF_WARN(FORMAT[3], 1, 2, 3);
+                else
+                    ++unbracketedLoggingFlag;
+                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[3]));
+            }
+
+            {
+                const int LINE = L_ + 2;
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                    BALL_LOGF_ERROR(FORMAT[4], 1, 2, 3, 4);
+                else
+                    ++unbracketedLoggingFlag;
+                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[4]));
+            }
+
+            {
+                const int LINE = L_ + 2;
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                    BALL_LOGF_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
+                else
+                    ++unbracketedLoggingFlag;
+                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
+            }
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -5836,7 +7765,7 @@ int main(int argc, char *argv[])
                 { L_,               UC,        (Cat *) 32    },
                 { L_,               DC,        (Cat *) 64    },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int  LINE      = DATA[i].d_line;
@@ -6082,7 +8011,7 @@ int main(int argc, char *argv[])
             bsl::cout << "Enter something: ";
             bsl::cin.getline(buffer, 256);
             input = buffer;
-        } while( input != "exit" );
+        } while ( input != "exit" );
 
         // just exit the program, which will kill the threads
       } break;

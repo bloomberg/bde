@@ -139,49 +139,17 @@ BSLS_IDENT("$Id: $")
 //..
 // The remaining macros are based on 'printf'-style format specifications:
 //..
-//  BALL_LOG0_TRACE(MSG);
-//  BALL_LOG0_DEBUG(MSG);
-//  BALL_LOG0_INFO (MSG);
-//  BALL_LOG0_WARN (MSG);
-//  BALL_LOG0_ERROR(MSG);
-//  BALL_LOG0_FATAL(MSG);
-//      Log the specified 'MSG' (assumed to be of type convertible to
-//      'const char *') with the severity indicated by the name of the macro
-//      (e.g., 'BALL_LOG0_DEBUG' logs with severity
-//      'ball::Severity::e_DEBUG').  Note that the formatted message string
-//      includes the category and filename as established by the
-//      'BALL_LOG_SET_CATEGORY' (or 'BALL_LOG_SET_DYNAMIC_CATEGORY') and
-//      '__FILE__' macros, respectively.  Also note that each use of these
-//      macros must be terminated by a ';'.
-//
-//  BALL_LOG1_TRACE(MSG, ARG1);
-//  BALL_LOG1_DEBUG(MSG, ARG1);
-//  BALL_LOG1_INFO (MSG, ARG1);
-//  BALL_LOG1_WARN (MSG, ARG1);
-//  BALL_LOG1_ERROR(MSG, ARG1);
-//  BALL_LOG1_FATAL(MSG, ARG1);
-//      Format the specified 'ARG1' according to the 'printf'-style format
-//      specification in the specified 'MSG' (assumed to be of type convertible
-//      to 'const char *') and log the resulting formatted message string with
-//      the severity indicated by the name of the macro (e.g., 'BALL_LOG1_WARN'
-//      logs with severity 'ball::Severity::e_WARN').  The behavior is
-//      undefined unless 'ARG1' is compatible with its corresponding format
-//      specification in 'MSG'.  Note that the formatted string includes the
-//      category and filename as established by the 'BALL_LOG_SET_CATEGORY' (or
-//      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-//      Also note that each use of these macros must be terminated by a ';'.
-//
-//  BALL_LOGn_TRACE(MSG, ARG1, ARG2, ..., ARGn);  // 2 <= n <= 9
-//  BALL_LOGn_DEBUG(MSG, ARG1, ARG2, ..., ARGn);
-//  BALL_LOGn_INFO (MSG, ARG1, ARG2, ..., ARGn);
-//  BALL_LOGn_WARN (MSG, ARG1, ARG2, ..., ARGn);
-//  BALL_LOGn_ERROR(MSG, ARG1, ARG2, ..., ARGn);
-//  BALL_LOGn_FATAL(MSG, ARG1, ARG2, ..., ARGn);
-//      Format the specified 'ARG1', 'ARG2', ..., 'ARGn' (2 <= n <= 9)
+//  BALL_LOGF_TRACE(MSG, ARG1, ARG2, ..., ARGn);  // 0 <= n <= 9
+//  BALL_LOGF_DEBUG(MSG, ARG1, ARG2, ..., ARGn);
+//  BALL_LOGF_INFO (MSG, ARG1, ARG2, ..., ARGn);
+//  BALL_LOGF_WARN (MSG, ARG1, ARG2, ..., ARGn);
+//  BALL_LOGF_ERROR(MSG, ARG1, ARG2, ..., ARGn);
+//  BALL_LOGF_FATAL(MSG, ARG1, ARG2, ..., ARGn);
+//      Format the specified 'ARG1', 'ARG2', ..., 'ARGn' (0 <= n <= 9)
 //      according to the 'printf'-style format specification in the specified
 //      'MSG' (assumed to be of type convertible to 'const char *') and log the
 //      resulting formatted message string with the severity indicated by the
-//      name of the macro (e.g., 'BALL_LOG8_FATAL' logs with severity
+//      name of the macro (e.g., 'BALL_LOGF_FATAL' logs with severity
 //      'ball::Severity::e_FATAL').  The behavior is undefined unless each
 //      'ARGn' is compatible with its corresponding format specification in
 //      'MSG'.  Note that the formatted string includes the category and
@@ -250,6 +218,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      void logIt()
 //      {
+//          const bdlt::Datetime now = bdlt::CurrentTime::now();
+//
 //          BALL_LOG_SET_CATEGORY("EQUITY.NASD")
 //
 //          // Logging to category "EQUITY.NASD" unless overridden in a
@@ -272,79 +242,146 @@ BSLS_IDENT("$Id: $")
 // Within 'logIt', the required logging context is in place at each of the
 // locations marked by [*].
 //
-///Example 3: 'printf'-Style Versus C++ I/O Streams-Style Logging Macros
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: 'printf'-Style Output
+/// - - - - - - - - - - - - - - - -
 // In the following example, we expand the 'logIt' function (defined above)
-// to log two messages using the logging macros provided by this component.
-// The first logging macro we use, 'BALL_LOG3_INFO' takes a format string and a
-// series of variables, similar to 'printf'.  The second logging macro we use,
-// 'BALL_LOG_TRACE', is provided input using the C++ stream operator '<<'.
+// to log two messages using the 'BALL_LOGF_INFO' logging macro provided by
+// this component.  This variadic macro takes a format string and a
+// variable-length series of variables, similar to 'printf'.
 //..
-//      void logIt()
-//      {
-//          int     lotSize = 400;
-//          char   *ticker  = "SUNW";
-//          double  price   = 5.65;
-//
-//          BALL_LOG_SET_CATEGORY("EQUITY.NASD")
-//
-//          // Logging to category "EQUITY.NASD" unless overridden in a
-//          // nested block.
-//
-//          BALL_LOG3_INFO("%d shares of %s sold at %f\n",
-//                         lotSize, ticker, price);
-//          {
-//              BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
-//
-//              // Now logging to category "EQUITY.NASD.SUNW".
-//
-//              BloombergLP::bdlt::Datetime now;
-//              BloombergLP::bdlt::EpochUtil::convertFromTimeT(&now, time(0));
-//
-//              BALL_LOG_INFO << now << ": " << lotSize << " shares of "
-//                            << ticker << " sold at " << price
-//                            << BALL_LOG_END
-//          }
-//          // Again logging to category "EQUITY.NASD".
-//      }
+//  int         lotSize = 400;
+//  const char *ticker  = "SUNW";
+//  double      price   = 5.65;
 //..
-// The 'BALL_LOG3_INFO' macro logs the following message:
+//  BALL_LOG_SET_CATEGORY("EQUITY.NASD")
 //..
-//      400 shares of SUNW sold at 5.650000
+// Logging with category "EQUITY.NASD", which is configured for a pass-through
+// level of 'e_INFO', from here on.
 //..
-// to category "EQUITY.NASD.SUNW" at severity level 'ball::Severity::e_INFO'.
-// Note that the first argument supplied to the 'BALL_LOG3_INFO' macro is a
-// 'printf'-style format specification; the "3" in the macro name indicates the
-// number of additional arguments that must be supplied to 'BALL_LOG3_INFO'
-// and which must conform to the format specification.  The log record that is
-// generated for this message will include the file name as indicated by the
-// '__FILE__' macro and the line number of the line on which the use of
-// 'BALL_LOG3_INFO' occurs.
+//  BALL_LOGF_INFO("[1] %d shares of %s sold at %f\n",
+//                 lotSize, ticker, price);
+//..
+// Which results in the following single-line message being output to category
+// "EQUITY.NASD.SUNW" at severity level 'ball::Severity::e_INFO':
+//..
+//  <details> INFO x.cpp 1150 EQUITY.NASD [1] 400 shares of SUNW sold at 5.65
+//..
+// Where 'x.cpp' is the expansion of the '__FILE__' macro, the name of the
+// source file containing the call, and '1150' is the line number of the call.
 //
-// The 'BALL_LOG_INFO' macro formats a message using standard C++ streaming
-// facilities rather than a 'printf'-style format specification.  The use of
-// this macro in 'logIt' logs the following message:
+// Note that the first argument supplied to the 'BALL_LOGF_INFO' macro is a
+// 'printf'-style format specification.  The log record that is generated for
+// this message will include the date and time and some other information,
+// shown here as '<details>'.
+//
+// Next, we set the category to "EQUITY.NASD.SUNW", which has also been set up
+// with a pass-through level defaults to 'e_INFO':
 //..
-//      10FEB2004_13:29:49.000: 400 shares of SUNW sold at 5.65
+//  {
+//      BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 //..
-// The current timestamp ('now') was prepended to the message as a simple
+//      // Now logging with category "EQUITY.NASD.SUNW".
+//..
+//      BALL_LOGF_INFO("[2] %d shares of %s sold at %f\n",
+//                     lotSize, ticker, price);
+//..
+// Which results in the following single-line message to category
+// "EQUITY.NASD.SUNW":
+//..
+//  <details> INFO x.cpp 1174 EQUITY.NASD.SUNW [2] 400 shares of SUNW sold at
+//  5.650000
+//
+//  }
+//..
+// The category "EQUITY.NASD.SUNW" just went out of scope and now category
+// "EQUITY.NASD" is visible again, so it applies to the following;
+//..
+//  BALL_LOGF_INFO("[3] %d shares of %s sold at %f\n",
+//                 lotSize, ticker, price);
+//..
+// Which results in the following single-line message being output:
+//..
+//  <details> INFO x.cpp 1188 EQUITY.NASD [3] 400 shares of SUNW sold at 5.65
+//..
+//
+///Example 4: C++ I/O Streams-Style Logging Macros
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// The second logging macro we use, 'BALL_LOG_INFO' allows streaming via the
+// 'bsl::ostream' 'class' and the the C++ stream operator '<<'.  An advantage
+// the C++ streaming style over the 'printf' style output is that complex types
+// often have the 'operator<<(ostream&, const TYPE&)' function overloaded so
+// that they are able to be easily streamed to output.  We demonstrate this
+// here using C++ streaming to stream a 'bdlt::Datetime'.
+//..
+//  int         lotSize = 400;
+//  const char *ticker  = "SUNW";
+//  double      price   = 5.65;
+//..
+//  BALL_LOG_SET_CATEGORY("EQUITY.NASD")
+//..
+// Logging with category "EQUITY.NASD", which is configured for a pass-through
+// level of 'e_INFO', from here on.
+//..
+//  bdlt::Datetime now = bdlt::CurrentTime::local();
+//  BALL_LOG_INFO << "[4] " << lotSize << " shares of " << ticker <<
+//                   " sold at " << price << " at " << now << BALL_LOG_END
+//..
+// Which results in the following single-line message being output:
+//..
+//  <details> INFO x.cpp 1217 EQUITY.NASD [4] 400 shares of SUNW sold at 5.65
+/// at 31JAN2017_09:10:53.159488
+//..
+// Where 'x.cpp' is the expansion of the '__FILE__' macro, the name of the
+// source file containing the call, and '1217' is the line number of the call.
+//
+// Next, we set the category to "EQUITY.NASD.SUNW", which has never been
+// declared with 'ball::Administration::addCategory', so its pass-through level
+// defaults to 'e_INFO':
+//..
+//  {
+//      BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
+//..
+//      // Now logging with category "EQUITY.NASD.SUNW".
+//..
+//      now = bdlt::CurrentTime::local();
+//      BALL_LOG_INFO << "[5] " << lotSize << " shares of " << ticker <<
+//                       " sold at " << price << " at " << now << BALL_LOG_END
+//..
+// Which results in the following message to category "EQUITY.NASD.SUNW":
+//..
+//  <details> INFO x.cpp 1238 EQUITY.NASD.SUNW [5] 400 shares of SUNW sold at
+//  5.65 at 31JAN2017_10:33:57.851251
+//
+//  }
+//..
+// The category "EQUITY.NASD.SUNW" just went out of scope and now category
+// "EQUITY.NASD" is visible again, so it applies to the following;
+//..
+//  now = bdlt::CurrentTime::local();
+//  BALL_LOG_INFO << "[6] " << lotSize << " shares of " << ticker <<
+//                   " sold at " << price << " at " << now << BALL_LOG_END
+//..
+// Which results in the following single-line message being output:
+//..
+//  <details> INFO <file> 1252 EQUITY.NASD [6] 400 shares of SUNW sold at 5.65
+//  at 31JAN2017_09:10:53.159575
+//..
+// The current timestamp ('now') was appended to the messages as a simple
 // illustration of the added flexibility provided by the C++ stream-based
-// macros.  (Note that the current timestamp is automatically included as a
-// distinct field in all log records generated by the 'ball' logging system.)
-// This latter message is logged to category "EQUITY.NASD.SUNW" at severity
-// level 'ball::Severity::e_TRACE'.  The log record that is generated for
-// this message will include the same file name as for 'BALL_LOG3_INFO', but
-// will naturally have a different line number associated with it.
+// macros.  (Note that the current timestamp is automatically prepended as a
+// distinct field in all log records generated by the 'ball' logging system, in
+// the part labeled '<details>' here.)  This last message was logged to
+// category "EQUITY.NASD" at severity level 'ball::Severity::e_INFO'.
 //
 // The C++ stream-based macros, as opposed to the 'printf'-style macros, ensure
 // at compile-time that no run-time format mismatches will occur.  Use of the
 // stream-based logging style exclusively will likely lead to clearer, more
 // maintainable code with fewer initial defects.
 //
-// Note that all uses of the log-generating macros *must* occur within function
-// scope (i.e., not at file scope).
+// Note that all uses of the log-generating macros, both printf-style and C++
+// stream-based, *must* occur within function scope (i.e., not at file scope).
 //
-///Example 4: Dynamic Categories
+///Example 5: Dynamic Categories
 ///- - - - - - - - - - - - - - -
 // Logging must sometimes be controlled by parameters that are not available
 // until run-time.  The 'BALL_LOG_SET_DYNAMIC_CATEGORY' macro sets a category
@@ -373,7 +410,7 @@ BSLS_IDENT("$Id: $")
 // invocation.  Consequently, dynamic categories should be used *SPARINGLY* in
 // most applications.
 //
-///Example 5: Rule-Based Logging
+///Example 6: Rule-Based Logging
 ///- - - - - - - - - - - - - - -
 // The following example demonstrates the use of attributes and rules to
 // conditionally enable logging.
@@ -475,7 +512,7 @@ BSLS_IDENT("$Id: $")
 // ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 //..
 //
-///Example 6: Logging Using a Callback
+///Example 7: Logging Using a Callback
 ///- - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to register a logging callback.  The
 // C++ stream-based macros that take a callback are particularly useful to
@@ -680,6 +717,46 @@ BSLS_IDENT("$Id: $")
                        // 'printf'-style macros
                        // =====================
 
+#define BALL_LOGF(BALL_SEVERITY, ...)                                      \
+do {                                                                       \
+    using namespace BloombergLP;                                           \
+    if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                           \
+        if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \
+                                         BALL_SEVERITY)) {                 \
+            ball::Log_Formatter ball_lOcAl_FoRmAtTeR(BALL_LOG_CATEGORY,    \
+                                                     __FILE__, __LINE__,   \
+                                                     BALL_SEVERITY);       \
+            ball::Log::format(ball_lOcAl_FoRmAtTeR.messageBuffer(),        \
+                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),     \
+                              __VA_ARGS__);                                \
+        }                                                                  \
+    }                                                                      \
+} while(0)
+
+#define BALL_LOGF_TRACE(...)                                               \
+    BALL_LOGF(ball::Severity::e_TRACE, __VA_ARGS__)
+
+#define BALL_LOGF_DEBUG(...)                                               \
+    BALL_LOGF(ball::Severity::e_DEBUG, __VA_ARGS__)
+
+#define BALL_LOGF_INFO( ...)                                               \
+    BALL_LOGF(ball::Severity::e_INFO,  __VA_ARGS__)
+
+#define BALL_LOGF_WARN( ...)                                               \
+    BALL_LOGF(ball::Severity::e_WARN , __VA_ARGS__)
+
+#define BALL_LOGF_ERROR(...)                                               \
+    BALL_LOGF(ball::Severity::e_ERROR, __VA_ARGS__)
+
+#define BALL_LOGF_FATAL(...)                                               \
+    BALL_LOGF(ball::Severity::e_FATAL, __VA_ARGS__)
+
+                   // ================================
+                   // deprecated 'printf'-style macros
+                   // ================================
+
+// *Deprecated*: Use 'BALL_LOGF'
+
 #define BALL_LOG0(BALL_SEVERITY, MSG)                                      \
 do {                                                                       \
     using namespace BloombergLP;                                           \
@@ -695,6 +772,8 @@ do {                                                                       \
         }                                                                  \
     }                                                                      \
 } while(0)
+
+// *Deprecated*: Use 'BALL_LOGF'
 
 #define BALL_LOG1(BALL_SEVERITY, MSG, ARG1)                                \
 do {                                                                       \
@@ -712,6 +791,8 @@ do {                                                                       \
     }                                                                      \
 } while(0)
 
+// *Deprecated*: Use 'BALL_LOGF'
+
 #define BALL_LOG2(BALL_SEVERITY, MSG, ARG1, ARG2)                          \
 do {                                                                       \
     using namespace BloombergLP;                                           \
@@ -727,6 +808,8 @@ do {                                                                       \
         }                                                                  \
     }                                                                      \
 } while(0)
+
+// *Deprecated*: Use 'BALL_LOGF'
 
 #define BALL_LOG3(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3)                    \
 do {                                                                       \
@@ -744,6 +827,8 @@ do {                                                                       \
     }                                                                      \
 } while(0)
 
+// *Deprecated*: Use 'BALL_LOGF'
+
 #define BALL_LOG4(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3, ARG4)              \
 do {                                                                       \
     using namespace BloombergLP;                                           \
@@ -759,6 +844,8 @@ do {                                                                       \
         }                                                                  \
     }                                                                      \
 } while(0)
+
+// *Deprecated*: Use 'BALL_LOGF'
 
 #define BALL_LOG5(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)        \
 do {                                                                       \
@@ -776,6 +863,8 @@ do {                                                                       \
     }                                                                      \
 } while(0)
 
+// *Deprecated*: Use 'BALL_LOGF'
+
 #define BALL_LOG6(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)  \
 do {                                                                       \
     using namespace BloombergLP;                                           \
@@ -791,6 +880,8 @@ do {                                                                       \
         }                                                                  \
     }                                                                      \
 } while(0)
+
+// *Deprecated*: Use 'BALL_LOGF'
 
 #define BALL_LOG7(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,  \
                                       ARG7)                                \
@@ -810,6 +901,8 @@ do {                                                                       \
     }                                                                      \
 } while(0)
 
+// *Deprecated*: Use 'BALL_LOGF'
+
 #define BALL_LOG8(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,  \
                                       ARG7, ARG8)                          \
 do {                                                                       \
@@ -827,6 +920,8 @@ do {                                                                       \
         }                                                                  \
     }                                                                      \
 } while(0)
+
+// *Deprecated*: Use 'BALL_LOGF'
 
 #define BALL_LOG9(BALL_SEVERITY, MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6,  \
                                       ARG7, ARG8, ARG9)                    \
@@ -846,216 +941,336 @@ do {                                                                       \
     }                                                                      \
 } while(0)
 
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
+
 #define BALL_LOG0_TRACE(MSG)                                               \
     BALL_LOG0(ball::Severity::e_TRACE, MSG)
+
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
 
 #define BALL_LOG1_TRACE(MSG, ARG1)                                         \
     BALL_LOG1(ball::Severity::e_TRACE, MSG, ARG1)
 
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
+
 #define BALL_LOG2_TRACE(MSG, ARG1, ARG2)                                   \
     BALL_LOG2(ball::Severity::e_TRACE, MSG, ARG1, ARG2)
+
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
 
 #define BALL_LOG3_TRACE(MSG, ARG1, ARG2, ARG3)                             \
     BALL_LOG3(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3)
 
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
+
 #define BALL_LOG4_TRACE(MSG, ARG1, ARG2, ARG3, ARG4)                       \
     BALL_LOG4(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4)
 
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
+
 #define BALL_LOG5_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5)                 \
     BALL_LOG5(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)
+
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
 
 #define BALL_LOG6_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6)
 
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
+
 #define BALL_LOG7_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7)
+
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
 
 #define BALL_LOG8_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8)
 
+// *Deprecated*: Use 'BALL_LOGF_TRACE'
+
 #define BALL_LOG9_TRACE(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_TRACE, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8, ARG9)
 
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
+
 #define BALL_LOG0_DEBUG(MSG)                                               \
     BALL_LOG0(ball::Severity::e_DEBUG, MSG)
+
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
 
 #define BALL_LOG1_DEBUG(MSG, ARG1)                                         \
     BALL_LOG1(ball::Severity::e_DEBUG, MSG, ARG1)
 
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
+
 #define BALL_LOG2_DEBUG(MSG, ARG1, ARG2)                                   \
     BALL_LOG2(ball::Severity::e_DEBUG, MSG, ARG1, ARG2)
+
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
 
 #define BALL_LOG3_DEBUG(MSG, ARG1, ARG2, ARG3)                             \
     BALL_LOG3(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3)
 
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
+
 #define BALL_LOG4_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4)                       \
     BALL_LOG4(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4)
 
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
+
 #define BALL_LOG5_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5)                 \
     BALL_LOG5(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)
+
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
 
 #define BALL_LOG6_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6)
 
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
+
 #define BALL_LOG7_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7)
+
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
 
 #define BALL_LOG8_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8)
 
+// *Deprecated*: Use 'BALL_LOGF_DEBUG'
+
 #define BALL_LOG9_DEBUG(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_DEBUG, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8, ARG9)
 
+// *Deprecated*: Use 'BALL_LOGF_INFO'
+
 #define BALL_LOG0_INFO(MSG)                                                \
     BALL_LOG0(ball::Severity::e_INFO, MSG)
+
+// *Deprecated*: Use 'BALL_LOGF_INFO'
 
 #define BALL_LOG1_INFO(MSG, ARG1)                                          \
     BALL_LOG1(ball::Severity::e_INFO, MSG, ARG1)
 
+// *Deprecated*: Use 'BALL_LOGF_INFO'
+
 #define BALL_LOG2_INFO(MSG, ARG1, ARG2)                                    \
     BALL_LOG2(ball::Severity::e_INFO, MSG, ARG1, ARG2)
+
+// *Deprecated*: Use 'BALL_LOGF_INFO'
 
 #define BALL_LOG3_INFO(MSG, ARG1, ARG2, ARG3)                              \
     BALL_LOG3(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3)
 
+// *Deprecated*: Use 'BALL_LOGF_INFO'
+
 #define BALL_LOG4_INFO(MSG, ARG1, ARG2, ARG3, ARG4)                        \
     BALL_LOG4(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4)
 
+// *Deprecated*: Use 'BALL_LOGF_INFO'
+
 #define BALL_LOG5_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5)                  \
     BALL_LOG5(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)
+
+// *Deprecated*: Use 'BALL_LOGF_INFO'
 
 #define BALL_LOG6_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)            \
     BALL_LOG6(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6)
 
+// *Deprecated*: Use 'BALL_LOGF_INFO'
+
 #define BALL_LOG7_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)      \
     BALL_LOG7(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6, ARG7)
+
+// *Deprecated*: Use 'BALL_LOGF_INFO'
 
 #define BALL_LOG8_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
                             ARG8)                                          \
     BALL_LOG8(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6, ARG7, ARG8)
 
+// *Deprecated*: Use 'BALL_LOGF_INFO'
+
 #define BALL_LOG9_INFO(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
                             ARG8, ARG9)                                    \
     BALL_LOG9(ball::Severity::e_INFO, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6, ARG7, ARG8, ARG9)
 
+// *Deprecated*: Use 'BALL_LOGF_WARN'
+
 #define BALL_LOG0_WARN(MSG)                                                \
     BALL_LOG0(ball::Severity::e_WARN, MSG)
+
+// *Deprecated*: Use 'BALL_LOGF_WARN'
 
 #define BALL_LOG1_WARN(MSG, ARG1)                                          \
     BALL_LOG1(ball::Severity::e_WARN, MSG, ARG1)
 
+// *Deprecated*: Use 'BALL_LOGF_WARN'
+
 #define BALL_LOG2_WARN(MSG, ARG1, ARG2)                                    \
     BALL_LOG2(ball::Severity::e_WARN, MSG, ARG1, ARG2)
+
+// *Deprecated*: Use 'BALL_LOGF_WARN'
 
 #define BALL_LOG3_WARN(MSG, ARG1, ARG2, ARG3)                              \
     BALL_LOG3(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3)
 
+// *Deprecated*: Use 'BALL_LOGF_WARN'
+
 #define BALL_LOG4_WARN(MSG, ARG1, ARG2, ARG3, ARG4)                        \
     BALL_LOG4(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4)
 
+// *Deprecated*: Use 'BALL_LOGF_WARN'
+
 #define BALL_LOG5_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5)                  \
     BALL_LOG5(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)
+
+// *Deprecated*: Use 'BALL_LOGF_WARN'
 
 #define BALL_LOG6_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)            \
     BALL_LOG6(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6)
 
+// *Deprecated*: Use 'BALL_LOGF_WARN'
+
 #define BALL_LOG7_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)      \
     BALL_LOG7(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6, ARG7)
+
+// *Deprecated*: Use 'BALL_LOGF_WARN'
 
 #define BALL_LOG8_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
                             ARG8)                                          \
     BALL_LOG8(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6, ARG7, ARG8)
 
+// *Deprecated*: Use 'BALL_LOGF_WARN'
+
 #define BALL_LOG9_WARN(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,      \
                             ARG8, ARG9)                                    \
     BALL_LOG9(ball::Severity::e_WARN, MSG, ARG1, ARG2, ARG3, ARG4,         \
                                            ARG5, ARG6, ARG7, ARG8, ARG9)
 
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
+
 #define BALL_LOG0_ERROR(MSG)                                               \
     BALL_LOG0(ball::Severity::e_ERROR, MSG)
+
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
 
 #define BALL_LOG1_ERROR(MSG, ARG1)                                         \
     BALL_LOG1(ball::Severity::e_ERROR, MSG, ARG1)
 
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
+
 #define BALL_LOG2_ERROR(MSG, ARG1, ARG2)                                   \
     BALL_LOG2(ball::Severity::e_ERROR, MSG, ARG1, ARG2)
+
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
 
 #define BALL_LOG3_ERROR(MSG, ARG1, ARG2, ARG3)                             \
     BALL_LOG3(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3)
 
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
+
 #define BALL_LOG4_ERROR(MSG, ARG1, ARG2, ARG3, ARG4)                       \
     BALL_LOG4(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4)
 
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
+
 #define BALL_LOG5_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5)                 \
     BALL_LOG5(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)
+
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
 
 #define BALL_LOG6_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6)
 
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
+
 #define BALL_LOG7_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7)
+
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
 
 #define BALL_LOG8_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8)
 
+// *Deprecated*: Use 'BALL_LOGF_ERROR'
+
 #define BALL_LOG9_ERROR(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
     BALL_LOG9(ball::Severity::e_ERROR, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8, ARG9)
 
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
+
 #define BALL_LOG0_FATAL(MSG)                                               \
     BALL_LOG0(ball::Severity::e_FATAL, MSG)
+
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
 
 #define BALL_LOG1_FATAL(MSG, ARG1)                                         \
     BALL_LOG1(ball::Severity::e_FATAL, MSG, ARG1)
 
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
+
 #define BALL_LOG2_FATAL(MSG, ARG1, ARG2)                                   \
     BALL_LOG2(ball::Severity::e_FATAL, MSG, ARG1, ARG2)
+
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
 
 #define BALL_LOG3_FATAL(MSG, ARG1, ARG2, ARG3)                             \
     BALL_LOG3(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3)
 
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
+
 #define BALL_LOG4_FATAL(MSG, ARG1, ARG2, ARG3, ARG4)                       \
     BALL_LOG4(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4)
 
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
+
 #define BALL_LOG5_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5)                 \
     BALL_LOG5(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4, ARG5)
+
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
 
 #define BALL_LOG6_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)           \
     BALL_LOG6(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6)
 
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
+
 #define BALL_LOG7_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)     \
     BALL_LOG7(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7)
+
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
 
 #define BALL_LOG8_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8)                                         \
     BALL_LOG8(ball::Severity::e_FATAL, MSG, ARG1, ARG2, ARG3, ARG4,        \
                                             ARG5, ARG6, ARG7, ARG8)
+
+// *Deprecated*: Use 'BALL_LOGF_FATAL'
 
 #define BALL_LOG9_FATAL(MSG, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7,     \
                              ARG8, ARG9)                                   \
