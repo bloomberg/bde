@@ -1054,9 +1054,17 @@ void TcpTimerEventManager::controlCb()
                bsl::allocator<btlso::EventManager::Callback>(d_allocator_p),
                bdlf::MemFnUtil::memFn(&TcpTimerEventManager::controlCb, this));
 
-            d_manager_p->registerSocketEvent(d_controlChannel_p->serverFd(),
-                                             btlso::EventType::e_READ,
-                                             cb);
+            const int rc = d_manager_p->registerSocketEvent(
+                                                d_controlChannel_p->serverFd(),
+                                                btlso::EventType::e_READ,
+                                                cb);
+
+            // Assert that the server fd of 'd_controlChannel_p' was
+            // successfully registered.  If the server fd is not registered
+            // then all subsequent method calls will silently fail so its best
+            // to assert.
+
+            BSLS_ASSERT(0 == rc);
             d_numTotalSocketEvents = 0;
           } break;
           case TcpTimerEventManager_Request::e_DEREGISTER_SOCKET_EVENT: {
@@ -1104,8 +1112,9 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
                                                        1);
 
     // Set the state to e_ENABLED before dispatching any events.  Note that the
-    // thread calling 'enable' should be blocked (awaiting a response on the
-    // control channel) and holding a write lock to 'd_stateLock'.
+    // thread calling 'enable' should be blocked awaiting a response on the
+    // control channel (in 'initiateControlChannelRead') and holding a write
+    // lock to 'd_stateLock'.
 
     d_state = e_ENABLED;
 
@@ -1357,21 +1366,17 @@ TcpTimerEventManager::~TcpTimerEventManager()
 // MANIPULATORS
 int TcpTimerEventManager::disable()
 {
-    if (d_state == e_DISABLED) {
-        return 0;                                                     // RETURN
-    }
-
     if(bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(), d_dispatcher)) {
         return 1;                                                     // RETURN
     }
 
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_stateLock);
-    {
-        // Synchronized section.
-        if (d_state == e_DISABLED) {
-            return 0;                                                 // RETURN
-        }
 
+    if (d_state == e_DISABLED) {
+        return 0;                                                     // RETURN
+    }
+
+    {
         // Send dispatcher thread request to exit and wait until it
         // terminates, via 'join'.
         bslmt::Mutex              mutex;
@@ -1417,17 +1422,13 @@ int TcpTimerEventManager::enable(const bslmt::ThreadAttributes& attr)
         return 0;                                                     // RETURN
     }
 
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_stateLock);
+
     if (e_ENABLED == d_state) {
         return 0;                                                     // RETURN
     }
 
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_stateLock);
     {
-        // Synchronized section.
-        if (e_ENABLED == d_state) {
-            return 0;                                                 // RETURN
-        }
-
         BSLS_ASSERT(0 == d_controlChannel_p);
 
         // Create control channel object.
@@ -2024,13 +2025,9 @@ int TcpTimerEventManager::numTotalSocketEvents() const
 
 int TcpTimerEventManager::isEnabled() const
 {
-    return d_state == e_ENABLED; // d_state is volatile
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_stateLock);
 
-/*
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_cs);
-    return d_dispatcher != bslmt::ThreadUtil::invalidHandle();
-*/
-
+    return d_state == e_ENABLED;
 }
 
 }  // close package namespace

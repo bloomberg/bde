@@ -396,7 +396,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                    d_dispatcher;      // dispatcher thread
                                                       // handle
 
-    volatile State                 d_state;           // the state of the
+    State                          d_state;           // the state of the
                                                       // dispatcher thread
 
     bsls::AtomicInt                d_terminateThread; // signals end of
