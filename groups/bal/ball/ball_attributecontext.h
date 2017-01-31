@@ -150,6 +150,9 @@ BSLS_IDENT("$Id: $")
 // package: 'ball::AttributeContext::initialize' is called *internally* as part
 // of the initialization of the 'ball::LoggerManager' singleton.
 //..
+//  // NOTE: The following is normally performed when the logger manager
+//  // singleton is initialized.
+//
 //  ball::CategoryManager categoryManager;
 //  ball::AttributeContext::initialize(&categoryManager);
 //..
@@ -715,7 +718,7 @@ inline
 AttributeContext_RuleEvaluationCache::AttributeContext_RuleEvaluationCache()
 : d_evalMask(0)
 , d_resultMask(0)
-, d_sequenceNumber(-1)
+, d_timestamp(-1)
 {
 }
 
@@ -734,7 +737,7 @@ bool AttributeContext_RuleEvaluationCache::isDataAvailable(
                                     bsls::Types::Int64 sequenceNumber,
                                     RuleSet::MaskType  relevantRulesMask) const
 {
-    return sequenceNumber    == d_sequenceNumber
+    return timestamp         == d_timestamp
         && relevantRulesMask == (relevantRulesMask & d_evalMask);
 }
 

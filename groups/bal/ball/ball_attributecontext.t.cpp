@@ -464,6 +464,159 @@ extern "C" void *usageExample2(void *args)
     return 0;
 }
 
+struct ThreadArgs {
+    ball::CategoryManager *d_categoryManager;
+};
+
+extern "C" void *usageExample2(void *args)
+{
+    ball::CategoryManager  *manager = ((ThreadArgs *)args)->d_categoryManager;
+    ball::CategoryManager&  categoryManager = *manager;
+
+// Next, we add a category to the category manager.  Each created category has
+// a name and the logging threshold levels for that category.  The logging
+// threshold levels indicate the minimum severity for logged messages that will
+// trigger the relevant action.  The four thresholds are the "record level"
+// (messages logged with a higher severity than this threshold should be added
+// to the current logger's record buffer), the "pass-through level" (messages
+// logged with a severity higher than this threshold should be published
+// immediately), the "trigger level" (messages logged with a higher severity
+// than this threshold should trigger the publication of the entire contents of
+// the current logger's record buffer), and the "trigger-all level" (messages
+// logged with a higher severity than this threshold should trigger the
+// publication of every logger's record buffer), respectively.  Note that
+// clients are generally most interested in the "pass-through" threshold level.
+// Also note that a higher number indicates a lower severity.
+//..
+    const ball::Category *cat1 =
+               categoryManager.addCategory("MyCategory", 128, 96, 64, 32);
+//..
+// Next we obtain the context for the current thread.
+//..
+    ball::AttributeContext *context = ball::AttributeContext::getContext();
+//..
+// We call 'hasRelevantActiveRules' on 'cat1'.  This will be 'false' because
+// we haven't supplied any rules:
+//..
+    ASSERT(false == context->hasRelevantActiveRules(cat1));
+//..
+// We call 'determineThresholdLevels' on 'cat1'.  This will simply return the
+// logging threshold levels we defined for 'cat1' when it was created because
+// no rules have been defined that might modify those thresholds:
+//..
+    ball::ThresholdAggregate cat1ThresholdLevels(0, 0, 0, 0);
+    context->determineThresholdLevels(&cat1ThresholdLevels, cat1);
+    ASSERT(128 == cat1ThresholdLevels.recordLevel());
+    ASSERT( 96 == cat1ThresholdLevels.passLevel());
+    ASSERT( 64 == cat1ThresholdLevels.triggerLevel());
+    ASSERT( 32 == cat1ThresholdLevels.triggerAllLevel());
+//..
+// Next, we create a rule that will apply to those categories whose names match
+// the pattern "My*", where '*' is a wild-card value.  The rule defines a set
+// of thresholds levels that may override the threshold levels of those
+// categories whose name matches the rule's pattern:
+//..
+    ball::Rule myRule("My*", 120, 110, 70, 40);
+    categoryManager.addRule(myRule);
+//..
+// Now, we call 'hasRelevantActiveRules' again for 'cat1', but this time the
+// method returns 'true' because the rule we just added is both "relevant" to
+// 'cat1' and "active".  'myRule' is "relevant" to 'cat1' because the name of
+// 'cat1' ("MyCategory") matches the pattern for 'myRule' ("My*") (i.e.,
+// 'myRule' applies to 'cat1').  'myRule' is also "active" because all the
+// predicates defined for the rule are satisfied by the current thread (in this
+// case the rule has no predicates, so the rule is always "active").  Note
+// that we will discuss the meaning of "active" and the use of predicates later
+// in this example.
+//..
+    ASSERT(true == context->hasRelevantActiveRules(cat1));
+//..
+// Next, we call 'determineThresholdLevels' for 'cat1'.  This method compares
+// the threshold levels defined for a category with those of any active rules
+// that apply to that category, and determines the minimum severity (i.e., the
+// maximum numerical value) for each respective threshold amongst those values.
+//..
+    ball::ThresholdAggregate thresholdLevels(0, 0, 0, 0);
+    context->determineThresholdLevels(&thresholdLevels, cat1);
+    ASSERT(128 == thresholdLevels.recordLevel());
+    ASSERT(110 == thresholdLevels.passLevel());
+    ASSERT( 70 == thresholdLevels.triggerLevel());
+    ASSERT( 40 == thresholdLevels.triggerAllLevel());
+//..
+// In this case the "pass-through", "trigger", and "trigger-all" threshold
+// levels defined by 'myRule' (110, 70, and 40) are greater (i.e., define a
+// lower severity) than those respective values defined for 'cat1' (96, 64,
+// and 32), so those values override the values defined for 'cat1'.  On the
+// other hand, the "record" threshold level for 'cat1' (128) is greater than
+// the value defined by 'myRule' (120), so the threshold level defined for
+// 'cat1' is  returned.  In effect, 'myRule' has lowered the severity at which
+// messages logged in the "MyCategory" category will be published immediately,
+// trigger the publication of the current logger's record buffer, and trigger
+// the publication of every logger's record buffer.
+//
+// Next we modify 'myRule', adding a predicate indicating that the rule should
+// only apply if the attribute context for the current thread contains the
+// attribute '("uuid", 3938908)':
+//..
+    categoryManager.removeRule(myRule);
+    ball::Predicate predicate("uuid", 3938908);
+    myRule.addPredicate(predicate);
+    categoryManager.addRule(myRule);
+//..
+// When we again call 'hasRelevantActiveRules' for 'cat1', it now returns
+// 'false'.  The rule, 'myRule', still applies to 'cat1' (i.e., it is still
+// "relevant" to 'cat1'), but the predicates defined by 'myRule' are no longer
+// satisfied by the current thread, i.e., the current thread's attribute
+// context does not contain an attribute matching '("uuid", 3938908)'.
+//..
+    ASSERT(false == context->hasRelevantActiveRules(cat1));
+//..
+// Next, we call 'determineThresholdLevels' on 'cat1' and find that it
+// returns the threshold levels we defined for 'cat1' when we created it:
+//..
+    context->determineThresholdLevels(&thresholdLevels, cat1);
+    ASSERT(thresholdLevels == cat1ThresholdLevels);
+//..
+// Finally, we add an attribute to the current thread's attribute context (as
+// we did in the first example, "Managing Attributes").  Note that we keep an
+// iterator referring to the added attributes so that we can remove them before
+// 'attributes' goes out of scope and is destroyed.  Also note that the class
+// 'AttributeSet' is defined in the component documentation for
+// 'ball_attributecontainer'.
+//..
+    AttributeSet attributes;
+    attributes.insert(ball::Attribute("uuid", 3938908));
+    ball::AttributeContext::iterator it = context->addAttributes(&attributes);
+//..
+// The following call to 'hasRelevantActiveRules' will return 'true' for 'cat1'
+// because there is at least one rule, 'myRule', that is both "relevant"
+// (i.e., its pattern matches the category name of 'cat1') and "active" (i.e.,
+// all of the predicates defined for 'myRule' are satisfied by the attributes
+// held by this thread's attribute context):
+//..
+    ASSERT(true == context->hasRelevantActiveRules(cat1));
+//..
+// Now, when we call 'determineThresholdLevels'; it will again return the
+// maximum threshold level from 'cat1' and 'myRule':
+//..
+    context->determineThresholdLevels(&thresholdLevels, cat1);
+    ASSERT(128 == thresholdLevels.recordLevel());
+    ASSERT(110 == thresholdLevels.passLevel());
+    ASSERT( 70 == thresholdLevels.triggerLevel());
+    ASSERT( 40 == thresholdLevels.triggerAllLevel());
+//..
+// We must be careful to remove 'attributes' from the attribute context before
+// it goes out of scope and is destroyed.  Note that the 'ball' package
+// supplies a component, 'ball_scopedattributes', for adding, and
+// automatically removing, attributes from the current thread's attribute
+// context.
+//..
+    context->removeAttributes(it);
+//..
+
+    return 0;
+}
+
 }  // close namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
 
 //=============================================================================
@@ -1430,6 +1583,9 @@ int main(int argc, char *argv[])
 // package: 'ball::AttributeContext::initialize' is called *internally* as part
 // of the initialization of the 'ball::LoggerManager' singleton.
 //..
+    // NOTE: The following is normally performed when the logger manager
+    // singleton is initialized.
+
     ball::CategoryManager categoryManager;
     ball::AttributeContext::initialize(&categoryManager);
 //..

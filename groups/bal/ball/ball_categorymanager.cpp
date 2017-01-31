@@ -9,6 +9,8 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 
+#include <bdlt_currenttime.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
