@@ -176,11 +176,14 @@ BSLS_IDENT("$Id: $")
 // in the past or future).
 //
 // The version '2' format adds an additional optional POSIX TZ environment
-// string found between two newline '\n' characters immediately following the
-// data.  If two consecutive newline characters are found, no string has been
-// specified.  The optional string holds a text description of the local time
-// transitions of the timezone, which can be used to compute transitions beyond
-// the range represented in the binary compiled time zone data.
+// string, holding a text description of the local time transitions of the
+// timezone, which can be used to compute transitions beyond the range
+// represented in the binary compiled time zone data (see
+// ftp://ftp.iana.org/tz/code/tzfile.h).  It is similar (but not necessarily
+// identical to) POSIX time zone description used for the 'TZ' environment
+// variable.  String is found between two newline '\n' characters immediately
+// following the data.  If two consecutive newline characters are found, no
+// string has been specified.
 //
 // This component will always load version '2' data if it is present in the
 // supplied binary data.
@@ -204,12 +207,6 @@ BSLS_IDENT("$Id: $")
 //   year.  E.g., TZ='WART4WARST,J1/0,J365/25' for Western Argentina Summer
 //   Time all year.  This supports a more-compact way to represent the 2013d
 //   data for America/Argentina/San_Luis.
-//
-// The optional string holds a text description of the local time transitions
-// of the timezone, which can be used to compute transitions beyond the range
-// represented in the binary compiled time zone data.  This string is similar
-// (but not identical to) POSIX time zone description used for the 'TZ'
-// environment variable.
 //
 ///Additional Information
 /// - - - - - - - - - - -

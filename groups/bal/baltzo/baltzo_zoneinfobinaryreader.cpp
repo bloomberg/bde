@@ -99,8 +99,13 @@ struct RawLeapInfo64 {
 BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
 
 const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488;
-    // Transition time value, added by Zone Info Compiler by default.  It is
-    // equal to 2^59 seconds or ~18.3 billion years before epoch.
+    // The value is a constant, used by the ZIC compiler (which "compiles" the
+    // data into zoneinfo binary files), and is used as the time point for the
+    // first local time transition to simplify the logic for determining the
+    // local time prior to time zones being established.  Note that time zones
+    // typically use "apparent solar time" (which has a fixed offset from UTC)
+    // as local time prior to laws regarding time zones being established (see
+    // https://en.wikipedia.org/wiki/Time_zone).
 
 }  // close unnamed namespace
 
@@ -496,7 +501,7 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
                         "Unable to read 'tz' information from Zoneinfo file.");
             return -33;                                               // RETURN
         }
-        zoneinfoResult->setPosixTZ(tz);
+        zoneinfoResult->setPosixExtendedRangeDescription(tz);
     }
 
     return 0;

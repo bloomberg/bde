@@ -90,8 +90,8 @@ using namespace bsl;
 // MANIPULATORS
 // [13] baltzo::Zoneinfo& operator=(const baltzo::Zoneinfo& rhs);
 // [ 2] void addTransition(TimeT64 time, const baltzo::LTD& d);
-// [ 2] void setPosixTZ(const bslstl::StringRef&);
-// [ 2] void setPosixTZ(const char *value);
+// [ 2] void setPosixExtendedRangeDescription(const bslstl::StringRef&);
+// [ 2] void setPosixExtendedRangeDescription(const char *value);
 // [ 9] void setIdentifier(const bslstl::StringRef& identifier);
 // [12] void swap(baltzo::Zoneinfo& other);
 
@@ -103,7 +103,7 @@ using namespace bsl;
 // [ 4] bsl::size_t numTransitions() const;
 // [ 4] TransitionConstIterator beginTransitions() const;
 // [ 4] TransitionConstIterator endTransitions() const;
-// [ 4] const bsl::string& posixTZ() const;
+// [ 4] const bsl::string& posixExtendedRangeDescription() const;
 // [10] bsl::ostream& print(ostream& stream, level, spl) const;
 //
 // FREE OPERATORS
@@ -900,8 +900,8 @@ int main(int argc, char *argv[])
         //:     transitions description) in the table 'TZ_DATA' described in
         //:     P-1:
         //:
-        //:     1 Use the 'setPosixTZ' manipulator to shape values of objects
-        //:       described in P-4.1.
+        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to
+        //:       shape values of objects described in P-4.1.
         //:
         //:     2 Execute an inner loop that iterates over each row 'R2'
         //:       (representing a distinct object value, 'W') in the table
@@ -918,8 +918,8 @@ int main(int argc, char *argv[])
         //:         transitions description) in the table 'TZ_DATA' described
         //:         in P-3:
         //:
-        //:         1 Use the 'setPosixTZ' manipulator to shape values of
-        //:           objects described in P-4.2.3.2.
+        //:         1 Use the 'setPosixExtendedRangeDescription' manipulator to
+        //:           shape values of  objects described in P-4.2.3.2.
         //:
         //:         2 Assign 'mX' from 'Z' in the presence of injected
         //:           exceptions (using the
@@ -963,8 +963,8 @@ int main(int argc, char *argv[])
         //:       using 'oa' and a 'const' 'Obj' 'ZZ' (using a distinct
         //:       "scratch" allocator).
         //:
-        //:     3 Use the 'setPosixTZ' manipulator to shape values of objects
-        //:       described in P-1.1.
+        //:     3 Use the 'setPosixExtendedRangeDescription' manipulator to
+        //:       shape values of objects described in P-1.1.
         //:
         //:     4 Let 'Z' be a reference providing only 'const' access to 'mX'.
         //:
@@ -1074,8 +1074,8 @@ int main(int argc, char *argv[])
                 Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC1);
 
                 if (TZ1) {
-                    mZ.setPosixTZ(TZ1);
-                    mZZ.setPosixTZ(TZ1);
+                    mZ.setPosixExtendedRangeDescription(TZ1);
+                    mZZ.setPosixExtendedRangeDescription(TZ1);
                 }
 
                 if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
@@ -1102,7 +1102,7 @@ int main(int argc, char *argv[])
                             Obj mX(&oa);  const Obj& X = gg(&mX, SPEC2);
 
                             if (TZ2) {
-                                mX.setPosixTZ(TZ2);
+                                mX.setPosixExtendedRangeDescription(TZ2);
                             }
 
                             if (veryVerbose) { T_ P_(LINE2) P(X) }
@@ -1167,8 +1167,8 @@ int main(int argc, char *argv[])
                     Obj mZZ(&oa);  const Obj& ZZ = gg(&mX, SPEC);
 
                     if (TZ) {
-                        mX.setPosixTZ(TZ);
-                        mZZ.setPosixTZ(TZ);
+                        mX.setPosixExtendedRangeDescription(TZ);
+                        mZZ.setPosixExtendedRangeDescription(TZ);
                     }
 
                     const Obj& Z = mX;
@@ -1266,9 +1266,10 @@ int main(int argc, char *argv[])
         //:     transitions description) in the table 'TZ_DATA' described in
         //:     P-3:
         //:
-        //:     1 Use the 'setPosixTZ' manipulator to shape values of object
-        //:       described in P-4.2; also use the copy constructor to create a
-        //:       'const' 'Obj' 'XX' (using a "scratch" allocator) from 'mW'.
+        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to
+        //:       shape values of object described in P-4.2; also use the copy
+        //:       constructor to create a 'const' 'Obj' 'XX' (using a "scratch"
+        //:       allocator) from 'mW'.
         //:
         //:     2 Use the member and free 'swap' functions to swap the value of
         //:       'mW' with itself, and then verify:  (C-2, 3, 5)
@@ -1293,10 +1294,10 @@ int main(int argc, char *argv[])
         //:         extended transitions description) in the table 'TZ_DATA'
         //:         described in P-3:
         //:
-        //:         1 Use the 'setPosixTZ' manipulator to shape value of object
-        //:           described in P-4.3.3.1; also use the copy constructor to
-        //:           create a 'const' 'Obj' 'YY' (using a "scratch" allocator)
-        //:           from 'Y'.
+        //:         1 Use the 'setPosixExtendedRangeDescription' manipulator to
+        //:           shape value of object described in P-4.3.3.1; also use
+        //:           the copy constructor to create a 'const' 'Obj' 'YY'
+        //:           (using a "scratch" allocator) from 'Y'.
         //:
         //:         2 Use the member 'swap' function to swap the values of 'mX'
         //:           and 'mY', and then verify:  (C-1..3)
@@ -1403,7 +1404,7 @@ int main(int argc, char *argv[])
                 Obj mW(&oa);  const Obj& W = gg(&mW, SPEC1);
 
                 if (TZ1) {
-                    mW.setPosixTZ(TZ1);
+                    mW.setPosixExtendedRangeDescription(TZ1);
                 }
 
                 const Obj XX(W, &scratch);
@@ -1453,7 +1454,7 @@ int main(int argc, char *argv[])
                         Obj mY(&oa);  const Obj& Y = gg(&mY, SPEC2);
 
                         if (TZ2) {
-                            mY.setPosixTZ(TZ2);
+                            mY.setPosixExtendedRangeDescription(TZ2);
                         }
 
                         const Obj YY(Y, &scratch);
@@ -1589,8 +1590,8 @@ int main(int argc, char *argv[])
         //:     transitions description) in the table 'TZ_DATA' described in
         //:     P-1:
         //:
-        //:     1 Use the 'setPosixTZ' manipulator to shape values of objects
-        //:       described in P-1.1.
+        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to
+        //:       shape values of objects described in P-1.1.
         //:
         //:     2 Execute an inner loop creating three distinct objects in
         //:       turn, each using the copy constructor on 'Z' from P-2.1, but
@@ -1711,8 +1712,8 @@ int main(int argc, char *argv[])
                     // Specify extended transitions description.
 
                     if (TZ) {
-                        mZ.setPosixTZ(TZ);
-                        mZZ.setPosixTZ(TZ);
+                        mZ.setPosixExtendedRangeDescription(TZ);
+                        mZZ.setPosixExtendedRangeDescription(TZ);
                     }
 
                     if (veryVerbose) { T_ P_(Z) P(ZZ) }
@@ -2316,7 +2317,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
 
                     Obj mX(&oa1);  const Obj& X = gg(&mX, SPEC1);
-                    mX.setPosixTZ(TZ1);
+                    mX.setPosixExtendedRangeDescription(TZ1);
 
                     if (veryVerbose) { T_ P_(LINE1) P(X) }
 
@@ -2351,8 +2352,8 @@ int main(int argc, char *argv[])
                         Obj mX(&xa);  const Obj& X = gg(&mX, SPEC1);
                         Obj mY(&ya);  const Obj& Y = gg(&mY, SPEC2);
 
-                        mX.setPosixTZ(TZ1);
-                        mY.setPosixTZ(TZ2);
+                        mX.setPosixExtendedRangeDescription(TZ1);
+                        mY.setPosixExtendedRangeDescription(TZ2);
 
                         if (veryVerbose) { T_ P_(LINE2) P_(EXP) P_(X) P(Y) }
 
@@ -2673,7 +2674,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
                 mX.setIdentifier(ID);
-                mX.setPosixTZ(TZ);
+                mX.setPosixExtendedRangeDescription(TZ);
 
                 ostringstream os;
 
@@ -3377,7 +3378,7 @@ int main(int argc, char *argv[])
         //   bslma::Allocator *allocator() const;
         //   const Transition& firstTransition() const;
         //   bsl::size_t numTransitions() const;
-        //   const bsl::string& posixTZ() const;
+        //   const bsl::string& posixExtendedRangeDescription() const;
         //   TransitionConstIterator beginTransitions() const;
         //   TransitionConstIterator endTransitions() const;
         // --------------------------------------------------------------------
@@ -3459,7 +3460,8 @@ int main(int argc, char *argv[])
         {
             // Testing object without any transitions description.
 
-            LOOP_ASSERT(X.posixTZ(), bsl::string() == X.posixTZ());
+            LOOP_ASSERT(X.posixExtendedRangeDescription(),
+                        bsl::string() == X.posixExtendedRangeDescription());
 
             static const char *DATA[] = {
                 "",
@@ -3475,12 +3477,13 @@ int main(int argc, char *argv[])
                 const char *const TZ_C = DATA[ti];
                 const bsl::string RESULT(DATA[ti]);
 
-                mX.setPosixTZ(TZ_C);
+                mX.setPosixExtendedRangeDescription(TZ_C);
 
                 bslma::TestAllocatorMonitor oam(&oa);
                 bslma::TestAllocatorMonitor dam(&da);
 
-                LOOP_ASSERT(X.posixTZ(), RESULT == X.posixTZ());
+                LOOP_ASSERT(X.posixExtendedRangeDescription(),
+                            RESULT == X.posixExtendedRangeDescription());
 
                 ASSERT(oam.isInUseSame());
                 ASSERT(dam.isInUseSame());
@@ -3714,21 +3717,23 @@ int main(int argc, char *argv[])
         //:   4 For each row (representing a distinct object value, 'V') in the
         //:     table described in P-3.1:
         //:
-        //:     1 Use the 'setPosixTZ' manipulator to set extended transitions
-        //:       description for one object described in P-3.3 (passing const
-        //:       pointer to const character as a parameter).
+        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to set
+        //:       extended transitions description for one object described in
+        //:       P-3.3 (passing const pointer to const character as a
+        //:       parameter).
         //:
-        //:     2 Use the 'setPosixTZ' manipulator to set extended transitions
-        //:       description for another object described in P-3.3 (passing
-        //:       const reference to StringRef object as a parameter).
+        //:     2 Use the 'setPosixExtendedRangeDescription' manipulator to set
+        //:       extended transitions description for another object described
+        //:       in P-3.3 (passing const reference to StringRef object as a
+        //:       parameter).
         //:
         //:     3 Create a local block.  Then inside the block, using brute
         //:       force, set extended transitions description values, passing a
         //:       const pointer to const character for one object and const
         //:       reference to StringRef for another.  Verify that the
-        //:       'setPosixTZ' manipulator is exception neutral.  Use the (as
-        //:       yet unproven) basic accessor to verify that only the intended
-        //:       attribute value changed.  (C-10..12)
+        //:       'setPosixExtendedRangeDescription' manipulator is exception
+        //:       eutral.  Use the (as yet unproven) basic accessor to verify
+        //:       that only the intended attribute value changed.  (C-10..12)
         //:
         //:     4 Verify that no temporary memory is allocated from the default
         //:       allocator.  (C-7)
@@ -3745,8 +3750,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   baltzo::Zoneinfo(bslma::Allocator *bA = 0);
         //   void addTransition(TimeT64 time, const baltzo::LTD& d);
-        //   void setPosixTZ(const bslstl::StringRef&);
-        //   void setPosixTZ(const char *value);
+        //   void setPosixExtendedRangeDescription(const bslstl::StringRef&);
+        //   void setPosixExtendedRangeDescription(const char *value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3798,9 +3803,8 @@ int main(int argc, char *argv[])
                 // -------------------------------------------------------
 
                 LOOP_ASSERT(CONFIG, &oa == X.identifier().allocator());
-
-                LOOP_ASSERT(CONFIG, &oa == X.posixTZ().get_allocator());
-
+                LOOP_ASSERT(CONFIG, &oa ==
+                            X.posixExtendedRangeDescription().get_allocator());
 
                 // -------------------------------------
                 // Verify the object's attribute values.
@@ -3812,7 +3816,8 @@ int main(int argc, char *argv[])
                              0 == X.numTransitions());
                 LOOP_ASSERT(CONFIG,
                             X.beginTransitions() == X.endTransitions());
-                LOOP2_ASSERT(CONFIG, X.posixTZ(), "" == X.posixTZ());
+                LOOP2_ASSERT(CONFIG, X.posixExtendedRangeDescription(),
+                             "" == X.posixExtendedRangeDescription());
 
                 // Also apply the object's 'allocator' accessor.
 
@@ -3934,7 +3939,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(oa.numBlocksTotal(), 0 == oa.numBlocksInUse());
         }
 
-        if (verbose) cout << "\nTesting 'setPosixTZ'"
+        if (verbose) cout << "\nTesting 'setPosixExtendedRangeDescription'"
                           << endl;
         {
             static const char *DATA[] = {
@@ -3964,11 +3969,15 @@ int main(int argc, char *argv[])
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
 
-                        mXC.setPosixTZ(TZ_C);
-                        mXSR.setPosixTZ(TZ_SR);
+                        mXC.setPosixExtendedRangeDescription(TZ_C);
+                        mXSR.setPosixExtendedRangeDescription(TZ_SR);
 
-                        LOOP_ASSERT(XC.posixTZ(),  RESULT == XC.posixTZ());
-                        LOOP_ASSERT(XSR.posixTZ(), RESULT == XSR.posixTZ());
+                        LOOP_ASSERT(XC.posixExtendedRangeDescription(),
+                                    RESULT ==
+                                           XC.posixExtendedRangeDescription());
+                        LOOP_ASSERT(XSR.posixExtendedRangeDescription(),
+                                    RESULT ==
+                                          XSR.posixExtendedRangeDescription());
 
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
@@ -3994,10 +4003,10 @@ int main(int argc, char *argv[])
             (void) VALID_C;
             (void) VALID_SR;
 
-            ASSERT_SAFE_PASS(mX.setPosixTZ(  VALID_C ));
-            ASSERT_SAFE_PASS(mX.setPosixTZ(  VALID_SR));
-            ASSERT_SAFE_FAIL(mX.setPosixTZ(INVALID_C ));
-            ASSERT_SAFE_FAIL(mX.setPosixTZ(INVALID_SR));
+            ASSERT_SAFE_PASS(mX.setPosixExtendedRangeDescription(  VALID_C ));
+            ASSERT_SAFE_PASS(mX.setPosixExtendedRangeDescription(  VALID_SR));
+            ASSERT_SAFE_FAIL(mX.setPosixExtendedRangeDescription(INVALID_C ));
+            ASSERT_SAFE_FAIL(mX.setPosixExtendedRangeDescription(INVALID_SR));
         }
 
 
