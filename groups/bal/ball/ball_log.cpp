@@ -309,7 +309,7 @@ Log_Formatter::~Log_Formatter()
 // Note that it is not necessary to set the filename in this usage scenario;
 // instead, '__FILE__' is used directly.  However, a category must still be
 // established (first time only), by calling 'ball::Log::setCategory'.  The
-// remaining code mimics the expansion of the 'BALL_LOG3_INFO' macro.  First
+// remaining code mimics the expansion of the 'BALL_LOGVA_INFO' macro.  First
 // the category is queried to determine if it has logging enabled for the
 // 'ball::Severity::e_INFO' severity level.  If so, the message is formatted
 // into a static buffer managed by 'ball::LoggerManager' and then logged with
