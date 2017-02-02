@@ -396,7 +396,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                    d_dispatcher;      // dispatcher thread
                                                       // handle
 
-    State                          d_state;           // the state of the
+    volatile State                 d_state;           // the state of the
                                                       // dispatcher thread
 
     bsls::AtomicInt                d_terminateThread; // signals end of
@@ -690,7 +690,8 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // Return the thread handle of the dispatcher thread of this object.
 
     int isEnabled() const;
-        // Return 1 if the dispatch thread is created/running and 0 otherwise.
+        // Read the snapshot value of the state of the dispatcher thread and
+        // return 1 if it has been created or is running and 0 otherwise.
 
     bool hasTimeMetrics() const;
         // Return 'true' if the object returned by 'timeMetrics()' contains a

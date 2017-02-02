@@ -2025,8 +2025,6 @@ int TcpTimerEventManager::numTotalSocketEvents() const
 
 int TcpTimerEventManager::isEnabled() const
 {
-    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_stateLock);
-
     return d_state == e_ENABLED;
 }
 
