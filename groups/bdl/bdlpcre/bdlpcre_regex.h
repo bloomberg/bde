@@ -571,7 +571,7 @@ namespace BloombergLP {
 
 namespace bdlpcre {
 
-class RegEx_MatchContextImp;
+class RegEx_MatchContext;
 
                              // ===========
                              // class RegEx
@@ -608,8 +608,8 @@ class RegEx {
 
     size_t                 d_jitStackSize;      // PCRE JIT stack size
 
-    bslma::ManagedPtr<RegEx_MatchContextImp>
-                           d_matchContextImp;   // match context helper
+    bslma::ManagedPtr<RegEx_MatchContext>
+                           d_matchContext;      // match context helper
 
     bslma::Allocator      *d_allocator_p;       // allocator to supply memory
 

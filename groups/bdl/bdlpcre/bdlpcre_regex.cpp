@@ -11,7 +11,7 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 //
 // The PCRE2 library used by this component was configured with UTF8 support.
 //
-// 'RegEx_MatchContextImp' class currently implements the following strategy
+// 'RegEx_MatchContext' class currently implements the following strategy
 // for allocating/deallocating buffers used for pattern matching:
 //:
 //: o The match context for the main thread (the thread that calls
@@ -87,11 +87,11 @@ enum {
 };
     // Return values for this API.
 
-                        // =========================
-                        // struct RegEx_MatchContext
-                        // =========================
+                        // =============================
+                        // struct RegEx_MatchContextData
+                        // =============================
 
-struct RegEx_MatchContext {
+struct RegEx_MatchContextData {
     // This is a component local POD 'struct' holds the pointers to the buffers
     // used by the PCRE2 match API.
 
@@ -102,11 +102,11 @@ struct RegEx_MatchContext {
     pcre2_jit_stack     *d_jitStack_p;      // PCRE2 JIT stack
 };
 
-                        // ===========================
-                        // class RegEx_MatchContextImp
-                        // ===========================
+                        // ========================
+                        // class RegEx_MatchContext
+                        // ========================
 
-class RegEx_MatchContextImp {
+class RegEx_MatchContext {
     // This class manages opaque buffers used by PCRE2 match API.
 
     // PRIVATE TYPES
@@ -114,29 +114,30 @@ class RegEx_MatchContextImp {
     // Alias for thread handle type.
 
     // DATA
-    pcre2_general_context *d_pcre2Context_p;          // PCRE2 general context
-    pcre2_code            *d_pcre2PatternCode_p;      // PCRE2 compiled pattern
-    int                    d_depthLimit;              // match depth limit
-    size_t                 d_jitStackSize;            // JIT stack size
-    ThreadHandle           d_mainThread;              // main thread ID
-    RegEx_MatchContext     d_mainThreadMatchContext;  // main thread match ctx
+    pcre2_general_context  *d_pcre2Context_p;       // PCRE2 general context
+    pcre2_code             *d_pcre2PatternCode_p;   // PCRE2 compiled pattern
+    int                     d_depthLimit;           // match depth limit
+    size_t                  d_jitStackSize;         // JIT stack size
+    ThreadHandle            d_mainThread;           // main thread ID
+    RegEx_MatchContextData  d_mainThreadMatchData;  // main thread match ctx
 
   private:
     // PRIVATE ACCESSORS
-    int allocateMatchContext(RegEx_MatchContext *matchContext) const;
+    int allocateMatchContext(RegEx_MatchContextData *matchContextData) const;
         // Allocate PCRE2 match data buffers and load them into the specified
-        // 'matchContext'.
+        // 'matchContextData'.
 
-    void deallocateMatchContext(RegEx_MatchContext *matchContext) const;
+    void deallocateMatchContext(RegEx_MatchContextData *matchContextData)
+                                                                         const;
         // Deallocate PCRE2 match data buffers pointed by the specified
-        // 'matchContext'.
+        // 'matchContextData'.
 
   public:
     // CREATORS
-    RegEx_MatchContextImp();
-        // Create a 'RegEx_MatchContextImp' object.
+    RegEx_MatchContext();
+        // Create a 'RegEx_MatchContext' object.
 
-    ~RegEx_MatchContextImp();
+    ~RegEx_MatchContext();
         // Destroy this object.
 
     // MANIPULATORS
@@ -154,42 +155,44 @@ class RegEx_MatchContextImp {
         // specified 'depthLimit'.
 
     // ACCESSORS
-    int loadMatchContext(RegEx_MatchContext *matchContext) const;
-        // Load the specified 'matchContext' with the pointers to the match
-        // buffers for the current thread.  The behaviour is undefined unless
-        // 'matchContext' is a valid pointer.
+    int acquireMatchContext(RegEx_MatchContextData *matchContextData) const;
+        // Acquire the match data buffers for the current thread and load the
+        // specified 'matchContextData' with the pointers to the match data
+        // buffers.  The behaviour is undefined unless 'matchContextData' is a
+        // valid pointer.
 
-    void unloadMatchContext(RegEx_MatchContext *matchContext) const;
-        // Unload the match buffers pointed by the specified 'matchContext'.
-        // The behaviour is undefined unless 'matchContext' is a valid pointer.
+    void releaseMatchContext(RegEx_MatchContextData *matchContextData) const;
+        // Release the match data buffers pointed by the specified
+        // 'matchContextData'.  The behaviour is undefined unless
+        // 'matchContextData' is a valid pointer.
 };
 
-                        // ---------------------
-                        // RegEx_MatchContextImp
-                        // ---------------------
+                        // ------------------
+                        // RegEx_MatchContext
+                        // ------------------
 
 // CREATORS
-RegEx_MatchContextImp::RegEx_MatchContextImp()
+RegEx_MatchContext::RegEx_MatchContext()
 : d_pcre2Context_p(0)
 , d_pcre2PatternCode_p(0)
 , d_depthLimit(0)
 , d_jitStackSize(0)
 , d_mainThread(bslmt::ThreadUtil::invalidHandle())
-, d_mainThreadMatchContext()
+, d_mainThreadMatchData()
 {
 }
 
-RegEx_MatchContextImp::~RegEx_MatchContextImp()
+RegEx_MatchContext::~RegEx_MatchContext()
 {
-    deallocateMatchContext(&d_mainThreadMatchContext);
+    deallocateMatchContext(&d_mainThreadMatchData);
 }
 
 // PRIVATE ACCESSORS
 int
-RegEx_MatchContextImp::allocateMatchContext(RegEx_MatchContext *matchContext)
-                                                                          const
+RegEx_MatchContext::allocateMatchContext(
+                                RegEx_MatchContextData *matchContextData) const
 {
-    BSLS_ASSERT(matchContext);
+    BSLS_ASSERT(matchContextData);
     BSLS_ASSERT(d_pcre2Context_p);
     BSLS_ASSERT(d_pcre2PatternCode_p);
 
@@ -228,34 +231,34 @@ RegEx_MatchContextImp::allocateMatchContext(RegEx_MatchContext *matchContext)
         pcre2_jit_stack_assign(matchContext_p, 0, jitStack_p);
     }
 
-    matchContext->d_matchData_p    = matchData_p;
-    matchContext->d_matchContext_p = matchContext_p;
-    matchContext->d_jitStack_p     = jitStack_p;
+    matchContextData->d_matchData_p    = matchData_p;
+    matchContextData->d_matchContext_p = matchContext_p;
+    matchContextData->d_jitStack_p     = jitStack_p;
 
     return k_SUCCESS;
 }
 
 void
-RegEx_MatchContextImp::deallocateMatchContext(RegEx_MatchContext *matchContext)
-                                                                          const
+RegEx_MatchContext::deallocateMatchContext(
+                                RegEx_MatchContextData *matchContextData) const
 {
-    BSLS_ASSERT(matchContext);
+    BSLS_ASSERT(matchContextData);
 
-    pcre2_match_data_free(matchContext->d_matchData_p);
-    pcre2_jit_stack_free(matchContext->d_jitStack_p);
-    pcre2_match_context_free(matchContext->d_matchContext_p);
+    pcre2_match_data_free(matchContextData->d_matchData_p);
+    pcre2_jit_stack_free(matchContextData->d_jitStack_p);
+    pcre2_match_context_free(matchContextData->d_matchContext_p);
 }
 
 // MANIPULATORS
-int RegEx_MatchContextImp::initialize(pcre2_general_context *pcre2Context,
-                                      pcre2_code            *patternCode,
-                                      int                    depthLimit,
-                                      size_t                 jitStackSize)
+int RegEx_MatchContext::initialize(pcre2_general_context *pcre2Context,
+                                   pcre2_code            *patternCode,
+                                   int                    depthLimit,
+                                   size_t                 jitStackSize)
 {
     BSLS_ASSERT(pcre2Context);
     BSLS_ASSERT(patternCode);
 
-    deallocateMatchContext(&d_mainThreadMatchContext);
+    deallocateMatchContext(&d_mainThreadMatchData);
 
     d_mainThread         = bslmt::ThreadUtil::self();
     d_pcre2Context_p     = pcre2Context;
@@ -263,42 +266,43 @@ int RegEx_MatchContextImp::initialize(pcre2_general_context *pcre2Context,
     d_depthLimit         = depthLimit;
     d_jitStackSize       = jitStackSize;
 
-    return allocateMatchContext(&d_mainThreadMatchContext);
+    return allocateMatchContext(&d_mainThreadMatchData);
 }
 
-void RegEx_MatchContextImp::setDepthLimit(int depthLimit)
+void RegEx_MatchContext::setDepthLimit(int depthLimit)
 {
     d_depthLimit = depthLimit;
-    if (d_mainThreadMatchContext.d_matchContext_p) {
-        pcre2_set_match_limit(d_mainThreadMatchContext.d_matchContext_p,
+    if (d_mainThreadMatchData.d_matchContext_p) {
+        pcre2_set_match_limit(d_mainThreadMatchData.d_matchContext_p,
                               d_depthLimit);
     }
 }
 
 // ACCESSORS
 int
-RegEx_MatchContextImp::loadMatchContext(RegEx_MatchContext *matchContext) const
+RegEx_MatchContext::acquireMatchContext(
+                                RegEx_MatchContextData *matchContextData) const
 {
-    BSLS_ASSERT(matchContext);
+    BSLS_ASSERT(matchContextData);
 
     if (bslmt::ThreadUtil::isEqual(d_mainThread, bslmt::ThreadUtil::self())) {
-        *matchContext = d_mainThreadMatchContext;
+        *matchContextData = d_mainThreadMatchData;
         return k_SUCCESS;                                             // RETURN
     }
 
-    return allocateMatchContext(matchContext);
+    return allocateMatchContext(matchContextData);
 }
 
-void RegEx_MatchContextImp::unloadMatchContext(
-                                        RegEx_MatchContext *matchContext) const
+void RegEx_MatchContext::releaseMatchContext(
+                                RegEx_MatchContextData *matchContextData) const
 {
-    BSLS_ASSERT(matchContext);
+    BSLS_ASSERT(matchContextData);
 
     if (bslmt::ThreadUtil::isEqual(d_mainThread, bslmt::ThreadUtil::self())) {
         return;                                                       // RETURN
     }
 
-    deallocateMatchContext(matchContext);
+    deallocateMatchContext(matchContextData);
 }
 
                              // -----------
@@ -467,8 +471,8 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
 , d_jitStackSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_matchContextImp.load(new (*d_allocator_p) RegEx_MatchContextImp(),
-                           d_allocator_p);
+    d_matchContext.load(new (*d_allocator_p) RegEx_MatchContext(),
+                        d_allocator_p);
 
     d_pcre2Context_p = pcre2_general_context_create(
                                             &bdlpcre_malloc,
@@ -576,10 +580,10 @@ int RegEx::prepare(bsl::string *errorMessage,
         }
     }
 
-    if (k_SUCCESS != d_matchContextImp->initialize(d_pcre2Context_p,
-                                                   patternCode,
-                                                   d_depthLimit,
-                                                   d_jitStackSize)) {
+    if (k_SUCCESS != d_matchContext->initialize(d_pcre2Context_p,
+                                                patternCode,
+                                                d_depthLimit,
+                                                d_jitStackSize)) {
         pcre2_code_free(patternCode);
         if (errorMessage) {
             errorMessage->assign("Unable to create match contexts.");
@@ -603,7 +607,7 @@ int RegEx::setDepthLimit(int depthLimit)
 
     d_depthLimit = depthLimit;
 
-    d_matchContextImp->setDepthLimit(d_depthLimit);
+    d_matchContext->setDepthLimit(d_depthLimit);
 
     return previous;
 }
@@ -617,9 +621,9 @@ int RegEx::match(const char *subject,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -627,10 +631,10 @@ int RegEx::match(const char *subject,
                                    subjectLength,
                                    subjectOffset,
                                    false,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -645,9 +649,9 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -655,14 +659,14 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result);
+        extractMatchResult(matchContextData.d_matchData_p, result);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -677,9 +681,9 @@ int RegEx::match(bslstl::StringRef *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -687,14 +691,14 @@ int RegEx::match(bslstl::StringRef *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result, subject);
+        extractMatchResult(matchContextData.d_matchData_p, result, subject);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -709,9 +713,9 @@ int RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -719,14 +723,14 @@ int RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result);
+        extractMatchResult(matchContextData.d_matchData_p, result);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -741,9 +745,9 @@ int RegEx::match(bsl::vector<bslstl::StringRef> *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -751,14 +755,14 @@ int RegEx::match(bsl::vector<bslstl::StringRef> *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result, subject);
+        extractMatchResult(matchContextData.d_matchData_p, result, subject);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -771,9 +775,9 @@ int RegEx::matchRaw(const char *subject,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -781,10 +785,10 @@ int RegEx::matchRaw(const char *subject,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -799,9 +803,9 @@ int RegEx::matchRaw(bsl::pair<size_t, size_t> *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -809,14 +813,14 @@ int RegEx::matchRaw(bsl::pair<size_t, size_t> *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result);
+        extractMatchResult(matchContextData.d_matchData_p, result);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -831,9 +835,9 @@ int RegEx::matchRaw(bslstl::StringRef *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -841,14 +845,14 @@ int RegEx::matchRaw(bslstl::StringRef *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result, subject);
+        extractMatchResult(matchContextData.d_matchData_p, result, subject);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -864,9 +868,9 @@ int RegEx::matchRaw(
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -874,14 +878,14 @@ int RegEx::matchRaw(
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result);
+        extractMatchResult(matchContextData.d_matchData_p, result);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
@@ -896,9 +900,9 @@ int RegEx::matchRaw(bsl::vector<bslstl::StringRef> *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    RegEx_MatchContext matchContext;
+    RegEx_MatchContextData matchContextData;
 
-    if (0 != d_matchContextImp->loadMatchContext(&matchContext)) {
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -906,14 +910,14 @@ int RegEx::matchRaw(bsl::vector<bslstl::StringRef> *result,
                                    subjectLength,
                                    subjectOffset,
                                    true,
-                                   matchContext.d_matchData_p,
-                                   matchContext.d_matchContext_p);
+                                   matchContextData.d_matchData_p,
+                                   matchContextData.d_matchContext_p);
 
     if (k_SUCCESS == matchResult) {
-        extractMatchResult(matchContext.d_matchData_p, result, subject);
+        extractMatchResult(matchContextData.d_matchData_p, result, subject);
     }
 
-    d_matchContextImp->unloadMatchContext(&matchContext);
+    d_matchContext->releaseMatchContext(&matchContextData);
 
     return matchResult;
 }
