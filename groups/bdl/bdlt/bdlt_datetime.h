@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // In addition to the usual value-semantic complement of methods for getting
 // and setting value, the 'bdlt::Datetime' class provides methods and operators
 // for making relative adjustments to value ('addDays', 'addTime', 'addHours',
-// etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
+// etc.). In particular, note that adding units of time to a 'bdlt::Datetime'
 // object can affect the values of both the time and date parts of the object.
 // For example, invoking 'addHours(2)' on a 'bdlt::Datetime' object whose value
 // is "1987/10/03_22:30:00.000000" updates the value to
@@ -1160,17 +1160,16 @@ Datetime& Datetime::operator-=(const bsls::TimeInterval& rhs)
 inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
 
-    BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                                      microsecondsFromEpoch()));
 
     bsls::Types::Uint64 totalMicroseconds =
-                          microsecondsFromEpoch()
-                        + rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+                             microsecondsFromEpoch() + rhs.totalMicroseconds();
     setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
@@ -1179,17 +1178,16 @@ Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 inline
 Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
 
-    BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                                      microsecondsFromEpoch()));
 
     bsls::Types::Uint64 totalMicroseconds =
-                          microsecondsFromEpoch()
-                        - rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+                             microsecondsFromEpoch() - rhs.totalMicroseconds();
     setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
@@ -1229,8 +1227,7 @@ void Datetime::setDatetime(const Date& date, const Time& time)
     if (24 != time.hour()) {
         d_value = (static_cast<bsls::Types::Uint64>(date - Date())
                                                             << k_NUM_TIME_BITS)
-                + TimeUnitRatio::k_US_PER_MS *
-                                          (time - Time(0)).totalMilliseconds();
+                + (time - Time(0)).totalMicroseconds();
     }
     else {
         d_value = (static_cast<bsls::Types::Uint64>(date - Date())
@@ -1336,8 +1333,7 @@ void Datetime::setTime(const Time& time)
 
     if (24 != time.hour()) {
         d_value = (d_value & k_DATE_MASK)
-                | (TimeUnitRatio::k_US_PER_MS *
-                                         (time - Time(0)).totalMilliseconds());
+                | (time - Time(0)).totalMicroseconds();
     }
     else {
         d_value = (d_value & k_DATE_MASK) | TimeUnitRatio::k_US_PER_D;
@@ -1691,10 +1687,11 @@ Time Datetime::time() const
     int minute;
     int second;
     int millisecond;
+    int microsecond;
 
-    getTime(&hour, &minute, &second, &millisecond);
+    getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
-    return Time(hour, minute, second, millisecond);
+    return Time(hour, minute, second, millisecond, microsecond);
 }
 
 inline
@@ -1944,7 +1941,8 @@ bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
            0,
            0,
            0,
-           lhsTotalMicroseconds / bdlt::TimeUnitRatio::k_US_PER_MS);  // RETURN
+           0,
+           lhsTotalMicroseconds);  // RETURN
     }
 
     rhsTotalMicroseconds -= lhsTotalMicroseconds;
@@ -1954,9 +1952,8 @@ bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
                       0,
                       0,
                       0,
-                      -static_cast<bsls::Types::Int64>(
-                                            rhsTotalMicroseconds
-                                          / bdlt::TimeUnitRatio::k_US_PER_MS));
+                      0,
+                      -static_cast<bsls::Types::Int64>(rhsTotalMicroseconds));
 }
 
 inline
@@ -2050,7 +2047,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::Datetime> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

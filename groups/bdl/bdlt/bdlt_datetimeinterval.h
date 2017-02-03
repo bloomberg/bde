@@ -411,6 +411,11 @@ class DatetimeInterval {
         // Also note that the return value is the same as that returned by
         // 'totalDays'.
 
+    bsls::Types::Int64 fractionalDayInMicroseconds() const;
+        // Return the value of this time interval as an integral number of
+        // microseconds modulo the number of microseconds in a day.  Note that
+        // the return value may be negative.
+
     int hours() const;
         // Return the hours field in the canonical representation of the value
         // of this time interval.  Note that the return value may be negative.
@@ -459,14 +464,14 @@ class DatetimeInterval {
         // representation to 'double' may *lose* precision.
 
     bsls::Types::Int64 totalMilliseconds() const;
-        // Return the value of this time interval in integral milliseconds.
-        // Note that the return value may be negative.
+        // Return the value of this time interval in integral milliseconds,
+        // rounded towards zero.  Note that the return value may be negative.
 
     bsls::Types::Int64 totalMicroseconds() const;
         // Return the value of this time interval as an integral number of
-        // microseconds, rounded towards zero.  The behavior is undefined
-        // unless the number of microseconds can be represented with a 64-bit
-        // signed integer.  Note that the return value may be negative.
+        // microseconds.  The behavior is undefined unless the number of
+        // microseconds can be represented with a 64-bit signed integer.  Note
+        // that the return value may be negative.
 
                                   // Aspects
 
@@ -793,6 +798,12 @@ inline
 int DatetimeInterval::days() const
 {
     return d_days;
+}
+
+inline
+bsls::Types::Int64 DatetimeInterval::fractionalDayInMicroseconds() const
+{
+    return d_microseconds;
 }
 
 inline

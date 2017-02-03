@@ -127,8 +127,8 @@ int printToBufferFormatted(char       *result,
                        minute,
                        second);
 
-        // Format of 'bdlt::Time' has 8 characters if there are no
-        // fractional seconds.
+        // Format of 'bdlt::Time' has 8 characters if there are no fractional
+        // seconds.
 
         numCharsWritten = 8;
     }
@@ -271,11 +271,9 @@ int Time::addInterval(const DatetimeInterval& interval)
                         microsecondsFromMidnight() % TimeUnitRatio::k_US_PER_D;
                                               // Force zero if 24:00:00.000000.
 
-    bsls::Types::Int64 totalMilliseconds = interval.totalMilliseconds();
-    bsls::Types::Int64 wholeDays = fastMod(&totalMilliseconds,
-                                           TimeUnitRatio::k_MS_PER_D);
+    bsls::Types::Int64 wholeDays = interval.totalDays();
 
-    totalMicroseconds += TimeUnitRatio::k_US_PER_MS * totalMilliseconds;
+    totalMicroseconds += interval.fractionalDayInMicroseconds();
     wholeDays         += modulo(&totalMicroseconds, TimeUnitRatio::k_US_PER_D);
 
     setMicrosecondsFromMidnight(totalMicroseconds);

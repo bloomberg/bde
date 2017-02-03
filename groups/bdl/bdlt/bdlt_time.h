@@ -674,7 +674,7 @@ Time::Time(int hour, int minute, int second, int millisecond, int microsecond)
 {
     BSLS_ASSERT_SAFE(isValid(hour, minute, second, millisecond, microsecond));
 
-    setMicrosecondsFromMidnight(  TimeUnitRatio::k_US_PER_H    * hour
+    setMicrosecondsFromMidnight(  TimeUnitRatio::k_US_PER_H  * hour
                                 + TimeUnitRatio::k_US_PER_M  * minute
                                 + TimeUnitRatio::k_US_PER_S  * second
                                 + TimeUnitRatio::k_US_PER_MS * millisecond
@@ -891,10 +891,9 @@ bdlt::DatetimeInterval bdlt::operator-(const Time& lhs, const Time& rhs)
 {
     DatetimeInterval timeInterval;
 
-    timeInterval.setTotalMilliseconds(
-           (  lhs.microsecondsFromMidnight() % bdlt::TimeUnitRatio::k_US_PER_D
-            - rhs.microsecondsFromMidnight() % bdlt::TimeUnitRatio::k_US_PER_D)
-           / bdlt::TimeUnitRatio::k_US_PER_MS);
+    timeInterval.setTotalMicroseconds(
+             lhs.microsecondsFromMidnight() % bdlt::TimeUnitRatio::k_US_PER_D
+           - rhs.microsecondsFromMidnight() % bdlt::TimeUnitRatio::k_US_PER_D);
 
     return timeInterval;
 }
