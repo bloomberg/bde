@@ -539,6 +539,19 @@ int main(int argc, char *argv[])
                 ASSERT(8 == mCa->numBuffers());;
                 ASSERT(k_DATA_LENGTH == mCb->length());
                 ASSERT(2 == mCb->numBuffers());
+
+                mCbI.removeAll();
+
+                ASSERT(0   == mCb->length());
+                ASSERT(0   == mCb->numBuffers());
+                ASSERT(mCb == X.data());
+
+                mX.reset();
+
+                ASSERT(mCa != X.data());
+                ASSERT(mCb == X.data());
+                ASSERT(0   == X.currentBufferIndex());
+                ASSERT(0   == X.previousBuffersLength());
             }
         }
 
