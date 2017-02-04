@@ -88,12 +88,21 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      MyContainerProctor(bslma::Allocator *allocator, TYPE *address)
+//          // Create a proctor that conditionally manages the memory at the
+//          // specified 'address', and that uses the specified 'allocator' to
+//          // deallocate the block of memory (if not released -- see
+//          // 'release') upon destruction.  The behavior is undefined unless
+//          // 'allocator' is non-zero and supplied the memory at 'address'.
 //      : d_allocator_p(allocator)
 //      , d_address_p(address)
 //      {
 //      }
 //
 //      ~MyContainerProctor()
+//          // Destroy this proctor, and deallocate the block of memory it
+//          // manages (if any) by invoking the 'deallocate' method of the
+//          // allocator that was supplied at construction of this proctor.  If
+//          // no memory is currently being managed, this method has no effect.
 //      {
 //          if (d_address_p) {
 //              d_allocator_p->deallocate(d_address_p);
@@ -102,6 +111,9 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      void release()
+//          // Release from management the block of memory currently managed by
+//          // this proctor.  If no memory is currently being managed, this
+//          // method has no effect.
 //      {
 //          d_address_p = 0;
 //      }
@@ -244,7 +256,7 @@ BSLS_IDENT("$Id: $")
 //      proctor.release();
 //  }
 //..
-// Next, we define the copy constructor for 'MyContainer'.  Note that we don't
+// Then, we define the copy constructor for 'MyContainer'.  Note that we don't
 // propagate the allocator from the 'original' container, but use
 // 'basicAllocator' instead:
 //..
@@ -314,12 +326,20 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      explicit MyType(bslma::Allocator *basicAllocator = 0)
+//          // Create a 'MyType' object having the default value.  Optionally
+//          // specify a 'basicAllocator' used to supply memory.  If
+//          // 'basicAllocator' is 0, the currently installed default allocator
+//          // is used.
 //      : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
 //          // ...
 //      }
 //
-//      MyType(const MyType&, bslma::Allocator *basicAllocator = 0)
+//      MyType(const MyType& original, bslma::Allocator *basicAllocator = 0)
+//          // Create a 'MyType' object having the same value as the specified
+//          // 'original' object.  Optionally specify a 'basicAllocator' used
+//          // to supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
 //      : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
 //          // ...
@@ -329,6 +349,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // ACCESSORS
 //      bslma::Allocator *allocator() const
+//          // Return the allocator used by this object to supply memory.
 //      {
 //          return d_allocator_p;
 //      }
@@ -373,10 +394,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
-#include <bslma_destructorproctor.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -442,6 +459,14 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_NEW
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
+#include <bslma_destructorproctor.h>
+#endif
+
+#endif
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -483,12 +508,12 @@ struct ConstructionUtil {
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE *address, void *allocator);
         // Create a default-constructed object of (template parameter) type
-        // 'TARGET_TYPE' at the specified (uninitialized memory) 'address'.  If
-        // 'allocator' is of type 'bslma::Allocator' and 'TARGET_TYPE' supports
-        // 'bslma'-style allocation, 'allocator' is passed to the default
-        // constructor.  If the constructor throws, 'address' is left in an
-        // uninitialized state.  Note that this operation may bypass the call
-        // to the default constructor of a user-defined type entirely if
+        // 'TARGET_TYPE' at the specified 'address'.  If 'allocator' is of type
+        // 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma'-style
+        // allocation, 'allocator' is passed to the default constructor.  If
+        // the constructor throws, the memory at 'address' is left in an
+        // unspecified state.  Note that this operation may bypass the call to
+        // the default constructor of a user-defined type entirely if
         // 'TARGET_TYPE' 1) does not use 'bslma'-style allocators and 2) has a
         // trivial default constructor.
 
@@ -508,16 +533,16 @@ struct ConstructionUtil {
     construct(TARGET_TYPE *address, void *, TARGET_TYPE& original);
         // Create an object of (template parameter) type 'TARGET_TYPE', having
         // the same value as the specified 'original' object, at the specified
-        // (uninitialized memory) 'address'.  If 'allocator' is of type
-        // 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma'-style
-        // allocation, 'allocator' is propagated to the newly created object.
-        // If a constructor throws, 'address' is left in an uninitialized
-        // state.  Note that this operation may elide the call to the copy
-        // constructor entirely if 'TARGET_TYPE' 1) does not use 'bslma'-style
-        // allocators and 2) is trivially copyable.  Further note that we
-        // provide (unconventional) overloads for modifiable lvalues because
-        // these may match more generic overloads (below) taking a variable
-        // number of deduced template parameters.
+        // 'address'.  If 'allocator' is of type 'bslma::Allocator' and
+        // 'TARGET_TYPE' supports 'bslma'-style allocation, 'allocator' is
+        // propagated to the newly created object.  If a constructor throws,
+        // the memory at 'address' is left in an unspecified state.  Note that
+        // this operation may elide the call to the copy constructor entirely
+        // if 'TARGET_TYPE' 1) does not use 'bslma'-style allocators and 2) is
+        // trivially copyable.  Further note that we provide (unconventional)
+        // overloads for modifiable lvalues because these may match more
+        // generic overloads (below) taking a variable number of deduced
+        // template parameters.
 
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE                    *address,
@@ -529,17 +554,16 @@ struct ConstructionUtil {
                           bslmf::MovableRef<TARGET_TYPE>  original);
         // Create an object of (template parameter) type 'TARGET_TYPE', having
         // the same value as the specified 'original' object, at the specified
-        // (uninitialized memory) 'address'.  'original' is left in a valid but
-        // unspecified state.  If 'allocator' is of type 'bslma::Allocator' and
-        // 'TARGET_TYPE' supports 'bslma'-style allocation, 'allocator' is
-        // propagated to the newly created object.  If a constructor throws,
-        // 'address' is left in an uninitialized state.  Note that this
-        // operation may elide the call to the copy constructor entirely if
-        // 'TARGET_TYPE' 1) does not use 'bslma'-style allocators and 2) is
-        // trivially copyable.  Further note that we provide (unconventional)
-        // overloads for modifiable lvalues because these may match more
-        // generic overloads (below) taking a variable number of deduced
-        // template parameters.
+        // 'address'.  'original' is left in a valid but unspecified state.  If
+        // 'allocator' is of type 'bslma::Allocator' and 'TARGET_TYPE' supports
+        // 'bslma'-style allocation, 'allocator' is propagated to the newly
+        // created object.  If a constructor throws, the memory at 'address' is
+        // left in an unspecified state.  Note that this operation may elide
+        // the call to the copy constructor entirely if 'TARGET_TYPE' 1) does
+        // not use 'bslma'-style allocators and 2) is trivially copyable.
+        // Further note that we provide (unconventional) overloads for
+        // modifiable lvalues because these may match more generic overloads
+        // (below) taking a variable number of deduced template parameters.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
     template <class TARGET_TYPE, class Arg1, class... Args>
@@ -553,13 +577,13 @@ struct ConstructionUtil {
                           Arg1&&       argument,
                           Args&&...    arguments);
         // Create an object of (template parameter) type 'TARGET_TYPE' at
-        // the specified (uninitialized memory) 'address', constructed by
-        // forwarding the specified 'argument' and the (variable number of)
-        // additional 'arguments' to the corresponding constructor of
-        // 'TARGET_TYPE'.  If 'allocator' is of type 'bslma::Allocator' and
-        // 'TARGET_TYPE' supports 'bslma'-style allocation, the allocator is
-        // passed to the constructor (as the last argument).  If the
-        // constructor throws, 'address' is left in an uninitialized state.
+        // the specified 'address', constructed by forwarding the specified
+        // 'argument' and the (variable number of) additional 'arguments' to
+        // the corresponding constructor of 'TARGET_TYPE'.  If 'allocator' is
+        // of type 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma'-style
+        // allocation, the allocator is passed to the constructor (as the last
+        // argument).  If the constructor throws, the memory at 'address' is
+        // left in an unspecified state.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -1195,20 +1219,24 @@ struct ConstructionUtil {
                                 ALLOCATOR   *allocator,
                                 TARGET_TYPE *original);
         // Create an object of (template parameter) type 'TARGET_TYPE' at the
-        // specified (uninitialized memory) 'address' having the same value as
-        // the object at the specified 'original' address, propagating the
-        // specified 'allocator' to the moved object if 'TARGET_TYPE' uses
-        // 'bslma'-style allocation and the (template parameter) type
-        // 'ALLOCATOR' is implicitly convertible to 'bslma::Allocator', and
-        // destroy 'original'.  If the move constructor throws an exception,
-        // 'address' is left in an uninitialized state and 'original' is left
-        // in a valid but unspecified state.  The behavior is undefined unless
-        // either 'TARGET_TYPE' does not support 'bslma'-style allocation or
+        // specified 'address' having the same value as the object at the
+        // specified 'original' address, propagating the specified 'allocator'
+        // to the moved object if 'TARGET_TYPE' uses 'bslma'-style allocation
+        // and the (template parameter) type 'ALLOCATOR' is implicitly
+        // convertible to 'bslma::Allocator', and destroy 'original'.  If the
+        // move constructor throws an exception, the memory at 'address' is
+        // left in an unspecified state and 'original' is left in a valid but
+        // unspecified state.  The behavior is undefined unless either
+        // 'TARGET_TYPE' does not support 'bslma'-style allocation or
         // 'original' uses 'allocator' to supply memory.  Note that this class
         // method is equivalent to move-constructing an object at 'address'
         // from '*original' and then destroying 'original', except that this
         // method elides the calls to the constructor and destructor for
-        // objects that are bitwise movable.
+        // objects that are bitwise movable.  Also note that if 'original'
+        // actually points to an object of a type derived from 'TARGET_TYPE'
+        // (i.e., a slicing move) where 'TARGET_TYPE' has a non-'virtual'
+        // destructor and is not bitwise-movable, then 'original' will only be
+        // partially destroyed.
 };
 
                         // ===========================
@@ -1224,23 +1252,6 @@ struct ConstructionUtil_Imp {
     // classes with trivial default and copy constructors).  These functions
     // should not be used outside this component.
 
-  private:
-    // FRIENDS
-    friend class ConstructionUtil;
-
-    // PRIVATE CLASS METHODS
-    template <class TARGET_TYPE>
-    static TARGET_TYPE *unconst(const TARGET_TYPE *address)
-    {
-        return const_cast<TARGET_TYPE *>(address);
-    }
-
-    template <class TARGET_TYPE>
-    static void *voidify(TARGET_TYPE *address);
-        // Return the specified 'address' cast as a pointer to 'void', even if
-        // the (template parameter) 'TARGET_TYPE' is cv-qualified.
-
-  public:
     // TYPES
     enum {
         // These constants are used in the overloads below, when the last
@@ -1269,14 +1280,14 @@ struct ConstructionUtil_Imp {
              bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *);
         // Construct a default instance of (template parameter) type
         // 'TARGET_TYPE' that has a trivial default constructor, at the
-        // specified (uninitialized memory) address.  If the constructor
-        // throws, 'address' is left in an uninitialized state.  Note that the
-        // behavior is undefined if 'TARGET_TYPE' supports 'bslma'-style
-        // allocators.
+        // specified address.  If the constructor throws, the memory at
+        // 'address' is left in an unspecified state.  Note that the behavior
+        // is undefined if 'TARGET_TYPE' supports 'bslma'-style allocators.
 
-    // In order to implement 'allocator_traits<A>::construct(m, p, rv)'
-    //                       'allocator_traits<A>::construct(m, p,  v)'
-    //                  if 'BITWISE_COPYABLE_TRAITS'
+    // In order to implement:
+    //   'allocator_traits<A>::construct(m, p, rv)'
+    //   'allocator_traits<A>::construct(m, p,  v)'
+    // if 'e_BITWISE_COPYABLE_TRAITS'.
 
     template <class TARGET_TYPE>
     static void
@@ -1291,11 +1302,11 @@ struct ConstructionUtil_Imp {
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
               const TARGET_TYPE&  original);
         // Create an object of a bitwise copyable (template parameter) type
-        // 'TARGET_TYPE' at the specified (uninitialized memory) 'address',
-        // with the same value as the specified 'original' object.  If the
-        // constructor throws, 'address' is left in an uninitialized state.
-        // Note that the behavior is undefined if 'TARGET_TYPE' supports
-        // 'bslma'-style allocators.
+        // 'TARGET_TYPE' at the specified 'address', with the same value as the
+        // specified 'original' object.  If the constructor throws, the memory
+        // at 'address' is left in an unspecified state.  Note that the
+        // behavior is undefined if 'TARGET_TYPE' supports 'bslma'-style
+        // allocators.
 
     template <class TARGET_TYPE>
     static void
@@ -1310,21 +1321,18 @@ struct ConstructionUtil_Imp {
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
               bslmf::MovableRef<TARGET_TYPE>  original);
         // Create an object of a bitwise copyable (template parameter) type
-        // 'TARGET_TYPE' at the specified (uninitialized memory) 'address',
-        // with the same value as the specified 'original' object.  If the
-        // constructor throws, 'address' is left in an uninitialized state.
-        // Note that the behavior is undefined if 'TARGET_TYPE' supports
-        // 'bslma'-style allocators.
+        // 'TARGET_TYPE' at the specified 'address', with the same value as the
+        // specified 'original' object.  If the constructor throws, the memory
+        // at 'address' is left in an unspecified state.  Note that the
+        // behavior is undefined if 'TARGET_TYPE' supports 'bslma'-style
+        // allocators.
 
-
-    // In order to implement
-    //             'allocator_traits<A>::construct(m, p    )'
-    //             'allocator_traits<A>::construct(m, p, rv)'
-    //             'allocator_traits<A>::construct(m, p,  v)'
-    //
-    //                       if 'USES_BSLMA_ALLOCATOR_TRAITS'
-    //      and
-    //             'allocator_traits<A>::construct(m, p, args)'
+    // In order to implement:
+    //   'allocator_traits<A>::construct(m, p    )'
+    //   'allocator_traits<A>::construct(m, p, rv)'
+    //   'allocator_traits<A>::construct(m, p,  v)'
+    // if 'e_USES_BSLMA_ALLOCATOR_TRAITS', and:
+    //   'allocator_traits<A>::construct(m, p, args)'
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
     template <class TARGET_TYPE, class... Args>
@@ -1341,12 +1349,12 @@ struct ConstructionUtil_Imp {
                   Args&&...         arguments);
         // TBD: fix comment
         // Construct an object of (template parameter) type 'TARGET_TYPE',
-        // that supports 'bslma'-style allocators, at the specified
-        // (uninitialized memory) 'address', invoking the constructor of
-        // 'TARGET_TYPE' corresponding to the specified 'arguments'.  If
-        // 'allocator' is of type 'bslma::Allocator', the allocator is passed
-        // to the constructor.  If the constructor throws, 'address' is left
-        // in an uninitialized state.
+        // that supports 'bslma'-style allocators, at the specified 'address',
+        // invoking the constructor of 'TARGET_TYPE' corresponding to the
+        // specified 'arguments'.  If 'allocator' is of type
+        // 'bslma::Allocator', the allocator is passed to the constructor.  If
+        // the constructor throws, the memory at 'address' is left in an
+        // unspecified state.
 
     template <class TARGET_TYPE, class... Args>
     static void construct(TARGET_TYPE      *address,
@@ -1360,9 +1368,9 @@ struct ConstructionUtil_Imp {
                           Args&&...         arguments);
         // Construct an object of (template parameter) type 'TARGET_TYPE',
         // that does not support 'bslma'-style allocators, at the specified
-        // (uninitialized memory) 'address', invoking the constructor of
-        // 'TARGET_TYPE' corresponding to the specified 'arguments'.  If the
-        // constructor throws, 'address' is left in an uninitialized state.
+        // 'address', invoking the constructor of 'TARGET_TYPE' corresponding
+        // to the specified 'arguments'.  If the constructor throws, the memory
+        // at 'address' is left in an unspecified state.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -2009,7 +2017,6 @@ struct ConstructionUtil_Imp {
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
                   BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
 
-
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
@@ -2642,11 +2649,10 @@ struct ConstructionUtil_Imp {
                      TARGET_TYPE *original);
         // Move the bitwise movable object of (template parameter) type
         // 'TARGET_TYPE' at the specified 'original' address to the specified
-        // (uninitialized memory) 'address', eliding the call to the move
-        // constructor and destructor in favor of performing a bitwise copy.
-        // The behavior is undefined unless either 'TARGET_TYPE' does not
-        // support 'bslma'-style allocation or 'original' uses 'allocator' to
-        // supply memory.
+        // 'address', eliding the call to the move constructor and destructor
+        // in favor of performing a bitwise copy.  The behavior is undefined
+        // unless either 'TARGET_TYPE' does not support 'bslma'-style
+        // allocation or 'original' uses 'allocator' to supply memory.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(TARGET_TYPE *address,
@@ -2654,18 +2660,27 @@ struct ConstructionUtil_Imp {
                                 bsl::integral_constant<int, e_NIL_TRAITS> *,
                                 TARGET_TYPE *original);
         // Create an object of (template parameter) type 'TARGET_TYPE' at the
-        // specified (uninitialized memory) 'address' having the same value as
-        // the object at the specified 'original' address, propagating the
-        // specified 'allocator' to the moved object if 'TARGET_TYPE' uses
-        // 'bslma'-style allocation and the (template parameter) type
-        // 'ALLOCATOR' is implicitly convertible to 'bslma::Allocator', and
-        // destroy 'original'.  If the move constructor throws an exception,
-        // 'address' is left in an uninitialized state and 'original' is left
-        // in a valid but unspecified state.  The behavior is undefined unless
-        // either 'TARGET_TYPE' does not support 'bslma'-style allocation or
+        // specified 'address' having the same value as the object at the
+        // specified 'original' address, propagating the specified 'allocator'
+        // to the moved object if 'TARGET_TYPE' uses 'bslma'-style allocation
+        // and the (template parameter) type 'ALLOCATOR' is implicitly
+        // convertible to 'bslma::Allocator', and destroy 'original'.  If the
+        // move constructor throws an exception, the memory at 'address' is
+        // left in an unspecified state and 'original' is left in a valid but
+        // unspecified state.  The behavior is undefined unless either
+        // 'TARGET_TYPE' does not support 'bslma'-style allocation or
         // 'original' uses 'allocator' to supply memory.  Note that this class
         // method is equivalent to move-constructing an object at 'address'
-        // from '*original' and then destroying 'original'.
+        // from '*original' and then destroying 'original'.  Also note that if
+        // 'original' actually points to an object of a type derived from
+        // 'TARGET_TYPE' (i.e., a slicing move) where 'TARGET_TYPE' has a
+        // non-'virtual' destructor, then 'original' will only be partially
+        // destroyed.
+
+    template <class TARGET_TYPE>
+    static void *voidify(TARGET_TYPE *address);
+        // Return the specified 'address' cast as a pointer to 'void', even if
+        // the (template parameter) 'TARGET_TYPE' is cv-qualified.
 };
 
 // ============================================================================
@@ -3527,7 +3542,6 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
                    BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
 }
 
-
 template <class TARGET_TYPE, class Arg1>
 inline
 void
@@ -4131,15 +4145,6 @@ ConstructionUtil::destructiveMove(TARGET_TYPE *address,
                        // ---------------------------
                        // struct ConstructionUtil_Imp
                        // ---------------------------
-
-// PRIVATE CLASS METHODS
-template <class TARGET_TYPE>
-inline
-void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
-{
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TARGET_TYPE>::type *>(address));
-}
 
 // CLASS METHODS
 template <class TARGET_TYPE>
@@ -4839,7 +4844,6 @@ ConstructionUtil_Imp::construct(
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
-
 template <class TARGET_TYPE>
 inline
 void
@@ -5409,7 +5413,6 @@ ConstructionUtil_Imp::construct(
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
-
 template <class TARGET_TYPE>
 inline
 void
@@ -5930,7 +5933,6 @@ ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
               BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
               BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
 }
-
 
 template <class TARGET_TYPE>
 inline
@@ -6533,6 +6535,14 @@ ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
     ConstructionUtil::construct(address, allocator, *original);
 #endif
     DestructionUtil::destroy(original);
+}
+
+template <class TARGET_TYPE>
+inline
+void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
+{
+    return static_cast<void *>(
+            const_cast<typename bsl::remove_cv<TARGET_TYPE>::type *>(address));
 }
 
 }  // close package namespace

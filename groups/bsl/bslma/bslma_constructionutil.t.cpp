@@ -1,14 +1,9 @@
 // bslma_constructionutil.t.cpp                                       -*-C++-*-
 #include <bslma_constructionutil.h>
 
-#include <bslma_allocator.h>
 #include <bslma_autodestructor.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>
-#include <bslma_testallocatorexception.h>
-#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
@@ -720,16 +715,16 @@ namespace bsl {
 template <>
 struct is_trivially_default_constructible<my_ClassFussy2> : true_type {};
 
-
 }  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
+
 template <>
 struct IsBitwiseMoveable<my_ClassFussy2> : bsl::true_type {};
-} // close namespace bslmf
 
-} // close enterprise namespace
+}  // close namespace bslmf
+}  // close enterprise namespace
 
                              // =============
                              // class my_Pair
@@ -1048,7 +1043,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type {};
     pre(&rawBuf);                                                             \
     Util:: op ;                                                               \
     post(&rawBuf);                                                            \
-    ASSERT(EXP_VAL == rawBuf.d_value);                                        \
+    ASSERT(EXP_VAL   == rawBuf.d_value);                                      \
     ASSERT(EXP_ALLOC == rawBuf.d_allocator_p);                                \
   }
     // This macro evaluates the specified 'op' expression in the namespace
@@ -1068,9 +1063,9 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type {};
     pre(rawBuf);                                                              \
     Util:: op ;                                                               \
     post(rawBuf);                                                             \
-    ASSERT(EXP_VAL0 == rawBuf[0].d_value);                                    \
+    ASSERT(EXP_VAL0   == rawBuf[0].d_value);                                  \
     ASSERT(EXP_ALLOC0 == rawBuf[0].d_allocator_p);                            \
-    ASSERT(EXP_VAL1 == rawBuf[1].d_value);                                    \
+    ASSERT(EXP_VAL1   == rawBuf[1].d_value);                                  \
     ASSERT(EXP_ALLOC1 == rawBuf[1].d_allocator_p);                            \
   }
     // This macro evaluates the specified 'op' expression in the namespace
@@ -1697,12 +1692,21 @@ ConstructTestArgAlloc<14>   VA14(14);
       public:
         // CREATORS
         MyContainerProctor(bslma::Allocator *allocator, TYPE *address)
+            // Create a proctor that conditionally manages the memory at the
+            // specified 'address', and that uses the specified 'allocator' to
+            // deallocate the block of memory (if not released -- see
+            // 'release') upon destruction.  The behavior is undefined unless
+            // 'allocator' is non-zero and supplied the memory at 'address'.
         : d_allocator_p(allocator)
         , d_address_p(address)
         {
         }
 
         ~MyContainerProctor()
+            // Destroy this proctor, and deallocate the block of memory it
+            // manages (if any) by invoking the 'deallocate' method of the
+            // allocator that was supplied at construction of this proctor.  If
+            // no memory is currently being managed, this method has no effect.
         {
             if (d_address_p) {
                 d_allocator_p->deallocate(d_address_p);
@@ -1710,6 +1714,9 @@ ConstructTestArgAlloc<14>   VA14(14);
         }
 
         // MANIPULATORS
+            // Release from management the block of memory currently managed by
+            // this proctor.  If no memory is currently being managed, this
+            // method has no effect.
         void release()
         {
             d_address_p = 0;
@@ -1853,7 +1860,7 @@ ConstructTestArgAlloc<14>   VA14(14);
         proctor.release();
     }
 //..
-// Next, we define the copy constructor for 'MyContainer'.  Note that we don't
+// Then, we define the copy constructor for 'MyContainer'.  Note that we don't
 // propagate the allocator from the 'original' container, but use
 // 'basicAllocator' instead:
 //..
@@ -1923,12 +1930,20 @@ ConstructTestArgAlloc<14>   VA14(14);
 
         // CREATORS
         explicit MyType(bslma::Allocator *basicAllocator = 0)
+            // Create a 'MyType' object having the default value.  Optionally
+            // specify a 'basicAllocator' used to supply memory.  If
+            // 'basicAllocator' is 0, the currently installed default allocator
+            // is used.
         : d_allocator_p(bslma::Default::allocator(basicAllocator))
         {
             // ...
         }
 
-        MyType(const MyType&, bslma::Allocator *basicAllocator = 0)
+        MyType(const MyType&/*original*/, bslma::Allocator *basicAllocator = 0)
+            // Create a 'MyType' object having the same value as the specified
+            // 'original' object.  Optionally specify a 'basicAllocator' used
+            // to supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
         : d_allocator_p(bslma::Default::allocator(basicAllocator))
         {
             // ...
@@ -1938,6 +1953,7 @@ ConstructTestArgAlloc<14>   VA14(14);
 
         // ACCESSORS
         bslma::Allocator *allocator() const
+            // Return the allocator used by this object to supply memory.
         {
             return d_allocator_p;
         }
@@ -2023,7 +2039,7 @@ int main(int argc, char *argv[])
         //: 1 That the move constructor properly forwards the allocator when
         //:   appropriate.
         //:
-        //: 2 That the copy constructor uses 'memcpy' when appropriate.
+        //: 2 That the move constructor uses 'memcpy' when appropriate.
         //
         // Plan:
         //   The test plan is identical to 'copyConstruct', except that we
@@ -2031,7 +2047,8 @@ int main(int argc, char *argv[])
         //   tested) 'copyConstruct' so as not to affect the constants of this
         //   test driver.  We are also careful (for the exception testing) that
         //   this temporary is not destroyed if it has been moved successfully.
-        //   Finally, we verify that the original object has been destroyed.
+        //   Finally, we verify that the original object has been destroyed,
+        //   unless it was bitwise-movable.
         //
         // Testing:
         //   destructiveMove(T *dst, T *src, *a);
