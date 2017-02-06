@@ -95,6 +95,8 @@ namespace bslalg {
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 void
 debugprint(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
+    // Print to the console the values of the pointers denoting the element
+    // referred to by the specified 'iter'.
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT

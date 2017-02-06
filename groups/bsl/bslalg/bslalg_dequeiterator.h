@@ -16,12 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides an iterator type for enumerating
-// elements in a deque (implemented in the form of dynamic-array) knowing only
-// its value type and a nominal block size.  Conceptually, a deque is an array
-// of blocks pointers, each block capable of containing a fixed number of
-// objects.  An element in the deque is identified by an iterator that consists
-// of two pointers:
+//@DESCRIPTION: This component provides an in-core value semantic class,
+// 'bslalg::DequeImp', which is an iterator type for enumerating elements in a
+// deque (implemented in the form of dynamic-array) knowing only its value type
+// and a nominal block size.  Conceptually, a deque is an array of blocks
+// pointers, each block capable of containing a fixed number of objects.  An
+// element in the deque is identified by an iterator that consists of two
+// pointers:
 //: o a pointer to the block pointer array, and
 //: o a pointer to a value within the block referred to by the first pointer.
 //
@@ -136,7 +137,12 @@ class DequeIterator {
     friend bool operator==(const DequeIterator& lhs, const DequeIterator& rhs)
         // Return 'true' if the specified 'lhs' iterator points to the same
         // element in the same block as the specified 'rhs' iterator, and
-        // 'false' otherwise.
+        // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
+        // are iterators over the same deque.  Note that this 'friend' is
+        // defined inline as some compilers, notably Sun CC, have problems
+        // befriending a function template.  Also note that this friend is a
+        // regular functon, not a function template, so there is no way to
+        // declare it outside the class in order to provide the definition.
     {
         return lhs.d_value_p == rhs.d_value_p;
     }
@@ -145,7 +151,12 @@ class DequeIterator {
         // Return 'true' if the specified 'lhs' iterator points to a different
         // element in the same block as the specified 'rhs' iterator, or points
         // to an element in a different block to the 'rhs' iterator, and
-        // 'false' otherwise.
+        // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
+        // are iterators over the same deque.  Note that this 'friend' is
+        // defined inline as some compilers, notably Sun CC, have problems
+        // befriending a function template.  Also note that this friend is a
+        // regular functon, not a function template, so there is no way to
+        // declare it outside the class in order to provide the definition.
     {
         return !(lhs == rhs);
     }
@@ -153,7 +164,13 @@ class DequeIterator {
     friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
         // Return 'true' if the specified 'lhs' iterator points to an element
         // in a previous block or in a previous position in the same block as
-        // the specified 'rhs' iterator, and 'false' otherwise.
+        // the specified 'rhs' iterator, and 'false' otherwise.  The behavior
+        // is undefined unless 'lhs' and 'rhs' are iterators over the same
+        // deque.  Note that this 'friend' is defined inline as some compilers,
+        // notably Sun CC, have problems befriending a function template.  Also
+        // note that this friend is a regular functon, not a function template,
+        // so there is no way to declare it outside the class in order to
+        // provide the definition.
     {
         if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
             return lhs.d_value_p < rhs.d_value_p;                     // RETURN
@@ -273,7 +290,8 @@ template <class VALUE_TYPE>
 class DequeIterator<VALUE_TYPE, 1> {
     // This partial specialization of 'DequeIterator' for the case when there
     // is a single element per block uses simpler storage and a simpler
-    // implementation.
+    // implementation.  The contract for all functions is the same, and so not
+    // repeated.
 
     // PRIVATE TYPES
     typedef bslalg::DequeImpUtil<VALUE_TYPE, 1> DequeImpUtil;
@@ -286,23 +304,16 @@ class DequeIterator<VALUE_TYPE, 1> {
 
     // FRIENDS
     friend bool operator==(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator points to the same
-        // element as the specified 'rhs' iterator, and 'false' otherwise.
     {
         return lhs.d_blockPtr_p == rhs.d_blockPtr_p;
     }
 
     friend bool operator!=(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator points to a different
-        // element than the specified 'rhs' iterator, and 'false' otherwise.
     {
         return !(lhs == rhs);
     }
 
     friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator points to an element
-        // in a previous position within the same block as the specified 'rhs'
-        // iterator, and 'false' otherwise.
     {
         return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
     }
