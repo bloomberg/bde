@@ -2,22 +2,21 @@
 #include <bdlpcre_regex.h>
 
 #include <bslim_testutil.h>
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_alignedbuffer.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bsl_string.h>
-#include <bsl_utility.h>
-#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -82,7 +81,8 @@ using namespace bdlpcre;
 // [14] JIT OPTIMIZATION SUPPORT
 // [16] UNICODE CHARACTER PROPERTY SUPPORT
 // [17] MEMORY ALIGNMENT
-// [18] USAGE EXAMPLE
+// [18] CONCERN: 'match' IS THREAD-SAFE
+// [19] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -438,9 +438,190 @@ void printValue(ostream& out, const string& value)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                       GLOBAL TEST VALUES
+// ----------------------------------------------------------------------------
+
+static bool verbose;
+static bool veryVerbose;
+static bool veryVeryVerbose;
+static bool veryVeryVeryVerbose;
+
+// ============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 typedef RegEx Obj;
+
+//=============================================================================
+//                      GLOBAL HELPER CLASSES
+//-----------------------------------------------------------------------------
+
+namespace {
+
+                        // ========
+                        // MatchJob
+                        // ========
+
+class MatchJob {
+    // This class is used to test thread safety of the 'match' method.
+
+  private:
+    // DATA
+    const RegEx *d_regEx_p;    // prepared RegEx
+    const char  *d_subject_p;  // pointer to the subject to match
+    const char  *d_match_p;    // pointer to the expected match result
+
+  public:
+    // CREATORS
+    MatchJob(const RegEx* regEx, const char *subject, const char *match)
+        // Create match job object with the specified 'regEx', 'subject',
+        // and 'match'.
+    : d_regEx_p(regEx)
+    , d_subject_p(subject)
+    , d_match_p(match)
+    {
+    };
+
+    // ACCESSORS
+    void doMatch() const;
+        // Invoke 'match' method on the 'RegEx' object supplied at the
+        // construction and verify that the result matches the expected.
+};
+
+// ACCESSORS
+void MatchJob::doMatch() const
+{
+    int retCode;
+
+    const size_t subjectLength = strlen(d_subject_p);
+
+    // Return code only match result.
+    retCode = d_regEx_p->match(d_subject_p, subjectLength, 0);
+
+    ASSERTV(retCode, 0 == retCode);
+
+    // Pair (offsets) match result.
+    pair<size_t, size_t> result1;
+
+    retCode = d_regEx_p->match(&result1, d_subject_p, subjectLength, 0);
+
+    ASSERTV(retCode, 0 == retCode);
+
+    ASSERTV(result1.first,
+            result1.second,
+            subjectLength >= result1.first + result1.second);
+
+    ASSERTV(d_match_p == bslstl::StringRef(d_subject_p + result1.first,
+                                           result1.second));
+
+
+    // Vector (offsets) match result.
+    vector<pair<size_t, size_t> > result2;
+
+    retCode = d_regEx_p->match(&result2, d_subject_p, subjectLength, 0);
+
+    ASSERTV(retCode, 0 == retCode);
+
+    for(size_t i = 0; i < result2.size(); ++i) {
+        ASSERTV(i, d_subject_p,
+                result2[i].first,
+                result2[i].second,
+                subjectLength >= result2[i].first + result2[i].second);
+    }
+
+    ASSERTV(d_match_p == bslstl::StringRef(d_subject_p + result2[0].first,
+                                           result2[0].second));
+
+    // StringRef match result.
+    bslstl::StringRef result3;
+
+    retCode = d_regEx_p->match(&result3, d_subject_p, subjectLength, 0);
+
+    ASSERTV(retCode, 0 == retCode);
+    ASSERTV(result3, d_match_p == result3);
+}
+
+extern "C" void *testMatchFunction(void *threadArg)
+    // This thread function performs match test for precompiled 'RegEx' object.
+{
+    const MatchJob *job = static_cast<const MatchJob *>(threadArg);
+
+    if (veryVeryVerbose) {
+        cout << "Match thread started with id: "
+             << bslmt::ThreadUtil::selfIdAsUint64()
+             << endl;
+    }
+
+    for (int i = 0; i < 1024; ++i) {
+        job->doMatch();
+    }
+    return 0;
+}
+
+                        // ==========
+                        // PrepareJob
+                        // ==========
+
+class PrepareJob {
+    // This class is used to do performance tests.  This class prepares a
+    // pattern in a separate thread, forcing subsequent matches to use non
+    // optimal code path (with context allocation).
+
+  private:
+    // DATA
+    RegEx      *d_regEx_p;       // unprepared RegEx
+    const char *d_pattern_p;     // pointer to the pattern
+    int         d_flags;         // flags to 'prepare'
+    size_t      d_jitStackSize;  // JIT stack size
+
+  public:
+    // CREATORS
+    PrepareJob(RegEx      *regEx,
+               const char *pattern,
+               int         flags,
+               size_t      jitStackSize)
+        // Create match prepare object with the specified 'regEx', 'pattern',
+        // 'flags', and 'jitStackSize'
+    : d_regEx_p(regEx)
+    , d_pattern_p(pattern)
+    , d_flags(flags)
+    , d_jitStackSize(jitStackSize)
+    {
+    };
+
+    // MANIPULATORS
+    void doPrepare();
+        // Invoke 'prepare' method on the 'RegEx' object supplied at the
+        // construction.
+};
+
+// MANIPULATORS
+void PrepareJob::doPrepare()
+{
+    int retCode = d_regEx_p->prepare(0,
+                                     0,
+                                     d_pattern_p,
+                                     d_flags,
+                                     d_jitStackSize);
+
+    ASSERTV(retCode, 0 == retCode);
+}
+
+extern "C" void *testPrepareFunction(void *threadArg)
+    // This thread function performs match test for precompiled 'RegEx' object.
+{
+    PrepareJob *job = static_cast<PrepareJob *>(threadArg);
+
+    if (veryVeryVerbose) {
+        cout << "Prepare thread started with id: "
+             << bslmt::ThreadUtil::selfIdAsUint64()
+             << endl;
+    }
+
+    job->doPrepare();
+    return 0;
+}
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -528,16 +709,17 @@ typedef RegEx Obj;
 
 int main(int argc, char *argv[])
 {
-    int                test = argc > 1 ? atoi(argv[1]) : 0;
-    int             verbose = argc > 2;
-    int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
+    int  test           = argc > 1 ? atoi(argv[1]) : 0;
+
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -589,6 +771,109 @@ int main(int argc, char *argv[])
         ASSERT(" This is the subject text" == subject);
 //  }
 //..
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'match' THREAD SAFETY
+        //
+        // Concerns:
+        //: 1 'match' can be safely called from the multiple threads.
+        //
+        // Plan:
+        //: 1 Create and prepare a pattern (with and without JIT support)
+        //:
+        //: 2 Spawn muliple thread and call 'match' from all those thread,
+        //:   verify the matchs result in all threads.  C-1)
+        //
+        // Testing:
+        //   CONCERN: 'match' IS THREAD-SAFE
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'match' THREAD SAFETY" << endl
+                          << "=============================" << endl;
+
+        const char *SIMPLE_PATTERN     = "X(abc)*Z";
+        const char *EMAIL_PATTERN      = "[A-Za-z0-9._-]+@[[A-Za-z0-9.-]+";
+        const char *IP_ADDRESS_PATTERN = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}";
+
+        static const struct {
+            int         d_lineNum;  // source line number
+            const char *d_pattern;  // pattern string
+            const char *d_subject;  // subject string
+            const char *d_match;    // match string
+        } DATA[] = {
+            //line pattern             subject            match
+            //---- ------------------  -----------------  -----------------
+            { L_,  SIMPLE_PATTERN,     "XXXabcZZZ",       "XabcZ"           },
+            { L_,  SIMPLE_PATTERN,     "XXXabcabcZZZ",    "XabcabcZ"        },
+            { L_,  EMAIL_PATTERN,      "john@bloom.net",  "john@bloom.net"  },
+            { L_,  IP_ADDRESS_PATTERN, "255.255.255.255", "255.255.255.255" },
+            { L_,  IP_ADDRESS_PATTERN, "a10.10.196.1:",   "10.10.196.1"     },
+        };
+
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        bsl::string  errorMsg;
+        size_t       errorOffset;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                const int   LINE    = DATA[ti].d_lineNum;
+                const char *PATTERN = DATA[ti].d_pattern;
+                const char *SUBJECT = DATA[ti].d_subject;
+                const char *MATCH   = DATA[ti].d_match;
+
+                Obj mX(&oa);  const Obj& X = mX;
+
+                int retCode;
+
+                switch (cfg) {
+                  case 'a': {
+                    retCode = mX.prepare(&errorMsg,
+                                         &errorOffset,
+                                         PATTERN,
+                                         0,
+                                         0);
+                  } break;
+                  case 'b': {
+                    retCode = mX.prepare(&errorMsg,
+                                         &errorOffset,
+                                         PATTERN,
+                                         Obj::k_FLAG_JIT,
+                                         0);
+                  } break;
+                  case 'c': {
+                    retCode = mX.prepare(&errorMsg,
+                                         &errorOffset,
+                                         PATTERN,
+                                         Obj::k_FLAG_JIT,
+                                         8192);
+                  } break;
+                  default: {
+                    ASSERT(!"Invalid configuration!");
+                  }
+                }
+                ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
+
+                MatchJob job(&X, SUBJECT, MATCH);
+
+                bslmt::ThreadUtil::Handle threads[8];
+
+                for (int i = 0; i < 8; ++i) {
+                    int rc = bslmt::ThreadUtil::create(&threads[i],
+                            testMatchFunction,
+                            &job);
+                    ASSERTV(rc, 0 == rc);
+                }
+
+                for (int i = 0; i < 8; ++i) {
+                    int rc = bslmt::ThreadUtil::join(threads[i]);
+                    ASSERTV(rc, 0 == rc);
+                }
+            }
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -978,7 +1263,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.jitStackSize());
             ASSERT(0 == X.match(SUBJECT, SUBJECT_LENGTH));
 
-            // Tiniest allocated stack is used.
+            // Smallest allocated stack is used.
 
             ASSERT(0 == mX.prepare(&errorMsg,
                                    &errorOffset,
@@ -1194,7 +1479,7 @@ int main(int argc, char *argv[])
                     "(?P<word4>[A-Z][a-z]*)"
                     "([A-Z][a-z]*)*)",                             4        },
         };
-        const size_t NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS;
+        enum { NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS };
 
         // subpattern names
         const char SPN_PKG[]      = "pkg";
@@ -1217,7 +1502,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting with increasing number of subpatterns." << endl;
         }
 
-        for (size_t i = 0; i < NUM_PATTERNS; ++i) {
+        for (int i = 0; i < NUM_PATTERNS; ++i) {
             const int   LINE      = PATTERNS[i].d_lineNum;
             const char *PATTERN   = PATTERNS[i].d_pattern;
             const int   NUM_WORDS = PATTERNS[i].d_numWords;
@@ -2008,12 +2293,12 @@ int main(int argc, char *argv[])
             int         d_lineNum;  // source line number
             const char *d_subject;  // subject string
         } DATA[] = {
-            //line      subject
-            //----      -------
-            { L_,       "BBASM_SECURITYCACHE"                   },
-            { L_,       "bbasm_securitycache"                   },
-            { L_,       "bBaSm_sEcUrItYcAcHe"                   },
-            { L_,       "BbAsM_SeCuRiTyCaChE"                   },
+            //line  subject
+            //----  ---------------------
+            { L_,   "BBASM_SECURITYCACHE"  },
+            { L_,   "bbasm_securitycache"  },
+            { L_,   "bBaSm_sEcUrItYcAcHe"  },
+            { L_,   "BbAsM_SeCuRiTyCaChE"  },
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3466,7 +3751,7 @@ int main(int argc, char *argv[])
                           << "PERFORMANCE TEST 1" << endl
                           << "==================" << endl;
 
-        const char *SIMPLE_PATTERN     = "(abc)*";
+        const char *SIMPLE_PATTERN     = "X(abc)*Z";
         const char *EMAIL_PATTERN      = "[A-Za-z0-9._-]+@[[A-Za-z0-9.-]+";
         const char *IP_ADDRESS_PATTERN = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}";
 
@@ -3477,7 +3762,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //line  pattern              subject
             //----  -------              -------
-            { L_,   SIMPLE_PATTERN,      "XXXabcZZZ"              },
+            { L_,   SIMPLE_PATTERN,      "XXXabcabcZZZ"              },
             { L_,   EMAIL_PATTERN,       "john.dow@bloomberg.net" },
             { L_,   IP_ADDRESS_PATTERN,  "255.255.255.255"        },
         };
@@ -3501,7 +3786,7 @@ int main(int argc, char *argv[])
                 cout << "\nTesting '" << PATTERN << "'. pattern" << endl;
             }
 
-            // Testing 'match' without JIT compiling support.
+            // Testing 'match' without JIT compilation support.
 
             int retCode = mX.prepare(&errorMsg,
                                      &errorOffset,
@@ -3510,6 +3795,31 @@ int main(int argc, char *argv[])
                                      0);
             ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
 
+
+            Obj         mY;
+            const Obj&  Y = mY;
+
+            {
+                PrepareJob job(&mY, PATTERN, 0, 0);
+
+                bslmt::ThreadUtil::Handle handle;
+
+                int rc = bslmt::ThreadUtil::create(&handle,
+                                                   testPrepareFunction,
+                                                   &job);
+                ASSERTV(rc, 0 == rc);
+
+                rc = bslmt::ThreadUtil::join(handle);
+                ASSERTV(rc, 0 == rc);
+            }
+
+            pair<size_t, size_t> result;
+            X.match(&result, SUBJECT, SUBJECT_LEN, 0);
+
+            if (veryVeryVerbose) {
+                P_(PATTERN) P_(SUBJECT) P_(result.first) P(result.second);
+            }
+
             ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
 
             timer.start();
@@ -3517,12 +3827,21 @@ int main(int argc, char *argv[])
                X.match(SUBJECT, SUBJECT_LEN, 0);
             }
             timer.stop();
-            double matchTime = timer.elapsedTime();
+            double matchTimeX = timer.elapsedTime();
+
+            timer.reset();
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+               Y.match(SUBJECT, SUBJECT_LEN, 0);
+            }
+            timer.stop();
+            double matchTimeY = timer.elapsedTime();
 
             timer.reset();
             mX.clear();
+            mY.clear();
 
-            // Testing 'prepare' without JIT compiling support.
+            // Testing 'prepare' without JIT compilation support.
 
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
@@ -3541,7 +3860,7 @@ int main(int argc, char *argv[])
             timer.reset();
             mX.clear();
 
-            // Testing 'match' with JIT compiling support.
+            // Testing 'match' with JIT compilation support.
 
             retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
@@ -3551,17 +3870,40 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
             ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
 
+            {
+                PrepareJob job(&mY, PATTERN, Obj::k_FLAG_JIT, 0);
+
+                bslmt::ThreadUtil::Handle handle;
+
+                int rc = bslmt::ThreadUtil::create(&handle,
+                                                   testPrepareFunction,
+                                                   &job);
+                ASSERTV(rc, 0 == rc);
+
+                rc = bslmt::ThreadUtil::join(handle);
+                ASSERTV(rc, 0 == rc);
+            }
+
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
                X.match(SUBJECT, SUBJECT_LEN, 0);
             }
             timer.stop();
-            double matchJitTime = timer.elapsedTime();
+            double matchJitTimeX = timer.elapsedTime();
+
+            timer.reset();
+            timer.start();
+            for (int i = 0; i < NUM_MATCHES; ++i) {
+               Y.match(SUBJECT, SUBJECT_LEN, 0);
+            }
+            timer.stop();
+            double matchJitTimeY = timer.elapsedTime();
 
             timer.reset();
             mX.clear();
+            mY.clear();
 
-            // Testing 'prepare' with JIT compiling support.
+            // Testing 'prepare' with JIT compilation support.
 
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
@@ -3577,22 +3919,27 @@ int main(int argc, char *argv[])
             timer.stop();
             double prepareJitTime = timer.elapsedTime();
 
-            if (veryVeryVerbose) {
+            if (veryVerbose) {
                 cout << "\tResults:" << endl
-                     << "\t\t'match'            time: " << matchTime << endl
-                     << "\t\t'match'   with JIT time: " << matchJitTime << endl
+                     << "\t\t'match'          time: " << matchTimeX << endl
+                     << "\t\t'match'(JIT)     time: " << matchJitTimeX << endl
                      << endl
-                     << "\t\t'prepare'          time: " << prepareTime << endl
-                     << "\t\t'prepare' with JIT time: " << prepareJitTime
+                     << "\t\t'match'(mt)      time: " << matchTimeY << endl
+                     << "\t\t'match'(mt; JIT) time: " << matchJitTimeY << endl
+                     << endl
+                     << "\t\t'prepare'        time: " << prepareTime << endl
+                     << "\t\t'prepare'(JIT)   time: " << prepareJitTime
                      << endl;
             }
 
-            ASSERTV(LINE, matchTime, matchJitTime, matchTime > matchJitTime);
             ASSERTV(LINE,
-                    matchTime,
-                    matchJitTime,
+                    matchTimeX,
+                    matchJitTimeX,
+                    matchTimeX > matchJitTimeX);
+            ASSERTV(LINE,
+                    prepareTime,
+                    prepareJitTime,
                     prepareTime < prepareJitTime);
-
         }
       } break;
       case -2: {
@@ -3622,7 +3969,7 @@ int main(int argc, char *argv[])
         bsl::string     errorMsg;
         size_t          errorOffset;
 
-        const char PATTERN[] = "[abc]*";
+        const char PATTERN[] = "[abc]+";
         char       SUBJECT[SUBJECT_LENGTH];
         for (int i = 0; i < SUBJECT_LENGTH; ++i) {
             SUBJECT[i] = 'a';
