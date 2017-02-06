@@ -627,18 +627,22 @@ struct FilesystemUtil {
         // file exists) this function may simply be called again, pointing to
         // its previous result, to get a new, probably different name.
 
-    static void visitPaths(
+    static int visitPaths(
                          const bsl::string&                           pattern,
                          const bsl::function<void(const char *path)>& visitor);
-    static void visitPaths(
+    static int visitPaths(
                         const char                                   *pattern,
                         const bsl::function<void(const char *path)>&  visitor);
         // Call the specified 'visitor' function object for each path in the
-        // filesystem matching the specified 'pattern'.  Note that if 'visitor'
-        // deletes files or directories during the search, 'visitor' may
-        // subsequently be called with paths which have already been deleted,
-        // so must be prepared for this event.  See 'findMatchingPaths' for a
-        // discussion of how 'pattern' is interpreted.
+        // filesystem matching the specified 'pattern'.  Return the number of
+        // paths visited on success, , and a negative value otherwise.  Note
+        // that if 'visitor' deletes files or directories during the search,
+        // 'visitor' may subsequently be called with paths which have already
+        // been deleted, so must be prepared for this event.  Also note that
+        // there is no guarantee as to the order in which paths will be
+        // visited.  See 'findMatchingPaths' for a discussion of how 'pattern'
+        // is interpreted.  Also note that '.' and '..' are never matched by
+        // wild cards.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
@@ -684,8 +688,10 @@ struct FilesystemUtil {
         // the working directory of the entire program, casuing attempts in
         // other threads to open files with relative path names to fail.
 
-    static void findMatchingPaths(bsl::vector<bsl::string> *result,
-                                  const char               *pattern);
+    static int findMatchingPaths(bsl::vector<bsl::string> *result,
+                                 const char               *pattern);
+    static int findMatchingPaths(bsl::vector<bsl::string> *result,
+                                 const bsl::string&        pattern);
         // Load into the specified 'result' vector all paths in the filesystem
         // matching the specified 'pattern'.  The '*' character will match any
         // number of characters in a filename; however, this matching will not
@@ -695,7 +701,11 @@ struct FilesystemUtil {
         // directories "." and ".." will not be matched against any pattern.
         // Note that any initial contents of 'result' will be erased, and that
         // the paths in 'result' will not be in any particular guaranteed
-        // order.
+        // order.  Return the number of paths matched on success, and a
+        // negative value otherwise; if 'result' is specified and a negative
+        // value is returned, the contents of '*result' are undefined.  If
+        // 'result' is not specified the function merely returns the number of
+        // paths matched.
         //
         // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
         // function has behavior that we have chosen not to work around: an
@@ -703,7 +713,9 @@ struct FilesystemUtil {
         // an extension or *no* extension.  E.g., "file.?" matches "file.z",
         // but not "file.txt"; however, it also matches "file" (without any
         // extension).  Likewise, "*.*" matches any filename, including
-        // filenames having no extension.
+        // filenames having no extension.  Also, on Windows (but not on Unix)
+        // attempting to match a pattern that is invalid UTF-8 will result in
+        // an error.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
@@ -905,7 +917,7 @@ int FilesystemUtil::createDirectories(const bsl::string& path,
 }
 
 inline
-void FilesystemUtil::visitPaths(
+int FilesystemUtil::visitPaths(
                           const bsl::string&                           pattern,
                           const bsl::function<void(const char *path)>& visitor)
 {
@@ -922,6 +934,13 @@ int FilesystemUtil::visitTree(
     BSLS_ASSERT_SAFE(0 != root);
 
     return visitTree(bsl::string(root), pattern, visitor, sortFlag);
+}
+
+inline
+int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
+                                      const bsl::string&        pattern)
+{
+    return findMatchingPaths(result, pattern.c_str());
 }
 
 inline
