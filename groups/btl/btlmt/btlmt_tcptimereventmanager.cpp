@@ -55,6 +55,8 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
+#include <bsl_iostream.h>              // bsl::cerr
+
 namespace BloombergLP {
 
 // Confirm that we use the right size atomic variable for the socket handle in
@@ -1059,12 +1061,16 @@ void TcpTimerEventManager::controlCb()
                                                 btlso::EventType::e_READ,
                                                 cb);
 
-            // Assert that the server fd of 'd_controlChannel_p' was
-            // successfully registered.  If the server fd is not registered
-            // then all subsequent method calls will silently fail so its best
-            // to assert.
+            if (0 != rc) {
+                // Abort if the server fd of 'd_controlChannel_p' was not
+                // successfully re-registered.  If the server fd is not
+                // registered then all subsequent method calls will silently
+                // fail so its best to log an error and abort.
 
-            BSLS_ASSERT(0 == rc);
+                bsl::cerr << "Failed to register control fd after"
+                          << " 'deregisterAllSocketEvents'" << bsl::endl;
+                bsl::abort();
+            }
             d_numTotalSocketEvents = 0;
           } break;
           case TcpTimerEventManager_Request::e_DEREGISTER_SOCKET_EVENT: {
