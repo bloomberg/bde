@@ -568,6 +568,8 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
+            // TBD re-enable this logging testing (or remove all traces)
+            /*            
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF PROPOSED INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
@@ -850,6 +852,7 @@ int main(int argc, char *argv[])
             ASSERT(++EXP == s_countingLogMessageHandlerCount);
         }
       } break;
+            */
       case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE

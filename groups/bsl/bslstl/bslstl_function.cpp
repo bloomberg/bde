@@ -157,20 +157,20 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     return PtrOrSize_t();
 }
 
-void bsl::Function_Rep::assignRep(ManagerOpCode  moveOrCopy, 
-                                  Function_Rep  *rhs_p)
+void bsl::Function_Rep::assignRep(ManagerOpCode  moveOrCopy,
+                                  Function_Rep  *from)
 {
     Function_Rep tempRep;
 
-    tempRep.d_funcManager_p = rhs_p->d_funcManager_p;
-    tempRep.d_invoker_p     = rhs_p->d_invoker_p;
+    tempRep.d_funcManager_p = from->d_funcManager_p;
+    tempRep.d_invoker_p     = from->d_invoker_p;
 
     // Initialize tempRep using allocator from 'this'
     this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
 
     // Move function into initialized tempRep.
     if (tempRep.d_funcManager_p) {
-        PtrOrSize_t source = rhs_p->d_funcManager_p(e_GET_TARGET, rhs_p,
+        PtrOrSize_t source = from->d_funcManager_p(e_GET_TARGET, from,
                                                     PtrOrSize_t());
         tempRep.d_funcManager_p(moveOrCopy, &tempRep, source);
     }
@@ -280,7 +280,7 @@ void bsl::Function_Rep::nothing(...)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2014-2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

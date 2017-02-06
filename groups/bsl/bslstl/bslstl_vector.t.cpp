@@ -21,6 +21,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_cpp11.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>

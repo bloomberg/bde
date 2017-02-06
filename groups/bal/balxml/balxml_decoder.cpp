@@ -22,6 +22,7 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
+#include <bsl_string.h>
 
 #include <bsls_assert.h>
 
@@ -489,9 +490,9 @@ Decoder::parse(Decoder_ElementContext *context)
 
           case Reader::e_NODE_TYPE_ELEMENT:
             {
-                const char *name = d_reader->nodeLocalName();
+                bsl::string name = d_reader->nodeLocalName();
 
-                if (0 != context->parseSubElement(name, this)) {
+                if (0 != context->parseSubElement(name.c_str(), this)) {
                     BALXML_DECODER_LOG_ERROR(this)
                                            << "Unable to decode sub-element '"
                                            << name

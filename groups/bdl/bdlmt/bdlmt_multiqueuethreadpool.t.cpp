@@ -26,6 +26,7 @@
 #include <bslma_default.h>
 #include <bslma_rawdeleterproctor.h>
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_systemtime.h>
 #include <bsls_platform.h>
 
@@ -152,6 +153,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
+#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
+
 // The following macros facilitate thread-safe streaming to standard output.
 
 #define MTCOUT   coutMutex.lock(); { bsl::cout << bslmt::ThreadUtil::self() \
@@ -239,7 +249,7 @@ static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
 
 static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
 {
-    // Resume the queue with the speciffid 'queueId' in the specified 'pool'.
+    // Resume the queue with the specified 'queueId' in the specified 'pool'.
     // On success, increment the specified 'counter'.
 
     if (0 == pool->resumeQueue(queueId)) {
@@ -331,7 +341,7 @@ struct Reproducer {
 
         bslmt::ThreadUtil::microSleep(SLEEP_HARDLY_TIME);
         d_handleIdx += d_handleIdxIncrement;
-        d_handleIdx %= d_handles->size();
+        d_handleIdx %= static_cast<int>(d_handles->size());
         if (s_counter > 0) {
             --s_counter;
             d_threadPool->enqueueJob((*d_handles)[d_handleIdx], *this);
@@ -1246,6 +1256,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == numSuccesses);
                 controlBarrier.wait();
                 controlBarrier.wait();
+                bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
                 ASSERT(2 == count);
                 controlBarrier.wait();
                 controlBarrier.wait();
@@ -2995,6 +3006,23 @@ int main(int argc, char *argv[]) {
         ASSERT(NUM_JOBS == counter);
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            if (verbose) cout << "\t'Value CTOR'" << endl;
+            {
+                bslmt::ThreadAttributes attr;
+                ASSERT_PASS_RAW(Obj(attr,   0, 100, 1000));
+                ASSERT_FAIL_RAW(Obj(attr,  -1, 100, 1000));
+                ASSERT_FAIL_RAW(Obj(attr,  11,  10, 1000));
+                ASSERT_PASS_RAW(Obj(attr,  10,  10, 1000));
+                ASSERT_PASS_RAW(Obj(attr,   9,  10, 1000));
+                ASSERT_FAIL_RAW(Obj(attr,  10,  10,   -1));
+            }
+
+         }
       }  break;
       case 1: {
         // --------------------------------------------------------------------

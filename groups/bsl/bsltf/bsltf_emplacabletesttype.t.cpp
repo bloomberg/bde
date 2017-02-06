@@ -13,6 +13,7 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <new>
 

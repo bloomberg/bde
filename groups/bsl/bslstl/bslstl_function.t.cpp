@@ -4,10 +4,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_removeconst.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_types.h>
@@ -19,6 +17,13 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+// COMPILE-FAIL CONFIGURATION MACROS
+// ---------------------------------
+//  Uncomment the following macros to produce the defined number of compiler
+//  errors, for a correct implementation.
+//#define BSLSTL_FUNCTION_TEST_BAD_COMPARISON 6
+//#define BSLSTL_FUNCTION_TEST_BAD_SWAPS      4
 
 //=============================================================================
 //                             TEST PLAN
@@ -54,8 +59,62 @@ using namespace bsl;
 // allocator is not.  Thus, whether or not the small-object optimization is
 // applied to the allocator can be different in the original object vs. the
 // copy.
-//
 //-----------------------------------------------------------------------------
+// [ 2] function() noexcept;
+// [ 2] function(nullptr_t) noexcept;
+// [10] function(const function& other);
+// [11] function(function&& other);
+// [ 3] function(FUNC f);
+// [ 8] function(allocator_arg_t, const ALLOC& a);
+// [ 8] function(allocator_arg_t, const ALLOC& a, nullptr_t);
+// [10] function(allocator_arg_t, const ALLOC& a, const function& other);
+// [ 9] function(allocator_arg_t, const ALLOC& a, FUNC func);
+// [11] function(allocator_arg_t, const ALLOC& a, function&& other);
+// [ 9] ~function();
+// [13] function& operator=(const function& rhs);
+// [13] function& operator=(function&& rhs);
+// [15] function& operator=(FUNC&& func);
+// [14] function& operator=(nullptr_t) noexcept;
+// [ 7] RET operator()(ARGS...) const;
+// [ 3] operator bool() const noexcept;
+// [ 3] const std::type_info& target_type() const noexcept;
+// [ 3] T *target<T>() noexcept;
+// [ 3] const T *target<T>() const noexcept;
+// [12] void swap(function& other) noexcept;
+// [  ] Allocator *allocator() const;
+// [16] bool operator==(const function<FUNC>& f, nullptr_t) noexcept;
+// [16] bool operator==(nullptr_t, const function<FUNC>& f) noexcept;
+// [16] bool operator!=(const function<FUNC>& f, nullptr_t) noexcept;
+// [16] bool operator!=(nullptr_t, const function<FUNC>& f) noexcept;
+// [12] void swap(function<FUNC>& a, function<FUNC>& b) noexcept;
+//
+// NESTED TYPES
+// [  ] result_type
+// [  ] argument_type
+// [  ] first_argument_type
+// [  ] second_argument_type
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [  ] USAGE EXAMPLE
+// [17] CONCERN: allocator-aware traits are 'true'
+// [18] CONCERN: Workaround for SunCC bug
+// [19] CONCERN: Workaround for MSVC compiler bug (DRQS94831150)
+// [ 3] CONCERN: use default allocator when no allocator is specified
+// [ 3] CONCERN: destructor cleans up correctly for default allocator
+// [ 4] CONCERN: operator() works for empty function objects
+// [ 5] CONCERN: operator() works for function pointers
+// [ 6] CONCERN: operator() works for member-function pointers
+// [ 7] CONCERN: operator() works for user-defined functors
+// [  ] CONCERN: operator() works for types convertible to function pointer
+// [  ] CONCERN: operator() works for types convertible to function reference
+// [  ] CONCERN: 'function<reference_wrapper<T>>' uses small object imp.
+// [ 2] CONCERN: basic accessors work for empty object (bootstrap)
+// [-1] CONCERN: 'operator==' does not compile for two function objects
+// [-1] CONCERN: 'swap' does not compile for different function objects
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// [20] operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&();
+// [20] operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const;
+#endif
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -100,31 +159,28 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+#if 0  // There are some odd results when enabling these tests that need to be
+       // investigated and resolved, before re-enabling this macro.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+# define ASSERT_NOEXCEPT(RESULT, EXPRESSION) \
+         ASSERT(RESULT == noexcept(EXPRESSION))
+#else
+# define ASSERT_NOEXCEPT(RESULT, EXPRESSION)
+#endif
+
+#else
+# define ASSERT_NOEXCEPT(RESULT, EXPRESSION)
+#endif
+
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%lu", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-// inline void dbg_print(Int64 val) { printf("%lld", val); fflush(stdout); }
-// inline void dbg_print(Uint64 val) { printf("%llu", val); fflush(stdout); }
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
 bool         verbose = false;
 bool     veryVerbose = false;
 bool veryVeryVerbose = false;
 //=============================================================================
-//                  EXCEPTION TEST MACROS
+//                              EXCEPTION TEST MACROS
 //-----------------------------------------------------------------------------
 
 class ExceptionLimit
@@ -139,7 +195,8 @@ class ExceptionLimit
     const char *d_name;
 
   public:
-    ExceptionLimit(const char *name) : d_counter(-1), d_name(name) { }
+    ExceptionLimit(const char *name) : d_counter(-1), d_name(name)  // IMPLICIT
+    { }
 
     ExceptionLimit& operator=(int newCount) {
         d_counter = newCount;
@@ -211,8 +268,10 @@ class ExceptionLimit
 #ifdef BDE_BUILD_TARGET_EXC
 
 inline
-void dumpExTest(const char *s, int bslmaExceptionCounter,
-                const char *exLimitName, int exLimitCounter)
+void dumpExTest(const char *s,
+                int         bslmaExceptionCounter,
+                const char *exLimitName,
+                int         exLimitCounter)
 {
     if (! veryVeryVerbose) return;                                    // RETURN
 
@@ -300,10 +359,8 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
 
 
 //=============================================================================
-//                  GLOBAL DEFINITIONS FOR TESTING
+//                      GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 namespace BloombergLP {
@@ -316,7 +373,7 @@ class bdef_Function<PROTOTYPE*> : public bsl::function<PROTOTYPE>
     // conversion to and from this type is tested.
 };
 
-} //  close enterprise namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -328,7 +385,7 @@ struct Function_DisableIfLosslessCnvrsn<BloombergLP::bdef_Function<PROTOTYPE*>,
 {
 };
 
-} // close namespace bsl
+}  // close namespace bsl
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // Size type used by test allocator.
@@ -372,7 +429,7 @@ class SmartPtr
   public:
     typedef TYPE value_type;
 
-    SmartPtr(TYPE *p = NULL) : d_pointer(p) { }
+    SmartPtr(TYPE *p = NULL) : d_pointer(p) { }                     // IMPLICIT
 
     TYPE& operator*() const { return *d_pointer; }
     TYPE* operator->() const { return d_pointer; }
@@ -417,8 +474,8 @@ class IntWrapper
     int d_value;
 
   public:
-    IntWrapper(int i = 0) : d_value(i) { } // Convertible from 'int'
-    IntWrapper(ConvertibleToInt i) : d_value(i) { }
+    IntWrapper(int i = 0) : d_value(i) { }                          // IMPLICIT
+    IntWrapper(ConvertibleToInt i) : d_value(i) { }                 // IMPLICIT
 
     void incrementBy1() { ++d_value; }
 
@@ -472,7 +529,7 @@ class IntWrapperDerived : public IntWrapper
     // Derived class of 'IntWrapper'
 
   public:
-    IntWrapperDerived(int v) : IntWrapper(v) { }
+    IntWrapperDerived(int v) : IntWrapper(v) { }                    // IMPLICIT
 };
 
 int *getAddress(int& r) { return &r; }
@@ -547,7 +604,8 @@ class FunctorMonitor
                     // time when this 'FunctorMonitor' was created.
 
   public:
-    FunctorMonitor(int line) { reset(line); }
+    explicit FunctorMonitor(int line) { reset(line); }
+
     ~FunctorMonitor() {
         if (! isSameCount()) {
             printf("FunctorBase::count(): %d\td_snapshot : %d\n",
@@ -556,11 +614,13 @@ class FunctorMonitor
         }
     }
 
+    // MANIPULATORS
     void reset(int line) {
         d_line     = line;
         d_snapshot = FunctorBase::count();
     }
 
+    // ACCESSORS
     bool isSameCount() const { return FunctorBase::count() == d_snapshot; }
 };
 
@@ -919,8 +979,8 @@ struct IsBitwiseMoveable<ThrowingEmptyFunctor> : false_type
 {
 };
 
-} // close namespace bslmf
-} // close namespace BloombergLP
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 class ThrowingSmallFunctor : public FunctorBase
 {
@@ -1002,7 +1062,7 @@ class SmallFunctorWithAlloc : public SmallFunctor
 
     enum { IS_STATELESS = false };
 
-    SmallFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
+    explicit SmallFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
         : SmallFunctor(v), d_alloc_p(alloc) { }
 
     SmallFunctorWithAlloc(const SmallFunctorWithAlloc&  other,
@@ -1116,7 +1176,7 @@ class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
     BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
                                    bslma::UsesBslmaAllocator);
 
-    LargeFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
+    explicit LargeFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
         : SmallFunctorWithAlloc(v, alloc)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
@@ -1152,6 +1212,19 @@ bool operator!=(const LargeFunctorWithAlloc& a, const LargeFunctorWithAlloc& b)
     return a.value() != b.value();
 }
 
+class MutatingFunctor {
+    // This 'class' provides a functor having a non-'const'-qualified
+    // 'operator()', that returns a different 'int' on subsequent calls.
+
+    // PRIVATE DATA
+    int d_data;
+
+  public:
+    MutatingFunctor() : d_data() {}
+
+    int operator()() { return ++d_data; }
+};
+
 // Common function type used in most tests
 typedef int PROTO(const IntWrapper&, int);  // Function prototype
 typedef bsl::function<PROTO> Obj;
@@ -1159,7 +1232,7 @@ typedef bsl::function<PROTO> Obj;
 // Using the curiously-recurring template pattern with a template template
 // parameter, we can implement the boiler-plate part of an STL-style
 // allocator.
-template <class TYPE, template <class T> class ALLOC>
+template <class TYPE, template <class> class ALLOC>
 class STLAllocatorBase
 {
     // Define the boilerplate for the specified 'ALLOC' allocator.
@@ -1171,15 +1244,16 @@ class STLAllocatorBase
     typedef unsigned    size_type;
     typedef int         difference_type;
 
-    template <class U>
+    template <class OTHER>
     struct rebind {
-        typedef ALLOC<U> other;
+        typedef ALLOC<OTHER> other;
     };
 
     static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
 
-    void construct(pointer p, const TYPE& value)
-        { new((void *)p) TYPE(value); }
+    void construct(pointer p, const TYPE& value) {
+        new((void *)p) TYPE(value);
+    }
 
     void destroy(pointer p) { p->~TYPE(); }
 };
@@ -1194,11 +1268,12 @@ class EmptySTLAllocator : public STLAllocatorBase<TYPE, EmptySTLAllocator>
 {
 
   public:
-    explicit EmptySTLAllocator(bslma::TestAllocator *ta)
-        { emptySTLAllocSource = ta; }
+    explicit EmptySTLAllocator(bslma::TestAllocator *ta) {
+        emptySTLAllocSource = ta;
+    }
 
-    template <class U>
-    EmptySTLAllocator(const EmptySTLAllocator<U>&) { }
+    template <class OTHER>
+    EmptySTLAllocator(const EmptySTLAllocator<OTHER>&) { }
 
     TYPE *allocate(size_t n, void* = 0 /* nullptr */) {
         return (TYPE*) emptySTLAllocSource->allocate(n * sizeof(TYPE));
@@ -1240,8 +1315,8 @@ class EmptySTLAllocator2 : public STLAllocatorBase<TYPE, EmptySTLAllocator2>
     explicit EmptySTLAllocator2(bslma::TestAllocator *ta)
         { emptySTLAlloc2Source = ta; }
 
-    template <class U>
-    EmptySTLAllocator2(const EmptySTLAllocator2<U>&) { }
+    template <class OTHER>
+    EmptySTLAllocator2(const EmptySTLAllocator2<OTHER>&) { }
 
     TYPE *allocate(size_t n, void* = 0 /* nullptr */) {
         return (TYPE*) emptySTLAlloc2Source->allocate(n * sizeof(TYPE));
@@ -1315,8 +1390,8 @@ class StatefulAllocator :
     explicit StatefulAllocator(bslma::TestAllocator *mechanism)
         : StatefulAllocatorBase<TYPE>(mechanism) { }
 
-    template <class U>
-    StatefulAllocator(const StatefulAllocator<U>& other)
+    template <class OTHER>
+    StatefulAllocator(const StatefulAllocator<OTHER>& other)
         : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
 };
 
@@ -1338,30 +1413,30 @@ class StatefulAllocator2 :
     explicit StatefulAllocator2(bslma::TestAllocator *mechanism)
         : StatefulAllocatorBase<TYPE>(mechanism) { }
 
-    template <class U>
-    StatefulAllocator2(const StatefulAllocator2<U>& other)
+    template <class OTHER>
+    StatefulAllocator2(const StatefulAllocator2<OTHER>& other)
         : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
 };
 
 inline bool isConstPtr(void *) { return false; }
 inline bool isConstPtr(const void *) { return true; }
 
-template <class T>
-inline bool isNullPtrImp(const T& p, bsl::true_type /* is pointer */) {
+template <class TYPE>
+inline bool isNullPtrImp(const TYPE& p, bsl::true_type /* is pointer */) {
     return 0 == p;
 }
 
-template <class T>
-inline bool isNullPtrImp(const T&, bsl::false_type /* is pointer */) {
+template <class TYPE>
+inline bool isNullPtrImp(const TYPE&, bsl::false_type /* is pointer */) {
     return false;
 }
 
-template <class T>
-inline bool isNullPtr(const T& p) {
+template <class TYPE>
+inline bool isNullPtr(const TYPE& p) {
     static const bool IS_POINTER =
-        bsl::is_pointer<T>::value ||
-        bslmf::IsFunctionPointer<T>::value ||
-        bslmf::IsMemberFunctionPointer<T>::value;
+        bsl::is_pointer<TYPE>::value ||
+        bslmf::IsFunctionPointer<TYPE>::value ||
+        bslmf::IsMemberFunctionPointer<TYPE>::value;
 
     return isNullPtrImp(p, bsl::integral_constant<bool, IS_POINTER>());
 }
@@ -1370,10 +1445,10 @@ inline bool isNullPtr(const bsl::nullptr_t&) {
     return true;
 }
 
-template <class T>
+template <class TYPE>
 class ValueGeneratorBase {
-    // Generates values ot type 'T' for test driver
-    typedef typename bsl::remove_const<T>::type MutableT;
+    // Generates values ot type 'TYPE' for test driver
+    typedef typename bsl::remove_const<TYPE>::type MutableT;
     MutableT d_value;
 
   public:
@@ -1381,41 +1456,41 @@ class ValueGeneratorBase {
 
     ValueGeneratorBase() : d_value(INIT_VALUE) { }
 
-    T& reset() { return (d_value = MutableT(INIT_VALUE)); }
+    TYPE& reset() { return (d_value = MutableT(INIT_VALUE)); }
     int value() const { return d_value.value(); }
 };
 
-template <class T>
-struct ValueGenerator : ValueGeneratorBase<T> {
-    // Generate and check values for values of type 'T'.  This primary
-    // template is used when 'T' is an rvalue (i.e., not a reference or
+template <class TYPE>
+struct ValueGenerator : ValueGeneratorBase<TYPE> {
+    // Generate and check values for values of type 'TYPE'.  This primary
+    // template is used when 'TYPE' is an rvalue (i.e., not a reference or
     // pointer type.)
 
     // Since rvalue is passed by value, it is not modified by function calls.
     // The expected value is therefore ignored when checking the value.
-    T obj() { return this->reset(); }
+    TYPE obj() { return this->reset(); }
     bool check(int /* exp */) const
-        { return this->value() == ValueGeneratorBase<T>::INIT_VALUE; }
+        { return this->value() == ValueGeneratorBase<TYPE>::INIT_VALUE; }
 };
 
-template <class T>
-struct ValueGenerator<T&> : ValueGeneratorBase<T> {
-    // Specialization for lvalues of type 'T&'
-    T& obj() { return this->reset(); }
+template <class TYPE>
+struct ValueGenerator<TYPE&> : ValueGeneratorBase<TYPE> {
+    // Specialization for lvalues of type 'TYPE&'
+    TYPE& obj() { return this->reset(); }
     bool check(int exp) const { return this->value() == exp; }
 };
 
-template <class T>
-struct ValueGenerator<T*> : ValueGeneratorBase<T> {
-    // Specialization for pointers to 'T'
-    T* obj() { return &this->reset(); }
+template <class TYPE>
+struct ValueGenerator<TYPE *> : ValueGeneratorBase<TYPE> {
+    // Specialization for pointers to 'TYPE'
+    TYPE *obj() { return &this->reset(); }
     bool check(int exp) const { return this->value() == exp; }
 };
 
-template <class T>
-struct ValueGenerator<SmartPtr<T> > : ValueGeneratorBase<T> {
-    // Specialization for smart pointers to 'T'
-    SmartPtr<T> obj() { return SmartPtr<T>(&this->reset()); }
+template <class TYPE>
+struct ValueGenerator<SmartPtr<TYPE> > : ValueGeneratorBase<TYPE> {
+    // Specialization for smart pointers to 'TYPE'
+    SmartPtr<TYPE> obj() { return SmartPtr<TYPE>(&this->reset()); }
     bool check(int exp) const { return this->value() == exp; }
 };
 
@@ -1423,8 +1498,26 @@ struct ValueGenerator<SmartPtr<T> > : ValueGeneratorBase<T> {
 bsls::ObjectBuffer<Obj> movedFromMarkerBuf;
 const Obj& movedFromMarker = movedFromMarkerBuf.object();
 
+namespace BloombergLP {
+namespace bslma {
+
+template <class TYPE>
+struct UsesBslmaAllocator<EmptySTLAllocator<TYPE> > : bsl::false_type {};
+template <class TYPE>
+struct UsesBslmaAllocator<EmptySTLAllocator2<TYPE> > : bsl::false_type {};
+template <class TYPE>
+struct UsesBslmaAllocator<StatefulAllocatorBase<TYPE> > : bsl::false_type {};
+template <class TYPE>
+struct UsesBslmaAllocator<StatefulAllocator<TYPE> > : bsl::false_type {};
+template <class TYPE>
+struct UsesBslmaAllocator<StatefulAllocator2<TYPE> > : bsl::false_type {};
+    // Specializations to please 'bde_verify'.
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
 //=============================================================================
-//                  TEST FUNCTIONS
+//                              TEST FUNCTIONS
 //-----------------------------------------------------------------------------
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1560,8 +1653,9 @@ bool checkValue(const OBJ& obj, int exp)
     // Return true if the functor wrapped within the specified 'obj' has a
     // value that matches the specified 'exp' value and false otherwise.
 {
-    if (FUNCTOR::IS_STATELESS)
+    if (FUNCTOR::IS_STATELESS) {
         return true;  // No state to check                            // RETURN
+    }
 
     const FUNCTOR& target = *obj.template target<FUNCTOR>();
     return exp == target.value();
@@ -1700,14 +1794,15 @@ struct CheckAlloc
     }
 };
 
-template <class T>
-struct CheckAlloc<bsl::allocator<T> >
+template <class TYPE>
+struct CheckAlloc<bsl::allocator<TYPE> >
 {
     static const size_t k_SIZE = 0;
     static const size_t k_MAX_OVERHEAD = 0;
 
     template <class BSLMA_ALLOC>
-    static bool areEqualAlloc(const bsl::allocator<T>& a,BSLMA_ALLOC *const &b)
+    static bool areEqualAlloc(const bsl::allocator<TYPE>& a,
+                              BSLMA_ALLOC *const &        b)
         // Return true if the mechanism pointer for the specified allocator
         // 'b' is equal to the specified 'bslma::Allocator' pointer 'a' and
         // false otherwise.
@@ -1716,7 +1811,7 @@ struct CheckAlloc<bsl::allocator<T> >
     }
 
     template <class ALLOC2>
-    static bool areEqualAlloc(const bsl::allocator<T>& a, const ALLOC2& b)
+    static bool areEqualAlloc(const bsl::allocator<TYPE>& a, const ALLOC2& b)
     {
         return CheckAlloc<ALLOC2>::areEqualAlloc(b, a.mechanism());
     }
@@ -2026,7 +2121,8 @@ void testCopyCtor(FUNC func, const char *originalAllocName)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class ALLOC, class FUNC_ARG>
-void testMoveCtorWithSameAlloc(FUNC_ARG func, bool extended,
+void testMoveCtorWithSameAlloc(FUNC_ARG    func,
+                               bool        extended,
                                const char *allocName)
 {
     typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
@@ -2196,7 +2292,7 @@ void testMoveCtorWithDifferentAlloc(FUNC_ARG    func,
     globalAllocMonitor.reset();
 
     {
-        // Create source.
+        // Create 'source'.
         Obj source(bsl::allocator_arg, sourceAlloc, func);
         FunctorMonitor funcMonitor(L_);
 
@@ -2204,7 +2300,7 @@ void testMoveCtorWithDifferentAlloc(FUNC_ARG    func,
             EXCEPTION_TEST_TRY {
                 funcMonitor.reset(L_);
 
-                // move-construct dest using extended move constructor.
+                // move-construct 'dest' using extended move constructor.
                 Obj dest(bsl::allocator_arg,
                          destAlloc,
                          bslmf::MovableRefUtil::move(source));
@@ -2229,8 +2325,8 @@ void testMoveCtorWithDifferentAlloc(FUNC_ARG    func,
                     ASSERT(dest(IntWrapper(0x4000), 7) ==
                            temp(IntWrapper(0x4000), 7));
 
-                    // Invocation performed identical operations on func and
-                    // on dest.  Check that equality relationship was not
+                    // Invocation performed identical operations on 'func' and
+                    // on 'dest'.  Check that equality relationship was not
                     // disturbed.
                     ASSERT(*dest.target<FUNC>() == *temp.target<FUNC>());
                 }
@@ -2285,10 +2381,10 @@ template <class FUNC>
 bool AreEqualFunctions(const Obj& inA, const Obj& inB)
     // Given a known invocable type specified by 'FUNC', return true if the
     // specified 'inA' wraps an invocable of type 'FUNC' with the same value as
-    // the invocable wrapped by 'inB' (or they are both empty); otherwise
-    // return false.  As a special case, if 'inB' is the special object
-    // 'movedFromMarker', then return 'true' if 'inA' is empty or wraps an
-    // invocable of type 'FUNC' that holds the moved-from value of 'FUNC';
+    // the invocable wrapped by the specified 'inB' (or they are both empty);
+    // otherwise return false.  As a special case, if 'inB' is the special
+    // object 'movedFromMarker', then return 'true' if 'inA' is empty or wraps
+    // an invocable of type 'FUNC' that holds the moved-from value of 'FUNC';
     // otherwise return false.  This function also asserts that 'inA' and 'inB'
     // have correct allocator propagation from the 'function' object to the
     // wrapped functor.
@@ -2346,7 +2442,9 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
 
     if (typeid(FUNC) != inA.target_type() ||
         typeid(FUNC) != inB.target_type()) {
-        return false; // One or both wrap invocables of the wrong type.
+            // One or both wrap invocables of the wrong type.
+
+        return false;                                                 // RETURN
     }
 
     // Get the targets
@@ -2953,7 +3051,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
 }
 
-// Functions for testing the workaround to the SunCC compiler bug (case 19)
+// Functions for testing the workaround to the SunCC compiler bug (case 18)
 template <class RET_TYPE>
 void sun1(const bsl::function<RET_TYPE()>&)
 {
@@ -2964,8 +3062,96 @@ void sun2(const TYPE&)
 {
 }
 
+// The following code tests a regression of DRQS94831150.  Without the fix, it
+// failed to compile on Windows cl-18.00 and earlier.
+namespace {
+
+struct OuterClass {
+    // A class containing a nested class.
+
+    struct NestedClass {
+        // A nested POD class.
+
+        int d_data;     // data member used to test for correct return value
+    };
+
+    static NestedClass staticFunc(int value);
+        // Return a 'NestedClass' whose 'd_data' member has the specified
+        // 'value'.  The address of this method is an ordinary pointer to
+        // function.  Note that this function returning a nested POD class by
+        // value is the trigger for the MSVC compiler bug.
+
+    NestedClass memberFunc(int value);
+        // Return a 'NestedClass' whose 'd_data' member has the specified
+        // 'value'.  The address of this method is a pointer to
+        // member-function.  Note that this function returning a nested POD
+        // class by value is the trigger for the MSVC compiler bug.
+
+    struct smallFunctor {
+        // Small (empty) functor to return 'NestedClass' by value.
+
+        NestedClass operator()(int value)
+            // Return a 'NestedClass' whose 'd_data' member has the specified
+            // 'value'.
+        {
+            NestedClass result = { value };
+            return result;
+        }
+    };
+
+    struct largeFunctor {
+        // Small (empty) functor to return 'NestedClass' by value.
+
+        // PUBLIC DATA
+        int d_padding[20];      // padding to ensure the 'function' small
+                                // object optimization does not kick in.
+
+        // Manipulators
+        NestedClass operator()(int value)
+            // Return a 'NestedClass' whose 'd_data' member has the specified
+            // 'value'.
+        {
+            NestedClass result = { value };
+            return result;
+        }
+    };
+
+    // PUBLIC DATA
+    bsl::function<NestedClass(int)>              d_f1;
+    bsl::function<NestedClass(int)>              d_f2;
+    bsl::function<NestedClass(int)>              d_f3;
+        // 'function' taking one 'int' argument and returning a 'NestedClass'.
+    bsl::function<NestedClass(OuterClass&, int)> d_f4;
+        // 'function' taking argument of class 'OuterClass' and an 'int'
+        // argument, and returning a 'NestedClass'.
+
+    OuterClass()
+        // Constructor initializes 'function' members from each of the
+        // invocable types above.
+        : d_f1(&OuterClass::staticFunc)
+        , d_f2(smallFunctor())
+        , d_f3(largeFunctor())
+        , d_f4(&OuterClass::memberFunc)
+    {
+    }
+};
+
+OuterClass::NestedClass OuterClass::staticFunc(int value)
+{
+    NestedClass result = { value };
+    return result;
+}
+
+OuterClass::NestedClass OuterClass::memberFunc(int value)
+{
+    NestedClass result = { value };
+    return result;
+}
+
+}  // close unnamed namespace
+
 //=============================================================================
-//                  USAGE EXAMPLES
+//                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 
@@ -3005,38 +3191,10 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 19: {
-        // --------------------------------------------------------------------
-        // SUNCC BUG
-        //
-        // Concerns:
-        //: The SunCC compiler fails to deduce an argument of type _pointer to
-        //: function template specialization taking argument of type
-        //: 'bsl::function<T()>' if 'bsl::function' uses partial template
-        //: specialzation. The concern is to ensure that this bug does not
-        //: manafest with the current implementation of 'bsl::function'.
-        //
-        // Test plan:
-        //: 1 Create a function template 'sun1' taking an argument of type
-        //:   'bsl::function<T()>'.
-        //: 2 Create a function template 'sun2' taking an argument of type
-        //:   'const T&'.
-        //: 3 Call 'sun2(&sun1<int>)' and verify that it compiles and runs.
-        //
-        // Testing:
-        //      Workaround for SunCC bug
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nCONVERSION TO 'bdef_Function'"
-                            "\n=============================\n");
-
-        sun2(&sun1<int>);
-
-      } break;
-      case 18: {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case 20: {
         // --------------------------------------------------------------------
-        // CONVERSION TO/FROM 'bdef_Function'
+        // TESTING CONVERSION TO/FROM 'bdef_Function'
         //
         // Concerns:
         //: 1 An object of 'bsl::function<F*>' type can be implicitly converted
@@ -3064,12 +3222,12 @@ int main(int argc, char *argv[])
         //:   called.
         //
         // Testing:
-        //      operator BloombergLP::bdef_Function<RET(*)(Args...)>&()
-        //      operator BloombergLP::bdef_Function<RET(*)(Args...)> const&()
+        //  operator BloombergLP::bdef_Function<RET(*)(Args...)>&()
+        //  operator BloombergLP::bdef_Function<RET(*)(Args...)> const&()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONVERSION TO 'bdef_Function'"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING CONVERSION TO/FROM 'bdef_Function'"
+                            "\n==========================================\n");
 
         typedef bsl::function<PROTO>               BslObj;
         typedef BloombergLP::bdef_Function<PROTO*> BdefObj;
@@ -3093,12 +3251,103 @@ int main(int argc, char *argv[])
         // Step 4
         ASSERT(1 == bdefOverload(f1));
         ASSERT(2 == bdefOverload(F1));
-
+      } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING DRQS94831150 BUG FIX
+        //
+        // Concerns:
+        //: 1 The MSVC 2013 and earlier MSVC compilers on Windows failed to
+        //:   compile an earlier version of the 'bsl::function' constructor
+        //:   when the template arguments belong to a class that is not yet
+        //:   closed.  The compilation error was an incorrect diagnosis of a
+        //:   mismatched calling convention when converting pointers and
+        //:   appeared to be related to the return type being a POD class.
+        //:   The concern of this test case is that this bug does not manifest
+        //:   with the current implementation of 'bsl::function', and that
+        //:   calling such a stored function does not corrupt the result.
+        //
+        // Plan:
+        //: 1 Create a class, 'OuterClass', that has the following members:
+        //:    o A nested POD-class type, 'NestedClass',
+        //:    o A static member function returning 'NestedClass',
+        //:    o A non-static member function returning 'NestedClass',
+        //:    o A small (empty) functor whose invocation function returns
+        //:      'NestedClass',
+        //:    o A large functor (not suitable for small-object optimization)
+        //:      whose invocation function returns 'NestedClass',
+        //:    o Four member variables of type 'bsl::function'
+        //: 2 Add a constructor to 'OuterClass' that initializes its four
+        //:   member variables with each of the four invocable types.
+        //: 3 Create an instance of 'OuterClass' to force compilation of the
+        //:   constructor.
+        //: 4 Call each functor and verify that the returned 'NestedClass' has
+        //:   the correct value.
+        //: 5 For the function pointer and pointer-to-member cases, confirm
+        //:   that the expected type is held in the 'target' object.
+        //
+        // Testing
+        //  CONCERN: Workaround for MSVC compiler bug (DRQS94831150)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING DRQS94831150 BUG FIX"
+                            "\n============================\n");
+
+        OuterClass testObj;
+
+        ASSERT(42 == testObj.d_f1(42).d_data);
+        ASSERT(13 == testObj.d_f2(13).d_data);
+        ASSERT(69 == testObj.d_f3(69).d_data);
+        ASSERT(37 == testObj.d_f4(testObj, 37).d_data);
+
+        typedef OuterClass::NestedClass (*SimpleFuncPtr_t)(int);
+        SimpleFuncPtr_t *f1 = testObj.d_f1.target<SimpleFuncPtr_t>();
+        ASSERT(f1);
+        if (f1) {
+            ASSERTV((void*)&OuterClass::staticFunc, (void*)f1,
+                           &OuterClass::staticFunc   ==   *f1);
+        }
+
+        typedef OuterClass::NestedClass (OuterClass::*SimpleMemFuncPtr_t)(int);
+        SimpleMemFuncPtr_t *f4 = testObj.d_f4.target<SimpleMemFuncPtr_t>();
+        ASSERT(f4);
+        if (f4) {
+            ASSERTV(&OuterClass::memberFunc == *f4);
+        }
+
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING SUNCC BUG FIX
+        //
+        // Concerns:
+        //: 1 The SunCC compiler fails to deduce an argument of type pointer
+        //:   to function template specialization taking argument of type
+        //:   'bsl::function<T()>' if 'bsl::function' uses partial template
+        //:   specialization. The concern is to ensure that this bug does not
+        //:   manifest with the current implementation of 'bsl::function'.
+        //
+        // Plan:
+        //: 1 Create a function template 'sun1' taking an argument of type
+        //:   'bsl::function<T()>'.
+        //: 2 Create a function template 'sun2' taking an argument of type
+        //:   'const T&'.
+        //: 3 Call 'sun2(&sun1<int>)' and verify that it compiles and runs.
+        //
+        // Testing:
+        //  CONCERN: Workaround for SunCC bug
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SUNCC BUG FIX"
+                            "\n=====================\n");
+
+        sun2(&sun1<int>);
+
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TRAITS
+        // TESTING TRAITS
         //
         // Concerns:
         //: 1 For an instantiation of 'function' F,
@@ -3115,12 +3364,11 @@ int main(int argc, char *argv[])
         //:   and verify that it's 'value' member is 'true'.
         //
         // Testing:
-        //      'bslma::UsesBslmaAllocator<bsl::function<F>::value'
-        //      'bslmf::UsesAllocatorArgT<bsl::function<F>::value'
+        //  CONCERN: allocator-aware traits are 'true'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTRAITS"
-                            "\n======\n");
+        if (verbose) printf("\nTESTING TRAITS"
+                            "\n==============\n");
 
         ASSERT(bslma::UsesBslmaAllocator<bsl::function<void()> >::value);
         ASSERT(bslmf::UsesAllocatorArgT<bsl::function<void()> >::value);
@@ -3149,10 +3397,10 @@ int main(int argc, char *argv[])
         //:   'nullptr != f' is true.
         //
         // Testing:
-        //      bool operator==(const function& f, nullptr_t);
-        //      bool operator==(nullptr_t, const function& f);
-        //      bool operator!=(const function& f, nullptr_t);
-        //      bool operator!=(nullptr_t, const function& f);
+        //  bool operator==(const function<FUNC>& f, nullptr_t) noexcept;
+        //  bool operator==(nullptr_t, const function<FUNC>& f) noexcept;
+        //  bool operator!=(const function<FUNC>& f, nullptr_t) noexcept;
+        //  bool operator!=(nullptr_t, const function<FUNC>& f) noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOMPARISON TO NULLPTR"
@@ -3161,30 +3409,40 @@ int main(int argc, char *argv[])
         Obj e;
         Obj f(&simpleFunc);
 
-        ASSERT(  e == bsl::nullptr_t() );
-        ASSERT(  bsl::nullptr_t() == e );
-        ASSERT(!(e != bsl::nullptr_t()));
-        ASSERT(!(bsl::nullptr_t() != e));
+        ASSERT(  e == NULL );
+        ASSERT(  NULL == e );
+        ASSERT(!(e != NULL));
+        ASSERT(!(NULL != e));
 
-        ASSERT(!(f == bsl::nullptr_t()));
-        ASSERT(!(bsl::nullptr_t() == f));
-        ASSERT(  f != bsl::nullptr_t() );
-        ASSERT(  bsl::nullptr_t() != f );
+        ASSERT(!(f == NULL));
+        ASSERT(!(NULL == f));
+        ASSERT(  f != NULL );
+        ASSERT(  NULL != f );
 
         // Just for grins, let's make sure that everything becomes reversed if
         // we swap 'e' and 'f'.
         e.swap(f);
 
-        ASSERT(!(e == bsl::nullptr_t()));
-        ASSERT(!(bsl::nullptr_t() == e));
-        ASSERT(  e != bsl::nullptr_t() );
-        ASSERT(  bsl::nullptr_t() != e );
+        ASSERT(!(e == NULL));
+        ASSERT(!(NULL == e));
+        ASSERT(  e != NULL );
+        ASSERT(  NULL != e );
 
-        ASSERT(  f == bsl::nullptr_t() );
-        ASSERT(  bsl::nullptr_t() == f );
-        ASSERT(!(f != bsl::nullptr_t()));
-        ASSERT(!(bsl::nullptr_t() != f));
+        ASSERT(  f == NULL );
+        ASSERT(  NULL == f );
+        ASSERT(!(f != NULL));
+        ASSERT(!(NULL != f));
 
+        if (verbose) printf("confirm null pointer comparison is 'noexcept'\n");
+        {
+            Obj a;
+
+            ASSERT_NOEXCEPT(true, a == NULL);
+            ASSERT_NOEXCEPT(true, NULL == a);
+
+            ASSERT_NOEXCEPT(true, a != NULL);
+            ASSERT_NOEXCEPT(true, NULL != a);
+        }
       } break;
 
       case 15: {
@@ -3245,7 +3503,7 @@ int main(int argc, char *argv[])
         //:   their original values.
         //
         // Testing:
-        //      function& operator=(FUNC&& f);
+        //  function& operator=(FUNC&& func);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nASSIGNMENT FROM FUNCTOR"
@@ -3482,7 +3740,7 @@ int main(int argc, char *argv[])
         //:   'function'.
         //
         // Testing:
-        //      function<RET(ARGS...)>& operator=(nullptr_t);
+        //   function& operator=(nullptr_t) noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nASSIGNMENT FROM 'nullptr'"
@@ -3561,6 +3819,11 @@ int main(int argc, char *argv[])
 
 #undef TEST
 
+        if (verbose) printf("confirm assigning null pointers is 'noexcept'\n");
+        {
+            Obj a;
+            ASSERT_NOEXCEPT(true, a = NULL);
+        }
       } break;
 
       case 13: {
@@ -3660,8 +3923,8 @@ int main(int argc, char *argv[])
         //:   a wrapper would terminate the program.
         //
         // Testing
-        //      function& operator=(const function&);
-        //      function& operator=(function&&);
+        //  function& operator=(const function& rhs);
+        //  function& operator=(function&& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY AND MOVE ASSIGNMENT"
@@ -3834,9 +4097,8 @@ int main(int argc, char *argv[])
         //:   using free function 'bsl::swap'.
         //
         // Testing
-        //      void swap(function& other);
-        //      void bsl::swap(function<RET(ARGS...)>& a,
-        //                     function<RET(ARGS...)>& b);
+        //  void swap(function& other) noexcept;
+        //  void swap(function<FUNC>& a, function<FUNC>& b) noexcept;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nSWAP"
@@ -3936,6 +4198,13 @@ int main(int argc, char *argv[])
         } // end for (each item in dataA)
 
 #undef TEST
+
+        if (verbose) printf("confirming swap operations are 'noexcept'\n");
+        {
+            Obj a, b;
+            ASSERT_NOEXCEPT(true, a.swap(b));
+            ASSERT_NOEXCEPT(true, bsl::swap(a, b));
+        }
 
       } break;
 
@@ -4039,8 +4308,8 @@ int main(int argc, char *argv[])
         //:   neither uses it.
         //
         // Testing:
-        //      function(function&& other)
-        //      function(allocator_arg_t, const ALLOC& alloc, function&& other)
+        //  function(function&& other);
+        //  function(allocator_arg_t, const ALLOC& a, function&& other);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVE CONSTRUCTORS"
@@ -4050,9 +4319,9 @@ int main(int argc, char *argv[])
 
         // Test that the small-object buffer meets the minimum size constraints.
 
-        LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
-                     sizeof(MaxAlignedType),
-                     sizeof(SmallObjectBuffer) >= 6 * sizeof(void*));
+        ASSERTV(sizeof(SmallObjectBuffer), sizeof(void*),
+                sizeof(MaxAlignedType),
+                sizeof(SmallObjectBuffer) >= 6 * sizeof(void*));
 
         // Test our assumptions about the platform specific small-object buffer
         // size.  Note that this test is platform specific.
@@ -4060,20 +4329,20 @@ int main(int argc, char *argv[])
 #if BSLS_PLATFORM_OS_DARWIN && BSLS_PLATFORM_CPU_32_BIT
         // Max aligned type is 16 bytes on OSX, clang, 32 bit builds.
 
-        LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
-                     sizeof(MaxAlignedType),
-                     sizeof(SmallObjectBuffer) == 8 * sizeof(void*));
+        ASSERTV(sizeof(SmallObjectBuffer), sizeof(void*),
+                sizeof(MaxAlignedType),
+                sizeof(SmallObjectBuffer) == 8 * sizeof(void*));
 #else
-        LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
-                     sizeof(MaxAlignedType),
-                     sizeof(SmallObjectBuffer) == 6 * sizeof(void*));
+        ASSERTV(sizeof(SmallObjectBuffer), sizeof(void*),
+                sizeof(MaxAlignedType),
+                sizeof(SmallObjectBuffer) == 6 * sizeof(void*));
 #endif
-        LOOP4_ASSERT(sizeof(Obj),
-                     sizeof(void*),
-                     sizeof(SmallObjectBuffer),
-                     sizeof(MaxAlignedType),
-                     sizeof(Obj) == sizeof(SmallObjectBuffer)
-                                    + 4 * sizeof(void*));
+        ASSERTV(sizeof(Obj),
+                sizeof(void*),
+                sizeof(SmallObjectBuffer),
+                sizeof(MaxAlignedType),
+                sizeof(Obj) == sizeof(SmallObjectBuffer)
+                               + 4 * sizeof(void*));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -4294,9 +4563,8 @@ int main(int argc, char *argv[])
         //:   neither uses it.
         //
         // Testing:
-        //      function(const function& other);
-        //      function(allocator_arg_t, const ALLOC& alloc,
-        //               const function& other);
+        //  function(const function& other);
+        //  function(allocator_arg_t, const ALLOC& a, const function& other);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY CONSTRUCTORS"
@@ -4551,7 +4819,8 @@ int main(int argc, char *argv[])
         //:   selection of functor types wrapped in a nothrow wrapper.
         //
         // Testing
-        //      function(allocator_arg_t, const ALLOC& alloc, FUNC func);
+        //  function(allocator_arg_t, const ALLOC& a, FUNC func);
+        //  ~function();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCONSTRUCTOR 'function(allocator_arg_t,"
@@ -4724,7 +4993,7 @@ int main(int argc, char *argv[])
 
       case 8: {
         // --------------------------------------------------------------------
-        // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc)
+        // TESTING CONSTRUCTOR 'function(allocator_arg_t, const ALLOC&)'
         //
         // Concerns:
         //: 1 Constructing a 'function' using this constructor yields an
@@ -4758,7 +5027,7 @@ int main(int argc, char *argv[])
         //:   constructor to verify that converts to a Boolean false value.
         //: 2 For concern 2, construct a 'function' object with the address of
         //:   a 'bslma:TestAllocator'.  Verify that 'allocator' returns the
-        //:   address of the test allocator.  Constrct a 'function' object
+        //:   address of the test allocator.  Construct a 'function' object
         //:   with a null pointer-to-'bslma::TestAllocator' and verify that
         //:   'allocator' returns the address of the default allocator.
         //: 3 For concern 3, construct a 'bsl::allocator' wrapping a test
@@ -4797,15 +5066,13 @@ int main(int argc, char *argv[])
         //:   constructor call fails due to an exception.
         //
         // Testing
-        //      function(allocator_arg_t, const ALLOC& alloc);
-        //      function(allocator_arg_t, const ALLOC& alloc, nullptr_t);
-        //      ~function();
+        //  function(allocator_arg_t, const ALLOC& a);
+        //  function(allocator_arg_t, const ALLOC& a, nullptr_t);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONSTRUCTOR function(allocator_arg_t, "
-                            "const ALLOC& alloc)"
-                            "\n======================================"
-                            "===================\n");
+        if (verbose) printf(
+          "\nTESTING CONSTRUCTOR 'function(allocator_arg_t, const ALLOC&)'"
+          "\n=============================================================\n");
 
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
@@ -4950,6 +5217,9 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // FUNCTOR INVOCATION
+        //  Functors are the remaining kind of object that can be stored in a
+        //  'bsl::function'.  This test will resolve all remaining concerns for
+        //  calling 'operator()', completing its testing.
         //
         // Concerns:
         //: 1 A 'bsl::function' object that is constructed with a functor (aka
@@ -5020,7 +5290,8 @@ int main(int argc, char *argv[])
         //:   one set of arguments in order to have confidence in the result.
         //
         // Testing:
-        //      RET operator()(ARGS...) const; // For functors
+        //  RET operator()(ARGS...) const;
+        //  CONCERN: operator() works for user-defined functors
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTOR INVOCATION"
@@ -5047,8 +5318,6 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // POINTER TO MEMBER FUNCTION INVOCATION
         //
-        // Concerns:
-        //
         //  All of the following concerns refer to an object 'f' of type
         //  'bsl::function<RET(T, ARGS...)>' for a specified return type
         //  'RET', class type 'T', and 0 or more additional argument types
@@ -5058,6 +5327,7 @@ int main(int argc, char *argv[])
         //  'FARGS...'.  The invocation arguments are 'obj' of type 'T' and
         //  'args...' of types matching 'ARGS...'.
         //
+        // Concerns:
         //: 1 Invocation works for zero to nine arguments, 'args...' in
         //:   addition to the 'obj' argument and yields the expected return
         //:   value.
@@ -5145,7 +5415,7 @@ int main(int argc, char *argv[])
         //:   change.
         //
         // Testing:
-        //      RET operator()(ARGS...) const; // For pointer to member func
+        //  CONCERN: operator() works for member-function pointers
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPOINTER TO MEMBER FUNCTION INVOCATION"
@@ -5256,6 +5526,11 @@ int main(int argc, char *argv[])
         vtsp(&iw, 0x100);               // No return type to test
         ASSERT(0x31ff == iw.value());
 
+        MutatingFunctor incrementing;
+        const bsl::function<long long()> mutator(incrementing);
+        ASSERT(1 == mutator());
+        ASSERT(2 == mutator());
+
       } break;
 
       case 5: {
@@ -5327,51 +5602,95 @@ int main(int argc, char *argv[])
         //:   argument is being correctly unwrapped.
         //
         // Testing:
-        //      RET operator()(ARGS...) const; // For pointer to function
+        //  CONCERN: operator() works for function pointers
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPOINTER TO FUNCTION INVOCATION"
                             "\n==============================\n");
 
-        if (veryVerbose) printf("Plan step 2\n");
+        if (veryVerbose) printf("Plan step 2 with function references\n");
         {
-            bsl::function<int()> f0(sum0);
+            const bsl::function<int()> f0(sum0);
             ASSERT(0x4000 == f0());
 
-            bsl::function<int(int)> f1(sum1);
+            const bsl::function<int(int)> f1(sum1);
             ASSERT(0x4001 == f1(1));
 
-            bsl::function<int(int, int)> f2(sum2);
+            const bsl::function<int(int, int)> f2(sum2);
             ASSERT(0x4003 == f2(1, 2));
 
-            bsl::function<int(int, int, int)> f3(sum3);
+            const bsl::function<int(int, int, int)> f3(sum3);
             ASSERT(0x4007 == f3(1, 2, 4));
 
-            bsl::function<int(int, int, int, int)> f4(sum4);
+            const bsl::function<int(int, int, int, int)> f4(sum4);
             ASSERT(0x400f == f4(1, 2, 4, 8));
 
-            bsl::function<int(int, int, int, int, int)> f5(sum5);
+            const bsl::function<int(int, int, int, int, int)> f5(sum5);
             ASSERT(0x401f == f5(1, 2, 4, 8, 0x10));
 
-            bsl::function<int(int, int, int, int, int, int)> f6(sum6);
+            const bsl::function<int(int, int, int, int, int, int)> f6(sum6);
             ASSERT(0x403f == f6(1, 2, 4, 8, 0x10, 0x20));
 
-            bsl::function<int(int, int, int, int, int, int, int)> f7(sum7);
+            const bsl::function<int(int, int, int, int, int, int, int)> f7(
+                                                                         sum7);
             ASSERT(0x407f == f7(1, 2, 4, 8, 0x10, 0x20, 0x40));
 
-            bsl::function<int(int,int,int,int,int,int,int,int)> f8(sum8);
+            const bsl::function<int(int, int, int, int, int, int, int, int)>
+                                                                      f8(sum8);
             ASSERT(0x40ff == f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
 
-            bsl::function<int(int,int,int,int,int,int,int,int,int)> f9(sum9);
+            const bsl::function<int(int, int, int, int, int, int, int, int,
+                                    int)> f9(sum9);
             ASSERT(0x41ff == f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
 
-            bsl::function<int(int, int, int, int, int, int, int, int,
-                              int, int)> f10(sum10);
+            const bsl::function<int(int, int, int, int, int, int, int, int,
+                                    int, int)> f10(sum10);
             ASSERT(0x43ff == f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
                                  0x200));
         }
 
-        if (veryVerbose) printf("Plan step 3\n");
+        if (veryVerbose) printf("Repeat step 2 with function pointers\n");
+        {
+            const bsl::function<int()> f0(&sum0);
+            ASSERT(0x4000 == f0());
+
+            const bsl::function<int(int)> f1(&sum1);
+            ASSERT(0x4001 == f1(1));
+
+            const bsl::function<int(int, int)> f2(&sum2);
+            ASSERT(0x4003 == f2(1, 2));
+
+            const bsl::function<int(int, int, int)> f3(&sum3);
+            ASSERT(0x4007 == f3(1, 2, 4));
+
+            const bsl::function<int(int, int, int, int)> f4(&sum4);
+            ASSERT(0x400f == f4(1, 2, 4, 8));
+
+            const bsl::function<int(int, int, int, int, int)> f5(&sum5);
+            ASSERT(0x401f == f5(1, 2, 4, 8, 0x10));
+
+            const bsl::function<int(int, int, int, int, int, int)> f6(&sum6);
+            ASSERT(0x403f == f6(1, 2, 4, 8, 0x10, 0x20));
+
+            const bsl::function<int(int, int, int, int, int, int, int)> f7(
+                                                                        &sum7);
+            ASSERT(0x407f == f7(1, 2, 4, 8, 0x10, 0x20, 0x40));
+
+            const bsl::function<int(int, int, int, int, int, int, int, int)>
+                                                                     f8(&sum8);
+            ASSERT(0x40ff == f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80));
+
+            const bsl::function<int(int, int, int, int, int, int, int, int,
+                                    int)> f9(&sum9);
+            ASSERT(0x41ff == f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100));
+
+            const bsl::function<int(int, int, int, int, int, int, int, int,
+                                    int, int)> f10(&sum10);
+            ASSERT(0x43ff == f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100,
+                                 0x200));
+        }
+
+        if (veryVerbose) printf("Plan step 3 with function references\n");
         {
             typedef IntWrapper       Ret;
             typedef ConvertibleToInt Arg;
@@ -5387,38 +5706,95 @@ int main(int argc, char *argv[])
             const Arg a9(0x0100);
             const Arg a10(0x0200);
 
-            bsl::function<Ret()> f0(sum0);
+            const bsl::function<Ret()> f0(sum0);
             ASSERT(0x4000 == f0());
 
-            bsl::function<Ret(Arg)> f1(sum1);
+            const bsl::function<Ret(Arg)> f1(sum1);
             ASSERT(0x4001 == f1(a1));
 
-            bsl::function<Ret(Arg, Arg)> f2(sum2);
+            const bsl::function<Ret(Arg, Arg)> f2(sum2);
             ASSERT(0x4003 == f2(a1, a2));
 
-            bsl::function<Ret(Arg, Arg, Arg)> f3(sum3);
+            const bsl::function<Ret(Arg, Arg, Arg)> f3(sum3);
             ASSERT(0x4007 == f3(a1, a2, a3));
 
-            bsl::function<Ret(Arg, Arg, Arg, Arg)> f4(sum4);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg)> f4(sum4);
             ASSERT(0x400f == f4(a1, a2, a3, a4));
 
-            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg)> f5(sum5);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg)> f5(sum5);
             ASSERT(0x401f == f5(a1, a2, a3, a4, a5));
 
-            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg)> f6(sum6);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg)> f6(sum6);
             ASSERT(0x403f == f6(a1, a2, a3, a4, a5, a6));
 
-            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg)> f7(sum7);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg)> f7(
+                                                                         sum7);
             ASSERT(0x407f == f7(a1, a2, a3, a4, a5, a6, a7));
 
-            bsl::function<Ret(Arg,Arg,Arg,Arg,Arg,Arg,Arg,Arg)> f8(sum8);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg)>
+                                                                      f8(sum8);
             ASSERT(0x40ff == f8(a1, a2, a3, a4, a5, a6, a7, a8));
 
-            bsl::function<Ret(Arg,Arg,Arg,Arg,Arg,Arg,Arg,Arg,Arg)> f9(sum9);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg,
+                                    Arg)> f9(sum9);
             ASSERT(0x41ff == f9(a1, a2, a3, a4, a5, a6, a7, a8, a9));
 
-            bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg,
-                              Arg, Arg)> f10(sum10);
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg,
+                                    Arg, Arg)> f10(sum10);
+            ASSERT(0x43ff == f10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10));
+        }
+
+        if (veryVerbose) printf("Repeat step 3 with function pointers\n");
+        {
+            typedef IntWrapper       Ret;
+            typedef ConvertibleToInt Arg;
+
+            const Arg a1(0x0001);
+            const Arg a2(0x0002);
+            const Arg a3(0x0004);
+            const Arg a4(0x0008);
+            const Arg a5(0x0010);
+            const Arg a6(0x0020);
+            const Arg a7(0x0040);
+            const Arg a8(0x0080);
+            const Arg a9(0x0100);
+            const Arg a10(0x0200);
+
+            const bsl::function<Ret()> f0(&sum0);
+            ASSERT(0x4000 == f0());
+
+            const bsl::function<Ret(Arg)> f1(&sum1);
+            ASSERT(0x4001 == f1(a1));
+
+            const bsl::function<Ret(Arg, Arg)> f2(&sum2);
+            ASSERT(0x4003 == f2(a1, a2));
+
+            const bsl::function<Ret(Arg, Arg, Arg)> f3(&sum3);
+            ASSERT(0x4007 == f3(a1, a2, a3));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg)> f4(&sum4);
+            ASSERT(0x400f == f4(a1, a2, a3, a4));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg)> f5(&sum5);
+            ASSERT(0x401f == f5(a1, a2, a3, a4, a5));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg)> f6(&sum6);
+            ASSERT(0x403f == f6(a1, a2, a3, a4, a5, a6));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg)> f7(
+                                                                        &sum7);
+            ASSERT(0x407f == f7(a1, a2, a3, a4, a5, a6, a7));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg)>
+                                                                     f8(&sum8);
+            ASSERT(0x40ff == f8(a1, a2, a3, a4, a5, a6, a7, a8));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg,
+                                    Arg)> f9(&sum9);
+            ASSERT(0x41ff == f9(a1, a2, a3, a4, a5, a6, a7, a8, a9));
+
+            const bsl::function<Ret(Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg,
+                                    Arg, Arg)> f10(&sum10);
             ASSERT(0x43ff == f10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10));
         }
 
@@ -5462,7 +5838,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Plan step 8\n");
         {
             // Test normal function
-            bsl::function<int(int)> f1(ntWrap(&sum1));
+            const bsl::function<int(int)> f1(ntWrap(&sum1));
             ASSERT(0x4001 == f1(1));
 
             // Test function with argument conversion
@@ -5472,29 +5848,29 @@ int main(int argc, char *argv[])
             const Arg a1(0x0001);
             const Arg a2(0x0002);
 
-            bsl::function<Ret(Arg, Arg)> f2(ntWrap(&sum2));
+            const bsl::function<Ret(Arg, Arg)> f2(ntWrap(&sum2));
             ASSERT(0x4003 == f2(a1, a2));
 
             // Test void return type
-            bsl::function<void(int*)> fvoid(ntWrap(&increment));
+            const bsl::function<void(int*)> fvoid(ntWrap(&increment));
             int v = 1;
             fvoid(&v);
             ASSERT(2 == v);
 
             // Test discarding of return value
-            bsl::function<void(int)> fdiscard(ntWrap(&sum1));
+            const bsl::function<void(int)> fdiscard(ntWrap(&sum1));
             fdiscard(3);
 
             // Test pass-by-reference
-            bsl::function<int*(int&)> ga(ntWrap(&getAddress));
+            const bsl::function<int*(int&)> ga(ntWrap(&getAddress));
             ASSERT(&v == ga(v));
-            bsl::function<const int*(const int&)>
-                gca(ntWrap(&getConstAddress));
+            const bsl::function<const int*(const int&)> gca(ntWrap(
+                                                            &getConstAddress));
             ASSERT(&v == gca(v));
             gca(v);
 
             // Test pass-by-value
-            bsl::function<int(CountCopies)> nc(ntWrap(&numCopies));
+            const bsl::function<int(CountCopies)> nc(ntWrap(&numCopies));
             CountCopies cc;
             ASSERT(1 == numCopies(cc));
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -5535,8 +5911,8 @@ int main(int argc, char *argv[])
         //:   string matching "bad_function_call".
         //
         // Testing:
-        //      RET operator()(ARGS...) const; // For empty function object
-        //      const char* bad_function_call::what() const;
+        //  CONCERN: operator() works for empty function objects
+        //  const char* bad_function_call::what() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nEMPTY FUNCTION INVOCATION"
@@ -5553,68 +5929,71 @@ int main(int argc, char *argv[])
             try {
                 switch (numArgs) {
                   case 0: {
-                    bsl::function<int()> f0;
+                    const bsl::function<int()> f0;
                     constructed = 0;
                     f0();
                   } break;
 
                   case 1: {
-                    bsl::function<int(int)> f1;
+                    const bsl::function<int(int)> f1;
                     constructed = 1;
                     f1(1);
                   } break;
 
                   case 2: {
-                    bsl::function<int(int, int)> f2;
+                    const bsl::function<int(int, int)> f2;
                     constructed = 2;
                     f2(1, 2);
                   } break;
 
                   case 3: {
-                    bsl::function<int(int, int, int)> f3;
+                    const bsl::function<int(int, int, int)> f3;
                     constructed = 3;
                     f3(1, 2, 4);
                   } break;
 
                   case 4: {
-                    bsl::function<int(int, int, int, int)> f4;
+                    const bsl::function<int(int, int, int, int)> f4;
                     constructed = 4;
                     f4(1, 2, 4, 8);
                   } break;
 
                   case 5: {
-                    bsl::function<int(int, int, int, int, int)> f5;
+                    const bsl::function<int(int, int, int, int, int)> f5;
                     constructed = 5;
                     f5(1, 2, 4, 8, 0x10);
                   } break;
 
                   case 6: {
-                    bsl::function<int(int, int, int, int, int, int)> f6;
+                    const bsl::function<int(int, int, int, int, int, int)> f6;
                     constructed = 6;
                     f6(1, 2, 4, 8, 0x10, 0x20);
                   } break;
 
                   case 7: {
-                    bsl::function<int(int, int, int, int, int, int, int)> f7;
+                    const bsl::function<int(int, int, int, int, int, int, int)>
+                                                                            f7;
                     constructed = 7;
                     f7(1, 2, 4, 8, 0x10, 0x20, 0x40);
                   } break;
 
                   case 8: {
-                    bsl::function<int(int,int,int,int,int,int,int,int)> f8;
+                    const bsl::function<int(int, int, int, int, int, int, int,
+                                            int)> f8;
                     constructed = 8;
                     f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80);
                   } break;
 
                   case 9: {
-                    bsl::function<int(int,int,int,int,int,int,int,int,int)> f9;
+                    const bsl::function<int(int, int, int, int, int, int, int,
+                                            int, int)> f9;
                     constructed = 9;
                     f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100);
                   } break;
 
                   case 10: {
-                    bsl::function<int(int, int, int, int, int, int, int, int,
-                                      int, int)> f10;
+                    const bsl::function<int(int, int, int, int, int, int, int,
+                                            int, int, int)> f10;
                     constructed = 10;
                     f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200);
                   } break;
@@ -5637,7 +6016,7 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // CONSTRUCTOR function(FUNC)
+        // TESTING CONSTRUCTOR 'function(FUNC)'
         //
         // Concerns:
         //:  1 Construction with a null pointer to function or null
@@ -5705,18 +6084,19 @@ int main(int argc, char *argv[])
         //:    different prototypes. (Different prototypes are tested in the
         //:    invocation tests.)
         //
-        // Testing
-        //      function(FUNC f);
-        //      ~function();
-        //      operator bool() const;               // For non-empty objects
-        //      const typeinfo& target_type() const; // For non-empty objects
-        //      T      * target<T>();                // For non-empty objects
-        //      T const* target<T>() const;          // For non-empty objects
-        //      class Function_NothrowWrapper<FUNC>
+        // Testing:
+        //  function(FUNC f);
+        //  operator bool() const noexcept;
+        //  const std::type_info& target_type() const noexcept;
+        //  T *target<T>() noexcept;
+        //  const T *target<T>() const noexcept;
+        //  class Function_NothrowWrapper<FUNC>
+        //  CONCERN: use default allocator when no allocator is specified
+        //  CONCERN: destructor cleans up correctly for default allocator
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONSTRUCTOR function(FUNC)"
-                            "\n==========================\n");
+        if (verbose) printf("\nTESTING CONSTRUCTOR 'function(FUNC)'"
+                            "\n====================================\n");
 
         typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
         typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
@@ -5733,7 +6113,7 @@ int main(int argc, char *argv[])
             ASSERT(typeid(void) == F.target_type());
             ASSERT(NULL == F.target<SimpleFuncPtr_t>());
             ASSERT(NULL == f.target<SimpleFuncPtr_t>());
-            ASSERT(&globalTestAllocator == f.allocator());
+            ASSERT(&globalTestAllocator == F.allocator());
 
             typedef bsl::Function_NothrowWrapper<SimpleFuncPtr_t> NtWrapper;
             Obj fw(static_cast<NtWrapper>(nullFuncPtr)); const Obj& FW = fw;
@@ -5743,6 +6123,11 @@ int main(int argc, char *argv[])
             ASSERT(NULL == FW.target<SimpleFuncPtr_t>());
             ASSERT(NULL == fw.target<SimpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == fw.allocator());
+
+            ASSERT_NOEXCEPT(true, F.target<SimpleFuncPtr_t>());
+            ASSERT_NOEXCEPT(true, f.target<SimpleFuncPtr_t>());
+            ASSERT_NOEXCEPT(true, F.target_type());
+            ASSERT_NOEXCEPT(true, static_cast<bool>(F));
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -6012,11 +6397,41 @@ int main(int argc, char *argv[])
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
+#if 0
+        // This test is known to fail, but is an obscure corner that can be
+        // fixed at our leisure, at which point we will re-enable the test.
+
+        if (veryVerbose) {
+            printf("Construct with comptible empty 'function' object\n");
+        }
+        globalAllocMonitor.reset();
+        {
+            bsl::function<int()>  intFunc;
+            bsl::function<void()> f(intFunc);
+            const bsl::function<void()>& F = f;
+            ASSERT(! F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == F.target_type());
+            ASSERT(NULL == F.target<bsl::function<int()> >());
+            ASSERT(NULL == f.target<bsl::function<int()> >());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+#endif
       } break;
 
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS
+        // TESTING DEFAULT (EMPTY) OBJECTS
+        //   To bootstrap testing of 'function', we start by confirming that
+        //   the default constructor, and other constructors that construct an
+        //   empty state, have the correct observable behavior through the
+        //   basic accessors:
+        //:  o  bslma::Allocator* allocator() const;
+        //:  o  operator bool() const;
+        //:  o  const typeinfo& target_type() const;
+        //:  o  T      * target<T>();
+        //:  o  T const* target<T>() const;
         //
         // Concerns:
         //:  1 Default construction and construction using a nullptr_t()
@@ -6027,6 +6442,8 @@ int main(int argc, char *argv[])
         //:  4 No memory is allocated by the constructors.
         //:  5 'target_type' returns 'typeid(void)' for empty function objects.
         //:  6 'target' returns a null pointer for empty function objects.
+        //:  7 For C++11, the tested constructors (and destructor) have a
+        //:    non-throwing exception specification.
         //
         // Plan:
         //:  1 For concerns 1 and 2, construct 'function' objects using each
@@ -6052,20 +6469,14 @@ int main(int argc, char *argv[])
         //:    different prototypes. (Different prototypes are tested in the
         //:    invocation tests.)
         //
-        // Testing
-        //      function();
-        //      function(nullptr_t);
-        //      function(FUNC f); // For a null pointer to function
-        //      function(FUNC f); // For a null pointer to member function
-        //      bslma::Allocator* allocator() const;
-        //      operator bool() const;               // For empty objects
-        //      const typeinfo& target_type() const; // For empty objects
-        //      T      * target<T>();                // For empty objects
-        //      T const* target<T>() const;          // For empty objects
+        // Testing:
+        //  function() noexcept;
+        //  function(nullptr_t) noexcept;
+        //  CONCERN: basic accessors work for empty object (bootstrap)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPRIMARY MANIPULATORS"
-                            "\n====================\n");
+        if (verbose) printf("\nTESTING DEFAULT (EMPTY) OBJECTS"
+                            "\n===============================\n");
 
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
@@ -6081,6 +6492,7 @@ int main(int argc, char *argv[])
             ASSERT(NULL == F.target<bsl::nullptr_t>());
             ASSERT(NULL == f.target<bsl::nullptr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
+            ASSERT_NOEXCEPT(true, Obj());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -6095,6 +6507,7 @@ int main(int argc, char *argv[])
             ASSERT(NULL == F.target<bsl::nullptr_t>());
             ASSERT(NULL == f.target<bsl::nullptr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
+            ASSERT_NOEXCEPT(true, Obj(NULL));
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -6103,13 +6516,17 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
-        // Concerns: The basic functionality of this component works
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   Construct 'function' objects wrapping a small variety of
-        //   functors.  Verify expected emptiness.  Invoke non-empty functors
-        //   and verify expected results.
+        //: 1 Construct 'function' objects wrapping a small variety of
+        //:   functors.
+        //: 2 Verify 'function' objects are empty, or not, as expected.
+        //: 3 Invoke non-empty functors and verify expected results.
         //
         // Testing:
         //   BREATHING TEST
@@ -6191,7 +6608,64 @@ int main(int argc, char *argv[])
             ASSERT(fv);
             ASSERT(0x400f == fv(IW, 8));
         }
+      } break;
 
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING COMPILE-FAIL CONCERNS
+        //   There are some constructs that might accidentally compile, but are
+        //   not valid.  This test, guarded by a macro, confirms that such
+        //   dangerous code does not accidentally compile.
+        //
+        // Concerns:
+        //: 1 'a == b' should not compile where 'a' and 'b' are objects of a
+        //:   'bsl::function<FN>' type, whether the same of different types.
+        //: 2 'a.swap(b)' should not compile where 'a' and 'b' are objects of
+        //:   different 'bsl::function<FN>' types.
+        //: 3 'bsl::swap(a, b)' should not compile where 'a' and 'b' are
+        //:   objects of different 'bsl::function<FN>' types.
+        //
+        // Plan:
+        //: 1 Construct 'function' objects wrapping a small variety of
+        //:   functors.
+        //: 2 Verify 'function' objects are empty, or not, as expected.
+        //: 3 Invoke non-empty functors and verify expected results.
+        //
+        // Testing:
+        //  CONCERN: 'operator==' does not compile for two function objects
+        //  CONCERN: 'swap' does not compile for different function objects
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING COMPILE-FAIL CONCERNS"
+                            "\n=============================\n");
+
+#if !defined(BSLSTL_FUNCTION_TEST_BAD_COMPARISON)
+        if (verbose) printf("\nTesting 'operator==' is not configured\n");
+#else
+        bsl::function<void()> a, b;
+        ASSERT(a == b);  // this should not compile
+        ASSERT(a != b);  // this should not compile
+
+        bsl::function<int(int)> c;
+        ASSERT(a == c);  // this should not compile
+        ASSERT(a != c);  // this should not compile
+
+        ASSERT(c == a);  // this should not compile
+        ASSERT(c != a);  // this should not compile
+#endif
+
+#if !defined(BSLSTL_FUNCTION_TEST_BAD_SWAPS)
+        if (verbose) printf("\nTesting 'swap' is not configured\n");
+#else
+        bsl::function<void()> a;
+        bsl::function<int(int)> b;
+
+        a.swap(b);  // this should not compile
+        b.swap(a);  // this should not compile
+
+        bsl::swap(a, b);  // this should not compile
+        bsl::swap(b, a);  // this should not compile
+#endif
       } break;
 
       default: {
@@ -6214,7 +6688,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014-2015 Bloomberg Finance L.P.
+// Copyright 2014-2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

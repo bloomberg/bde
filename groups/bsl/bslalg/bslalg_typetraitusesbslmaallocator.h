@@ -70,6 +70,18 @@ struct TypeTraitUsesBslmaAllocator {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED		
+		
+                 //==========================================		
+                 // struct bdealg_TypeTraitUsesBdemaAllocator		
+                 //==========================================		
+		
+typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;		
+    // This alias is defined for backward compatibility.		
+		
+#endif // BDE_OMIT_INTERNAL_DEPRECATED		
+
+
 typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;
     // This alias is defined for backward compatibility.
 

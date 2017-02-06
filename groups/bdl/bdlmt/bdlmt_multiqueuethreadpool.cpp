@@ -81,13 +81,14 @@ void MultiQueueThreadPool_Queue::reset()
 
 // MANIPULATORS
 inline
-MultiQueueThreadPool_Queue::Job
-MultiQueueThreadPool_Queue::popFront()
+void MultiQueueThreadPool_Queue::popFront(Job *job)
 {
-    Job functor(d_list.front());
+    BSLS_ASSERT(job);
+    BSLS_ASSERT(!d_list.empty());
+
+    *job = d_list.front();
     d_list.pop_front();
     ++d_numDequeued;
-    return functor;
 }
 
 inline
@@ -291,7 +292,8 @@ void MultiQueueThreadPool::processQueueCb(
     BSLS_ASSERT(0 < context->d_queue.d_numPendingJobs);
 
     {
-        Job functor(context->d_queue.popFront());
+        Job functor(bsl::allocator_arg_t(), d_allocator_p);
+        context->d_queue.popFront(&functor);
         guard.unlock();
         ++d_numDequeued;
 
@@ -410,6 +412,7 @@ MultiQueueThreadPool::MultiQueueThreadPool(
 , d_queueRegistry(basicAllocator)
 , d_state(STATE_STOPPED)
 {
+    // preconditions asserted in 'ThreadPool' constructor
     d_threadPool_p = new (*d_allocator_p) ThreadPool(threadAttributes,
                                                      minThreads,
                                                      maxThreads,

@@ -444,9 +444,9 @@ class MultiQueueThreadPool_Queue {
         // Destroy this queue.
 
     // MANIPULATORS
-    Job popFront();
-        // Dequeue and return the element at the front of this queue.  The
-        // behavior is undefined unless the queue is not empty.
+    void popFront(Job *job);
+        // Copy the element at the front of this queue to the specified 'job'
+        // and dequeue it.  The behavior is undefined if this queue is empty.
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -662,11 +662,13 @@ class MultiQueueThreadPool {
                          int                             maxIdleTime,
                          bslma::Allocator               *basicAllocator = 0);
         // Construct a 'MultiQueueThreadPool' with the specified
-        // 'threadAttributes', 'minThread' and 'maxThreads' minimum and maximum
-        // number of threads respectively, and the specified 'maxIdleTime'
-        // maximum idle time (in milliseconds).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the default memory allocator is used.  Note that the
+        // 'threadAttributes', the specified 'minThreads' minimum number of
+        // threads, the specified 'maxThreads' maximum number of threads, and
+        // the specified 'maxIdleTime' maximum idle time (in milliseconds).
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless '0 <= minThreads',
+        // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.  Note that the
         // 'MultiQueueThreadPool' is created without any queues.  Although
         // queues may be created, 'start' must be called before enqueuing jobs.
 

@@ -1897,8 +1897,10 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                                              std::initializer_list<KEY> values)
 {
-    clear();
-    insert(values.begin(), values.end());
+    unordered_set tmp(values, d_impl.allocator());
+
+    d_impl.swap(tmp.d_impl);
+
     return *this;
 }
 #endif

@@ -17,6 +17,8 @@
 
 #include <bdlf_bind.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeinterval.h>
@@ -125,6 +127,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1661,6 +1670,23 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, MAX  == X.maxThreads());
                 LOOP_ASSERT(i, IDLE == X.maxIdleTime());
                 LOOP_ASSERT(i, 0    == X.threadFailures());
+            }
+
+            if (verbose) cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertTestHandlerGuard hG;
+
+                if (verbose) cout << "\t'Value CTOR'" << endl;
+                {
+                    bslmt::ThreadAttributes attr;
+                    ASSERT_PASS(Obj(attr,   0, 100, 1000));
+                    ASSERT_FAIL(Obj(attr,  -1, 100, 1000));
+                    ASSERT_FAIL(Obj(attr,  11,  10, 1000));
+                    ASSERT_PASS(Obj(attr,  10,  10, 1000));
+                    ASSERT_PASS(Obj(attr,   9,  10, 1000));
+                    ASSERT_FAIL(Obj(attr,  10,  10,   -1));
+                }
+
             }
         }
 

@@ -3,7 +3,9 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
 
 #include <stdio.h>      // 'printf'

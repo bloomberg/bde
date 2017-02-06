@@ -21,6 +21,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
