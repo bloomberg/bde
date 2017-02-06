@@ -438,25 +438,23 @@ class my_ClassFussy {
 
   public:
     // CLASS DATA
-    static int defaultConstructorInvocations;
-    static int copyConstructorInvocations;
-    static int moveConstructorInvocations;
-    static int conversionConstructorInvocations;
-    static int assignmentInvocations;
-    static int destructorInvocations;
+    static int s_conversionConstructorInvocations;
+    static int s_destructorInvocations;
 
     // CLASS METHODS
-    static void* operator new(std::size_t size)
+    static void *operator new(std::size_t size)
         // Should never be invoked.
     {
         BSLS_ASSERT_OPT(0);
+
         return ::operator new(size);
     }
 
-    static void* operator new(std::size_t /* size */, void *ptr)
+    static void *operator new(std::size_t /* size */, void *ptr)
         // Should never be invoked.
     {
         BSLS_ASSERT_OPT(0);
+
         return ptr;
     }
 
@@ -470,55 +468,56 @@ class my_ClassFussy {
     my_ClassFussy()
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++defaultConstructorInvocations;
+
+        BSLS_ASSERT_OPT(0);
     }
 
     // deliberately not explicit
     my_ClassFussy(int v)
     {
-        ++conversionConstructorInvocations;
-        d_def.d_value = v;
+        ++s_conversionConstructorInvocations;
+
+        d_def.d_value       = v;
         d_def.d_allocator_p = 0;
     }
 
     my_ClassFussy(const my_ClassFussy& /* rhs */)
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++copyConstructorInvocations;
+
+        BSLS_ASSERT_OPT(0);
     }
 
     my_ClassFussy(bslmf::MovableRef<my_ClassFussy> /* rhs */)
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++moveConstructorInvocations;
+
+        BSLS_ASSERT_OPT(0);
     }
 
     ~my_ClassFussy()
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++destructorInvocations;
+        ++s_destructorInvocations;
 
-        // 'dumpClassDefState' is not called here, because a
-        // default-constructed 'my_ClassFussy' object may leave 'd_def'
-        // uninitialized.
+        // 'dumpClassDefState' is not called here because a default-constructed
+        // 'my_ClassFussy' object may leave 'd_def' uninitialized.
     }
 
     // MANIPULATORS
     my_ClassFussy& operator=(const my_ClassFussy& /* rhs */)
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++assignmentInvocations;
+
+        BSLS_ASSERT_OPT(0);
+
         return *this;
     }
 };
 
 // CLASS DATA
-int my_ClassFussy::defaultConstructorInvocations    = 0;
-int my_ClassFussy::copyConstructorInvocations       = 0;
-int my_ClassFussy::moveConstructorInvocations       = 0;
-int my_ClassFussy::conversionConstructorInvocations = 0;
-int my_ClassFussy::assignmentInvocations            = 0;
-int my_ClassFussy::destructorInvocations            = 0;
+int my_ClassFussy::s_conversionConstructorInvocations = 0;
+int my_ClassFussy::s_destructorInvocations            = 0;
 
 // TRAITS
 namespace bsl {
@@ -635,24 +634,24 @@ class my_ClassFussy2 {
 
   public:
     // CLASS DATA
-    static int defaultConstructorInvocations;
-    static int copyConstructorInvocations;
-    static int conversionConstructorInvocations;
-    static int assignmentInvocations;
-    static int destructorInvocations;
+    static int s_copyConstructorInvocations;
+    static int s_conversionConstructorInvocations;
+    static int s_destructorInvocations;
 
     // CLASS METHODS
-    static void* operator new(std::size_t size)
+    static void *operator new(std::size_t size)
         // Should never be invoked.
     {
         BSLS_ASSERT_OPT(0);
+
         return ::operator new(size);
     }
 
-    static void* operator new(std::size_t /* size */, void *ptr)
+    static void *operator new(std::size_t /* size */, void *ptr)
         // Should never be invoked.
     {
         BSLS_ASSERT_OPT(0);
+
         return ptr;
     }
 
@@ -666,48 +665,51 @@ class my_ClassFussy2 {
     my_ClassFussy2()
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++defaultConstructorInvocations;
+
+        BSLS_ASSERT_OPT(0);
     }
 
     // deliberately not explicit
     my_ClassFussy2(int v)
     {
-        ++conversionConstructorInvocations;
-        d_def.d_value = v;
+        ++s_conversionConstructorInvocations;
+
+        d_def.d_value       = v;
         d_def.d_allocator_p = 0;
     }
 
     my_ClassFussy2(const my_ClassFussy2& rhs)
     {
-        d_def.d_value = rhs.d_def.d_value;
-        ++copyConstructorInvocations;
+        ++s_copyConstructorInvocations;
+
+        d_def.d_value       = rhs.d_def.d_value;
+        d_def.d_allocator_p = rhs.d_def.d_allocator_p;
     }
 
     ~my_ClassFussy2()
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++destructorInvocations;
+        ++s_destructorInvocations;
 
-        // 'dumpClassDefState' is not called here, because a
-        // default-constructed 'my_ClassFussy2' object may leave 'd_def'
-        // uninitialized.
+        // 'dumpClassDefState' is not called here because a default-constructed
+        // 'my_ClassFussy2' object may leave 'd_def' uninitialized.
     }
 
     // MANIPULATORS
     my_ClassFussy2& operator=(const my_ClassFussy2& /* rhs */)
     {
         // Should never be invoked by 'ConstructionUtil'.
-        ++assignmentInvocations;
+
+        BSLS_ASSERT_OPT(0);
+
         return *this;
     }
 };
 
 // CLASS DATA
-int my_ClassFussy2::defaultConstructorInvocations    = 0;
-int my_ClassFussy2::copyConstructorInvocations       = 0;
-int my_ClassFussy2::conversionConstructorInvocations = 0;
-int my_ClassFussy2::assignmentInvocations            = 0;
-int my_ClassFussy2::destructorInvocations            = 0;
+int my_ClassFussy2::s_copyConstructorInvocations       = 0;
+int my_ClassFussy2::s_conversionConstructorInvocations = 0;
+int my_ClassFussy2::s_destructorInvocations            = 0;
 
 // TRAITS
 namespace bsl {
@@ -1157,7 +1159,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type {};
                          // debug breakpoints pre/post
                          // ==========================
 
-void pre(const my_ClassDef* p)
+void pre(const my_ClassDef *p)
     // Do nothing.  This function can be taken advantage of to debug the above
     // macros by setting a breakpoint to examine state prior to executing the
     // main operation under test.
@@ -1165,7 +1167,7 @@ void pre(const my_ClassDef* p)
     (void) p;  // remove unused variable warning
 }
 
-void post(const my_ClassDef* p)
+void post(const my_ClassDef *p)
     // Do nothing.  This function can be taken advantage of to debug the above
     // macros by setting a breakpoint to examine state after executing the
     // main operation under test.
@@ -2166,20 +2168,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("Trait selection testing.\n");
         {
             my_ClassDef rawBuf[2];
+            const int DI = my_ClassFussy::s_destructorInvocations;
             my_ClassFussy *srcPtr = (my_ClassFussy *) &rawBuf[0];
             Util::construct(srcPtr, XA, VF);
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf[1];
-            const int CCI = my_ClassFussy::copyConstructorInvocations;
-            const int MCI = my_ClassFussy::moveConstructorInvocations;
-            const int DI  = my_ClassFussy::destructorInvocations;
             Util::destructiveMove(objPtr, XA, srcPtr);
-            ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
-            ASSERT(MCI == my_ClassFussy::moveConstructorInvocations);
-            ASSERT(DI  == my_ClassFussy::destructorInvocations);
-            ASSERT(5   == rawBuf[0].d_value);
-            ASSERT(0   == rawBuf[0].d_allocator_p);
-            ASSERT(5   == rawBuf[1].d_value);
-            ASSERT(0   == rawBuf[1].d_allocator_p);
+            ASSERT(DI == my_ClassFussy::s_destructorInvocations);
+            ASSERT(5  == rawBuf[0].d_value);
+            ASSERT(0  == rawBuf[0].d_allocator_p);
+            ASSERT(5  == rawBuf[1].d_value);
+            ASSERT(0  == rawBuf[1].d_allocator_p);
             if (veryVerbose) {
                 P_(rawBuf[0].d_value); PP(rawBuf[0].d_allocator_p);
                 P_(rawBuf[1].d_value); PP(rawBuf[1].d_allocator_p);
@@ -2188,14 +2186,14 @@ int main(int argc, char *argv[])
         }
         {
             my_ClassDef rawBuf[2];
+            const int DI  = my_ClassFussy2::s_destructorInvocations;
             my_ClassFussy2 *srcPtr = (my_ClassFussy2 *) &rawBuf[0];
             Util::construct(srcPtr, XA, VF2);
+            const int CCI = my_ClassFussy2::s_copyConstructorInvocations;
             my_ClassFussy2 *objPtr = (my_ClassFussy2 *) &rawBuf[1];
-            const int DI  = my_ClassFussy2::destructorInvocations;
-            const int CCI = my_ClassFussy2::copyConstructorInvocations;
             Util::destructiveMove(objPtr, XA, srcPtr);
-            ASSERT(DI  == my_ClassFussy2::destructorInvocations);
-            ASSERT(CCI == my_ClassFussy2::copyConstructorInvocations);
+            ASSERT(DI  == my_ClassFussy2::s_destructorInvocations);
+            ASSERT(CCI == my_ClassFussy2::s_copyConstructorInvocations);
             ASSERT(6   == rawBuf[0].d_value);
             ASSERT(0   == rawBuf[0].d_allocator_p);
             ASSERT(6   == rawBuf[1].d_value);
@@ -2217,7 +2215,7 @@ int main(int argc, char *argv[])
         //    number (typos could easily make a10 become the 11th argument to
         //    the constructor).
         //  o That allocators are forwarded appropriately according to the
-        //    traits and to the type (bslma::Allocator* or void*).
+        //    traits and to the type ('bslma::Allocator *' or 'void *').
         //  o That even though
         //
         // Plan: Construct an object in some uninitialized buffer, and verify
@@ -2565,9 +2563,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             memset(&rawBuf, 92, sizeof rawBuf);
-            const int CCI = my_ClassFussy::copyConstructorInvocations;
             Util::construct(objPtr, (bslma::Allocator*)TA, VF);
-            ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
             ASSERT(5 == rawBuf.d_value);
             ASSERT(0 == rawBuf.d_allocator_p);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
@@ -2577,12 +2573,10 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             memset(&rawBuf, 92, sizeof rawBuf);
-            const int CCI = my_ClassFussy::copyConstructorInvocations;
-            const int CVI = my_ClassFussy::conversionConstructorInvocations;
+            const int CVI = my_ClassFussy::s_conversionConstructorInvocations;
             const int VF  = 3;
             Util::construct(objPtr, (bslma::Allocator*)TA, VF);
-            ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
-            ASSERT(CVI <  my_ClassFussy::conversionConstructorInvocations);
+            ASSERT(CVI < my_ClassFussy::s_conversionConstructorInvocations);
             ASSERT(3 == rawBuf.d_value);
             ASSERT(0 == rawBuf.d_allocator_p);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
@@ -2693,9 +2687,7 @@ int main(int argc, char *argv[])
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             my_ClassFussy fromObj(3);
             memset(&rawBuf, 92, sizeof rawBuf);
-            const int CCI = my_ClassFussy::moveConstructorInvocations;
             Util::construct(objPtr, XA, MoveUtil::move(fromObj));
-            ASSERT(CCI == my_ClassFussy::moveConstructorInvocations);
             ASSERT(3 == rawBuf.d_value);
             ASSERT(0 == rawBuf.d_allocator_p);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
@@ -2776,9 +2768,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             memset(&rawBuf, 92, sizeof rawBuf);
-            const int CCI = my_ClassFussy::copyConstructorInvocations;
             Util::construct(objPtr, XA, VF);
-            ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
             ASSERT(5 == rawBuf.d_value);
             ASSERT(0 == rawBuf.d_allocator_p);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
@@ -2893,9 +2883,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             memset(&rawBuf, 92, sizeof rawBuf);
-            const int DCI = my_ClassFussy::defaultConstructorInvocations;
             Util::construct(objPtr, XA);
-            ASSERT(DCI == my_ClassFussy::defaultConstructorInvocations);
             ASSERT(0 == rawBuf.d_value);
             ASSERT(0 == rawBuf.d_allocator_p);
             if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
