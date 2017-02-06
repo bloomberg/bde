@@ -39,44 +39,32 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+
 // ============================================================================
-//                                   TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                                   Overview
-//                                   --------
-// The component under test defines a single value-semantic class that
-// implements a time interval having microsecond resolution.  The value of the
-// time interval is accessed either in terms of its total-microsecond
-// representation (via 'totalMicroseconds'), or in terms of its (derived)
-// canonical six-field representation (via 'days', 'hours', 'minutes',
-// 'seconds', 'milliseconds', and 'microseconds').
+//                                 Overview
+//                                 --------
+// The component under test implements a single, simply constrained
+// (value-semantic) attribute class.  The Primary Manipulators and Basic
+// Accessors are therefore, respectively, the attribute setters and getters,
+// each of which follows our standard unconstrained attribute-type naming
+// conventions: 'setAttributeName' and 'attributeName'.
 //
-// We will therefore follow our standard ten-case approach to testing
-// value-semantic types, except that we will verify test apparatus in case 3
-// (in lieu of the generator function, 'gg'), with the default constructor,
-// (trivial) destructor, and primary manipulator ('setTotalMicroseconds')
-// tested fully in case 2.
-//
-// Primary Manipulators:
-//: o 'setTotalMicroseconds'
+// Primary Manipulator:
+//: o 'setInterval'
 //
 // Basic Accessors:
 //: o 'days'
-//: o 'hours'
-//: o 'minutes'
-//: o 'seconds'
-//: o 'milliseconds'
-//: o 'microseconds'
-//: o 'totalMicroseconds'
+//: o 'fractionalDayInMicroseconds'
 //
-// Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
-// ----------------------------------------------------------------------------
+// This particular attribute class also provides a value constructor capable of
+// creating an object in any state relevant for thorough testing, obviating the
+// primitive generator function, 'gg', normally used for this purpose.  We will
+// therefore follow our standard 10-case approach to testing value-semantic
+// types except that we will leave case 3 empty.
+//-----------------------------------------------------------------------------
+//
 // PUBLIC CLASS DATA
 // [  ] static const bsls::Types::Int64 k_MILLISECONDS_MAX = ...;
 // [  ] static const bsls::Types::Int64 k_MILLISECONDS_MIN = ...;
@@ -94,13 +82,13 @@ using namespace bsl;
 // [ 9] DatetimeInterval& operator=(const DatetimeInterval& rhs);
 // [18] DatetimeInterval& operator+=(const DatetimeInterval& rhs);
 // [18] DatetimeInterval& operator-=(const DatetimeInterval& rhs);
-// [12] void setInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
+// [ 2] void setInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
 // [13] void setTotalDays(int days);
 // [13] void setTotalHours(Int64 hours);
 // [13] void setTotalMinutes(Int64 minutes);
 // [13] void setTotalSeconds(Int64 seconds);
-// [ 2] void setTotalMilliseconds(Int64 milliseconds);
-// [ 2] void setTotalMicroseconds(Int64 microseconds);
+// [  ] void setTotalMilliseconds(Int64 milliseconds);
+// [  ] void setTotalMicroseconds(Int64 microseconds);
 // [16] void addInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
 // [15] void addDays(int days);
 // [15] void addHours(Int64 hours);
@@ -150,7 +138,6 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [22] USAGE EXAMPLE
-// [ 3] TEST APPARATUS
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: In no case does memory come from the default allocator.
@@ -5482,712 +5469,246 @@ if (veryVerbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TEST APPARATUS
-        //   Ensure that the test helper function, 'flds2Msecs', correctly
-        //   translates five-field representations of time intervals to their
-        //   corresponding total-milliseconds representations.
-        //
-        // Concerns:
-        //: 1 The 'flds2Msecs' helper function returns the correct
-        //:   total-millisecond representation computed from the supplied
-        //:   arguments.
-        //:
-        //: 2 'flds2Msecs' accepts the contractually specified range of
-        //:   argument values.
-        //:
-        //: 3 The optional 'hours', 'minutes', 'seconds', and 'milliseconds'
-        //:   parameters each have the correct default value (0).
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Use the table-driven technique to specify a set of numbers of
-        //:   days (one per row).
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Record, in 'EXP', the number of milliseconds in the value
-        //:     from 'R' (as computed by inline code).
-        //:
-        //:   2 Use the 'flds2Msecs' function to compute the number of
-        //:     milliseconds in the value from 'R', supplying only one argument
-        //:     to the function (letting the remaining four arguments take
-        //:     their default values).
-        //:
-        //:   3 Use the 'flds2Msecs' function a second time to recompute the
-        //:     number of milliseconds in the value from 'R', but this time
-        //:     passing four trailing 0 arguments explicitly.
-        //:
-        //:   4 Verify that the values computed in P-2.2 and P-2.3 are the same
-        //:     as that computed in P-2.1.  (C-1..3)
-        //:
-        //: 3 Repeat steps similar to those described in P-1..2 four times,
-        //:   successively introducing an additional column to the tables (for
-        //:   hours, minutes, seconds, and milliseconds), to test the supplying
-        //:   of two, three, four, and five arguments to 'flds2Msecs'.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid total-millisecond values, but not triggered
-        //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // TESTING GENERATOR FUNCTION 'gg'
+        //   Void for 'bdlt_time'.
         //
         // Testing:
-        //   TEST APPARATUS
+        //   Obj& gg(Obj *object, const char *spec);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TEST APPARATUS" << endl
-                          << "==============" << endl;
-
-        if (verbose) cout << "\nTesting 'flds2Msecs(d)'." << endl;
-        {
-            static const struct {
-                int d_line;       // source line number
-                int d_days;
-            } DATA[] = {
-                //LINE      DAYS
-                //----   ----------
-                { L_,             0 },
-
-                { L_,             1 },
-                { L_,         13027 },
-                { L_,    k_DAYS_MAX },
-
-                { L_,            -1 },
-                { L_,        -42058 },
-                { L_,    k_DAYS_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE = DATA[ti].d_line;
-                const int DAYS = DATA[ti].d_days;
-
-                if (veryVerbose) { T_ P(DAYS) }
-
-                const Int64 EXP = DAYS * k_MSECS_PER_DAY;
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, 0, 0, 0, 0);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'flds2Msecs(d, h)'." << endl;
-        {
-            static const struct {
-                int   d_line;   // source line number
-                int   d_days;
-                Int64 d_hours;
-            } DATA[] = {
-                //LINE      DAYS        HOURS
-                //----      ----        -----
-                { L_,          0,           0 },
-
-                { L_,          0,           1 },
-                { L_,          0,          24 },
-                { L_,          0, k_HOURS_MAX },
-
-                { L_,          1,           0 },
-                { L_,        366,           0 },
-                { L_, k_DAYS_MAX,           0 },
-
-                { L_,        333,         457 },
-
-                { L_,
-                  k_DAYS_MAX - 1,          47 },
-
-                { L_, k_DAYS_MAX,          23 },
-
-                { L_,          0,          -1 },
-                { L_,          0,         -24 },
-                { L_,          0, k_HOURS_MIN },
-
-                { L_,         -1,           0 },
-                { L_,       -366,           0 },
-                { L_, k_DAYS_MIN,           0 },
-
-                { L_,       -333,        -457 },
-
-                { L_,
-                  k_DAYS_MIN + 1,         -47 },
-
-                { L_, k_DAYS_MIN,         -23 },
-
-                { L_,     -23469,         256 },
-                { L_,          5,          -4 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE  = DATA[ti].d_line;
-                const int   DAYS  = DATA[ti].d_days;
-                const Int64 HOURS = DATA[ti].d_hours;
-
-                if (veryVerbose) { T_ P_(LINE) P_(DAYS) P(HOURS) }
-
-                const Int64 EXP = DAYS  * k_MSECS_PER_DAY
-                                + HOURS * k_MSECS_PER_HOUR;
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, HOURS);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, HOURS, 0, 0, 0);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'flds2Msecs(d, h, m)'." << endl;
-        {
-            static const struct {
-                int   d_line;   // source line number
-                int   d_days;
-                Int64 d_hours;
-                Int64 d_mins;
-            } DATA[] = {
-                //LINE      DAYS        HOURS     MINUTES
-                //----      ----        -----     -------
-                { L_,          0,           0,          0 },
-
-                { L_,          0,           0,          1 },
-                { L_,          0,           0,         59 },
-                { L_,          0,          24,         60 },
-                { L_,        100,         200,        300 },
-
-                { L_,          0,           1,
-                                          k_MINS_MAX - 60 },
-
-                { L_,          0,           0, k_MINS_MAX },
-
-                { L_,          0,
-                              k_HOURS_MAX - 1,        119 },
-
-                { L_,          0, k_HOURS_MAX,         59 },
-                { L_, k_DAYS_MAX,          23,         59 },
-
-                { L_,          0,           0,         -1 },
-                { L_,          0,           0,        -59 },
-                { L_,          0,         -24,        -60 },
-                { L_,       -100,        -200,       -300 },
-
-                { L_,          0,          -1,
-                                          k_MINS_MIN + 60 },
-
-                { L_,          0,           0, k_MINS_MIN },
-
-                { L_,          0,
-                              k_HOURS_MIN + 1,       -119 },
-
-                { L_,          0, k_HOURS_MIN,        -59 },
-                { L_, k_DAYS_MIN,         -23,        -59 },
-
-                { L_,     -23469,         256,       -212 },
-                { L_,          5,          -4,          3 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE  = DATA[ti].d_line;
-                const int   DAYS  = DATA[ti].d_days;
-                const Int64 HOURS = DATA[ti].d_hours;
-                const Int64 MINS  = DATA[ti].d_mins;
-
-                if (veryVerbose) { T_ P_(LINE) P_(DAYS) P_(HOURS) P(MINS) }
-
-                const Int64 EXP = DAYS  * k_MSECS_PER_DAY
-                                + HOURS * k_MSECS_PER_HOUR
-                                + MINS  * k_MSECS_PER_MIN;
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, HOURS, MINS);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, HOURS, MINS, 0, 0);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'flds2Msecs(d, h, m, s)'." << endl;
-        {
-            static const struct {
-                int   d_line;   // source line number
-                int   d_days;
-                Int64 d_hours;
-                Int64 d_mins;
-                Int64 d_secs;
-            } DATA[] = {
-                //LINE      DAYS        HOURS     MINUTES    SECONDS
-                //----      ----        -----     -------    -------
-                { L_,          0,           0,          0,         0 },
-
-                { L_,          0,           0,          0,         1 },
-                { L_,          0,           0,         59,        59 },
-                { L_,          0,          24,         60,        60 },
-                { L_,        100,         200,        300,       400 },
-
-                { L_,          0,           0,          1,
-                                                     k_SECS_MAX - 60 },
-
-                { L_,          0,           0,          0,
-                                                          k_SECS_MAX },
-
-                { L_,          0,           0,
-                                           k_MINS_MAX - 1,       119 },
-
-                { L_,          0,           0, k_MINS_MAX,        59 },
-
-                { L_, k_DAYS_MAX,          23,         59,        59 },
-
-                { L_,          0,           0,          0,        -1 },
-                { L_,          0,           0,        -59,       -59 },
-                { L_,          0,         -24,        -60,       -60 },
-                { L_,       -100,        -200,       -300,      -400 },
-
-                { L_,          0,           0,         -1,
-                                                     k_SECS_MIN + 60 },
-
-                { L_,          0,           0,          0,
-                                                          k_SECS_MIN },
-                { L_,          0,           0,
-                                           k_MINS_MIN + 1,      -119 },
-
-                { L_,          0,           0, k_MINS_MIN,       -59 },
-
-                { L_, k_DAYS_MIN,         -23,        -59,       -59 },
-
-                { L_,     -23469,         256,       -212,        77 },
-                { L_,          5,          -4,          3,        -2 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE  = DATA[ti].d_line;
-                const int   DAYS  = DATA[ti].d_days;
-                const Int64 HOURS = DATA[ti].d_hours;
-                const Int64 MINS  = DATA[ti].d_mins;
-                const Int64 SECS  = DATA[ti].d_secs;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(DAYS) P_(HOURS) P_(MINS) P(SECS)
-                }
-
-                const Int64 EXP = DAYS  * k_MSECS_PER_DAY
-                                + HOURS * k_MSECS_PER_HOUR
-                                + MINS  * k_MSECS_PER_MIN
-                                + SECS  * k_MSECS_PER_SEC;
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, HOURS, MINS, SECS);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-
-                {
-                    const Int64 ACT = flds2Msecs(DAYS, HOURS, MINS, SECS, 0);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'flds2Msecs(d, h, m, s, ms)'." << endl;
-        {
-            static const struct {
-                int   d_line;   // source line number
-                int   d_days;
-                Int64 d_hours;
-                Int64 d_mins;
-                Int64 d_secs;
-                Int64 d_msecs;
-            } DATA[] = {
-                //LINE      DAYS    HOURS     MINUTES    SECONDS  MILLISECONDS
-                //----      ----    -----     -------    -------  ------------
-                { L_,          0,       0,          0,         0,          0 },
-
-                { L_,          0,       0,          0,         0,          1 },
-                { L_,          0,       0,          0,        59,        999 },
-                { L_,          0,       0,         59,        59,        999 },
-                { L_,          0,      24,         60,        60,       1000 },
-                { L_,        100,     200,        300,       400,        500 },
-
-                { L_,          0,       0,          0,         1,
-                                                          k_MSECS_MAX - 1000 },
-
-                { L_,          0,       0,          0,         0,
-                                                                 k_MSECS_MAX },
-
-                { L_,          0,       0,          0,
-                                                  k_SECS_MAX - 1,       1999 },
-
-                { L_,          0,       0,          0,
-                                                      k_SECS_MAX,        999 },
-
-                { L_, k_DAYS_MAX,      23,         59,        59,        999 },
-
-                { L_,          0,       0,          0,         0,         -1 },
-                { L_,          0,       0,          0,       -59,       -999 },
-                { L_,          0,       0,        -59,       -59,       -999 },
-                { L_,          0,     -24,        -60,       -60,      -1000 },
-                { L_,       -100,    -200,       -300,      -400,       -500 },
-
-                { L_,          0,       0,          0,        -1,
-                                                          k_MSECS_MIN + 1000 },
-
-                { L_,          0,       0,          0,         0,
-                                                                 k_MSECS_MIN },
-                { L_,          0,       0,          0,
-                                               k_SECS_MIN + 1000,      -1999 },
-
-                { L_,          0,       0,          0,
-                                                      k_SECS_MIN,       -999 },
-
-                { L_, k_DAYS_MIN,     -23,        -59,       -59,       -999 },
-
-                { L_,     -23469,     256,       -212,        77,        -13 },
-                { L_,          5,      -4,          3,        -2,          1 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE  = DATA[ti].d_line;
-                const int   DAYS  = DATA[ti].d_days;
-                const Int64 HOURS = DATA[ti].d_hours;
-                const Int64 MINS  = DATA[ti].d_mins;
-                const Int64 SECS  = DATA[ti].d_secs;
-                const Int64 MSECS = DATA[ti].d_msecs;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P(MSECS)
-                }
-
-                const Int64 EXP = DAYS  * k_MSECS_PER_DAY
-                                + HOURS * k_MSECS_PER_HOUR
-                                + MINS  * k_MSECS_PER_MIN
-                                + SECS  * k_MSECS_PER_SEC
-                                + MSECS;
-
-                {
-                    const Int64 ACT =
-                                    flds2Msecs(DAYS, HOURS, MINS, SECS, MSECS);
-                    LOOP3_ASSERT(LINE, EXP, ACT, EXP == ACT);
-                }
-            }
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            {
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MIN - 1));
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MIN    ));
-
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MAX    ));
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MAX + 1));
-
-                ASSERT_FAIL(flds2Msecs(0, 0, k_MINS_MIN - 1));
-                ASSERT_PASS(flds2Msecs(0, 0, k_MINS_MIN    ));
-
-                ASSERT_PASS(flds2Msecs(0, 0, k_MINS_MAX    ));
-                ASSERT_FAIL(flds2Msecs(0, 0, k_MINS_MAX + 1));
-
-                ASSERT_FAIL(flds2Msecs(0, 0, 0, k_SECS_MIN - 1));
-                ASSERT_PASS(flds2Msecs(0, 0, 0, k_SECS_MIN    ));
-
-                ASSERT_PASS(flds2Msecs(0, 0, 0, k_SECS_MAX    ));
-                ASSERT_FAIL(flds2Msecs(0, 0, 0, k_SECS_MAX + 1));
-
-                ASSERT_FAIL(flds2Msecs(0, 0, 0, 0, k_MSECS_MIN - 1));
-                ASSERT_PASS(flds2Msecs(0, 0, 0, 0, k_MSECS_MIN    ));
-
-                ASSERT_PASS(flds2Msecs(0, 0, 0, 0, k_MSECS_MAX    ));
-                ASSERT_FAIL(flds2Msecs(0, 0, 0, 0, k_MSECS_MAX + 1));
-            }
-
-            {
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MIN, -24));
-                ASSERT_PASS(flds2Msecs(k_DAYS_MIN, -23));
-
-                ASSERT_PASS(flds2Msecs(k_DAYS_MAX,  23));
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MAX,  24));
-
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MIN, -23, -60));
-                ASSERT_PASS(flds2Msecs(k_DAYS_MIN, -23, -59));
-
-                ASSERT_PASS(flds2Msecs(k_DAYS_MAX,  23,  59));
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MAX,  23,  60));
-
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MIN, -23, -59, -60));
-                ASSERT_PASS(flds2Msecs(k_DAYS_MIN, -23, -59, -59));
-
-                ASSERT_PASS(flds2Msecs(k_DAYS_MAX,  23,  59,  59));
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MAX,  23,  59,  60));
-
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MIN, -23, -59, -59, -1000));
-                ASSERT_PASS(flds2Msecs(k_DAYS_MIN, -23, -59, -59,  -999));
-
-                ASSERT_PASS(flds2Msecs(k_DAYS_MAX,  23,  59,  59,   999));
-                ASSERT_FAIL(flds2Msecs(k_DAYS_MAX,  23,  59,  59,  1000));
-            }
-
-            {
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MIN, -60));
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MIN, -59));
-
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MAX,  59));
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MAX,  60));
-
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MIN, -59, -60));
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MIN, -59, -59));
-
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MAX,  59,  59));
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MAX,  59,  60));
-
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MIN, -59, -59, -1000));
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MIN, -59, -59,  -999));
-
-                ASSERT_PASS(flds2Msecs(0, k_HOURS_MAX,  59,  59,   999));
-                ASSERT_FAIL(flds2Msecs(0, k_HOURS_MAX,  59,  59,  1000));
-            }
-
-            {
-                ASSERT_FAIL(flds2Msecs(0, 0, k_MINS_MIN, -60));
-                ASSERT_PASS(flds2Msecs(0, 0, k_MINS_MIN, -59));
-
-                ASSERT_PASS(flds2Msecs(0, 0, k_MINS_MAX,  59));
-                ASSERT_FAIL(flds2Msecs(0, 0, k_MINS_MAX,  60));
-
-                ASSERT_FAIL(flds2Msecs(0, 0, k_MINS_MIN, -59, -1000));
-                ASSERT_PASS(flds2Msecs(0, 0, k_MINS_MIN, -59,  -999));
-
-                ASSERT_PASS(flds2Msecs(0, 0, k_MINS_MAX,  59,   999));
-                ASSERT_FAIL(flds2Msecs(0, 0, k_MINS_MAX,  59,  1000));
-            }
-
-            {
-                ASSERT_FAIL(flds2Msecs(0, 0, 0, k_SECS_MIN, -1000));
-                ASSERT_PASS(flds2Msecs(0, 0, 0, k_SECS_MIN,  -999));
-
-                ASSERT_PASS(flds2Msecs(0, 0, 0, k_SECS_MAX,   999));
-                ASSERT_FAIL(flds2Msecs(0, 0, 0, k_SECS_MAX,  1000));
-            }
+        if (verbose) {
+            cout << endl
+                 << "TESTING GENERATOR FUNCTION 'gg'" << endl
+                 << "===============================" << endl;
         }
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
-        //   Ensure that we can use the default constructor to create an
-        //   object (having the default-constructed value), use the primary
-        //   manipulators to put that object into any state relevant for
-        //   thorough testing, and use the destructor to destroy it safely.
+        // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
+        //   Verify the primary manipulators work as expected.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
+        //: 1 The separate time fields must be multiplied by the appropriate
+        //:   factors to convert the six-parameter input representation to the
+        //:   internal representation, with appropriate handling of potential
+        //:   overflow.
         //:
-        //: 2 An object can be safely destroyed.
-        //:
-        //: 3 The 'setTotalMicroseconds' method can set an object to have any
-        //:   value that does not violate the method's documented
-        //:   preconditions.
-        //:
-        //: 4 'setTotalMicroseconds' is not affected by the state of the object
-        //:   on entry.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 2 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object using the default constructor.  Verify, using
-        //:   the (as yet unproven) 'totalMicroseconds' accessor, that the
-        //:   resulting object has a time interval of 0.  (C-1)
+        //: 1 Verify the default constructor by testing the value of the
+        //:   resulting object.
         //:
-        //: 2 Let the object created in P-1 go out of scope.  (C-2)
+        //: 2 For a sequence of independent test values, use the default
+        //:   constructor to create a default object and use the primary
+        //:   manipulator to set its value.  Verify the value using the basic
+        //:   accessors.  Note that the destructor is exercised on each
+        //:   configuration as the object being tested leaves scope (thereby
+        //:   enabling assertions of internal invariants).  (C-1)
         //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their total-microseconds
-        //:   representation.
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-3..4)
-        //:
-        //:   1 Create an object 'X' using the default constructor.
-        //:
-        //:   2 Using the 'setTotalMicroseconds' (primary) manipulator, set 'X'
-        //:     to the value specified in 'R1'.
-        //:
-        //:   3 Verify, using 'totalMicroseconds', that 'X' has the expected
-        //:     value.  (C-3)
-        //:
-        //:   4 For each row 'R2' in the table of P-3:  (C-4)
-        //:
-        //:     1 Create an object 'Y' using the default constructor.
-        //:
-        //:     2 Using 'setTotalMicroseconds', first set 'Y' to the value
-        //:       specified in 'R2', then set it to the value from 'R1'.  After
-        //:       each setting, verify that 'Y' has the expected value.  (C-4)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid total-microsecond values, but not triggered
-        //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-5)
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   DatetimeInterval();
         //   ~DatetimeInterval();
-        //   void setTotalMilliseconds(Int64 milliseconds);
-        //   void setTotalMicroseconds(Int64 microseconds);
+        //   void setInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                       << "DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR" << endl
-                       << "==========================================" << endl;
+        if (verbose) {
+            cout << endl
+                 << "TESTING PRIMARY MANIPULATORS (BOOTSTRAP)" << endl
+                 << "========================================" << endl;
+        }
 
         if (verbose) cout << "\nTesting default constructor." << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            if (veryVerbose) P(X)
 
-            ASSERT(0 == X.totalMilliseconds());
-            ASSERT(0 == X.totalMicroseconds());
-        }
+        Obj x;  const Obj& X = x;
 
-        if (verbose) cout << "\nTesting 'setTotalMilliseconds'." << endl;
+        ASSERT(0 == X.days());
+        ASSERT(0 == X.fractionalDayInMicroseconds());
+
+        if (verbose) cout << "\nTesting 'setInterval'." << endl;
         {
             static const struct {
-                int   d_line;        // source line number
-                Int64 d_totalMsecs;
-            } DATA[] = {
-                //LINE   TOTAL MILLISECONDS
-                //----   ------------------
-                { L_,                     0 },
+                int                d_line;
+                int                d_days;
+                bsls::Types::Int64 d_hours;
+                bsls::Types::Int64 d_minutes;
+                bsls::Types::Int64 d_seconds;
+                bsls::Types::Int64 d_msecs;
+                bsls::Types::Int64 d_usecs;
+                int                d_expDays;
+                bsls::Types::Int64 d_expUsecs;
+            } VALUES[] = {
+            //LN  DAYS   HOURS  MIN  SEC  MSEC  USEC  EXP_D      EXP_US
+            //--  -----  -----  ---  ---  ----  ----  -----  --------------
+            { L_,     0,     0,   0,   0,    0,    0,     0,            0LL },
 
-                { L_,                     1 },
-                { L_,                 13027 },
-                { L_,               INT_MAX },
-                { L_,           k_MSECS_MAX },
+            { L_,     0,     0,   0,   0,    0,    1,     0,            1LL },
+            { L_,     0,     0,   0,   0,    1,    0,     0,         1000LL },
+            { L_,     0,     0,   0,   1,    0,    0,     0,      1000000LL },
+            { L_,     0,     0,   1,   0,    0,    0,     0,     60000000LL },
+            { L_,     0,     1,   0,   0,    0,    0,     0,   3600000000LL },
+            { L_,     1,     0,   0,   0,    0,    0,     1,            0LL },
 
-                { L_,                    -1 },
-                { L_,                -42058 },
-                { L_,               INT_MIN },
-                { L_,           k_MSECS_MIN },
+            { L_,     1,     0,   0,   0,    0,    1,     1,            1LL },
+            { L_,     1,     0,   0,   0,    1,    0,     1,         1000LL },
+            { L_,     1,     0,   0,   1,    0,    0,     1,      1000000LL },
+            { L_,     1,     0,   1,   0,    0,    0,     1,     60000000LL },
+            { L_,     1,     1,   0,   0,    0,    0,     1,   3600000000LL },
+
+            { L_,     0,    24,   0,   0,    0,    1,     1,            1LL },
+            { L_,     0,    24,   0,   0,    1,    0,     1,         1000LL },
+            { L_,     0,    24,   0,   1,    0,    0,     1,      1000000LL },
+            { L_,     0,    24,   1,   0,    0,    0,     1,     60000000LL },
+            { L_,     0,    25,   0,   0,    0,    0,     1,   3600000000LL },
+
+            { L_, k_DAYS_MAX, 0,  0,   0,    0,    0, k_DAYS_MAX,       0LL },
+            { L_, k_DAYS_MIN, 0,  0,   0,    0,    0, k_DAYS_MIN,       0LL },
+
+            { L_,     0, k_HOURS_MAX, 0, 0,  0,    0,
+                                                 k_DAYS_MAX,  82800000000LL },
+            { L_,     0, k_HOURS_MIN, 0, 0,  0,    0,
+                                                 k_DAYS_MIN, -82800000000LL },
+            { L_,     0,     0, k_MINS_MAX, 0, 0,  0,
+                                                 k_DAYS_MAX,  86340000000LL },
+            { L_,     0,     0, k_MINS_MIN, 0, 0,  0,
+                                                 k_DAYS_MIN, -86340000000LL },
+            { L_,     0,     0,   0, k_SECS_MAX, 0, 0,
+                                                 k_DAYS_MAX,  86399000000LL },
+            { L_,     0,     0,   0, k_SECS_MIN, 0, 0,
+                                                 k_DAYS_MIN, -86399000000LL },
+            { L_,     0,     0,   0,   0, k_MSECS_MAX, 0,
+                                                 k_DAYS_MAX,  86399999000LL },
+            { L_,     0,     0,   0,   0, k_MSECS_MIN, 0,
+                                                 k_DAYS_MIN, -86399999000LL },
+            { L_,     0,     0,   0,   0,    0, k_USECS_MAX,
+                                                  106751991,  14454775807LL },
+            { L_,     0,     0,   0,   0,    0, k_USECS_MIN,
+                                                 -106751991, -14454775808LL },
+
+            // Note that MAX + MIN is -1 day.
+            
+            { L_, k_DAYS_MAX, k_HOURS_MIN, k_MINS_MAX, k_SECS_MIN,
+                                             0,    0,    -2, -82859000000LL },
+            { L_, k_DAYS_MAX, k_HOURS_MIN, k_MINS_MIN, k_SECS_MAX,
+                                             0,    0,    -2, -82741000000LL },
+            { L_, k_DAYS_MIN, k_HOURS_MAX, k_MINS_MAX, k_SECS_MIN,
+                                             0,    0,    -1,  -3659000000LL },
+            { L_, k_DAYS_MIN, k_HOURS_MAX, k_MINS_MIN, k_SECS_MAX,
+                                             0,    0,    -1,  -3541000000LL },
+
+            { L_,     0, k_HOURS_MAX, k_MINS_MIN, k_SECS_MAX, k_MSECS_MIN,
+                                                   0,    -2,  -3540999000LL },
+            { L_,     0, k_HOURS_MAX, k_MINS_MIN, k_SECS_MIN, k_MSECS_MAX,
+                                                   0,    -2,  -3539001000LL },
+            { L_,     0, k_HOURS_MIN, k_MINS_MAX, k_SECS_MAX, k_MSECS_MIN,
+                                                   0,    -1, -82860999000LL },
+            { L_,     0, k_HOURS_MIN, k_MINS_MAX, k_SECS_MIN, k_MSECS_MAX,
+                                                   0,    -1, -82859001000LL },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   ILINE        = DATA[ti].d_line;
-                const Int64 ITOTAL_MSECS = DATA[ti].d_totalMsecs;
+            const int NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                             / sizeof *VALUES);
 
-                Obj mX;  const Obj& X = mX;
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int                LINE      = VALUES[i].d_line;
+                const int                DAYS      = VALUES[i].d_days;
+                const bsls::Types::Int64 HOURS     = VALUES[i].d_hours;
+                const bsls::Types::Int64 MINUTES   = VALUES[i].d_minutes;
+                const bsls::Types::Int64 SECONDS   = VALUES[i].d_seconds;
+                const bsls::Types::Int64 MSECS     = VALUES[i].d_msecs;
+                const bsls::Types::Int64 USECS     = VALUES[i].d_usecs;
+                const int                EXP_DAYS  = VALUES[i].d_expDays;
+                const bsls::Types::Int64 EXP_USECS = VALUES[i].d_expUsecs;
 
-                mX.setTotalMilliseconds(ITOTAL_MSECS);
-                if (veryVerbose) { T_ P_(X) P(ITOTAL_MSECS) }
+                Obj x;  const Obj& X = x;
+                x.setInterval(DAYS, HOURS, MINUTES, SECONDS, MSECS, USECS);
+                if (veryVerbose) {
+                    T_;
+                    P_(DAYS);
+                    P_(HOURS);
+                    P_(MINUTES);
+                    P_(SECONDS);
+                    P_(MSECS);
+                    P_(USECS);
+                    P(X);
+                }
 
-                LOOP3_ASSERT(ILINE, ITOTAL_MSECS, X.totalMilliseconds(),
-                             ITOTAL_MSECS == X.totalMilliseconds());
+                LOOP_ASSERT(LINE, EXP_DAYS == X.days());
+                LOOP_ASSERT(LINE,
+                            EXP_USECS == X.fractionalDayInMicroseconds());
 
-                for (int tj = 0; tj < NUM_DATA; ++tj) {
-                    const int   JLINE        = DATA[tj].d_line;
-                    const Int64 JTOTAL_MSECS = DATA[tj].d_totalMsecs;
+                if (0 == USECS) {
+                    x.setInterval(DAYS, HOURS, MINUTES, SECONDS, MSECS);
 
-                    Obj mY;  const Obj& Y = mY;
+                    LOOP_ASSERT(LINE, EXP_DAYS == X.days());
+                    LOOP_ASSERT(LINE,
+                                EXP_USECS == X.fractionalDayInMicroseconds());
 
-                    mY.setTotalMilliseconds(JTOTAL_MSECS);
-                    if (veryVeryVerbose) { T_ P_(Y) P(JTOTAL_MSECS) }
+                    if (0 == MSECS) {
+                        x.setInterval(DAYS, HOURS, MINUTES, SECONDS);
 
-                    LOOP3_ASSERT(JLINE, JTOTAL_MSECS, Y.totalMilliseconds(),
-                                 JTOTAL_MSECS == Y.totalMilliseconds());
+                        LOOP_ASSERT(LINE, EXP_DAYS == X.days());
+                        LOOP_ASSERT(LINE,
+                                    EXP_USECS ==
+                                              X.fractionalDayInMicroseconds());
 
-                    mY.setTotalMilliseconds(ITOTAL_MSECS);
-                    if (veryVeryVerbose) { T_ P_(Y) P(ITOTAL_MSECS) }
+                        if (0 == SECONDS) {
+                            x.setInterval(DAYS, HOURS, MINUTES);
 
-                    LOOP3_ASSERT(ILINE, ITOTAL_MSECS, Y.totalMilliseconds(),
-                                 ITOTAL_MSECS == Y.totalMilliseconds());
+                            LOOP_ASSERT(LINE, EXP_DAYS == X.days());
+                            LOOP_ASSERT(LINE,
+                                        EXP_USECS ==
+                                              X.fractionalDayInMicroseconds());
+
+                            if (0 == MINUTES) {
+                                x.setInterval(DAYS, HOURS);
+
+                                LOOP_ASSERT(LINE, EXP_DAYS == X.days());
+                                LOOP_ASSERT(LINE,
+                                            EXP_USECS ==
+                                              X.fractionalDayInMicroseconds());
+
+                                if (0 == HOURS) {
+                                    x.setInterval(DAYS);
+
+                                    LOOP_ASSERT(LINE, EXP_DAYS == X.days());
+                                    LOOP_ASSERT(LINE,
+                                                EXP_USECS ==
+                                              X.fractionalDayInMicroseconds());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        if (verbose) cout << "\nTesting 'setTotalMicroseconds'." << endl;
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
         {
-            static const struct {
-                int   d_line;        // source line number
-                Int64 d_totalUsecs;
-            } DATA[] = {
-                //LINE   TOTAL MICROSECONDS
-                //----   ------------------
-                { L_,                     0 },
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
 
-                { L_,                     1 },
-                { L_,                 13027 },
-                { L_,               INT_MAX },
+            Obj mX;
 
-                { L_,                    -1 },
-                { L_,                -42058 },
-                { L_,               INT_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            ASSERT_SAFE_PASS(mX.setInterval(0));
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   ILINE        = DATA[ti].d_line;
-                const Int64 ITOTAL_USECS = DATA[ti].d_totalUsecs;
+            ASSERT_SAFE_PASS(mX.setInterval(k_DAYS_MAX));
+            ASSERT_SAFE_FAIL(mX.setInterval(k_DAYS_MAX, 24));
 
-                Obj mX;  const Obj& X = mX;
+            ASSERT_SAFE_PASS(mX.setInterval(k_DAYS_MIN));
+            ASSERT_SAFE_FAIL(mX.setInterval(k_DAYS_MIN, -24));
 
-                mX.setTotalMicroseconds(ITOTAL_USECS);
-                if (veryVerbose) { T_ P_(X) P(ITOTAL_USECS) }
+            ASSERT_SAFE_FAIL(mX.setInterval(0, k_HOURS_MAX, k_MINS_MAX));
+            ASSERT_SAFE_PASS(mX.setInterval(0, k_HOURS_MAX, 0));
+            ASSERT_SAFE_PASS(mX.setInterval(0, k_HOURS_MAX, k_MINS_MIN));
 
-                LOOP3_ASSERT(ILINE,
-                             ITOTAL_USECS,
-                             X.totalMicroseconds(),
-                             ITOTAL_USECS == X.totalMicroseconds());
-
-                for (int tj = 0; tj < NUM_DATA; ++tj) {
-                    const int   JLINE        = DATA[tj].d_line;
-                    const Int64 JTOTAL_USECS = DATA[tj].d_totalUsecs;
-
-                    Obj mY;  const Obj& Y = mY;
-
-                    mY.setTotalMicroseconds(JTOTAL_USECS);
-                    if (veryVeryVerbose) { T_ P_(Y) P(JTOTAL_USECS) }
-
-                    LOOP3_ASSERT(JLINE, JTOTAL_USECS, Y.totalMicroseconds(),
-                                 JTOTAL_USECS == Y.totalMicroseconds());
-
-                    mY.setTotalMicroseconds(ITOTAL_USECS);
-                    if (veryVeryVerbose) { T_ P_(Y) P(ITOTAL_USECS) }
-
-                    LOOP3_ASSERT(ILINE, ITOTAL_USECS, Y.totalMicroseconds(),
-                                 ITOTAL_USECS == Y.totalMicroseconds());
-                }
-            }
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            if (veryVerbose) cout << "\t'setTotalMilliseconds'" << endl;
-            {
-                Obj mX;
-
-                ASSERT_SAFE_FAIL(mX.setTotalMilliseconds(k_MSECS_MIN - 1));
-                ASSERT_SAFE_PASS(mX.setTotalMilliseconds(k_MSECS_MIN    ));
-
-                ASSERT_SAFE_PASS(mX.setTotalMilliseconds(k_MSECS_MAX    ));
-                ASSERT_SAFE_FAIL(mX.setTotalMilliseconds(k_MSECS_MAX + 1));
-            }
+            ASSERT_SAFE_PASS(mX.setInterval(0, k_HOURS_MIN, k_MINS_MAX));
+            ASSERT_SAFE_PASS(mX.setInterval(0, k_HOURS_MIN, 0));
+            ASSERT_SAFE_FAIL(mX.setInterval(0, k_HOURS_MIN, k_MINS_MIN));
         }
       } break;
       case 1: {
@@ -6200,15 +5721,16 @@ if (veryVerbose)
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).      { w:0             }
-        //: 2 Create an object 'x' (copy from 'w').     { w:0 x:0         }
-        //: 3 Set 'x' to 'A' (value distinct from 0).   { w:0 x:A         }
-        //: 4 Create an object 'y' (init. to 'A').      { w:0 x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').     { w:0 x:A y:A z:A }
-        //: 6 Set 'z' to 0 (the default value).         { w:0 x:A y:A z:0 }
-        //: 7 Assign 'w' from 'x'.                      { w:A x:A y:A z:0 }
-        //: 8 Assign 'w' from 'z'.                      { w:0 x:A y:A z:0 }
-        //: 9 Assign 'x' from 'x' (aliasing).           { w:0 x:A y:A z:0 }
+        //: 1 Create four test objects by using the default, initializing, and
+        //:   copy constructors.
+        //:
+        //: 2 Exercise the basic value-semantic methods and the equality
+        //:   operators using these test objects.
+        //:
+        //: 3 Invoke the primary manipulator, copy constructor, and assignment
+        //:   operator without and with aliasing.
+        //:
+        //: 4 Use the basic accessors to verify the expected results.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -6218,225 +5740,154 @@ if (veryVerbose)
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        // Constants defining 'A' value for testing.
-
-        const int A_DAYS = 1, A_HRS = 2, A_MINS = 3, A_SECS = 4, A_MSECS = 5;
+        const int DA = 1, USA =  1;  // day and microseconds for VA
+        const int DB = 2, USB =  7;  // day and microseconds for VB
+        const int DC = 3, USC = 21;  // day and microseconds for VC
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."
+                             "\t\t{ x1:VA }" << endl;
+        Obj mX1(DA, 0, 0, 0, 0, USA);  const Obj& X1 = mX1;
+        if (verbose) { T_;  P(X1); }
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
-                             "\t\t{ w:0             }" << endl;
+        if (verbose) cout << "\ta. Check initial state of x1." << endl;
+        ASSERT(DA  == X1.days());
+        ASSERT(USA == X1.fractionalDayInMicroseconds());
 
-        Obj mW;  const Obj& W = mW;
-
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
-        if (veryVeryVerbose) { T_ P(W) }
-
-        ASSERT(0 == W.days());
-        ASSERT(0 == W.hours());
-        ASSERT(0 == W.minutes());
-        ASSERT(0 == W.seconds());
-        ASSERT(0 == W.milliseconds());
-
-        if (veryVerbose) cout <<
-                          "\tb. Try equality operators: 'w' <op> 'w'." << endl;
-
-        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x1 <op> x1." << endl;
+        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 2. Create an object x2 (copy from x1)."
+                             "\t\t{ x1:VA x2:VA }" << endl;
+        Obj mX2(X1);  const Obj& X2 = mX2;
+        if (verbose) { T_;  P(X2); }
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
-                             "\t\t{ w:0 x:0         }" << endl;
+        if (verbose) cout << "\ta. Check the initial state of x2." << endl;
+        ASSERT(DA  == X2.days());
+        ASSERT(USA == X2.fractionalDayInMicroseconds());
 
-        Obj mX(W);  const Obj& X = mX;
-
-        if (veryVerbose) cout <<
-                                "\ta. Check the initial value of 'x'." << endl;
-        if (veryVeryVerbose) { T_ P(X) }
-
-        ASSERT(0 == X.days());
-        ASSERT(0 == X.hours());
-        ASSERT(0 == X.minutes());
-        ASSERT(0 == X.seconds());
-        ASSERT(0 == X.milliseconds());
-
-        if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
-
-        ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
-        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x2 <op> x1, x2." << endl;
+        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
+        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 3. Set x1 to a new value VB."
+                             "\t\t\t{ x1:VB x2:VA }" << endl;
+        mX1.setInterval(DB, 0, 0, 0, 0, USB);
+        if (verbose) { T_;  P(X1); }
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
-                             "\t\t{ w:0 x:A         }" << endl;
+        if (verbose) cout << "\ta. Check new state of x1." << endl;
+        ASSERT(DB  == X1.days());
+        ASSERT(USB == X1.fractionalDayInMicroseconds());
 
-        mX.setTotalDays(A_DAYS);
-        mX.addHours(A_HRS);
-        mX.addMinutes(A_MINS);
-        mX.addSeconds(A_SECS);
-        mX.addMilliseconds(A_MSECS);
-
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
-        if (veryVeryVerbose) { T_ P(X) }
-
-        ASSERT(A_DAYS  == X.days());
-        ASSERT(A_HRS   == X.hours());
-        ASSERT(A_MINS  == X.minutes());
-        ASSERT(A_SECS  == X.seconds());
-        ASSERT(A_MSECS == X.milliseconds());
-
-        if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
-
-        ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
-        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x1 <op> x1, x2." << endl;
+        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 4. Create a default object x3()."
+                             "\t\t{ x1:VB x2:VA x3:U }" << endl;
+        Obj mX3;  const Obj& X3 = mX3;
+        if (verbose) { T_;  P(X3); }
 
-        if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
-                             "\t\t{ w:0 x:A y:A     }" << endl;
+        if (verbose) cout << "\ta. Check initial state of x3." << endl;
+        ASSERT(0 == X3.days());
+        ASSERT(0 == X3.fractionalDayInMicroseconds());
 
-        Obj mY(A_DAYS, A_HRS, A_MINS, A_SECS, A_MSECS);  const Obj& Y = mY;
-
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
-        if (veryVeryVerbose) { T_ P(Y) }
-
-        ASSERT(A_DAYS  == Y.days());
-        ASSERT(A_HRS   == Y.hours());
-        ASSERT(A_MINS  == Y.minutes());
-        ASSERT(A_SECS  == Y.seconds());
-        ASSERT(A_MSECS == Y.milliseconds());
-
-        if (veryVerbose) cout <<
-                "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'." << endl;
-
-        ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
-        ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
-        ASSERT(1 == (Y == Y));        ASSERT(0 == (Y != Y));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x3 <op> x1, x2, x3." << endl;
+        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
+        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
+        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 5. Create an object x4 (copy from x3)."
+                             "\t\t{ x1:VA x2:VA x3:U  x4:U }" << endl;
+        Obj mX4(X3);  const Obj& X4 = mX4;
+        if (verbose) { T_;  P(X4); }
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
-                             "\t\t{ w:0 x:A y:A z:A }" << endl;
+        if (verbose) cout << "\ta. Check initial state of x4." << endl;
+        ASSERT(0 == X4.days());
+        ASSERT(0 == X4.fractionalDayInMicroseconds());
 
-        Obj mZ(Y);  const Obj& Z = mZ;
-
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
-        if (veryVeryVerbose) { T_ P(Z) }
-
-        ASSERT(A_DAYS  == Z.days());
-        ASSERT(A_HRS   == Z.hours());
-        ASSERT(A_MINS  == Z.minutes());
-        ASSERT(A_SECS  == Z.seconds());
-        ASSERT(A_MSECS == Z.milliseconds());
-
-        if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
-
-        ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
-        ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
-        ASSERT(1 == (Z == Y));        ASSERT(0 == (Z != Y));
-        ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
+        ASSERT(0 == (X4 == X1));        ASSERT(1 == (X4 != X1));
+        ASSERT(0 == (X4 == X2));        ASSERT(1 == (X4 != X2));
+        ASSERT(1 == (X4 == X3));        ASSERT(0 == (X4 != X3));
+        ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 6. Set x3 to a new value VC."
+                             "\t\t\t{ x1:VB x2:VA x3:VC x4:U }" << endl;
+        mX3.setInterval(DC, 0, 0, 0, 0, USC);
 
-        if (verbose) cout << "\n 6. Set 'z' to 0 (the default value)."
-                             "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
+        if (verbose) cout << "\ta. Check new state of x3." << endl;
+        ASSERT(DC  == X3.days());
+        ASSERT(USC == X3.fractionalDayInMicroseconds());
 
-        mZ.setTotalMilliseconds(0);
-
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
-        if (veryVeryVerbose) { T_ P(Z) }
-
-        ASSERT(0 == Z.days());
-        ASSERT(0 == Z.hours());
-        ASSERT(0 == Z.minutes());
-        ASSERT(0 == Z.seconds());
-        ASSERT(0 == Z.milliseconds());
-
-        if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
-
-        ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
-        ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
-        ASSERT(0 == (Z == Y));        ASSERT(1 == (Z != Y));
-        ASSERT(1 == (Z == Z));        ASSERT(0 == (Z != Z));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x3 <op> x1, x2, x3, x4." << endl;
+        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
+        ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
+        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
+        ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 7. Assign x2 = x1."
+                             "\t\t\t\t{ x1:VB x2:VB x3:VC x4:U }" << endl;
+        mX2 = X1;
+        if (verbose) { T_;  P(X2); }
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
-                             "\t\t\t\t{ w:A x:A y:A z:0 }" << endl;
+        if (verbose) cout << "\ta. Check new state of x2." << endl;
+        ASSERT(DB  == X2.days());
+        ASSERT(USB == X2.fractionalDayInMicroseconds());
 
-        mW = X;
-
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
-        if (veryVeryVerbose) { T_ P(W) }
-
-        ASSERT(A_DAYS  == W.days());
-        ASSERT(A_HRS   == W.hours());
-        ASSERT(A_MINS  == W.minutes());
-        ASSERT(A_SECS  == W.seconds());
-        ASSERT(A_MSECS == W.milliseconds());
-
-        if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
-
-        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
-        ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
-        ASSERT(1 == (W == Y));        ASSERT(0 == (W != Y));
-        ASSERT(0 == (W == Z));        ASSERT(1 == (W != Z));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
+        ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
+        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
+        ASSERT(0 == (X2 == X3));        ASSERT(1 == (X2 != X3));
+        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 8. Assign x2 = x3."
+                             "\t\t\t\t{ x1:VB x2:VC x3:VC x4:U }" << endl;
+        mX2 = X3;
+        if (verbose) { T_;  P(X2); }
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
-                             "\t\t\t\t{ w:0 x:A y:A z:0 }" << endl;
+        if (verbose) cout << "\ta. Check new state of x2." << endl;
+        ASSERT(DC  == X2.days());
+        ASSERT(USC == X2.fractionalDayInMicroseconds());
 
-        mW = Z;
-
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
-        if (veryVeryVerbose) { T_ P(W) }
-
-        ASSERT(0 == W.days());
-        ASSERT(0 == W.hours());
-        ASSERT(0 == W.minutes());
-        ASSERT(0 == W.seconds());
-        ASSERT(0 == W.milliseconds());
-
-        if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
-
-        ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
-        ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
-        ASSERT(0 == (W == Y));        ASSERT(1 == (W != Y));
-        ASSERT(1 == (W == Z));        ASSERT(0 == (W != Z));
+        if (verbose) cout <<
+            "\tb. Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
+        ASSERT(0 == (X2 == X1));        ASSERT(1 == (X2 != X1));
+        ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
+        ASSERT(1 == (X2 == X3));        ASSERT(0 == (X2 != X3));
+        ASSERT(0 == (X2 == X4));        ASSERT(1 == (X2 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\n 9. Assign x1 = x1 (aliasing)."
+                             "\t\t\t{ x1:VB x2:VC x3:VC x4:U }" << endl;
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
-                             "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
+        mX1 = X1;
+        if (verbose) { T_;  P(X1); }
 
-        mX = X;
+        if (verbose) cout << "\ta. Check new state of x1." << endl;
+        ASSERT(DB  == X1.days());
+        ASSERT(USB == X1.fractionalDayInMicroseconds());
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
-        if (veryVeryVerbose) { T_ P(X) }
-
-        ASSERT(A_DAYS  == X.days());
-        ASSERT(A_HRS   == X.hours());
-        ASSERT(A_MINS  == X.minutes());
-        ASSERT(A_SECS  == X.seconds());
-        ASSERT(A_MSECS == X.milliseconds());
-
-        if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
-
-        ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
-        ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
-        ASSERT(1 == (X == Y));        ASSERT(0 == (X != Y));
-        ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
-
+        if (verbose) cout <<
+            "\tb. Try equality operators: x1 <op> x1, x2, x3, x4." << endl;
+        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+        ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
+        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+        ASSERT(0 == (X1 == X4));        ASSERT(1 == (X1 != X4));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
