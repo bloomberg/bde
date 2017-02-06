@@ -1235,7 +1235,7 @@ struct ConstructionUtil {
         // objects that are bitwise movable.  Also note that if 'original'
         // actually points to an object of a type derived from 'TARGET_TYPE'
         // (i.e., a slicing move) where 'TARGET_TYPE' has a non-'virtual'
-        // destructor and is not bitwise-movable, then 'original' will only be
+        // destructor and is not bitwise-movable, then 'original' will be only
         // partially destroyed.
 };
 
@@ -2674,7 +2674,7 @@ struct ConstructionUtil_Imp {
         // from '*original' and then destroying 'original'.  Also note that if
         // 'original' actually points to an object of a type derived from
         // 'TARGET_TYPE' (i.e., a slicing move) where 'TARGET_TYPE' has a
-        // non-'virtual' destructor, then 'original' will only be partially
+        // non-'virtual' destructor, then 'original' will be only partially
         // destroyed.
 
     template <class TARGET_TYPE>
