@@ -34,6 +34,8 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 
 #include <bdlma_bufferedsequentialallocator.h>
 
+#include <bdls_processutil.h>
+
 #include <bslalg_typetraits.h>
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_autorawdeleter.h>
@@ -41,9 +43,9 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdio.h>                // printf
 #include <bsl_functional.h>
 #include <bsl_memory.h>
 #include <bsl_ostream.h>
@@ -54,8 +56,6 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
-
-#include <bsl_iostream.h>              // bsl::cerr
 
 namespace BloombergLP {
 
@@ -771,9 +771,10 @@ int TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
         if (rc >= 0) {
             return rc;                                                // RETURN
         }
-        bsl::printf("%s(%d): Failed to communicate request to control channel"
-                    " (errno = %d, errorNumber = %d, rc = %d).\n",
-                    __FILE__, __LINE__, errno, errorNumber, rc);
+        BSLS_LOG_ERROR("(PID: %d) Failed to communicate request to control"
+                       " channel (errno = %d, errorNumber = %d, rc = %d).\n",
+                       bdls::ProcessUtil::getProcessId(),
+                       errno, errorNumber, rc);
         BSLS_ASSERT(errorNumber > 0);
         return -errorNumber;                                          // RETURN
     }
@@ -814,9 +815,9 @@ int TcpTimerEventManager_ControlChannel::open()
         d_fds[1] = static_cast<int>(
                                    btlso::SocketHandle::INVALID_SOCKET_HANDLE);
 
-        bsl::printf("%s(%d): Failed to create control channel"
-                    " (errno = %d, rc = %d).\n",
-                    __FILE__, __LINE__, errno, rc);
+        BSLS_LOG_ERROR("(PID: %d) Failed to create control channel"
+                       " (errno = %d, rc = %d).\n",
+                       bdls::ProcessUtil::getProcessId(), errno, rc);
         return rc;                                                    // RETURN
     }
 
@@ -1067,8 +1068,9 @@ void TcpTimerEventManager::controlCb()
                 // registered then all subsequent method calls will silently
                 // fail so its best to log an error and abort.
 
-                bsl::cerr << "Failed to register control fd after"
-                          << " 'deregisterAllSocketEvents'" << bsl::endl;
+                BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel"
+                               " after 'deregisterAllSocketEvents.'\n",
+                               bdls::ProcessUtil::getProcessId());
                 bsl::abort();
             }
             d_numTotalSocketEvents = 0;
@@ -1237,9 +1239,9 @@ int TcpTimerEventManager::reinitializeControlChannel()
                                           btlso::EventType::e_READ,
                                           cb);
     if (rc) {
-        printf("%s(%d): Failed to register controlChannel for READ events"
-               " in TcpTimerEventManager constructor\n",
-               __FILE__, __LINE__);
+        BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel for READ"
+                       " events in btemt_TcpTimerEventManager constructor.\n",
+                       bdls::ProcessUtil::getProcessId());
         BSLS_ASSERT("Failed to register controlChannel for READ events" &&
                     0);
         return rc;                                                    // RETURN
