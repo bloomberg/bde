@@ -23,26 +23,25 @@ BSLS_IDENT("$Id: $")
 ///-------------------------------------
 // A time interval has a value that is independent of its representation.
 // Conceptually, the interval between two points in time could be described
-// using a (signed) real number of seconds (or minutes, or hours, etc.). A
-// 'bdlt::DatetimeInterval' represents this value as five fields: days, hours,
+// using a (signed) real number of seconds (or minutes, or hours, etc.).  A
+// 'bdlt::DatetimeInterval' represents this value as six fields: days, hours,
 // minutes, seconds, milliseconds, and microseconds.  In the "canonical
 // representation" of a time interval, the days field may have any 32-bit
 // integer value, with the hours, minutes, seconds, milliseconds, microseconds
 // fields limited to the respective ranges '[-23 .. 23]', '[-59 .. 59]',
 // '[-59 .. 59]', '[-999 .. 999]', and '[-999 .. 999]', with the additional
-// constraint that the five fields are either all non-negative or all
-// non-positive.  When setting the value of a time interval via its five-field
+// constraint that the six fields are either all non-negative or all
+// non-positive.  When setting the value of a time interval via its six-field
 // representation, any integer value may be used in any field, with the
 // constraint that the resulting number of days be representable as a 32-bit
-// integer and the slightly-less-convenient condition that no one field, or
-// intermediate sum of fields, can overflow a 84-bit integer of *microseconds*.
-// Similarly, the field values may be accessed in the canonical representation
-// using the 'days', 'hours', 'minutes', 'seconds', 'milliseconds', and
-// 'microseconds' methods.  The total value of the time interval may be
-// accessed in the respective field units via the 'totalDays', 'totalHours',
-// 'totalMinutes', 'totalSeconds', 'totalMilliseconds', and 'totalMicroseconds'
-// methods.  Note that, with the exception of 'totalMicroseconds' (which
-// returns an exact result), the other "total" accessors round toward 0.
+// integer.  Similarly, the field values may be accessed in the canonical
+// representation using the 'days', 'hours', 'minutes', 'seconds',
+// 'milliseconds', and 'microseconds' methods.  The total value of the time
+// interval may be accessed in the respective field units via the 'totalDays',
+// 'totalHours', 'totalMinutes', 'totalSeconds', 'totalMilliseconds', and
+// 'totalMicroseconds' methods.  Note that, with the exception of
+// 'totalMicroseconds' (which returns an exact result), the other "total"
+// accessors round toward 0.
 //
 // The following summarizes the canonical representation of the value of a
 // 'bdlt::DatetimeInterval':
@@ -170,8 +169,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_BSL_CLIMITS
-#include <bsl_climits.h>       // 'INT_MIN'
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -206,9 +205,9 @@ class DatetimeInterval {
 
     // PRIVATE MANIPULATORS
     void assign(bsls::Types::Int64 days, bsls::Types::Int64 microseconds);
-        // Set this datetime interval to have the valud given by the sum of the
+        // Set this datetime interval to have the value given by the sum of the
         // specified 'days' and 'microseconds'.  The behavior is undefined
-        // unless the total number of days, after converting to the connical
+        // unless the total number of days, after converting to the canonical
         // representation of the 'microseconds' having a magnitude of less than
         // a day and 'days' and 'microseconds' are either both non-negative or
         // non-positive, can be represented as a signed 32-bit integer.
@@ -243,7 +242,6 @@ class DatetimeInterval {
     DatetimeInterval();
         // Create a time interval object having the value 0.
 
-    // TBD doc
     explicit
     DatetimeInterval(int                days,
                      bsls::Types::Int64 hours = 0,
@@ -254,12 +252,10 @@ class DatetimeInterval {
         // Create a time interval object having the value given by the
         // specified 'days', and the optionally specified 'hours', 'minutes',
         // 'seconds', 'milliseconds', and 'microseconds'.  Unspecified
-        // arguments default to 0.  The behavior is undefined unless: (1) the
+        // arguments default to 0.  The behavior is undefined unless the
         // resulting time interval value is valid (i.e., the days field must
-        // not overflow a 32-bit integer), and (2) no intermediate sum of the
-        // arguments (converted to microseconds) overflows a 84-bit integer,
-        // regardless of the order of summation.  Note that the arguments may
-        // be supplied using a mixture of positive, negative, and 0 values.
+        // not overflow a 32-bit integer).  Note that the arguments may be
+        // supplied using a mixture of positive, negative, and 0 values.
 
     DatetimeInterval(const DatetimeInterval& original);
         // Create a time interval object having the value of the specified
@@ -289,7 +285,6 @@ class DatetimeInterval {
         // interval value is valid (i.e., the days field must not overflow a
         // 32-bit integer).
 
-    // TBD doc
     void setInterval(int                days,
                      bsls::Types::Int64 hours = 0,
                      bsls::Types::Int64 minutes = 0,
@@ -300,12 +295,9 @@ class DatetimeInterval {
         // by the specified 'days', and the optionally specified 'hours',
         // 'minutes', 'seconds', 'milliseconds', and 'microseconds'.
         // Unspecified arguments default to 0.  The behavior is undefined
-        // unless: (1) the resulting time interval value is valid (i.e., the
-        // days field must not overflow a 32-bit integer), and (2) no
-        // intermediate sum of the arguments (converted to microseconds)
-        // overflows a 84-bit integer, regardless of the order of summation.
-        // Note that the arguments may be supplied using a mixture of positive,
-        // negative, and 0 values.
+        // unless the resulting time interval value is valid (i.e., the days
+        // field must not overflow a 32-bit integer).  Note that the arguments
+        // may be supplied using a mixture of positive, negative, and 0 values.
 
     void setTotalDays(int days);
         // Set the overall value of this object to indicate the specified
@@ -341,7 +333,6 @@ class DatetimeInterval {
         // resulting time interval value is valid (i.e., the days field must
         // not overflow a 32-bit integer).
 
-    // TBD doc
     void addInterval(int                days,
                      bsls::Types::Int64 hours = 0,
                      bsls::Types::Int64 minutes = 0,
@@ -351,13 +342,10 @@ class DatetimeInterval {
         // Add to this time interval the specified number of 'days', and the
         // optionally specified number of 'hours', 'minutes', 'seconds',
         // 'milliseconds', and 'microseconds'.  Unspecified arguments default
-        // to 0.  The behavior is undefined unless: (1) the resulting time
-        // interval value is valid (i.e., the days field must not overflow a
-        // 32-bit integer), and (2) no intermediate sum of this time interval
-        // and the arguments (converted to microseconds) overflows a 84-bit
-        // integer, regardless of the order of summation.  Note that the
-        // arguments may be supplied using a mixture of positive, negative, and
-        // 0 values.
+        // to 0.  The behavior is undefined unless the resulting time interval
+        // value is valid (i.e., the days field must not overflow a 32-bit
+        // integer).  Note that the arguments may be supplied using a mixture
+        // of positive, negative, and 0 values.
 
     void addDays(int days);
         // Add to this time interval the specified number of 'days'.  The
@@ -773,6 +761,24 @@ STREAM& DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2: {
+            int tmpDays;
+            stream.getInt32(tmpDays);
+
+            bsls::Types::Int64 tmpMicroseconds;
+            stream.getInt64(tmpMicroseconds);
+
+            if (   stream
+                && (   (0 <= tmpDays && 0 <= tmpMicroseconds)
+                    || (0 >= tmpDays && 0 >= tmpMicroseconds))
+                && TimeUnitRatio::k_US_PER_D >  tmpMicroseconds
+                && TimeUnitRatio::k_US_PER_D > -tmpMicroseconds) {
+                assign(tmpDays, tmpMicroseconds);
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
           case 1: {
             bsls::Types::Int64 tmp;
             stream.getInt64(tmp);
@@ -884,7 +890,13 @@ bsls::Types::Int64 DatetimeInterval::totalMilliseconds() const
 inline
 bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
 {
-    // TBD range issue
+    BSLS_ASSERT_SAFE(   0 <= d_days
+                     || (bsl::numeric_limits<bsls::Types::Int64>::max() -
+                        d_microseconds) / TimeUnitRatio::k_US_PER_D >= d_days);
+    BSLS_ASSERT_SAFE(   0 >= d_days
+                     || (bsl::numeric_limits<bsls::Types::Int64>::min() -
+                        d_microseconds) / TimeUnitRatio::k_US_PER_D <= d_days);
+
     return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_US_PER_D
                                                               + d_microseconds;
 }
@@ -896,6 +908,10 @@ STREAM& DatetimeInterval::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2: {
+            stream.putInt32(d_days);
+            stream.putInt64(d_microseconds);
+          } break;
           case 1: {
             stream.putInt64(totalMilliseconds());
           } break;

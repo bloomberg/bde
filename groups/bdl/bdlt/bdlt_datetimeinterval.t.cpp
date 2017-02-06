@@ -45,22 +45,20 @@ using namespace bsl;
 //                                   Overview
 //                                   --------
 // The component under test defines a single value-semantic class that
-// implements a time interval having millisecond resolution.  The time interval
-// is maintained internally as a (signed) 64-bit integer representing the total
-// number of milliseconds comprising the interval.  The value of the time
-// interval is accessed either in terms of its total-millisecond representation
-// (via 'totalMilliseconds'), or in terms of its (derived) canonical five-field
-// representation (via 'days', 'hours', 'minutes', 'seconds', and
-// 'milliseconds').
+// implements a time interval having microsecond resolution.  The value of the
+// time interval is accessed either in terms of its total-microsecond
+// representation (via 'totalMicroseconds'), or in terms of its (derived)
+// canonical six-field representation (via 'days', 'hours', 'minutes',
+// 'seconds', 'milliseconds', and 'microseconds').
 //
 // We will therefore follow our standard ten-case approach to testing
 // value-semantic types, except that we will verify test apparatus in case 3
 // (in lieu of the generator function, 'gg'), with the default constructor,
-// (trivial) destructor, and primary manipulator ('setTotalMilliseconds')
+// (trivial) destructor, and primary manipulator ('setTotalMicroseconds')
 // tested fully in case 2.
 //
 // Primary Manipulators:
-//: o 'setTotalMilliseconds'
+//: o 'setTotalMicroseconds'
 //
 // Basic Accessors:
 //: o 'days'
@@ -68,7 +66,8 @@ using namespace bsl;
 //: o 'minutes'
 //: o 'seconds'
 //: o 'milliseconds'
-//: o 'totalMilliseconds'
+//: o 'microseconds'
+//: o 'totalMicroseconds'
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -101,6 +100,7 @@ using namespace bsl;
 // [13] void setTotalMinutes(Int64 minutes);
 // [13] void setTotalSeconds(Int64 seconds);
 // [ 2] void setTotalMilliseconds(Int64 milliseconds);
+// [ 2] void setTotalMicroseconds(Int64 microseconds);
 // [16] void addInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
 // [15] void addDays(int days);
 // [15] void addHours(Int64 hours);
@@ -115,12 +115,14 @@ using namespace bsl;
 // [ 4] int minutes() const;
 // [ 4] int seconds() const;
 // [ 4] int milliseconds() const;
+// [ 4] int microseconds() const;
 // [14] int totalDays() const;
 // [14] Int64 totalHours() const;
 // [14] Int64 totalMinutes() const;
 // [14] Int64 totalSeconds() const;
 // [14] double totalSecondsAsDouble() const;
 // [ 4] Int64 totalMilliseconds() const;
+// [ 4] Int64 totalMicroseconds() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -220,7 +222,7 @@ typedef bdlt::DatetimeInterval Obj;
 typedef bslx::TestInStream     In;
 typedef bslx::TestOutStream    Out;
 
-#define VERSION_SELECTOR 20140601
+#define VERSION_SELECTOR 99991231
 
 typedef bsls::Types::Int64     Int64;
 
@@ -228,6 +230,7 @@ const Int64 k_MSECS_PER_SEC  = bdlt::TimeUnitRatio::k_MILLISECONDS_PER_SECOND;
 const Int64 k_MSECS_PER_MIN  = bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE;
 const Int64 k_MSECS_PER_HOUR = bdlt::TimeUnitRatio::k_MILLISECONDS_PER_HOUR;
 const Int64 k_MSECS_PER_DAY  = bdlt::TimeUnitRatio::k_MILLISECONDS_PER_DAY;
+const Int64 k_USECS_PER_DAY  = bdlt::TimeUnitRatio::k_MICROSECONDS_PER_DAY;
 
 const int   k_DAYS_MAX  = INT_MAX;
 const int   k_DAYS_MIN  = INT_MIN;
@@ -243,6 +246,9 @@ const Int64 k_SECS_MIN  =   60 *                    k_MINS_MIN  -  59;
 
 const Int64 k_MSECS_MAX = 1000 *                    k_SECS_MAX  + 999;
 const Int64 k_MSECS_MIN = 1000 *                    k_SECS_MIN  - 999;
+
+const Int64 k_USECS_MAX = bsl::numeric_limits<bsls::Types::Int64>::max();
+const Int64 k_USECS_MIN = bsl::numeric_limits<bsls::Types::Int64>::min();
 
 // Verify PUBLIC CLASS DATA
 
@@ -3791,13 +3797,13 @@ if (veryVerbose)
                           << "======================" << endl;
 
         // Scalar object values used in various stream tests.
-        const Obj VA(0);
-        const Obj VB(1);
-        const Obj VC(2);
-        const Obj VD(3);
-        const Obj VE(4);
-        const Obj VF(5);
-        const Obj VG(6);
+        const Obj VA(0,  0,  0,  0,   0,   0);
+        const Obj VB(0,  0,  0,  0,   0, 999);
+        const Obj VC(0,  0,  0,  0, 999,   0);
+        const Obj VD(0,  0,  0, 59,   0,   0);
+        const Obj VE(0,  0, 59,  0,   0,   0);
+        const Obj VF(0, 23,  0,  0,   0,   0);
+        const Obj VG(1, 23, 22, 21, 209, 212);
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
@@ -3809,280 +3815,341 @@ if (veryVerbose)
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
-            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            ASSERT(2 == Obj::maxSupportedBdexVersion(20170401));
+            ASSERT(2 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
 
             using bslx::VersionFunctions::maxSupportedBdexVersion;
 
             ASSERT(1 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 0));
-            ASSERT(1 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
+            ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
+                                                20170401));
+            ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 VERSION_SELECTOR));
         }
 
-        const int VERSION = Obj::maxSupportedBdexVersion(0);
+        const int VERSIONS[] = { 1, 2 };
+        const int NUM_VERSIONS = static_cast<int>(  sizeof VERSIONS
+                                                  / sizeof *VERSIONS);
 
-        if (verbose) {
-            cout << "\nDirect initial trial of 'bdexStreamOut' and (valid) "
-                 << "'bdexStreamIn' functionality." << endl;
-        }
-        {
-            const Obj X(VC);
-            Out       out(VERSION_SELECTOR, &allocator);
+        for (int versionIndex = 0;
+             versionIndex < NUM_VERSIONS;
+             ++versionIndex) {
+            const int VERSION = VERSIONS[versionIndex];
 
-            Out& rvOut = X.bdexStreamOut(out, VERSION);
-            ASSERT(&out == &rvOut);
+            if (verbose) {
+                cout << "\nTesting Version " << VERSION << "." << endl;
+            }
 
-            const char *const OD  = out.data();
-            const int         LOD = static_cast<int>(out.length());
+            if (verbose) {
+                cout << "\tDirect initial trial of 'bdexStreamOut' and "
+                     << "(valid) 'bdexStreamIn'." << endl;
+            }
+            {
+                const Obj X(VC);
+                Out       out(VERSION_SELECTOR, &allocator);
 
-            In in(OD, LOD);
-            ASSERT(in);
-            ASSERT(!in.isEmpty());
+                Out& rvOut = X.bdexStreamOut(out, VERSION);
+                ASSERT(&out == &rvOut);
 
-            Obj mT(VA);  const Obj& T = mT;
-            ASSERT(X != T);
-
-            In& rvIn = mT.bdexStreamIn(in, VERSION);
-            ASSERT(&in == &rvIn);
-            ASSERT(X == T);
-            ASSERT(in);
-            ASSERT(in.isEmpty());
-        }
-
-        // We will use the stream free functions provided by 'bslx', as opposed
-        // to the class member functions, since the 'bslx' implementation gives
-        // priority to the free function implementations; we want to test what
-        // will be used.  Furthermore, toward making this test case more
-        // reusable in other components, from here on we generally use the
-        // 'bdexStreamIn' and 'bdexStreamOut' free functions that are defined
-        // in the 'bslx' package rather than call the like-named member
-        // functions directly.
-
-        if (verbose) {
-            cout << "\nThorough test using stream free functions."
-                 << endl;
-        }
-        {
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const Obj X(VALUES[i]);
-
-                Out out(VERSION_SELECTOR, &allocator);
-
-                using bslx::OutStreamFunctions::bdexStreamOut;
-                using bslx::InStreamFunctions::bdexStreamIn;
-
-                Out& rvOut = bdexStreamOut(out, X, VERSION);
-                LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
 
-                // Verify that each new value overwrites every old value and
-                // that the input stream is emptied, but remains valid.
+                In in(OD, LOD);
+                ASSERT(in);
+                ASSERT(!in.isEmpty());
 
-                for (int j = 0; j < NUM_VALUES; ++j) {
+                Obj mT(VA);  const Obj& T = mT;
+                ASSERT(X != T);
+
+                In& rvIn = mT.bdexStreamIn(in, VERSION);
+                ASSERT(&in == &rvIn);
+                ASSERT(X == T);
+                ASSERT(in);
+                ASSERT(in.isEmpty());
+            }
+
+            // We will use the stream free functions provided by 'bslx', as
+            // opposed to the class member functions, since the 'bslx'
+            // implementation gives priority to the free function
+            // implementations; we want to test what will be used.
+            // Furthermore, toward making this test case more reusable in other
+            // components, from here on we generally use the 'bdexStreamIn' and
+            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // package rather than call the like-named member functions
+            // directly.
+
+            if (verbose) {
+                cout << "\tThorough test using stream free functions."
+                     << endl;
+            }
+            {
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    const Obj X(VALUES[i]);
+
+                    Out out(VERSION_SELECTOR, &allocator);
+
+                    using bslx::OutStreamFunctions::bdexStreamOut;
+                    using bslx::InStreamFunctions::bdexStreamIn;
+
+                    Out& rvOut = bdexStreamOut(out, X, VERSION);
+                    LOOP_ASSERT(i, &out == &rvOut);
+                    const char *const OD  = out.data();
+                    const int         LOD = static_cast<int>(out.length());
+
+                    // Verify that each new value overwrites every old value
+                    // and that the input stream is emptied, but remains valid.
+
+                    for (int j = 0; j < NUM_VALUES; ++j) {
+                        In in(OD, LOD);
+                        LOOP2_ASSERT(i, j, in);
+                        LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                        Obj mT(VALUES[j]);  const Obj& T = mT;
+                        LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                        BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                            in.reset();
+                            In& rvIn = bdexStreamIn(in, mT, VERSION);
+                            LOOP2_ASSERT(i, j, &in == &rvIn);
+                        } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+
+                        if (1 == VERSION) {
+                            // Version 1 loses microseconds; replace.
+
+                            mT.addMicroseconds(X.microseconds());
+                        }
+
+                        LOOP2_ASSERT(i, j, X == T);
+                        LOOP2_ASSERT(i, j, in);
+                        LOOP2_ASSERT(i, j, in.isEmpty());
+                    }
+                }
+            }
+
+            if (verbose) {
+                cout << "\tOn empty streams and non-empty, invalid streams."
+                     << endl;
+            }
+
+            // Verify correct behavior for empty streams (valid and invalid).
+
+            {
+                Out               out(VERSION_SELECTOR, &allocator);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+                ASSERT(0 == LOD);
+
+                for (int i = 0; i < NUM_VALUES; ++i) {
                     In in(OD, LOD);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, !in.isEmpty());
+                    LOOP_ASSERT(i, in);
+                    LOOP_ASSERT(i, in.isEmpty());
 
-                    Obj mT(VALUES[j]);  const Obj& T = mT;
-                    LOOP2_ASSERT(i, j, (X == T) == (i == j));
+                    // Ensure that reading from an empty or invalid input
+                    // stream leaves the stream invalid and the target object
+                    // unchanged.
+
+                    using bslx::InStreamFunctions::bdexStreamIn;
+
+                    const Obj  X(VALUES[i]);
+                    Obj        mT(X);
+                    const Obj& T = mT;
+                    LOOP_ASSERT(i, X == T);
 
                     BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                         in.reset();
-                        In& rvIn = bdexStreamIn(in, mT, VERSION);
-                        LOOP2_ASSERT(i, j, &in == &rvIn);
-                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-                    LOOP2_ASSERT(i, j, X == T);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, in.isEmpty());
+                        // Stream is valid.
+                        In& rvIn1 = bdexStreamIn(in, mT, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn1);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, X == T);
+
+                        // Stream is invalid.
+                        In& rvIn2 = bdexStreamIn(in, mT, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn2);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, X == T);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                 }
             }
-        }
 
-        if (verbose) {
-            cout << "\tOn empty streams and non-empty, invalid streams."
-                 << endl;
-        }
+            // Verify correct behavior for non-empty, invalid streams.
 
-        // Verify correct behavior for empty streams (valid and invalid).
+            {
+                Out               out(VERSION_SELECTOR, &allocator);
 
-        {
-            Out               out(VERSION_SELECTOR, &allocator);
-            const char *const OD  = out.data();
-            const int         LOD = static_cast<int>(out.length());
-            ASSERT(0 == LOD);
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
+                ASSERT(&out == &rvOut);
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);
-                LOOP_ASSERT(i, in);
-                LOOP_ASSERT(i, in.isEmpty());
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+                ASSERT(0 < LOD);
 
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged.
-
-                using bslx::InStreamFunctions::bdexStreamIn;
-
-                const Obj  X(VALUES[i]);
-                Obj        mT(X);
-                const Obj& T = mT;
-                LOOP_ASSERT(i, X == T);
-
-                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                    in.reset();
-
-                    // Stream is valid.
-                    In& rvIn1 = bdexStreamIn(in, mT, VERSION);
-                    LOOP_ASSERT(i, &in == &rvIn1);
-                    LOOP_ASSERT(i, !in);
-                    LOOP_ASSERT(i, X == T);
-
-                    // Stream is invalid.
-                    In& rvIn2 = bdexStreamIn(in, mT, VERSION);
-                    LOOP_ASSERT(i, &in == &rvIn2);
-                    LOOP_ASSERT(i, !in);
-                    LOOP_ASSERT(i, X == T);
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
-            }
-        }
-
-        // Verify correct behavior for non-empty, invalid streams.
-
-        {
-            Out               out(VERSION_SELECTOR, &allocator);
-
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
-            ASSERT(&out == &rvOut);
-
-            const char *const OD  = out.data();
-            const int         LOD = static_cast<int>(out.length());
-            ASSERT(0 < LOD);
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);
-                in.invalidate();
-                LOOP_ASSERT(i, !in);
-                LOOP_ASSERT(i, !in.isEmpty());
-
-                // Ensure that reading from a non-empty, invalid input stream
-                // leaves the stream invalid and the target object unchanged.
-
-                using bslx::InStreamFunctions::bdexStreamIn;
-
-                const Obj  X(VALUES[i]);
-                Obj        mT(X);
-                const Obj& T = mT;
-                LOOP_ASSERT(i, X == T);
-
-                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                    in.reset();
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    In in(OD, LOD);
                     in.invalidate();
                     LOOP_ASSERT(i, !in);
                     LOOP_ASSERT(i, !in.isEmpty());
 
-                    In& rvIn = bdexStreamIn(in, mT, VERSION);
-                    LOOP_ASSERT(i, &in == &rvIn);
-                    LOOP_ASSERT(i, !in);
+                    // Ensure that reading from a non-empty, invalid input
+                    // stream leaves the stream invalid and the target object
+                    // unchanged.
+
+                    using bslx::InStreamFunctions::bdexStreamIn;
+
+                    const Obj  X(VALUES[i]);
+                    Obj        mT(X);
+                    const Obj& T = mT;
                     LOOP_ASSERT(i, X == T);
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        in.invalidate();
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, !in.isEmpty());
+
+                        In& rvIn = bdexStreamIn(in, mT, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, X == T);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                }
             }
-        }
 
-        if (verbose) {
-            cout << "\tOn incomplete (but otherwise valid) data."
-                 << endl;
-        }
-        {
-            const Obj W1 = VA, X1 = VB;
-            const Obj W2 = VB, X2 = VC;
-            const Obj W3 = VC, X3 = VD;
+            if (verbose) {
+                cout << "\tOn incomplete (but otherwise valid) data."
+                     << endl;
+            }
+            {
+                const Obj W1 = VA, X1 = VB;
+                const Obj W2 = VB, X2 = VC;
+                const Obj W3 = VC, X3 = VD;
 
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            using bslx::InStreamFunctions::bdexStreamIn;
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
 
-            Out out(VERSION_SELECTOR, &allocator);
+                Out out(VERSION_SELECTOR, &allocator);
 
-            Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
-            ASSERT(&out == &rvOut1);
-            const int         LOD1 = static_cast<int>(out.length());
+                Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
+                ASSERT(&out == &rvOut1);
+                const int         LOD1 = static_cast<int>(out.length());
 
-            Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
-            ASSERT(&out == &rvOut2);
-            const int         LOD2 = static_cast<int>(out.length());
+                Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
+                ASSERT(&out == &rvOut2);
+                const int         LOD2 = static_cast<int>(out.length());
 
-            Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
-            ASSERT(&out == &rvOut3);
-            const int         LOD3 = static_cast<int>(out.length());
-            const char *const OD3  = out.data();
+                Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
+                ASSERT(&out == &rvOut3);
+                const int         LOD3 = static_cast<int>(out.length());
+                const char *const OD3  = out.data();
 
-            for (int i = 0; i < LOD3; ++i) {
-                In in(OD3, i);
+                for (int i = 0; i < LOD3; ++i) {
+                    In in(OD3, i);
 
-                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                    in.reset();
-                    LOOP_ASSERT(i, in);
-                    LOOP_ASSERT(i, !i == in.isEmpty());
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        LOOP_ASSERT(i, in);
+                        LOOP_ASSERT(i, !i == in.isEmpty());
 
-                    Obj mT1(W1);  const Obj& T1 = mT1;
-                    Obj mT2(W2);  const Obj& T2 = mT2;
-                    Obj mT3(W3);  const Obj& T3 = mT3;
+                        Obj mT1(W1);  const Obj& T1 = mT1;
+                        Obj mT2(W2);  const Obj& T2 = mT2;
+                        Obj mT3(W3);  const Obj& T3 = mT3;
 
-                    if (i < LOD1) {
-                        In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn1);
-                        LOOP_ASSERT(i, !in);
-                        if (0 == i) LOOP_ASSERT(i, W1 == T1);
-                        In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn2);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, W2 == T2);
-                        In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn3);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, W3 == T3);
-                    }
-                    else if (i < LOD2) {
-                        In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn1);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, X1 == T1);
-                        In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn2);
-                        LOOP_ASSERT(i, !in);
-                        if (LOD1 <= i) LOOP_ASSERT(i, W2 == T2);
-                        In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn3);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, W3 == T3);
-                    }
-                    else {  // 'LOD2 <= i < LOD3'
-                        In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn1);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, X1 == T1);
-                        In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn2);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, X2 == T2);
-                        In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn3);
-                        LOOP_ASSERT(i, !in);
-                        if (LOD2 <= i) LOOP_ASSERT(i, W3 == T3);
-                    }
+                        if (i < LOD1) {
+                            In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn1);
+                            LOOP_ASSERT(i, !in);
+                            if (0 == i) LOOP_ASSERT(i, W1 == T1);
+                            In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn2);
+                            LOOP_ASSERT(i, !in);
+                            LOOP_ASSERT(i, W2 == T2);
+                            In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn3);
+                            LOOP_ASSERT(i, !in);
+                            LOOP_ASSERT(i, W3 == T3);
+                        }
+                        else if (i < LOD2) {
+                            In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
+                            if (1 == VERSION) {
+                                // Version 1 loses microseconds; replace.
 
-                    // Verify the objects are in a valid state.
+                                mT1.addMicroseconds(X1.microseconds());
+                            }
+                            LOOP_ASSERT(i, &in == &rvIn1);
+                            LOOP_ASSERT(i,  in);
+                            LOOP_ASSERT(i, X1 == T1);
+                            In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn2);
+                            LOOP_ASSERT(i, !in);
+                            if (LOD1 <= i) LOOP_ASSERT(i, W2 == T2);
+                            In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn3);
+                            LOOP_ASSERT(i, !in);
+                            LOOP_ASSERT(i, W3 == T3);
+                        }
+                        else {  // 'LOD2 <= i < LOD3'
+                            In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
+                            if (1 == VERSION) {
+                                // Version 1 loses microseconds; replace.
 
-                    LOOP_ASSERT(i, (   k_MSECS_MIN <= T1.totalMilliseconds()
-                                    && k_MSECS_MAX >= T1.totalMilliseconds()));
+                                mT1.addMicroseconds(X1.microseconds());
+                            }
+                            LOOP_ASSERT(i, &in == &rvIn1);
+                            LOOP_ASSERT(i,  in);
+                            LOOP_ASSERT(i, X1 == T1);
+                            In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
+                            if (1 == VERSION) {
+                                // Version 1 loses microseconds; replace.
 
-                    LOOP_ASSERT(i, (   k_MSECS_MIN <= T2.totalMilliseconds()
-                                    && k_MSECS_MAX >= T2.totalMilliseconds()));
+                                mT2.addMicroseconds(X2.microseconds());
+                            }
+                            LOOP_ASSERT(i, &in == &rvIn2);
+                            LOOP_ASSERT(i,  in);
+                            LOOP_ASSERT(i, X2 == T2);
+                            In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn3);
+                            LOOP_ASSERT(i, !in);
+                            if (LOD2 <= i) LOOP_ASSERT(i, W3 == T3);
+                        }
 
-                    LOOP_ASSERT(i, (   k_MSECS_MIN <= T3.totalMilliseconds()
-                                    && k_MSECS_MAX >= T3.totalMilliseconds()));
+                        // Verify the objects are in a valid state.
+                        LOOP_ASSERT(i,
+                                    bdlt::TimeUnitRatio::k_US_PER_D >
+                                            -T1.fractionalDayInMicroseconds());
+                        LOOP_ASSERT(i,
+                                    bdlt::TimeUnitRatio::k_US_PER_D >
+                                             T1.fractionalDayInMicroseconds());
+                        LOOP_ASSERT(i, (0 <= T1.totalDays() && 0 <=
+                                            T1.fractionalDayInMicroseconds())
+                                    || (0 >= T1.totalDays() && 0 >=
+                                            T1.fractionalDayInMicroseconds()));
 
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                        LOOP_ASSERT(i,
+                                    bdlt::TimeUnitRatio::k_US_PER_D >
+                                            -T2.fractionalDayInMicroseconds());
+                        LOOP_ASSERT(i,
+                                    bdlt::TimeUnitRatio::k_US_PER_D >
+                                             T2.fractionalDayInMicroseconds());
+                        LOOP_ASSERT(i, (0 <= T2.totalDays() && 0 <=
+                                            T2.fractionalDayInMicroseconds())
+                                    || (0 >= T2.totalDays() && 0 >=
+                                            T2.fractionalDayInMicroseconds()));
+
+                        LOOP_ASSERT(i,
+                                    bdlt::TimeUnitRatio::k_US_PER_D >
+                                            -T3.fractionalDayInMicroseconds());
+                        LOOP_ASSERT(i,
+                                    bdlt::TimeUnitRatio::k_US_PER_D >
+                                             T3.fractionalDayInMicroseconds());
+                        LOOP_ASSERT(i, (0 <= T3.totalDays() && 0 <=
+                                            T3.fractionalDayInMicroseconds())
+                                    || (0 >= T3.totalDays() && 0 >=
+                                            T3.fractionalDayInMicroseconds()));
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                }
             }
         }
 
@@ -4091,22 +4158,27 @@ if (veryVerbose)
         }
 
         const Obj W;                      // default value
-        const Obj X(0, 0, 0, 0, 1);       // original (control)
-        const Obj Y(0, 0, 0, 0, 2);       // new (streamed-out)
+        const Obj X(0, 1, 0, 0, 0);       // original (control)
+        const Obj Y(0, 0, 0, 0, 1);       // new (streamed-out)
 
         // Verify the three objects are distinct.
         ASSERT(W != X);
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 2;       // internal rep. of 'Y'
-
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
         }
         {
+            // Version 1.
+
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt64(SERIAL_Y);  // Stream out "new" value.
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt64(1);
+
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
 
@@ -4118,7 +4190,34 @@ if (veryVerbose)
 
             using bslx::InStreamFunctions::bdexStreamIn;
 
-            In& rvIn = bdexStreamIn(in, mT, VERSION);
+            In& rvIn = bdexStreamIn(in, mT, 1);
+            ASSERT(&in == &rvIn);
+            ASSERT(in);
+            ASSERT(Y == T);
+        }
+        {
+            // Version 2.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt32(0);
+            out.putInt64(1000);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
             ASSERT(&in == &rvIn);
             ASSERT(in);
             ASSERT(Y == T);
@@ -4131,7 +4230,11 @@ if (veryVerbose)
             const char version = 0; // too small ('version' must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt64(SERIAL_Y);  // Stream out "new" value.
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt64(1);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -4151,10 +4254,14 @@ if (veryVerbose)
             ASSERT(X == T);
         }
         {
-            const char version = 2 ; // too large (current version is 1)
+            const char version = 3;  // too large (current version is 2)
 
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt64(SERIAL_Y);  // Stream out "new" value.
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt64(1);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -4175,9 +4282,11 @@ if (veryVerbose)
         }
 
         if (verbose) {
-            cout << "\t\tValue too small." << endl;
+            cout << "\t\tBad value." << endl;
         }
         {
+            // Version 1.  Value too small.
+
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt64(k_MSECS_MIN - 1);  // Stream out "new" value.
 
@@ -4193,16 +4302,14 @@ if (veryVerbose)
 
             using bslx::InStreamFunctions::bdexStreamIn;
 
-            In& rvIn = bdexStreamIn(in, mT, VERSION);
+            In& rvIn = bdexStreamIn(in, mT, 1);
             ASSERT(&in == &rvIn);
             ASSERT(!in);
             ASSERT(X == T);
         }
-
-        if (verbose) {
-            cout << "\t\tValue too large." << endl;
-        }
         {
+            // Version 1.  Value too large.
+
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt64(k_MSECS_MAX + 1);  // Stream out "new" value.
 
@@ -4218,7 +4325,111 @@ if (veryVerbose)
 
             using bslx::InStreamFunctions::bdexStreamIn;
 
-            In& rvIn = bdexStreamIn(in, mT, VERSION);
+            In& rvIn = bdexStreamIn(in, mT, 1);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            // Version 2.  Microseconds too small.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            out.putInt32(0);
+            out.putInt64(-bdlt::TimeUnitRatio::k_US_PER_D);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            // Version 2.  Microseconds too large.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            out.putInt32(0);
+            out.putInt64(bdlt::TimeUnitRatio::k_US_PER_D);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            // Version 2.  Positive days, negative microseconds.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            out.putInt32( 1);
+            out.putInt64(-1);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            // Version 2.  Negative days, positive microseconds.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            out.putInt32(-1);
+            out.putInt64( 1);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
             ASSERT(&in == &rvIn);
             ASSERT(!in);
             ASSERT(X == T);
@@ -4229,32 +4440,44 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int          d_lineNum;       // source line number
-                int          d_milliseconds;  // specification milliseconds
-                int          d_version;       // version to stream with
-                bsl::size_t  d_length;        // expect output length
-                const char  *d_fmt_p;         // expected output format
+                int                 d_lineNum;       // source line number
+                bsls::Types::Int64  d_microseconds;  // spec. microseconds
+                int                 d_version;       // version to stream with
+                bsl::size_t         d_length;        // expect output length
+                const char         *d_fmt_p;         // expected output format
             } DATA[] = {
-                //LINE  MS      VER  LEN  FORMAT
-                //----  ------  ---  ---  -------------------
-                { L_,        0,   1,   8, "\x00\x00\x00\x00\x00\x00\x00\x00" },
-                { L_,        1,   1,   8, "\x00\x00\x00\x00\x00\x00\x00\x01" },
-                { L_,      256,   1,   8, "\x00\x00\x00\x00\x00\x00\x01\x00" },
-                { L_,    65536,   1,   8, "\x00\x00\x00\x00\x00\x01\x00\x00" }
+                //LN  US        V  LEN  FORMAT
+                //--  --------  -  ---  -------------------
+                { L_,        0, 1,   8, "\x00\x00\x00\x00\x00\x00\x00\x00" },
+                { L_,     1000, 1,   8, "\x00\x00\x00\x00\x00\x00\x00\x01" },
+                { L_,   256000, 1,   8, "\x00\x00\x00\x00\x00\x00\x01\x00" },
+                { L_, 65536000, 1,   8, "\x00\x00\x00\x00\x00\x01\x00\x00" },
+
+                { L_,        0, 2,  12,
+                        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" },
+                { L_,        1, 2,  12,
+                        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01" },
+                { L_,      256, 2,  12,
+                        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00" },
+                { L_,    65536, 2,  12,
+                        "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00" },
+                { L_, k_USECS_PER_DAY,
+                                2,  12,
+                        "\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" }
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int         LINE         = DATA[i].d_lineNum;
-                const int         MILLISECONDS = DATA[i].d_milliseconds;
-                const int         VERSION      = DATA[i].d_version;
-                const bsl::size_t LEN          = DATA[i].d_length;
-                const char *const FMT          = DATA[i].d_fmt_p;
+                const int                LINE         = DATA[i].d_lineNum;
+                const bsls::Types::Int64 MICROSECONDS = DATA[i].d_microseconds;
+                const int                VERSION      = DATA[i].d_version;
+                const bsl::size_t        LEN          = DATA[i].d_length;
+                const char *const        FMT          = DATA[i].d_fmt_p;
 
                 // Test using class methods.
 
                 {
-                    Obj        mX(0, 0, 0, 0, MILLISECONDS);
+                    Obj        mX(0, 0, 0, 0, 0, MICROSECONDS);
                     const Obj& X = mX;
 
                     bslx::ByteOutStream  out(VERSION_SELECTOR, &allocator);
@@ -4288,7 +4511,7 @@ if (veryVerbose)
                 // Test using free functions.
 
                 {
-                    Obj        mX(0, 0, 0, 0, MILLISECONDS);
+                    Obj        mX(0, 0, 0, 0, 0, MICROSECONDS);
                     const Obj& X = mX;
 
                     using bslx::OutStreamFunctions::bdexStreamOut;
@@ -5177,28 +5400,28 @@ if (veryVerbose)
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the five field-based accessors returns the value of the
+        //: 1 Each of the six field-based accessors returns the value of the
         //:   corresponding field of the time interval.
         //:
-        //: 2 The 'totalMilliseconds' accessor returns the value of the time
-        //:   interval in milliseconds.
+        //: 2 The 'totalMicroseconds' accessor returns the value of the time
+        //:   interval in microseconds.
         //:
         //: 3 Each basic accessor method is declared 'const'.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their five-field
+        //:   object values (one per row) in terms of their six-field
         //:   representation.
         //:
         //: 2 For each row 'R' in the table of P-1:  (C-1..3)
         //:
-        //:   1 Using the 'flds2Msecs' helper function, convert the five-field
-        //:     representation in 'R' to its corresponding total-milliseconds
+        //:   1 Using the 'flds2Msecs' helper function, convert the six-field
+        //:     representation in 'R' to its corresponding total-microseconds
         //:     representation.
         //:
         //:   2 Create an object 'X' using the default constructor.
         //:
-        //:   3 Using 'setTotalMilliseconds', set 'X' to the value computed in
+        //:   3 Using 'setTotalMicroseconds', set 'X' to the value computed in
         //:     P-2.1.
         //:
         //:   4 Verify that each basic accessor, invoked on a reference
@@ -5211,7 +5434,9 @@ if (veryVerbose)
         //   int minutes() const;
         //   int seconds() const;
         //   int milliseconds() const;
+        //   int microseconds() const;
         //   Int64 totalMilliseconds() const;
+        //   Int64 totalMicroseconds() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5775,46 +6000,46 @@ if (veryVerbose)
         //:
         //: 2 An object can be safely destroyed.
         //:
-        //: 3 The 'setTotalMilliseconds' method can set an object to have any
+        //: 3 The 'setTotalMicroseconds' method can set an object to have any
         //:   value that does not violate the method's documented
         //:   preconditions.
         //:
-        //: 4 'setTotalMilliseconds' is not affected by the state of the object
+        //: 4 'setTotalMicroseconds' is not affected by the state of the object
         //:   on entry.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create an object using the default constructor.  Verify, using
-        //:   the (as yet unproven) 'totalMilliseconds' accessor, that the
+        //:   the (as yet unproven) 'totalMicroseconds' accessor, that the
         //:   resulting object has a time interval of 0.  (C-1)
         //:
         //: 2 Let the object created in P-1 go out of scope.  (C-2)
         //:
         //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their total-milliseconds
+        //:   object values (one per row) in terms of their total-microseconds
         //:   representation.
         //:
         //: 4 For each row 'R1' in the table of P-3:  (C-3..4)
         //:
         //:   1 Create an object 'X' using the default constructor.
         //:
-        //:   2 Using the 'setTotalMilliseconds' (primary) manipulator, set 'X'
+        //:   2 Using the 'setTotalMicroseconds' (primary) manipulator, set 'X'
         //:     to the value specified in 'R1'.
         //:
-        //:   3 Verify, using 'totalMilliseconds', that 'X' has the expected
+        //:   3 Verify, using 'totalMicroseconds', that 'X' has the expected
         //:     value.  (C-3)
         //:
         //:   4 For each row 'R2' in the table of P-3:  (C-4)
         //:
         //:     1 Create an object 'Y' using the default constructor.
         //:
-        //:     2 Using 'setTotalMilliseconds', first set 'Y' to the value
+        //:     2 Using 'setTotalMicroseconds', first set 'Y' to the value
         //:       specified in 'R2', then set it to the value from 'R1'.  After
         //:       each setting, verify that 'Y' has the expected value.  (C-4)
         //:
         //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid total-millisecond values, but not triggered
+        //:   triggered for invalid total-microsecond values, but not triggered
         //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-5)
         //
@@ -5822,6 +6047,7 @@ if (veryVerbose)
         //   DatetimeInterval();
         //   ~DatetimeInterval();
         //   void setTotalMilliseconds(Int64 milliseconds);
+        //   void setTotalMicroseconds(Int64 microseconds);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5834,59 +6060,116 @@ if (veryVerbose)
             if (veryVerbose) P(X)
 
             ASSERT(0 == X.totalMilliseconds());
+            ASSERT(0 == X.totalMicroseconds());
         }
 
         if (verbose) cout << "\nTesting 'setTotalMilliseconds'." << endl;
+        {
+            static const struct {
+                int   d_line;        // source line number
+                Int64 d_totalMsecs;
+            } DATA[] = {
+                //LINE   TOTAL MILLISECONDS
+                //----   ------------------
+                { L_,                     0 },
 
-        static const struct {
-            int   d_line;        // source line number
-            Int64 d_totalMsecs;
-        } DATA[] = {
-            //LINE   TOTAL MILLISECONDS
-            //----   ------------------
-            { L_,                     0 },
+                { L_,                     1 },
+                { L_,                 13027 },
+                { L_,               INT_MAX },
+                { L_,           k_MSECS_MAX },
 
-            { L_,                     1 },
-            { L_,                 13027 },
-            { L_,               INT_MAX },
-            { L_,           k_MSECS_MAX },
+                { L_,                    -1 },
+                { L_,                -42058 },
+                { L_,               INT_MIN },
+                { L_,           k_MSECS_MIN },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            { L_,                    -1 },
-            { L_,                -42058 },
-            { L_,               INT_MIN },
-            { L_,           k_MSECS_MIN },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   ILINE        = DATA[ti].d_line;
+                const Int64 ITOTAL_MSECS = DATA[ti].d_totalMsecs;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   ILINE        = DATA[ti].d_line;
-            const Int64 ITOTAL_MSECS = DATA[ti].d_totalMsecs;
+                Obj mX;  const Obj& X = mX;
 
-            Obj mX;  const Obj& X = mX;
+                mX.setTotalMilliseconds(ITOTAL_MSECS);
+                if (veryVerbose) { T_ P_(X) P(ITOTAL_MSECS) }
 
-            mX.setTotalMilliseconds(ITOTAL_MSECS);
-            if (veryVerbose) { T_ P_(X) P(ITOTAL_MSECS) }
+                LOOP3_ASSERT(ILINE, ITOTAL_MSECS, X.totalMilliseconds(),
+                             ITOTAL_MSECS == X.totalMilliseconds());
 
-            LOOP3_ASSERT(ILINE, ITOTAL_MSECS, X.totalMilliseconds(),
-                         ITOTAL_MSECS == X.totalMilliseconds());
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int   JLINE        = DATA[tj].d_line;
+                    const Int64 JTOTAL_MSECS = DATA[tj].d_totalMsecs;
 
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int   JLINE        = DATA[tj].d_line;
-                const Int64 JTOTAL_MSECS = DATA[tj].d_totalMsecs;
+                    Obj mY;  const Obj& Y = mY;
 
-                Obj mY;  const Obj& Y = mY;
+                    mY.setTotalMilliseconds(JTOTAL_MSECS);
+                    if (veryVeryVerbose) { T_ P_(Y) P(JTOTAL_MSECS) }
 
-                mY.setTotalMilliseconds(JTOTAL_MSECS);
-                if (veryVeryVerbose) { T_ P_(Y) P(JTOTAL_MSECS) }
+                    LOOP3_ASSERT(JLINE, JTOTAL_MSECS, Y.totalMilliseconds(),
+                                 JTOTAL_MSECS == Y.totalMilliseconds());
 
-                LOOP3_ASSERT(JLINE, JTOTAL_MSECS, Y.totalMilliseconds(),
-                             JTOTAL_MSECS == Y.totalMilliseconds());
+                    mY.setTotalMilliseconds(ITOTAL_MSECS);
+                    if (veryVeryVerbose) { T_ P_(Y) P(ITOTAL_MSECS) }
 
-                mY.setTotalMilliseconds(ITOTAL_MSECS);
-                if (veryVeryVerbose) { T_ P_(Y) P(ITOTAL_MSECS) }
+                    LOOP3_ASSERT(ILINE, ITOTAL_MSECS, Y.totalMilliseconds(),
+                                 ITOTAL_MSECS == Y.totalMilliseconds());
+                }
+            }
+        }
 
-                LOOP3_ASSERT(ILINE, ITOTAL_MSECS, Y.totalMilliseconds(),
-                             ITOTAL_MSECS == Y.totalMilliseconds());
+        if (verbose) cout << "\nTesting 'setTotalMicroseconds'." << endl;
+        {
+            static const struct {
+                int   d_line;        // source line number
+                Int64 d_totalUsecs;
+            } DATA[] = {
+                //LINE   TOTAL MICROSECONDS
+                //----   ------------------
+                { L_,                     0 },
+
+                { L_,                     1 },
+                { L_,                 13027 },
+                { L_,               INT_MAX },
+
+                { L_,                    -1 },
+                { L_,                -42058 },
+                { L_,               INT_MIN },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   ILINE        = DATA[ti].d_line;
+                const Int64 ITOTAL_USECS = DATA[ti].d_totalUsecs;
+
+                Obj mX;  const Obj& X = mX;
+
+                mX.setTotalMicroseconds(ITOTAL_USECS);
+                if (veryVerbose) { T_ P_(X) P(ITOTAL_USECS) }
+
+                LOOP3_ASSERT(ILINE,
+                             ITOTAL_USECS,
+                             X.totalMicroseconds(),
+                             ITOTAL_USECS == X.totalMicroseconds());
+
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int   JLINE        = DATA[tj].d_line;
+                    const Int64 JTOTAL_USECS = DATA[tj].d_totalUsecs;
+
+                    Obj mY;  const Obj& Y = mY;
+
+                    mY.setTotalMicroseconds(JTOTAL_USECS);
+                    if (veryVeryVerbose) { T_ P_(Y) P(JTOTAL_USECS) }
+
+                    LOOP3_ASSERT(JLINE, JTOTAL_USECS, Y.totalMicroseconds(),
+                                 JTOTAL_USECS == Y.totalMicroseconds());
+
+                    mY.setTotalMicroseconds(ITOTAL_USECS);
+                    if (veryVeryVerbose) { T_ P_(Y) P(ITOTAL_USECS) }
+
+                    LOOP3_ASSERT(ILINE, ITOTAL_USECS, Y.totalMicroseconds(),
+                                 ITOTAL_USECS == Y.totalMicroseconds());
+                }
             }
         }
 
@@ -5906,7 +6189,6 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(mX.setTotalMilliseconds(k_MSECS_MAX + 1));
             }
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
