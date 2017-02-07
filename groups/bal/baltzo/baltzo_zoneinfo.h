@@ -83,6 +83,15 @@ BSLS_IDENT("$Id: $")
 // zone and vice-versa.  (See 'baltzo_zoneinfobinaryreader' for more
 // information about the binary file format.)
 //
+///posixExtendedRangeDescription
+///-----------------------------
+// This string may be populated with a POSIX-like TZ string that describes
+// rules for local time are handled before the first and after the last
+// local-time transitions maintained by this object.  Typically this is used
+// for computing local time values far in the future.  The rules for the
+// encoded string can be found online at
+// 'http://www.ibm.com/developerworks/aix/library/au-aix-posix/'.
+//
 ///Usage
 ///-----
 // The following usage examples illustrate how to populate a 'baltzo::Zoneinfo'
@@ -542,7 +551,8 @@ class Zoneinfo {
     void setPosixExtendedRangeDescription(const bslstl::StringRef&  value);
     void setPosixExtendedRangeDescription(const char               *value);
         // Set the 'posixExtendedRangeDescription' attribute of this object,
-        // representing far-reaching times, to the specified 'value'.
+        // used to describe local time transitions far in the future, to the
+        // specified 'value' (see {posixExtendedRangeDescription}).
 
     void swap(Zoneinfo& other);
         // Efficiently exchange the value of this object with the value of the
@@ -575,7 +585,9 @@ class Zoneinfo {
 
     const bsl::string& posixExtendedRangeDescription() const;
         // Return a reference providing non-modifiable access to the
-        // 'posixExtendedRangeDescription' attribute of this object.
+        // 'posixExtendedRangeDescription' attribute of this object, used to
+        // describe local time transitions far in the future (see
+        // {posixExtendedRangeDescription}).
 
     bsl::size_t numTransitions() const;
         // Return the number of transitions maintained by this zone info.

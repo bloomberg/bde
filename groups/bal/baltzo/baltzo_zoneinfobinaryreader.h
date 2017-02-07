@@ -193,20 +193,8 @@ BSLS_IDENT("$Id: $")
 // Version '3' format of the Zoneinfo binary data is identical to the version
 // '2' data described above. The version number of some files was incremented
 // because the rules for the allowable range of values for the POSIX TZ
-// environment string (found at the end of the data) were changed:
-//
-// - allowed POSIX-like TZ strings where the transition time's hour can range
-//   from -167 through 167, instead of the POSIX-required 0 through 24.  E.g.,
-//   TZ='FJT-12FJST,M10.3.1/146,M1.3.4/75' for the new Fiji rules.  This is a
-//   more-compact way to represent far-future time stamps for America/Godthab,
-//   America/Santiago, Antarctica/Palmer, Asia/Gaza, Asia/Hebron,
-//   Asia/Jerusalem, Pacific/Easter, and Pacific/Fiji.  Other zones are
-//   unaffected by this change.
-//
-// - allowed POSIX-like TZ strings where daylight saving time is in effect all
-//   year.  E.g., TZ='WART4WARST,J1/0,J365/25' for Western Argentina Summer
-//   Time all year.  This supports a more-compact way to represent the 2013d
-//   data for America/Argentina/San_Luis.
+// environment string (found at the end of the data) were changed (see
+// ftp://ftp.iana.org/tz/code/tzfile.h for more information).
 //
 ///Additional Information
 /// - - - - - - - - - - -
