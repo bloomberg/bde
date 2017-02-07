@@ -6,11 +6,11 @@
 # STL
 
 # extra directory for install: uc(package name less '+' prefix)_INCLUDE
-*			_	BBL_STDHDRS_DIR	= sys
+*           _   BBL_STDHDRS_DIR = sys
 
 *           _   STL_CXXFLAGS    =
-*			_	STL_LDFLAGS	=
-*			_	STL_DEFINES	=
+*           _   STL_LDFLAGS =
+*           _   STL_DEFINES =
 
 #===
 
