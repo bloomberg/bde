@@ -792,7 +792,7 @@ int TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
         BSLS_LOG_ERROR("(PID: %d) Failed to communicate request to control"
                        " channel (platformErrorCode = %d, rc = %d).\n",
                        bdls::ProcessUtil::getProcessId(),
-                       getPlatformErrorCode(),
+                       errorNumber,
                        rc);
         BSLS_ASSERT(errorNumber > 0);
         return -errorNumber;                                          // RETURN
@@ -812,6 +812,8 @@ int TcpTimerEventManager_ControlChannel::open()
 {
     btlso::SocketHandle::Handle fds[2];
 
+    int errorNumber = 0;
+
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
     // Use UNIX domain sockets, if possible, rather than a standard socket
     // pair, to avoid using ephemeral ports for the control channel.  AIX and
@@ -821,11 +823,14 @@ int TcpTimerEventManager_ControlChannel::open()
     // -- use the legacy identifier, 'AF_UNIX', instead.
 
     int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
+    if (rc) {
+        errorNumber = getPlatformErrorCode();
+    }
 #else
     int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                         fds,
-                                        btlso::SocketImpUtil::k_SOCKET_STREAM);
-
+                                        btlso::SocketImpUtil::k_SOCKET_STREAM,
+                                        &errorNumber);
 #endif
 
     if (rc) {
@@ -837,7 +842,7 @@ int TcpTimerEventManager_ControlChannel::open()
         BSLS_LOG_ERROR("(PID: %d) Failed to create control channel"
                        " (platformErrorCode = %d, rc = %d).\n",
                        bdls::ProcessUtil::getProcessId(),
-                       getPlatformErrorCode(),
+                       errorNumber,
                        rc);
         return rc;                                                    // RETURN
     }
