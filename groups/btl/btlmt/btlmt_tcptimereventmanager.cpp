@@ -79,6 +79,24 @@ enum {
                           // reinitialized.
 };
 
+int getPlatformErrorCode()
+    // Return the platform-specific error for an operation that was executed
+    // immediately before this function was called.  The error code returned by
+    // this method is valid only if the previous operation failed.  Calling
+    // this method after the successful completion of an operation may result
+    // in this method returning the stale error from a previously failed
+    // method.
+{
+#if defined(BTLSO_PLATFORM_WIN_SOCKETS)
+    int rc = WSAGetLastError();
+    if (!rc) rc = GetLastError();
+    if (!rc) rc = errno;
+    return rc;
+#else
+    return errno;
+#endif
+}
+
 namespace btlmt {
 
                 // =========================================
@@ -772,9 +790,10 @@ int TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
             return rc;                                                // RETURN
         }
         BSLS_LOG_ERROR("(PID: %d) Failed to communicate request to control"
-                       " channel (errno = %d, errorNumber = %d, rc = %d).\n",
+                       " channel (platformErrorCode = %d, rc = %d).\n",
                        bdls::ProcessUtil::getProcessId(),
-                       errno, errorNumber, rc);
+                       getPlatformErrorCode(),
+                       rc);
         BSLS_ASSERT(errorNumber > 0);
         return -errorNumber;                                          // RETURN
     }
@@ -816,8 +835,10 @@ int TcpTimerEventManager_ControlChannel::open()
                                    btlso::SocketHandle::INVALID_SOCKET_HANDLE);
 
         BSLS_LOG_ERROR("(PID: %d) Failed to create control channel"
-                       " (errno = %d, rc = %d).\n",
-                       bdls::ProcessUtil::getProcessId(), errno, rc);
+                       " (platformErrorCode = %d, rc = %d).\n",
+                       bdls::ProcessUtil::getProcessId(),
+                       getPlatformErrorCode(),
+                       rc);
         return rc;                                                    // RETURN
     }
 
@@ -1069,8 +1090,11 @@ void TcpTimerEventManager::controlCb()
                 // fail so its best to log an error and abort.
 
                 BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel"
-                               " after 'deregisterAllSocketEvents.'\n",
-                               bdls::ProcessUtil::getProcessId());
+                               " after 'deregisterAllSocketEvents' "
+                               "(platformErrorCode: %d, rc = %d),\n",
+                               bdls::ProcessUtil::getProcessId()
+                               getPlatformErrorCode(),
+                               rc);
                 bsl::abort();
             }
             d_numTotalSocketEvents = 0;
@@ -1240,8 +1264,11 @@ int TcpTimerEventManager::reinitializeControlChannel()
                                           cb);
     if (rc) {
         BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel for READ"
-                       " events in btemt_TcpTimerEventManager constructor.\n",
-                       bdls::ProcessUtil::getProcessId());
+                       " events in btemt_TcpTimerEventManager constructor ",
+                       "(platformErrorCode: %d, rc = %d).\n",
+                       bdls::ProcessUtil::getProcessId()
+                       getPlatformErrorCode(),
+                       rc);
         BSLS_ASSERT("Failed to register controlChannel for READ events" &&
                     0);
         return rc;                                                    // RETURN
