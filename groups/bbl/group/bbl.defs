@@ -8,7 +8,7 @@
 # extra directory for install: uc(package name less '+' prefix)_INCLUDE
 *			_	BBL_STDHDRS_DIR	= sys
 
-*			_	STL_CXXFLAGS	=
+*           _   STL_CXXFLAGS    =
 *			_	STL_LDFLAGS	=
 *			_	STL_DEFINES	=
 
@@ -30,9 +30,9 @@ unix-*-*-*-*    	_       STL_DEFINES     = $(STL_EXCDEFS)
 !! unix-*-*-*-* 	mt      STL_MTDEFS      =
 unix-*-*-*-*    	_       STL_DEFINES     = $(STL_MTDEFS)
 
-unix-SunOS-*-*-*					_	STL_CXXFLAGS	= -library=no%rwtools7
-!! unix-SunOS-sparc-5.10-cc-5.12.4	_	STL_CXXFLAGS	=
-!! unix-SunOS-*-*-gcc				_	STL_CXXFLAGS	=
+unix-SunOS-*-*-*                    _   STL_CXXFLAGS    = -library=no%rwtools7
+!! unix-SunOS-sparc-5.10-cc-5.12.4  _   STL_CXXFLAGS    =
+!! unix-SunOS-*-*-gcc               _   STL_CXXFLAGS    =
 
 #===
 

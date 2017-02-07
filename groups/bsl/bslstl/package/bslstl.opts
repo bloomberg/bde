@@ -1,7 +1,9 @@
 *                       _       OPTS_FILE       = bslstl.opts
 
-!! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
-!! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
+unix-SunOS-*-*-*                    _   STL_CXXFLAGS    = -library=no%rwtools7
+!! unix-SunOS-sparc-5.10-cc-5.12.4  _   STL_CXXFLAGS    =
+!! unix-SunOS-*-*-gcc               _   STL_CXXFLAGS    =
+
 !! *			_	STL_DEFINES	= -DBDE_NO_CPP_STDLIB -D_RWSTD_COMPILE_INSTANTIATE=1
 !! *			_	STL_INCLUDE	=
 
