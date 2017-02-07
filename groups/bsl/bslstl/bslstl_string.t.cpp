@@ -25,6 +25,8 @@
 #include <bsls_types.h>
 #include <bsls_macrorepeat.h>
 
+#include <bsltf_stdstatefulallocator.h>
+
 #include <algorithm>    // 'adjacent_find', 'sort'
 #include <iomanip>
 #include <iostream>
@@ -940,7 +942,7 @@ struct UsesBslmaAllocator<LimitAllocator<ALLOC> > : bsl::false_type {};
 
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE>,
-          class ALLOC = bsl::allocator<TYPE> >
+          class ALLOC  = bsl::allocator<TYPE> >
 struct TestDriver {
     // The generating functions interpret the given 'spec' in order from left
     // to right to configure the object according to a custom language.
@@ -980,16 +982,6 @@ struct TestDriver {
     //-------------------------------------------------------------------------
     //..
 
-    // TYPES
-    typedef bsl::basic_string<TYPE,TRAITS,ALLOC>  Obj;
-        // Type under testing.
-
-    typedef typename Obj::allocator_type          Allocator;
-        // And its allocator (may be different from 'ALLOC' via rebind).
-
-    typedef ALLOC AllocType;
-        // Utility typedef for xlC10 silliness.
-
     // CONSTANTS
     enum {
         DEFAULT_CAPACITY = SHORT_STRING_BUFFER_BYTES / sizeof(TYPE) > 0
@@ -997,11 +989,22 @@ struct TestDriver {
                                 : 0
     };
 
-    typedef typename Obj::iterator                iterator;
-    typedef typename Obj::const_iterator          const_iterator;
-    typedef typename Obj::reverse_iterator        reverse_iterator;
-    typedef typename Obj::const_reverse_iterator  const_reverse_iterator;
-        // Shorthand.
+    // TYPES
+    typedef bsl::basic_string<TYPE, TRAITS, ALLOC> Obj;
+        // Type under testing.
+
+    typedef typename Obj::allocator_type           Allocator;
+        // And its allocator (may be different from 'ALLOC' via rebind).
+
+    typedef ALLOC AllocType;
+        // Utility typedef for xlC10 silliness.
+
+    typedef typename Obj::iterator                 iterator;
+    typedef typename Obj::const_iterator           const_iterator;
+    typedef typename Obj::reverse_iterator         reverse_iterator;
+    typedef typename Obj::const_reverse_iterator   const_reverse_iterator;
+
+    typedef bslmf::MovableRefUtil                  MoveUtil;
 
     struct InputIterator {
         // Input iterator type to test functions that take input iterators.
@@ -1138,6 +1141,12 @@ struct TestDriver {
     static void testCase22Negative();
         // Negative test for 'find...' methods.
 
+    template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase21_propagate_on_container_swap_dispatch();
+    static void testCase21_propagate_on_container_swap();
+        // Test 'propagate_on_container_swap'.
+
     static void testCase21();
         // Test 'swap' member.
 
@@ -1223,6 +1232,18 @@ struct TestDriver {
 
     static void testCase10();
         // Test streaming functionality.  This test case tests nothing.
+
+    template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase9_propagate_on_container_copy_assignment_dispatch();
+    static void testCase9_propagate_on_container_copy_assignment();
+        // Test 'propagate_on_container_copy_assignment'.
+
+    template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
+              bool OTHER_FLAGS>
+    static void testCase9_propagate_on_container_move_assignment_dispatch();
+    static void testCase9_propagate_on_container_move_assignment();
+        // Test 'propagate_on_container_move_assignment'.
 
     static void testCase9();
         // Test assignment operator ('operator=').
@@ -1464,12 +1485,11 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
 
         Obj str;
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(
-                                       Obj(bslmf::MovableRefUtil::move(str))));
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(Obj(MoveUtil::move(str))));
+
         Obj s;
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(
-                                        s = bslmf::MovableRefUtil::move(str)));
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(s = MoveUtil::move(str)));
     }
 
     // page 704
@@ -5226,6 +5246,163 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
+template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<TYPE, TRAITS, ALLOC>::
+                              testCase21_propagate_on_container_swap_dispatch()
+{
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
+
+    typedef bsltf::StdStatefulAllocator<
+                                   TYPE,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
+                                   PROPAGATE_ON_CONTAINER_SWAP_FLAG,
+                                   OTHER_FLAGS>  StdAlloc;
+
+    typedef bsl::basic_string<TYPE, TRAITS, StdAlloc>  Obj;
+
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_SWAP_FLAG;
+
+    static const char *SPECS[] = {
+        "",
+        "A",
+        "BC",
+        "CDE",
+        "This is very long string which must allocate",
+        "This is another very long string which must allocate"
+    };
+    enum { NUM_SPECS = sizeof SPECS / sizeof *SPECS };
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    // Create control and source objects.
+    for (int ti = 0; ti < NUM_SPECS; ++ti) {
+        const char *const ISPEC = SPECS[ti];
+
+        bslma::TestAllocator oas("source", veryVeryVeryVerbose);
+        bslma::TestAllocator oat("target", veryVeryVeryVerbose);
+
+        StdAlloc mas(&oas);
+        StdAlloc mat(&oat);
+
+        StdAlloc scratch(&da);
+
+        const Obj mW(ISPEC, scratch);  const Obj& W = mW;  // control
+
+        // Create target object.
+        for (int tj = 0; tj < NUM_SPECS; ++tj) {
+            const char *const JSPEC   = SPECS[tj];
+
+            const Obj mZ(JSPEC, scratch);  const Obj& Z = mZ;  // control
+
+            for (int member = 0; member < 2; ++member) {
+                Obj mY(ISPEC, mas);  const Obj& Y = mY;
+
+                Obj mX(JSPEC, mat);  const Obj& X = mX;
+
+                if (veryVerbose) { T_ P_(ISPEC) P_(JSPEC) P_(Y) P_(X) P(W) }
+
+                ASSERTV(ISPEC, JSPEC, Z, X, Z == X);
+                ASSERTV(ISPEC, JSPEC, W, Y, Y == Y);
+
+                if (member) {
+                    mX.swap(mY);
+                } else {
+                    swap(mX, mY);
+                }
+
+                ASSERTV(ISPEC, JSPEC, W, X, W == X);
+                ASSERTV(ISPEC, JSPEC, Z, Y, Z == Y);
+
+                if (PROPAGATE) {
+                    ASSERTV(ISPEC, JSPEC, PROPAGATE, mas == X.get_allocator());
+                    ASSERTV(ISPEC, JSPEC, PROPAGATE, mat == Y.get_allocator());
+                } else {
+                    ASSERTV(ISPEC, JSPEC, PROPAGATE, mat == X.get_allocator());
+                    ASSERTV(ISPEC, JSPEC, PROPAGATE, mas == Y.get_allocator());
+                }
+            }
+            ASSERTV(ISPEC, 0 == oas.numBlocksInUse());
+            ASSERTV(ISPEC, 0 == oat.numBlocksInUse());
+        }
+    }
+    ASSERTV(0 == da.numBlocksInUse());
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase21_propagate_on_container_swap()
+{
+    // ------------------------------------------------------------------------
+    // SWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 If the 'propagate_on_container_swap' trait is 'false', the
+    //:   allocators used by the source and target objects remain unchanged
+    //:   (i.e., the allocators are *not* exchanged).
+    //:
+    //: 2 If the 'propagate_on_container_swap' trait is 'true', the
+    //:   allocator used by the target (source) object is updated to be a copy
+    //:   of that used by the source (target) object (i.e., the allocators
+    //:   *are* exchanged).
+    //:
+    //: 3 If the allocators are propagated (i.e., exchanged), there is no
+    //:   additional allocation from any allocator.
+    //:
+    //: 4 The effect of the 'propagate_on_container_swap' trait is independent
+    //:   of the other three allocator propagation traits.
+    //:
+    //: 5 Following the swap operation, neither object holds on to memory
+    //:   allocated from the other object's allocator.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
+    //:   'propagate_on_container_swap' property configured to 'false'.  In two
+    //:   successive iterations of P-3, first configure the three properties
+    //:   not under test to be 'false', then configure them all to be 'true'.
+    //:
+    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
+    //:
+    //:   1 Initialize two objects from 'x', a control object 'ZZ' using a
+    //:     scratch allocator and an object 'X' using one of the allocators
+    //:     from P-2.
+    //:
+    //:   2 Initialize two objects from 'y', a control object 'WW' using a
+    //:     scratch allocator and an object 'Y' using the other allocator from
+    //:     P-2.
+    //:
+    //:   3 Using both member 'swap' and free function 'swap', swap 'X' with
+    //:     'Y' and use 'operator==' to verify that 'X' and 'Y' have the
+    //:     expected values.
+    //:
+    //:   4 Use the 'get_allocator' method to verify that the allocators of 'X'
+    //:     and 'Y' are *not* exchanged.  (C-1)
+    //:
+    //: 4 Repeat P-2..3 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocators of 'X' and 'Y'
+    //:   *are* exchanged.  Also verify that there is no additional allocation
+    //:   from any allocator.  (C-2..5)
+    //
+    // Testing:
+    //   propagate_on_container_swap
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\t'propagate_on_container_swap::value == false'\n");
+
+    testCase21_propagate_on_container_swap_dispatch<false, false>();
+    testCase21_propagate_on_container_swap_dispatch<false, true>();
+
+    if (verbose) printf("\t'propagate_on_container_swap::value == true'\n");
+
+    testCase21_propagate_on_container_swap_dispatch<true, false>();
+    testCase21_propagate_on_container_swap_dispatch<true, true>();
+}
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
 {
     // --------------------------------------------------------------------
@@ -5452,7 +5629,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
         { L_,   DEFAULT_CAPACITY + 1 },
         { L_,   DEFAULT_CAPACITY * 5 }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\nTesting 'replace'.\n");
 
@@ -5746,7 +5923,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
         { L_,       32   }
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\nTesting 'replace'.\n");
 
@@ -5775,7 +5952,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
                     const int    LINE         = DATA[ti].d_lineNum;
                     const int    NUM_ELEMENTS = DATA[ti].d_length;
-                    const int    VALUE        = VALUES[ti % NUM_VALUES];
+                    const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
 
                     for (size_t b = 0; b <= INIT_LENGTH; ++b) {
                     for (size_t s = 0; s <= INIT_LENGTH; ++s) {
@@ -5901,7 +6078,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
                     const int    LINE         = DATA[ti].d_lineNum;
                     const size_t NUM_ELEMENTS = DATA[ti].d_length;
-                    const size_t VALUE        = VALUES[ti % NUM_VALUES];
+                    const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
 
                     for (size_t b = 0; b <= INIT_LENGTH; ++b) {
                     for (size_t s = 0; s <= INIT_LENGTH; ++s) {
@@ -9002,7 +9179,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                                      VALUE == X[k]);
                     }
 
-                    const int REALLOC = X.capacity() > INIT_CAP;
+//                    const int REALLOC = X.capacity() > INIT_CAP;
                     const int A_ALLOC =
                             DEFAULT_CAPACITY >= INIT_CAP &&
                             X.capacity() > DEFAULT_CAPACITY;
@@ -10792,7 +10969,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     const Int64 BB = testAllocator.numBlocksTotal();
                     const Int64  B = testAllocator.numBlocksInUse();
 
-                    Obj& result = dst.assign(bslmf::MovableRefUtil::move(src));
+                    Obj& result = dst.assign(MoveUtil::move(src));
                     ASSERT(&result == &dst);                    // ^--test here
 
                     LOOP2_ASSERT(INIT_LINE, LINE, dst == src_copy);
@@ -10844,7 +11021,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     const Int64 BB = testAllocator.numBlocksTotal();
                     const Int64  B = testAllocator.numBlocksInUse();
 
-                    Obj& result = dst.assign(bslmf::MovableRefUtil::move(src));
+                    Obj& result = dst.assign(MoveUtil::move(src));
                     ASSERT(&result == &dst);                       // test here
 
                     LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE, dst == src);
@@ -10911,8 +11088,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 
                         testAllocator.setAllocationLimit(AL);
 
-                        Obj& result = mX.assign(                   // test here
-                                               bslmf::MovableRefUtil::move(Y));
+                        Obj& result = mX.assign(MoveUtil::move(Y));  // test
                         ASSERT(&result == &mX);
                         guard.release();
 
@@ -12528,6 +12704,330 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
+template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<TYPE, TRAITS, ALLOC>::
+                    testCase9_propagate_on_container_copy_assignment_dispatch()
+{
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
+
+    typedef bsltf::StdStatefulAllocator<
+                                   TYPE,
+                                   OTHER_FLAGS,
+                                   PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS>  StdAlloc;
+
+    typedef bsl::basic_string<TYPE, TRAITS, StdAlloc>  Obj;
+
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG;
+
+    static const char *SPECS[] = {
+        "",
+        "A",
+        "BC",
+        "CDE",
+        "This is very long string which must allocate",
+        "This is another very long string which must allocate"
+    };
+    enum { NUM_SPECS = sizeof SPECS / sizeof *SPECS };
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    // Create control and source objects.
+    for (int ti = 0; ti < NUM_SPECS; ++ti) {
+        const char *const ISPEC = SPECS[ti];
+
+        bslma::TestAllocator oas("source", veryVeryVeryVerbose);
+        bslma::TestAllocator oat("target", veryVeryVeryVerbose);
+
+        StdAlloc mas(&oas);
+        StdAlloc mat(&oat);
+
+        StdAlloc scratch(&da);
+
+        const Obj mW(ISPEC, scratch);  const Obj& W = mW;  // control
+
+        // Create target object.
+        for (int tj = 0; tj < NUM_SPECS; ++tj) {
+            const char *const JSPEC   = SPECS[tj];
+
+            {
+                Obj mY(ISPEC, mas);  const Obj& Y = mY;
+
+                Obj mX(JSPEC, mat);  const Obj& X = mX;
+
+                if (veryVerbose) { T_ P_(ISPEC) P_(JSPEC) P_(Y) P_(X) P(W) }
+
+                bslma::TestAllocatorMonitor oasm(&oas);
+                bslma::TestAllocatorMonitor oatm(&oat);
+
+                Obj *mR = &(mX = Y);
+
+                ASSERTV(ISPEC, JSPEC,  W,   X,  W == X);
+                ASSERTV(ISPEC, JSPEC,  W,   Y,  W == Y);
+                ASSERTV(ISPEC, JSPEC, mR, &mX, mR == &mX);
+
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                       !PROPAGATE == (mat == X.get_allocator()));
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                        PROPAGATE == (mas == X.get_allocator()));
+
+                ASSERTV(ISPEC, JSPEC, mas == Y.get_allocator());
+
+                if (PROPAGATE) {
+                    ASSERTV(ISPEC, JSPEC, 0 == oat.numBlocksInUse());
+                } else {
+                    ASSERTV(ISPEC, JSPEC, oasm.isInUseSame());
+                }
+            }
+            ASSERTV(ISPEC, 0 == oas.numBlocksInUse());
+            ASSERTV(ISPEC, 0 == oat.numBlocksInUse());
+        }
+    }
+    ASSERTV(0 == da.numBlocksInUse());
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::
+                             testCase9_propagate_on_container_copy_assignment()
+{
+    // ------------------------------------------------------------------------
+    // COPY-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 If the 'propagate_on_container_copy_assignment' trait is 'false', the
+    //:   allocator used by the target object remains unchanged (i.e., the
+    //:   source object's allocator is *not* propagated).
+    //:
+    //: 2 If the 'propagate_on_container_copy_assignment' trait is 'true', the
+    //:   allocator used by the target object is updated to be a copy of that
+    //:   used by the source object (i.e., the source object's allocator *is*
+    //:   propagated).
+    //:
+    //: 3 The allocator used by the source object remains unchanged whether or
+    //;   not it is propagated to the target object.
+    //:
+    //: 4 If the allocator is propagated from the source object to the target
+    //:   object, all memory allocated from the target object's original
+    //:   allocator is released.
+    //:
+    //: 5 The effect of the 'propagate_on_container_copy_assignment' trait is
+    //:   independent of the other three allocator propagation traits.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
+    //:   'propagate_on_container_copy_assignment' property configured to
+    //:   'false'.  In two successive iterations of P-3, first configure the
+    //:   three properties not under test to be 'false', then configure them
+    //:   all to be 'true'.
+    //:
+    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
+    //:
+    //:   1 Initialize an object 'X' from 'x' using one of the allocators from
+    //:     P-2.
+    //:
+    //:   2 Initialize two objects from 'y', a control object 'W' using a
+    //:     scratch allocator and an object 'Y' using the other allocator from
+    //:     P-2.
+    //:
+    //:   3 Copy-assign 'Y' to 'X' and use 'operator==' to verify that both
+    //:     'X' and 'Y' subsequently have the same value as 'W'.
+    //:
+    //:   4 Use the 'get_allocator' method to verify that the allocator of 'Y'
+    //:     is *not* propagated to 'X' and that the allocator used by 'Y'
+    //:     remains unchanged.  (C-1)
+    //:
+    //: 4 Repeat P-2..3 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocator of 'Y' *is*
+    //:   propagated to 'X'.  Also verify that all memory is released to the
+    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..5)
+    //
+    // Testing:
+    //   propagate_on_container_copy_assignment
+    // ------------------------------------------------------------------------
+
+    if (verbose)
+        printf("\t'propagate_on_container_copy_assignment::value == false'\n");
+
+    testCase9_propagate_on_container_copy_assignment_dispatch<false, false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<false, true>();
+
+    if (verbose)
+        printf("\t'propagate_on_container_copy_assignment::value == true'\n");
+
+    testCase9_propagate_on_container_copy_assignment_dispatch<true, false>();
+    testCase9_propagate_on_container_copy_assignment_dispatch<true, true>();
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
+          bool OTHER_FLAGS>
+void TestDriver<TYPE, TRAITS, ALLOC>::
+                    testCase9_propagate_on_container_move_assignment_dispatch()
+{
+    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
+    // under test in this test case to 'false'.
+
+    typedef bsltf::StdStatefulAllocator<
+                                   TYPE,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
+                                   OTHER_FLAGS,
+                                   PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG>
+                                       StdAlloc;
+
+    typedef bsl::basic_string<TYPE, TRAITS, StdAlloc>  Obj;
+
+    const bool PROPAGATE = PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG;
+
+    static const char *SPECS[] = {
+        "",
+        "A",
+        "BC",
+        "CDE",
+        "This is very long string which must allocate",
+        "This is another very long string which must allocate"
+    };
+    enum { NUM_SPECS = sizeof SPECS / sizeof *SPECS };
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    // Create control and source objects.
+    for (int ti = 0; ti < NUM_SPECS; ++ti) {
+        const char *const ISPEC = SPECS[ti];
+
+        bslma::TestAllocator oas("source", veryVeryVeryVerbose);
+        bslma::TestAllocator oat("target", veryVeryVeryVerbose);
+
+        StdAlloc mas(&oas);
+        StdAlloc mat(&oat);
+
+        StdAlloc scratch(&da);
+
+        const Obj mW(ISPEC, scratch);  const Obj& W = mW;  // control
+
+        // Create target object.
+        for (int tj = 0; tj < NUM_SPECS; ++tj) {
+            const char *const JSPEC = SPECS[tj];
+
+            {
+                Obj mY(ISPEC, mas);  const Obj& Y = mY;
+
+                Obj mX(JSPEC, mat);  const Obj& X = mX;
+
+                if (veryVerbose) { T_ P_(ISPEC) P_(JSPEC) P_(Y) P_(X) P(W) }
+
+                bslma::TestAllocatorMonitor oasm(&oas);
+                bslma::TestAllocatorMonitor oatm(&oat);
+
+                Obj *mR = &(mX = MoveUtil::move(mY));
+
+                ASSERTV(ISPEC, JSPEC,  W,   X,  W == X);
+                ASSERTV(ISPEC, JSPEC, mR, &mX, mR == &mX);
+
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                       !PROPAGATE == (mat == X.get_allocator()));
+                ASSERTV(ISPEC, JSPEC, PROPAGATE,
+                        PROPAGATE == (mas == X.get_allocator()));
+
+                ASSERTV(ISPEC, JSPEC, mas == Y.get_allocator());
+
+                if (PROPAGATE) {
+                    ASSERTV(ISPEC, JSPEC, 0 == oat.numBlocksInUse());
+                } else {
+                    ASSERTV(ISPEC, JSPEC, oasm.isInUseSame());
+                }
+            }
+            ASSERTV(ISPEC, 0 == oas.numBlocksInUse());
+            ASSERTV(ISPEC, 0 == oat.numBlocksInUse());
+        }
+    }
+    ASSERTV(0 == da.numBlocksInUse());
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::
+                             testCase9_propagate_on_container_move_assignment()
+{
+    // ------------------------------------------------------------------------
+    // MOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
+    //
+    // Concerns:
+    //: 1 If the 'propagate_on_container_move_assignment' trait is 'false', the
+    //:   allocator used by the target object remains unchanged (i.e., the
+    //:   source object's allocator is *not* propagated).
+    //:
+    //: 2 If the 'propagate_on_container_move_assignment' trait is 'true', the
+    //:   allocator used by the target object is updated to be a copy of that
+    //:   used by the source object (i.e., the source object's allocator *is*
+    //:   propagated).
+    //:
+    //: 3 The allocator used by the source object remains unchanged whether or
+    //;   not it is propagated to the target object.
+    //:
+    //: 4 If the allocator is propagated from the source object to the target
+    //:   object, all memory allocated from the target object's original
+    //:   allocator is released.
+    //:
+    //: 5 The effect of the 'propagate_on_container_move_assignment' trait is
+    //:   independent of the other three allocator propagation traits.
+    //
+    // Plan:
+    //: 1 Specify a set S of object values with varied differences, ordered by
+    //:   increasing length, to be used in the following tests.
+    //:
+    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
+    //:   'propagate_on_container_move_assignment' property configured to
+    //:   'false'.  In two successive iterations of P-3, first configure the
+    //:   three properties not under test to be 'false', then configure them
+    //:   all to be 'true'.
+    //:
+    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
+    //:
+    //:   1 Initialize an object 'X' from 'x' using one of the allocators from
+    //:     P-2.
+    //:
+    //:   2 Initialize two objects from 'y', a control object 'W' using a
+    //:     scratch allocator and an object 'Y' using the other allocator from
+    //:     P-2.
+    //:
+    //:   3 Move-assign 'y' to 'X' and use 'operator==' to verify that both
+    //:     'X' and 'Y' subsequently have the same value as 'W'.
+    //:
+    //:   4 Use the 'get_allocator' method to verify that the allocator of 'Y'
+    //:     is *not* propagated to 'X' and that the allocator used by 'Y'
+    //:     remains unchanged.  (C-1)
+    //:
+    //: 4 Repeat P-2..3 except that this time configure the allocator property
+    //:   under test to 'true' and verify that the allocator of 'Y' *is*
+    //:   propagated to 'X'.  Also verify that all memory is released to the
+    //:   allocator that was in use by 'X' prior to the assignment.  (C-2..5)
+    //
+    // Testing:
+    //   propagate_on_container_move_assignment
+    // ------------------------------------------------------------------------
+
+    if (verbose)
+        printf("\t'propagate_on_container_move_assignment::value == false'\n");
+
+    testCase9_propagate_on_container_move_assignment_dispatch<false, false>();
+    testCase9_propagate_on_container_move_assignment_dispatch<false, true>();
+
+    if (verbose)
+        printf("\t'propagate_on_container_move_assignment::value == true'\n");
+
+    testCase9_propagate_on_container_move_assignment_dispatch<true, false>();
+    testCase9_propagate_on_container_move_assignment_dispatch<true, true>();
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 {
     // --------------------------------------------------------------------
@@ -13124,7 +13624,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
                     const int NUM_CTOR = numCopyCtorCalls;
                     const int NUM_DTOR = numDestructorCalls;
 
-                    Obj& result = (mU = bslmf::MovableRefUtil::move(mV));
+                    Obj& result = (mU = MoveUtil::move(mV));
                         // test move assignment here
 
                     ASSERT(&result == &U);
@@ -13207,7 +13707,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
                     const int NUM_DTOR = numDestructorCalls;
 
                     // test move assignment here
-                    mU = bslmf::MovableRefUtil::move(mV);
+                    mU = MoveUtil::move(mV);
 
                     ASSERT((numCopyCtorCalls - NUM_CTOR) == 0);
                     ASSERT((numDestructorCalls - NUM_DTOR) == 0);
@@ -13322,7 +13822,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
                         ExceptionGuard<Obj> guard(U, L_);
                         testAllocator.setAllocationLimit(AL);
                         // test move assignment here
-                        mU = bslmf::MovableRefUtil::move(mV);
+                        mU = MoveUtil::move(mV);
                         guard.release();
 
                         LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
@@ -13405,7 +13905,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
                         ExceptionGuard<Obj> guard(U, L_);
                         testAllocator.setAllocationLimit(AL);
                         // test move assignment here
-                        mU = bslmf::MovableRefUtil::move(mV);
+                        mU = MoveUtil::move(mV);
                         guard.release();
 
                         LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
@@ -13476,7 +13976,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
                     testAllocator.setAllocationLimit(AL);
                     {  // test move assignment here
                         ExceptionGuard<Obj> guard(Y, L_);
-                        mY = bslmf::MovableRefUtil::move(mY);
+                        mY = MoveUtil::move(mY);
                     }
 
                     LOOP2_ASSERT(SPEC, N, Y == Y);
@@ -13509,7 +14009,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
         try
         {
             // the assignment will require to allocate more memory
-            dst = bslmf::MovableRefUtil::move(src);
+            dst = MoveUtil::move(src);
         }
         catch (bslma::TestAllocatorException &)
         {
@@ -14152,7 +14652,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     // strict C++03 compiler due to an ambiguity.  We do not
                     // add a separate C++11 only test for that syntax, as that
                     // would be testing the compiler, rather than the library.
-                    Obj Y0(bslmf::MovableRefUtil::move(mX));
+                    Obj Y0(MoveUtil::move(mX));
 
                     const Int64 A  = testAllocator.numBlocksTotal();
                     const Int64 AA = testAllocator.numBlocksInUse();
@@ -14201,7 +14701,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     const Int64 B  = testAllocator.numBlocksTotal();
                     const Int64 BB = testAllocator.numBlocksInUse();
 
-                    Obj Y0(bslmf::MovableRefUtil::move(mX), &testAllocator);
+                    Obj Y0(MoveUtil::move(mX), &testAllocator);
 
                     const Int64 A  = testAllocator.numBlocksTotal();
                     const Int64 AA = testAllocator.numBlocksInUse();
@@ -14249,7 +14749,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     if (veryVerbose) printf("\t\t\tMove into created obj, "
                                             "without test allocator:\n");
 
-                    Obj Y1(bslmf::MovableRefUtil::move(mX));
+                    Obj Y1(MoveUtil::move(mX));
                     // Control object for X.
                     Obj X_ctrl(X);
 
@@ -14307,7 +14807,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
                     }
 
-                    Obj Y11(bslmf::MovableRefUtil::move(mX),
+                    Obj Y11(MoveUtil::move(mX),
                             AllocType(&testAllocator));
                     // Control object for X.
                     Obj X_ctrl(X);
@@ -14386,8 +14886,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
                     }
 
-                    Obj Y11(bslmf::MovableRefUtil::move(mX),
-                            AllocType(&testAllocator));
+                    Obj Y11(MoveUtil::move(mX), AllocType(&testAllocator));
 
                     const Int64 AA = testAllocator.numBlocksTotal();
                     const Int64  A = testAllocator.numBlocksInUse();
@@ -14469,7 +14968,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     AllocType testA = &testAllocator;
                     ASSERT(X.get_allocator() == testA);
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const Obj Y2(bslmf::MovableRefUtil::move(mX),
+                        const Obj Y2(MoveUtil::move(mX),
                                      AllocType(&testAllocator));
                         if (veryVerbose) {
                             printf("\t\t\tException Case with same "
@@ -14513,7 +15012,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     bool isShort = X.size() <= DEFAULT_CAPACITY;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const Obj Y2(bslmf::MovableRefUtil::move(mX),
+                        const Obj Y2(MoveUtil::move(mX),
                                      AllocType(&testAllocator));
                         if (veryVerbose) {
                             printf("\t\t\tException Case with "
@@ -17173,7 +17672,7 @@ namespace UsageExample {
         //: o is *exception-neutral* (agnostic)
         //: o is *alias-safe*
         //: o is 'const' *thread-safe*
-//
+
         // DATA
         bsl::string d_firstName;       // first name
         bsl::string d_lastName;        // last name
@@ -17194,7 +17693,7 @@ namespace UsageExample {
             // Optionally specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default
             // allocator is used.
-//
+
         Employee(const bslstl::StringRef&  firstName,
                  const bslstl::StringRef&  lastName,
                  int                       id,
@@ -17203,14 +17702,14 @@ namespace UsageExample {
             // 'lastName', and 'id' attribute values.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
-//
+
         Employee(const Employee&   original,
                  bslma::Allocator *basicAllocator = 0);
             // Create a 'Employee' object having the same value as the
             // specified 'original' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
-//
+
         //! ~Employee() = default;
             // Destroy this object.
 //..
@@ -17230,27 +17729,27 @@ namespace UsageExample {
             // Assign to this object the value of the specified 'rhs' object,
             // and return a reference providing modifiable access to this
             // object.
-//
+
         void setFirstName(const bslstl::StringRef& value);
             // Set the 'firstName' attribute of this object to the specified
             // 'value'.
-//
+
         void setLastName(const bslstl::StringRef& value);
             // Set the 'lastName' attribute of this object to the specified
             // 'value'.
-//
+
         void setId(int value);
             // Set the 'id' attribute of this object to the specified 'value'.
-//
+
         // ACCESSORS
         const bsl::string& firstName() const;
             // Return a reference providing non-modifiable access to the
             // 'firstName' attribute of this object.
-//
+
         const bsl::string& lastName() const;
             // Return a reference providing non-modifiable access to the
             // 'lastName' attribute of this object.
-//
+
         int id() const;
             // Return the value of the 'id' attribute of this object.
     };
@@ -17263,7 +17762,7 @@ namespace UsageExample {
         // value, and 'false' otherwise.  Two 'Employee' objects have the same
         // value if all of their corresponding values of their 'firstName',
         // 'lastName', and 'id' attributes are the same.
-//
+
     inline
     bool operator!=(const Employee& lhs, const Employee& rhs);
         // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
@@ -17281,7 +17780,7 @@ namespace UsageExample {
     , d_id(0)
     {
     }
-//
+
     inline
     Employee::Employee(const bslstl::StringRef&  firstName,
                        const bslstl::StringRef&  lastName,
@@ -17294,7 +17793,7 @@ namespace UsageExample {
         BSLS_ASSERT_SAFE(!firstName.isEmpty());
         BSLS_ASSERT_SAFE(!lastName.isEmpty());
     }
-//
+
     inline
     Employee::Employee(const Employee&   original,
                        bslma::Allocator *basicAllocator)
@@ -17318,42 +17817,42 @@ namespace UsageExample {
         d_id        = rhs.d_id;
         return *this;
     }
-//
+
     inline
     void Employee::setFirstName(const bslstl::StringRef& value)
     {
         BSLS_ASSERT_SAFE(!value.isEmpty());
-//
+
         d_firstName.assign(value.begin(), value.end());
     }
-//
+
     inline
     void Employee::setLastName(const bslstl::StringRef& value)
     {
         BSLS_ASSERT_SAFE(!value.isEmpty());
-//
+
         d_lastName.assign(value.begin(), value.end());
     }
-//
+
     inline
     void Employee::setId(int value)
     {
         d_id = value;
     }
-//
+
     // ACCESSORS
     inline
     const bsl::string& Employee::firstName() const
     {
         return d_firstName;
     }
-//
+
     inline
     const bsl::string& Employee::lastName() const
     {
         return d_lastName;
     }
-//
+
     inline
     int Employee::id() const
     {
@@ -17369,7 +17868,7 @@ namespace UsageExample {
             && lhs.lastName()  == rhs.lastName()
             && lhs.id()        == rhs.id();
     }
-//
+
     inline
     bool operator!=(const Employee& lhs, const Employee& rhs)
     {
@@ -17400,10 +17899,10 @@ namespace UsageExample {
 // Then, we provide the implementation for 'replace':
 //..
     {
-        const int   oldStringSize = oldString.size();
-        const int   newStringSize = newString.size();
-        bsl::string line;
-//
+        const bsl::string::size_type oldStringSize = oldString.size();
+        const bsl::string::size_type newStringSize = newString.size();
+        bsl::string                  line;
+
         bsl::getline(inputStream, line);
 //..
 // Notice that we can use the 'getline' free function defined in this component
@@ -17412,7 +17911,7 @@ namespace UsageExample {
         if (!inputStream) {
             return;                                                   // RETURN
         }
-//
+
         do {
 //..
 // Next, we use the 'find' function to search the contents of 'line' for
@@ -17435,7 +17934,7 @@ namespace UsageExample {
 // Finally, we write the updated contents of 'line' to the output stream:
 //..
             outputStream << line;
-//
+
             bsl::getline(inputStream, line);
         } while (inputStream);
     }
@@ -17825,7 +18324,7 @@ int main(int argc, char *argv[])
             { L_,  9223372036854775807LL, true,  false               },
             { L_, -9223372036854775807LL, false, false               }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         static const struct {
             int         d_lineNum;
@@ -17853,15 +18352,15 @@ int main(int argc, char *argv[])
             {L_, 1.79769e+308},
             {L_,-1.79769e+308},
         };
-        const int NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA;
+        enum { NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA };
 
         if (verbose) printf("\nTesting 'to_string' with integrals.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                LINE           = DATA[ti].d_lineNum;
             const long long          VALUE          = DATA[ti].d_value;
-            const bool               IS_SHORT_CHAR  = DATA[ti].d_isShortChar;
-            const bool               IS_SHORT_WCHAR = DATA[ti].d_isShortWchar;
+//          const bool               IS_SHORT_CHAR  = DATA[ti].d_isShortChar;
+//          const bool               IS_SHORT_WCHAR = DATA[ti].d_isShortWchar;
             const unsigned long long U_VALUE        =
                                         static_cast<unsigned long long>(VALUE);
 
@@ -19831,6 +20330,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase21();
 
+        if (verbose) printf("\nTesting Allocator Propagation on Swap"
+                            "\n=====================================\n");
+        TestDriver<char>::testCase21_propagate_on_container_swap();
+
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -20394,6 +20897,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase9Move();
 
+        if (verbose) printf("\nTesting Allocator Propagation on Copy"
+                            "\n=====================================\n");
+        TestDriver<char>::testCase9_propagate_on_container_copy_assignment();
+
+        if (verbose) printf("\nTesting Allocator Propagation on Move"
+                            "\n=====================================\n");
+        TestDriver<char>::testCase9_propagate_on_container_move_assignment();
       } break;
       case 8: {
         // --------------------------------------------------------------------
