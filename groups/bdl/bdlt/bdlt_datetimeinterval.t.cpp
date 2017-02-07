@@ -81,8 +81,8 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] DatetimeInterval& operator=(const DatetimeInterval& rhs);
-// [  ] DatetimeInterval& operator+=(const DatetimeInterval& rhs);
-// [  ] DatetimeInterval& operator-=(const DatetimeInterval& rhs);
+// [17] DatetimeInterval& operator+=(const DatetimeInterval& rhs);
+// [17] DatetimeInterval& operator-=(const DatetimeInterval& rhs);
 // [ 2] void setInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
 // [12] void setTotalDays(int days);
 // [12] void setTotalHours(Int64 hours);
@@ -119,9 +119,9 @@ using namespace bsl;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
-// [  ] DatetimeInterval operator+(const DatetimeInterval& lhs, rhs);
-// [  ] DatetimeInterval operator-(const DatetimeInterval& lhs, rhs);
-// [  ] DatetimeInterval operator-(const DatetimeInterval& value);
+// [18] DatetimeInterval operator+(const DatetimeInterval& lhs, rhs);
+// [18] DatetimeInterval operator-(const DatetimeInterval& lhs, rhs);
+// [19] DatetimeInterval operator-(const DatetimeInterval& value);
 // [ 6] bool operator==(const DatetimeInterval& lhs, rhs);
 // [ 6] bool operator!=(const DatetimeInterval& lhs, rhs);
 // [13] bool operator< (const DatetimeInterval& lhs, rhs);
@@ -129,7 +129,7 @@ using namespace bsl;
 // [13] bool operator> (const DatetimeInterval& lhs, rhs);
 // [13] bool operator>=(const DatetimeInterval& lhs, rhs);
 // [ 5] ostream& operator<<(ostream &os, const DatetimeInterval& object);
-// [21] void hashAppend(HASHALG&, const DatetimeInterval&);
+// [20] void hashAppend(HASHALG&, const DatetimeInterval&);
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
@@ -140,7 +140,7 @@ using namespace bsl;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 // [ 8] Reserved for 'swap' testing.
 
 // ============================================================================
@@ -356,918 +356,6 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
 #if 0 // TBD
-      case 22: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
-
-///Usage
-///-----
-// This section illustrates intended use of this component.
-//
-///Example 1: Basic 'bdlt::DatetimeInterval' Usage
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create and use a 'bdlt::DatetimeInterval'
-// object.
-//
-// First, create an object 'i1' having the default value:
-//..
-    bdlt::DatetimeInterval i1;         ASSERT(  0 == i1.days());
-                                       ASSERT(  0 == i1.hours());
-                                       ASSERT(  0 == i1.minutes());
-                                       ASSERT(  0 == i1.seconds());
-                                       ASSERT(  0 == i1.milliseconds());
-                                       ASSERT(  0 == i1.microseconds());
-//..
-// Then, set the value of 'i1' to -5 days, and then add 16 hours to that value:
-//..
-    i1.setTotalDays(-5);
-    i1.addHours(16);                   ASSERT( -4 == i1.days());
-                                       ASSERT( -8 == i1.hours());
-                                       ASSERT(  0 == i1.minutes());
-                                       ASSERT(  0 == i1.seconds());
-                                       ASSERT(  0 == i1.milliseconds());
-                                       ASSERT(  0 == i1.microseconds());
-//..
-// Next, create 'i2' as a copy of 'i1':
-//..
-    bdlt::DatetimeInterval i2(i1);     ASSERT( -4 == i2.days());
-                                       ASSERT( -8 == i2.hours());
-                                       ASSERT(  0 == i2.minutes());
-                                       ASSERT(  0 == i2.seconds());
-                                       ASSERT(  0 == i2.milliseconds());
-                                       ASSERT(  0 == i2.microseconds());
-//..
-// Then, add 2 days and 4 seconds to the value of 'i2' (in two steps), and
-// confirm that 'i2' has a value that is greater than that of 'i1':
-//..
-    i2.addDays(2);
-    i2.addSeconds(4);                  ASSERT( -2 == i2.days());
-                                       ASSERT( -7 == i2.hours());
-                                       ASSERT(-59 == i2.minutes());
-                                       ASSERT(-56 == i2.seconds());
-                                       ASSERT(  0 == i2.milliseconds());
-                                       ASSERT(  0 == i2.microseconds());
-                                       ASSERT(i2 > i1);
-//..
-// Next, add 2 days and 4 seconds to the value of 'i1' in one step by using the
-// 'addInterval' method, and confirm that 'i1' now has the same value as 'i2':
-//..
-    i1.addInterval(2, 0, 0, 4);        ASSERT(i2 == i1);
-//..
-// Finally, write the value of 'i2' to 'stdout':
-//..
-if (veryVerbose)
-    bsl::cout << i2 << bsl::endl;
-//..
-// The output operator produces the following format on 'stdout':
-//..
-//  -2_07:59:56.000000
-//..
-
-      } break;
-      case 21: {
-        // --------------------------------------------------------------------
-        // TESTING: hashAppend
-        //
-        // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for const and non-const values
-        //
-        // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
-        //
-        // Testing:
-        //    void hashAppend(HASHALG&, const DatetimeInterval&);
-        // --------------------------------------------------------------------
-        if (verbose)
-            cout << "\nTESTING 'hashAppend'"
-                 << "\n====================\n";
-
-        typedef ::BloombergLP::bslh::Hash<> Hasher;
-        typedef Hasher::result_type         HashType;
-        Hasher                              hasher;
-
-        static const struct {
-            int   d_line;        // source line number
-            Int64 d_totalMsecs;
-        } DATA[] = {
-            //LINE   TOTAL MILLISECONDS
-            //----   ------------------
-            { L_,                     0 },
-
-            { L_,                     1 },
-            { L_,                 13027 },
-            { L_,               INT_MAX },
-            { L_,           k_MSECS_MAX },
-
-            { L_,                    -1 },
-            { L_,                -42058 },
-            { L_,               INT_MIN },
-            { L_,           k_MSECS_MIN },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   ILINE        = DATA[ti].d_line;
-            const Int64 ITOTAL_MSECS = DATA[ti].d_totalMsecs;
-
-            if (veryVerbose) { T_ P_(ILINE) P(ITOTAL_MSECS) }
-
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int   JLINE        = DATA[tj].d_line;
-                const Int64 JTOTAL_MSECS = DATA[tj].d_totalMsecs;
-
-                if (veryVerbose) { T_ T_ P_(JLINE) P(JTOTAL_MSECS) }
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(ITOTAL_MSECS);
-
-                Obj mY;  const Obj& Y = mY;
-                mY.setTotalMilliseconds(JTOTAL_MSECS);
-
-                HashType hX = hasher(X);
-                HashType hY = hasher(Y);
-
-                if (veryVerbose) { T_ T_ P_(JLINE) P_(hX) P(hY) }
-
-                LOOP4_ASSERT(ILINE, JLINE, hX, hY, (ti == tj) == (hX == hY));
-            }
-        }
-      } break;
-      case 20: {
-        // --------------------------------------------------------------------
-        // UNARY MINUS OPERATOR
-        //   Ensure that the result object is the negation of that of the
-        //   operand.
-        //
-        // Concerns:
-        //: 1 The object that is returned has a time interval that represents
-        //:   the negation of that of the operand.
-        //:
-        //: 2 The operator accepts the contractually specified range of
-        //:   argument values.
-        //:
-        //: 3 The value of the source object is not modified.
-        //:
-        //: 4 Non-modifiable objects can be negated (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 5 The operator's signature and return type are standard.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Use the address of 'operator-' to initialize a function pointer
-        //:   having the appropriate signature and return type for the free
-        //:   unary minus operator defined in this component.  (C-4..5)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their five-field
-        //:   representation.
-        //:
-        //: 3 For each row 'R' in the table of P-2:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create a 'const' 'Obj', 'X', with
-        //:     the value from 'R'; also use the copy constructor to create a
-        //:     'const' 'Obj', 'XX', from 'X'.
-        //:
-        //:   2 Use the copy constructor to create a 'const' 'Obj', 'Y', from
-        //:     the unary negation of 'X'.
-        //:
-        //:   3 Use the field-based accessors to verify that the value of 'Y'
-        //:     is as expected.  (C-1..2)
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'X' still
-        //:     has the same value as that of 'XX'.  (C-3)
-        //:
-        //:   5 For added assurance, verify that the total-milliseconds
-        //:     representation of 'Y' is the negation of that of 'X'.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid total-millisecond values, but not triggered
-        //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-6)
-        //
-        // Testing:
-        //   DatetimeInterval operator-(const DatetimeInterval& value);
-        //   CONCERN: All ctor/manip./free op. ptr./ref. params. are 'const'.
-        //   CONCERN: Precondition violations are detected when enabled.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "UNARY MINUS OPERATOR" << endl
-                          << "====================" << endl;
-
-        if (verbose) cout <<
-                 "\nAssign the address of the operator to a variable." << endl;
-        {
-            typedef Obj (*operatorPtr)(const Obj&);
-
-            // Verify that the signature and return type are standard.
-
-            operatorPtr operatorNeg = bdlt::operator-;
-
-            (void)operatorNeg;  // quash potential compiler warnings
-        }
-
-        if (verbose) cout << "\nUse a table of distinct object values."
-                          << endl;
-
-        static const struct {
-            int d_line;   // source line number
-            int d_days;
-            int d_hours;
-            int d_mins;
-            int d_secs;
-            int d_msecs;
-        } DATA[] = {
-            //LINE       DAYS    HOURS     MINUTES    SECONDS    MILLISECONDS
-            //----       ----    -----     -------    -------    ------------
-
-            // default
-            { L_,          0,       0,          0,         0,              0 },
-
-            // positive time intervals
-            { L_,          0,       0,          0,         0,            999 },
-            { L_,          0,       0,          0,        59,              0 },
-            { L_,          0,       0,         59,         0,              0 },
-            { L_,          0,      23,          0,         0,              0 },
-            { L_, k_DAYS_MAX,       0,          0,         0,              0 },
-            { L_, k_DAYS_MAX,      23,         59,        59,            999 },
-            { L_,          1,       2,          3,         4,              5 },
-            { L_,      23469,      13,         56,        19,            200 },
-
-            // negative time intervals
-            { L_,          0,       0,          0,         0,           -999 },
-            { L_,          0,       0,          0,       -59,              0 },
-            { L_,          0,       0,        -59,         0,              0 },
-            { L_,          0,     -23,          0,         0,              0 },
-            { L_,
-              k_DAYS_MIN + 1,       0,          0,         0,              0 },
-            { L_,
-              k_DAYS_MIN + 1,     -23,        -59,       -59,           -999 },
-            { L_,         -5,      -4,         -3,        -2,             -1 },
-            { L_,     -23469,     -13,        -56,       -19,           -200 },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE  = DATA[ti].d_line;
-            const int   DAYS  = DATA[ti].d_days;
-            const Int64 HOURS = DATA[ti].d_hours;
-            const Int64 MINS  = DATA[ti].d_mins;
-            const Int64 SECS  = DATA[ti].d_secs;
-            const Int64 MSECS = DATA[ti].d_msecs;
-
-            const Obj X(DAYS, HOURS, MINS, SECS, MSECS);
-
-            const Obj XX(X);
-
-            if (veryVerbose) { T_ P_(X) }
-
-            // Ensure the first row of the table contains the
-            // default-constructed value.
-
-            static bool firstFlag = true;
-            if (firstFlag) {
-                LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
-                firstFlag = false;
-            }
-
-            const Obj Y(-X);
-
-            if (veryVerbose) { T_ T_ P(Y) }
-
-            LOOP_ASSERT(LINE, -DAYS  == Y.days());
-            LOOP_ASSERT(LINE, -HOURS == Y.hours());
-            LOOP_ASSERT(LINE, -MINS  == Y.minutes());
-            LOOP_ASSERT(LINE, -SECS  == Y.seconds());
-            LOOP_ASSERT(LINE, -MSECS == Y.milliseconds());
-
-            LOOP3_ASSERT(LINE, XX, X, XX == X);
-
-            LOOP_ASSERT(LINE, -X.totalMilliseconds() == Y.totalMilliseconds());
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            {
-                Obj mX(k_DAYS_MIN + 1, -23, -59, -59, -999); const Obj& X = mX;
-
-                ASSERT_SAFE_PASS(-X);
-
-                mX.addMilliseconds(-1);
-                ASSERT_SAFE_FAIL(-X);
-            }
-        }
-
-      } break;
-      case 19: {
-        // --------------------------------------------------------------------
-        // ARITHMETIC FREE OPERATORS (+, -)
-        //   Ensure that each operator correctly computes the underlying
-        //   total-milliseconds representation of the result object.
-        //
-        // Concerns:
-        //: 1 The object that is returned by the free 'operator+' ('operator-')
-        //:   has a time interval that represents the sum (difference) of those
-        //:   of the two operands.
-        //:
-        //: 2 Each operator accepts the contractually specified range of
-        //:   argument values.
-        //:
-        //: 3 The values of the two source objects supplied to each operator
-        //:   are not modified.
-        //:
-        //: 4 Non-modifiable objects can be added and subtracted (i.e., objects
-        //:   or references providing only non-modifiable access).
-        //:
-        //: 5 The operators' signatures and return types are standard.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Use the respective addresses of 'operator+' and 'operator-' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free binary arithmetic
-        //:   operators defined in this component.  (C-4..5)
-        //:
-        //: 2 Using the table-driven technique to test 'operator+', specify a
-        //:   set of object value triplets (one per row) in terms of the
-        //:   total-milliseconds representations of three objects:
-        //:   '(LHS, RHS, SUM = LHS + RHS)'.
-        //:
-        //: 3 For each row 'R' in the table of P-2:  (C-1..3)
-        //:
-        //:   1 Use the default constructor and 'setTotalMilliseconds' to
-        //:     create two objects, 'X' and 'Y', respectively having the
-        //:     values 'LHS' and 'RHS' from 'R'.
-        //:
-        //:   2 Use the copy constructor to create a 'const' 'Obj', 'XX', from
-        //:     'X', and a 'const' 'Obj', 'YY', from 'Y'.
-        //:
-        //:   3 Use the copy constructor to create a 'const' 'Obj', 'Z', from
-        //:     'X + Y'.
-        //:
-        //:   4 Use the 'totalMilliseconds' accessor to verify that 'Z' has the
-        //:     expected 'SUM' from 'R'.  (C-1..2)
-        //:
-        //:   5 Use the equality-comparison operator to verify that 'X' and 'Y'
-        //:     still have the same values as that of 'XX' and 'YY',
-        //:     respectively.  (C-3)
-        //:
-        //: 4 Repeat steps similar to those described in P-2..3 to test
-        //:   'operator-' except that, this time, the rows in the table are
-        //:   defined as '(LHS, RHS, DIFF = LHS - RHS)' (P-2) and 'Z' is
-        //:   constructed from 'X - Y' (P-3.3).
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid total-millisecond values, but not triggered
-        //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-6)
-        //
-        // Testing:
-        //   DatetimeInterval operator+(const DatetimeInterval& lhs, rhs);
-        //   DatetimeInterval operator-(const DatetimeInterval& lhs, rhs);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "ARITHMETIC FREE OPERATORS (+, -)" << endl
-                          << "================================" << endl;
-
-        if (verbose) cout <<
-                "\nAssign the address of each operator to a variable." << endl;
-        {
-            typedef Obj (*operatorPtr)(const Obj&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            operatorPtr operatorAdd = bdlt::operator+;
-            operatorPtr operatorSub = bdlt::operator-;
-
-            (void)operatorAdd;  // quash potential compiler warnings
-            (void)operatorSub;
-        }
-
-        if (verbose) cout << "\nTesting 'operator+'." << endl;
-        {
-            static const struct {
-                int   d_line;      // source line number
-                Int64 d_lhsMsecs;  // lhs total milliseconds
-                Int64 d_rhsMsecs;  // rhs total milliseconds
-                Int64 d_sumMsecs;  // lhs + rhs total milliseconds
-            } DATA[] = {
-                //LINE  LHS MILLISECONDS  RHS MILLISECONDS  SUM MILLISECONDS
-                //----  ----------------  ----------------  ----------------
-                { L_,                 0,                0,                 0 },
-                { L_,                 1,                0,                 1 },
-                { L_,                 0,             1200,              1200 },
-                { L_,             13027,           -42058,    13027 + -42058 },
-                { L_,            -32546,            32546,                 0 },
-                { L_,           INT_MIN,          INT_MAX,                -1 },
-                { L_,   k_MSECS_MAX / 2,  k_MSECS_MAX / 2,   k_MSECS_MAX - 1 },
-                { L_,   k_MSECS_MIN / 2,  k_MSECS_MIN / 2,   k_MSECS_MIN + 1 },
-                { L_,   k_MSECS_MAX - 1,                1,       k_MSECS_MAX },
-                { L_,               -27, k_MSECS_MIN + 27,       k_MSECS_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const Int64 LHS_MSECS = DATA[ti].d_lhsMsecs;
-                const Int64 RHS_MSECS = DATA[ti].d_rhsMsecs;
-                const Int64 SUM_MSECS = DATA[ti].d_sumMsecs;
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(LHS_MSECS);
-
-                Obj mY;  const Obj& Y = mY;
-                mY.setTotalMilliseconds(RHS_MSECS);
-
-                const Obj XX(X);
-                const Obj YY(Y);
-
-                if (veryVerbose) { T_ P_(X) P_(Y) }
-
-                const Obj Z(X + Y);
-
-                if (veryVerbose) { T_ T_ P(Z) }
-
-                LOOP3_ASSERT(LINE, SUM_MSECS, Z.totalMilliseconds(),
-                             SUM_MSECS == Z.totalMilliseconds());
-
-                LOOP3_ASSERT(LINE, XX, X, XX == X);
-                LOOP3_ASSERT(LINE, YY, Y, YY == Y);
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'operator-'." << endl;
-        {
-            static const struct {
-                int   d_line;       // source line number
-                Int64 d_lhsMsecs;   // lhs total milliseconds
-                Int64 d_rhsMsecs;   // rhs total milliseconds
-                Int64 d_diffMsecs;  // lhs - rhs total milliseconds
-            } DATA[] = {
-                //LINE  LHS MILLISECONDS  RHS MILLISECONDS  DIFF MILLISECONDS
-                //----  ----------------  ----------------  -----------------
-                { L_,                 0,                0,                 0 },
-                { L_,                 1,                0,                 1 },
-                { L_,                 0,             1200,             -1200 },
-                { L_,             42058,            13027,     42058 - 13027 },
-                { L_,           INT_MIN,          INT_MAX,
-                                         2 * static_cast<Int64>(INT_MIN) + 1 },
-                { L_,   k_MSECS_MAX / 2,  k_MSECS_MAX / 2,                 0 },
-                { L_,   k_MSECS_MAX - 3,               -3,       k_MSECS_MAX },
-                { L_, k_MSECS_MIN + 999,              999,       k_MSECS_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE       = DATA[ti].d_line;
-                const Int64 LHS_MSECS  = DATA[ti].d_lhsMsecs;
-                const Int64 RHS_MSECS  = DATA[ti].d_rhsMsecs;
-                const Int64 DIFF_MSECS = DATA[ti].d_diffMsecs;
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(LHS_MSECS);
-
-                Obj mY;  const Obj& Y = mY;
-                mY.setTotalMilliseconds(RHS_MSECS);
-
-                const Obj XX(X);
-                const Obj YY(Y);
-
-                if (veryVerbose) { T_ P_(X) P_(Y) }
-
-                const Obj Z(X - Y);
-
-                if (veryVerbose) { T_ T_ P(Z) }
-
-                LOOP3_ASSERT(LINE, DIFF_MSECS, Z.totalMilliseconds(),
-                             DIFF_MSECS == Z.totalMilliseconds());
-
-                LOOP3_ASSERT(LINE, XX, X, XX == X);
-                LOOP3_ASSERT(LINE, YY, Y, YY == Y);
-            }
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            if (veryVerbose) cout << "\t'operator+'" << endl;
-            {
-                Obj mX;  const Obj& X = mX;
-                Obj mY;  const Obj& Y = mY;
-
-                mX.setTotalMilliseconds(k_MSECS_MAX - 1);
-                mY.setTotalMilliseconds(1);
-
-                                                  ASSERT_SAFE_PASS(X + Y);
-                mY.addMilliseconds(1);            ASSERT_SAFE_FAIL(X + Y);
-
-                mX.setTotalMilliseconds(k_MSECS_MIN + 1);
-                mY.setTotalMilliseconds(-1);
-
-                                                  ASSERT_SAFE_PASS(X + Y);
-                mY.addMilliseconds(-1);           ASSERT_SAFE_FAIL(X + Y);
-            }
-
-            if (veryVerbose) cout << "\t'operator-'" << endl;
-            {
-                Obj mX;  const Obj& X = mX;
-                Obj mY;  const Obj& Y = mY;
-
-                mX.setTotalMilliseconds(k_MSECS_MAX - 1);
-                mY.setTotalMilliseconds(-1);
-
-                                                  ASSERT_SAFE_PASS(X - Y);
-                mY.addMilliseconds(-1);           ASSERT_SAFE_FAIL(X - Y);
-
-                mX.setTotalMilliseconds(k_MSECS_MIN + 1);
-                mY.setTotalMilliseconds(1);
-
-                                                  ASSERT_SAFE_PASS(X - Y);
-                mY.addMilliseconds(1);            ASSERT_SAFE_FAIL(X - Y);
-            }
-        }
-
-      } break;
-      case 18: {
-        // --------------------------------------------------------------------
-        // ARITHMETIC ASSIGNMENT OPERATORS (+=, -=)
-        //   Ensure that each operator correctly adjusts the underlying
-        //   total-milliseconds representation of the object.
-        //
-        // Concerns:
-        //: 1 Each compound assignment operator can change the value of any
-        //:   modifiable target object based on any source object that does not
-        //:   violate the method's documented preconditions.
-        //:
-        //: 2 The signatures and return types are standard.
-        //:
-        //: 3 The reference returned from each operator is to the target object
-        //:   (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified, unless it is an
-        //:   alias for the target object.
-        //:
-        //: 5 A compound assignment of an object to itself behaves as expected
-        //:   (alias-safety).
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Use the respective addresses of 'operator+=' and 'operator-=' to
-        //:   initialize member-function pointers having the appropriate
-        //:   signatures and return types for the two compound assignment
-        //:   operators defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique to test 'operator+=', specify a
-        //:   set of object value triplets (one per row) in terms of the
-        //:   total-milliseconds representations of three objects:
-        //:   '(LHS, RHS, SUM = LHS + RHS)'.
-        //:
-        //: 3 For each row 'R' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Use the default constructor and 'setTotalMilliseconds' to
-        //:     create a modifiable object, 'mX', having the value 'LHS' from
-        //:     'R'.
-        //:
-        //:   2 Use the default constructor and 'setTotalMilliseconds' to
-        //:     create an object, 'Z', having the value 'RHS' from 'R'; also
-        //:     use the copy constructor to create a 'const' 'Obj', 'ZZ', from
-        //:     'Z'.
-        //:
-        //:   3 Use the default constructor and 'setTotalMilliseconds' to
-        //:     create an object, 'W', having the value 'SUM' from 'R'.
-        //:
-        //:   4 Use the '+=' compound assignment operator to add 'Z' to 'mX'
-        //:     ('mX += Z').
-        //:
-        //:   5 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-3)
-        //:
-        //:   6 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:     1 The target object, 'mX', now has the same value as that of
-        //:       'W'.  (C-1)
-        //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2..3 to test
-        //:   'operator-=' except that, this time, the rows in the table are
-        //:   defined as '(LHS, RHS, DIFF = LHS - RHS)' (P-2) and the operation
-        //:   in P-3.4 is 'mX -= Z'.
-        //:
-        //: 5 To test the alias-safety of 'operator+=', use the table-driven
-        //:   technique to specify a set of distinct object values (one per
-        //:   row) in terms of their total-milliseconds representation.
-        //:
-        //: 6 For each row 'R' in the table of P-5:  (C-5)
-        //:
-        //:   1 Use the default constructor and 'setTotalMilliseconds' to
-        //:     create a modifiable 'Obj', 'mX', having the value from 'R'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Use the default constructor and 'setTotalMilliseconds' to
-        //:     create an object, 'W', having the value twice that from 'R'.
-        //:
-        //:   4 Use the '+=' compound assignment operator to add 'Z' to 'mX'
-        //:     ('mX += Z').
-        //:
-        //:   5 Use the equality-comparison operator to verify that the target
-        //:     object, 'mX', now has the same value as that of 'W'.  (C-5)
-        //:
-        //: 7 Repeat steps similar to those described in P-5..6 to test the
-        //:   alias-safety of 'operator-=' except that, this time, 'W' is left
-        //:   in its default constructed state (P-6.3) and the operation in
-        //:   P-6.4 is 'mX -= Z'.
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid total-millisecond values, but not triggered
-        //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-6)
-        //
-        // Testing:
-        //   DatetimeInterval& operator+=(const DatetimeInterval& rhs);
-        //   DatetimeInterval& operator-=(const DatetimeInterval& rhs);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                         << "ARITHMETIC ASSIGNMENT OPERATORS (+=, -=)" << endl
-                         << "========================================" << endl;
-
-        if (verbose) cout <<
-                "\nAssign the address of each operator to a variable." << endl;
-        {
-            typedef Obj& (Obj::*operatorPtr)(const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            operatorPtr operatorAddAssignment = &Obj::operator+=;
-            operatorPtr operatorSubAssignment = &Obj::operator-=;
-
-            (void)operatorAddAssignment;  // quash potential compiler warning
-            (void)operatorSubAssignment;
-        }
-
-        if (verbose) cout << "\nTesting 'operator+='." << endl;
-        {
-            static const struct {
-                int   d_line;      // source line number
-                Int64 d_lhsMsecs;  // lhs total milliseconds
-                Int64 d_rhsMsecs;  // rhs total milliseconds
-                Int64 d_sumMsecs;  // lhs + rhs total milliseconds
-            } DATA[] = {
-                //LINE  LHS MILLISECONDS  RHS MILLISECONDS  SUM MILLISECONDS
-                //----  ----------------  ----------------  ----------------
-                { L_,                 0,                0,                 0 },
-                { L_,                 1,                0,                 1 },
-                { L_,                 0,             1200,              1200 },
-                { L_,             13027,           -42058,    13027 + -42058 },
-                { L_,            -32546,            32546,                 0 },
-                { L_,           INT_MIN,          INT_MAX,                -1 },
-                { L_,   k_MSECS_MAX / 2,  k_MSECS_MAX / 2,   k_MSECS_MAX - 1 },
-                { L_,   k_MSECS_MIN / 2,  k_MSECS_MIN / 2,   k_MSECS_MIN + 1 },
-                { L_,   k_MSECS_MAX - 1,                1,       k_MSECS_MAX },
-                { L_,               -27, k_MSECS_MIN + 27,       k_MSECS_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const Int64 LHS_MSECS = DATA[ti].d_lhsMsecs;
-                const Int64 RHS_MSECS = DATA[ti].d_rhsMsecs;
-                const Int64 SUM_MSECS = DATA[ti].d_sumMsecs;
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(LHS_MSECS);
-
-                Obj mZ;  const Obj& Z = mZ;
-                mZ.setTotalMilliseconds(RHS_MSECS);
-
-                const Obj ZZ(Z);
-
-                if (veryVerbose) { T_ P_(X) P_(Z) }
-
-                Obj mW;  const Obj& W = mW;
-                mW.setTotalMilliseconds(SUM_MSECS);
-
-                if (veryVerbose) { T_ T_ P(W) }
-
-                Obj *mR = &(mX += Z);
-
-                LOOP3_ASSERT(LINE,  W,   X,  W == X);
-                LOOP3_ASSERT(LINE, mR, &mX, mR == &mX);
-                LOOP3_ASSERT(LINE, ZZ,   Z, ZZ == Z);
-            }
-        }
-
-        if (verbose) cout << "\t'operator+=' self-assignment." << endl;
-        {
-            static const struct {
-                int   d_line;      // source line number
-                Int64 d_lhsMsecs;  // lhs total milliseconds
-            } DATA[] = {
-                //LINE  LHS MILLISECONDS
-                //----  ----------------
-                { L_,                  0 },
-                { L_,                  1 },
-                { L_,              13027 },
-                { L_,             -32546 },
-                { L_,            INT_MAX },
-                { L_,            INT_MIN },
-                { L_,    k_MSECS_MAX / 2 },
-                { L_,    k_MSECS_MIN / 2 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const Int64 LHS_MSECS = DATA[ti].d_lhsMsecs;
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(LHS_MSECS);
-
-                const Obj& Z = mX;
-
-                if (veryVerbose) { T_ P_(X) }
-
-                Obj mW;  const Obj& W = mW;
-                mW.setTotalMilliseconds(2 * LHS_MSECS);
-
-                if (veryVerbose) { T_ T_ P(W) }
-
-                Obj *mR = &(mX += Z);
-
-                LOOP3_ASSERT(LINE,  W,   X,  W == X);
-                LOOP3_ASSERT(LINE, mR, &mX, mR == &mX);
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'operator-='." << endl;
-        {
-            static const struct {
-                int   d_line;       // source line number
-                Int64 d_lhsMsecs;   // lhs total milliseconds
-                Int64 d_rhsMsecs;   // rhs total milliseconds
-                Int64 d_diffMsecs;  // lhs - rhs total milliseconds
-            } DATA[] = {
-                //LINE  LHS MILLISECONDS  RHS MILLISECONDS  DIFF MILLISECONDS
-                //----  ----------------  ----------------  -----------------
-                { L_,                 0,                0,                 0 },
-                { L_,                 1,                0,                 1 },
-                { L_,                 0,             1200,             -1200 },
-                { L_,             42058,           -13027,     42058 + 13027 },
-                { L_,           INT_MIN,          INT_MAX,
-                                         2 * static_cast<Int64>(INT_MIN) + 1 },
-                { L_,   k_MSECS_MAX / 2,  k_MSECS_MAX / 2,                 0 },
-                { L_,   k_MSECS_MAX - 3,               -3,       k_MSECS_MAX },
-                { L_, k_MSECS_MIN + 999,              999,       k_MSECS_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE       = DATA[ti].d_line;
-                const Int64 LHS_MSECS  = DATA[ti].d_lhsMsecs;
-                const Int64 RHS_MSECS  = DATA[ti].d_rhsMsecs;
-                const Int64 DIFF_MSECS = DATA[ti].d_diffMsecs;
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(LHS_MSECS);
-
-                Obj mZ;  const Obj& Z = mZ;
-                mZ.setTotalMilliseconds(RHS_MSECS);
-
-                const Obj ZZ(Z);
-
-                if (veryVerbose) { T_ P_(X) P_(Z) }
-
-                Obj mW;  const Obj& W = mW;
-                mW.setTotalMilliseconds(DIFF_MSECS);
-
-                if (veryVerbose) { T_ T_ P(W) }
-
-                Obj *mR = &(mX -= Z);
-
-                LOOP3_ASSERT(LINE,  W,   X,  W == X);
-                LOOP3_ASSERT(LINE, mR, &mX, mR == &mX);
-                LOOP3_ASSERT(LINE, ZZ,   Z, ZZ == Z);
-            }
-        }
-
-        if (verbose) cout << "\t'operator-=' self-assignment." << endl;
-        {
-            static const struct {
-                int   d_line;      // source line number
-                Int64 d_lhsMsecs;  // lhs total milliseconds
-            } DATA[] = {
-                //LINE  LHS MILLISECONDS
-                //----  ----------------
-                { L_,                  0 },
-                { L_,                  1 },
-                { L_,               -999 },
-                { L_,              42058 },
-                { L_,            INT_MAX },
-                { L_,            INT_MIN },
-                { L_,        k_MSECS_MAX },
-                { L_,        k_MSECS_MIN },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE      = DATA[ti].d_line;
-                const Int64 LHS_MSECS = DATA[ti].d_lhsMsecs;
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(LHS_MSECS);
-
-                const Obj& Z = mX;
-
-                if (veryVerbose) { T_ P_(X) }
-
-                const Obj W;
-
-                if (veryVerbose) { T_ T_ P(W) }
-
-                Obj *mR = &(mX -= Z);
-
-                LOOP3_ASSERT(LINE,  W,   X,  W == X);
-                LOOP3_ASSERT(LINE, mR, &mX, mR == &mX);
-            }
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            if (veryVerbose) cout << "\t'operator+='" << endl;
-            {
-                Obj mX;
-                Obj mY;  const Obj& Y = mY;
-
-                mX.setTotalMilliseconds(k_MSECS_MAX - 1);
-                mY.setTotalMilliseconds(1);
-
-                                                  ASSERT_SAFE_PASS(mX += Y);
-                mY.addMilliseconds(1);            ASSERT_SAFE_FAIL(mX += Y);
-
-                mX.setTotalMilliseconds(k_MSECS_MIN + 1);
-                mY.setTotalMilliseconds(-1);
-
-                                                  ASSERT_SAFE_PASS(mX += Y);
-                mY.addMilliseconds(-1);           ASSERT_SAFE_FAIL(mX += Y);
-            }
-
-            if (veryVerbose) cout << "\t'operator-='" << endl;
-            {
-                Obj mX;
-                Obj mY;  const Obj& Y = mY;
-
-                mX.setTotalMilliseconds(k_MSECS_MAX - 1);
-                mY.setTotalMilliseconds(-1);
-
-                                                  ASSERT_SAFE_PASS(mX -= Y);
-                mY.addMilliseconds(-1);           ASSERT_SAFE_FAIL(mX -= Y);
-
-                mX.setTotalMilliseconds(k_MSECS_MIN + 1);
-                mY.setTotalMilliseconds(1);
-
-                                                  ASSERT_SAFE_PASS(mX -= Y);
-                mY.addMilliseconds(1);            ASSERT_SAFE_FAIL(mX -= Y);
-            }
-        }
-
-      } break;
       case 5: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
@@ -1637,6 +725,688 @@ if (veryVerbose)
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
       } break;
 #endif // TBD
+      case 21: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic 'bdlt::DatetimeInterval' Usage
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create and use a 'bdlt::DatetimeInterval'
+// object.
+//
+// First, create an object 'i1' having the default value:
+//..
+    bdlt::DatetimeInterval i1;         ASSERT(  0 == i1.days());
+                                       ASSERT(  0 == i1.hours());
+                                       ASSERT(  0 == i1.minutes());
+                                       ASSERT(  0 == i1.seconds());
+                                       ASSERT(  0 == i1.milliseconds());
+                                       ASSERT(  0 == i1.microseconds());
+//..
+// Then, set the value of 'i1' to -5 days, and then add 16 hours to that value:
+//..
+    i1.setTotalDays(-5);
+    i1.addHours(16);                   ASSERT( -4 == i1.days());
+                                       ASSERT( -8 == i1.hours());
+                                       ASSERT(  0 == i1.minutes());
+                                       ASSERT(  0 == i1.seconds());
+                                       ASSERT(  0 == i1.milliseconds());
+                                       ASSERT(  0 == i1.microseconds());
+//..
+// Next, create 'i2' as a copy of 'i1':
+//..
+    bdlt::DatetimeInterval i2(i1);     ASSERT( -4 == i2.days());
+                                       ASSERT( -8 == i2.hours());
+                                       ASSERT(  0 == i2.minutes());
+                                       ASSERT(  0 == i2.seconds());
+                                       ASSERT(  0 == i2.milliseconds());
+                                       ASSERT(  0 == i2.microseconds());
+//..
+// Then, add 2 days and 4 seconds to the value of 'i2' (in two steps), and
+// confirm that 'i2' has a value that is greater than that of 'i1':
+//..
+    i2.addDays(2);
+    i2.addSeconds(4);                  ASSERT( -2 == i2.days());
+                                       ASSERT( -7 == i2.hours());
+                                       ASSERT(-59 == i2.minutes());
+                                       ASSERT(-56 == i2.seconds());
+                                       ASSERT(  0 == i2.milliseconds());
+                                       ASSERT(  0 == i2.microseconds());
+                                       ASSERT(i2 > i1);
+//..
+// Next, add 2 days and 4 seconds to the value of 'i1' in one step by using the
+// 'addInterval' method, and confirm that 'i1' now has the same value as 'i2':
+//..
+    i1.addInterval(2, 0, 0, 4);        ASSERT(i2 == i1);
+//..
+// Finally, write the value of 'i2' to 'stdout':
+//..
+if (veryVerbose)
+    bsl::cout << i2 << bsl::endl;
+//..
+// The output operator produces the following format on 'stdout':
+//..
+//  -2_07:59:56.000000
+//..
+
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hope that different inputs hash differently
+        //: 2 Verify that equal inputs hash identically
+        //: 3 Works for const and non-const values
+        //
+        // Plan:
+        //: 1 Use a table specifying a set of distinct objects, verify that
+        //:   hashes of equivalent objects match and hashes on unequal objects
+        //:   do not.
+        //
+        // Testing:
+        //    void hashAppend(HASHALG&, const DatetimeInterval&);
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING 'hashAppend'"
+                 << "\n====================\n";
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+        Hasher                              hasher;
+
+        static const struct {
+            int   d_line;        // source line number
+            Int64 d_totalMsecs;
+        } DATA[] = {
+            //LINE   TOTAL MILLISECONDS
+            //----   ------------------
+            { L_,                     0 },
+
+            { L_,                     1 },
+            { L_,                 13027 },
+            { L_,               INT_MAX },
+            { L_,           k_MSECS_MAX },
+
+            { L_,                    -1 },
+            { L_,                -42058 },
+            { L_,               INT_MIN },
+            { L_,           k_MSECS_MIN },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   ILINE        = DATA[ti].d_line;
+            const Int64 ITOTAL_MSECS = DATA[ti].d_totalMsecs;
+
+            if (veryVerbose) { T_ P_(ILINE) P(ITOTAL_MSECS) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int   JLINE        = DATA[tj].d_line;
+                const Int64 JTOTAL_MSECS = DATA[tj].d_totalMsecs;
+
+                if (veryVerbose) { T_ T_ P_(JLINE) P(JTOTAL_MSECS) }
+
+                Obj mX;  const Obj& X = mX;
+                mX.setTotalMilliseconds(ITOTAL_MSECS);
+
+                Obj mY;  const Obj& Y = mY;
+                mY.setTotalMilliseconds(JTOTAL_MSECS);
+
+                HashType hX = hasher(X);
+                HashType hY = hasher(Y);
+
+                if (veryVerbose) { T_ T_ P_(JLINE) P_(hX) P(hY) }
+
+                LOOP4_ASSERT(ILINE, JLINE, hX, hY, (ti == tj) == (hX == hY));
+            }
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // UNARY MINUS OPERATOR
+        //   Ensure that the result object is the negation of that of the
+        //   operand.
+        //
+        // Concerns:
+        //: 1 The free operator work as expected.
+        //:
+        //: 2 The signature and return type are standard.
+        //:
+        //: 3 QoI: asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 For a sequence of independent test values, use the value
+        //:   constructor to create an object of specified value.  Use the
+        //:   free operator to compute a second object.  Verify the value of
+        //:   this object by comparing to an object, created with the value
+        //:   constructor, with the expected value.  (C-1)
+        //:
+        //: 2 Directly verify the function signature.  (C-2)
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        //
+        // Testing:
+        //   DatetimeInterval operator-(const DatetimeInterval& value);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "UNARY MINUS OPERATOR" << endl
+                          << "====================" << endl;
+
+        if (verbose) cout <<
+                "\nAssign the address of the operator to a variable." << endl;
+        {
+            typedef Obj (*operatorPtr)(const Obj&);
+
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorNeg = bdlt::operator-;
+
+            (void)operatorNeg;  // quash potential compiler warnings
+        }
+
+        if (verbose) cout << "\nTesting unary minus operators."
+                          << endl;
+        {
+            const int                    NUM_DATA  = DEFAULT_NUM_DATA;
+            const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   DAYS      = DATA[i].d_days;
+                const Int64 HOURS     = DATA[i].d_hours;
+                const Int64 MINUTES   = DATA[i].d_minutes;
+                const Int64 SECONDS   = DATA[i].d_seconds;
+                const Int64 MSECS     = DATA[i].d_msecs;
+                const Int64 USECS     = DATA[i].d_usecs;
+
+                Obj mX(DAYS,
+                       HOURS,
+                       MINUTES,
+                       SECONDS,
+                       MSECS,
+                       USECS);
+
+                const Obj& X = mX;
+
+                if (X.days() > INT_MIN) {
+
+                    Obj mEXP(-X.days(),
+                             0,
+                             0,
+                             0,
+                             0,
+                             -X.fractionalDayInMicroseconds());
+
+                    const Obj& EXP = mEXP;
+
+                    if (veryVerbose) { T_ P_(X) P(EXP);  }
+
+                    Obj mZ;  const Obj& Z = mZ;
+
+                    mZ = -X;
+
+                    ASSERTV(X, Z, EXP, EXP == Z);
+                }
+            }
+        }
+
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_FAIL(-Obj(INT_MIN));
+            ASSERT_SAFE_PASS(-Obj(INT_MAX));
+        }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // ARITHMETIC FREE OPERATORS (+, -)
+        //   Ensure that each operator correctly computes the returned object.
+        //
+        // Concerns:
+        //: 1 The free operators work as expected.
+        //:
+        //: 2 The signatures and return types are standard.
+        //:
+        //: 3 QoI: asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 For a sequence of independent test values, use the value
+        //:   constructor to create two objects of specified value.  Use the
+        //:   free operator to compute a third object.  Verify the value of
+        //:   this object by comparing to an object, created with the value
+        //:   constructor, with the expected value.  (C-1)
+        //:
+        //: 2 Directly verify the function signatures.  (C-2)
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        //
+        // Testing:
+        //   DatetimeInterval operator+(const DatetimeInterval& lhs, rhs);
+        //   DatetimeInterval operator-(const DatetimeInterval& lhs, rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                         << "ARITHMETIC FREE OPERATORS (+, -)" << endl
+                         << "================================" << endl;
+
+        if (verbose) cout <<
+                "\nAssign the address of each operator to a variable." << endl;
+        {
+            typedef Obj (*operatorPtr)(const Obj&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorAdd = bdlt::operator+;
+            operatorPtr operatorSub = bdlt::operator-;
+
+            (void)operatorAdd;  // quash potential compiler warnings
+            (void)operatorSub;
+        }
+
+        if (verbose) cout << "\nTesting arithmetic free operators."
+                          << endl;
+        {
+            const int                    NUM_DATA  = DEFAULT_NUM_DATA;
+            const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   IDAYS      = DATA[i].d_days;
+                const Int64 IHOURS     = DATA[i].d_hours;
+                const Int64 IMINUTES   = DATA[i].d_minutes;
+                const Int64 ISECONDS   = DATA[i].d_seconds;
+                const Int64 IMSECS     = DATA[i].d_msecs;
+                const Int64 IUSECS     = DATA[i].d_usecs;
+                
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    const int   JDAYS      = DATA[j].d_days;
+                    const Int64 JHOURS     = DATA[j].d_hours;
+                    const Int64 JMINUTES   = DATA[j].d_minutes;
+                    const Int64 JSECONDS   = DATA[j].d_seconds;
+                    const Int64 JMSECS     = DATA[j].d_msecs;
+                    const Int64 JUSECS     = DATA[j].d_usecs;
+
+                    {
+                        Int64 TOTAL_DAYS =
+                                          static_cast<Int64>(DATA[i].d_expDays)
+                                        + DATA[j].d_expDays;
+
+                        // Note that the following test is slightly more
+                        // restrictive than necessary.
+
+                        if (TOTAL_DAYS > INT_MIN && TOTAL_DAYS < INT_MAX) {
+                            Obj mX(IDAYS,
+                                   IHOURS,
+                                   IMINUTES,
+                                   ISECONDS,
+                                   IMSECS,
+                                   IUSECS);
+
+                            const Obj& X = mX;
+
+                            Obj mY(JDAYS,
+                                   JHOURS,
+                                   JMINUTES,
+                                   JSECONDS,
+                                   JMSECS,
+                                   JUSECS);
+
+                            const Obj& Y = mY;
+
+                            Obj mEXP(X.days() + Y.days(),
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     X.fractionalDayInMicroseconds()
+                                            + Y.fractionalDayInMicroseconds());
+
+                            const Obj& EXP = mEXP;
+
+                            if (veryVerbose) { T_ P_(X) P_(Y) P(EXP);  }
+
+                            Obj mZ;  const Obj& Z = mZ;
+
+                            mZ = X + Y;
+
+                            ASSERTV(X, Z, EXP, EXP == Z);
+                        }
+                    }
+
+                    {
+                        Int64 TOTAL_DAYS =
+                                          static_cast<Int64>(DATA[i].d_expDays)
+                                        - DATA[j].d_expDays;
+
+                        // Note that the following test is slightly more
+                        // restrictive than necessary.
+
+                        if (TOTAL_DAYS > INT_MIN && TOTAL_DAYS < INT_MAX) {
+                            Obj mX(IDAYS,
+                                   IHOURS,
+                                   IMINUTES,
+                                   ISECONDS,
+                                   IMSECS,
+                                   IUSECS);
+
+                            const Obj& X = mX;
+
+                            Obj mY(JDAYS,
+                                   JHOURS,
+                                   JMINUTES,
+                                   JSECONDS,
+                                   JMSECS,
+                                   JUSECS);
+
+                            const Obj& Y = mY;
+
+                            Obj mEXP(X.days() - Y.days(),
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     X.fractionalDayInMicroseconds()
+                                            - Y.fractionalDayInMicroseconds());
+
+                            const Obj& EXP = mEXP;
+
+                            if (veryVerbose) { T_ P_(X) P_(Y) P(EXP);  }
+
+                            Obj mZ;  const Obj& Z = mZ;
+
+                            mZ = X - Y;
+
+                            ASSERTV(X, Z, EXP, EXP == Z);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj(INT_MIN) + Obj(-1));
+            ASSERT_PASS(Obj(INT_MIN) + Obj( 0));
+            ASSERT_PASS(Obj(INT_MIN) + Obj( 1));
+            ASSERT_PASS(Obj(INT_MAX) + Obj(-1));
+            ASSERT_PASS(Obj(INT_MAX) + Obj( 0));
+            ASSERT_FAIL(Obj(INT_MAX) + Obj( 1));
+
+            ASSERT_PASS(Obj(INT_MIN) - Obj(-1));
+            ASSERT_PASS(Obj(INT_MIN) - Obj( 0));
+            ASSERT_FAIL(Obj(INT_MIN) - Obj( 1));
+            ASSERT_FAIL(Obj(INT_MAX) - Obj(-1));
+            ASSERT_PASS(Obj(INT_MAX) - Obj( 0));
+            ASSERT_PASS(Obj(INT_MAX) - Obj( 1));
+        }
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // ARITHMETIC ASSIGNMENT OPERATORS (+=, -=)
+        //   Ensure that each operator correctly adjusts the underlying
+        //   representation of the object.
+        //
+        // Concerns:
+        //: 1 The manipulators work as expected, including for self-assignment.
+        //:
+        //: 2 The signatures and return types are standard.
+        //:
+        //: 3 QoI: asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 For a sequence of independent test values, use the value
+        //:   constructor to create two objects of specified value.  Use the
+        //:   manipulator to adjust the value of the first obect.  Verify the
+        //:   value by comparing to an object, created with the value
+        //:   constructor, with the expected value.  (C-1)
+        //:
+        //: 2 Directly verify the function signatures.  (C-2)
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        //
+        // Testing:
+        //   DatetimeInterval& operator+=(const DatetimeInterval& rhs);
+        //   DatetimeInterval& operator-=(const DatetimeInterval& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                         << "ARITHMETIC ASSIGNMENT OPERATORS (+=, -=)" << endl
+                         << "========================================" << endl;
+
+        if (verbose) cout <<
+                "\nAssign the address of each operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorAddAssignment = &Obj::operator+=;
+            operatorPtr operatorSubAssignment = &Obj::operator-=;
+
+            (void)operatorAddAssignment;  // quash potential compiler warning
+            (void)operatorSubAssignment;
+        }
+
+        if (verbose) cout << "\nTesting arithmetic assignment operators."
+                          << endl;
+        {
+            const int                    NUM_DATA  = DEFAULT_NUM_DATA;
+            const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   IDAYS      = DATA[i].d_days;
+                const Int64 IHOURS     = DATA[i].d_hours;
+                const Int64 IMINUTES   = DATA[i].d_minutes;
+                const Int64 ISECONDS   = DATA[i].d_seconds;
+                const Int64 IMSECS     = DATA[i].d_msecs;
+                const Int64 IUSECS     = DATA[i].d_usecs;
+
+                { // Verify self-assignment works correctly.
+                    {
+                        Int64 TOTAL_DAYS =
+                                     static_cast<Int64>(DATA[i].d_expDays) * 2;
+ 
+                        // Note that the following test is slightly more
+                        // restrictive than necessary.
+
+                        if (TOTAL_DAYS > INT_MIN && TOTAL_DAYS < INT_MAX) {
+                            Obj mX(IDAYS,
+                                   IHOURS,
+                                   IMINUTES,
+                                   ISECONDS,
+                                   IMSECS,
+                                   IUSECS);
+
+                            const Obj& X = mX;
+
+                            Obj mEXP(X.days() * 2,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     X.fractionalDayInMicroseconds() * 2);
+
+                            const Obj& EXP = mEXP;
+
+                            if (veryVerbose) { T_ P_(X) P(EXP);  }
+
+                            mX += X;
+
+                            ASSERTV(X, EXP, EXP == X);
+                        }
+                    }
+
+                    {
+                        Obj mX(IDAYS,
+                               IHOURS,
+                               IMINUTES,
+                               ISECONDS,
+                               IMSECS,
+                               IUSECS);
+
+                        const Obj& X = mX;
+
+                        Obj mEXP;  const Obj& EXP = mEXP;
+
+                        if (veryVerbose) { T_ P_(X) P(EXP);  }
+
+                        mX -= X;
+
+                        ASSERTV(X, EXP, EXP == X);
+                    }
+                }
+                
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    const int   JDAYS      = DATA[j].d_days;
+                    const Int64 JHOURS     = DATA[j].d_hours;
+                    const Int64 JMINUTES   = DATA[j].d_minutes;
+                    const Int64 JSECONDS   = DATA[j].d_seconds;
+                    const Int64 JMSECS     = DATA[j].d_msecs;
+                    const Int64 JUSECS     = DATA[j].d_usecs;
+
+                    {
+                        Int64 TOTAL_DAYS =
+                                          static_cast<Int64>(DATA[i].d_expDays)
+                                        + DATA[j].d_expDays;
+
+                        // Note that the following test is slightly more
+                        // restrictive than necessary.
+
+                        if (TOTAL_DAYS > INT_MIN && TOTAL_DAYS < INT_MAX) {
+                            Obj mX(IDAYS,
+                                   IHOURS,
+                                   IMINUTES,
+                                   ISECONDS,
+                                   IMSECS,
+                                   IUSECS);
+
+                            const Obj& X = mX;
+
+                            Obj mY(JDAYS,
+                                   JHOURS,
+                                   JMINUTES,
+                                   JSECONDS,
+                                   JMSECS,
+                                   JUSECS);
+
+                            const Obj& Y = mY;
+
+                            Obj mEXP(X.days() + Y.days(),
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     X.fractionalDayInMicroseconds()
+                                            + Y.fractionalDayInMicroseconds());
+
+                            const Obj& EXP = mEXP;
+
+                            if (veryVerbose) { T_ P_(X) P_(Y) P(EXP);  }
+
+                            mX += Y;
+
+                            ASSERTV(X, EXP, EXP == X);
+                        }
+                    }
+
+                    {
+                        Int64 TOTAL_DAYS =
+                                          static_cast<Int64>(DATA[i].d_expDays)
+                                        - DATA[j].d_expDays;
+
+                        // Note that the following test is slightly more
+                        // restrictive than necessary.
+
+                        if (TOTAL_DAYS > INT_MIN && TOTAL_DAYS < INT_MAX) {
+                            Obj mX(IDAYS,
+                                   IHOURS,
+                                   IMINUTES,
+                                   ISECONDS,
+                                   IMSECS,
+                                   IUSECS);
+
+                            const Obj& X = mX;
+
+                            Obj mY(JDAYS,
+                                   JHOURS,
+                                   JMINUTES,
+                                   JSECONDS,
+                                   JMSECS,
+                                   JUSECS);
+
+                            const Obj& Y = mY;
+
+                            Obj mEXP(X.days() - Y.days(),
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     X.fractionalDayInMicroseconds()
+                                            - Y.fractionalDayInMicroseconds());
+
+                            const Obj& EXP = mEXP;
+
+                            if (veryVerbose) { T_ P_(X) P_(Y) P(EXP);  }
+
+                            mX -= Y;
+
+                            ASSERTV(X, EXP, EXP == X);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj(INT_MIN) += Obj(-1));
+            ASSERT_PASS(Obj(INT_MIN) += Obj( 0));
+            ASSERT_PASS(Obj(INT_MIN) += Obj( 1));
+            ASSERT_PASS(Obj(INT_MAX) += Obj(-1));
+            ASSERT_PASS(Obj(INT_MAX) += Obj( 0));
+            ASSERT_FAIL(Obj(INT_MAX) += Obj( 1));
+
+            ASSERT_PASS(Obj(INT_MIN) -= Obj(-1));
+            ASSERT_PASS(Obj(INT_MIN) -= Obj( 0));
+            ASSERT_FAIL(Obj(INT_MIN) -= Obj( 1));
+            ASSERT_FAIL(Obj(INT_MAX) -= Obj(-1));
+            ASSERT_PASS(Obj(INT_MAX) -= Obj( 0));
+            ASSERT_PASS(Obj(INT_MAX) -= Obj( 1));
+        }
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING ADDITIONAL 'add' MANIPULATORS
@@ -1923,7 +1693,7 @@ if (veryVerbose)
                     // Note that the following test is slightly more
                     // restrictive than necessary.
 
-                    if (INT_MIN < TOTAL_DAYS && INT_MAX > TOTAL_DAYS) {
+                    if (TOTAL_DAYS > INT_MIN && TOTAL_DAYS < INT_MAX) {
                         Obj mX(IDAYS,
                                IHOURS,
                                IMINUTES,
@@ -1952,7 +1722,7 @@ if (veryVerbose)
 
                         const Obj& EXP = mEXP;
 
-                        if (veryVerbose) { T_ P_(X) P_(Y)  P(EXP);  }
+                        if (veryVerbose) { T_ P_(X) P_(Y) P(EXP);  }
 
                         mX.addInterval(JDAYS,
                                        JHOURS,
