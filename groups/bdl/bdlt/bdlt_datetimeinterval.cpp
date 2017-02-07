@@ -42,8 +42,8 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
         microseconds -= TimeUnitRatio::k_US_PER_D;
     }
 
-    BSLS_ASSERT(days <= bsl::numeric_limits<bsl::int32_t>::max());
-    BSLS_ASSERT(days >= bsl::numeric_limits<bsl::int32_t>::min());
+    BSLS_ASSERT(days <= bsl::numeric_limits<int32_t>::max());
+    BSLS_ASSERT(days >= bsl::numeric_limits<int32_t>::min());
 
     d_days         = static_cast<int>(days);
     d_microseconds = microseconds;

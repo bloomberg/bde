@@ -194,12 +194,15 @@ class DatetimeInterval {
     bsls::Types::Int64 d_microseconds;  // field for microseconds
 
     // FRIENDS
+    friend DatetimeInterval operator-(const DatetimeInterval&);
+
     friend bool operator==(const DatetimeInterval&, const DatetimeInterval&);
     friend bool operator!=(const DatetimeInterval&, const DatetimeInterval&);
     friend bool operator< (const DatetimeInterval&, const DatetimeInterval&);
     friend bool operator<=(const DatetimeInterval&, const DatetimeInterval&);
     friend bool operator> (const DatetimeInterval&, const DatetimeInterval&);
     friend bool operator>=(const DatetimeInterval&, const DatetimeInterval&);
+
     template <class HASHALG>
     friend void hashAppend(HASHALG& hashAlg, const DatetimeInterval&);
 
@@ -890,10 +893,10 @@ bsls::Types::Int64 DatetimeInterval::totalMilliseconds() const
 inline
 bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
 {
-    BSLS_ASSERT_SAFE(   0 <= d_days
+    BSLS_ASSERT_SAFE(   0 >= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::max() -
                         d_microseconds) / TimeUnitRatio::k_US_PER_D >= d_days);
-    BSLS_ASSERT_SAFE(   0 >= d_days
+    BSLS_ASSERT_SAFE(   0 <= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::min() -
                         d_microseconds) / TimeUnitRatio::k_US_PER_D <= d_days);
 
@@ -970,9 +973,12 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& lhs,
 inline
 bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& value)
 {
+    BSLS_ASSERT_SAFE(value.d_days > bsl::numeric_limits<int32_t>::min());
+
     DatetimeInterval interval;
 
-    interval -= value;
+    interval.d_days = -value.d_days;
+    interval.d_microseconds = -value.d_microseconds;
 
     return interval;
 }
