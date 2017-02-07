@@ -550,8 +550,6 @@ int main(int argc, char *argv[])
 
                 ASSERT(mCa != X.data());
                 ASSERT(mCb == X.data());
-                ASSERT(0   == X.currentBufferIndex());
-                ASSERT(0   == X.previousBuffersLength());
             }
         }
 
