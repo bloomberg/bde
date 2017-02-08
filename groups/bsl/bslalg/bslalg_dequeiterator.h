@@ -18,9 +18,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an in-core value semantic class,
 // 'bslalg::DequeIterator', that is a primitive iterator type for enumerating
-// elements in a deque (implemented in the form of dynamic array) knowing only
-// its value type and a nominal block size.  Conceptually, a deque is an array
-// of block pointers, each block capable of containing a fixed number of
+// elements in a deque (implemented in the form of a dynamic array) knowing
+// only its value type and a nominal block size.  Conceptually, a deque is an
+// array of block pointers, each block capable of containing a fixed number of
 // objects.  An element in the deque is identified by an iterator that consists
 // of two pointers:
 //: o a pointer to the block pointer array, and
@@ -77,10 +77,10 @@ BSLS_IDENT("$Id: $")
 // block pointer array).
 //
 // This component does not provide the full interface of a C++ standard library
-// iterator as it should not take out a dependency on 'iterator_traits' below
-// the 'bstlstl' package group.  It provides all the necessary features so that
-// it is trivial to implement such an iterator for a standard conforming
-// 'deque' implementation.
+// iterator as we do not want a dependency on 'iterator_traits' in a package
+// below 'bslstl'.  'bslalg::DequeIterator' provides the minimal necessary set
+// of features to implement such an iterator for a standard conforming 'deque'
+// implementation in a higher level component.
 //
 ///Usage
 ///-----
@@ -156,7 +156,7 @@ class DequeIterator {
         // element in the same block as the specified 'rhs' iterator, or points
         // to an element in a different block to the 'rhs' iterator, and
         // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
-        // are iterators over the same deque.    Note that this friend is a
+        // are iterators over the same deque.  Note that this friend is a
         // regular functon, not a function template, so there is no way to
         // declare it outside the class in order to provide the definition.
     {
@@ -168,7 +168,7 @@ class DequeIterator {
         // in a previous block or in a previous position in the same block as
         // the specified 'rhs' iterator, and 'false' otherwise.  The behavior
         // is undefined unless 'lhs' and 'rhs' are iterators over the same
-        // deque.    Note that this friend is a regular functon, not a function
+        // deque.  Note that this friend is a regular functon, not a function
         // template, so there is no way to declare it outside the class in
         // order to provide the definition.
     {

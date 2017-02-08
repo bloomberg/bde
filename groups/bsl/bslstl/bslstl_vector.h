@@ -698,8 +698,8 @@ BSL_OVERRIDES_STD mode"
 // free-function overloads will dispatch to members of the wrong class template
 // specialization.  Note that this bug is new to Sun CC 12.4, and we have not
 // tested for whether the bug is fixed in later Microsoft compilers.  However,
-// defining this macro universally for these compilers is does not lead to any
-// new problems, as the workarounds we deploy are backwards compatible.
+// defining this macro universally for these compilers does not lead to any new
+// problems, as the workarounds we deploy are backwards compatible.
 #endif
 
 namespace bsl {
