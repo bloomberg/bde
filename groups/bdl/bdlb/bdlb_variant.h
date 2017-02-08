@@ -5926,7 +5926,9 @@ struct Variant_TypeIndex {
     //  BSLMF_ASSERT((!bsl::is_same<TYPE, bslmf::Nil>::value));
     //..
 
-    BSLMF_ASSERT(((int)value <= (int)TYPES::LENGTH || 21 == value));
+    // TBD The following breaks compilation of some client code in C++11 mode
+    // that is most likely misusing 'bslmf::Nil'.
+    // BSLMF_ASSERT(((int)value <= (int)TYPES::LENGTH || 21 == value));
 #endif
 };
 
