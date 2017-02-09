@@ -406,8 +406,7 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
         // callbacks are invoked in the same thread that invokes 'dispatch',
         // and the order of invocation, relative to the order of registration,
         // is unspecified.  Also note that -1 is never returned unless 'flags'
-        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.  The behavior is undefined
-        // if invoked from within a socket callback of this event manager.
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'. 
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -425,8 +424,7 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
         // thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'option' is set to
-        // 'bteso_Flag::k_ASYNC_INTERRUPT'.  The behavior is undefined
-        // if invoked from within a socket callback of this event manager.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int registerSocketEvent(const SocketHandle::Handle&   handle,
                             const EventType::Type         event,
