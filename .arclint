@@ -1,0 +1,20 @@
+{
+    "linters" : {
+        "bde-verify" : {
+            "type"             : "bdeverify",
+            "include"          : "(\\.(h|cpp)$)",
+            "config"           : "/opt/bb/etc/bde-verify/bde.cfg",
+            "default-severity" : "advice",
+            "ignore-generated" : true,
+            "apply-patches"    : false,
+            "debug-mode"       : false,
+            "options"          : [
+                "-nodefinc",
+                "-cc /opt/swt/install/gcc-4.9.2/bin/g++"
+            ],
+            "header-paths"     : [
+                "`find */ -name '*.mem' | sed -n 's/[/]package[/].*//p'`"
+            ]
+        }
+    }
+}
