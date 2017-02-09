@@ -13,6 +13,9 @@ glob: groups/bsl/bsl+stdhdrs/dummy_*.h
 # bde_build support
 #file: groups/bsl/cphdrs.pl
 
+# Internal bde_verify automated linting
+file: .arclint
+
 # Legacy container support
 file: groups/bsl/bsl+bslhdrs/bsl_hash_map.h
 file: groups/bsl/bsl+bslhdrs/test/bsl_hash_map.t.cpp
