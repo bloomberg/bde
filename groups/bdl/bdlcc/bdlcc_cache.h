@@ -19,18 +19,18 @@ BSLS_IDENT("$Id: $")
 // The cache class template has the same template parameters as
 // 'bsl::unordered_map', with exception of not supporting the standard
 // allocator template parameter (though 'bslma::Allocator' is supported): the
-// key type ('KEYTYPE'), value type ('VALUE'), and the optional hash function
-// ('HASH') and the key equal function ('EQUAL').
+// key type ('KEYTYPE'), value type ('VALUE'), the optional hash function
+// ('HASH') and the optional equal function ('EQUAL').
 //
 // The maximum cache size can be controlled by setting the low watermark and
 // high watermark attributes, which is used instead of a single maximum size
 // attribute for the sake of potential performance benefits.  Eviction of
 // cached items happens when 'size() >= highWatermark' and stops when
-// 'size() == lowWatermark - 1'.  Setting a fixed maximum size can be
-// accomplished by setting the high and low watermarks to the same value.
+// 'size() < lowWatermark'.  Setting a fixed maximum size can be accomplished
+// by setting the high and low watermarks to the same value.
 //
 // Two kinds of eviction policies are supported because they work efficiently
-// with the cache class template's simple internal representation: LRU (Least
+// with the cache class templates simple internal representation: LRU (Least
 // Recently Used), and FIFO (First In, First Out).  With LRU, the item that has
 // *not* been accessed for the longest period of time will be evicted first.
 // With FIFO, the eviction order is based purely on the order of insertion,
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 ///Thread Contention
 ///-----------------
 // The thread safety of 'bdlcc::Cache' is achieved by using
-// 'bslmt::ReaderWriterLock', which gives *write* access priority over *read*
+// 'bslmt::ReaderWriterMutex', which gives *write* access priority over *read*
 // access but allows concurrent *read* access.  Care should be taken to avoid
 // excessive thread contention by not acquiring multiple write locks
 // concurrently.
@@ -69,11 +69,11 @@ BSLS_IDENT("$Id: $")
 // using a supplied visitor that does only simple operations or ending the
 // 'visit' method early by returning 'false' from the supplied visitor.
 //
-///Post-evction Callback and Potential Deadlocks
+///Post-eviction Callback and Potential Deadlocks
 ///---------------------------------------------
 // When an item is evicted or erased from the cache, the previously set
-// post-eviction callback (via the 'setPostEvictionCallback' method ) will be
-// evoked, supplying item being removed.
+// post-eviction callback (via the 'setPostEvictionCallback' method) will be
+// evoked, supplying a pointer to the item being removed.
 //
 // The cache object itself should not be used in a post-eviction callback;
 // otherwise, a deadlock may result.  Since a write lock is held during the
@@ -271,9 +271,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_READERWRITERLOCK
-#include <bslmt_readerwriterlock.h>
-#endif
+//#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+//#include <bslmt_readerwriterlock.h>
+//#endif
 
 #ifndef INCLUDED_BSLMT_READERWRITERMUTEX
 #include <bslmt_readerwritermutex.h>
@@ -384,12 +384,11 @@ class Cache {
     typedef bsl::pair<ValuePtrType, typename QueueType::iterator> MapVALUE;
         // Value type of the hash map.
 
-    typedef bsl::unordered_map<KEYTYPE, MapVALUE, HASH, EQUAL>
-                                                                  MapType;
+    typedef bsl::unordered_map<KEYTYPE, MapVALUE, HASH, EQUAL>    MapType;
         // Hash map type.
 
-    // typedef bslmt::ReaderWriterMutex                              LockType;
-    typedef bslmt::ReaderWriterLock                              LockType;
+    typedef bslmt::ReaderWriterMutex                              LockType;
+    // typedef bslmt::ReaderWriterLock                               LockType;
 
     // DATA
     bslma::Allocator                *d_allocator_p;  // memory allocator (held,
@@ -426,24 +425,32 @@ class Cache {
     // PRIVATE MANIPULATORS
     void enforceHighWatermark();
         // Evict items from this cache if 'size() >= highWatermark()' until
-        // 'size() == lowWatermark() - 1' beginning from the front of the
-        // eviction queue.  Invoke the post-eviction callback for each item
-        // evicted.
+        // 'size() < lowWatermark()' beginning from the front of the eviction
+        // queue.  Invoke the post-eviction callback for each item evicted.
 
     void evictItem(const typename MapType::iterator& mapIt);
         // Evict the item at the specified 'mapIt' and invoke the post-eviction
         // callback for that item.
 
-    void insertImp(const KEYTYPE&   key,
-                   const VALUE&     value,
-                   bsl::true_type);
-    void insertImp(const KEYTYPE&   key,
-                   const VALUE&     value,
-                   bsl::false_type);
+    void insertImp(const KEYTYPE& key, const ValuePtrType& valuePtr);
+        // Insert the specified 'key' and its associated 'valuePtr' into this
+        // cache.  If 'key' already exists, then its value will be replaced
+        // with 'value'.  Note that this function is the one where the actual
+        // work is done. 
+
+    void insertImpWrapper(const KEYTYPE&   key,
+                          const VALUE&     value,
+                          bsl::true_type);
+    void insertImpWrapper(const KEYTYPE&   key,
+                          const VALUE&     value,
+                          bsl::false_type);
         // Insert the specified 'key' and its associated 'value' into this
         // cache.  If 'key' already exists, then its value will be replaced
         // with 'value'.  The last parameter should be 'true_type' if
-        // 'VALUE' uses a 'bslma::Allocator'.
+        // 'VALUE' uses a 'bslma::Allocator', and 'false_type' if it does not.
+        // Note that both functions are just a way to decide at compile time
+        // without an if statement if an allocator is to be passed to the
+        // function.
 
     // NOT IMPLEMENTED
     Cache(const Cache<KEYTYPE, VALUE, HASH, EQUAL>&);
@@ -574,12 +581,14 @@ class Cache {
 
 // CREATORS
 template <class KEYTYPE>
+inline
 Cache_QueueProctor<KEYTYPE>::Cache_QueueProctor(
                                   bsl::list<KEYTYPE> *queue) : d_queue_p(queue)
 {
 }
 
 template <class KEYTYPE>
+inline
 Cache_QueueProctor<KEYTYPE>::~Cache_QueueProctor()
 {
     if (d_queue_p) {
@@ -589,6 +598,7 @@ Cache_QueueProctor<KEYTYPE>::~Cache_QueueProctor()
 
 // MANIPULATORS
 template <class KEYTYPE>
+inline
 void Cache_QueueProctor<KEYTYPE>::release()
 {
     d_queue_p = 0;
@@ -664,20 +674,6 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::enforceHighWatermark()
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
-int Cache<KEYTYPE, VALUE, HASH, EQUAL>::erase(const KEYTYPE& key)
-{
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
-
-    const typename MapType::iterator mapIt = d_map.find(key);
-    if (mapIt == d_map.end()) {
-        return 1;                                                     // RETURN
-    }
-
-    evictItem(mapIt);
-    return 0;
-}
-
-template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 void Cache<KEYTYPE, VALUE, HASH, EQUAL>::evictItem(
                                        const typename MapType::iterator& mapIt)
 {
@@ -692,43 +688,7 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::evictItem(
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
-void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImp(const KEYTYPE&  key,
-                                                   const VALUE&    value,
-                                                   bsl::false_type)
-{
-    ValuePtrType valuePtr;
-    valuePtr.createInplace(d_allocator_p, value);
-    insert(key, valuePtr);
-}
-
-template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
-void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImp(const KEYTYPE& key,
-                                                   const VALUE&   value,
-                                                   bsl::true_type)
-{
-    ValuePtrType valuePtr;
-    valuePtr.createInplace(d_allocator_p, value, d_allocator_p);
-    insert(key, valuePtr);
-}
-
-// MANIPULATORS
-template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
-void Cache<KEYTYPE, VALUE, HASH, EQUAL>::clear()
-{
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
-    d_map.clear();
-    d_queue.clear();
-}
-
-template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
-void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(const KEYTYPE& key,
-                                                const VALUE&   value)
-{
-    insertImp(key, value, bslma::UsesBslmaAllocator<VALUE>());
-}
-
-template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
-void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(
+void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImp(
                                                   const KEYTYPE&      key,
                                                   const ValuePtrType& valuePtr)
 {
@@ -752,6 +712,70 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(
         d_map.emplace(key, MapVALUE(valuePtr, queueItr, d_allocator_p));
         proctor.release();
     }
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
+void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImpWrapper(
+		                                           const KEYTYPE&  key,
+                                                   const VALUE&    value,
+                                                   bsl::false_type)
+{
+    ValuePtrType valuePtr;
+    valuePtr.createInplace(d_allocator_p, value);
+    insertImp(key, valuePtr);
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
+void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImpWrapper(
+		                                           const KEYTYPE& key,
+                                                   const VALUE&   value,
+                                                   bsl::true_type)
+{
+    ValuePtrType valuePtr;
+    valuePtr.createInplace(d_allocator_p, value, d_allocator_p);
+    insertImp(key, valuePtr);
+}
+
+// MANIPULATORS
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+void Cache<KEYTYPE, VALUE, HASH, EQUAL>::clear()
+{
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+    d_map.clear();
+    d_queue.clear();
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+int Cache<KEYTYPE, VALUE, HASH, EQUAL>::erase(const KEYTYPE& key)
+{
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    const typename MapType::iterator mapIt = d_map.find(key);
+    if (mapIt == d_map.end()) {
+        return 1;                                                     // RETURN
+    }
+
+    evictItem(mapIt);
+    return 0;
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
+void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(const KEYTYPE& key,
+                                                const VALUE&   value)
+{
+    insertImpWrapper(key, value, bslma::UsesBslmaAllocator<VALUE>());
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
+void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(
+                                                  const KEYTYPE&      key,
+                                                  const ValuePtrType& valuePtr)
+{
+    insertImp(key, valuePtr);
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
@@ -783,37 +807,32 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::tryGetValue(
                                    const KEYTYPE&          key,
                                    bool                    modifyEvictionQueue)
 {
-    //..
-    // int preLocked = 1;
-    // if (d_evictionPolicy == CacheEvictionPolicy::e_FIFO ||
-    //     !modifyEvictionQueue) {
-    //     preLocked = 0;
-    // }
-    // else {  //(d_evictionPolicy == CacheEvictionPolicy::e_LRU) {
-    //     d_rwlock.lockReadReserveWrite();
-    // }
-    //..
-
-    // bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+    int writeLock = d_evictionPolicy == CacheEvictionPolicy::e_LRU &&
+         modifyEvictionQueue ? 1 : 0;
+    if (writeLock) {
+        d_rwlock.lockWrite();
+    }
+    else {
+    	d_rwlock.lockRead();
+    }
 
     typename MapType::iterator mapIt = d_map.find(key);
     if (mapIt == d_map.end()) {
+    	d_rwlock.unlock();
         return 1;                                                     // RETURN
     }
 
     *value = mapIt->second.first;
 
-    // if (d_evictionPolicy == CacheEvictionPolicy::e_LRU &&
-    //     modifyEvictionQueue) {
-    //     typename QueueType::iterator queueItr = mapIt->second.second;
-    //     typename QueueType::iterator last = d_queue.end();
-    //     --last;
-    //     if (last != queueItr) {
-    //         d_rwlock.upgradeToWriteLock();
-    //         d_queue.splice(d_queue.end(), d_queue, queueItr);
-    //     }
-    // }
+    if (writeLock) {
+        typename QueueType::iterator queueIt = mapIt->second.second;
+        typename QueueType::iterator last = d_queue.end();
+        --last;
+        if (last != queueIt) {
+            d_queue.splice(d_queue.end(), d_queue, queueIt);
+        }
+    }
+    d_rwlock.unlock();
 
     return 0;
 }
@@ -853,6 +872,7 @@ bsl::size_t Cache<KEYTYPE, VALUE, HASH, EQUAL>::lowWatermark() const
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 bsl::size_t Cache<KEYTYPE, VALUE, HASH, EQUAL>::size() const
 {
+    bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
     return d_map.size();
 }
 
@@ -860,11 +880,10 @@ template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 template <class VISITOR>
 void Cache<KEYTYPE, VALUE, HASH, EQUAL>::visit(VISITOR& visitor) const
 {
-    // bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_rwlock);
     bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
 
-    for (typename QueueType::const_iterator queueItr = d_queue.begin();
-         queueItr != d_queue.end(); ++queueItr) {
+    for (typename QueueType::const_iterator queueIt = d_queue.begin();
+         queueIt != d_queue.end(); ++queueIt) {
 
         const KEYTYPE&                         key = *queueItr;
         const typename MapType::const_iterator mapIt = d_map.find(key);
