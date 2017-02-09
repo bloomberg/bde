@@ -436,7 +436,7 @@ class Cache {
         // Insert the specified 'key' and its associated 'valuePtr' into this
         // cache.  If 'key' already exists, then its value will be replaced
         // with 'value'.  Note that this function is the one where the actual
-        // work is done. 
+        // work is done.
 
     void insertImpWrapper(const KEYTYPE&   key,
                           const VALUE&     value,
@@ -699,17 +699,17 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImp(
     typename MapType::iterator mapIt = d_map.find(key);
     if (mapIt != d_map.end()) {
         mapIt->second.first = valuePtr;
-        typename QueueType::iterator queueItr = mapIt->second.second;
+        typename QueueType::iterator queueIt = mapIt->second.second;
 
-        d_queue.splice(d_queue.end(), d_queue, queueItr);
+        d_queue.splice(d_queue.end(), d_queue, queueIt);
     }
     else {
         d_queue.push_back(key);
         Cache_QueueProctor<KEYTYPE>  proctor(&d_queue);
-        typename QueueType::iterator queueItr = d_queue.end();
-        --queueItr;
+        typename QueueType::iterator queueIt = d_queue.end();
+        --queueIt;
 
-        d_map.emplace(key, MapVALUE(valuePtr, queueItr, d_allocator_p));
+        d_map.emplace(key, MapVALUE(valuePtr, queueIt, d_allocator_p));
         proctor.release();
     }
 }
@@ -717,9 +717,9 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImp(
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 inline
 void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImpWrapper(
-		                                           const KEYTYPE&  key,
-                                                   const VALUE&    value,
-                                                   bsl::false_type)
+                                                         const KEYTYPE&  key,
+                                                         const VALUE&    value,
+                                                         bsl::false_type)
 {
     ValuePtrType valuePtr;
     valuePtr.createInplace(d_allocator_p, value);
@@ -729,9 +729,9 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImpWrapper(
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 inline
 void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertImpWrapper(
-		                                           const KEYTYPE& key,
-                                                   const VALUE&   value,
-                                                   bsl::true_type)
+                                                          const KEYTYPE& key,
+                                                          const VALUE&   value,
+                                                          bsl::true_type)
 {
     ValuePtrType valuePtr;
     valuePtr.createInplace(d_allocator_p, value, d_allocator_p);
@@ -813,12 +813,12 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::tryGetValue(
         d_rwlock.lockWrite();
     }
     else {
-    	d_rwlock.lockRead();
+        d_rwlock.lockRead();
     }
 
     typename MapType::iterator mapIt = d_map.find(key);
     if (mapIt == d_map.end()) {
-    	d_rwlock.unlock();
+        d_rwlock.unlock();
         return 1;                                                     // RETURN
     }
 
@@ -885,7 +885,7 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::visit(VISITOR& visitor) const
     for (typename QueueType::const_iterator queueIt = d_queue.begin();
          queueIt != d_queue.end(); ++queueIt) {
 
-        const KEYTYPE&                         key = *queueItr;
+        const KEYTYPE&                         key = *queueIt;
         const typename MapType::const_iterator mapIt = d_map.find(key);
         BSLS_ASSERT(mapIt != d_map.end());
         const ValuePtrType& valuePtr = mapIt->second.first;
