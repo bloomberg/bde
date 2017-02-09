@@ -16,7 +16,6 @@ namespace BloombergLP {
 namespace bdlt {
 
 // STATIC HELPER FUNCTIONS
-
 static
 bsls::Types::Int64 fastMod(int *number, int base)
     // Efficiently mod ('%') the specified 'number' by the specified 'base' and
@@ -102,6 +101,7 @@ bsls::Types::Int64 modulo(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     return result;
 }
 
+static
 int printToBufferFormatted(char       *result,
                            int         numBytes,
                            const char *spec,

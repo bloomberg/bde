@@ -22,6 +22,118 @@ BSLMF_ASSERT(-5 % 4 == -1);
 
 namespace bdlt {
 
+// STATIC HELPER FUNCTIONS
+static
+int printToBufferFormatted(char       *result,
+                           int         numBytes,
+                           const char *spec,
+                           int         day,
+                           int         hour,
+                           int         minute,
+                           int         second,
+                           int         microsecond,
+                           int         fractionalSecondPrecision)
+{
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows uses a different variant of snprintf that does not necessarily
+    // null-terminate and returns -1 (or 'numBytes') on overflow.
+
+    int rc;
+
+    if (0 == fractionalSecondPrecision) {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       day,
+                       hour,
+                       minute,
+                       second);
+    }
+    else {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       day,
+                       hour,
+                       minute,
+                       second,
+                       microsecond);
+    }
+
+    if ((0 > rc || rc == numBytes) && numBytes > 0) {
+        rc = numBytes - 1;
+
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                      // overflow.
+
+        // Need to determine the length that would have been printed without
+        // overflow.
+
+        if (0 == fractionalSecondPrecision) {
+            //   '_' hh: mm: ss
+            rc =  1 + 3 + 3 + 2;
+        }
+        else {
+            //   '_' hh: mm: ss. mmm uuu
+            rc =  1 + 3 + 3 + 3 + fractionalSecondPrecision
+        }
+
+        if (day < 10) {
+            rc += 1;
+        }
+        else if (day < 100) {
+            rc += 2;
+        }
+        else if (day < 1000) {
+            rc += 3;
+        }
+        else if (day < 10000) {
+            rc += 4;
+        }
+        else if (day < 100000) {
+            rc += 5;
+        }
+        else if (day < 1000000) {
+            rc += 6;
+        }
+        else if (day < 10000000) {
+            rc += 7;
+        }
+        else if (day < 100000000) {
+            rc += 8;
+        }
+        else if (day < 1000000000) {
+            rc += 9;
+        }
+        else {
+            rc += 10;
+        }
+    }
+
+    return rc;
+
+#else
+
+    return 0 == fractionalSecondPrecision
+           ? snprintf(result,
+                      numBytes,
+                      spec,
+                      day,
+                      hour,
+                      minute,
+                      second)
+           : snprintf(result,
+                      numBytes,
+                      spec,
+                      day,
+                      hour,
+                      minute,
+                      second,
+                      microsecond);
+#endif
+}
+
                           // ----------------------
                           // class DatetimeInterval
                           // ----------------------
@@ -113,37 +225,117 @@ void DatetimeInterval::setInterval(int                days,
 
                                   // Aspects
 
+int DatetimeInterval::printToBuffer(char *result,
+                                    int   numBytes,
+                                    int   fractionalSecondPrecision) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 <= fractionalSecondPrecision     );
+    BSLS_ASSERT(     fractionalSecondPrecision <= 6);
+
+    int bytesForSign = 0;
+    int d            = days();
+    int h            = hours();
+    int m            = minutes();
+    int s            = seconds();
+    int ms           = milliseconds();
+    int us           = microseconds();
+
+    if (0 > d_days || 0 > d_microseconds) {
+        if (numBytes) {
+            *result++ = '-';
+            --numBytes;
+        }
+
+        bytesForSign =  1;
+        d            = -d;
+        h            = -h;
+        m            = -m;
+        s            = -s;
+        ms           = -ms;
+        us           = -us;
+    }
+
+    int value;
+
+    switch (fractionalSecondPrecision) {
+      case 0: {
+        char spec[] = "%d_%02d:%02d:%02d";
+
+        return printToBufferFormatted(result,
+                                      numBytes,
+                                      spec,
+                                      d,
+                                      h,
+                                      m,
+                                      s,
+                                      0,
+                                      0) + bytesForSign;              // RETURN
+      } break;
+      case 1: {
+        value = ms / 100;
+      } break;
+      case 2: {
+        value = ms / 10 ;
+      } break;
+      case 3: {
+        value = ms;
+      } break;
+      case 4: {
+        value = ms * 10   + us / 100;
+      } break;
+      case 5: {
+        value = ms * 100  + us / 10;
+      } break;
+      default: {
+        value = ms * 1000 + us;
+      } break;
+    }
+
+    char spec[] = "%d_%02d:%02d:%02d.%0Xd";
+
+    const int PRECISION_INDEX = sizeof spec - 3;
+
+    spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
+
+    return printToBufferFormatted(result,
+                                  numBytes,
+                                  spec,
+                                  d,
+                                  h,
+                                  m,
+                                  s,
+                                  value,
+                                  fractionalSecondPrecision) + bytesForSign;
+}
+
 bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
                                       int           level,
                                       int           spacesPerLevel) const
 {
-    // space usage:    s dd...d _  hh: mm: ss: mmm null
-    const int k_SIZE = 1 + 10 + 1 + 3 + 3 + 3 + 3 + 1;
-    char      buf[k_SIZE];
+    // Format the output to a buffer first instead of inserting into 'stream'
+    // directly to improve performance and in case the caller has done
+    // something like:
+    //..
+    //  os << bsl::setw(20) << myTime;
+    //..
+    // The user-specified width will be effective when 'buffer' is written to
+    // the 'stream' (below).
 
-    const int d  = days();
-    const int h  = hours();
-    const int m  = minutes();
-    const int s  = seconds();
-    const int ms = milliseconds();
+    const int k_BUFFER_SIZE = 32;
+    char      buffer[k_BUFFER_SIZE];
 
-    if (totalMilliseconds() < 0) {
-        char *p = buf;
+    int rc = printToBuffer(buffer,
+                           k_BUFFER_SIZE,
+                           k_DEFAULT_FRACTIONAL_SECOND_PRECISION);
 
-        if (0 == d) {
-            *p++ = '-';  // '-' comes from 'd' only if 'd < 0'.
-        }
-
-        bsl::sprintf(p,    "%d_%02d:%02d:%02d.%03d", d, -h, -m, -s, -ms);
-    }
-    else {
-        bsl::sprintf(buf, "+%d_%02d:%02d:%02d.%03d", d, h, m, s, ms);
-    }
+    (void)rc;
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start(true);  // 'true' -> suppress '['
-    stream << buf;
-    printer.end(true);    // 'true' -> suppress ']'
+    printer.start(true);    // 'true' -> suppress '['
+    stream << buffer;
+    printer.end(true);      // 'true' -> suppress ']'
 
     return stream;
 }

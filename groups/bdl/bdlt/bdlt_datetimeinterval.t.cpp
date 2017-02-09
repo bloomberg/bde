@@ -40,7 +40,6 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -298,7 +297,7 @@ static const DefaultDataRow DEFAULT_DATA[] =
                                                   -106751991, -14454775808LL },
 
     // Note that MAX + MIN is -1 day.
-            
+
     { L_, k_DAYS_MAX, k_HOURS_MIN, k_MINS_MAX, k_SECS_MIN, 0, 0,
                                                           -2, -82859000000LL },
     { L_, k_DAYS_MAX, k_HOURS_MIN, k_MINS_MIN, k_SECS_MAX, 0, 0,
@@ -355,376 +354,6 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-#if 0 // TBD
-      case 5: {
-        // --------------------------------------------------------------------
-        // PRINT AND OUTPUT OPERATOR (<<)
-        //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
-        //
-        // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
-        //
-        // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding time interval field, and various values for the
-        //:     two formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
-        //:
-        //: 3 Using the table-driven technique, further corroborate that the
-        //:   'print' method and 'operator<<' format object values correctly by
-        //:   testing an additional set of time intervals (including extremal
-        //:   values), but this time fixing the 'level' and 'spacesPerLevel'
-        //:   arguments to 0 and -1, respectively.
-        //
-        // Testing:
-        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-        //   ostream& operator<<(ostream &os, const DatetimeInterval& object);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-        //   bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PRINT AND OUTPUT OPERATOR (<<)" << endl
-                          << "==============================" << endl;
-
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
-        {
-            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
-            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
-
-            // Verify that the signatures and return types are standard.
-
-            funcPtr     printMember = &Obj::print;
-            operatorPtr operatorOut = bdlt::operator<<;
-
-            (void)printMember;  // quash potential compiler warnings
-            (void)operatorOut;
-        }
-
-        if (verbose) cout <<
-             "\nCreate a table of distinct value/format combinations." << endl;
-
-        static const struct {
-            int         d_line;            // source line number
-            int         d_level;
-            int         d_spacesPerLevel;
-
-            int         d_days;
-            Int64       d_hours;
-            Int64       d_mins;
-            Int64       d_secs;
-            Int64       d_msecs;
-
-            const char *d_expected_p;
-        } DATA[] = {
-
-#define NL "\n"
-
-        // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
-        // ------------------------------------------------------------------
-
-        //LINE L SPL   D   H   M   S   MS  EXP
-        //---- - ---   -  --  --  --  ---  ---
-
-        { L_,  0,  0,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        { L_,  0,  1,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        { L_,  0, -1,  1, 23, 59, 59, 999, "+1_23:59:59.999"                 },
-
-        { L_,  0, -8,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
-        // ------------------------------------------------------------------
-
-        //LINE L SPL   D   H   M   S   MS  EXP
-        //---- - ---   -  --  --  --  ---  ---
-
-        { L_,  3,  0,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        { L_,  3,  2,  1, 23, 59, 59, 999, "      +1_23:59:59.999"        NL },
-
-        { L_,  3, -2,  1, 23, 59, 59, 999, "      +1_23:59:59.999"           },
-
-        { L_,  3, -8,  1, 23, 59, 59, 999,
-                                    "            +1_23:59:59.999"         NL },
-
-        { L_, -3,  0,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        { L_, -3,  2,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        { L_, -3, -2,  1, 23, 59, 59, 999, "+1_23:59:59.999"                 },
-
-        { L_, -3, -8,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
-        // -----------------------------------------------------------------
-
-        //LINE L SPL   D   H   M   S   MS  EXP
-        //---- - ---   -  --  --  --  ---  ---
-
-        { L_,  2,  3, -2, -3, -9, -9, -99, "      -2_03:09:09.099"        NL },
-
-        // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
-        // -----------------------------------------------------------------
-
-        //LINE L SPL   D   H   M   S   MS  EXP
-        //---- - ---   -  --  --  --  ---  ---
-
-        { L_, -8, -8,  1, 23, 59, 59, 999, "+1_23:59:59.999"              NL },
-
-        { L_, -8, -8, -2, -3, -9, -9, -99, "-2_03:09:09.099"              NL },
-
-        // -----------------------------------------------------------------
-        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
-        // -----------------------------------------------------------------
-
-        //LINE L SPL   D   H   M   S   MS  EXP
-        //---- - ---   -  --  --  --  ---  ---
-
-        { L_, -9, -9,  1, 23, 59, 59, 999, "+1_23:59:59.999"                 },
-
-        { L_, -9, -9, -2, -3, -9, -9, -99, "-2_03:09:09.099"                 },
-
-#undef NL
-
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        if (verbose) cout << "\nTesting with various print specifications."
-                          << endl;
-        {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE  = DATA[ti].d_line;
-                const int         L     = DATA[ti].d_level;
-                const int         SPL   = DATA[ti].d_spacesPerLevel;
-                const int         DAYS  = DATA[ti].d_days;
-                const Int64       HOURS = DATA[ti].d_hours;
-                const Int64       MINS  = DATA[ti].d_mins;
-                const Int64       SECS  = DATA[ti].d_secs;
-                const Int64       MSECS = DATA[ti].d_msecs;
-                const char *const EXP   = DATA[ti].d_expected_p;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(L) P(SPL)
-                    T_ P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P(MSECS)
-                }
-
-                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
-
-                const Int64 TOTAL_MSECS =
-                                    flds2Msecs(DAYS, HOURS, MINS, SECS, MSECS);
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(TOTAL_MSECS);
-
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-                ostringstream os(&oa);
-
-                // Verify supplied stream is returned by reference.
-
-                if (-9 == L && -9 == SPL) {
-                    LOOP_ASSERT(LINE, &os == &(os << X));
-
-                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
-                }
-                else {
-                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
-
-                    if (-8 != SPL) {
-                        LOOP_ASSERT(LINE, &os == &X.print(os, L, SPL));
-                    }
-                    else if (-8 != L) {
-                        LOOP_ASSERT(LINE, &os == &X.print(os, L));
-                    }
-                    else {
-                        LOOP_ASSERT(LINE, &os == &X.print(os));
-                    }
-
-                    if (veryVeryVerbose) { T_ T_ Q(print) }
-                }
-
-                {
-                    bslma::TestAllocator         da("default",
-                                                    veryVeryVeryVerbose);
-                    bslma::DefaultAllocatorGuard dag(&da);
-
-                    // Verify output is formatted as expected.
-
-                    if (veryVeryVerbose) { P(os.str()) }
-
-                    LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
-                }
-            }
-        }
-
-        if (verbose) cout << "\nVerify format of additional time intervals."
-                          << endl;
-        {
-            static const struct {
-                int         d_line;            // source line number
-
-                int         d_days;
-                Int64       d_hours;
-                Int64       d_mins;
-                Int64       d_secs;
-                Int64       d_msecs;
-
-                const char *d_expected_p;
-            } DATA[] = {
-                //LINE       D    H    M    S    MS   EXP
-                //----      --   --   --   --   ---   ---
-
-                { L_,        0,   0,   0,   0,    0,  "+0_00:00:00.000"      },
-
-                { L_,        1,   0,   0,   0,    0,  "+1_00:00:00.000"      },
-                { L_,        0,   2,   0,   0,    0,  "+0_02:00:00.000"      },
-                { L_,        0,   0,   3,   0,    0,  "+0_00:03:00.000"      },
-                { L_,        0,   0,   0,   4,    0,  "+0_00:00:04.000"      },
-                { L_,        0,   0,   0,   0,    5,  "+0_00:00:00.005"      },
-
-                { L_,       -1,   0,   0,   0,    0,  "-1_00:00:00.000"      },
-                { L_,        0,  -2,   0,   0,    0,  "-0_02:00:00.000"      },
-                { L_,        0,   0,  -3,   0,    0,  "-0_00:03:00.000"      },
-                { L_,        0,   0,   0,  -4,    0,  "-0_00:00:04.000"      },
-                { L_,        0,   0,   0,   0,   -5,  "-0_00:00:00.005"      },
-
-                { L_,
-                    k_DAYS_MAX,   0,   0,   0,    0,
-                                                  "+2147483647_00:00:00.000" },
-                { L_,
-                    k_DAYS_MAX,  23,  59,  59,  999,
-                                                  "+2147483647_23:59:59.999" },
-
-                { L_,
-                    k_DAYS_MIN,   0,   0,   0,    0,
-                                                  "-2147483648_00:00:00.000" },
-                { L_,
-                    k_DAYS_MIN, -23, -59, -59, -999,
-                                                  "-2147483648_23:59:59.999" },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE  = DATA[ti].d_line;
-                const int         DAYS  = DATA[ti].d_days;
-                const Int64       HOURS = DATA[ti].d_hours;
-                const Int64       MINS  = DATA[ti].d_mins;
-                const Int64       SECS  = DATA[ti].d_secs;
-                const Int64       MSECS = DATA[ti].d_msecs;
-                const char *const EXP   = DATA[ti].d_expected_p;
-
-                const int         L     =  0;
-                const int         SPL   = -1;
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(L) P(SPL)
-                    T_ P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P(MSECS)
-                }
-
-                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
-
-                const Int64 TOTAL_MSECS =
-                                    flds2Msecs(DAYS, HOURS, MINS, SECS, MSECS);
-
-                Obj mX;  const Obj& X = mX;
-                mX.setTotalMilliseconds(TOTAL_MSECS);
-
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-                ostringstream os1(&oa);  // use with 'print'
-                ostringstream os2(&oa);  // use with 'operator<<'
-
-                LOOP_ASSERT(LINE, &os1 == &X.print(os1, L, SPL));
-                LOOP_ASSERT(LINE, &os2 == &(os2 << X));
-
-                {
-                    bslma::TestAllocator         da("default",
-                                                    veryVeryVeryVerbose);
-                    bslma::DefaultAllocatorGuard dag(&da);
-
-                    // Verify output is formatted as expected.
-
-                    if (veryVeryVerbose) { T_ P_(os1.str()) T_ P(os2.str()) }
-
-                    LOOP3_ASSERT(LINE, EXP, os1.str(), EXP == os1.str());
-                    LOOP3_ASSERT(LINE, EXP, os2.str(), EXP == os2.str());
-                }
-            }
-        }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-        if (verbose) cout << "\nTesting DEPRECATED 'streamOut' for sanity."
-                          << endl;
-        {
-            const Obj X(1003, 27, 42, 59, 257);
-
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-            ostringstream os1(&oa);  // use with 'print'
-            ostringstream os2(&oa);  // use with 'streamOut'
-
-            ASSERT(&os1 == &X.print(os1, 0, -1));
-            ASSERT(&os2 == &X.streamOut(os2));
-
-            ASSERT(os1.str() == os2.str());
-        }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-      } break;
-#endif // TBD
       case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1042,7 +671,7 @@ if (veryVerbose)
                 const Int64 ISECONDS   = DATA[i].d_seconds;
                 const Int64 IMSECS     = DATA[i].d_msecs;
                 const Int64 IUSECS     = DATA[i].d_usecs;
-                
+
                 for (int j = 0; j < NUM_DATA; ++j) {
                     const int   JDAYS      = DATA[j].d_days;
                     const Int64 JHOURS     = DATA[j].d_hours;
@@ -1234,7 +863,7 @@ if (veryVerbose)
                     {
                         Int64 TOTAL_DAYS =
                                      static_cast<Int64>(DATA[i].d_expDays) * 2;
- 
+
                         // Note that the following test is slightly more
                         // restrictive than necessary.
 
@@ -1284,7 +913,7 @@ if (veryVerbose)
                         ASSERTV(X, EXP, EXP == X);
                     }
                 }
-                
+
                 for (int j = 0; j < NUM_DATA; ++j) {
                     const int   JDAYS      = DATA[j].d_days;
                     const Int64 JHOURS     = DATA[j].d_hours;
@@ -2101,7 +1730,6 @@ if (veryVerbose)
                 const bool GT = !LE;
                 const bool GE = !LT;
 
-                                    
                 if (veryVerbose) { T_ T_ T_ P_(X) P(Y) }
 
                 // Verify value.
@@ -3585,7 +3213,498 @@ if (veryVerbose)
         }
       } break;
       case 5: {
-          // TBD
+        // --------------------------------------------------------------------
+        // PRINT, OUTPUT OPERATOR, AND 'printToBuffer'
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.  In
+        //:   particular:
+        //:
+        //:   1 The attributes always appear on a single line.
+        //:
+        //:   2 A negative value of 'level' always suppresses all indentation
+        //:     (since there is never a second line to indent).,
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
+        //:
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        //:
+        //: 9 The 'printToBuffer' method:
+        //:   1 Writes in the expected format.
+        //:   2 Never writes more than the specified limit.
+        //:   3 Writes in the specified buffer.
+        //:   4 QoI: Asserted precondition violations are detected when
+        //:     enabled.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4, 7)
+        //:
+        //: 2 Using the table-driven technique: (C-1..3, 5..6, 8)
+        //:
+        //:   1 Define fourteen carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values for each
+        //:     corresponding salient attribute, and various values for the two
+        //:     formatting parameters, along with the expected output.
+        //:
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        //:     3 { B } x { 2 } x { 3 } --> 1 expected o/p
+        //:     4 { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        //:     5 { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        //:
+        //:   2 For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 8)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3, 6)
+        //:
+        //:   3 Test 'printToBuffer' using a table-driven approach.  (C-9)
+        //:
+        //:     1 Define an assortment of different input values and limits on
+        //:       the number of bytes written.
+        //:
+        //:     2 For each input value, write the result into an over-sized
+        //:       buffer that is pre-filled with an "unset" character.  Data is
+        //:       written into the middle of the buffer.  After writing,
+        //:       confirm that all characters outside the targeted range have
+        //:       their initial value.
+        //:
+        //:     4 Verify that, in appropriate build modes, defensive checks are
+        //:       triggered for invalid attribute values, but not triggered for
+        //:       adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //
+        // Testing:
+        //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
+        //   ostream& operator<<(ostream &stream, const Time &object);
+        //   int printToBuffer(char *result, int size, int precision) const;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+        //   ostream& streamOut(ostream& stream) const;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+                      << endl
+                      << "PRINT, OUTPUT OPERATOR, AND 'printToBuffer'" << endl
+                      << "===========================================" << endl;
+
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
+        {
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = bdlt::operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations." << endl;
+
+        const Obj TA( 0, 0,  0,  0,   0);
+        const Obj TZ( 1, 23, 59, 59, 999);
+
+        static const struct {
+            int         d_line;           // source line number
+            int         d_level;
+            int         d_spacesPerLevel;
+            int         d_day;
+            int         d_hour;
+            int         d_minute;
+            int         d_second;
+            int         d_millisecond;
+            int         d_microsecond;
+            const char *d_expected_p;
+        } DATA[] = {
+
+#define NL "\n"
+
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
+        // ------------------------------------------------------------------
+
+        //LINE L SPL  D   H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  --  ---  ---  --------
+        { L_,  0,  0,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+        { L_,  0,  1,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+        { L_,  0, -1,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000"    },
+
+        { L_,  0, -8,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+
+        // ------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        // ------------------------------------------------------------------
+
+        //LINE L SPL  D   H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  --  ---  ---  --------
+        { L_,  3,  0,  0,  0,  0,  0,   0,   0,
+                                          "0_00:00:00.000000"             NL },
+        { L_,  3,  2,  0,  0,  0,  0,   0,   0,
+                                          "      0_00:00:00.000000"       NL },
+        { L_,  3, -2,  0,  0,  0,  0,   0,   0,
+                                          "      0_00:00:00.000000"          },
+
+        { L_,  3, -8,  0,  0,  0,  0,   0,   0,
+                                          "            0_00:00:00.000000" NL },
+
+        { L_, -3,  0,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+        { L_, -3,  2,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+        { L_, -3, -2,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000"    },
+
+        { L_, -3, -8,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  D   H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  --  ---  ---  --------
+        { L_,  2,  3,  1, 23, 59, 59, 999, 999, "      1_23:59:59.999999" NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  D   H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  --  ---  ---  --------
+        { L_, -8, -8,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" NL },
+        { L_, -8, -8,  1, 23, 59, 59, 999, 999, "1_23:59:59.999999" NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  D   H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  --  ---  ---  --------
+        { L_, -9, -9,  0,  0,  0,  0,   0,   0, "0_00:00:00.000000" },
+        { L_, -9, -9,  1, 23, 59, 59, 999, 999, "1_23:59:59.999999" }
+
+#undef NL
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE = DATA[ti].d_line;
+                const int         L    = DATA[ti].d_level;
+                const int         SPL  = DATA[ti].d_spacesPerLevel;
+                const int         DAY  = DATA[ti].d_day;
+                const int         HOUR = DATA[ti].d_hour;
+                const int         MIN  = DATA[ti].d_minute;
+                const int         SEC  = DATA[ti].d_second;
+                const int         MS   = DATA[ti].d_millisecond;
+                const int         US   = DATA[ti].d_microsecond;
+                const char *const EXP  = DATA[ti].d_expected_p;
+
+                if (veryVerbose) {
+                    T_ P_(L) P_(SPL) P_(DAY) P_(HOUR) P_(MIN) P_(SEC) P_(MS)
+                                                                         P(US);
+                }
+
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                Obj x(DAY, HOUR, MIN, SEC, MS, US);  const Obj& X = x;
+
+                bslma::TestAllocator oa("scratch",  veryVeryVeryVerbose);
+                stringstream ss(&oa);
+
+                if (-9 == L && -9 == SPL) {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &ss == &(ss << X));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
+
+                    if (-8 != SPL) {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss, L));
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss));
+                    }
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                // Verify output is formatted as expected.
+
+                // Avoid invoking 'ss.str()' which returns a string by value
+                // and may introduce use of the default allocator.
+
+                bsl::string result(bsl::istreambuf_iterator<char>(ss),
+                                   bsl::istreambuf_iterator<char>(),
+                                   &oa);
+
+                if (veryVeryVerbose) { P(result) }
+
+                LOOP3_ASSERT(LINE, EXP, result, EXP == result);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'printToBuffer'." << endl;
+        {
+            // TBD
+            static const struct {
+                int         d_line;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_msec;
+                int         d_usec;
+                int         d_precision;
+                int         d_numBytes;
+                const char *d_expected_p;
+            } DATA[] = {
+        //------^
+                // TBD EXP_LEN
+        //LN  HR  M   S   MS   US   PREC  LIMIT  EXPECTED
+        //--  --  --  --  ---  ---  ----  -----  -----------------
+        { L_,  0,  0,  0,   0,   0,    0,   100, "0_00:00:00"        },
+        { L_,  0,  0,  0,   0,   0,    1,   100, "0_00:00:00.0"      },
+        { L_,  0,  0,  0,   0,   0,    3,   100, "0_00:00:00.000"    },
+        { L_,  0,  0,  0,   0,   0,    6,   100, "0_00:00:00.000000" },
+        { L_,  0,  0,  0,   0,   7,    0,   100, "0_00:00:00"        },
+        { L_,  0,  0,  0,   0,   7,    1,   100, "0_00:00:00.0"      },
+        { L_,  0,  0,  0,   0,   7,    3,   100, "0_00:00:00.000"    },
+        { L_,  0,  0,  0,   0,   7,    5,   100, "0_00:00:00.00000"  },
+        { L_,  0,  0,  0,   0,   7,    6,   100, "0_00:00:00.000007" },
+        { L_,  0,  0,  0,   0,  17,    6,   100, "0_00:00:00.000017" },
+        { L_,  0,  0,  0,   0, 317,    3,   100, "0_00:00:00.000"    },
+        { L_,  0,  0,  0,   0, 317,    4,   100, "0_00:00:00.0003"   },
+        { L_,  0,  0,  0,   0, 317,    5,   100, "0_00:00:00.00031"  },
+        { L_,  0,  0,  0,   0, 317,    6,   100, "0_00:00:00.000317" },
+        { L_, 23, 22, 21, 209,   0,    6,   100, "0_23:22:21.209000" },
+        { L_, 23, 22, 21, 210,   0,    6,   100, "0_23:22:21.210000" },
+        { L_, 23, 22, 21, 211,   0,    6,   100, "0_23:22:21.211000" },
+        { L_, 23, 59, 59, 999,   0,    6,   100, "0_23:59:59.999000" },
+        { L_, 23, 59, 59, 999,   5,    6,   100, "0_23:59:59.999005" },
+        { L_, 23, 59, 59, 999,  65,    6,   100, "0_23:59:59.999065" },
+        { L_, 23, 59, 59, 999, 765,    0,   100, "0_23:59:59"        },
+        { L_, 23, 59, 59, 999, 765,    1,   100, "0_23:59:59.9"      },
+        { L_, 23, 59, 59, 999, 765,    2,   100, "0_23:59:59.99"     },
+        { L_, 23, 59, 59, 999, 765,    3,   100, "0_23:59:59.999"    },
+        { L_, 23, 59, 59, 999, 765,    4,   100, "0_23:59:59.9997"   },
+        { L_, 23, 59, 59, 999, 765,    5,   100, "0_23:59:59.99976"  },
+        { L_, 23, 59, 59, 999, 765,    6,   100, "0_23:59:59.999765" },
+        { L_, 23, 59, 59, 999,   0,    6,     0, ""                  },
+        { L_, 23, 59, 59, 999,   0,    6,     1, ""                  },
+        { L_, 23, 59, 59, 999,   0,    6,     2, "0"                 },
+        { L_, 23, 59, 59, 999,   0,    6,    12, "0_23:59:59."       },
+        { L_, 23, 59, 59, 999,   0,    6,    13, "0_23:59:59.9"      },
+        { L_, 23, 59, 59, 999,   0,    6,    14, "0_23:59:59.99"     },
+        { L_, 23, 59, 59, 999,   0,    6,    15, "0_23:59:59.999"    },
+        { L_, 23, 59, 59, 999,   0,    6,    16, "0_23:59:59.9990"   },
+        { L_, 23, 59, 59, 999,   0,    6,    17, "0_23:59:59.99900"  },
+        { L_, 23, 59, 59, 999,   0,    6,    18, "0_23:59:59.999000" },
+        //------v
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            const int  BUF_SIZE = 1000;               // Over-sized for output.
+            const char XX       = static_cast<char>(0xFF);
+                                                      // Used as "unset"
+                                                      // character.
+            char       mCtrlBuf[BUF_SIZE];
+            memset(mCtrlBuf, XX, sizeof(mCtrlBuf));
+            const char *const CTRL_BUF = mCtrlBuf;    // Referenced in overrun
+                                                      // checks.
+
+            for (int ti = 0; ti < NUM_DATA;  ++ti) {
+                // TBD
+                const int         LINE     = DATA[ti].d_line;
+                const int         HOUR     = DATA[ti].d_hour;
+                const int         MINUTE   = DATA[ti].d_minute;
+                const int         SECOND   = DATA[ti].d_second;
+                const int         MSEC     = DATA[ti].d_msec;
+                const int         USEC     = DATA[ti].d_usec;
+                const int         PREC     = DATA[ti].d_precision;
+                const int         LIMIT    = DATA[ti].d_numBytes;
+                const char *const EXPECTED = DATA[ti].d_expected_p;
+                const int         EXP_LEN  = 0 == PREC ? 10 : 11 + PREC;
+
+                if (veryVerbose) {
+                    T_  P_(HOUR)
+                        P_(MINUTE)
+                        P_(SECOND)
+                        P_(MSEC)
+                        P(USEC)
+                    T_  P_(PREC)
+                    T_  P_(LIMIT)
+                    T_  P(EXPECTED)
+                }
+
+                char buf[BUF_SIZE];
+
+                // Preset 'buf' to "unset" values.
+                memset(buf, XX, sizeof(buf));
+
+                Obj x(0, HOUR, MINUTE, SECOND, MSEC, USEC);  const Obj& X = x;
+                // TBD
+
+                char      *p = buf + sizeof(buf)/2;
+                const int  RC = X.printToBuffer(p, LIMIT, PREC);
+
+                LOOP2_ASSERT(LINE, RC, EXP_LEN == RC);
+
+                const int LENGTH = 0 == LIMIT
+                                   ? 0
+                                   : static_cast<int>(strlen(p) + 1);
+                LOOP_ASSERT(LINE, LENGTH <= LIMIT);
+
+                if (veryVerbose) cout
+                                   << "\tACTUAL FORMAT: "
+                                   << (0 < LENGTH ? p : "<all-unset-expected>")
+                                   << endl;
+                LOOP_ASSERT(LINE, 0 == memcmp(buf, CTRL_BUF, p - buf));
+                if (0 < LENGTH) {
+                    LOOP3_ASSERT(LINE, p, EXPECTED,
+                                 0 == memcmp(p, EXPECTED, LENGTH));
+                }
+                LOOP_ASSERT(LINE, 0 == memcmp(p + LENGTH,
+                                              CTRL_BUF,
+                                              (buf + sizeof(buf)) -
+                                              (p   + LENGTH)));
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
+            {
+                const int SIZE = 128;
+                char      buf[SIZE];
+
+                const Obj X;
+
+                const int PRECISION = 6;
+
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, 0));
+
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , -1));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
+            }
+        }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+
+        if (verbose) cout << "\nTesting 'streamOut'." << endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                int         d_day;      // day field value
+                int         d_hour;     // hour field value
+                int         d_minute;   // minute field value
+                int         d_second;   // second field value
+                int         d_msec;     // millisecond field value
+                int         d_usec;     // microsecond field value
+                const char *d_fmt_p;    // expected output format
+            } DATA[] = {
+                //LN  DAY  HR   M    S    MSEC  USEC     OUTPUT FORMAT
+                //--  ---  ---  ---  ---  ----  ----  -------------------
+                { L_,   0,   0,   0,   0,    0,    0, "0_00:00:00.000000" },
+                { L_,   0,   0,   0,   0,    0,  999, "0_00:00:00.000999" },
+                { L_,   0,   0,   0,   0,  999,    0, "0_00:00:00.999000" },
+                { L_,   0,   0,   0,  59,    0,    0, "0_00:00:59.000000" },
+                { L_,   0,   0,  59,   0,    0,    0, "0_00:59:00.000000" },
+                { L_,   0,  23,   0,   0,    0,    0, "0_23:00:00.000000" },
+                { L_,   0,  23,  22,  21,  209,    0, "0_23:22:21.209000" },
+                { L_,   0,  23,  22,  21,  210,    0, "0_23:22:21.210000" },
+                { L_,   0,  23,  22,  21,  210,    1, "0_23:22:21.210001" },
+                { L_,   0,  23,  22,  21,  210,   17, "0_23:22:21.210017" },
+                { L_,   0,  23,  22,  21,  210,  412, "0_23:22:21.210412" },
+                { L_,   1,  23,  22,  21,  210,  412, "1_23:22:21.210412" },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            const int SIZE = 1000;     // Must be able to hold output string.
+
+            const char XX = static_cast<char>(0xFF);  // Value used for an
+                                                      // unset 'char'.
+
+            char        mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
+            const char *CTRL_BUF = mCtrlBuf; // Used for extra character check.
+
+            for (int di = 0; di < NUM_DATA;  ++di) {
+                const int         LINE   = DATA[di].d_lineNum;
+                const int         DAY    = DATA[di].d_day;
+                const int         HOUR   = DATA[di].d_hour;
+                const int         MINUTE = DATA[di].d_minute;
+                const int         SECOND = DATA[di].d_second;
+                const int         MSEC   = DATA[di].d_msec;
+                const int         USEC   = DATA[di].d_usec;
+                const char *const FMT    = DATA[di].d_fmt_p;
+
+                Obj        x(DAY, HOUR, MINUTE, SECOND, MSEC, USEC);
+                const Obj& X = x;
+
+                if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
+                ostringstream out(bsl::string(CTRL_BUF, SIZE));
+                X.streamOut(out);  out << ends;
+                if (veryVerbose) {
+                    cout << "\tACTUAL FORMAT:   " << out.str() << endl;
+                }
+
+                const int SZ = static_cast<int>(strlen(FMT)) + 1;
+                LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
+                LOOP_ASSERT(LINE,
+                            XX == out.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str(),
+                                              FMT,
+                                              SZ));
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str() + SZ,
+                                              CTRL_BUF + SZ,
+                                              SIZE - SZ));
+            }
+        }
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
       } break;
       case 4: {
         // --------------------------------------------------------------------
