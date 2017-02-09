@@ -28,6 +28,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslx_marshallingutil.h>
 
@@ -522,9 +525,7 @@ class my_Server {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(my_Server,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
+    BSLMF_NESTED_TRAIT_DECLARATION(my_Server, bslma::UsesBslmaAllocator);
     // CREATORS
     my_Server(const btlmt::ChannelPoolConfiguration&  config,
               bslma::Allocator                       *basicAllocator = 0);
