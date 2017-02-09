@@ -14,6 +14,10 @@
 
 #include <bslalg_hastrait.h>
 
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisemoveable.h>
+
 #include <bsl_iostream.h>
 
 #include <bsl_cstdlib.h>
