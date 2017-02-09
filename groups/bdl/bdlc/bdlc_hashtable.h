@@ -1377,9 +1377,7 @@ inline
 bool bdlc::HashTableDefaultTraits::isNull(const BUCKET& bucket)
 {
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
@@ -1418,9 +1416,7 @@ void bdlc::HashTableDefaultTraits::setToNull(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
@@ -1462,9 +1458,7 @@ inline
 bool bdlc::HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
 {
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
@@ -1511,9 +1505,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
