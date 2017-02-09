@@ -1,3 +1,5 @@
+// bdlcc_cache.t.cpp                                                  -*-C++-*-
+
 #include <bdlcc_cache.h>
 
 #include <bdlt_currenttime.h>
@@ -211,7 +213,7 @@ void example1()
     // cache using the 'tryGetValue' method:
     //..
     bsl::shared_ptr<bsl::string> value;
-    int rc = myCache.tryGetValue(&value, 1);
+    int                          rc = myCache.tryGetValue(&value, 1);
     ASSERT(rc == 0);
     ASSERT(*value == "John");
     //..
@@ -349,8 +351,8 @@ void example2()
     ASSERT(myCache.size() == 3);
 
     bslmt::ThreadUtil::Handle myWorkerHandle;
-    int rc = bslmt::ThreadUtil::create(&myWorkerHandle,
-                                       myWorkerThread,
+
+    int rc = bslmt::ThreadUtil::create(&myWorkerHandle, myWorkerThread,
                                        &myCache);
     ASSERT(rc == 0);
 
@@ -376,16 +378,16 @@ typedef bsltf::TemplateTestFacility TstFacility;
 template <class KeyType, class ValueType>
 class PrintVisitor
 {
-    bsl::ostream *d_stream;
+    bsl::ostream *d_stream_p;
 
   public:
     PrintVisitor(bsl::ostream *stream)
-    : d_stream(stream)
+    : d_stream_p(stream)
     {}
 
     bool operator() (const KeyType& key, const ValueType& value)
     {
-        *d_stream << TstFacility::getIdentifier(key) << " => "
+        *d_stream_p << TstFacility::getIdentifier(key) << " => "
                   << TstFacility::getIdentifier(value) << ", ";
         return true;
     }
@@ -398,7 +400,7 @@ static bsl::ostream& printCache(
                           const Cache<KeyType, ValueType, Hash, Equal>& obj)
 {
     if (stream.bad()) {
-        return stream;                                            // RETURN
+        return stream;                                                // RETURN
     }
 
     PrintVisitor<KeyType, ValueType> visitor(&stream);
@@ -443,7 +445,7 @@ struct ThreadArg {
 
     CacheType       *d_cache_p;
     bsls::AtomicInt *d_stop_p;
-    bsls::AtomicInt *d_writeCounts;
+    bsls::AtomicInt *d_writeCounts_p;
     int              d_numItems;
     int              d_workerId;
     int              d_numWorkers;
@@ -470,11 +472,11 @@ void worker(ThreadArg *arg)
         arg->d_cache_p->insert(key, 0);
         if (0 != rc) {
             arg->d_cache_p->insert(key, 0);
-            arg->d_writeCounts[key] = 0;
+            arg->d_writeCounts_p[key] = 0;
         }
         else {
             arg->d_cache_p->insert(key, (*valuePtr) + 1);
-            ++arg->d_writeCounts[key];
+            ++arg->d_writeCounts_p[key];
         }
     }
 }
@@ -575,8 +577,8 @@ struct IntToPairConverter {
                   int value, Alloc allocator)
         // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
         // passing the specified 'value' to the 'KEY' and 'VALUE' constructors
-        // and using the specified 'allocator' to supply memory.  The
-        // behavior is undefined unless '0 < value < 128'.
+        // and using the specified 'allocator' to supply memory.  The behavior
+        // is undefined unless '0 < value < 128'.
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT(    0 < value);
@@ -745,7 +747,7 @@ class TestDriver {
                                        // 'd_idx[*d_pos_p]' if 'd_idx' is not
                                        // 0.
 
-        bsl::size_t      *d_idx;       // array of indexes in 'd_values_p'
+        bsl::size_t      *d_idx_p;       // array of indexes in 'd_values_p'
 
       public:
         TestPostEvictionCallback(const TestValues *values,
@@ -757,7 +759,7 @@ class TestDriver {
         , d_pos_p(pos_p)
         , d_size(size)
         , d_start(start)
-        , d_idx(idx)
+        , d_idx_p(idx)
         {
             *d_pos_p = 0;
         }
@@ -788,8 +790,8 @@ class TestDriver {
                        bool                             *isExpected,
                        const bsl::shared_ptr<ValueType>& value)
         {
-            if (d_idx) {
-                *idx = d_idx[*d_pos_p];
+            if (d_idx_p) {
+                *idx = d_idx_p[*d_pos_p];
             }
             else {
                 *idx = *d_pos_p + d_start;
@@ -823,13 +825,13 @@ class TestDriver {
 
         bsl::size_t       d_size;      // expected size of values to visit
 
-        const Args       *d_args;      // indexs pointing to 'd_values_p' array
+        const Args       *d_args_p;    // indexs pointing to 'd_values_p' array
                                        // and values to return from the
                                        // function-call operator
 
-        bsl::size_t       d_pos;       // current position from 0.  If 'd_args'
+        bsl::size_t       d_pos;       // current position from 0.  If 'd_args_p'
                                        // is not 0, then this value corresponds
-                                       // to the position in the 'd_args'.
+                                       // to the position in the 'd_args_p'.
                                        // Otherwise, it indicates the position
                                        // directly
 
@@ -839,7 +841,7 @@ class TestDriver {
                     const Args       *args = 0)
         : d_values_p(values)
         , d_size(size)
-        , d_args(args)
+        , d_args_p(args)
         , d_pos(0)
         {}
 
@@ -882,9 +884,9 @@ class TestDriver {
                        const ValueType&  value)
         {
             bool ret;
-            if (d_args) {
-                *idx = d_args[d_pos].d_idx;
-                ret = d_args[d_pos].d_ret;
+            if (d_args_p) {
+                *idx = d_args_p[d_pos].d_idx;
+                ret = d_args_p[d_pos].d_ret;
             }
             else {
                 *idx = d_pos;
@@ -906,16 +908,16 @@ class TestDriver {
     };
 
   public:
-    static void testCase10();
-    static void testCase9();
-    static void testCase8();
-    static void testCase7();
-    static void testCase6();
-    static void testCase5();
-    static void testCase4();
-    static void testCase3();
-    static void testCase2();
     static void testCase1();
+    static void testCase2();
+    static void testCase3();
+    static void testCase4();
+    static void testCase5();
+    static void testCase6();
+    static void testCase7();
+    static void testCase8();
+    static void testCase9();
+    static void testCase10();
 };
 
 template <class KeyType, class ValueType, class Hash, class Equal>
