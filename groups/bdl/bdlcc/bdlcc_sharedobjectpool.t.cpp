@@ -31,6 +31,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_spinlock.h>
 #include <bsls_stopwatch.h>
 

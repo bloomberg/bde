@@ -526,6 +526,7 @@ class my_Server {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(my_Server, bslma::UsesBslmaAllocator);
+
     // CREATORS
     my_Server(const btlmt::ChannelPoolConfiguration&  config,
               bslma::Allocator                       *basicAllocator = 0);
