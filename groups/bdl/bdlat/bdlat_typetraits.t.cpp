@@ -13,6 +13,9 @@
 #include <bslim_testutil.h>
 
 #include <bslalg_hastrait.h>
+#include <bslalg_typetraitbitwisemoveable.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
+
 #include <bsl_iostream.h>
 
 #include <bsl_cstdlib.h>
