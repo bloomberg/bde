@@ -272,9 +272,10 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Return the address of the blob held by this stream buffer.
 
     void reset(btlb::Blob *blob = 0);
-        // Reset the get and put areas.  Optionally set the underlying
-        // 'btlb::Blob' value to the optionally specified 'blob' if 'blob' is
-        // not 0.
+        // Reset the put position of this buffer to the first location,
+        // available for writing in the underlying 'btlb::Blob'. Optionally
+        // specify a 'blob' used to change current underlying 'btlb::Blob'
+        // value for.
 
     // ACCESSORS
     int currentBufferIndex() const;

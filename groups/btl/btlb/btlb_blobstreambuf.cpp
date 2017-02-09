@@ -327,6 +327,8 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     BSLS_ASSERT(position <= (unsigned)d_blob_p->totalSize());
     if (d_blob_p->totalSize() == 0) {
         setp(0, 0);
+        d_putBufferIndex = 0;
+        d_previousBuffersLength = 0;
         return;                                                       // RETURN
     }
 
