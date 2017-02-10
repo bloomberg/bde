@@ -3464,25 +3464,26 @@ if (veryVerbose)
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE = DATA[ti].d_line;
-                const int         L    = DATA[ti].d_level;
-                const int         SPL  = DATA[ti].d_spacesPerLevel;
-                const int         HOUR = DATA[ti].d_hour;
-                const int         MIN  = DATA[ti].d_minute;
-                const int         SEC  = DATA[ti].d_second;
-                const int         MS   = DATA[ti].d_millisecond;
-                const int         US   = DATA[ti].d_microsecond;
-                const char *const EXP  = DATA[ti].d_expected_p;
+                const int         LINE   = DATA[ti].d_line;
+                const int         L      = DATA[ti].d_level;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const int         HOUR   = DATA[ti].d_hour;
+                const int         MINUTE = DATA[ti].d_minute;
+                const int         SECOND = DATA[ti].d_second;
+                const int         MSEC   = DATA[ti].d_millisecond;
+                const int         USEC   = DATA[ti].d_microsecond;
+                const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) {
-                    T_ P_(L) P_(SPL) P_(HOUR) P_(MIN) P_(SEC) P_(MS) P(US);
+                    T_ P_(L) P_(SPL) P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC)
+                                                                       P(USEC);
                 }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
                 Obj x;  const Obj& X = x;
 
-                x.setTime(HOUR, MIN, SEC, MS, US);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 bslma::TestAllocator oa("scratch",  veryVeryVeryVerbose);
                 stringstream ss(&oa);
