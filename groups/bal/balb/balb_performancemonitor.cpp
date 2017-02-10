@@ -1085,7 +1085,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     if (stats->d_lstData[e_CPU_UTIL] > numThreads * 100.0)
     {
         BSLS_LOG_DEBUG("Calculated impossible CPU utilization = %f, "
-                       "num threads = %d", 
+                       "num threads = %d",
                        stats->d_lstData[e_CPU_UTIL],
                        numThreads);
 
@@ -1540,6 +1540,51 @@ balb::PerformanceMonitor::Statistics::Statistics(
 , d_guard()
 {
     reset();
+}
+
+balb::PerformanceMonitor::Statistics::Statistics(
+                                             const Statistics&  original,
+                                             bslma::Allocator  *basicAllocator)
+: d_description(basicAllocator)
+, d_guard()
+{
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&original.d_guard);
+
+    d_pid = original.d_pid;
+    d_description = original.d_description;
+    d_startTimeUtc = original.d_startTimeUtc;
+    d_startTime = original.d_startTime;
+    d_elapsedTime = original.d_elapsedTime;
+    d_numSamples = static_cast<int>(original.d_numSamples);
+
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
+        d_lstData[i] = original.d_lstData[i];
+        d_minData[i] = original.d_minData[i];
+        d_maxData[i] = original.d_maxData[i];
+        d_totData[i] = original.d_totData[i];
+    }
+}
+
+// MANIPULATORS
+balb::PerformanceMonitor::Statistics&
+balb::PerformanceMonitor::Statistics::operator=(const Statistics& rhs)
+{
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&rhs.d_guard);
+
+    d_pid = rhs.d_pid;
+    d_description = rhs.d_description;
+    d_startTimeUtc = rhs.d_startTimeUtc;
+    d_startTime = rhs.d_startTime;
+    d_elapsedTime = rhs.d_elapsedTime;
+    d_numSamples = static_cast<int>(rhs.d_numSamples);
+
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
+        d_lstData[i] = rhs.d_lstData[i];
+        d_minData[i] = rhs.d_minData[i];
+        d_maxData[i] = rhs.d_maxData[i];
+        d_totData[i] = rhs.d_totData[i];
+    }
+    return *this;
 }
 
 void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const

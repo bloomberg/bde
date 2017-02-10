@@ -341,38 +341,44 @@ typedef bsls::Platform::OsHpUx OsType;
             // for the current platform.
 
         // DATA
-        int                d_pid;                      // process identifier
-        bsl::string        d_description;              // process description
+        int                     d_pid;
+                                  // process identifier
 
-        bdlt::Datetime     d_startTimeUtc;             // process start time,
-                                                       // in UTC time
+        bsl::string             d_description;
+                                  // process description
 
-        bsls::TimeInterval d_startTime;                // process start time,
-                                                       // since the system
-                                                       // epoch
+        bdlt::Datetime          d_startTimeUtc;
+                                  // process start time, in UTC time
 
-        double             d_elapsedTime;              // time elapsed since
-                                                       // process startup
+        bsls::TimeInterval      d_startTime;
+                                  // process start time, since the system
+                                  // epoch
 
-        bsls::AtomicInt    d_numSamples;               // num samples taken
+        double                  d_elapsedTime;
+                                  // time elapsed since process startup
 
-        double             d_lstData[e_NUM_MEASURES];  // latest collected data
-        double             d_minData[e_NUM_MEASURES];  // min
-        double             d_maxData[e_NUM_MEASURES];  // max
-        double             d_totData[e_NUM_MEASURES];  // cumulative
+        bsls::AtomicInt         d_numSamples;
+                                  // num samples taken
 
-        mutable bslmt::RWMutex d_guard;  // serialize write access
+        double                  d_lstData[e_NUM_MEASURES];
+                                  // latest collected data
 
-    private:
-        // NOT IMPLEMENTED
-        Statistics(const Statistics&);
-        Statistics& operator=(const Statistics&);
+        double                  d_minData[e_NUM_MEASURES];
+                                  // min
+
+        double                  d_maxData[e_NUM_MEASURES];
+                                  // max
+
+        double                  d_totData[e_NUM_MEASURES];
+                                  // cumulative
+
+        mutable bslmt::RWMutex  d_guard;
+                                  // serialize write access
 
     public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(Statistics,
                                        bslma::UsesBslmaAllocator);
-
 
         // CREATORS
         explicit Statistics(bslma::Allocator *basicAllocator = 0);
@@ -380,7 +386,19 @@ typedef bsls::Platform::OsHpUx OsType;
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
+        Statistics(const Statistics&  original,
+                   bslma::Allocator  *basicAllocator = 0);
+            // Create a 'Statistics' object having the same value as the
+            // specified 'original' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+
         // MANIPULATORS
+        Statistics& operator=(const Statistics& rhs);
+            // Assign to this object the value of the specified 'rhs' object,
+            // and return a reference providing modifiable access to this
+            // object.
+
         void reset();
             // Reset the min, max, and average values collected for each
             // measure.
@@ -432,13 +450,15 @@ typedef bsls::Platform::OsHpUx OsType;
         // a collection of non-modifiable performance statistics.
 
         // FRIENDS
-
         friend class PerformanceMonitor;  // grant access to the private
                                           // constructor
 
-        // INSTANCE DATA
-
+        // DATA
         PidMap::const_iterator  d_it;          // wrapped iterator
+
+        mutable Statistics      d_snapshot;    // copy of data this iterator
+                                               // pointing to
+
         bslmt::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
         // PRIVATE CREATORS
@@ -477,23 +497,21 @@ typedef bsls::Platform::OsHpUx OsType;
         ConstIterator& operator++();
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return a reference to the
-            // modifiable value type of this iterator.  The behavior of this
-            // function is undefined unless this iterator is dereferenceable.
+            // modifiable value type of this iterator.
 
         ConstIterator operator++(int);
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return the iterator pointing
-            // to the previous modifiable value type.  The behavior of this
-            // function is undefined unless this iterator is dereferenceable.
+            // to the previous modifiable value type.
 
         // ACCESSORS
         reference operator*() const;
-            // Return a reference to the non-modifiable value type of this
-            // iterator.
+            // Return a reference to the non-modifiable copy of value type of
+            // this iterator.
 
         pointer operator->() const;
-            // Return a reference to the non-modifiable value type of this
-            // iterator.
+            // Return a reference to the non-modifiable copy of value type of
+            // this iterator.
 
         bool operator==(const ConstIterator& rhs) const;
             // Return 'true' if the specified 'rhs' iterator points to the
@@ -619,14 +637,18 @@ inline
 balb::PerformanceMonitor::ConstIterator::reference
 balb::PerformanceMonitor::ConstIterator::operator*() const
 {
-    return *d_it->second.first;
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
+    d_snapshot = *d_it->second.first;
+    return d_snapshot;
 }
 
 inline
 balb::PerformanceMonitor::ConstIterator::pointer
 balb::PerformanceMonitor::ConstIterator::operator->() const
 {
-    return d_it->second.first.get();
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
+    d_snapshot = *d_it->second.first;
+    return &d_snapshot;
 }
 
 // MANIPULATORS
