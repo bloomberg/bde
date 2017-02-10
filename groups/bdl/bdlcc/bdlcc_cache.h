@@ -307,6 +307,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_list.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -375,6 +379,9 @@ class Cache {
     typedef bsl::function<void(const ValuePtrType&)> PostEvictionCallback;
         // Type of function to call after an item has been evicted from the
         // cache.
+
+    typedef bsl::pair<KEYTYPE, ValuePtrType> KVType;
+        // Value type of a bulk insert entry.
 
   private:
     // PRIVATE TYPES
@@ -505,6 +512,11 @@ class Cache {
         // the post-eviction callback for the removed item.  Return 0 on
         // success and 1 if 'key' does not exist.
 
+    int eraseBulk(const bsl::vector<KEYTYPE>& keys);
+        // Remove the items having the specified 'keys' from this cache.
+        // Invoke the post-eviction callback for each removed item.  Return
+        // the number of items successfully removed.
+
     void insert(const KEYTYPE& key, const VALUE& value);
         // Insert the specified 'key' and its associated 'value' into this
         // cache.  If 'key' already exists, then its value will be replaced
@@ -514,6 +526,11 @@ class Cache {
         // Insert the specified 'key' and its associated 'valuePtr' into this
         // cache.  If 'key' already exists, then its value will be replaced
         // with 'value'.
+
+    int insertBulk(const bsl::vector<KVType>& data);
+        // Insert the specified 'data' (composed of KV pairs) into this cache.
+        // If a key already exists, then its value will be replaced with the
+        // value.  Return the number of items successfully inserted.
 
     int popFront();
         // Remove the item at the front of the eviction queue.  Invoke the
@@ -762,6 +779,24 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::erase(const KEYTYPE& key)
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+int
+Cache<KEYTYPE, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEYTYPE>& keys)
+{
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    int count = 0;
+    for(int i = 0; i < d_map.size(); ++i) {
+        const typename MapType::iterator mapIt = d_map.find(keys[i]);
+        if (mapIt == d_map.end()) {
+            continue;
+        }
+
+        evictItem(mapIt);
+    }
+    return count;
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 inline
 void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(const KEYTYPE& key,
                                                 const VALUE&   value)
@@ -779,6 +814,41 @@ void Cache<KEYTYPE, VALUE, HASH, EQUAL>::insert(
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+int
+Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertBulk(const bsl::vector<KVType>& data)
+{
+    int                             count = 0;
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    for(int i = 0; i < data.size(); ++i) {
+        enforceHighWatermark();
+
+        KEYTYPE&      key      = data[i].first;
+        ValuePtrType& valuePtr = data[i].second;
+
+        typename MapType::iterator mapIt = d_map.find(key);
+        if (mapIt != d_map.end()) {
+            mapIt->second.first = valuePtr;
+            typename QueueType::iterator queueIt = mapIt->second.second;
+
+            d_queue.splice(d_queue.end(), d_queue, queueIt);
+        }
+        else {
+            d_queue.push_back(key);
+            Cache_QueueProctor<KEYTYPE>  proctor(&d_queue);
+            typename QueueType::iterator queueIt = d_queue.end();
+            --queueIt;
+
+            d_map.emplace(key, MapVALUE(valuePtr, queueIt, d_allocator_p));
+            proctor.release();
+            ++count;
+        }
+    }
+    return count;
+}
+
+template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 int Cache<KEYTYPE, VALUE, HASH, EQUAL>::popFront()
 {
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
@@ -816,9 +886,13 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::tryGetValue(
         d_rwlock.lockRead();
     }
 
+    // This guard really handles either read or write, as all it needs to do is
+    // unlock.
+    bslmt::ReadLockGuard<LockType> guard(&d_rwlock, true);
+
     typename MapType::iterator mapIt = d_map.find(key);
     if (mapIt == d_map.end()) {
-        d_rwlock.unlock();
+//        d_rwlock.unlock();
         return 1;                                                     // RETURN
     }
 
@@ -832,19 +906,21 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::tryGetValue(
             d_queue.splice(d_queue.end(), d_queue, queueIt);
         }
     }
-    d_rwlock.unlock();
+//    d_rwlock.unlock();
 
     return 0;
 }
 
 // ACCESSORS
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 EQUAL Cache<KEYTYPE, VALUE, HASH, EQUAL>::equalFunction() const
 {
     return d_map.key_eq();
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 CacheEvictionPolicy::Enum
 Cache<KEYTYPE, VALUE, HASH, EQUAL>::evictionPolicy() const
 {
@@ -852,27 +928,31 @@ Cache<KEYTYPE, VALUE, HASH, EQUAL>::evictionPolicy() const
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 HASH Cache<KEYTYPE, VALUE, HASH, EQUAL>::hashFunction() const
 {
     return d_map.hash_function();
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 bsl::size_t Cache<KEYTYPE, VALUE, HASH, EQUAL>::highWatermark() const
 {
     return d_highWatermark;
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 bsl::size_t Cache<KEYTYPE, VALUE, HASH, EQUAL>::lowWatermark() const
 {
     return d_lowWatermark;
 }
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
+inline
 bsl::size_t Cache<KEYTYPE, VALUE, HASH, EQUAL>::size() const
 {
-    bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
+//    bslmt::ReadLockGuard<LockType> guard(&d_rwlock);
     return d_map.size();
 }
 

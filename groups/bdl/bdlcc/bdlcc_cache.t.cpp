@@ -270,7 +270,8 @@ typedef bdlcc::Cache<int, MyValue> MyCache;
 // a 'MyValue' object given a 'int' key:
 MyValue retrieveValue(int key)
 {
-    return {key, bdlt::CurrentTime::utc()};
+    MyValue ret = {key, bdlt::CurrentTime::utc()};
+    return ret;
 }
 //..
 // Next, we define a visitor type to aggregate keys of the out-of-date values
@@ -286,8 +287,8 @@ struct MyVisitor {
     {}
 
     bool operator() (int key, const MyValue& value)
-        // Bdlcck whether the specified 'value' is older than 1 hour.  If so,
-        // insert the specified 'key' into 'd_oldKeys'.
+        // Check if the specified 'value' is older than 1 hour.  If so, insert
+        // the specified 'key' into 'd_oldKeys'.
     {
         if (veryVerbose) {
             bsl::cout << "Visiting " << key
@@ -299,7 +300,7 @@ struct MyVisitor {
         if (bdlt::CurrentTime::utc() - value.d_timestamp <
             // bdlt::DatetimeInterval(0, 60)) {
             bdlt::DatetimeInterval(0, 0, 0, 3)) {
-            return false;
+            return false;                                             // RETURN
         }
 
         d_oldKeys.push_back(key);
@@ -381,7 +382,7 @@ class PrintVisitor
     bsl::ostream *d_stream_p;
 
   public:
-    PrintVisitor(bsl::ostream *stream)
+    explicit PrintVisitor(bsl::ostream *stream)
     : d_stream_p(stream)
     {}
 
@@ -393,7 +394,10 @@ class PrintVisitor
     }
 };
 
-template <class KeyType, class ValueType, class Hash, class Equal,
+template <class                                       KeyType,
+          class                                       ValueType,
+          class                                       Hash,
+          class                                       Equal,
           template <class, class, class, class> class Cache>
 static bsl::ostream& printCache(
                           bsl::ostream&                                 stream,
@@ -455,7 +459,7 @@ void worker(ThreadArg *arg)
 {
     int seed;
     int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
-        (unsigned char*) &seed, sizeof(int));
+        reinterpret_cast<unsigned char*>(&seed), sizeof(int));
 
     ASSERTV(rc == 0);
     while (0 == *arg->d_stop_p) {
@@ -467,6 +471,7 @@ void worker(ThreadArg *arg)
             bsl::cout << arg->d_workerId << ": " << key << bsl::endl;
         }
         ThreadArg::CacheType::ValuePtrType valuePtr;
+
         int rc = arg->d_cache_p->tryGetValue(&valuePtr, key, true);
 
         arg->d_cache_p->insert(key, 0);
@@ -515,15 +520,16 @@ void threadedTest1()
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     ThreadArg::CacheType cache(&scratch);
-    bsls::AtomicInt writeCounts[k_NUM_ITEMS] = {{0}};
-    bsls::AtomicInt stop = {0};
+    bsls::AtomicInt      writeCounts[k_NUM_ITEMS];  // default 0
+    bsls::AtomicInt      stop(0);
 
     bslmt::ThreadUtil::Handle queryHandles[k_NUM_WORKERS];
-    ThreadArg args[k_NUM_WORKERS];
+    ThreadArg                 args[k_NUM_WORKERS];
 
     for (int i = 0; i < k_NUM_WORKERS; ++i) {
-        args[i] = {&cache, &stop, writeCounts,
+        ThreadArg arg = {&cache, &stop, writeCounts,
                    k_NUM_ITEMS, i, k_NUM_WORKERS};
+        args[i] = arg;
 
         bslmt::ThreadUtil::create(&queryHandles[i],
                                   workerThread, &args[i]);
@@ -543,17 +549,11 @@ void threadedTest1()
 
     for (int i = 0; i < k_NUM_ITEMS; ++i) {
         ThreadArg::CacheType::ValuePtrType valuePtr;
-        int rc = cache.tryGetValue(&valuePtr, i, false);
-        int count;
-        if (rc != 0) {
-            count = 0;
-        }
-        else {
-            count = *valuePtr;
-        }
 
-        ASSERTV(i, count, writeCounts[i],
-                count == writeCounts[i]);
+        int rc = cache.tryGetValue(&valuePtr, i, false);
+        int count = rc != 0 ? 0 : *valuePtr;
+
+        ASSERTV(i, count, writeCounts[i], count == writeCounts[i]);
 
         if (veryVerbose) {
             bsl::cout << i << ": " << writeCounts[i] << bsl::endl;
@@ -574,7 +574,8 @@ struct IntToPairConverter {
     // CLASS METHODS
     static void
     createInplace(bsl::pair<KeyType, ValueType> *address,
-                  int value, Alloc allocator)
+                  int                            value,
+                  Alloc                          allocator)
         // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
         // passing the specified 'value' to the 'KEY' and 'VALUE' constructors
         // and using the specified 'allocator' to supply memory.  The behavior
@@ -624,7 +625,7 @@ class TestHashFunctor {
     int d_id;
 
   public:
-    TestHashFunctor(int id = 0)
+    explicit TestHashFunctor(int id = 0)
     : d_id(id)
     {}
 
@@ -665,7 +666,7 @@ class TestEqualityComparator {
     int d_id;
 
   public:
-    TestEqualityComparator(int id = 0)
+    explicit TestEqualityComparator(int id = 0)
     : d_id(id)
     {}
 
@@ -817,23 +818,25 @@ class TestDriver {
         struct Args {
             bsl::size_t d_idx;
             bool        d_ret;
+            Args(){}
+            Args(bsl::size_t idx, bool ret ) : d_idx(idx), d_ret(ret) {}
         };
 
       private:
         // DATA
-        const TestValues *d_values_p;  // array of expected values to visit
+        const TestValues *d_values_p; // array of expected values to visit
 
-        bsl::size_t       d_size;      // expected size of values to visit
+        bsl::size_t       d_size;     // expected size of values to visit
 
-        const Args       *d_args_p;    // indexs pointing to 'd_values_p' array
-                                       // and values to return from the
-                                       // function-call operator
+        const Args       *d_args_p;   // indexs pointing to 'd_values_p' array
+                                      // and values to return from the
+                                      // function-call operator
 
-        bsl::size_t       d_pos;       // current position from 0.  If 'd_args_p'
-                                       // is not 0, then this value corresponds
-                                       // to the position in the 'd_args_p'.
-                                       // Otherwise, it indicates the position
-                                       // directly
+        bsl::size_t       d_pos;      // current position from 0.  If
+                                      // 'd_args_p' is not 0, then this value
+                                      // corresponds to the position in the
+                                      // 'd_args_p'.  Otherwise, it indicates
+                                      // the position directly
 
       public:
         TestVisitor(const TestValues *values,
@@ -855,8 +858,8 @@ class TestDriver {
             }
 
             bsl::size_t idx;
-            bool isKeyExpected;
-            bool isValueExpected;
+            bool        isKeyExpected;
+            bool        isValueExpected;
 
             bool ret = callOpImp(&idx, &isKeyExpected, &isValueExpected,
                                  key, value);
@@ -970,29 +973,30 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase9()
         bdlcc::CacheEvictionPolicy::e_LRU,
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
+
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
     for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-    bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-    for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const bsl::size_t LENGTH = ti;
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
 
-        Obj mX(policy, 100, 100, &oa);
-        const Obj& X = mX;
+            Obj        mX(policy, 100, 100, &oa);
+            const Obj& X = mX;
 
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                typename Obj::ValuePtrType value;
-                SpCreateInplace(&value, VALUES[tj].second, &oa);
-                mX.insert(VALUES[tj].first, value);
-            }
-        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                    typename Obj::ValuePtrType value;
+                    SpCreateInplace(&value, VALUES[tj].second, &oa);
+                    mX.insert(VALUES[tj].first, value);
+                }
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-        TestVisitor visitor(&VALUES, LENGTH);
-        X.visit(visitor);
-        visitor.assertEnd();
-        ASSERTV(LENGTH, X.size(), LENGTH == X.size())
-    }
+            TestVisitor visitor(&VALUES, LENGTH);
+            X.visit(visitor);
+            visitor.assertEnd();
+            ASSERTV(LENGTH, X.size(), LENGTH == X.size())
+        }
     }
 }
 
@@ -1017,62 +1021,65 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase8()
     //   int popFront();
     // ------------------------------------------------------------------------
 
-    const TestValues VALUES; // contains 52 distinct increasing values
-    const bsl::size_t MAX_LENGTH = 9;
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
         bdlcc::CacheEvictionPolicy::e_LRU,
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
+
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
     for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-    bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-    for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const bsl::size_t LENGTH = ti;
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
 
-        Obj mX(policy, 90, 100, &scratch);
-        const Obj& X = mX;
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            mX.insert(VALUES[tj].first, VALUES[tj].second);
-        }
-        {
-            TestVisitor visitor(&VALUES, LENGTH);
-            X.visit(visitor);
-            visitor.assertEnd();
-            ASSERTV(LENGTH == X.size());
-        }
-
-        bsl::vector<typename TestVisitor::Args> expected(&scratch);
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            expected.push_back({tj, true});
-        }
-
-        bsl::size_t pos;
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            TestPostEvictionCallback callback(&VALUES, &pos, 1, tj);
-            mX.setPostEvictionCallback(callback);
-
-            int rc = mX.popFront();
-            ASSERTV(rc == 0);
-            const bsl::size_t EXPECTED_LENGTH = LENGTH - tj - 1;
-            callback.assertEnd();
-            ASSERTV(EXPECTED_LENGTH == X.size());
-
-            expected.erase(expected.begin());
+            Obj        mX(policy, 90, 100, &scratch);
+            const Obj& X = mX;
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.insert(VALUES[tj].first, VALUES[tj].second);
+            }
             {
-                TestVisitor visitor(&VALUES, EXPECTED_LENGTH, expected.data());
+                TestVisitor visitor(&VALUES, LENGTH);
                 X.visit(visitor);
                 visitor.assertEnd();
+                ASSERTV(LENGTH == X.size());
             }
+
+            bsl::vector<typename TestVisitor::Args> expected(&scratch);
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                typename TestVisitor::Args args(tj, true);
+                expected.push_back(args);
+            }
+
+            bsl::size_t pos;
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                TestPostEvictionCallback callback(&VALUES, &pos, 1, tj);
+                mX.setPostEvictionCallback(callback);
+
+                int rc = mX.popFront();
+                ASSERTV(rc == 0);
+                const bsl::size_t EXPECTED_LENGTH = LENGTH - tj - 1;
+                callback.assertEnd();
+                ASSERTV(EXPECTED_LENGTH == X.size());
+
+                expected.erase(expected.begin());
+                {
+                    TestVisitor visitor(&VALUES, EXPECTED_LENGTH,
+                                        expected.data());
+                    X.visit(visitor);
+                    visitor.assertEnd();
+                }
+            }
+            TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
+            mX.setPostEvictionCallback(callback);
+            int rc = mX.popFront();
+            ASSERTV(0 != rc);
+            ASSERTV(0 == mX.size());
         }
-        TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
-        mX.setPostEvictionCallback(callback);
-        int rc = mX.popFront();
-        ASSERTV(0 != rc);
-        ASSERTV(0 == mX.size());
-    }
     }
 }
 
@@ -1095,46 +1102,46 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase7()
     //   void clear();
     // ------------------------------------------------------------------------
 
-    const TestValues VALUES; // contains 52 distinct increasing values
-    const bsl::size_t MAX_LENGTH = 9;
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
         bdlcc::CacheEvictionPolicy::e_LRU,
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
+
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
     for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-    bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-    for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const bsl::size_t LENGTH = ti;
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
 
-        Obj mX(policy, 90, 100, &scratch);
-        const Obj& X = mX;
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            mX.insert(VALUES[tj].first, VALUES[tj].second);
-        }
-        {
-            TestVisitor visitor(&VALUES, LENGTH);
-            X.visit(visitor);
-            visitor.assertEnd();
-            ASSERTV(LENGTH == X.size());
-        }
+            Obj        mX(policy, 90, 100, &scratch);
+            const Obj& X = mX;
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.insert(VALUES[tj].first, VALUES[tj].second);
+            }
+            {
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(LENGTH == X.size());
+            }
 
-        bsl::size_t pos;
-        TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
-        mX.setPostEvictionCallback(callback);
-        mX.clear();
-        callback.assertEnd();
-
-        {
-            TestVisitor visitor(&VALUES, 0);
-            X.visit(visitor);
-            visitor.assertEnd();
-            ASSERTV(0 == X.size());
+            bsl::size_t              pos;
+            TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
+            mX.setPostEvictionCallback(callback);
+            mX.clear();
+            callback.assertEnd();
+            {
+                TestVisitor visitor(&VALUES, 0);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(0 == X.size());
+            }
         }
-    }
     }
 
 }
@@ -1165,91 +1172,93 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase6()
     //   int erase(const KeyType& key);
     // ------------------------------------------------------------------------
 
-    const TestValues VALUES; // contains 52 distinct increasing values
-    const bsl::size_t MAX_LENGTH = 9;
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
         bdlcc::CacheEvictionPolicy::e_LRU,
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
+
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
     for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-    bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-    for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const bsl::size_t LENGTH = ti;
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
 
-        bsl::vector<typename TestVisitor::Args> allValues(&scratch);
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            allValues.push_back({tj, true});
+            bsl::vector<typename TestVisitor::Args> allValues(&scratch);
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                typename TestVisitor::Args args(tj, true);
+                allValues.push_back(args);
+            }
+
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                Obj        mX(policy, 100, 100, &scratch);
+                const Obj& X = mX;
+
+                for (bsl::size_t v = 0; v < LENGTH; ++v) {
+                    mX.insert(VALUES[v].first, VALUES[v].second);
+                }
+
+                {
+                    TestVisitor visitor(&VALUES, LENGTH);
+                    X.visit(visitor);
+                    visitor.assertEnd();
+                }
+                bsl::size_t              pos;
+                TestPostEvictionCallback callback(&VALUES, &pos, 1, tj);
+                mX.setPostEvictionCallback(callback);
+
+                ASSERTV(LENGTH == X.size());
+                int rc = mX.erase(VALUES[tj].first);
+                ASSERTV(rc == 0);
+                ASSERTV(LENGTH - 1 == X.size());
+                callback.assertEnd();
+
+                bsl::vector<typename TestVisitor::Args> expected(allValues,
+                                                                 &scratch);
+                expected.erase(expected.begin() + tj);
+                {
+                    TestVisitor visitor(&VALUES, LENGTH - 1, expected.data());
+                    X.visit(visitor);
+                    visitor.assertEnd();
+                }
+            }
         }
-
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            Obj mX(policy, 100, 100, &scratch);
-            const Obj& X = mX;
-
-            for (bsl::size_t v = 0; v < LENGTH; ++v) {
-                mX.insert(VALUES[v].first, VALUES[v].second);
-            }
-
-            {
-                TestVisitor visitor(&VALUES, LENGTH);
-                X.visit(visitor);
-                visitor.assertEnd();
-            }
-            bsl::size_t pos;
-            TestPostEvictionCallback callback(&VALUES, &pos, 1, tj);
-            mX.setPostEvictionCallback(callback);
-
-            ASSERTV(LENGTH == X.size());
-            int rc = mX.erase(VALUES[tj].first);
-            ASSERTV(rc == 0);
-            ASSERTV(LENGTH - 1 == X.size());
-            callback.assertEnd();
-
-            bsl::vector<typename TestVisitor::Args> expected(allValues,
-                                                             &scratch);
-            expected.erase(expected.begin() + tj);
-            {
-                TestVisitor visitor(&VALUES, LENGTH - 1, expected.data());
-                X.visit(visitor);
-                visitor.assertEnd();
-            }
-        }
-    }
     }
 
     // Test erasing non-existent keys.
 
     for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-    bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-    for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const bsl::size_t LENGTH = ti;
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
 
-        Obj mX(policy, 90, 100, &scratch);
-        const Obj& X = mX;
+            Obj        mX(policy, 90, 100, &scratch);
+            const Obj& X = mX;
 
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            mX.insert(VALUES[tj].first, VALUES[tj].second);
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.insert(VALUES[tj].first, VALUES[tj].second);
+            }
+            {
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(LENGTH == X.size());
+            }
+
+            int rc = mX.erase(VALUES[LENGTH].first);
+            ASSERTV(0 != rc);
+
+            {
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(LENGTH == X.size());
+            }
         }
-        {
-            TestVisitor visitor(&VALUES, LENGTH);
-            X.visit(visitor);
-            visitor.assertEnd();
-            ASSERTV(LENGTH == X.size());
-        }
-
-        int rc = mX.erase(VALUES[LENGTH].first);
-        ASSERTV(0 != rc);
-
-        {
-            TestVisitor visitor(&VALUES, LENGTH);
-            X.visit(visitor);
-            visitor.assertEnd();
-            ASSERTV(LENGTH == X.size());
-        }
-    }
     }
 }
 
@@ -1299,8 +1308,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
     //   int tryGetValue(value, KeyType& key, bool modifyEvictionQueue);
     // ------------------------------------------------------------------------
 
-    const TestValues VALUES;  // contains 52 distinct increasing values
-    const bsl::size_t MAX_LENGTH = 9;
+    const TestValues     VALUES;  // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     // Testing FIFO and LRU without any item access.
@@ -1309,152 +1318,153 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
             bdlcc::CacheEvictionPolicy::e_LRU,
             bdlcc::CacheEvictionPolicy::e_FIFO
         };
+
         const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
         for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH - 1; ++ti) {
-            {
-                Obj mX(policy, 1, 1, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                mX.setPostEvictionCallback(callback);
+            bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH - 1; ++ti) {
+                {
+                    Obj                      mX(policy, 1, 1, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                callback.assertEnd();
-            }
-            {
-                Obj mX(policy, 1, 1, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
-                mX.setPostEvictionCallback(callback);
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    callback.assertEnd();
+                }
+                {
+                    Obj                      mX(policy, 1, 1, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                callback.assertEnd();
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    callback.assertEnd();
+                }
             }
-        }
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH - 2; ++ti) {
-            {
-                Obj mX(policy, 1, 2, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                mX.setPostEvictionCallback(callback);
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH - 2; ++ti) {
+                {
+                    Obj                      mX(policy, 1, 2, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                callback.assertEnd();
-            }
-            {
-                Obj mX(policy, 1, 2, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 2, ti);
-                mX.setPostEvictionCallback(callback);
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    callback.assertEnd();
+                }
+                {
+                    Obj                      mX(policy, 1, 2, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 2, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                callback.assertEnd();
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    callback.assertEnd();
+                }
             }
-        }
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
-            {
-                Obj mX(policy, 1, 3, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                mX.setPostEvictionCallback(callback);
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
+                {
+                    Obj                      mX(policy, 1, 3, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                callback.assertEnd();
-            }
-            {
-                Obj mX(policy, 1, 3, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 3, ti);
-                mX.setPostEvictionCallback(callback);
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    callback.assertEnd();
+                }
+                {
+                    Obj                      mX(policy, 1, 3, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 3, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                mX.insert(VALUES[ti + 3].first, VALUES[ti + 3].second);
-                callback.assertEnd();
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    mX.insert(VALUES[ti + 3].first, VALUES[ti + 3].second);
+                    callback.assertEnd();
+                }
             }
-        }
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH - 2; ++ti) {
-            {
-                Obj mX(policy, 2, 2, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                mX.setPostEvictionCallback(callback);
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH - 2; ++ti) {
+                {
+                    Obj                      mX(policy, 2, 2, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                callback.assertEnd();
-            }
-            {
-                Obj mX(policy, 2, 2, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
-                mX.setPostEvictionCallback(callback);
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    callback.assertEnd();
+                }
+                {
+                    Obj                      mX(policy, 2, 2, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                callback.assertEnd();
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    callback.assertEnd();
+                }
             }
-        }
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
-            {
-                Obj mX(policy, 2, 3, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                mX.setPostEvictionCallback(callback);
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
+                {
+                    Obj                      mX(policy, 2, 3, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                callback.assertEnd();
-            }
-            {
-                Obj mX(policy, 2, 3, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 2, ti);
-                mX.setPostEvictionCallback(callback);
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    callback.assertEnd();
+                }
+                {
+                    Obj                      mX(policy, 2, 3, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 2, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 3].second);
-                callback.assertEnd();
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 3].second);
+                    callback.assertEnd();
+                }
             }
-        }
-        for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
-            {
-                Obj mX(policy, 3, 3, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                mX.setPostEvictionCallback(callback);
+            for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
+                {
+                    Obj                      mX(policy, 3, 3, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                callback.assertEnd();
-            }
-            {
-                Obj mX(policy, 3, 3, &scratch);
-                bsl::size_t pos;
-                TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
-                mX.setPostEvictionCallback(callback);
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    callback.assertEnd();
+                }
+                {
+                    Obj                      mX(policy, 3, 3, &scratch);
+                    bsl::size_t              pos;
+                    TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
+                    mX.setPostEvictionCallback(callback);
 
-                mX.insert(VALUES[ti].first, VALUES[ti].second);
-                mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
-                mX.insert(VALUES[ti + 2].first, VALUES[ti + 3].second);
-                callback.assertEnd();
+                    mX.insert(VALUES[ti].first, VALUES[ti].second);
+                    mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
+                    mX.insert(VALUES[ti + 2].first, VALUES[ti + 3].second);
+                    callback.assertEnd();
+                }
             }
-        }
         }
     }
 
@@ -1463,14 +1473,16 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
         for (bsl::size_t ti = 0; ti < MAX_LENGTH - 1; ++ti) {
             {
                 Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 1, &scratch);
-                bsl::size_t pos;
-                bsl::size_t indexes[] = { ti };
+
+                bsl::size_t              pos;
+                bsl::size_t              indexes[] = { ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 1, 0,
                                                   indexes);
                 mX.setPostEvictionCallback(callback);
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
 
                 typename Obj::ValuePtrType ptr;
+
                 int rc = mX.tryGetValue(&ptr, VALUES[ti].first);
                 ASSERTV(0 == rc);
                 ASSERTV(areEqual(*ptr, VALUES[ti].second));
@@ -1480,8 +1492,9 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
             }
             {
                 Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 1, &scratch);
-                bsl::size_t pos;
-                bsl::size_t indexes[] = { ti };
+
+                bsl::size_t              pos;
+                bsl::size_t              indexes[] = { ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 1, 0,
                                                   indexes);
                 mX.setPostEvictionCallback(callback);
@@ -1489,6 +1502,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
 
                 typename Obj::ValuePtrType ptr;
+
                 int rc = mX.tryGetValue(&ptr, VALUES[ti].first, false);
                 ASSERTV(0 == rc);
                 ASSERTV(areEqual(*ptr, VALUES[ti].second));
@@ -1500,8 +1514,9 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
         for (bsl::size_t ti = 0; ti < MAX_LENGTH - 2; ++ti) {
             {
                 Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 2, &scratch);
-                bsl::size_t pos;
-                bsl::size_t indexes[] = { ti + 1, ti };
+
+                bsl::size_t              pos;
+                bsl::size_t              indexes[] = { ti + 1, ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 2, 0,
                                                   indexes);
                 mX.setPostEvictionCallback(callback);
@@ -1510,6 +1525,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
                 mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
 
                 typename Obj::ValuePtrType ptr;
+
                 int rc = mX.tryGetValue(&ptr, VALUES[ti].first);
                 ASSERTV(0 == rc);
                 ASSERTV(areEqual(*ptr, VALUES[ti].second));
@@ -1519,8 +1535,9 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
             }
             {
                 Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 2, &scratch);
-                bsl::size_t pos;
-                bsl::size_t indexes[] = { ti, ti + 1 };
+
+                bsl::size_t              pos;
+                bsl::size_t              indexes[] = { ti, ti + 1 };
                 TestPostEvictionCallback callback(&VALUES, &pos, 2, 0,
                                                   indexes);
                 mX.setPostEvictionCallback(callback);
@@ -1529,6 +1546,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
                 mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
 
                 typename Obj::ValuePtrType ptr;
+
                 int rc = mX.tryGetValue(&ptr, VALUES[ti].first, false);
                 ASSERTV(0 == rc);
                 ASSERTV(areEqual(*ptr, VALUES[ti].second));
@@ -1540,8 +1558,9 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
         for (bsl::size_t ti = 0; ti < MAX_LENGTH - 3; ++ti) {
             {
                 Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 3, &scratch);
-                bsl::size_t pos;
-                bsl::size_t indexes[] = { ti + 2,  ti + 1, ti };
+
+                bsl::size_t              pos;
+                bsl::size_t              indexes[] = { ti + 2,  ti + 1, ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 3, 0,
                                                   indexes);
                 mX.setPostEvictionCallback(callback);
@@ -1551,6 +1570,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
                 mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
 
                 typename Obj::ValuePtrType ptr;
+
                 int rc = mX.tryGetValue(&ptr, VALUES[ti + 1].first);
                 ASSERTV(0 == rc);
                 ASSERTV(areEqual(*ptr, VALUES[ti + 1].second));
@@ -1564,8 +1584,9 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
             }
             {
                 Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 3, &scratch);
-                bsl::size_t pos;
-                bsl::size_t indexes[] = { ti, ti + 1, ti + 2 };
+
+                bsl::size_t              pos;
+                bsl::size_t              indexes[] = { ti, ti + 1, ti + 2 };
                 TestPostEvictionCallback callback(&VALUES, &pos, 3, 0,
                                                   indexes);
                 mX.setPostEvictionCallback(callback);
@@ -1575,6 +1596,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
                 mX.insert(VALUES[ti + 2].first, VALUES[ti + 2].second);
 
                 typename Obj::ValuePtrType ptr;
+
                 int rc = mX.tryGetValue(&ptr, VALUES[ti + 1].first, false);
                 ASSERTV(0 == rc);
                 ASSERTV(areEqual(*ptr, VALUES[ti + 1].second));
@@ -1625,41 +1647,42 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
     // ------------------------------------------------------------------------
 
 
-    const TestValues VALUES; // contains 52 distinct increasing values
-    const bsl::size_t MAX_LENGTH = 9;
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
         bdlcc::CacheEvictionPolicy::e_LRU,
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
+
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
     for (int tp = 0; tp < NUM_POLICIES; ++tp) {
-    bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
-    for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
-        const bsl::size_t LENGTH = ti;
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
 
-        Obj mX(policy, 90, 100, &scratch);
-        const Obj& X = mX;
+            Obj        mX(policy, 90, 100, &scratch);
+            const Obj& X = mX;
 
-        ASSERTV(policy == X.evictionPolicy());
-        ASSERTV(90 == X.lowWatermark());
-        ASSERTV(100 == X.highWatermark());
+            ASSERTV(policy == X.evictionPolicy());
+            ASSERTV( 90 == X.lowWatermark());
+            ASSERTV(100 == X.highWatermark());
 
-        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-            mX.insert(VALUES[tj].first, VALUES[tj].second);
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.insert(VALUES[tj].first, VALUES[tj].second);
+            }
+
+            TestVisitor visitor(&VALUES, LENGTH);
+            X.visit(visitor);
+            visitor.assertEnd();
+            ASSERTV(LENGTH == X.size());
         }
-
-        TestVisitor visitor(&VALUES, LENGTH);
-        X.visit(visitor);
-        visitor.assertEnd();
-        ASSERTV(LENGTH == X.size());
-    }
     }
 
     {
-        Obj mX(&scratch);
+        Obj        mX(&scratch);
         const Obj& X = mX;
         ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
         ASSERTV(bsl::numeric_limits<bsl::size_t>::max() == X.lowWatermark());
@@ -1668,7 +1691,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
         ASSERTV(0 == X.equalFunction().id());
     }
     {
-        Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 123, 456, &scratch);
+        Obj        mX(bdlcc::CacheEvictionPolicy::e_LRU, 123, 456, &scratch);
         const Obj& X = mX;
         ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
         ASSERTV(123 == X.lowWatermark());
@@ -1681,6 +1704,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
                TestHashFunctor<KeyType>(300),
                TestEqualityComparator<KeyType>(400),
                &scratch);
+
         const Obj& X = mX;
         ASSERTV(bdlcc::CacheEvictionPolicy::e_FIFO == X.evictionPolicy());
         ASSERTV(123 == X.lowWatermark());
@@ -1719,16 +1743,16 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
 
     // Testing 'TestPostEvictionCallback'.
     {
-        bsl::size_t pos;
+        bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
         ASSERTV(callback.assertEndImp())
     }
     {
-        bsl::size_t pos;
+        bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
         {
-            bsl::size_t idx;
-            bool isExpected;
+            bsl::size_t                idx;
+            bool                       isExpected;
             typename Obj::ValuePtrType value;
             SpCreateInplace(&value, VALUES[0].second, &scratch);
             callback.callOpImp(&idx, &isExpected, value);
@@ -1738,21 +1762,21 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         ASSERTV(!callback.assertEndImp())
     }
     {
-        bsl::size_t pos;
+        bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 1, 2);
         ASSERTV(!callback.assertEndImp())
     }
     {
-        bsl::size_t pos;
+        bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 1, 2);
         ASSERTV(!callback.assertEndImp())
     }
     {
-        bsl::size_t pos;
+        bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 2, 1);
         {
-            bsl::size_t idx;
-            bool isExpected;
+            bsl::size_t                idx;
+            bool                       isExpected;
             typename Obj::ValuePtrType value;
             SpCreateInplace(&value, VALUES[1].second, &scratch);
             callback.callOpImp(&idx, &isExpected, value);
@@ -1762,12 +1786,12 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         ASSERTV(!callback.assertEndImp())
     }
     {
-        bsl::size_t pos;
-        bsl::size_t indexes[] = { 1, 2 };
+        bsl::size_t              pos;
+        bsl::size_t              indexes[] = { 1, 2 };
         TestPostEvictionCallback callback(&VALUES, &pos, 2, 0, indexes);
         {
-            bsl::size_t idx;
-            bool isExpected;
+            bsl::size_t                idx;
+            bool                       isExpected;
             typename Obj::ValuePtrType value;
             SpCreateInplace(&value, VALUES[1].second, &scratch);
             callback.callOpImp(&idx, &isExpected, value);
@@ -1775,8 +1799,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
             ASSERTV(isExpected);
         }
         {
-            bsl::size_t idx;
-            bool isExpected;
+            bsl::size_t                idx;
+            bool                       isExpected;
             typename Obj::ValuePtrType value;
             SpCreateInplace(&value, VALUES[2].second, &scratch);
             callback.callOpImp(&idx, &isExpected, value);
@@ -1786,12 +1810,12 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         ASSERTV(callback.assertEndImp())
     }
     {
-        bsl::size_t pos;
-        bsl::size_t indexes[] = { 1, 2 };
+        bsl::size_t              pos;
+        bsl::size_t              indexes[] = { 1, 2 };
         TestPostEvictionCallback callback(&VALUES, &pos, 2, 0, indexes);
         {
-            bsl::size_t idx;
-            bool isExpected;
+            bsl::size_t                idx;
+            bool                       isExpected;
             typename Obj::ValuePtrType value;
             SpCreateInplace(&value, VALUES[5].second, &scratch);
             callback.callOpImp(&idx, &isExpected, value);
@@ -1810,6 +1834,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         TestVisitor visitor(&VALUES, 0);
         {
             bsl::size_t idx;
+
             bool isKeyExpected;
             bool isValueExpected;
             bool ret = visitor.callOpImp(
@@ -1830,6 +1855,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         TestVisitor visitor(&VALUES, 1);
         {
             bsl::size_t idx;
+
             bool isKeyExpected;
             bool isValueExpected;
             bool ret = visitor.callOpImp(
@@ -1845,13 +1871,15 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
 
     {
         typename TestVisitor::Args args[] = {
-            1, true,
-            6, true,
-            3, false
+            typename TestVisitor::Args(1, true),
+            typename TestVisitor::Args(6, true),
+            typename TestVisitor::Args(3, false)
         };
+
         TestVisitor visitor(&VALUES, 3, args);
         {
             bsl::size_t idx;
+
             bool isKeyExpected;
             bool isValueExpected;
             bool ret = visitor.callOpImp(
@@ -1864,6 +1892,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         }
         {
             bsl::size_t idx;
+
             bool isKeyExpected;
             bool isValueExpected;
             bool ret = visitor.callOpImp(
@@ -1876,6 +1905,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
         }
         {
             bsl::size_t idx;
+
             bool isKeyExpected;
             bool isValueExpected;
             bool ret = visitor.callOpImp(
@@ -2046,21 +2076,21 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
     {
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
         {
-            Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 1, &scratch);
+            Obj        mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 1, &scratch);
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
             ASSERTV(1 == X.lowWatermark());
             ASSERTV(1 == X.highWatermark());
         }
         {
-            Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 2, 3, &scratch);
+            Obj        mX(bdlcc::CacheEvictionPolicy::e_LRU, 2, 3, &scratch);
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
             ASSERTV(2 == X.lowWatermark());
             ASSERTV(3 == X.highWatermark());
         }
         {
-            Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO, 2, 3, &scratch);
+            Obj        mX(bdlcc::CacheEvictionPolicy::e_FIFO, 2, 3, &scratch);
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_FIFO == X.evictionPolicy());
             ASSERTV(2 == X.lowWatermark());
@@ -2093,6 +2123,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
                    TestHashFunctor<KeyType>(100),
                    TestEqualityComparator<KeyType>(200),
                    &scratch);
+
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
             ASSERTV(1 == X.lowWatermark());
@@ -2105,6 +2136,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
                    TestHashFunctor<KeyType>(300),
                    TestEqualityComparator<KeyType>(400),
                    &scratch);
+
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
             ASSERTV(2 == X.lowWatermark());
@@ -2117,6 +2149,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
                    TestHashFunctor<KeyType>(500),
                    TestEqualityComparator<KeyType>(600),
                    &scratch);
+
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_FIFO == X.evictionPolicy());
             ASSERTV(2 == X.lowWatermark());
@@ -2174,10 +2207,9 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
                       << "BREATHING TEST" << endl
                       << "==============" << endl;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+    bslma::TestAllocator         scratch("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocator         da("default",   veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
-
     {
         Obj mX(&scratch);  const Obj& X = mX;
 
@@ -2216,10 +2248,10 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
 
     // LRU
     {
-        Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 3, 5, &scratch);
+        Obj        mX(bdlcc::CacheEvictionPolicy::e_LRU, 3, 5, &scratch);
         const Obj& X = mX;
 
-        bsl::size_t pos;
+        bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0);
         mX.setPostEvictionCallback(callback);
 
@@ -2238,11 +2270,11 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
     }
 
     {
-        Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 3, 5, &scratch);
+        Obj        mX(bdlcc::CacheEvictionPolicy::e_LRU, 3, 5, &scratch);
         const Obj& X = mX;
 
-        bsl::size_t pos;
-        bsl::size_t indexes[] = { 0, 2, 3 };
+        bsl::size_t              pos;
+        bsl::size_t              indexes[] = { 0, 2, 3 };
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0, indexes);
 
         mX.setPostEvictionCallback(callback);
@@ -2272,11 +2304,11 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
 
     // FIFO
     {
-        Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO, 3, 5, &scratch);
+        Obj        mX(bdlcc::CacheEvictionPolicy::e_FIFO, 3, 5, &scratch);
         const Obj& X = mX;
 
-        bsl::size_t pos;
-        bsl::size_t indexes[] = { 0, 1, 2 };
+        bsl::size_t              pos;
+        bsl::size_t              indexes[] = { 0, 1, 2 };
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0, indexes);
 
         mX.setPostEvictionCallback(callback);
@@ -2295,11 +2327,11 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
     }
     {
 
-        Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO, 3, 5, &scratch);
+        Obj        mX(bdlcc::CacheEvictionPolicy::e_FIFO, 3, 5, &scratch);
         const Obj& X = mX;
 
-        bsl::size_t pos;
-        bsl::size_t indexes[] = { 0, 1, 2 };
+        bsl::size_t              pos;
+        bsl::size_t              indexes[] = { 0, 1, 2 };
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0, indexes);
 
         mX.setPostEvictionCallback(callback);
