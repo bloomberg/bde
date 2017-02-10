@@ -7,19 +7,20 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide primitive data structures for implementing deques.
+//@PURPOSE: Provide a primitive iterator over deque data structures.
 //
 //@CLASSES:
-//  bslalg::DequeImp: namespace for deque primitive data structures
+//  bslalg::DequeIterator: primitive iterator over a deque data structure
 //
-//@SEE_ALSO: bslalg_dequeiterator, bslalg_dequeprimitives
+//@SEE_ALSO: bslalg_dequeimputil, bslalg_dequeprimitives
 //
-//@DESCRIPTION: This component provides an iterator type for enumerating
-// elements in a deque (implemented in the form of dynamic-array) knowing only
-// its value type and a nominal block size.  Conceptually, a deque is an array
-// of blocks pointers, each block capable of containing a fixed number of
-// objects.  An element in the deque is identified by an iterator which
-// consists of two pointers:
+//@DESCRIPTION: This component provides an in-core value semantic class,
+// 'bslalg::DequeIterator', that is a primitive iterator type for enumerating
+// elements in a deque (implemented in the form of a dynamic array) knowing
+// only its value type and a nominal block size.  Conceptually, a deque is an
+// array of block pointers, each block capable of containing a fixed number of
+// objects.  An element in the deque is identified by an iterator that consists
+// of two pointers:
 //: o a pointer to the block pointer array, and
 //: o a pointer to a value within the block referred to by the first pointer.
 //
@@ -73,6 +74,12 @@ BSLS_IDENT("$Id: $")
 // 19 (the minimum number of prepend/append to force a reallocation of the
 // block pointer array).
 //
+// This component does not provide the full interface of a C++ standard library
+// iterator as we do not want a dependency on 'iterator_traits' in a package
+// below 'bslstl'.  'bslalg::DequeIterator' provides the minimal necessary set
+// of features to implement such an iterator for a standard conforming 'deque'
+// implementation in a higher level component.
+//
 ///Usage
 ///-----
 // This component is for use by the 'bslstl' package.  Other clients should use
@@ -109,51 +116,6 @@ class DequeIterator;
 template <class VALUE_TYPE>
 class DequeIterator<VALUE_TYPE, 1>;
 
-// WARNING: These free operators are declared here as a workaround for windows,
-// because windows gives an ambiguity error if the operator declaration is
-// declared after the friend declaration.
-
-// FREE OPERATORS
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bool operator==(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
-    // Return 'true' if the specified 'rhs' iterator points to the same element
-    // in the same block as this iterator, and 'false' otherwise.
-
-template <class VALUE_TYPE>
-inline
-bool operator==(const DequeIterator<VALUE_TYPE, 1>& lhs,
-                const DequeIterator<VALUE_TYPE, 1>& rhs);
-    // Specialization for deques having a block length of 1.
-
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bool operator!=(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
-    // Return 'true' if the specified 'rhs' iterator points to a different
-    // element as this iterator, and 'false' otherwise.
-
-template <class VALUE_TYPE>
-inline
-bool operator!=(const DequeIterator<VALUE_TYPE, 1>& lhs,
-                const DequeIterator<VALUE_TYPE, 1>& rhs);
-    // Specialization for deques having a block length of 1.
-
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bool operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
-    // Return 'true' if the specified 'rhs' iterator points to an element in a
-    // previous block or in a previous position in the same block as this
-    // iterator, and 'false' otherwise.
-
-template <class VALUE_TYPE>
-inline
-bool operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
-               const DequeIterator<VALUE_TYPE, 1>& rhs);
-    // Specialization for deques having a block length of 1.
-
                        // ===================
                        // class DequeIterator
                        // ===================
@@ -176,17 +138,45 @@ class DequeIterator {
     VALUE_TYPE *d_value_p;
 
     // FRIENDS
-    friend bool operator==<VALUE_TYPE, BLOCK_LENGTH>(
-                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
-                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
+    friend bool operator==(const DequeIterator& lhs, const DequeIterator& rhs)
+        // Return 'true' if the specified 'lhs' iterator points to the same
+        // element in the same block as the specified 'rhs' iterator, and
+        // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
+        // are iterators over the same deque.  Note that this friend is a
+        // regular functon, not a function template, so there is no way to
+        // declare it outside the class in order to provide the definition.
+    {
+        return lhs.d_value_p == rhs.d_value_p;
+    }
 
-    friend bool operator!=<VALUE_TYPE, BLOCK_LENGTH>(
-                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
-                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
+    friend bool operator!=(const DequeIterator& lhs, const DequeIterator& rhs)
+        // Return 'true' if the specified 'lhs' iterator points to a different
+        // element in the same block as the specified 'rhs' iterator, or points
+        // to an element in a different block to the 'rhs' iterator, and
+        // 'false' otherwise.  The behavior is undefined unless 'lhs' and 'rhs'
+        // are iterators over the same deque.  Note that this friend is a
+        // regular functon, not a function template, so there is no way to
+        // declare it outside the class in order to provide the definition.
+    {
+        return lhs.d_value_p != rhs.d_value_p;
+    }
 
-    friend bool operator< <VALUE_TYPE, BLOCK_LENGTH>(
-                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
-                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
+    friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
+        // Return 'true' if the specified 'lhs' iterator points to an element
+        // in a previous block or in a previous position in the same block as
+        // the specified 'rhs' iterator, and 'false' otherwise.  The behavior
+        // is undefined unless 'lhs' and 'rhs' are iterators over the same
+        // deque.  Note that this friend is a regular functon, not a function
+        // template, so there is no way to declare it outside the class in
+        // order to provide the definition.
+    {
+        if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
+            return lhs.d_value_p < rhs.d_value_p;                     // RETURN
+        }
+        else {
+            return lhs.d_blockPtr_p < rhs.d_blockPtr_p;               // RETURN
+        }
+    }
 
   public:
     // CREATORS
@@ -234,16 +224,16 @@ class DequeIterator {
         // Set this iterator to point to the first element of the block pointed
         // to by the specified 'blockPtrPtr'.
 
-    void valuePtrIncrement();
-        // Increment this iterator to point to the next element in the block of
+    void valuePtrDecrement();
+        // Decrement this iterator to point to the next element in the block of
         // the corresponding deque.  The behavior is undefined unless this
         // iterator is pointed to a valid position of the deque.  Note that
         // this method is used only for optimization purposes in
         // 'bslstl_Deque', and clients of this package should not use this
         // directly.
 
-    void valuePtrDecrement();
-        // Decrement this iterator to point to the next element in the block of
+    void valuePtrIncrement();
+        // Increment this iterator to point to the next element in the block of
         // the corresponding deque.  The behavior is undefined unless this
         // iterator is pointed to a valid position of the deque.  Note that
         // this method is used only for optimization purposes in
@@ -298,7 +288,8 @@ template <class VALUE_TYPE>
 class DequeIterator<VALUE_TYPE, 1> {
     // This partial specialization of 'DequeIterator' for the case when there
     // is a single element per block uses simpler storage and a simpler
-    // implementation.
+    // implementation.  The contract for all functions is the same, and so not
+    // repeated.
 
     // PRIVATE TYPES
     typedef bslalg::DequeImpUtil<VALUE_TYPE, 1> DequeImpUtil;
@@ -309,34 +300,21 @@ class DequeIterator<VALUE_TYPE, 1> {
     BlockPtr   *d_blockPtr_p; // pointer to BlockPtr within BlockPtr array
     VALUE_TYPE *d_value_p;    // pointer to element referenced by iterator
 
-#ifdef BSLS_PLATFORM_CMP_SUN
-    // WARNING: Note that SUN's compiler complains about function "friend
-    // declaration is incompatible with function template" when xlC, gcc and
-    // windows all accept the form wrapped in the '#else' statement.  Therefore
-    // it is declared differently.
+    // FRIENDS
+    friend bool operator==(const DequeIterator& lhs, const DequeIterator& rhs)
+    {
+        return lhs.d_blockPtr_p == rhs.d_blockPtr_p;
+    }
 
-    template <class VALUE_TYPE>
-    friend bool operator==(const DequeIterator<VALUE_TYPE, 1>&,
-                           const DequeIterator<VALUE_TYPE, 1>&);
+    friend bool operator!=(const DequeIterator& lhs, const DequeIterator& rhs)
+    {
+        return lhs.d_blockPtr_p != rhs.d_blockPtr_p;
+    }
 
-    template <class VALUE_TYPE>
-    friend bool operator!=(const DequeIterator<VALUE_TYPE, 1>&,
-                           const DequeIterator<VALUE_TYPE, 1>&);
-
-    template <class VALUE_TYPE>
-    friend bool operator< (const DequeIterator<VALUE_TYPE, 1>&,
-                           const DequeIterator<VALUE_TYPE, 1>&);
-#else
-    friend bool operator==<VALUE_TYPE>
-                              (const DequeIterator<VALUE_TYPE, 1>&,
-                               const DequeIterator<VALUE_TYPE, 1>&);
-    friend bool operator!=<VALUE_TYPE>
-                              (const DequeIterator<VALUE_TYPE, 1>&,
-                               const DequeIterator<VALUE_TYPE, 1>&);
-    friend bool operator< <VALUE_TYPE>
-                              (const DequeIterator<VALUE_TYPE, 1>&,
-                               const DequeIterator<VALUE_TYPE, 1>&);
-#endif
+    friend bool operator<(const DequeIterator& lhs, const DequeIterator& rhs)
+    {
+        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
+    }
 
   public:
     // CREATORS
@@ -353,8 +331,8 @@ class DequeIterator<VALUE_TYPE, 1> {
     void nextBlock();
     void previousBlock();
     void setBlock(BlockPtr *blockPtrPtr);
-    void valuePtrIncrement();
     void valuePtrDecrement();
+    void valuePtrIncrement();
 
     // ACCESSORS
     VALUE_TYPE& operator*() const;
@@ -480,22 +458,22 @@ void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::setBlock(BlockPtr *blockPtrPtr)
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrIncrement()
-{
-    BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
-    BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
-
-    ++d_value_p;
-}
-
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
 void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrDecrement()
 {
     BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
     BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
 
     --d_value_p;
+}
+
+template <class VALUE_TYPE, int BLOCK_LENGTH>
+inline
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrIncrement()
+{
+    BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
+    BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
+
+    ++d_value_p;
 }
 
 // ACCESSORS
@@ -681,7 +659,7 @@ void DequeIterator<VALUE_TYPE, 1>::setBlock(BlockPtr *blockPtrPtr)
 
 template <class VALUE_TYPE>
 inline
-void DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
+void DequeIterator<VALUE_TYPE, 1>::valuePtrDecrement()
 {
     // This should never be called for 'BLOCK_LENGTH' of 1
     BSLS_ASSERT_SAFE(0);
@@ -689,7 +667,7 @@ void DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
 
 template <class VALUE_TYPE>
 inline
-void DequeIterator<VALUE_TYPE, 1>::valuePtrDecrement()
+void DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
 {
     // This should never be called for 'BLOCK_LENGTH' of 1
     BSLS_ASSERT_SAFE(0);
@@ -778,61 +756,6 @@ DequeIterator<VALUE_TYPE, 1>::valuePtr() const
 }
 
 }  // close package namespace
-
-// FREE OPERATORS
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bool bslalg::operator==(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
-{
-    return lhs.d_value_p == rhs.d_value_p;
-}
-
-template <class VALUE_TYPE>
-inline
-bool bslalg::operator==(const DequeIterator<VALUE_TYPE, 1>& lhs,
-                        const DequeIterator<VALUE_TYPE, 1>& rhs)
-{
-    return lhs.d_blockPtr_p == rhs.d_blockPtr_p;
-}
-
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bool bslalg::operator!=(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template <class VALUE_TYPE>
-inline
-bool bslalg::operator!=(const DequeIterator<VALUE_TYPE, 1>& lhs,
-                        const DequeIterator<VALUE_TYPE, 1>& rhs)
-{
-    return !(lhs == rhs);
-}
-
-
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-inline
-bool bslalg::operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                       const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
-{
-    if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
-        return lhs.d_value_p < rhs.d_value_p;                         // RETURN
-    }
-    else {
-        return lhs.d_blockPtr_p < rhs.d_blockPtr_p;                   // RETURN
-    }
-}
-
-template <class VALUE_TYPE>
-inline
-bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
-                       const DequeIterator<VALUE_TYPE, 1>& rhs)
-{
-    return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
-}
 
 
 }  // close enterprise namespace

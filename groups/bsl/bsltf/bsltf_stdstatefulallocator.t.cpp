@@ -22,7 +22,6 @@
 #include <bsls_nameof.h>
 
 #include <limits>
-#include <new>
 #include <stdio.h>
 #include <stdlib.h>
 

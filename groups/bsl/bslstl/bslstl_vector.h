@@ -688,6 +688,18 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
+# define BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS 1
+// Both Microsoft Visual C++ and the Sun CC 12.4 compiler have a bug where
+// partial specialization of templates matches function-pointers as 'T *' but
+// overload partial-ordering prefers to match as 'const T *'.  This means that
+// free-function overloads will dispatch to members of the wrong class template
+// specialization.  Note that this bug is new to Sun CC 12.4, and we have not
+// tested for whether the bug is fixed in later Microsoft compilers.  However,
+// defining this macro universally for these compilers does not lead to any new
+// problems, as the workarounds we deploy are backwards compatible.
+#endif
+
 namespace bsl {
 
                           // ==================
@@ -6079,10 +6091,7 @@ inline
 bool operator==(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // MSVC treats function pointers as pointer-to-const types for the purpose
-    // of dispatching this function overload, but not when determining the
-    // partial specialization of 'vector'.
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
                                       void,
                                       const void>::type VoidType;
@@ -6101,10 +6110,7 @@ inline
 bool operator!=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // MSVC treats function pointers as pointer-to-const types for the purpose
-    // of dispatching this function overload, but not when determining the
-    // partial specialization of 'vector'.
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
                                       void,
                                       const void>::type VoidType;
@@ -6123,10 +6129,7 @@ inline
 bool operator<(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // MSVC treats function pointers as pointer-to-const types for the purpose
-    // of dispatching this function overload, but not when determining the
-    // partial specialization of 'vector'.
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
                                       void,
                                       const void>::type VoidType;
@@ -6145,10 +6148,7 @@ inline
 bool operator>(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // MSVC treats function pointers as pointer-to-const types for the purpose
-    // of dispatching this function overload, but not when determining the
-    // partial specialization of 'vector'.
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
                                       void,
                                       const void>::type VoidType;
@@ -6167,10 +6167,7 @@ inline
 bool operator<=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // MSVC treats function pointers as pointer-to-const types for the purpose
-    // of dispatching this function overload, but not when determining the
-    // partial specialization of 'vector'.
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
                                       void,
                                       const void>::type VoidType;
@@ -6189,10 +6186,7 @@ inline
 bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // MSVC treats function pointers as pointer-to-const types for the purpose
-    // of dispatching this function overload, but not when determining the
-    // partial specialization of 'vector'.
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
                                       void,
                                       const void>::type VoidType;
@@ -6215,9 +6209,7 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-    // Windows is not willing to do a 'static_cast' here.
-
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
     Base *pa = reinterpret_cast<Base *>(&a);
     Base *pb = reinterpret_cast<Base *>(&b);
 #else
