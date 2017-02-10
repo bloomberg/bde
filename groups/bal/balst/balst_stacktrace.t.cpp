@@ -15,6 +15,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -277,10 +280,8 @@ const Element &V0 = VALUES[0],  &VA = V0, // 'V0', 'V1', ... are used in
 //                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg::HasTrait<Obj,
-                               bslalg::TypeTraitBitwiseMoveable>::VALUE));
-BSLMF_ASSERT((bslalg::HasTrait<Obj,
-                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 
 // ============================================================================
 //                               TEST APPARATUS

@@ -575,10 +575,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -589,6 +585,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NIL
@@ -1377,9 +1381,7 @@ inline
 bool bdlc::HashTableDefaultTraits::isNull(const BUCKET& bucket)
 {
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
@@ -1418,9 +1420,7 @@ void bdlc::HashTableDefaultTraits::setToNull(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
@@ -1462,9 +1462,7 @@ inline
 bool bdlc::HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
 {
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
@@ -1511,9 +1509,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        k_IS_POD = bslalg::HasTrait<
-                          BUCKET,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+        k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
     };
 
     BSLMF_ASSERT(k_IS_POD);
