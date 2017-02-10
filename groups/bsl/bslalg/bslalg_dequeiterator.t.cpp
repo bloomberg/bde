@@ -1,8 +1,8 @@
 // bslalg_dequeiterator.t.cpp                                         -*-C++-*-
 
 #include <bslalg_dequeiterator.h>
-#include <bslalg_scalarprimitives.h>
 #include <bslalg_scalardestructionprimitives.h>
+#include <bslalg_scalarprimitives.h>
 
 #include <bslmf_issame.h>
 
@@ -95,6 +95,8 @@ namespace bslalg {
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 void
 debugprint(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
+    // Print to the console the values of the pointers denoting the element
+    // referred to by the specified 'iter'.
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT
@@ -138,59 +140,12 @@ struct TestDriver {
         // Type of iterator object under test.
 
     // TEST APPARATUS
-    static int getValues(const Obj **values);
-        // Load the specified 'values' with the address of an array containing
-        // initialized values of the test object and return the length of that
-        // array.
-
-    static int ggg(Obj *object, const char *spec, int verboseFlag = 1);
-        // Configure the specified 'object' according to the specified 'spec',
-        // using only the primary manipulator function 'push_back' and
-        // white-box manipulator 'clear'.  Optionally specify a zero
-        // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
-        // index of the first invalid character, and a negative value
-        // otherwise.  Note that this function is used to implement 'gg' as
-        // well as allow for verification of syntax error detection.
-
-    static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified object with its value adjusted
-        // according to the specified 'spec'.
-
-    static Obj g(const char *spec);
-        // Return, by value, a new object corresponding to the specified
-        // 'spec'.
+    static int getValues(const Obj **valuesPtr);
+        // Load the specified 'valuesPtr' with the address of an array
+        // containing initialized values of the test object and return the
+        // length of that array.
 
     // TEST CASES
-    static void testCase11();
-        // Test accessors.
-
-    static void testCase10();
-        // Test streaming functionality.  This test case tests nothing.
-
-    static void testCase9();
-        // Test assignment operator ('operator=').
-
-    static void testCase8();
-        // Test generator function 'g()'.
-
-    static void testCase7();
-        // Test copy constructor.
-
-    static void testCase6();
-        // Test equality operator ('operator==').
-
-    static void testCase5();
-        // Test output (<<) operator.  This test case tests nothing.
-
-    static void testCase4();
-        // Test basic accessors ('size' and 'operator[]').
-
-    static void testCase3();
-        // Test generator functions 'ggg()' and 'gg()'.
-
-    static void testCase2();
-        // Test primary manipulators ('push_back' and 'clear').
-
     static void testCase1();
         // Breathing test.  This test *exercises* basic functionality but
         // *test* nothing.
@@ -530,41 +485,25 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING 'bslstl::DequeIterator' TEMPLATE
-        //
-        // Concerns:
-        //
-        // Plan:  Since the component under test is a template, we cannot use
-        //   the table data selection method, but instead use a test macro,
-        //   with two parameters containing the value of the template
-        //   arguments.  We then instantiate the macro for various parameters
-        //   that exercise the various branches and boundary conditions.
-        //
-        // Testing:
-        //   class template 'bslstl::DequeIterator'
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING 'bslalg::DequeIterator"
-                            "\n==============================\n");
-
-      } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   That the basic usage is functional and correct.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
-        // Plan:  Exercise basic usage of this component.
+        // Plan:
+        //: 1 See the definition of 'testCase1' in the 'TestDriver' template
+        //:   for further details.
         //
         // Testing:
-        //   This test exercises basic usage but *tests* nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+                            "\n==============\n");
 
         if (verbose) printf("\nWith five 'char' per block.\n");
         TestDriver<char, 5>::testCase1();
