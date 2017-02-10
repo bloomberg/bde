@@ -369,8 +369,8 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  bslmf::IsBitwiseMoveable<my_EnumWithNoTraits>::value);
-        ASSERT(! bslma::UsesBslmaAllocator<my_EnumWithNoTraits>::value);
+        ASSERT(  bslmf::IsBitwiseMoveable<my_EnumWithNoTraits::Value>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_EnumWithNoTraits::Value>::value);
 
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -382,8 +382,8 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  bslmf::IsBitwiseMoveable<my_EnumWithBasicEnumTraits>::value);
-        ASSERT(! bslma::UsesBslmaAllocator<my_EnumWithBasicEnumTraits>::value);
+        ASSERT(  bslmf::IsBitwiseMoveable<my_EnumWithBasicEnumTraits::Value>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_EnumWithBasicEnumTraits::Value>::value);
 
         if (verbose) cout << "\tCustomized types." << endl;
 
