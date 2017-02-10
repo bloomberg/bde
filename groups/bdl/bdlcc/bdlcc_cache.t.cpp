@@ -3,6 +3,7 @@
 #include <bdlcc_cache.h>
 
 #include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
 
 #include <bdlb_random.h>
@@ -22,9 +23,12 @@
 
 #include <bslmf_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
+#include <bsl_string.h>
+#include <bsl_cstdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -74,11 +78,11 @@ using namespace bsl;
 // [ 2] Cache(evictionPolicy, lowWat, highWat, hashFunction, equal, alloc);
 //
 // MANIPULATORS
-// [ 2] void insert(const KeyType& key, const ValueType& value);
-// [ 9] void insert(const KeyType& key, const ValuePtrType& valuePtr);
-// [ 5] int tryGetValue(value, KeyType& key, bool modifyEvictionQueue);
+// [ 2] void insert(const KEYTYPE& key, const VALUETYPE& value);
+// [ 9] void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
+// [ 5] int tryGetValue(value, KEYTYPE& key, bool modifyEvictionQueue);
 // [ 8] int popFront();
-// [ 6] int erase(const KeyType& key);
+// [ 6] int erase(const KEYTYPE& key);
 // [ 5] void setPostEvictionCallback(postEvictionCallback);
 // [ 7] void clear();
 //
@@ -88,8 +92,8 @@ using namespace bsl;
 // [ 4] bsl::size_t highWatermark() const;
 // [ 4] bsl::size_t lowWatermark() const;
 // [ 4] bsl::size_t size() const;
-// [ 4] Hash hashFunction() const;
-// [ 4] Equal equalFunction() const;
+// [ 4] HASH hashFunction() const;
+// [ 4] EQUAL equalFunction() const;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -251,7 +255,7 @@ bslma::TestAllocator talloc("ue2", veryVeryVeryVerbose);
 
 // Suppose that a service needs to retrieve some values that are relatively
 // expensive to compute.  Clients of the service cannot wait for computing the
-// values, so the service should precompute and cache them.  In addition, the
+// values, so the service should pre-compute and cache them.  In addition, the
 // values are only valid for around one hour, so older items must be
 // periodically updated in the cache.  This problem can be solved using
 // 'bdlcc::Cache' with a background updater thread.
@@ -318,7 +322,7 @@ void myWorker(MyCache *cache)
             break;
         }
 
-        // Bdlcc and update for old values once per minute.
+        // Find and update the old values once per minute.
         // bslmt::ThreadUtil::microSleep(0, 60);
         bslmt::ThreadUtil::microSleep(0, 5);
         MyVisitor visitor;
@@ -376,7 +380,7 @@ void example2()
 namespace {
 typedef bsltf::TemplateTestFacility TstFacility;
 
-template <class KeyType, class ValueType>
+template <class KEYTYPE, class VALUETYPE>
 class PrintVisitor
 {
     bsl::ostream *d_stream_p;
@@ -386,7 +390,7 @@ class PrintVisitor
     : d_stream_p(stream)
     {}
 
-    bool operator() (const KeyType& key, const ValueType& value)
+    bool operator() (const KEYTYPE& key, const VALUETYPE& value)
     {
         *d_stream_p << TstFacility::getIdentifier(key) << " => "
                   << TstFacility::getIdentifier(value) << ", ";
@@ -394,49 +398,49 @@ class PrintVisitor
     }
 };
 
-template <class                                       KeyType,
-          class                                       ValueType,
-          class                                       Hash,
-          class                                       Equal,
-          template <class, class, class, class> class Cache>
+template <class                                       KEYTYPE,
+          class                                       VALUETYPE,
+          class                                       HASH,
+          class                                       EQUAL,
+          template <class, class, class, class> class CACHE>
 static bsl::ostream& printCache(
                           bsl::ostream&                                 stream,
-                          const Cache<KeyType, ValueType, Hash, Equal>& obj)
+                          const CACHE<KEYTYPE, VALUETYPE, HASH, EQUAL>& obj)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
     }
 
-    PrintVisitor<KeyType, ValueType> visitor(&stream);
+    PrintVisitor<KEYTYPE, VALUETYPE> visitor(&stream);
     obj.visit(visitor);
     stream << bsl::endl;
     return stream;
 }
 
-template <class Value>
-void SpCreateInplaceImp(bsl::shared_ptr<Value> *ptr,
-                        const Value&            v,
+template <class VALUE>
+void SpCreateInplaceImp(bsl::shared_ptr<VALUE> *ptr,
+                        const VALUE&            v,
                         bslma::Allocator       *allocator,
                         bsl::true_type)
 {
     ptr->createInplace(allocator, v, allocator);
 }
 
-template <class Value>
-void SpCreateInplaceImp(bsl::shared_ptr<Value> *ptr,
-                        const Value&            v,
+template <class VALUE>
+void SpCreateInplaceImp(bsl::shared_ptr<VALUE> *ptr,
+                        const VALUE&            v,
                         bslma::Allocator       *allocator,
                         bsl::false_type)
 {
     ptr->createInplace(allocator, v);
 }
 
-template <class Value>
-void SpCreateInplace(bsl::shared_ptr<Value> *ptr,
-                     const Value&            v,
+template <class VALUE>
+void SpCreateInplace(bsl::shared_ptr<VALUE> *ptr,
+                     const VALUE&            v,
                      bslma::Allocator       *allocator)
 {
-    SpCreateInplaceImp(ptr, v, allocator, bslma::UsesBslmaAllocator<Value>());
+    SpCreateInplaceImp(ptr, v, allocator, bslma::UsesBslmaAllocator<VALUE>());
 }
 
 }  // close unnamed namespace
@@ -502,7 +506,7 @@ void threadedTest1()
     //: 1 The code contains no deadlocks or race conditions.
     //
     // Plan:
-    //   Test for thread-safety using many simutanenous threads inserting and
+    //   Test for thread-safety using many simultaneous threads inserting and
     //   reading items from a shared cache.  Each worker thread gets assigned a
     //   unique id that determines the keys for which it is responsible.  Each
     //   time a key is read, it is incremented by 1 using the 'insert' method.
@@ -566,16 +570,16 @@ void threadedTest1()
 // TestDriver template
 namespace {
 
-template <class KeyType, class ValueType, class Alloc>
+template <class KEYTYPE, class VALUETYPE, class ALLOC>
 struct IntToPairConverter {
     // Convert an 'int' value to a 'bsl::pair' of the template parameter 'KEY'
     // and 'VALUE' types.
 
     // CLASS METHODS
     static void
-    createInplace(bsl::pair<KeyType, ValueType> *address,
+    createInplace(bsl::pair<KEYTYPE, VALUETYPE> *address,
                   int                            value,
-                  Alloc                          allocator)
+                  ALLOC                          allocator)
         // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
         // passing the specified 'value' to the 'KEY' and 'VALUE' constructors
         // and using the specified 'allocator' to supply memory.  The behavior
@@ -595,17 +599,17 @@ struct IntToPairConverter {
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
 
-        bsls::ObjectBuffer<typename bsl::remove_const<KeyType>::type> tempKey;
+        bsls::ObjectBuffer<typename bsl::remove_const<KEYTYPE>::type> tempKey;
         bsltf::TemplateTestFacility::emplace(tempKey.address(),
                                              value,
                                              privateAllocator);
 
-        bsls::ObjectBuffer<ValueType> tempValue;
+        bsls::ObjectBuffer<VALUETYPE> tempValue;
         bsltf::TemplateTestFacility::emplace(tempValue.address(),
                                              value - 'A' + '0',
                                              privateAllocator);
 
-        bsl::allocator_traits<Alloc>::construct(
+        bsl::allocator_traits<ALLOC>::construct(
                               allocator,
                               address,
                               bslmf::MovableRefUtil::move(tempKey.object()),
@@ -613,7 +617,7 @@ struct IntToPairConverter {
     }
 };
 
-template <class Type>
+template <class TYPE>
 class TestHashFunctor {
     // This test class provides a mechanism that defines a function-call
     // operator that compares two objects of the parameterized 'TYPE'.  The
@@ -630,10 +634,10 @@ class TestHashFunctor {
     {}
 
     // ACCESSORS
-    bsl::size_t operator() (const Type& obj) const
+    bsl::size_t operator() (const TYPE& obj) const
         // Return the has value of the specified 'obj'.
     {
-        return  bsltf::TemplateTestFacility::getIdentifier<Type>(obj);
+        return  bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
     }
 
     bool operator==(const TestHashFunctor& rhs) const
@@ -647,14 +651,14 @@ class TestHashFunctor {
     }
 };
 
-template <class Type>
-bool areEqual(const Type& lhs, const Type& rhs)
+template <class TYPE>
+bool areEqual(const TYPE& lhs, const TYPE& rhs)
 {
-    return bsltf::TemplateTestFacility::getIdentifier<Type>(lhs)
-        == bsltf::TemplateTestFacility::getIdentifier<Type>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+        == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
 }
 
-template <class Type>
+template <class TYPE>
 class TestEqualityComparator {
     // This test class provides a mechanism that defines a function-call
     // operator that compares two objects of the parameterized 'TYPE'.  The
@@ -671,7 +675,7 @@ class TestEqualityComparator {
     {}
 
     // ACCESSORS
-    bool operator() (const Type& lhs, const Type& rhs) const
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
@@ -692,31 +696,31 @@ class TestEqualityComparator {
 };
 
 
-template <class KeyType,
-          class ValueType = KeyType,
-          class Hash  = TestHashFunctor<KeyType>,
-          class Equal = TestEqualityComparator<KeyType> >
+template <class KEYTYPE,
+          class VALUETYPE = KEYTYPE,
+          class HASH  = TestHashFunctor<KEYTYPE>,
+          class EQUAL = TestEqualityComparator<KEYTYPE> >
 class TestDriver {
     // This templatized struct provide a namespace for testing 'bdlcc::Cache'.
-    // The parameterized 'KeyType', 'ValueType', 'Hash', 'Equal' specifies the
+    // The parameterized 'KEYTYPE', 'VALUETYPE', 'HASH', 'EQUAL' specifies the
     // key type, the mapped type, the hash functor, the equality comparator
     // type respectively.  Each "testCase*" method test a specific aspect of
-    // 'bdlcc:Cache<KeyType, ValueType, Hash, Equal>'.  Every test cases should
+    // 'bdlcc:Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>'.  Every test cases should
     // be invoked with various parameterized type to fully test the cache.
 
   private:
     // TYPES
-    typedef bdlcc::Cache<KeyType, ValueType, Hash, Equal> Obj;
+    typedef bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL> Obj;
 
     // Shorthands
-    typedef bsl::pair<KeyType, ValueType> PairType;
+    typedef bsl::pair<KEYTYPE, VALUETYPE> PairType;
     typedef bsl::allocator<PairType>      PairStdAllocator;
 
     typedef bsltf::TestValuesArray<PairType,
                                    PairStdAllocator,
                                    IntToPairConverter<
-                                                KeyType,
-                                                ValueType,
+                                                KEYTYPE,
+                                                VALUETYPE,
                                                 PairStdAllocator> > TestValues;
 
     class TestPostEvictionCallback {
@@ -765,7 +769,7 @@ class TestDriver {
             *d_pos_p = 0;
         }
 
-        void operator() (const bsl::shared_ptr<ValueType>& value)
+        void operator() (const bsl::shared_ptr<VALUETYPE>& value)
         {
             if (veryVerbose) {
                 bsl::cout << "Post-eviction callback: ["
@@ -789,7 +793,7 @@ class TestDriver {
 
         void callOpImp(bsl::size_t                      *idx,
                        bool                             *isExpected,
-                       const bsl::shared_ptr<ValueType>& value)
+                       const bsl::shared_ptr<VALUETYPE>& value)
         {
             if (d_idx_p) {
                 *idx = d_idx_p[*d_pos_p];
@@ -808,11 +812,12 @@ class TestDriver {
     };
 
     class TestVisitor {
-        // This class implements a vistor functor for testing purposes that can
-        // used as the argument to the 'visit' method.  The arguments passed to
-        // the value constructor is used to verify the values received by
-        // function-call operator.  Finally, the 'assertEnd' method should be
-        // called to ensure that all of the expected values have been received.
+        // This class implements a visitor functor for testing purposes that
+        // can be used as the argument to the 'visit' method.  The arguments
+        //  passed to the value constructor is used to verify the values
+        // received by function-call operator.  Finally, the 'assertEnd' method
+        //  should be called to ensure that all of the expected values have
+        // been received.
 
       public:
         struct Args {
@@ -828,7 +833,7 @@ class TestDriver {
 
         bsl::size_t       d_size;     // expected size of values to visit
 
-        const Args       *d_args_p;   // indexs pointing to 'd_values_p' array
+        const Args       *d_args_p;   // indices pointing to 'd_values_p' array
                                       // and values to return from the
                                       // function-call operator
 
@@ -848,7 +853,7 @@ class TestDriver {
         , d_pos(0)
         {}
 
-        bool operator() (const KeyType& key, const ValueType& value)
+        bool operator() (const KEYTYPE& key, const VALUETYPE& value)
         {
             if (veryVerbose) {
                 bsl::cout << "Visitor: ["
@@ -883,8 +888,8 @@ class TestDriver {
         bool callOpImp(bsl::size_t      *idx,
                        bool             *isKeyExpected,
                        bool             *isValueExpected,
-                       const KeyType&    key,
-                       const ValueType&  value)
+                       const KEYTYPE&    key,
+                       const VALUETYPE&  value)
         {
             bool ret;
             if (d_args_p) {
@@ -923,8 +928,8 @@ class TestDriver {
     static void testCase10();
 };
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase10()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
 {
     // --------------------------------------------------------------------
     // TYPE TRAITS
@@ -942,8 +947,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase10()
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 }
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase9()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase9()
 {
     // ------------------------------------------------------------------------
     // 'insert' TAKING A SHARED POINTER
@@ -960,7 +965,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase9()
     //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macros.
     //
     // Testing:
-    //   void insert(const KeyType& key, const ValuePtrType& valuePtr);
+    //   void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
@@ -1000,8 +1005,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase9()
     }
 }
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase8()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
 {
     // ------------------------------------------------------------------------
     // 'popFront'
@@ -1083,8 +1088,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase8()
     }
 }
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase7()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 {
     // ------------------------------------------------------------------------
     // 'clear'
@@ -1146,15 +1151,15 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase7()
 
 }
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase6()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase6()
 {
     // ------------------------------------------------------------------------
     // 'erase'
     //
     // Concerns:
     //: 1 The 'erase' method removes the specified key from the cache. The
-    //:   method returns 0 on sucess and non-zero if the key doesn't exist in
+    //:   method returns 0 on success and non-zero if the key doesn't exist in
     //:   the cache.
     //:
     //: 2 The 'erase' method invokes the post-eviction callback on success,
@@ -1169,7 +1174,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase6()
     //:   returns a non-zero value.
     //
     // Testing:
-    //   int erase(const KeyType& key);
+    //   int erase(const KEYTYPE& key);
     // ------------------------------------------------------------------------
 
     const TestValues     VALUES; // contains 52 distinct increasing values
@@ -1262,8 +1267,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase6()
     }
 }
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
 {
     // ------------------------------------------------------------------------
     // Eviction Policies
@@ -1305,7 +1310,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
     //
     // Testing:
     //   void setPostEvictionCallback(postEvictionCallback);
-    //   int tryGetValue(value, KeyType& key, bool modifyEvictionQueue);
+    //   int tryGetValue(value, KEYTYPE& key, bool modifyEvictionQueue);
     // ------------------------------------------------------------------------
 
     const TestValues     VALUES;  // contains 52 distinct increasing values
@@ -1612,8 +1617,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase5()
     }
 }
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase4()
 {
     // ------------------------------------------------------------------------
     // BASIC ACCESSORS
@@ -1642,8 +1647,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
     //   bsl::size_t highWatermark() const;
     //   bsl::size_t lowWatermark() const;
     //   bsl::size_t size() const;
-    //   Hash hashFunction() const;
-    //   Equal equalFunction() const;
+    //   HASH hashFunction() const;
+    //   EQUAL equalFunction() const;
     // ------------------------------------------------------------------------
 
 
@@ -1701,8 +1706,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
     }
     {
         Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO, 123, 456,
-               TestHashFunctor<KeyType>(300),
-               TestEqualityComparator<KeyType>(400),
+               TestHashFunctor<KEYTYPE>(300),
+               TestEqualityComparator<KEYTYPE>(400),
                &scratch);
 
         const Obj& X = mX;
@@ -1715,8 +1720,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase4()
 }
 
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
 {
     // ------------------------------------------------------------------------
     // TEST APPARATUS
@@ -1921,8 +1926,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase3()
 }
 
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
 {
     // ------------------------------------------------------------------------
     // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
@@ -1950,7 +1955,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
     //:
     //: 8 Every object releases any allocated memory at destruction.
     //:
-    //:10 The 'insert' method provides the strong exception safety gaurantee.
+    //:10 The 'insert' method provides the strong exception safety guarantee.
     //:
     //:11 Ensure that hash function and allocators are passed in correctly to
     //:   the underlying unordered map's constructor.
@@ -1969,7 +1974,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
     //:   has been allocated properly.
     //:
     //: 2 Use the brute-force approach to test the value constructor by
-    //:   verifying that all of the values have bene correctly passed to the
+    //:   verifying that all of the values have been correctly passed to the
     //:   objects used in the implementation.
     //:
     //: 3 Verify that, in appropriate build modes, defensive checks are
@@ -1979,11 +1984,11 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
     //   explicit Cache(bslma::Allocator *basicAllocator);
     //   Cache(evictionPolicy, lowWat, highWat, alloc);
     //   Cache(evictionPolicy, lowWat, highWat, hashFunction, equal, alloc);
-    //   void insert(const KeyType& key, const ValueType& value);
+    //   void insert(const KEYTYPE& key, const VALUETYPE& value);
     // ------------------------------------------------------------------------
 
-    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KeyType>::value +
-                           bslma::UsesBslmaAllocator<ValueType>::value;
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEYTYPE>::value +
+                           bslma::UsesBslmaAllocator<VALUETYPE>::value;
 
     if (verbose) { P(TYPE_ALLOC); }
 
@@ -1996,7 +2001,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
         const bsl::size_t LENGTH = ti;
 
         if (verbose) {
-            printf("\nTesting with various allocator configurations.\n");
+            cout << "\nTesting with various allocator configurations.\n";
         }
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the allocator
@@ -2010,7 +2015,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
             // ----------------------------------------------------------------
 
             if (veryVerbose) {
-                printf("\n\tTesting default constructor.\n");
+                cout << "\n\tTesting default constructor.\n";
             }
 
             Obj                  *objPtr;
@@ -2120,8 +2125,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
         {
             Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 1, 1,
-                   TestHashFunctor<KeyType>(100),
-                   TestEqualityComparator<KeyType>(200),
+                   TestHashFunctor<KEYTYPE>(100),
+                   TestEqualityComparator<KEYTYPE>(200),
                    &scratch);
 
             const Obj& X = mX;
@@ -2133,8 +2138,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
         }
         {
             Obj mX(bdlcc::CacheEvictionPolicy::e_LRU, 2, 3,
-                   TestHashFunctor<KeyType>(300),
-                   TestEqualityComparator<KeyType>(400),
+                   TestHashFunctor<KEYTYPE>(300),
+                   TestEqualityComparator<KEYTYPE>(400),
                    &scratch);
 
             const Obj& X = mX;
@@ -2146,8 +2151,8 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
         }
         {
             Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO, 2, 3,
-                   TestHashFunctor<KeyType>(500),
-                   TestEqualityComparator<KeyType>(600),
+                   TestHashFunctor<KEYTYPE>(500),
+                   TestEqualityComparator<KEYTYPE>(600),
                    &scratch);
 
             const Obj& X = mX;
@@ -2164,32 +2169,32 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase2()
                                              bsls::AssertTest::failTestDriver);
 
             ASSERT_SAFE_FAIL(Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO,
-                                    0, 0, TestHashFunctor<KeyType>(),
-                                    TestEqualityComparator<KeyType>(),
+                                    0, 0, TestHashFunctor<KEYTYPE>(),
+                                    TestEqualityComparator<KEYTYPE>(),
                                     &scratch));
             ASSERT_SAFE_FAIL(Obj mX(bdlcc::CacheEvictionPolicy::e_LRU,
-                                    0, 0, TestHashFunctor<KeyType>(),
-                                    TestEqualityComparator<KeyType>(),
+                                    0, 0, TestHashFunctor<KEYTYPE>(),
+                                    TestEqualityComparator<KEYTYPE>(),
                                     &scratch));
             ASSERT_SAFE_FAIL(Obj mX(bdlcc::CacheEvictionPolicy::e_LRU,
-                                    1, 0, TestHashFunctor<KeyType>(),
-                                    TestEqualityComparator<KeyType>(),
+                                    1, 0, TestHashFunctor<KEYTYPE>(),
+                                    TestEqualityComparator<KEYTYPE>(),
                                     &scratch));
             ASSERT_SAFE_FAIL(Obj mX(bdlcc::CacheEvictionPolicy::e_LRU,
-                                    0, 1, TestHashFunctor<KeyType>(),
-                                    TestEqualityComparator<KeyType>(),
+                                    0, 1, TestHashFunctor<KEYTYPE>(),
+                                    TestEqualityComparator<KEYTYPE>(),
                                     &scratch));
             ASSERT_SAFE_PASS(Obj mX(bdlcc::CacheEvictionPolicy::e_LRU,
-                                    1, 1, TestHashFunctor<KeyType>(),
-                                    TestEqualityComparator<KeyType>(),
+                                    1, 1, TestHashFunctor<KEYTYPE>(),
+                                    TestEqualityComparator<KEYTYPE>(),
                                     &scratch));
         }
     }
 }
 
 
-template <class KeyType, class ValueType, class Hash, class Equal>
-void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase1()
 {
     // ------------------------------------------------------------------------
     // BREATHING TEST
@@ -2213,23 +2218,23 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
     {
         Obj mX(&scratch);  const Obj& X = mX;
 
-        mX.insert(TstFacility::create<KeyType>(1),
-                  TstFacility::create<ValueType>(11));
-        mX.insert(TstFacility::create<KeyType>(2),
-                  TstFacility::create<ValueType>(22));
-        mX.insert(TstFacility::create<KeyType>(3),
-                  TstFacility::create<ValueType>(33));
-        mX.insert(TstFacility::create<KeyType>(4),
-                  TstFacility::create<ValueType>(44));
-        mX.insert(TstFacility::create<KeyType>(5),
-                  TstFacility::create<ValueType>(55));
+        mX.insert(TstFacility::create<KEYTYPE>(1),
+                  TstFacility::create<VALUETYPE>(11));
+        mX.insert(TstFacility::create<KEYTYPE>(2),
+                  TstFacility::create<VALUETYPE>(22));
+        mX.insert(TstFacility::create<KEYTYPE>(3),
+                  TstFacility::create<VALUETYPE>(33));
+        mX.insert(TstFacility::create<KEYTYPE>(4),
+                  TstFacility::create<VALUETYPE>(44));
+        mX.insert(TstFacility::create<KEYTYPE>(5),
+                  TstFacility::create<VALUETYPE>(55));
 
         ASSERTV(X.size(), X.size() == 5);
 
         {
             typename Obj::ValuePtrType val;
 
-            int rc = mX.tryGetValue(&val, TstFacility::create<KeyType>(1));
+            int rc = mX.tryGetValue(&val, TstFacility::create<KEYTYPE>(1));
             ASSERTV(rc, 0 == rc);
             ASSERTV(*val, 11 == TstFacility::getIdentifier(*val));
         };
@@ -2237,7 +2242,7 @@ void TestDriver<KeyType, ValueType, Hash, Equal>::testCase1()
         {
             typename Obj::ValuePtrType val;
 
-            int rc = mX.tryGetValue(&val, TstFacility::create<KeyType>(3));
+            int rc = mX.tryGetValue(&val, TstFacility::create<KEYTYPE>(3));
             ASSERTV(rc, 0 == rc);
             ASSERTV(*val, 33 == TstFacility::getIdentifier(*val));
         };
