@@ -243,7 +243,7 @@ int DatetimeInterval::printToBuffer(char *result,
     int us           = microseconds();
 
     if (0 > d_days || 0 > d_microseconds) {
-        if (numBytes) {
+        if (numBytes > 1) {
             *result++ = '-';
             --numBytes;
         }
