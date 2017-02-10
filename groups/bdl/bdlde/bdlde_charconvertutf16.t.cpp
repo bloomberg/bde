@@ -413,7 +413,7 @@ class FixedVector {
     { return d_array; }
 
     const_iterator cend() const
-    { return d_array + SIZE; }
+    { return d_array + d_size; }
 
     const_reference operator[](size_type t) const
     { return d_array[t]; }
@@ -437,7 +437,7 @@ class FixedVector {
     { return d_array; }
 
     iterator end()
-    { return d_array + SIZE; }
+    { return d_array + d_size; }
 
     reference operator[](size_type t)
     { return d_array[t]; }
