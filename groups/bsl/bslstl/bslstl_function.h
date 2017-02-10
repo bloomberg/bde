@@ -749,7 +749,7 @@ class Function_Rep {
     Allocator *allocator() const;
 };
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=12
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
                     // =======================
                     // class template function
@@ -957,9 +957,9 @@ class Function_Imp<RET(ARGS...)> :
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h
+// Generator command line: sim_cpp11_features.pl --var-args=13 bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
-#define BSLSTL_FUNCTION_VARIADIC_LIMIT 12
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
 #endif
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_A
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT_A BSLSTL_FUNCTION_VARIADIC_LIMIT
@@ -3349,6 +3349,252 @@ class Function_Imp<RET(ARGS_01,
 };
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+class Function_Imp<RET(ARGS_01,
+                       ARGS_02,
+                       ARGS_03,
+                       ARGS_04,
+                       ARGS_05,
+                       ARGS_06,
+                       ARGS_07,
+                       ARGS_08,
+                       ARGS_09,
+                       ARGS_10,
+                       ARGS_11,
+                       ARGS_12,
+                       ARGS_13)> :
+        public Function_ArgTypes<RET(ARGS_01,
+                                     ARGS_02,
+                                     ARGS_03,
+                                     ARGS_04,
+                                     ARGS_05,
+                                     ARGS_06,
+                                     ARGS_07,
+                                     ARGS_08,
+                                     ARGS_09,
+                                     ARGS_10,
+                                     ARGS_11,
+                                     ARGS_12,
+                                     ARGS_13)>,
+        public Function_Rep  {
+
+    using Function_Rep::d_objbuf;
+
+    typedef RET Invoker(const Function_Rep* rep,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13);
+
+    void setInvoker(Invoker *p);
+
+    Invoker *invoker() const;
+
+    template<class FUNC, class ALLOC>
+    void initFromTarget(FUNC *func, const ALLOC& alloc);
+
+    template<class FUNC>
+    void assignTarget(ManagerOpCode moveOrCopy, FUNC *func);
+
+    template <class FUNC>
+    struct FunctionPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
+
+    template <class FUNC>
+    struct MemFuncPtrInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type);
+        static bool isNull(FUNC f) { return NULL == f; }
+    };
+
+    template <class FUNC>
+    struct InplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC>
+    struct OutofplaceFunctorInvoker {
+        static RET exec(const Function_Rep *rep,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type,
+                   typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type);
+        static bool isNull(const FUNC&) { return false; }
+    };
+
+    template <class FUNC> friend struct FunctionPtrInvoker;
+    template <class FUNC> friend struct MemFuncPtrInvoker;
+    template <class FUNC> friend struct InplaceFunctorInvoker;
+    template <class FUNC> friend struct OutofplaceFunctorInvoker;
+
+    template <class FUNC>
+    static Invoker *invokerForFunc(const FUNC& f)
+    {
+        typedef Function_SmallObjectOptimization Soo;
+
+        typedef typename
+            Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
+
+        typedef typename bsl::conditional<
+            BloombergLP::bslmf::IsFunctionPointer<UwFuncType>::value,
+            FunctionPtrInvoker<UwFuncType>,
+            typename bsl::conditional<
+                BloombergLP::bslmf::IsMemberFunctionPointer<UwFuncType>::value,
+                MemFuncPtrInvoker<UwFuncType>,
+                typename bsl::conditional<
+                    Soo::IsInplaceFunc<FUNC>::VALUE,
+                    InplaceFunctorInvoker<UwFuncType>,
+                    OutofplaceFunctorInvoker<UwFuncType>
+                >::type
+            >::type
+        >::type InvokerClass;
+
+        if (InvokerClass::isNull(Function_NothrowWrapperUtil<FUNC>::unwrap(f)))
+        {
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
+            return NULL;
+        }
+
+        return &InvokerClass::exec;
+    }
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+
+    typedef BloombergLP::bsls::UnspecifiedBool<Function_Imp>
+                                                          UnspecifiedBoolUtil;
+    typedef typename UnspecifiedBoolUtil::BoolType        UnspecifiedBool;
+
+#endif
+
+  public:
+    typedef RET result_type;
+
+    template<class ALLOC> Function_Imp(const ALLOC& alloc);
+    template<class ALLOC>
+    Function_Imp(const ALLOC& alloc, const Function_Imp& other);
+    template<class FUNC, class ALLOC>
+    Function_Imp(const ALLOC& alloc, FUNC func);
+
+    Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
+    template<class ALLOC>
+    Function_Imp(const ALLOC&                                 alloc,
+                 BloombergLP::bslmf::MovableRef<Function_Imp> other);
+
+    ~Function_Imp();
+
+    Function_Imp& operator=(const Function_Imp&);
+    Function_Imp& operator=(BloombergLP::bslmf::MovableRef<Function_Imp>);
+    template<class FUNC>
+    Function_Imp& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func);
+    Function_Imp& operator=(nullptr_t);
+
+
+
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10,
+                   ARGS_11,
+                   ARGS_12,
+                   ARGS_13) const;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    explicit
+    operator bool() const BSLS_NOTHROW_SPEC;
+#else
+    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
+    {
+        return UnspecifiedBoolUtil::makeValue(invoker());
+    }
+#endif
+
+
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_A >= 13
+
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -3788,9 +4034,9 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h
+// Generator command line: sim_cpp11_features.pl --var-args=13 bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
-#define BSLSTL_FUNCTION_VARIADIC_LIMIT 12
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
 #endif
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_B
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT_B BSLSTL_FUNCTION_VARIADIC_LIMIT
@@ -3848,6 +4094,10 @@ template <class FUNC,
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 11
         , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 11
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
+        , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
         , class = BSLS_COMPILERFEATURES_NILT>
 struct Function_MemFuncInvokeImp;
 
@@ -4869,6 +5119,140 @@ struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
 };
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE, class RET,
+          class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10,
+          class ARGS_11,
+          class ARGS_12,
+          class ARGS_13>
+struct Function_MemFuncInvokeImp<FUNC, OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                    ARGS_02,
+                                                                    ARGS_03,
+                                                                    ARGS_04,
+                                                                    ARGS_05,
+                                                                    ARGS_06,
+                                                                    ARGS_07,
+                                                                    ARGS_08,
+                                                                    ARGS_09,
+                                                                    ARGS_10,
+                                                                    ARGS_11,
+                                                                    ARGS_12,
+                                                                    ARGS_13> {
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    enum { NUM_ARGS = 13u };
+
+    static
+    RET invoke_imp(true_type , FUNC f,
+           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args_01,
+                                           args_02,
+                                           args_03,
+                                           args_04,
+                                           args_05,
+                                           args_06,
+                                           args_07,
+                                           args_08,
+                                           args_09,
+                                           args_10,
+                                           args_11,
+                                           args_12,
+                                           args_13);
+    }
+
+    static
+    RET invoke_imp(false_type , FUNC f,
+           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+          typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13) {
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12,
+                                              args_13);
+    }
+
+  public:
+    static
+    RET invoke(FUNC f,
+           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+           typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13)
+        { return invoke_imp(DirectInvoke(), f, obj, args_01,
+                                                    args_02,
+                                                    args_03,
+                                                    args_04,
+                                                    args_05,
+                                                    args_06,
+                                                    args_07,
+                                                    args_08,
+                                                    args_09,
+                                                    args_10,
+                                                    args_11,
+                                                    args_12,
+                                                    args_13); }
+
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
@@ -5251,6 +5635,63 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
 };
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10,
+                                     class ARGS_11,
+                                     class ARGS_12,
+                                     class ARGS_13, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11,
+                                                ARGS_12,
+                                                ARGS_13), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10,
+                                                  ARGS_11,
+                                                  ARGS_12,
+                                                  ARGS_13), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08,
+                                                   ARGS_09,
+                                                   ARGS_10,
+                                                   ARGS_11,
+                                                   ARGS_12,
+                                                   ARGS_13>
+{
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
 template <class RET, class OBJ_TYPE, class OBJ_ARG_TYPE>
@@ -5632,6 +6073,63 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
 {
 };
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10,
+                                     class ARGS_11,
+                                     class ARGS_12,
+                                     class ARGS_13, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11,
+                                                ARGS_12,
+                                                ARGS_13) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10,
+                                                  ARGS_11,
+                                                  ARGS_12,
+                                                  ARGS_13) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                   ARGS_02,
+                                                                   ARGS_03,
+                                                                   ARGS_04,
+                                                                   ARGS_05,
+                                                                   ARGS_06,
+                                                                   ARGS_07,
+                                                                   ARGS_08,
+                                                                   ARGS_09,
+                                                                   ARGS_10,
+                                                                   ARGS_11,
+                                                                   ARGS_12,
+                                                                   ARGS_13>
+{
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
@@ -6027,6 +6525,64 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
 {
 };
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10,
+                                     class ARGS_11,
+                                     class ARGS_12,
+                                     class ARGS_13, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11,
+                                                ARGS_12,
+                                                ARGS_13) volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10,
+                                                  ARGS_11,
+                                                  ARGS_12,
+                                                  ARGS_13) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS_01,
+                                                                      ARGS_02,
+                                                                      ARGS_03,
+                                                                      ARGS_04,
+                                                                      ARGS_05,
+                                                                      ARGS_06,
+                                                                      ARGS_07,
+                                                                      ARGS_08,
+                                                                      ARGS_09,
+                                                                      ARGS_10,
+                                                                      ARGS_11,
+                                                                      ARGS_12,
+                                                                      ARGS_13>
+{
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 0
@@ -6435,6 +6991,65 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
 {
 };
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
+template <class RET, class OBJ_TYPE, class ARGS_01,
+                                     class ARGS_02,
+                                     class ARGS_03,
+                                     class ARGS_04,
+                                     class ARGS_05,
+                                     class ARGS_06,
+                                     class ARGS_07,
+                                     class ARGS_08,
+                                     class ARGS_09,
+                                     class ARGS_10,
+                                     class ARGS_11,
+                                     class ARGS_12,
+                                     class ARGS_13, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11,
+                                                ARGS_12,
+                                                ARGS_13) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS_01,
+                                                  ARGS_02,
+                                                  ARGS_03,
+                                                  ARGS_04,
+                                                  ARGS_05,
+                                                  ARGS_06,
+                                                  ARGS_07,
+                                                  ARGS_08,
+                                                  ARGS_09,
+                                                  ARGS_10,
+                                                  ARGS_11,
+                                                  ARGS_12,
+                                                  ARGS_13) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS_01,
+                                                   ARGS_02,
+                                                   ARGS_03,
+                                                   ARGS_04,
+                                                   ARGS_05,
+                                                   ARGS_06,
+                                                   ARGS_07,
+                                                   ARGS_08,
+                                                   ARGS_09,
+                                                   ARGS_10,
+                                                   ARGS_11,
+                                                   ARGS_12,
+                                                   ARGS_13>
+{
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_B >= 13
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -7495,9 +8110,9 @@ bsl::Function_Imp<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_function.h
+// Generator command line: sim_cpp11_features.pl --var-args=13 bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
-#define BSLSTL_FUNCTION_VARIADIC_LIMIT 12
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
 #endif
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_C
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT_C BSLSTL_FUNCTION_VARIADIC_LIMIT
@@ -8144,6 +8759,97 @@ RET bsl::Function_Imp<RET(ARGS_01,
                     forwardToTarget(args_12)));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template <class FUNC>
+inline
+RET bsl::Function_Imp<RET(ARGS_01,
+                          ARGS_02,
+                          ARGS_03,
+                          ARGS_04,
+                          ARGS_05,
+                          ARGS_06,
+                          ARGS_07,
+                          ARGS_08,
+                          ARGS_09,
+                          ARGS_10,
+                          ARGS_11,
+                          ARGS_12,
+                          ARGS_13)>::FunctionPtrInvoker<FUNC>::exec(
+              const Function_Rep                                         *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13)
+{
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12,
+                             ARGS_13)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = reinterpret_cast<FUNC>(imp_p->d_objbuf.d_func_p);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET,
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
+                    forwardToTarget(args_10),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
+                    forwardToTarget(args_11),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
+                    forwardToTarget(args_12),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_13>::
+                    forwardToTarget(args_13)));
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -8814,6 +9520,99 @@ RET bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template <class FUNC>
+inline
+RET bsl::Function_Imp<RET(ARGS_01,
+                          ARGS_02,
+                          ARGS_03,
+                          ARGS_04,
+                          ARGS_05,
+                          ARGS_06,
+                          ARGS_07,
+                          ARGS_08,
+                          ARGS_09,
+                          ARGS_10,
+                          ARGS_11,
+                          ARGS_12,
+                          ARGS_13)>::MemFuncPtrInvoker<FUNC>::exec(
+               const Function_Rep *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13)
+{
+    using namespace BloombergLP;
+
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12,
+                             ARGS_13)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC f = (const FUNC&)(imp_p->d_objbuf.d_memFunc_p);
+    typedef typename bslmf::NthParameter<0, ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09,
+                                            ARGS_10,
+                                            ARGS_11,
+                                            ARGS_12,
+                                            ARGS_13>::Type ObjType;
+    typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
+    BSLMF_ASSERT(13u == InvokeType::NUM_ARGS + 1);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, InvokeType::invoke(f, args_01,
+                                                                  args_02,
+                                                                  args_03,
+                                                                  args_04,
+                                                                  args_05,
+                                                                  args_06,
+                                                                  args_07,
+                                                                  args_08,
+                                                                  args_09,
+                                                                  args_10,
+                                                                  args_11,
+                                                                  args_12,
+                                                                  args_13));
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
@@ -9364,6 +10163,83 @@ RET bsl::Function_Imp<RET(ARGS_01,
                                               args_12));
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template <class FUNC>
+inline
+RET bsl::Function_Imp<RET(ARGS_01,
+                          ARGS_02,
+                          ARGS_03,
+                          ARGS_04,
+                          ARGS_05,
+                          ARGS_06,
+                          ARGS_07,
+                          ARGS_08,
+                          ARGS_09,
+                          ARGS_10,
+                          ARGS_11,
+                          ARGS_12,
+                          ARGS_13)>::InplaceFunctorInvoker<FUNC>::exec(
+               const Function_Rep                                        *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13)
+{
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12,
+                             ARGS_13)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = reinterpret_cast<FUNC&>(imp_p->d_objbuf);
+
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12,
+                                              args_13));
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -9916,6 +10792,83 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template <class FUNC>
+inline
+RET
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::OutofplaceFunctorInvoker<FUNC>::exec(
+               const Function_Rep                                        *rep,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12,
+            typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13)
+{
+    typedef Function_Imp<RET(ARGS_01,
+                             ARGS_02,
+                             ARGS_03,
+                             ARGS_04,
+                             ARGS_05,
+                             ARGS_06,
+                             ARGS_07,
+                             ARGS_08,
+                             ARGS_09,
+                             ARGS_10,
+                             ARGS_11,
+                             ARGS_12,
+                             ARGS_13)> Imp;
+    const Imp* imp_p = static_cast<const Imp*>(rep);
+
+    FUNC& f = *reinterpret_cast<FUNC*>(imp_p->d_objbuf.d_object_p);
+    return BSLSTL_FUNCTION_CAST_RESULT(RET, f(args_01,
+                                              args_02,
+                                              args_03,
+                                              args_04,
+                                              args_05,
+                                              args_06,
+                                              args_07,
+                                              args_08,
+                                              args_09,
+                                              args_10,
+                                              args_11,
+                                              args_12,
+                                              args_13));
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -10218,6 +11171,43 @@ void bsl::Function_Imp<RET(ARGS_01,
     d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+void bsl::Function_Imp<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10,
+                           ARGS_11,
+                           ARGS_12,
+                           ARGS_13)>::setInvoker(Invoker *p)
+{
+    BSLMF_ASSERT(sizeof(Invoker*) == sizeof(d_invoker_p));
+
+    typedef void (*VoidFn)();
+
+    d_invoker_p = reinterpret_cast<VoidFn>(p);
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -10548,6 +11538,52 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+typename bsl::Function_Imp<RET(ARGS_01,
+                               ARGS_02,
+                               ARGS_03,
+                               ARGS_04,
+                               ARGS_05,
+                               ARGS_06,
+                               ARGS_07,
+                               ARGS_08,
+                               ARGS_09,
+                               ARGS_10,
+                               ARGS_11,
+                               ARGS_12,
+                               ARGS_13)>::Invoker *
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::invoker() const
+{
+    return reinterpret_cast<Invoker*>(d_invoker_p);
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
@@ -10850,6 +11886,43 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template<class ALLOC>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::Function_Imp(const ALLOC& alloc)
+{
+    setInvoker(NULL);
+
+    typedef Function_AllocTraits<ALLOC> Traits;
+    initRep(0, typename Traits::Type(alloc), typename Traits::Category());
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
@@ -11126,6 +12199,41 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template<class ALLOC>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::Function_Imp(const ALLOC&    alloc,
+                                              const Function_Imp& other)
+{
+    copyInit(alloc, other);
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
@@ -11388,6 +12496,40 @@ bsl::Function_Imp<RET(ARGS_01,
     initFromTarget(&func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template<class FUNC, class ALLOC>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::Function_Imp(const ALLOC& alloc, FUNC func)
+{
+    initFromTarget(&func, alloc);
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -11847,6 +12989,55 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template<class FUNC, class ALLOC>
+inline void
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::initFromTarget(FUNC *func, const ALLOC& alloc)
+{
+    typedef Function_AllocTraits<ALLOC> AllocTraits;
+
+    setInvoker(invokerForFunc(*func));
+
+    std::size_t sooFuncSize = invoker() ? Soo::SooFuncSize<FUNC>::VALUE : 0;
+
+    initRep(sooFuncSize, typename AllocTraits::Type(alloc),
+            typename AllocTraits::Category());
+
+    if (invoker()) {
+        d_funcManager_p = getFunctionManager<FUNC>();
+        d_funcManager_p(e_MOVE_CONSTRUCT, this, func);
+    }
+    else {
+        d_funcManager_p = NULL;
+    }
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
@@ -12123,6 +13314,41 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::Function_Imp(
+                            BloombergLP::bslmf::MovableRef<Function_Imp> other)
+{
+    Function_Imp& lvalue = other;
+    moveInit(lvalue);
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
@@ -12528,6 +13754,51 @@ bsl::Function_Imp<RET(ARGS_01,
     }
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template <class ALLOC>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::Function_Imp(
+    const ALLOC&                                 alloc,
+    BloombergLP::bslmf::MovableRef<Function_Imp> other)
+{
+    typedef Function_AllocTraits<ALLOC> AllocTraits;
+
+    Function_Imp& lvalue = other;
+
+    if (lvalue.equalAlloc(alloc, typename AllocTraits::Category())) {
+        moveInit(lvalue);
+    }
+    else {
+        copyInit(typename AllocTraits::Type(alloc), lvalue);
+    }
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -12843,6 +14114,44 @@ bsl::Function_Imp<RET(ARGS_01,
     }
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::~Function_Imp()
+{
+    BSLS_ASSERT(invoker() || ! d_funcManager_p);
+    BSLS_ASSERT(d_allocator_p);
+
+    if (d_funcManager_p) {
+        d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
+    }
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -13198,6 +14507,54 @@ bsl::Function_Imp<RET(ARGS_01,
     return *this;
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>&
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::operator=(const Function_Imp& rhs)
+{
+    Function_Rep::assignRep(e_COPY_CONSTRUCT, const_cast<Function_Imp*>(&rhs));
+
+    return *this;
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -13631,6 +14988,60 @@ operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
     return *this;
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>& bsl::Function_Imp<RET(ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08,
+                                                       ARGS_09,
+                                                       ARGS_10,
+                                                       ARGS_11,
+                                                       ARGS_12,
+                                                       ARGS_13)>::
+operator=(BloombergLP::bslmf::MovableRef<Function_Imp> rhs)
+{
+    Function_Imp& lvalue = rhs;
+    if (d_allocManager_p(e_IS_EQUAL, this, lvalue.d_allocator_p).asSize_t()) {
+        this->swap(lvalue);
+    }
+    else {
+        Function_Rep::assignRep(e_MOVE_CONSTRUCT, &lvalue);
+    }
+
+    return *this;
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -14104,13 +15515,70 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template<class FUNC>
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>&
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::operator=(
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
+{
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    if (bsl::is_rvalue_reference<BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)
+                                 >::value) {
+        assignTarget(e_MOVE_CONSTRUCT, &func);
+    }
+    else
+#endif
+    {
+        assignTarget(e_COPY_CONSTRUCT, &func);
+    }
+    return *this;
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 template <class RET>
 template<class FUNC>
 inline
 void bsl::Function_Imp<RET()>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14140,7 +15608,7 @@ template <class RET, class ARGS_01>
 template<class FUNC>
 inline
 void bsl::Function_Imp<RET(ARGS_01)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14172,7 +15640,7 @@ template<class FUNC>
 inline
 void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_02)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14206,7 +15674,7 @@ inline
 void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_02,
                            ARGS_03)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14242,7 +15710,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_02,
                            ARGS_03,
                            ARGS_04)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14280,7 +15748,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_03,
                            ARGS_04,
                            ARGS_05)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14320,7 +15788,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_04,
                            ARGS_05,
                            ARGS_06)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14362,7 +15830,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_05,
                            ARGS_06,
                            ARGS_07)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14406,7 +15874,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_06,
                            ARGS_07,
                            ARGS_08)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14452,7 +15920,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_07,
                            ARGS_08,
                            ARGS_09)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14500,7 +15968,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_08,
                            ARGS_09,
                            ARGS_10)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14550,7 +16018,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_09,
                            ARGS_10,
                            ARGS_11)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14602,7 +16070,7 @@ void bsl::Function_Imp<RET(ARGS_01,
                            ARGS_10,
                            ARGS_11,
                            ARGS_12)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
@@ -14626,6 +16094,60 @@ void bsl::Function_Imp<RET(ARGS_01,
     setInvoker(invoker_p);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+template<class FUNC>
+inline
+void bsl::Function_Imp<RET(ARGS_01,
+                           ARGS_02,
+                           ARGS_03,
+                           ARGS_04,
+                           ARGS_05,
+                           ARGS_06,
+                           ARGS_07,
+                           ARGS_08,
+                           ARGS_09,
+                           ARGS_10,
+                           ARGS_11,
+                           ARGS_12,
+                           ARGS_13)>::assignTarget(ManagerOpCode  moveOrCopy,
+                                                   FUNC          *func)
+{
+    Function_Rep tempRep;
+
+    typedef typename bsl::remove_const<FUNC>::type FuncType;
+
+    Invoker *invoker_p = invokerForFunc(*func);
+    tempRep.d_funcManager_p = invoker_p ? getFunctionManager<FuncType>() :NULL;
+
+    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
+
+    if (tempRep.d_funcManager_p) {
+        FuncType *funcAddr = const_cast<FuncType*>(func);
+        tempRep.d_funcManager_p(moveOrCopy, &tempRep, funcAddr);
+    }
+
+    tempRep.swap(*this);
+    if (tempRep.d_funcManager_p) {
+        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
+    }
+
+    setInvoker(invoker_p);
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 #if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
@@ -14981,6 +16503,54 @@ bsl::Function_Imp<RET(ARGS_01,
     return *this;
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>&
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::operator=(nullptr_t)
+{
+    setInvoker(NULL);
+    makeEmpty();
+    return *this;
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
 
 
@@ -15587,6 +17157,87 @@ RET bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+RET bsl::Function_Imp<RET(ARGS_01,
+                          ARGS_02,
+                          ARGS_03,
+                          ARGS_04,
+                          ARGS_05,
+                          ARGS_06,
+                          ARGS_07,
+                          ARGS_08,
+                          ARGS_09,
+                          ARGS_10,
+                          ARGS_11,
+                          ARGS_12,
+                          ARGS_13)>::operator()(ARGS_01 args_01,
+                                                ARGS_02 args_02,
+                                                ARGS_03 args_03,
+                                                ARGS_04 args_04,
+                                                ARGS_05 args_05,
+                                                ARGS_06 args_06,
+                                                ARGS_07 args_07,
+                                                ARGS_08 args_08,
+                                                ARGS_09 args_09,
+                                                ARGS_10 args_10,
+                                                ARGS_11 args_11,
+                                                ARGS_12 args_12,
+                                                ARGS_13 args_13) const
+{
+#ifdef BDE_BUILD_TARGET_EXC
+
+    if (invoker()) {
+        return invoker()(this, args_01,
+                               args_02,
+                               args_03,
+                               args_04,
+                               args_05,
+                               args_06,
+                               args_07,
+                               args_08,
+                               args_09,
+                               args_10,
+                               args_11,
+                               args_12,
+                               args_13);
+    }
+    else {
+        BSLS_THROW(bad_function_call());
+    }
+
+#else
+    BSLS_ASSERT_OPT(invoker());
+    return invoker()(this, args_01,
+                           args_02,
+                           args_03,
+                           args_04,
+                           args_05,
+                           args_06,
+                           args_07,
+                           args_08,
+                           args_09,
+                           args_10,
+                           args_11,
+                           args_12,
+                           args_13);
+#endif
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -15839,6 +17490,39 @@ bsl::Function_Imp<RET(ARGS_01,
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+inline
+bsl::Function_Imp<RET(ARGS_01,
+                      ARGS_02,
+                      ARGS_03,
+                      ARGS_04,
+                      ARGS_05,
+                      ARGS_06,
+                      ARGS_07,
+                      ARGS_08,
+                      ARGS_09,
+                      ARGS_10,
+                      ARGS_11,
+                      ARGS_12,
+                      ARGS_13)>::operator bool() const BSLS_NOTHROW_SPEC
+{
+    return invoker();
+}
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
 #endif
 
 #else
@@ -16072,7 +17756,7 @@ template <class RET, class... ARGS>
 template<class FUNC>
 inline
 void bsl::Function_Imp<RET(ARGS...)>::assignTarget(ManagerOpCode  moveOrCopy,
-                                               FUNC          *func)
+                                                   FUNC          *func)
 {
     Function_Rep tempRep;
 
