@@ -22,6 +22,9 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bdlb_string.h>
 #include <bdls_filesystemutil.h>
 
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -991,8 +994,7 @@ class FrameRec {
     bool                    d_isSymbolResolved;
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(u::FrameRec,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(u::FrameRec, bslma::UsesBslmaAllocator);
 
     // CREATORS
     FrameRec(const void            *address,

@@ -13,6 +13,11 @@
 #include <bslim_testutil.h>
 
 #include <bslalg_hastrait.h>
+
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisemoveable.h>
+
 #include <bsl_iostream.h>
 
 #include <bsl_cstdlib.h>
@@ -225,10 +230,8 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithNoTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<my_ClassWithNoTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_ClassWithNoTraits>::value);
 
         if (verbose) cout << "\tChoice types." << endl;
 
@@ -242,10 +245,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<
+                                        my_ClassWithBasicChoiceTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<
+                                        my_ClassWithBasicChoiceTraits>::value);
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -257,10 +260,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<
+                                   my_ClassWithBasicChoiceAllocTraits>::value);
+        ASSERT(  bslma::UsesBslmaAllocator<
+                                   my_ClassWithBasicChoiceAllocTraits>::value);
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -272,10 +275,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicChoiceBitwiseTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<
+                                 my_ClassWithBasicChoiceBitwiseTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<
+                                 my_ClassWithBasicChoiceBitwiseTraits>::value);
 
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -287,10 +290,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicChoiceAllocBitwiseTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<
+                            my_ClassWithBasicChoiceAllocBitwiseTraits>::value);
+        ASSERT(  bslma::UsesBslmaAllocator<
+                            my_ClassWithBasicChoiceAllocBitwiseTraits>::value);
 
         if (verbose) cout << "\tSequence types." << endl;
 
@@ -304,10 +307,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<
+                                      my_ClassWithBasicSequenceTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<
+                                      my_ClassWithBasicSequenceTraits>::value);
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -319,10 +322,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<
+                                 my_ClassWithBasicSequenceAllocTraits>::value);
+        ASSERT(  bslma::UsesBslmaAllocator<
+                                 my_ClassWithBasicSequenceAllocTraits>::value);
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -334,10 +337,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceBitwiseTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<
+                               my_ClassWithBasicSequenceBitwiseTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<
+                               my_ClassWithBasicSequenceBitwiseTraits>::value);
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -349,10 +352,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicSequenceAllocBitwiseTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<
+                          my_ClassWithBasicSequenceAllocBitwiseTraits>::value);
+        ASSERT(  bslma::UsesBslmaAllocator<
+                          my_ClassWithBasicSequenceAllocBitwiseTraits>::value);
 
         if (verbose) cout << "\tEnum types." << endl;
 
@@ -366,10 +369,8 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_EnumWithNoTraits::Value,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_EnumWithNoTraits::Value,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<my_EnumWithNoTraits::Value>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_EnumWithNoTraits::Value>::value);
 
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -381,10 +382,8 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_EnumWithBasicEnumTraits::Value,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<my_EnumWithBasicEnumTraits::Value>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_EnumWithBasicEnumTraits::Value>::value);
 
         if (verbose) cout << "\tCustomized types." << endl;
 
@@ -398,10 +397,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<
+                                my_ClassWithBasicCustomizedTypeTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<
+                                my_ClassWithBasicCustomizedTypeTraits>::value);
 
         ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
                                    bdlat_TypeTraitBasicChoice>::VALUE));
@@ -413,10 +412,10 @@ int main(int argc, char *argv[])
                                    bdlat_TypeTraitBasicSequence>::VALUE));
         ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
                                    bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(! (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
-                                   bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<my_ClassWithBasicCustomizedTypeAllocTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(! bslmf::IsBitwiseMoveable<
+                           my_ClassWithBasicCustomizedTypeAllocTraits>::value);
+        ASSERT(  bslma::UsesBslmaAllocator<
+                           my_ClassWithBasicCustomizedTypeAllocTraits>::value);
 
         ASSERT(! (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
@@ -433,12 +432,10 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<
                                   my_ClassWithBasicCustomizedTypeBitwiseTraits,
                                   bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<
-                                  my_ClassWithBasicCustomizedTypeBitwiseTraits,
-                                  bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(! (bslalg::HasTrait<
-                                 my_ClassWithBasicCustomizedTypeBitwiseTraits,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<
+                         my_ClassWithBasicCustomizedTypeBitwiseTraits>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<
+                         my_ClassWithBasicCustomizedTypeBitwiseTraits>::value);
 
         ASSERT(! (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
@@ -455,12 +452,10 @@ int main(int argc, char *argv[])
         ASSERT(  (bslalg::HasTrait<
                              my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
                              bdlb::TypeTraitHasPrintMethod>::VALUE));
-        ASSERT(  (bslalg::HasTrait<
-                             my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
-                             bslalg::TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT(  (bslalg::HasTrait<
-                             my_ClassWithBasicCustomizedTypeAllocBitwiseTraits,
-                             bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        ASSERT(  bslmf::IsBitwiseMoveable<
+                    my_ClassWithBasicCustomizedTypeAllocBitwiseTraits>::value);
+        ASSERT(  bslma::UsesBslmaAllocator<
+                    my_ClassWithBasicCustomizedTypeAllocBitwiseTraits>::value);
 
       } break;
       default: {

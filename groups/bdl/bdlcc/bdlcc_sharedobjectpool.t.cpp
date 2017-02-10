@@ -29,6 +29,9 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_spinlock.h>
 #include <bsls_stopwatch.h>
@@ -547,8 +550,8 @@ struct ConstructorTestHelp1a
    {}
 
    // TRAITS
-   BSLALG_DECLARE_NESTED_TRAITS(ConstructorTestHelp1a,
-                                bslalg::TypeTraitUsesBslmaAllocator);
+   BSLMF_NESTED_TRAIT_DECLARATION(ConstructorTestHelp1a,
+                                  bslma::UsesBslmaAllocator);
 
    // ACCESSORS
    void reset();
