@@ -312,7 +312,7 @@ void aSsErT(bool b, const char *s, int i)
 //              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature

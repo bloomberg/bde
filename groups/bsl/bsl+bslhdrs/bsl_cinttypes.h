@@ -17,6 +17,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -32,6 +36,10 @@ namespace bsl {
     using native_std::wcstoumax;
     using native_std::imaxdiv_t;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+    using native_std::abs;
+    using native_std::div;
+#endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 }  // close package namespace
 
 #endif
