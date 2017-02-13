@@ -1063,7 +1063,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
             bsl::size_t pos;
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
                 TestPostEvictionCallback callback(&VALUES, &pos, 1, tj);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 int rc = mX.popFront();
                 ASSERTV(rc == 0);
@@ -1080,7 +1084,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
                 }
             }
             TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
-            mX.setPostEvictionCallback(callback);
+
+            typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                PostEvictionCallback
+                callbackFunc (bsl::allocator_arg, &scratch, callback);
+            mX.setPostEvictionCallback(callbackFunc);
             int rc = mX.popFront();
             ASSERTV(0 != rc);
             ASSERTV(0 == mX.size());
@@ -1137,7 +1145,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 
             bsl::size_t              pos;
             TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
-            mX.setPostEvictionCallback(callback);
+
+            typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                PostEvictionCallback
+                callbackFunc (bsl::allocator_arg, &scratch, callback);
+            mX.setPostEvictionCallback(callbackFunc);
             mX.clear();
             callback.assertEnd();
             {
@@ -1214,7 +1226,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase6()
                 }
                 bsl::size_t              pos;
                 TestPostEvictionCallback callback(&VALUES, &pos, 1, tj);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 ASSERTV(LENGTH == X.size());
                 int rc = mX.erase(VALUES[tj].first);
@@ -1333,7 +1349,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 1, 1, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     callback.assertEnd();
@@ -1342,7 +1362,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 1, 1, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1354,7 +1378,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 1, 2, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1364,7 +1392,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 1, 2, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 2, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1377,7 +1409,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 1, 3, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1388,7 +1424,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 1, 3, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 3, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1402,7 +1442,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 2, 2, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1412,7 +1456,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 2, 2, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1425,7 +1473,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 2, 3, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1436,7 +1488,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 2, 3, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 2, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1450,7 +1506,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 3, 3, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 0, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1461,7 +1521,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                     Obj                      mX(policy, 3, 3, &scratch);
                     bsl::size_t              pos;
                     TestPostEvictionCallback callback(&VALUES, &pos, 1, ti);
-                    mX.setPostEvictionCallback(callback);
+
+                    typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                        PostEvictionCallback
+                        callbackFunc (bsl::allocator_arg, &scratch, callback);
+                    mX.setPostEvictionCallback(callbackFunc);
 
                     mX.insert(VALUES[ti].first, VALUES[ti].second);
                     mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1483,7 +1547,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                 bsl::size_t              indexes[] = { ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 1, 0,
                                                   indexes);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
 
                 typename Obj::ValuePtrType ptr;
@@ -1502,7 +1570,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                 bsl::size_t              indexes[] = { ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 1, 0,
                                                   indexes);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
 
@@ -1524,7 +1596,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                 bsl::size_t              indexes[] = { ti + 1, ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 2, 0,
                                                   indexes);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
                 mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1545,7 +1621,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                 bsl::size_t              indexes[] = { ti, ti + 1 };
                 TestPostEvictionCallback callback(&VALUES, &pos, 2, 0,
                                                   indexes);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
                 mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1568,7 +1648,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                 bsl::size_t              indexes[] = { ti + 2,  ti + 1, ti };
                 TestPostEvictionCallback callback(&VALUES, &pos, 3, 0,
                                                   indexes);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
                 mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -1594,7 +1678,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
                 bsl::size_t              indexes[] = { ti, ti + 1, ti + 2 };
                 TestPostEvictionCallback callback(&VALUES, &pos, 3, 0,
                                                   indexes);
-                mX.setPostEvictionCallback(callback);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
 
                 mX.insert(VALUES[ti].first, VALUES[ti].second);
                 mX.insert(VALUES[ti + 1].first, VALUES[ti + 1].second);
@@ -2258,7 +2346,11 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase1()
 
         bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0);
-        mX.setPostEvictionCallback(callback);
+
+        typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+            PostEvictionCallback
+            callbackFunc (bsl::allocator_arg, &scratch, callback);
+        mX.setPostEvictionCallback(callbackFunc);
 
         mX.insert(VALUES[0].first, VALUES[0].second);
         mX.insert(VALUES[1].first, VALUES[1].second);
@@ -2282,7 +2374,10 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase1()
         bsl::size_t              indexes[] = { 0, 2, 3 };
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0, indexes);
 
-        mX.setPostEvictionCallback(callback);
+        typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+            PostEvictionCallback
+            callbackFunc (bsl::allocator_arg, &scratch, callback);
+        mX.setPostEvictionCallback(callbackFunc);
 
         mX.insert(VALUES[0].first, VALUES[0].second);
         mX.insert(VALUES[1].first, VALUES[1].second);
@@ -2316,7 +2411,10 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase1()
         bsl::size_t              indexes[] = { 0, 1, 2 };
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0, indexes);
 
-        mX.setPostEvictionCallback(callback);
+        typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+            PostEvictionCallback
+            callbackFunc (bsl::allocator_arg, &scratch, callback);
+        mX.setPostEvictionCallback(callbackFunc);
 
         mX.insert(VALUES[0].first, VALUES[0].second);
         mX.insert(VALUES[1].first, VALUES[1].second);
@@ -2339,7 +2437,10 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase1()
         bsl::size_t              indexes[] = { 0, 1, 2 };
         TestPostEvictionCallback callback(&VALUES, &pos, 3, 0, indexes);
 
-        mX.setPostEvictionCallback(callback);
+        typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+            PostEvictionCallback
+            callbackFunc (bsl::allocator_arg, &scratch, callback);
+        mX.setPostEvictionCallback(callbackFunc);
 
         mX.insert(VALUES[0].first, VALUES[0].second);
         mX.insert(VALUES[1].first, VALUES[1].second);

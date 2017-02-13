@@ -271,6 +271,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ALLOCATORARGT
+#include <bslmf_allocatorargt.h>
+#endif
+
 //#ifndef INCLUDED_BSLMT_READERWRITERLOCK
 //#include <bslmt_readerwriterlock.h>
 //#endif
@@ -537,7 +541,8 @@ class Cache {
         // post-eviction callback for the removed item.  Return 0 on success
         // and 1 if this cache is empty.
 
-    void setPostEvictionCallback(PostEvictionCallback postEvictionCallback);
+    void setPostEvictionCallback(
+                             const PostEvictionCallback& postEvictionCallback);
         // Set the post-eviction callback to the specified
         // 'postEvictionCallback'.  The post-eviction callback is invoked for
         // each item evicted or removed from this cache.
@@ -634,6 +639,7 @@ Cache<KEYTYPE, VALUE, HASH, EQUAL>::Cache(bslma::Allocator *basicAllocator)
 , d_evictionPolicy(CacheEvictionPolicy::e_LRU)
 , d_lowWatermark(bsl::numeric_limits<bsl::size_t>::max())
 , d_highWatermark(bsl::numeric_limits<bsl::size_t>::max())
+, d_postEvictionCallback(bsl::allocator_arg, d_allocator_p)
 {
 }
 
@@ -649,6 +655,7 @@ Cache<KEYTYPE, VALUE, HASH, EQUAL>::Cache(
 , d_evictionPolicy(evictionPolicy)
 , d_lowWatermark(lowWatermark)
 , d_highWatermark(highWatermark)
+, d_postEvictionCallback(bsl::allocator_arg, d_allocator_p)
 {
     BSLS_ASSERT_SAFE(lowWatermark <= highWatermark);
     BSLS_ASSERT_SAFE(1 <= lowWatermark);
@@ -669,6 +676,7 @@ Cache<KEYTYPE, VALUE, HASH, EQUAL>::Cache(
 , d_evictionPolicy(evictionPolicy)
 , d_lowWatermark(lowWatermark)
 , d_highWatermark(highWatermark)
+, d_postEvictionCallback(bsl::allocator_arg, d_allocator_p)
 {
     BSLS_ASSERT_SAFE(lowWatermark <= highWatermark);
     BSLS_ASSERT_SAFE(1 <= lowWatermark);
@@ -865,7 +873,7 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::popFront()
 
 template <class KEYTYPE, class VALUE, class HASH, class EQUAL>
 void Cache<KEYTYPE, VALUE, HASH, EQUAL>::setPostEvictionCallback(
-                                     PostEvictionCallback postEvictionCallback)
+                              const PostEvictionCallback& postEvictionCallback)
 {
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
     d_postEvictionCallback = postEvictionCallback;
