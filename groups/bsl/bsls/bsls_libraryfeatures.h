@@ -277,7 +277,7 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING' macro is defined if
-// the *both* of the listed conditions are true:
+// *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -298,7 +298,7 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API'
 ///-------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API' is defined if
-// the *both* of the listed conditions are true:
+// *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -319,7 +319,7 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES'
 ///--------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES' macro is
-// defined if the *both* of the listed conditions are true:
+// defined if *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -382,15 +382,41 @@ BSLS_IDENT("$Id: $")
 //:   o clang 3.0
 //:   o MSVC 2015
 //
+///'BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS'
+///---------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS' macro is
+// defined if *both* of the listed conditions are true:
+// defined if the '<atomic>' header provided by the native standard library
+// provides type aliases for all of the following precise bit-width atomic types:
+//
+//: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
+//:
+//: o The following type aliases are provided by the native standard library in
+//:   the '<atomic>' header:
+//:   o atomic_int8_t;
+//:   o atomic_int16_t;
+//:   o atomic_int32_t;
+//:   o atomic_int64_t;
+//:   o atomic_uint8_t;
+//:   o atomic_uint16_t;
+//:   o atomic_uint32_t;
+//:   o atomic_uint64_t;
+//:   o atomic_intptr_t;
+//:   o atomic_uintptr_t;
+//
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o MSVC 2013
+//
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' is defined if
-// if the *both* of the listed conditions are true:
+// if *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
 //: o The following functions are provided by the native standard library in
-//:   '<cstdlib>':
+//:   the '<cstdlib>' header:
 //:
 //: o '_Exit'
 //: o 'quick_exit'
@@ -537,6 +563,7 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     #endif
@@ -559,6 +586,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+    //  #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
@@ -578,6 +606,7 @@ BSLS_IDENT("$Id: $")
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 #endif
 
@@ -600,6 +629,7 @@ BSLS_IDENT("$Id: $")
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 #endif
 
@@ -612,6 +642,7 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
             // Note that 'unique_ptr' appears as early as version 1600 (MSVC
             // 2010) 'BSLS_COMPILER_FEATURES_HAS_RVALUE_REFERENCES', also

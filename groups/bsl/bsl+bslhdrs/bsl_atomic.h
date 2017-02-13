@@ -106,7 +106,9 @@ namespace bsl {
     using native_std::atomic_ptrdiff_t;
     using native_std::atomic_intmax_t;
     using native_std::atomic_uintmax_t;
+#endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
     using native_std::atomic_int8_t;
     using native_std::atomic_int16_t;
     using native_std::atomic_int32_t;
