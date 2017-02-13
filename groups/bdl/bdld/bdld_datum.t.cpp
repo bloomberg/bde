@@ -458,21 +458,35 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     elements->push_back(Datum::createDate(Date(2016, 1, 1)));
     elements->push_back(Datum::createDatetime(Datetime(), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 1, 1), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 2), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 1, 2), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 2, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 2, 1), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 1, 1, 1, 2, 1, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 2, 1, 1), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 1, 1, 2, 1, 1, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 2, 1, 1, 1), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 1, 2, 1, 1, 1, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 1, 2, 1, 1, 1, 1), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2015, 2, 1, 1, 1, 1, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 1, 2, 1, 1, 1, 1, 1), allocator));
     elements->push_back(
-           Datum::createDatetime(Datetime(2016, 1, 1, 1, 1, 1, 1), allocator));
+        Datum::createDatetime(Datetime(2015, 2, 1, 1, 1, 1, 1, 1), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 1), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 1, 2), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 1, 2, 1), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 1, 1, 1, 2, 1, 1), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 1, 1, 2, 1, 1, 1), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 1, 2, 1, 1, 1, 1), allocator));
+    elements->push_back(
+        Datum::createDatetime(Datetime(2015, 2, 1, 1, 1, 1, 1), allocator));
     elements->push_back(Datum::createDatetimeInterval(
                                   DatetimeInterval(0, 0, 0, 0, 1), allocator));
     elements->push_back(Datum::createDatetimeInterval(
@@ -529,11 +543,12 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     elements->push_back(
                     Datum::createStringRef("0123456789abcdef", 16, allocator));
     elements->push_back(Datum::createTime(Time()));
-    elements->push_back(Datum::createTime(Time(1, 1, 1, 1)));
-    elements->push_back(Datum::createTime(Time(1, 1, 1, 2)));
-    elements->push_back(Datum::createTime(Time(1, 1, 2, 1)));
-    elements->push_back(Datum::createTime(Time(1, 2, 1, 1)));
-    elements->push_back(Datum::createTime(Time(2, 1, 1, 1)));
+    elements->push_back(Datum::createTime(Time(1, 1, 1, 1, 1)));
+    elements->push_back(Datum::createTime(Time(1, 1, 1, 1, 2)));
+    elements->push_back(Datum::createTime(Time(1, 1, 1, 2, 1)));
+    elements->push_back(Datum::createTime(Time(1, 1, 2, 1, 1)));
+    elements->push_back(Datum::createTime(Time(1, 2, 1, 1, 1)));
+    elements->push_back(Datum::createTime(Time(2, 1, 1, 1, 1)));
     elements->push_back(Datum::createUdt(reinterpret_cast<void *>(0x1), 12));
     elements->push_back(Datum::createUdt(reinterpret_cast<void *>(0x2), 12));
     elements->push_back(Datum::createUdt(reinterpret_cast<void *>(0x2), 13));
@@ -1313,7 +1328,7 @@ void BenchmarkSuite::run(int   iterations,
     bdlt::Date aDate(2010, 1, 5);
     BENCHMARK(createDate(aDate), isDate(), theDate(), bdlt::Date);
 
-    bdlt::Time aTime(16, 45, 32, 12);
+    bdlt::Time aTime(16, 45, 32, 12, 425);
     BENCHMARK(createTime(aTime), isTime(), theTime(), bdlt::Time);
 
     bdlt::Datetime aDatetime(9999, 1, 5, 16, 45, 32, 12);
@@ -1480,16 +1495,16 @@ void BenchmarkSuite::runVisit()
 
 void BenchmarkSuite::write(const char *label, double value) const
 {
-    cout << setw(80) << label // justify label for console output readibility
+    cout << setw(80) << label // justify label for console output readability
          << "\t"              // make it easy to copy-paste to Excel
-         << setw(6) << value  // justify value for console output readibility
+         << setw(6) << value  // justify value for console output readability
          << "\n";
 }
 
 void BenchmarkSuite::write(int index, const char *label, double value) const
 {
     cout << setw(2) << index << ')' // justify index and label
-         << setw(77) << label       // for console output readibility
+         << setw(77) << label       // for console output readability
          << "\t"                    // make it easy to copy-paste to Excel
          << setw(6) << value        // justify value for console output
          << "\n";
@@ -2955,6 +2970,10 @@ int main(int argc, char *argv[])
             {
                 const static bdlt::Datetime DATA[] = {
                     Datetime(),
+                    Datetime(1999, 12, 31, 12, 45, 31,  18, 34),
+                    Datetime(2015,  2,  2,  1,  1,  1,   1, 1),
+                    Datetime(2200,  9, 11, 18, 10, 59, 458, 342),
+                    Datetime(9999,  9,  9,  9,  9,  9, 999, 999),
                     Datetime(1999, 12, 31, 12, 45, 31,  18),
                     Datetime(2015,  2,  2,  1,  1,  1,   1),
                     Datetime(2200,  9, 11, 18, 10, 59, 458),
@@ -3470,9 +3489,9 @@ int main(int argc, char *argv[])
             {
                 const static bdlt::Time DATA[] = {
                     Time(),
-                    Time(0, 1, 1, 1),
-                    Time(8, 0, 0, 999),
-                    Time(23, 59, 59, 59),
+                    Time(0, 1, 1, 1, 1),
+                    Time(8, 0, 0, 999, 888),
+                    Time(23, 59, 59, 999, 999),
                 };
 
                 const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
@@ -3989,7 +4008,7 @@ int main(int argc, char *argv[])
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
-            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
 
             const Datum D = Datum::createNull();
 
@@ -7550,11 +7569,15 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Datetime' date type." << endl;
+        if (verbose) cout << "\nTesting 'Datetime' data type." << endl;
         {
             const static bdlt::Datetime DATA[] = {
                 Datetime(),
                 Datetime(1999, 12, 31, 12, 45, 31,  18, 317),
+                Datetime(2015,  2,  2,  1,  1,  1,   1, 1),
+                Datetime(2200,  9, 11, 18, 10, 59, 458, 239),
+                Datetime(9999,  9,  9,  9,  9,  9, 999, 999),
+                Datetime(1999, 12, 31, 12, 45, 31,  18),
                 Datetime(2015,  2,  2,  1,  1,  1,   1),
                 Datetime(2200,  9, 11, 18, 10, 59, 458),
                 Datetime(9999,  9,  9,  9,  9,  9, 999),
@@ -7594,7 +7617,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'DatetimeInterval' date type." << endl;
+        if (verbose) cout << "\nTesting 'DatetimeInterval' data type." << endl;
         {
             const static bdlt::DatetimeInterval DATA[] = {
                 DatetimeInterval(),
@@ -7649,7 +7672,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Decimal64' date type." << endl;
+        if (verbose) cout << "\nTesting 'Decimal64' data type." << endl;
         {
             const static struct {
                 int                d_line;          // line number
@@ -8081,9 +8104,9 @@ int main(int argc, char *argv[])
         {
             const static bdlt::Time DATA[] = {
                 Time(),
-                Time(0, 1, 1, 1),
-                Time(8, 0, 0, 999),
-                Time(23, 59, 59, 59),
+                Time(0, 1, 1, 1, 1),
+                Time(8, 0, 0, 999, 888),
+                Time(23, 59, 59, 999, 999),
             };
 
             const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
@@ -8439,7 +8462,7 @@ int main(int argc, char *argv[])
 { L_,   0,  0, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
 { L_,   0,  0, Datum::createInteger(-18),           "-18"                 NL },
 { L_,   0,  0, Datum::createInteger64(987654, &oa), "987654"              NL },
-{ L_,   0,  0, Datum::createTime(bdlt::Time()),     "24:00:00.000"        NL },
+{ L_,   0,  0, Datum::createTime(bdlt::Time()),     "24:00:00.000000"     NL },
 { L_,  -9, -9, Datum::createUdt(reinterpret_cast<void *>(0x1), 12),  0       },
 // These values have platform-dependant representation
 { L_,  -9, -9, Datum::createDouble(k_DOUBLE_INFINITY),                0      },
@@ -8774,6 +8797,10 @@ int main(int argc, char *argv[])
         {
             const static bdlt::Datetime DATA[] = {
                 Datetime(),
+                Datetime(1999, 12, 31, 12, 45, 31,  18, 123),
+                Datetime(2015,  2,  2,  1,  1,  1,   1, 1),
+                Datetime(2200,  9, 11, 18, 10, 59, 458, 452),
+                Datetime(9999,  9,  9,  9,  9,  9, 999, 999),
                 Datetime(1999, 12, 31, 12, 45, 31,  18),
                 Datetime(2015,  2,  2,  1,  1,  1,   1),
                 Datetime(2200,  9, 11, 18, 10, 59, 458),
@@ -9382,11 +9409,39 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'createTime'." << endl;
         {
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+            {
+                // Testing assumption that 'Time' fits into 48 bits
+                bdlt::Time         time(24);
+                short              s;
+                int                i;
+                bsls::Types::Int64 ll;
+
+                // 24:00:00.000000
+
+                *reinterpret_cast<bdlt::Time *>(&ll) = time;
+                ASSERT(bdld::Datum_Helpers32::storeInt48(ll, &s, &i));
+
+                bsls::Types::Int64 ll2 =
+                                        bdld::Datum_Helpers32::loadInt48(s, i);
+                LOOP2_ASSERT(ll, ll2, ll == ll2);
+
+                // 00:00:00.000000
+
+                time = Time();
+
+                *reinterpret_cast<bdlt::Time *>(&ll) = time;
+                ASSERT(bdld::Datum_Helpers32::storeInt48(ll, &s, &i));
+
+                ll2 = bdld::Datum_Helpers32::loadInt48(s, i);
+                LOOP2_ASSERT(ll, ll2, ll == ll2);
+            }
+#endif
             const static bdlt::Time DATA[] = {
                 Time(),
-                Time(0, 1, 1, 1),
-                Time(8, 0, 0, 999),
-                Time(23, 59, 59, 59),
+                Time(0, 1, 1, 1, 1),
+                Time(8, 0, 0, 999, 888),
+                Time(23, 59, 59, 999, 999),
             };
 
             const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);

@@ -750,7 +750,7 @@ BSLMF_ASSERT(sizeof(bdlt::Datetime) <= sizeof(void*));
 
 // Platform independent sanity checks
 BSLMF_ASSERT(sizeof(bdlt::Date) <= sizeof(int));
-BSLMF_ASSERT(sizeof(bdlt::Time) <= sizeof(int));
+BSLMF_ASSERT(sizeof(bdlt::Time) <= sizeof(long long));
 BSLMF_ASSERT(sizeof(Datum_MapHeader) <= sizeof(DatumMapEntry));
 
 // CLASS METHODS
