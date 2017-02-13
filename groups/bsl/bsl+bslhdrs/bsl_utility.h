@@ -31,9 +31,19 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
     // Import selected symbols into bsl namespace.  Note that 'pair' is
-    // provided by 'bslstl_pair.h' (but 'make_pair' currently is not):
+    // provided by 'bslstl_pair.h' (but 'make_pair' currently is not).  Aslo
+    // note that 'namespace rel_ops' is provided directly by the bsl prolog
+    // header, so we provide an alias only when NOT included in a
+    // 'BSL_OVERRIDES_STD' mode - the prolog header itself guards against the
+    // dangers of such a (transitive) include path, and as that is one of its
+    // key purposes, we do not provide additional (redundant) guards beyond
+    // checking the build mode itself.
 
+    using native_std::make_pair;
+
+#if !defined(BSL_OVERRIDES_STD)
     namespace rel_ops = native_std::rel_ops;
+#endif  // BSL_OVERRIDES_STD
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     using native_std::declval;
@@ -42,8 +52,6 @@ namespace bsl {
     using native_std::move_if_noexcept;
     using native_std::swap;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-    using native_std::make_pair;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
     using native_std::piecewise_construct;
