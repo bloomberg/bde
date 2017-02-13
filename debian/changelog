@@ -1,10 +1,18 @@
-bsl-internal (3.0.13.0) unstable; urgency=low
+bsl-internal (3.0.14.0) unstable; urgency=low
 
+  * c0916af Merge pull request #990 from mgiroux/review/bump-version-to-3.0.14
+  * 7845ba6 bump patch version to 3.0.14
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 13 Feb 2017 13:03:42 -0500
+
+bsl-internal (3.0.13.0) git; urgency=low
+
+  * 8fc40b5 Changelog for version 3.0.13.0
   * 2858496 Merge pull request #965 from mgiroux/review/bump-patchversion-for-3.0.13
   * 91cd005 bump patchversion to 3.0.13
   * 7d7ca32 Merge pull request #955 from jmendelsohn4/drqs-95303426/day_count_conventions_contract_violation_20170119
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 24 Jan 2017 11:56:40 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 30 Jan 2017 09:14:01 -0500
 
 bsl-internal (3.0.12.0) git; urgency=low
 
