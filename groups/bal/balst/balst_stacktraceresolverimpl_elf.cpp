@@ -77,6 +77,15 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
+# define BALST_COMPILER_DEFECT_NO_TYPEDEF_DESTRUCTORS 1
+// The Sun CC 12.4 compiler has a problem when the spelling of the name of the
+// destructor does not exactly match the class name.  One of the implementation
+// techniques in this file involves using a typedef name quite widely, which
+// includes a case of defining a destructor.
+#endif
+
+
 // 'u_' PREFIX:
 // We have many types, static functions and macros defined in this file.  Prior
 // to when we were using package namespaces, all global types and functions
@@ -2940,7 +2949,13 @@ u::StackTraceResolver::StackTraceResolverImpl(
 {
 }
 
+inline
+#if defined(BALST_COMPILER_DEFECT_NO_TYPEDEF_DESTRUCTORS)
+balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>::
+                                                      ~StackTraceResolverImpl()
+#else
 u::StackTraceResolver::~StackTraceResolverImpl()
+#endif
 {
     // Don't free anything, the heap bypass allocator will free it all when
     // it's destroyed.

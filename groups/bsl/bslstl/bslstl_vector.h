@@ -6066,6 +6066,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
           vector<VALUE_TYPE *, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
     typedef Vector_Imp<void *, BaseAlloc>                      Base;
@@ -6207,6 +6208,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
           vector<const VALUE_TYPE *, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;

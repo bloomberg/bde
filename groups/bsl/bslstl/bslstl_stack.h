@@ -304,8 +304,21 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_PLATFORM_CMP_SUN)
+# define BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE 1
+    // The Sun compiler will generate the implicit move operations in addition
+    // to the user-defined move operations declared below using
+    // 'bslmf::MovableRef', which leads to compiler errors for duplicate
+    // declarations and definitions.  Last confirmed with Sun CC 12.4.
 #endif
 
 namespace bsl {
@@ -369,10 +382,38 @@ class stack {
         BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
 
     // CREATORS
-    stack();
+    explicit stack();
         // Create an empty stack.  No allocator will be provided to the
         // underlying container.  That container's memory allocation will be
         // provided by the default allocator of its type.
+
+    stack(const stack& original);
+        // Create a stack having the value of the specified 'original'.  The
+        // currently installed default allocator is used to supply memory.
+
+#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
+    stack(BloombergLP::bslmf::MovableRef<stack> original);
+#else
+    stack(stack&& original);
+#endif
+        // Create a stack having the value of the specified 'original' by
+        // moving the contents of 'original' to the new stack.  The allocator
+        // associated with 'original' is propagated for use in the new stack.
+        // 'original' is left in a valid but unspecified state.
+
+    explicit
+    stack(const CONTAINER& container);
+        // Create a stack whose underlying container has the value of the
+        // specified 'container'.  The currently installed default allocator is
+        // used to supply memory.
+
+    explicit
+    stack(BloombergLP::bslmf::MovableRef<CONTAINER> container);
+        // Create a stack whose underlying container has the value of the
+        // specified 'container' (on entry) by moving the contents of
+        // 'container' to the new stack.  The allocator associated with
+        // 'container' is propagated for use in the new stack.  'container' is
+        // left in a valid but unspecified state.
 
     template <class ALLOCATOR>
     explicit
@@ -382,12 +423,6 @@ class stack {
         // Create an empty stack, and use the specified 'basicAllocator' to
         // supply memory.  If 'CONTAINER::allocator_type' does not exist, this
         // constructor may not be used.
-
-    explicit
-    stack(const CONTAINER& container);
-        // Create a stack whose underlying container has the value of the
-        // specified 'container'.  The currently installed default allocator is
-        // used to supply memory.
 
     template <class ALLOCATOR>
     stack(const CONTAINER& container,
@@ -399,10 +434,6 @@ class stack {
         // supply memory.  If 'CONTAINER::allocator_type' does not exist, this
         // constructor may not be used.
 
-    stack(const stack& original);
-        // Create a stack having the value of the specified 'original'.  The
-        // currently installed default allocator is used to supply memory.
-
     template <class ALLOCATOR>
     stack(const stack&     original,
           const ALLOCATOR& basicAllocator,
@@ -412,14 +443,6 @@ class stack {
         // and use the specified 'basicAllocator' to supply memory.  If
         // 'CONTAINER::allocator_type' does not exist, this constructor may not
         // be used.
-
-    explicit
-    stack(BloombergLP::bslmf::MovableRef<CONTAINER> container);
-        // Create a stack whose underlying container has the value of the
-        // specified 'container' (on entry) by moving the contents of
-        // 'container' to the new stack.  The allocator associated with
-        // 'container' is propagated for use in the new stack.  'container' is
-        // left in a valid but unspecified state.
 
     template <class ALLOCATOR>
     stack(BloombergLP::bslmf::MovableRef<CONTAINER> container,
@@ -436,15 +459,12 @@ class stack {
         // 'CONTAINER::allocator_type' does not exist, this constructor may not
         // be used.
 
-    explicit
-    stack(BloombergLP::bslmf::MovableRef<stack> original);
-        // Create a stack having the value of the specified 'original' by
-        // moving the contents of 'original' to the new stack.  The allocator
-        // associated with 'original' is propagated for use in the new stack.
-        // 'original' is left in a valid but unspecified state.
-
     template <class ALLOCATOR>
+#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
     stack(BloombergLP::bslmf::MovableRef<stack> original,
+#else
+    stack(stack&&                               original,
+#endif
           const ALLOCATOR&                      basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
@@ -459,12 +479,16 @@ class stack {
         // not exist, this constructor may not be used.
 
     // MANIPULATORS
-    stack& operator=(const stack& rhs)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+    stack& operator=(const stack& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    stack& operator=(BloombergLP::bslmf::MovableRef<stack> rhs);
+#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
+    stack& operator=(BloombergLP::bslmf::MovableRef<stack> rhs)
+#else
+    stack& operator=(stack&& rhs)
+#endif
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  The
         // contents of 'rhs' are moved to this stack using the move-assignment
@@ -747,19 +771,30 @@ stack<VALUE, CONTAINER>::stack()
 }
 
 template <class VALUE, class CONTAINER>
+inline
+stack<VALUE, CONTAINER>::stack(const CONTAINER& container)
+: c(container)
+{
+}
+
+template <class VALUE, class CONTAINER>
+inline
+#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
+stack<VALUE, CONTAINER>::stack(BloombergLP::bslmf::MovableRef<stack> original)
+#else
+stack<VALUE, CONTAINER>::stack(stack &&original)
+#endif
+: c(MoveUtil::move(MoveUtil::access(original).c))
+{
+}
+
+template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(const ALLOCATOR& basicAllocator,
            typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type *)
 : c(basicAllocator)
-{
-}
-
-template <class VALUE, class CONTAINER>
-inline
-stack<VALUE, CONTAINER>::stack(const CONTAINER& container)
-: c(container)
 {
 }
 
@@ -815,17 +850,14 @@ stack<VALUE, CONTAINER>::stack(
 }
 
 template <class VALUE, class CONTAINER>
-inline
-stack<VALUE, CONTAINER>::stack(BloombergLP::bslmf::MovableRef<stack> original)
-: c(MoveUtil::move(MoveUtil::access(original).c))
-{
-}
-
-template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
+#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
     BloombergLP::bslmf::MovableRef<stack> original,
+#else
+    stack&&                               original,
+#endif
     const ALLOCATOR&                      basicAllocator,
     typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                        ALLOCATOR>::type *)
@@ -845,8 +877,12 @@ stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(const stack& rhs)
 
 template <class VALUE, class CONTAINER>
 inline
+#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
 stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(
                                      BloombergLP::bslmf::MovableRef<stack> rhs)
+#else
+stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(stack&& rhs)
+#endif
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     c = MoveUtil::move(MoveUtil::access(rhs).c);

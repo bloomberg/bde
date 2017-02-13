@@ -84,7 +84,7 @@ struct Struct {};
 
 union  Union {};
 
-class Base {};
+class Base {int *p; };
 
 class Derived : public Base {
 };

@@ -199,6 +199,12 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDDEF
 #endif
 
+#if (__cplusplus < 201103L) && defined(BSLS_PLATFORM_CMP_SUN) \
+  && !defined(BDE_BUILD_TARGET_STLPORT)
+# define BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR 1
+# define BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES 1
+#endif
+
 namespace bsl {
 // Import selected symbols into bsl namespace
 
@@ -236,7 +242,7 @@ using native_std::next;
 using native_std::prev;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
 
 // Sun does not provide 'std::iterator_traits' at all.  We will provide our own
 // in namespace 'bsl'.
@@ -283,7 +289,12 @@ struct iterator_traits<TYPE *> {
     typedef TYPE*                           pointer;
     typedef TYPE&                           reference;
 };
+#else
+// Just use the native version
+using native_std::iterator_traits;
+#endif
 
+#if defined(BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR)
 // Working around a sun compiler bug where 'std::reverse_iterator' takes 6
 // (with 3 default) template arguments instead of 1, which is not standard
 // compliant.  Inherit from 'std::reverse_iterator'.  For reference, the
@@ -593,6 +604,12 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs);
     // unless 'rhs', after incrementing by 'n', is within the bounds of the
     // underlying sequence.  Note that the (template parameter) type 'ITER'
     // shall meet the requirements of random access iterator.
+#else
+// Just use the native version
+using native_std::reverse_iterator;
+#endif
+
+#if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
 
                         // ==========================
                         // struct IteratorDistanceImp
@@ -645,23 +662,19 @@ distance(ITER start, ITER finish);
     // before 'finish' in that sequence.  Note that the (template parameter)
     // type 'ITER' shall meet the requirements of input iterator.
 #else
-
 // Just use the native version
-using native_std::reverse_iterator;
-using native_std::iterator_traits;
 using native_std::distance;
-
 #endif
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+#if defined(BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR)
+
                         // ---------------------------
                         // class bsl::reverse_iterator
                         // ---------------------------
-
-#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
 
 // CREATORS
 template <class ITER>
@@ -900,6 +913,10 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs)
 {
     return rhs.operator+(n);
 }
+
+#endif
+
+#if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
 
                          // --------------------------
                          // struct IteratorDistanceImp

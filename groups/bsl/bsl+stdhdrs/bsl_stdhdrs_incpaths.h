@@ -113,6 +113,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
+# if __cplusplus < 201103
   // Sun CC 5.5 or above
   //
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
@@ -137,6 +138,34 @@ BSLS_IDENT("$Id: $")
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #   endif
+# else
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) <../CC/std/filename>
+
+#   if !defined(BDE_BUILD_TARGET_STLPORT)
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename) \
+                                      <../../CC-gcc/include/c++/4.8.2/filename>
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
+                                      <../../CC-gcc/include/c++/4.8.2/filename>
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
+                                      <../../CC-gcc/include/c++/4.8.2/filename>
+#       define BSL_NATIVE_CPP_C_HEADER(filename) \
+                                      <../../CC-gcc/include/c++/4.8.2/filename>
+#   else
+#       define BSL_NATIVE_SUN_STLPORT_HEADER(filename)                        \
+                                                      <../CC/stlport4/filename>
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#   endif
+#endif
 
 #elif defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_GNU)
 

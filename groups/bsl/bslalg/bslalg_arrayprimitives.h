@@ -444,6 +444,11 @@ BSLS_IDENT("$Id$ $CSID$")
     // xlC has problem removing pointer from function pointer types.
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# define SUN_BUG
+    // Exploring an issue with 'bslmf::MovableRef' and C++11 in CC 12.4.
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -1553,8 +1558,12 @@ struct ArrayPrimitives {
     static void
     insert(typename bsl::allocator_traits<ALLOCATOR>::pointer     toBegin,
            typename bsl::allocator_traits<ALLOCATOR>::pointer     toEnd,
+#ifdef SUN_BUG
+           typename bsl::allocator_traits<ALLOCATOR>::value_type&& value,
+#else
            bslmf::MovableRef<
            typename bsl::allocator_traits<ALLOCATOR>::value_type> value,
+#endif
            ALLOCATOR                                              allocator);
         // Insert the specified 'value' into the array of
         // 'allocator_traits<ALLOCATOR>::value_type' objects at the specified
@@ -2717,6 +2726,26 @@ struct ArrayPrimitives_Imp {
         // '[ last - (middle - first), last)'; note that this cannot throw
         // exceptions.
 
+#ifdef SUN_BUG
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void insert(TARGET_TYPE                               *toBegin,
+                       TARGET_TYPE                               *toEnd,
+                       TARGET_TYPE&&                              value,
+                       ALLOCATOR                                  allocator,
+                       bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *);
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void insert(TARGET_TYPE                               *toBegin,
+                       TARGET_TYPE                               *toEnd,
+                       TARGET_TYPE&&                             value,
+                       ALLOCATOR                                  allocator,
+                       bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *);
+    template <class TARGET_TYPE, class ALLOCATOR>
+    static void insert(TARGET_TYPE                               *toBegin,
+                       TARGET_TYPE                               *toEnd,
+                       TARGET_TYPE&&                              value,
+                       ALLOCATOR                                  allocator,
+                       bslmf::MetaInt<e_NIL_TRAITS>              *);
+#else
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE                               *toBegin,
                        TARGET_TYPE                               *toEnd,
@@ -2735,6 +2764,7 @@ struct ArrayPrimitives_Imp {
                        bslmf::MovableRef<TARGET_TYPE>             value,
                        ALLOCATOR                                  allocator,
                        bslmf::MetaInt<e_NIL_TRAITS>              *);
+#endif
         // These functions follow the 'insert' contract.  Note that if
         // 'TARGET_TYPE' is bit-wise copyable, then this operation is simply
         // 'memmove' followed by 'bitwiseFillN'.  If 'TARGET_TYPE' is bit-wise
@@ -5253,8 +5283,12 @@ inline
 void ArrayPrimitives::insert(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer     toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer     toEnd,
+#ifdef SUN_BUG
+                typename bsl::allocator_traits<ALLOCATOR>::value_type&& value,
+#else
                 bslmf::MovableRef<
                 typename bsl::allocator_traits<ALLOCATOR>::value_type> value,
+#endif
                 ALLOCATOR allocator)
 {
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
@@ -8385,6 +8419,16 @@ void ArrayPrimitives_Imp::erase(TARGET_TYPE                *first,
 
                    // *** 'insert' with 'value' overloads: ***
 
+#ifdef SUN_BUG
+template <class TARGET_TYPE, class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                              *toBegin,
+                          TARGET_TYPE                              *toEnd,
+                          TARGET_TYPE&&                             value,
+                          ALLOCATOR                                 allocator,
+                          bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *)
+#else
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::insert(
@@ -8393,6 +8437,7 @@ void ArrayPrimitives_Imp::insert(
                           bslmf::MovableRef<TARGET_TYPE>            value,
                           ALLOCATOR                                 allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *)
+#endif
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
@@ -8406,6 +8451,15 @@ void ArrayPrimitives_Imp::insert(
                                 (bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS>*)0);
 }
 
+#ifdef SUN_BUG
+template <class TARGET_TYPE, class ALLOCATOR>
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                              *toBegin,
+                          TARGET_TYPE                              *toEnd,
+                          TARGET_TYPE&&                             value,
+                          ALLOCATOR                                 allocator,
+                          bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *)
+#else
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
                           TARGET_TYPE                              *toBegin,
@@ -8413,6 +8467,7 @@ void ArrayPrimitives_Imp::insert(
                           bslmf::MovableRef<TARGET_TYPE>            value,
                           ALLOCATOR                                 allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *)
+#endif
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
@@ -8426,6 +8481,15 @@ void ArrayPrimitives_Imp::insert(
                                 (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0);
 }
 
+#ifdef SUN_BUG
+template <class TARGET_TYPE, class ALLOCATOR>
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                              *toBegin,
+                          TARGET_TYPE                              *toEnd,
+                          TARGET_TYPE&&                             value,
+                          ALLOCATOR                                 allocator,
+                          bslmf::MetaInt<e_NIL_TRAITS>             *)
+#else
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
                           TARGET_TYPE                              *toBegin,
@@ -8433,6 +8497,7 @@ void ArrayPrimitives_Imp::insert(
                           bslmf::MovableRef<TARGET_TYPE>            value,
                           ALLOCATOR                                 allocator,
                           bslmf::MetaInt<e_NIL_TRAITS>             *)
+#endif
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
