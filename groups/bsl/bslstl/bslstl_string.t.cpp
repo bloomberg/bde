@@ -2062,7 +2062,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                 { L_,       maxShortStrList,       maxShortStrSpec },
                 { L_,   exceedsShortStrList,   exceedsShortStrSpec }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         Tam dam(defaultAllocator_p);
 
@@ -2119,7 +2119,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                 { L_,       maxShortStrList,      maxShortStrSpec },
                 { L_,   exceedsShortStrList,  exceedsShortStrSpec }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE        = DATA[ti].d_line;
@@ -2237,7 +2237,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
        { L_,   exceedsShortStrSpec, exceedsShortStrList, exceedsShortStrSpec }
        //-------V
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         Tam dam(defaultAllocator_p);
 
@@ -2428,7 +2428,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
    { L_,  exceedsShortStrSpec,  E, exceedsShortStrList, exceedsShortStrSpec2 }
    //-----------V
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         Tam dam(defaultAllocator_p);
 
@@ -4281,7 +4281,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDEAB"
                     "ABCDEABCDEABCDEABCDEABCDEABCDEABC" }  //  65
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\tTesting substr(pos, n).\n");
     {
@@ -4536,7 +4536,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             // Add further tests below, but note that test will fail if the
             // spec has the pattern in more than two occurrences.
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE    = DATA[i].d_lineNum;
@@ -4765,7 +4765,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             { L_,  "ABCDEABCDE"               },
             { L_,  "AAAABBBBCCCCDDDDEEEE"     }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         static const struct {
             int         d_lineNum;
@@ -4784,7 +4784,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             { L_,  "F",           },
             { L_,  "FGHIJKL",     }
         };
-        const int NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS;
+        enum { NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE    = DATA[i].d_lineNum;
@@ -6230,7 +6230,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         { L_,       30   }
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -6257,7 +6257,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
 #endif
     };
-    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
     for (int replaceMode  = REPLACE_STRING_AT_INDEX;
              replaceMode <= REPLACE_STRING_MODE_LAST;
@@ -7177,7 +7177,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
         { L_,       25   },
         { L_,       30   }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\nTesting 'pop_back' on non-empty strings.\n");
     {
@@ -7890,7 +7890,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
         { L_,       30   }
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\nTesting 'insert'.\n");
 
@@ -8343,7 +8343,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
         { L_,       30   }
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -8370,7 +8370,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
 #endif
     };
-    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
     for (int insertMode  = INSERT_STRING_AT_INDEX;
              insertMode <= INSERT_STRING_MODE_LAST;
@@ -9095,7 +9095,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
         { L_,       40   },
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\nTesting 'append'.\n");
 
@@ -9431,7 +9431,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         { L_,       30   }
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -9458,7 +9458,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
 #endif
     };
-    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
     for (int appendMode = APPEND_STRING;
              appendMode <= APPEND_STRING_MODE_LAST;
@@ -10159,7 +10159,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
                         " and 'const' variants.\n");
@@ -10292,7 +10292,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15()
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\tWithout exception.\n");
     {
@@ -10416,7 +10416,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCDE" }, // 40
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (veryVerbose) printf("\toperator[]\n");
 
@@ -10516,12 +10516,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
     static const size_t EXTEND[] = {
         0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
     };
-    const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+    enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
     static const size_t DATA[] = {
         0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\tTesting 'max_size'.\n");
     {
@@ -10836,7 +10836,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             { L_,       25   },
             { L_,       30   }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) printf("\tUsing 'n' copies of 'value'.\n");
         {
@@ -11320,7 +11320,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
         { L_,       25   },
         { L_,       30   }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -11340,7 +11340,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
         { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
     };
-    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
     {
         const Obj dummy;
@@ -11462,7 +11462,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13InputIterator()
         { L_,       25   },
         { L_,       30   }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -11482,7 +11482,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13InputIterator()
         { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
     };
-    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
     {
         const Obj dummy;
@@ -11602,7 +11602,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,       25   },
         { L_,       30   }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -11626,7 +11626,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
     };
-    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
 
     {
         // Ensure at least the longest test sequence will exceed the short
@@ -11898,7 +11898,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDEAB"
                     "ABCDEABCDEABCDEABCDEABCDEABCDEABC" }  //  65
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\tTesting string(n, c, a = A()).\n");
     {
@@ -12470,7 +12470,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
 #endif
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\tWithout passing in an allocator.\n");
     {
@@ -13135,7 +13135,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
         static const int EXTEND[] = {
             0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
         };
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         for (int fromRef = 0; fromRef < 2; ++fromRef) {
             int uOldLen = -1;
@@ -13263,7 +13263,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             DEFAULT_CAPACITY + 1,
             DEFAULT_CAPACITY * 5
         };
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         int iterationModulus = 1;
         int iteration = 0;
@@ -13380,7 +13380,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             DEFAULT_CAPACITY + 1,
             DEFAULT_CAPACITY * 5
         };
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
@@ -13557,7 +13557,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
     static const int EXTEND[] = {
         0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
     };
-    const int NUM_EXTEND = sizeof(EXTEND) / sizeof(*EXTEND);
+    enum { NUM_EXTEND = sizeof(EXTEND) / sizeof(*EXTEND) };
 
     if (verbose) printf("\nAssign cross product of values "
                         "with varied representations.\n"
@@ -13756,7 +13756,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
             DEFAULT_CAPACITY + 1,
             DEFAULT_CAPACITY * 5
         };
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         int iterationModulus = 1;
         int iteration = 0;
@@ -13940,7 +13940,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
             DEFAULT_CAPACITY + 1,
             DEFAULT_CAPACITY * 5
         };
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
@@ -14263,7 +14263,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
             DEFAULT_CAPACITY * 5
         };
 
-        const int NUM_EXTEND = sizeof(EXTEND) / sizeof(*EXTEND);
+        enum { NUM_EXTEND = sizeof(EXTEND) / sizeof(*EXTEND) };
 
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
@@ -14604,7 +14604,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
             DEFAULT_CAPACITY * 5
         };
 
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         int oldLen = -1;
         for (int ti = 0; SPECS[ti]; ++ti) {
@@ -15191,7 +15191,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
             0, 1, 2, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30
         };
 
-        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+        enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
         int oldLen = -1;
 
@@ -15380,7 +15380,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
         new Allocator(&testAllocator2)
     };
 
-    const int NUM_AllocType = sizeof AllocType / sizeof *AllocType;
+    enum { NUM_AllocType = sizeof AllocType / sizeof *AllocType };
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
@@ -15449,7 +15449,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                                           VA, VB }              }
     };
 
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     if (verbose) printf("\nTesting operator[] and function at(),"
                         " where pos < size().\n");
@@ -15515,7 +15515,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                     DEFAULT_CAPACITY * 5
                 };
 
-                const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+                enum { NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND };
 
                 Obj mY(*AllocType[ai]);
 
@@ -15765,7 +15765,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
 
             { L_,   "ABCDE~CDEC~E", 1,      { VE }                  }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -15845,7 +15845,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
             { L_,   "ABCDe",         4,     },
             { L_,   "AbCdE",         1,     }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -18209,7 +18209,7 @@ int main(int argc, char *argv[])
             { L_,  "ab",         "xy",         "ababefgh",   "xyxyefgh"    },
             { L_,  "abc",        "xyz",        "abcdefgh",   "xyzdefgh"    },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int         LINE  = DATA[ti].d_lineNum;
