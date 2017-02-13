@@ -33,9 +33,7 @@ namespace bsl {
     // Import selected symbols into bsl namespace.  Note that 'pair' is
     // provided by 'bslstl_pair.h' (but 'make_pair' currently is not):
 
-#ifndef BSL_OVERRIDES_STD
-    namespace rel_ops = std::rel_ops;
-#endif
+    namespace rel_ops = native_std::rel_ops;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     using native_std::declval;
