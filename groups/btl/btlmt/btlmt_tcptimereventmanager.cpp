@@ -1097,7 +1097,7 @@ void TcpTimerEventManager::controlCb()
                 BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel"
                                " after 'deregisterAllSocketEvents' "
                                "(platformErrorCode: %d, rc = %d),\n",
-                               bdls::ProcessUtil::getProcessId()
+                               bdls::ProcessUtil::getProcessId(),
                                getPlatformErrorCode(),
                                rc);
                 bsl::abort();
@@ -1271,7 +1271,7 @@ int TcpTimerEventManager::reinitializeControlChannel()
         BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel for READ"
                        " events in btemt_TcpTimerEventManager constructor ",
                        "(platformErrorCode: %d, rc = %d).\n",
-                       bdls::ProcessUtil::getProcessId()
+                       bdls::ProcessUtil::getProcessId(),
                        getPlatformErrorCode(),
                        rc);
         BSLS_ASSERT("Failed to register controlChannel for READ events" &&
