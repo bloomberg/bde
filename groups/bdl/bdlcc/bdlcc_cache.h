@@ -327,6 +327,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>            // 'bsl::size_t'
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -793,12 +796,12 @@ Cache<KEYTYPE, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEYTYPE>& keys)
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     int count = 0;
-    for(int i = 0; i < d_map.size(); ++i) {
+    for(int i = 0; i < keys.size(); ++i) {
         const typename MapType::iterator mapIt = d_map.find(keys[i]);
         if (mapIt == d_map.end()) {
             continue;
         }
-
+        ++count;
         evictItem(mapIt);
     }
     return count;
@@ -831,23 +834,21 @@ Cache<KEYTYPE, VALUE, HASH, EQUAL>::insertBulk(const bsl::vector<KVType>& data)
     for(int i = 0; i < data.size(); ++i) {
         enforceHighWatermark();
 
-        KEYTYPE&      key      = data[i].first;
-        ValuePtrType& valuePtr = data[i].second;
-
-        typename MapType::iterator mapIt = d_map.find(key);
+        typename MapType::iterator mapIt = d_map.find(data[i].first);
         if (mapIt != d_map.end()) {
-            mapIt->second.first = valuePtr;
+            mapIt->second.first = data[i].second;
             typename QueueType::iterator queueIt = mapIt->second.second;
 
             d_queue.splice(d_queue.end(), d_queue, queueIt);
         }
         else {
-            d_queue.push_back(key);
+            d_queue.push_back(data[i].first);
             Cache_QueueProctor<KEYTYPE>  proctor(&d_queue);
             typename QueueType::iterator queueIt = d_queue.end();
             --queueIt;
 
-            d_map.emplace(key, MapVALUE(valuePtr, queueIt, d_allocator_p));
+            d_map.emplace(data[i].first, MapVALUE(data[i].second, queueIt,
+                                                               d_allocator_p));
             proctor.release();
             ++count;
         }

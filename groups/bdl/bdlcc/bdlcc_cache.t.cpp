@@ -79,12 +79,14 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 2] void insert(const KEYTYPE& key, const VALUETYPE& value);
-// [ 9] void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
+// [10] void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
+// [11] int insertBulk(const bsl::vector<KVType>& data);
 // [ 5] int tryGetValue(value, KEYTYPE& key, bool modifyEvictionQueue);
-// [ 8] int popFront();
+// [ 9] int popFront();
 // [ 6] int erase(const KEYTYPE& key);
+// [ 7] int eraseBulk(const bsl::vector<KEYTYPE>& keys);
 // [ 5] void setPostEvictionCallback(postEvictionCallback);
-// [ 7] void clear();
+// [ 8] void clear();
 //
 // ACCESSORS
 // [ 4] void visit(Visitor& visitor) const;
@@ -98,9 +100,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
-// [10] TYPE TRAITS
-// [11] THREAD SAFETY
-// [12] USAGE EXAMPLE
+// [12] TYPE TRAITS
+// [13] THREAD SAFETY
+// [14] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -201,7 +203,7 @@ void example1()
     // 'bsl::string' and uses the LRU eviction policy:
     //..
     bdlcc::Cache<int, bsl::string> myCache(bdlcc::CacheEvictionPolicy::e_LRU,
-                                          3, 4, &talloc);
+                                          6, 7, &talloc);
 
     //..
     // Next, we insert 3 items into the cache and verify that the size of the
@@ -213,7 +215,22 @@ void example1()
     ASSERT(myCache.size() == 3);
 
     //..
-    // Then, we retrieve the second value of the second item stored in the
+    // Then, we bulk insert 3 additional items into the cache and verify that
+    // the size of the cache has been updated correctly:
+    //..
+    typedef bsl::pair<int, bsl::shared_ptr<bsl::string> > PairType;
+    bsl::vector<PairType> insertData(&talloc);
+    insertData.push_back(PairType(3,
+                          bsl::allocate_shared<bsl::string>(&talloc, "Jim" )));
+    insertData.push_back(PairType(4,
+                          bsl::allocate_shared<bsl::string>(&talloc, "Jeff")));
+    insertData.push_back(PairType(5,
+                          bsl::allocate_shared<bsl::string>(&talloc, "Ian" )));
+    myCache.insertBulk(insertData);
+    ASSERT(myCache.size() == 6);
+
+    //..
+    // Next, we retrieve the second value of the second item stored in the
     // cache using the 'tryGetValue' method:
     //..
     bsl::shared_ptr<bsl::string> value;
@@ -221,7 +238,7 @@ void example1()
     ASSERT(rc == 0);
     ASSERT(*value == "John");
     //..
-    // Next, we set the cache's post-eviction callback to
+    // Then, we set the cache's post-eviction callback to
     // 'myPostEvictionCallback':
     //..
     myCache.setPostEvictionCallback(myPostEvictionCallback);
@@ -229,14 +246,14 @@ void example1()
     // Now, we insert two more items into the cache to trigger the eviction
     // behavior:
     //..
-    myCache.insert(3, "Steve");
-    ASSERT(myCache.size() == 4);
-    myCache.insert(4, "Tim");
-    ASSERT(myCache.size() == 3);
+    myCache.insert(6, "Steve");
+    ASSERT(myCache.size() == 7);
+    myCache.insert(7, "Tim");
+    ASSERT(myCache.size() == 6);
     //..
     // Notice that after we insert "Steve", the size of the cache is at the
     // high watermark.  After the following item, "Tim", is inserted, the size
-    // of the cache goes back down to 3, the low watermark.
+    // of the cache goes back down to 5, the low watermark.
     //
     // Finally, we observe the following output to stdout:
     //..
@@ -926,10 +943,12 @@ class TestDriver {
     static void testCase8();
     static void testCase9();
     static void testCase10();
+    static void testCase11();
+    static void testCase12();
 };
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
-void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase12()
 {
     // --------------------------------------------------------------------
     // TYPE TRAITS
@@ -948,7 +967,66 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
 }
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
-void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase9()
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
+{
+    // ------------------------------------------------------------------------
+    // 'insertBulk'
+    //
+    // Concerns:
+    //: 1 'insertBulk' provides the strong exception safety guarantee.
+    //
+    // Plan:
+    //: 1 Using the loop-based approach, insert items using the 'insert' method
+    //:   taking a shared pointer and verify that the resulting object.  Test
+    //:   for exception safety guarantee using the
+    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macros.
+    //
+    // Testing:
+    //   int insertBulk(const bsl::vector<KVType>& data);
+    // ------------------------------------------------------------------------
+
+    bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
+
+    const TestValues VALUES;  // contains 52 distinct increasing values
+
+    const bsl::size_t MAX_LENGTH = 9;
+
+    const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
+        bdlcc::CacheEvictionPolicy::e_LRU,
+        bdlcc::CacheEvictionPolicy::e_FIFO
+    };
+
+    const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
+
+    for (int tp = 0; tp < NUM_POLICIES; ++tp) {
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
+
+            Obj        mX(policy, 100, 100, &oa);
+            const Obj& X = mX;
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                bsl::vector<typename Obj::KVType> insertVec(&oa);
+                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                    typename Obj::ValuePtrType value;
+                    SpCreateInplace(&value, VALUES[tj].second, &oa);
+                    typename Obj::KVType item(VALUES[tj].first, value, &oa);
+                    insertVec.push_back(item);
+                }
+                mX.insertBulk(insertVec);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+            TestVisitor visitor(&VALUES, LENGTH);
+            X.visit(visitor);
+            visitor.assertEnd();
+            ASSERTV(LENGTH, X.size(), LENGTH == X.size())
+        }
+    }
+}
+
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
 {
     // ------------------------------------------------------------------------
     // 'insert' TAKING A SHARED POINTER
@@ -1006,7 +1084,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase9()
 }
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
-void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase9()
 {
     // ------------------------------------------------------------------------
     // 'popFront'
@@ -1097,7 +1175,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
 }
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
-void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
 {
     // ------------------------------------------------------------------------
     // 'clear'
@@ -1161,6 +1239,126 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
         }
     }
 
+}
+
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
+{
+    // ------------------------------------------------------------------------
+    // 'eraseBulk'
+    //
+    // Concerns:
+    //: 1 The 'eraseBulk' method removes the specified keys from the cache. The
+    //:   method returns the number of items successfully removed.
+    //:
+    //: 2 The 'erase' method invokes the post-eviction callback on success,
+    //:   passing the value of the evicted item.
+    //
+    // Plan:
+    //: 1 Using the loop-based approach, make sure that erasing a valid key
+    //:   successfully removes the item with that key and calls the
+    //:   post-eviction callback.
+    //:
+    //: 2 Using the loop-based approach, make sure that erasing an invalid key
+    //:   returns a non-zero value.
+    //
+    // Testing:
+    //   int eraseBulk(const bsl::vector<KEYTYPE>& keys);
+    // ------------------------------------------------------------------------
+
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 9;
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    const bdlcc::CacheEvictionPolicy::Enum POLICIES[] = {
+        bdlcc::CacheEvictionPolicy::e_LRU,
+        bdlcc::CacheEvictionPolicy::e_FIFO
+    };
+
+    const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
+
+    for (int tp = 0; tp < NUM_POLICIES; ++tp) {
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
+
+            bsl::vector<typename TestVisitor::Args> allValues(&scratch);
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                typename TestVisitor::Args args(tj, true);
+                allValues.push_back(args);
+            }
+
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                Obj        mX(policy, 100, 100, &scratch);
+                const Obj& X = mX;
+
+                for (bsl::size_t v = 0; v < LENGTH; ++v) {
+                    mX.insert(VALUES[v].first, VALUES[v].second);
+                }
+
+                {
+                    TestVisitor visitor(&VALUES, LENGTH);
+                    X.visit(visitor);
+                    visitor.assertEnd();
+                }
+                bsl::size_t              pos;
+                TestPostEvictionCallback callback(&VALUES, &pos, tj, 0);
+
+                typename bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>::
+                    PostEvictionCallback
+                    callbackFunc (bsl::allocator_arg, &scratch, callback);
+                mX.setPostEvictionCallback(callbackFunc);
+
+                ASSERTV(LENGTH == X.size());
+
+                // Keys to be erased with 'eraseBulk'
+                bsl::vector<KEYTYPE> eraseKeys(&scratch);
+                for (bsl::size_t v = 0; v < tj; ++v) {
+                    eraseKeys.push_back(VALUES[v].first);
+                }
+                int count = mX.eraseBulk(eraseKeys);
+                ASSERTV(tj == count);
+                ASSERTV(LENGTH - count == X.size());
+                callback.assertEnd();
+            }
+        }
+    }
+
+    // Test erasing non-existent keys.
+
+    for (int tp = 0; tp < NUM_POLICIES; ++tp) {
+        bdlcc::CacheEvictionPolicy::Enum policy = POLICIES[tp];
+        for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+            const bsl::size_t LENGTH = ti;
+
+            Obj        mX(policy, 90, 100, &scratch);
+            const Obj& X = mX;
+
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.insert(VALUES[tj].first, VALUES[tj].second);
+            }
+            {
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(LENGTH == X.size());
+            }
+
+            bsl::vector<KEYTYPE> eraseKeys(&scratch);
+            for (bsl::size_t v = LENGTH; v < 2*LENGTH; ++v) {
+                eraseKeys.push_back(VALUES[v].first);
+            }
+            int count = mX.eraseBulk(eraseKeys);
+            ASSERTV(0 == count);
+
+            {
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+                ASSERTV(LENGTH == X.size());
+            }
+        }
+    }
 }
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
@@ -2490,7 +2688,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     switch (test) { case 0:
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2509,10 +2707,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         usageExample1::example1();
-        // usageExample2::example2();
+        usageExample2::example2();
+      } break;
+      case 13: {
+        threaded::threadedTest1();
+      } break;
+      case 12: {
+        RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES);
       } break;
       case 11: {
-        threaded::threadedTest1();
+        RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES);
       } break;
       case 10: {
         RUN_EACH_TYPE(TestDriver, testCase10, TEST_TYPES);
