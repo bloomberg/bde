@@ -19,6 +19,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -37,6 +41,24 @@ namespace bsl {
     using native_std::uncaught_exception;
     using native_std::unexpected;
     using native_std::unexpected_handler;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using native_std::current_exception;
+    using native_std::exception_ptr;
+    using native_std::rethrow_exception;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+    using native_std::make_exception_ptr;
+    using native_std::nested_exception;
+    using native_std::rethrow_if_nested;
+    using native_std::throw_with_nested;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    using native_std::get_unexpected;
+    using native_std::get_terminate;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 }  // close package namespace
 
 #endif

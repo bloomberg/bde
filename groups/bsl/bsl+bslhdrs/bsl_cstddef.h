@@ -37,6 +37,10 @@ namespace bsl {
 #if defined (BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
     using native_std::nullptr_t;
 #endif
+
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+    using native_std::max_align_t;
+#endif
 }
 
 #endif

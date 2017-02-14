@@ -46,9 +46,10 @@
 // The compilation of code that uses a feature can be forced by defining (e.g.,
 // on the command line) a macro consisting of the feature macro suffixed by
 // '_FORCE'.  For example, to force a test for the presence of the '<tuple>'
-// type specify '-DBSLS_LIBRARYFEATURES_HAS_TUPLE_FORCE' on the command line.
-// The code associated with that feature will be exposed to the compiler even
-// if 'BSLS_LIBRARYFEATURES_HAS_TUPLE_FORCE' was not defined by this component.
+// type specify '-DBSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE' on the command
+// line.  The code associated with that feature will be exposed to the compiler
+// even if 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE' was not defined by this
+// component.
 //
 // Here, *failure* to compile this test driver is an indication that the
 // feature is indeed absent from the library being evaluated.  Should the test
@@ -62,15 +63,26 @@
 //: o If not defined, the component could be updated to recognize the build
 //:   configuration as providing the feature of interest.
 // ----------------------------------------------------------------------------
-// [ 1] BSLS_LIBRARYFEATURES_HAS_AUTO_PTR
-// [ 2] BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
-// [ 3] BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR
-// [ 4] BSLS_LIBRARYFEATURES_HAS_TUPLE
-// [ 5] BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
-// [ 6] BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP
+// [ 1] BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+// [ 2] BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// [ 3] BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+// [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+// [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
 // ----------------------------------------------------------------------------
-// [ 7] USAGE EXAMPLE
-// [-1] BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT: obsolescent: never defined
+// [ 6] USAGE EXAMPLE
+// [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: never
+//      defined
+// ----------------------------------------------------------------------------
+// TBD Add tests for the new macros (and amendments to existing macros):
+//
+//: o BSLS_LIBRARYFEATURES_HAS_C99_BASELINE_LIBRARY
+//: o BSLS_LIBRARYFEATURES_HAS_C99_FULL_LIBRARY
+//: o BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+//: o BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+//: o BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+//: o BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+//: o BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+//: o BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -135,24 +147,8 @@ static const bool u_BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined =
                                                                          false;
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
-                                                                     true;
-#else
-                                                                     false;
-#endif
-
-                    // case 6
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP) || \
-    defined(BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP_FORCE)
-
-    #include <unordered_map>
-    native_std::unordered_map<int, int> unorderedMap;
-#endif
-
-static const bool u_BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
                                                                      true;
 #else
                                                                      false;
@@ -160,36 +156,36 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP_defined =
 
                     // case 5
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR) || \
-    defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR_FORCE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_FORCE)
 
     #include <memory>
     native_std::unique_ptr<int> up;
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
                                                                   true;
 #else
                                                                   false;
 #endif
                     // case 4
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_TUPLE) || \
-    defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_FORCE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE)
 
     #include <tuple>
     native_std::tuple<char, short, int, float, double> t4;
 
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    #error "'BSLS_LIBRARYFEATURES_HAS_TUPLE' requires \
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' requires \
             'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
     #endif
 
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_TUPLE_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_TUPLE)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
                                                        true;
 #else
                                                        false;
@@ -197,8 +193,8 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_TUPLE_defined =
 
                     // case 3
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR) || \
-    defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR_FORCE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_FORCE)
 
     #include <tuple>
     #include <utility> // for 'pair' and 'piecewise_construct'
@@ -207,29 +203,30 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_TUPLE_defined =
                                      native_std::tuple<int>(1),
                                      native_std::tuple<int>(2));
 
-    #ifndef BSLS_LIBRARYFEATURES_HAS_TUPLE
-    #error "'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' requires \
-            'BSLS_LIBRARYFEATURES_HAS_TUPLE'"
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' \
+            requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'"
     #endif
 
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    #error "'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' requires \
-            'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' \
+            requires 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
     #endif
 
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR_defined
+static const bool 
+            u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined
                                                                               =
-#if   defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
                                                                           true;
 #else
                                                                          false;
 #endif
                     // case 2
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS) || \
-    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS_FORCE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_FORCE)
 
                    // ----------------------------------------
                    // class SimpleUniformRandomNumberGenerator
@@ -319,9 +316,9 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR_defined
 
     static void useCpp11Algorithms()
         // Use each of the function templates associated with the
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS' flag in a syntactically
-        // correct (and semantically meaningless) manner as a compile-time test
-        // that these templates are available.
+        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' flag in a
+        // syntactically correct (and semantically meaningless) manner as a
+        // compile-time test that these templates are available.
     {
         const int    iarray[]     = { 0, 1, 2 };
         const size_t NUM_ELEMENTS = sizeof  iarray / sizeof *iarray;
@@ -386,8 +383,8 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR_defined
     }
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
                                                                         true;
 #else
                                                                         false;
@@ -395,16 +392,16 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS_defined =
 
                     // case 1
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR) ||\
-    defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR_FORCE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR) ||\
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_FORCE)
 
     #include <memory>
     native_std::auto_ptr<int> ap;
 
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_AUTO_PTR_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
                                                                 true;
 #else
                                                                 false;
@@ -436,12 +433,12 @@ using namespace BloombergLP;
 // First, we conditionally include the header file we will need if we define an
 // interface that returns a 'native_std::tuple'.
 //..
-    #if defined(BSLS_LIBRARYFEATURES_HAS_TUPLE)
+    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
     # ifndef INCLUDED_TUPLE
     # include <tuple>
     # define INCLUDED_TUPLE
     # endif
-    #endif // BSLS_LIBRARYFEATURES_HAS_TUPLE
+    #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 //..
 // Then, we declare the methods that will be unconditionally provided by our
 // utility component:
@@ -460,7 +457,7 @@ using namespace BloombergLP;
 // this interface is more efficient than calling the earlier three individually
 // because the input need be traversed one time, not three.
 //..
-    #ifdef BSLS_LIBRARYFEATURES_HAS_TUPLE
+    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
         static native_std::tuple<int, double, double> getMedianMeanVariance(
                                                               const int *begin,
                                                               const int *end);
@@ -468,7 +465,7 @@ using namespace BloombergLP;
             // sequence of values in the specified non-empty, semi-open range
             // '[begin, end)'.  The behavior is undefined unless 'begin < end'.
 
-    #endif // BSLS_LIBRARYFEATURES_HAS_TUPLE
+    #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
     };
 //..
@@ -489,23 +486,20 @@ static void printFlags()
 {
     Q(printFlags: Enter);
     Q(printFlags: component-defined macros);
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
-          Q(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+          Q(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR);
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY);
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_TUPLE)
-          Q(BSLS_LIBRARYFEATURES_HAS_TUPLE);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE);
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
-          Q(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
+          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR);
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP)
-          Q(BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
-          Q(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR);
 #endif
 
     Q(printFlags: imported macros);
@@ -584,7 +578,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -605,70 +599,43 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR'
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP' flag is defined when
-        //:   the native standard library defines class template
-        //:   'native_std::unordered_map' in '<unordered_map>'.
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined only when
+        //:   the native standard library defines the 'unique_ptr' class
+        //:   template (in '<memory>').
+        //
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined then
+        //:   the related macro
+        //:   'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
+        //:   defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP' is defined
-        //:   conditionally compile code that includes '<unordered_map>' and
-        //:   constructs a 'native_std::unordered_map' object.
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined
+        //:   compile code that includes '<memory>' and constructs a
+        //:   'unique_ptr' object to an 'int'.
+        //:
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined confirm
+        //:   that 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
+        //:   defined using the associated conditionally initialized global
+        //:   variables. See "Global constants for testing invariants" above.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                         "TESTING 'BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP'\n"
-                         "================================================\n");
+                      "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR'\n"
+                      "===================================================\n");
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP_defined);
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_defined);
         }
 
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-
-      } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR'
-        //
-        // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR' is defined only when the
-        //:   native standard library defines the 'unique_ptr' class template
-        //:   (in '<memory>').
-        //
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR' is defined then the
-        //:   related macro 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
-        //:   is also defined.
-        //
-        // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR' is defined compile
-        //:   code that includes '<memory>' and constructs a 'unique_ptr'
-        //:   object to an 'int'.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR' is defined confirm that
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also defined
-        //:   using the associated conditionally initialized global variables.
-        //:   See "Global constants for testing invariants" above.
-        //
-        // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR'\n"
-                            "=============================================\n");
-
-        if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR_defined);
-        }
-
-        if (u_BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR_defined) {
+        if (u_BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_defined) {
             ASSERT(true ==
                     u_BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined);
         }
@@ -678,37 +645,38 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_TUPLE'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_TUPLE' is defined only when the native
-        //:   standard library defines the '<tuple>' class template.
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined only when the
+        //:   native standard library defines the '<tuple>' class template.
         //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_TUPLE' is defined then the related
-        //:   macro 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is also
-        //:   defined.
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined then the
+        //:   related macro 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
+        //:   is also defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_TUPLE' is defined compile code
-        //:   that includes '<tuple>' and constructs a 'tuple' object.
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined compile
+        //:   code that includes '<tuple>' and constructs a 'tuple' object.
         //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_TUPLE' is defined confirm that
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined confirm that
         //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is also
         //:   defined using the associated conditionally initialized global
         //:   variables.  See "Global constants for testing invariants" above.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_TUPLE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_TUPLE'\n"
-                            "========================================\n");
+        if (verbose) printf(
+                           "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'\n"
+                           "==============================================\n");
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_TUPLE_defined);
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined);
         }
 
-        if (u_BSLS_LIBRARYFEATURES_HAS_TUPLE_defined) {
+        if (u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined) {
             ASSERT(true ==
                    u_BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES_defined);
         }
@@ -718,47 +686,49 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' flag is
-        //:   defined when the native standard library defines for its 'pair'
-        //:   class template (defined in '<utility>') a constructor that
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
+        //:   flag is defined when the native standard library defines for its
+        //:   'pair' class template (defined in '<utility>') a constructor that
         //:   accepts as arguments 'native_std::piecewise_construct' (also
         //:   defined in '<utility>' followed by two 'tuple' arguments.
         //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' is
-        //:   defined then related macros 'BSLS_LIBRARYFEATURES_HAS_TUPLE'
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' is
+        //:   defined then related macros
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
         //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' are also
         //:   defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' is
-        //:   defined conditionally compile code that includes '<utility>',
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
+        //:   is defined conditionally compile code that includes '<utility>',
         //:   '<tuple>' and creates an object using the constructor specified
         //:   in C-1.
         //:
         //: 2 Confirm the expected relationship between
-        //:   'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' and its
-        //:   related macros 'BSLS_LIBRARYFEATURES_HAS_TUPLE'
-        //:   'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR' using the associated
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' and
+        //:   its related macros 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' using the associated
         //:   conditionally initialized global variables.  See "Global
         //:   constants for testing invariants" above.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-            "TESTING 'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR'\n"
-            "=============================================================\n");
+      "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'\n"
+      "===================================================================\n");
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR_defined)
+         P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
         }
 
-        if (u_BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR_defined) {
-            ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_TUPLE_defined);
+        if(u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined)
+        {
+            ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined);
             ASSERT(true ==
                    u_BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES_defined);
         }
@@ -768,60 +738,99 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS' flag is defined
-        //:   when the native standard library defines in '<algorithm>' the
-        //:   function templates:
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' flag is
+        //:   defined when the native standard library defines the following
+        //:   functions and types:
         //:
-        //:    o 'all_of'
-        //:    o 'any_of'
-        //:    o 'copy_if'
-        //:    o 'copy_n'
-        //:    o 'find_if_not'
-        //:    o 'iota'
-        //:    o 'is_heap'
-        //:    o 'is_partitioned'
-        //:    o 'is_permutation'
-        //;    o 'is_sorted'
-        //:    o 'is_sorted_until'
-        //:    o 'minmax'
-        //:    o 'minmax_element'
-        //:    o 'move'
-        //:    o 'move_backward'
-        //:    o 'none_of'
-        //:    o 'partition_copy'
-        //:    o 'partition_point'
-        //:    o 'shuffle'
-        //:    o 'uninitialized_copy_n'
+        //:   o Functions defined in '<algorithm>'
+        //:     o 'all_of'
+        //:     o 'any_of'
+        //:     o 'copy_if'
+        //:     o 'copy_n'
+        //:     o 'find_if_not'
+        //:     o 'is_heap'
+        //:     o 'is_heap_until'
+        //:     o 'is_partitioned'
+        //:     o 'is_permutation'
+        //:     o 'is_sorted'
+        //:     o 'is_sorted_until'
+        //:     o 'minmax'
+        //:     o 'minmax_element'
+        //:     o 'move'
+        //:     o 'move_backward'
+        //:     o 'none_of'
+        //:     o 'partition_copy'
+        //:     o 'partition_point'
+        //:     o 'shuffle'
+        //:
+        //:   o Types defined in '<atomic>'
+        //:     o atomic class template and specializations for integral types
+        //:
+        //:   o Functions defined in '<functional>'
+        //:     o 'bind'
+        //:     o 'bit_and'
+        //:     o 'bit_or'
+        //:     o 'bit_xor'
+        //:     o 'is_bind_expression'
+        //:     o 'is_placeholder'
+        //:     o 'mem_fn'
+        //:
+        //:   o Functions defined in '<iomanip>'
+        //:     o 'get_money'
+        //:     o 'put_money'
+        //:
+        //:   o Functions defined in '<iterator>'
+        //:     o 'begin'
+        //:     o 'end'
+        //:     o 'move_iterator'
+        //:     o 'make_move_iterator'
+        //:     o 'next'
+        //:     o 'prev'
+        //:
+        //:   o Function defined in '<locale>'
+        //:     o 'isblank'
+        //:
+        //:   o Function defined in '<memory>'
+        //:     o addressof;
+        //:     o 'uninitialized_copy_n'
+        //:
+        //:   o Function defined in '<numeric>'
+        //:     o 'iota'
+        //:
+        //:   o Function defined in '<utility>'
+        //:     o 'swap'
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS' is defined run
-        //:   the 'testSimpleUniformRandomNumberGenerator' function to confirm
-        //:   that the helper class 'SimpleUniformRandomNumberGenerator' --
-        //:   used in the test of the 'native_std::shuffle' function -- works
-        //:   as expected.
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
+        //:   run the 'testSimpleUniformRandomNumberGenerator' function to
+        //:   confirm that the helper class
+        //:   'SimpleUniformRandomNumberGenerator' -- used in the test of the
+        //:   'native_std::shuffle' function -- works as expected.
         //
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS' is defined
-        //:   conditionally compile code that includes '<algorithm>' and uses
-        //:   each of the listed function templates at least once.
+        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
+        //:   conditionally compile code that includes '<algorithm>',
+        //:   '<atomic>', '<functional>', '<iomanip>', '<iterator>',
+        //:   '<locale>', '<memory>', '<numeric>', '<utility>' and uses each of
+        //:   the listed function templates at least once.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                      "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS'\n"
-                      "===================================================\n");
+                "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'\n"
+                "=========================================================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
         testSimpleUniformRandomNumberGenerator();
         useCpp11Algorithms();
 #endif
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined)
         }
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
@@ -829,67 +838,71 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR'
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR' flag is defined when the
-        //:   native standard library defines type 'native_std::auto_ptr'
-        //:   template in '<memory>'.
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' flag is defined
+        //:   when the native standard library defines type
+        //:   'native_std::auto_ptr' template in '<memory>'.
         //:
-        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR' macro is set on all
+        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' macro is set on all
         //:   platforms (until C++17).
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR' is defined conditionally
-        //:   compile code that includes '<memory>' and constructs
-        //:   'native_std::auto_ptr' object for 'int'.
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' is defined
+        //:   conditionally compile code that includes '<memory>' and
+        //:   constructs 'native_std::auto_ptr' object for 'int'.
         //:
         //: 2 Confirm the value of the conditionally compiled global variable
-        //:   'u_BSLS_LIBRARYFEATURES_HAS_AUTO_PTR_defined' is 'true'.
+        //:   'u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined' is 'true'.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_AUTO_PTR
+        //   BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR'\n"
-                            "===========================================\n");
+        if (verbose) printf(
+                        "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR'\n"
+                        "=================================================\n");
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_AUTO_PTR_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined)
         }
 
         // This macro should be defined on all platforms until C++17.
 
-        ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_AUTO_PTR_defined);
+        ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined);
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT'
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT'
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP' must never be
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' must never be
         //:   defined.
         //
         // Plan:
         //: 1 Confirm the value of the conditionally compiled global variable
-        //:   'u_BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT_defined' is 'false'.
+        //:   'u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined' is
+        //:   'false'.
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT: obsolescent: never defined
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: never
+        //   defined
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                         "TESTING 'BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT'\n"
-                         "================================================\n");
+                   "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT'\n"
+                   "======================================================\n");
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT_defined);
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined);
         }
 
-        ASSERT(false == u_BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT_defined);
+        ASSERT(false ==
+                       u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined);
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 

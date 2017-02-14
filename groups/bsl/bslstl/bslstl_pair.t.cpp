@@ -2001,7 +2001,7 @@ void testFunctionality(bsl::true_type usesBslmaAllocator)
     ASSERT(0 == ta3.numBlocksInUse());
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 class TupleTestDriver {
     // This 'class' is used for doing the tests with 'EmplacableTestType' and
     // 'AllocEmplacableTestType'.  For simplicity, we chose to implement them
@@ -3982,7 +3982,7 @@ int main(int argc, char *argv[])
         //   bsl::pair(piecewise_construct, tuple, tuple, alloc);
         // --------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
         // These series were machine generated to generate all possible
         // combinations of calls with no repetition:
 
