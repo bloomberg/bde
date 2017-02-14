@@ -19,8 +19,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // empirically: the test driver program was tested on supported platforms for a
 // variety of compiler versions (and, with 'gcc', with and without the '-std'
 // compiler option).  The flag for each feature (e.g.,
-// 'BSLS_LIBRARYFEATURES_HAS_UNORDERED_MAP') was set experimentally and if the
-// test driver could be built and demonstrate (in verbose mode) that the
+// 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNORDERED_MAP') was set experimentally and
+// if the test driver could be built and demonstrate (in verbose mode) that the
 // feature had been used, that combination inputs was deemed successful.
 //
 // Limitations:
@@ -41,48 +41,117 @@ BSLS_IDENT("$Id$ $CSID$")
 
                         // Enforce invariants
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_FULL_LIBRARY)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_C99_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_C99_FULL_LIBRARY' requires \
+            'BSLS_LIBRARYFEATURES_HAS_C99_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 #else
-    #error "'BSLS_LIBRARYFEATURES_HAS_AUTO_PTR' should be defined for all \
-            libraries/platforms until the introduction of C++17."
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' should be defined for \
+            all libraries/platforms until the introduction of C++17."
 
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING' requires \
+            'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API' requires \
+            'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES' requires \
+            'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' \
+             requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' \
+            requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'"
+    #endif
 
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    #error "'BSLS_LIBRARYFEATURES_HAS_TUPLE' requires \
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' \
+            requires 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS' \
+            requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' requires \
+            'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' requires \
+            'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' requires \
             'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
     #endif
 
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
 
-    #ifndef BSLS_LIBRARYFEATURES_HAS_TUPLE
-    #error "'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' requires \
-            'BSLS_LIBRARYFEATURES_HAS_TUPLE'"
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' requires \
+            'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
     #endif
-
-    #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    #error "'BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR' requires \
-            'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
-    #endif
-
-#endif
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
-#error "See 'BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT': !NOT DEFINED! \
-        in component-level documentation."
-#endif
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
 
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    #error "'BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR' requires \
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' requires \
             'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'"
     #endif
 
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+#error "See 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT': !NOT DEFINED! \
+        in component-level documentation."
 #endif
 
 // ----------------------------------------------------------------------------

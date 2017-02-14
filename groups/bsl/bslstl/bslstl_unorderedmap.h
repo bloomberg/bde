@@ -1067,6 +1067,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 namespace bsl {
+
                             // ==================
                             // class unorderedmap
                             // ==================

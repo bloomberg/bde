@@ -175,6 +175,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -194,6 +198,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 namespace bsl {
+// Import selected symbols into bsl namespace
 
 // 24.3 primitives
 using native_std::input_iterator_tag;
@@ -219,6 +224,15 @@ using native_std::istream_iterator;
 using native_std::ostream_iterator;
 using native_std::istreambuf_iterator;
 using native_std::ostreambuf_iterator;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+using native_std::begin;
+using native_std::end;
+using native_std::move_iterator;
+using native_std::make_move_iterator;
+using native_std::next;
+using native_std::prev;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
 

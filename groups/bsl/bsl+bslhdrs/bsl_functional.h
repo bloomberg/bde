@@ -17,6 +17,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -24,6 +28,7 @@ BSLS_IDENT("$Id: $")
 #include <functional>
 
 namespace bsl {
+
     // Import selected symbols into bsl namespace
     using native_std::binary_function;
     using native_std::binary_negate;
@@ -62,6 +67,19 @@ namespace bsl {
     using native_std::ptr_fun;
     using native_std::unary_function;
     using native_std::unary_negate;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    namespace placeholders = native_std::placeholders;
+
+    using native_std::bind;
+    using native_std::bit_and;
+    using native_std::bit_or;
+    using native_std::bit_xor;
+    using native_std::is_bind_expression;
+    using native_std::is_placeholder;
+    using native_std::mem_fn;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to

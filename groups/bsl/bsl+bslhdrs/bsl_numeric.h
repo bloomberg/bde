@@ -27,23 +27,18 @@ BSLS_IDENT("$Id: $")
 
 #include <numeric>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
-    #define USING_CPP11_NATIVE_STD(algo) using native_std::algo;
-#else
-    #define USING_CPP11_NATIVE_STD(algo)
-#endif
-
 namespace bsl {
     // Import selected symbols into bsl namespace
     using native_std::accumulate;
     using native_std::adjacent_difference;
     using native_std::inner_product;
-    USING_CPP11_NATIVE_STD(iota);
     using native_std::partial_sum;
 
-}  // close package namespace
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using native_std::iota;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-#undef USING_CPP11_NATIVE_STD
+}  // close package namespace
 
 #endif
 

@@ -1419,7 +1419,7 @@ class TestDriver {
         return t;
     }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     template <int NUM_KEY_ARGS,
               int NK1,
               int NK2,
@@ -1748,7 +1748,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::primaryManipulator(Obj   *container,
     return container->insert(MoveUtil::move(buffer.object()));
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 template <class KEY, class VALUE, class COMP, class ALLOC>
 template <int NUM_KEY_ARGS,
           int NK1,
@@ -3097,7 +3097,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a()
 //
 // (This comment also applies to 'testCase31a'.)
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 
     Iter hint;
 
@@ -3800,7 +3800,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a()
     //   iterator emplace(Args&&... args);
     // ------------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 
 #ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
     if (verbose) printf("\nTesting emplace 1..3 args, move=1"

@@ -1762,7 +1762,7 @@ class shared_ptr {
         // no memory will be allocated, and this 'shared_ptr' will adopt the
         // 'ManagedPtr's ownership of that shared object.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     explicit shared_ptr(
@@ -1796,7 +1796,7 @@ class shared_ptr {
         // 'ELEMENT_TYPE *'.
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
 # if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
     template <class COMPATIBLE_TYPE,
               class UNIQUE_DELETER,
@@ -1871,7 +1871,7 @@ class shared_ptr {
         }
     }
 # endif // BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
-#endif // BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
 
     template <class ANY_TYPE>
     shared_ptr(const shared_ptr<ANY_TYPE>&  source,
@@ -2068,7 +2068,7 @@ class shared_ptr {
         // assignment.
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
     template <class COMPATIBLE_TYPE>
     typename enable_if<
         is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
@@ -2087,7 +2087,7 @@ class shared_ptr {
         // assignment.
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
     template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
     typename enable_if<
         is_convertible<
@@ -4869,7 +4869,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
     }
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
@@ -4916,7 +4916,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
 # if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE,
@@ -5164,7 +5164,7 @@ shared_ptr<ELEMENT_TYPE>::operator=(
     return *this;
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
@@ -5178,7 +5178,7 @@ shared_ptr<ELEMENT_TYPE>::operator=(native_std::auto_ptr<COMPATIBLE_TYPE> rhs)
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
 inline

@@ -17,6 +17,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -26,11 +30,12 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
     // Import selected symbols into bsl namespace
+
     using native_std::abs;
     using native_std::acos;
     using native_std::asin;
-    using native_std::atan2;
     using native_std::atan;
+    using native_std::atan2;
     using native_std::ceil;
     using native_std::cos;
     using native_std::cosh;
@@ -40,8 +45,8 @@ namespace bsl {
     using native_std::fmod;
     using native_std::frexp;
     using native_std::ldexp;
-    using native_std::log10;
     using native_std::log;
+    using native_std::log10;
     using native_std::modf;
     using native_std::pow;
     using native_std::sin;
@@ -50,10 +55,46 @@ namespace bsl {
     using native_std::tan;
     using native_std::tanh;
 
-// C99 math functions are available in namespace std
-#if (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))      \
-    && defined(_GLIBCXX_USE_C99_MATH)                                         \
-    && !defined(_GLIBCXX_USE_C99_FP_MACROS_DYNAMIC)
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+    using native_std::double_t;
+    using native_std::float_t;
+    using native_std::acosh;
+    using native_std::asinh;
+    using native_std::atanh;
+    using native_std::cbrt;
+    using native_std::copysign;
+    using native_std::erf;
+    using native_std::erfc;
+    using native_std::exp2;
+    using native_std::expm1;
+    using native_std::fdim;
+    using native_std::fma;
+    using native_std::fmax;
+    using native_std::fmin;
+    using native_std::hypot;
+    using native_std::ilogb;
+    using native_std::lgamma;
+    using native_std::llrint;
+    using native_std::log1p;
+    using native_std::log2;
+    using native_std::logb;
+    using native_std::lrint;
+    using native_std::lround;
+    using native_std::llround;
+    using native_std::nan;
+    using native_std::nanl;
+    using native_std::nanf;
+    using native_std::nearbyint;
+    using native_std::nextafter;
+    using native_std::nexttoward;
+    using native_std::remainder;
+    using native_std::remquo;
+    using native_std::rint;
+    using native_std::round;
+    using native_std::scalbln;
+    using native_std::scalbn;
+    using native_std::tgamma;
+    using native_std::trunc;
 
     using native_std::fpclassify;
     using native_std::isfinite;
@@ -67,7 +108,7 @@ namespace bsl {
     using native_std::islessequal;
     using native_std::islessgreater;
     using native_std::isunordered;
-#endif
+#endif  //  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 }  // close package namespace
 
 #endif

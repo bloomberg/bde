@@ -17,6 +17,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -25,9 +29,11 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
     // Import selected symbols into bsl namespace
+
     using native_std::FILE;
     using native_std::fpos_t;
     using native_std::size_t;
+
     using native_std::clearerr;
     using native_std::fclose;
     using native_std::feof;
@@ -49,16 +55,10 @@ namespace bsl {
     using native_std::fwrite;
     using native_std::getc;
     using native_std::getchar;
-    using native_std::putc;
-    using native_std::putchar;
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900) \
-    // std::gets has been removed in C++11, although Visual C++ does not yet
-    // update the language version macro.
-#elif  __cplusplus <= 201103L
-    using native_std::gets;
-#endif
     using native_std::perror;
     using native_std::printf;
+    using native_std::putc;
+    using native_std::putchar;
     using native_std::puts;
     using native_std::remove;
     using native_std::rename;
@@ -74,6 +74,21 @@ namespace bsl {
     using native_std::vfprintf;
     using native_std::vprintf;
     using native_std::vsprintf;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_C90_GETS
+    using native_std::gets;
+#endif  // BSLS_LIBRARYFEATURES_HAS_C90_GETS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+    using native_std::vfscanf;
+    using native_std::vscanf;
+    using native_std::vsnprintf;
+    using native_std::vsscanf;
+#endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+    using native_std::snprintf;
+#endif  // BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 }  // close package namespace
 
 #endif

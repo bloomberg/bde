@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_LIBRARYFEATURES_SUPPORTS_UNORDERED_MAP)
+#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 #       if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #         include_next <unordered_map>
 #       else
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   if defined(BSLS_LIBRARYFEATURES_SUPPORTS_UNORDERED_MAP)
+#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 #       if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #         include_next <unordered_map>
 #       else
