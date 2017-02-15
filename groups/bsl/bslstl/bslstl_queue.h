@@ -298,7 +298,7 @@ class queue {
         // Create a queue having the value of the specified 'original'.
 
 #if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
-    queue(Bloomberglp::bslmf::movableref<queue> container);
+    queue(BloombergLP::bslmf::MovableRef<queue> container);
 #else
     queue(queue&& original);
 #endif

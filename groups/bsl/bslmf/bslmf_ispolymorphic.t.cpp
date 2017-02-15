@@ -3,6 +3,7 @@
 #include <bslmf_ispolymorphic.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>
@@ -74,8 +75,32 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+// ============================================================================
+//              MACROS TO SUPPORT TESTING DIFFERENT BUILD CONFIGURATIONS
+// ----------------------------------------------------------------------------
+
+// When 'noexcept' is available, the default exception specification is non-
+// throwing, so we need to declare a throwing exception specification.
+// Conversely, for a C++03 compiler, the default exception specification
+// potentially throws anything, so we want to set up the most restrictive
+// excpetion specification for the alternative test path.  However, if we are
+// building with exceptions entirely disabled, then we should remove any notion
+// of testing with an exception specification.  The macro
+// 'EXCEPTION_SPECIFICATION' is defined appropriately within this test driver
+// to serve that purpose.
+
+#if defined(BDE_BUILD_TARGET_EXC)
+# if defined(BSLS_COMPILERFEATURES_SUPPORTS_NOEXCEPT)
+#   define EXCEPTION_SPECIFICATION noexcept(false)
+# else
+#   define EXCEPTION_SPECIFICATION throw
+# endif
+#else
+#   define EXCEPTION_SPECIFICATION
+#endif
+
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                      GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 enum   Enum {};
@@ -94,11 +119,7 @@ class DerivedPoly : public Base {
 };
 
 class DerivedPolyThrowSpec : public Base {
-#ifdef BDE_BUILD_TARGET_EXC
-    virtual ~DerivedPolyThrowSpec() throw();
-#else
-    virtual ~DerivedPolyThrowSpec();
-#endif
+    virtual ~DerivedPolyThrowSpec() EXCEPTION_SPECIFICATION;
 };
 
 class Poly {
@@ -110,27 +131,15 @@ class DerivedFromPoly : public Poly {
 };
 
 class DerivedFromPolyThrowSpec : public Poly {
-#ifdef BDE_BUILD_TARGET_EXC
-    ~DerivedFromPolyThrowSpec() throw();
-#else
-    ~DerivedFromPolyThrowSpec();
-#endif
+    ~DerivedFromPolyThrowSpec() EXCEPTION_SPECIFICATION;
 };
 
 class PolyThrowSpec {
-#ifdef BDE_BUILD_TARGET_EXC
-    virtual ~PolyThrowSpec() throw();
-#else
-    virtual ~PolyThrowSpec();
-#endif
+    virtual ~PolyThrowSpec() EXCEPTION_SPECIFICATION;
 };
 
 class DerivedFromPolyThrowSpec2 : public PolyThrowSpec {
-#ifdef BDE_BUILD_TARGET_EXC
-    ~DerivedFromPolyThrowSpec2() throw();
-#else
-    ~DerivedFromPolyThrowSpec2();
-#endif
+    ~DerivedFromPolyThrowSpec2() EXCEPTION_SPECIFICATION;
 };
 
 class Base1 : public virtual Base {
@@ -143,11 +152,7 @@ class VirtuallyDerived : public Base1, public Base2 {
 };
 
 class PolyVirtuallyDerived : public Base1, public Base2 {
-#ifdef BDE_BUILD_TARGET_EXC
-    virtual ~PolyVirtuallyDerived() throw();
-#else
-    virtual ~PolyVirtuallyDerived();
-#endif
+    virtual ~PolyVirtuallyDerived() EXCEPTION_SPECIFICATION;
 };
 
 class Poly1 : public virtual Poly {

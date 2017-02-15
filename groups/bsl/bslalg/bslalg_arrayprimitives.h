@@ -444,7 +444,8 @@ BSLS_IDENT("$Id$ $CSID$")
     // xlC has problem removing pointer from function pointer types.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define SUN_BUG
     // Exploring an issue with 'bslmf::MovableRef' and C++11 in CC 12.4.
 #endif

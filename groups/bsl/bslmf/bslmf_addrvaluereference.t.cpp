@@ -142,6 +142,12 @@ struct Incomplete;
     ASSERT(true == (bsl::is_same<                                             \
               bsl::add_rvalue_reference<const volatile TYPE>::type,           \
               const volatile TYPE&&                                           \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_rvalue_reference<TYPE &>::type, TYPE&                  \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_rvalue_reference<TYPE &&>::type, TYPE&&                \
               >::value));
 
 #define ASSERT_RVALUE_REF_FALSE(TYPE)                                         \
