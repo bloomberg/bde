@@ -2949,7 +2949,6 @@ u::StackTraceResolver::StackTraceResolverImpl(
 {
 }
 
-inline
 #if defined(BALST_COMPILER_DEFECT_NO_TYPEDEF_DESTRUCTORS)
 balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>::
                                                       ~StackTraceResolverImpl()
