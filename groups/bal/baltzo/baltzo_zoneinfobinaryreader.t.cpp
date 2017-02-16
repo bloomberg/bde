@@ -135,6 +135,9 @@ static void aSsErT(int c, const char *s, int i)
 
 static const bsls::Types::Int64 FIRST_TRANSITION =
               bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
+
+static const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488LL;
+
 // DATA
 const char unsigned NEW_YORK_DATA[] = {
     // Data from America/New_York
@@ -3338,7 +3341,7 @@ int main(int argc, char *argv[])
             // Another fake transition is added to binary file by database
             // creators:
             LOOP_ASSERT(iter->utcTime(),
-                        -576460752303423488 == iter->utcTime());
+                        MINIMUM_ZIC_TRANSITION == iter->utcTime());
             iter++;
 
             // 'baltzo::ZoneinfoBinaryReader' fake transition.
