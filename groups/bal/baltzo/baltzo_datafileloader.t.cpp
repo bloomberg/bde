@@ -1239,9 +1239,14 @@ int main(int argc, char *argv[])
 
             // Verify that there is no longer any memory allocated.
 
-            LOOP_ASSERT(fa.numBlocksInUse(),  0 == fa.numBlocksInUse());
-            LOOP_ASSERT(oa.numBlocksInUse(),  0 == oa.numBlocksInUse());
-            LOOP_ASSERT(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+            LOOP2_ASSERT(CONFIG, fa.numBlocksInUse(),
+                         0 == fa.numBlocksInUse());
+            LOOP2_ASSERT(CONFIG, oa.numBlocksInUse(),
+                         0 == oa.numBlocksInUse());
+            LOOP2_ASSERT(CONFIG, noa.numBlocksInUse(),
+                         0 == noa.numBlocksInUse());
+            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
+                         0 == noa.numBlocksTotal());
 
             // Double check that at least some object memory got allocated.
 
