@@ -312,15 +312,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_PLATFORM_CMP_SUN)
-# define BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE 1
-    // The Sun compiler will generate the implicit move operations in addition
-    // to the user-defined move operations declared below using
-    // 'bslmf::MovableRef', which leads to compiler errors for duplicate
-    // declarations and definitions.  Last confirmed with Sun CC 12.4.
-#endif
-
 namespace bsl {
 
                              // ===========
@@ -391,11 +382,7 @@ class stack {
         // Create a stack having the value of the specified 'original'.  The
         // currently installed default allocator is used to supply memory.
 
-#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
     stack(BloombergLP::bslmf::MovableRef<stack> original);
-#else
-    stack(stack&& original);
-#endif
         // Create a stack having the value of the specified 'original' by
         // moving the contents of 'original' to the new stack.  The allocator
         // associated with 'original' is propagated for use in the new stack.
@@ -460,11 +447,7 @@ class stack {
         // be used.
 
     template <class ALLOCATOR>
-#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
     stack(BloombergLP::bslmf::MovableRef<stack> original,
-#else
-    stack(stack&&                               original,
-#endif
           const ALLOCATOR&                      basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
@@ -483,11 +466,7 @@ class stack {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
     stack& operator=(BloombergLP::bslmf::MovableRef<stack> rhs)
-#else
-    stack& operator=(stack&& rhs)
-#endif
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  The
@@ -779,11 +758,7 @@ stack<VALUE, CONTAINER>::stack(const CONTAINER& container)
 
 template <class VALUE, class CONTAINER>
 inline
-#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
 stack<VALUE, CONTAINER>::stack(BloombergLP::bslmf::MovableRef<stack> original)
-#else
-stack<VALUE, CONTAINER>::stack(stack &&original)
-#endif
 : c(MoveUtil::move(MoveUtil::access(original).c))
 {
 }
@@ -853,11 +828,7 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
-#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
     BloombergLP::bslmf::MovableRef<stack> original,
-#else
-    stack&&                               original,
-#endif
     const ALLOCATOR&                      basicAllocator,
     typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                        ALLOCATOR>::type *)
@@ -877,12 +848,8 @@ stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(const stack& rhs)
 
 template <class VALUE, class CONTAINER>
 inline
-#if !defined(BSLS_STACK_IMPLICIT_MOVABLEREF_DUPLICATE)
 stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(
                                      BloombergLP::bslmf::MovableRef<stack> rhs)
-#else
-stack<VALUE, CONTAINER>& stack<VALUE, CONTAINER>::operator=(stack&& rhs)
-#endif
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     c = MoveUtil::move(MoveUtil::access(rhs).c);

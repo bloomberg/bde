@@ -177,15 +177,6 @@ BSLS_IDENT("$Id: $")
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_PLATFORM_CMP_SUN)
-# define BDLB_NULLABLEVALUE_IMPLICIT_MOVABLEREF_DUPLICATE 1
-    // The Sun compiler will generate the implicit move operations in addition
-    // to the user-defined move operations declared below using
-    // 'bslmf::MovableRef', which leads to compiler errors for duplicate
-    // declarations and definitions.  Last confirmed with Sun CC 12.4.
-#endif
-
 namespace BloombergLP {
 namespace bdlb {
 
@@ -345,11 +336,7 @@ class NullableValue {
         // Assign to this object the value of the specified 'rhs', and return a
         // reference providing modifiable access to this object.
 
-#if !defined(BDLB_NULLABLEVALUE_IMPLICIT_MOVABLEREF_DUPLICATE)
     NullableValue<TYPE>& operator=(bslmf::MovableRef<NullableValue> rhs);
-#else
-    NullableValue<TYPE>& operator=(NullableValue&& rhs);
-#endif
         // Assign to this object the value of the specified 'rhs', and return a
         // reference providing modifiable access to this object.  The contents
         // of 'rhs' are either move-inserted into or move-assigned to this
@@ -1075,11 +1062,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 template <class TYPE>
 inline
 NullableValue<TYPE>&
-#if !defined(BDLB_NULLABLEVALUE_IMPLICIT_MOVABLEREF_DUPLICATE)
 NullableValue<TYPE>::operator=(bslmf::MovableRef<NullableValue> rhs)
-#else
-NullableValue<TYPE>::operator=(NullableValue&& rhs)
-#endif
 {
     NullableValue& lvalue = rhs;
     d_imp = MoveUtil::move(lvalue.d_imp);

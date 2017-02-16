@@ -681,11 +681,21 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>   // for std::swap in C++03 or earlier
+#define INCLUDED_ALGORITHM
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #ifndef INCLUDED_INITIALIZER_LIST
 #include <initializer_list>
 #define INCLUDED_INITIALIZER_LIST
 #endif
+#endif
+
+#ifndef INCLUDED_UTILITY
+#include <utility>   // for std::swap in C++11 or later
+#define INCLUDED_UTILITY
 #endif
 
 namespace bsl {

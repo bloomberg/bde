@@ -93,7 +93,7 @@ void aSsErT(bool condition, const char *message, int line)
 # if defined(BSLS_COMPILERFEATURES_SUPPORTS_NOEXCEPT)
 #   define EXCEPTION_SPECIFICATION noexcept(false)
 # else
-#   define EXCEPTION_SPECIFICATION throw
+#   define EXCEPTION_SPECIFICATION throw()
 # endif
 #else
 #   define EXCEPTION_SPECIFICATION

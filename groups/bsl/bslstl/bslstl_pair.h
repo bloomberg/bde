@@ -366,10 +366,14 @@ BSL_OVERRIDES_STD mode"
 #ifdef std
 #   error This header should not be #included with 'std' being a macro
 #endif
+
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+ || !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 namespace std {
 template <class TYPE>
 void swap(TYPE& a, TYPE& b);
 }  // close namespace std
+#endif
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 

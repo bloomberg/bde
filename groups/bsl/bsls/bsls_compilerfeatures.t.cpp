@@ -354,6 +354,22 @@ TemplateType<TYPE>::operator=(my_movable_ref<OTHER>)
 template <class TYPE>
 TYPE make_rvalue() { return TYPE(); }
 
+
+// Further test for deduction in the presence of a movable-ref alias template
+struct Utility {
+    template <class TYPE>
+    static void sink(TYPE *, my_movable_ref<TYPE>) {}
+};
+
+
+template <class TYPE>
+struct Wrapper {
+    void test() {
+        TYPE x = TYPE();
+        Utility::sink(&x, TYPE());
+    }
+};
+
 }  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -510,6 +526,9 @@ int main(int argc, char *argv[])
 
         TemplateType<int> x = make_rvalue<TemplateType<int> >();
         x = make_rvalue<TemplateType<int> >();
+
+        Wrapper<int> z{};
+        z.test();
 #endif
       } break;
       case 13: {

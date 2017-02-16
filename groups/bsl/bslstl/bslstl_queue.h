@@ -217,15 +217,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_PLATFORM_CMP_SUN)
-# define BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE 1
-    // The Sun compiler will generate the implicit move operations in addition
-    // to the user-defined move operations declared below using
-    // 'bslmf::MovableRef', which leads to compiler errors for duplicate
-    // declarations and definitions.  Last confirmed with Sun CC 12.4.
-#endif
-
 namespace bsl {
 
                              // ===========
@@ -297,11 +288,7 @@ class queue {
     queue(const queue& original);
         // Create a queue having the value of the specified 'original'.
 
-#if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
     queue(BloombergLP::bslmf::MovableRef<queue> container);
-#else
-    queue(queue&& original);
-#endif
         // Create a queue having the value of the specified 'original'.  The
         // allocator associated with 'original' (if any) is propagated for use
         // in the new queue.  'original' is left in valid but unspecified
@@ -369,12 +356,8 @@ class queue {
         // disabled.
 
     template <class ALLOCATOR>
-#if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
     queue(BloombergLP::bslmf::MovableRef<queue> original,
-#else
-    queue(queue&&                               original,
-#endif
-        const ALLOCATOR&                        basicAllocator,
+          const ALLOCATOR&                      basicAllocator,
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
         // Create a queue having the value of the specified 'original' (on
@@ -393,11 +376,7 @@ class queue {
         // Assign to this queue the value of the specified 'rhs', and return a
         // reference providing modifiable access to this queue.
 
-#if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
     queue& operator=(BloombergLP::bslmf::MovableRef<queue> rhs);
-#else
-    queue& operator=(queue&& rhs);
-#endif
         // Assign to this queue the value as the specified 'rhs' and return a
         // reference providing modifiable access to this queue.  The
         // move-assignment operator of 'CONTAINER' is used to set the value of
@@ -697,11 +676,7 @@ queue<VALUE, CONTAINER>::queue(const queue& original)
 
 template <class VALUE, class CONTAINER>
 inline
-#if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
 queue<VALUE, CONTAINER>::queue(BloombergLP::bslmf::MovableRef<queue> original)
-#else
-queue<VALUE, CONTAINER>::queue(queue&& original)
-#endif
 : c(MoveUtil::move(MoveUtil::access(original).c))
 {
 }
@@ -772,11 +747,7 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(
-#if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
            BloombergLP::bslmf::MovableRef<queue> original,
-#else
-           queue&&                               original,
-#endif
            const ALLOCATOR&                      basicAllocator,
            typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type *)
@@ -795,12 +766,8 @@ queue<VALUE, CONTAINER>& queue<VALUE, CONTAINER>::operator=(const queue& rhs)
 
 template <class VALUE, class CONTAINER>
 inline
-#if !defined(BSLS_QUEUE_IMPLICIT_MOVABLEREF_DUPLICATE)
 queue<VALUE, CONTAINER>& queue<VALUE, CONTAINER>::operator=(
                                      BloombergLP::bslmf::MovableRef<queue> rhs)
-#else
-queue<VALUE, CONTAINER>& queue<VALUE, CONTAINER>::operator=(queue&& rhs)
-#endif
 {
     c = MoveUtil::move(MoveUtil::access(rhs).c);
     return *this;

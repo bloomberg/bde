@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
                                       <../../CC-gcc/include/c++/4.8.2/filename>
             // Support macro to keep whithin 79 char line limit
 
-#       define BSL_NATIVE_CISO646_HEADER(filename)                                \
+#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
                                           BSL_NATIVE_SUN_CPP11_HEADER(filename)
 #       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
                                           BSL_NATIVE_SUN_CPP11_HEADER(filename)
@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
                                    BSL_NATIVE_SUN_LIBRARY_HEADER(Cstd/filename)
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                         BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
-#       define BSL_NATIVE_CISO646_HEADER(filename)                                \
+#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
                                         BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
 #   else  // assuming STLport library selected on the command line
 #       define BSL_NATIVE_SUN_STLPORT_HEADER(filename)                        \
@@ -184,7 +184,7 @@ BSLS_IDENT("$Id: $")
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CISO646_HEADER(filename)                                \
+#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
                                         BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
 #   endif
 # endif
