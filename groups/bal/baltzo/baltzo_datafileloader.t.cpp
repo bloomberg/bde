@@ -1243,10 +1243,13 @@ int main(int argc, char *argv[])
                          0 == fa.numBlocksInUse());
             LOOP2_ASSERT(CONFIG, oa.numBlocksInUse(),
                          0 == oa.numBlocksInUse());
+
+            // 'rootPath' returns string by value, so memory can be allocated
+            // by default allocator for some configurations, but it should be
+            // released correctly at this point.
+
             LOOP2_ASSERT(CONFIG, noa.numBlocksInUse(),
                          0 == noa.numBlocksInUse());
-            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
-                         0 == noa.numBlocksTotal());
 
             // Double check that at least some object memory got allocated.
 
