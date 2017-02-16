@@ -1239,7 +1239,7 @@ static int verifyTimeZone(const ZoneinfoData&     data,
     // Zoneinfo version '\0' binary data in the buffer.  Return 0 if the
     // validation succeed, and a non-zero value otherwise.
 
-static int verifyTimeZoneVersion2Format(
+static int verifyTimeZoneVersion2Or3Format(
                                  const ZoneinfoData&     data,
                                  const baltzo::Zoneinfo& timeZone,
                                  int                     line,
@@ -1249,11 +1249,12 @@ static int verifyTimeZoneVersion2Format(
     // error message containing the line number indicated by the specified
     // 'line' when the validation failed.  Optionally, specified 'expectToFail'
     // indicating whether there is a difference between 'timeZone' and 'data'.
-    // If 'expectToFail' is 'true', 'verifyTimeZone' will not 'ASSERT',
-    // otherwise, 'verifyTimeZone' will 'ASSERT' at the location that an error
-    // is detected.  The behavior is undefined unless 'data' contains valid
-    // Zoneinfo version '2' binary data in the buffer.  Return 0 if the
-    // validation succeed, and a non-zero value otherwise.
+    // If 'expectToFail' is 'true', 'verifyTimeZoneVersion2Or3Format' will not
+    // 'ASSERT', otherwise, 'verifyTimeZoneVersion2Or3Format' will 'ASSERT' at
+    // the location that an error is detected.  The behavior is undefined
+    // unless 'data' contains valid Zoneinfo version '2'  or '3' binary data in
+    // the buffer.  Return 0 if the validation succeed, and a non-zero value
+    // otherwise.
 
 static void writeBigEndian(char *address, int value);
     // Write the specified 'value' into the memory at the specified 'address in
@@ -1831,9 +1832,9 @@ class ZoneinfoData {
     int size() const;
         // Return the size of the buffer containing the Zoneinfo data.
 
-    char *getVersion2Address() const;
+    char *getVersion2Or3Address() const;
         // Return the address of the portion in the buffer that is the start
-        // of the version '2' header.
+        // of the version '2' or '3' header.
 
     RawHeader *getRawHeader() const;
         // Return the address of the portion in the buffer containing header
@@ -2142,7 +2143,7 @@ int ZoneinfoData::size() const
     return d_size;
 }
 
-char *ZoneinfoData::getVersion2Address() const
+char *ZoneinfoData::getVersion2Or3Address() const
 {
     return &d_buffer[sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4
@@ -2162,13 +2163,13 @@ RawHeader *ZoneinfoData::getRawHeader() const
 
 RawHeader *ZoneinfoData::getRawHeader64() const
 {
-    return reinterpret_cast<RawHeader*>(getVersion2Address());
+    return reinterpret_cast<RawHeader*>(getVersion2Or3Address());
 }
 
 char *ZoneinfoData::getTimeZoneString() const
 {
     return reinterpret_cast<char *> (
-        getVersion2Address()
+        getVersion2Or3Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numIsGmt(), 0) * 1
         + bsl::max(getRawHeader64()->numIsStd(), 0) * 1
@@ -2189,7 +2190,7 @@ bdlb::BigEndianInt32 *ZoneinfoData::getTransitionTime() const
 bdlb::BigEndianInt64 *ZoneinfoData::getTransitionTime64() const
 {
     return reinterpret_cast<bdlb::BigEndianInt64*>(
-        getVersion2Address() + sizeof(RawHeader));
+        getVersion2Or3Address() + sizeof(RawHeader));
 }
 
 unsigned char *ZoneinfoData::getTransitionIndex() const
@@ -2202,7 +2203,7 @@ unsigned char *ZoneinfoData::getTransitionIndex() const
 unsigned char *ZoneinfoData::getTransitionIndex64() const
 {
     return reinterpret_cast<unsigned char *>(
-        getVersion2Address()
+        getVersion2Or3Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8);
 }
@@ -2221,7 +2222,7 @@ RawLeapInfo *ZoneinfoData::getRawLeapInfo() const
 RawLeapInfo64 *ZoneinfoData::getRawLeapInfo64() const
 {
     return reinterpret_cast<RawLeapInfo64*>(
-        getVersion2Address()
+        getVersion2Or3Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
         + bsl::max(getRawHeader64()->numTransitions(), 0)
@@ -2241,7 +2242,7 @@ RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes() const
 RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes64() const
 {
     return reinterpret_cast<RawLocalTimeTypes*>(
-        getVersion2Address()
+        getVersion2Or3Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
         + bsl::max(getRawHeader64()->numTransitions(), 0));
@@ -2259,7 +2260,7 @@ char *ZoneinfoData::getAbbrevData() const
 
 char *ZoneinfoData::getAbbrevData64() const
 {
-    return getVersion2Address()
+    return getVersion2Or3Address()
         + sizeof(RawHeader)
         + bsl::max(getRawHeader64()->numTransitions(), 0) * 8
         + bsl::max(getRawHeader64()->numTransitions(), 0)
@@ -2358,10 +2359,11 @@ static int verifyTimeZone(const ZoneinfoData&     data,
 
 // ----------------------------------------------------------------------------
 
-static int verifyTimeZoneVersion2Format(const ZoneinfoData&     data,
-                                        const baltzo::Zoneinfo& timeZone,
-                                        int                     line,
-                                        bool                    expectToFail)
+static int verifyTimeZoneVersion2Or3Format(
+                                          const ZoneinfoData&     data,
+                                          const baltzo::Zoneinfo& timeZone,
+                                          int                     line,
+                                          bool                    expectToFail)
 {
     const int                LINE             = line;
     const baltzo::Zoneinfo&  X                = timeZone;
@@ -2681,10 +2683,10 @@ static int testVerifyTimeZone(int verbose)
 
 // ----------------------------------------------------------------------------
 
-static int testVerifyTimeZoneVersion2Format(int verbose)
-    // Run ad-hoc tests on the 'verifyTimeZoneVersion2Format' function.  The
+static int testVerifyTimeZoneVersion2Or3Format(int verbose)
+    // Run ad-hoc tests on the 'verifyTimeZoneVersion2Or3Format' function.  The
     // tests will be based on a Zoneinfo with 5 transitions and 3 local time
-    // types.  'verifyTimeZoneVersion2Format' will be called on various
+    // types.  'verifyTimeZoneVersion2Or3Format' will be called on various
     // 'baltzo::Zoneinfo' objects and the return code will be verified.  Return
     // 0 if all the tests passed, and a non-zero value otherwise.
 {
@@ -2767,7 +2769,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_, false));
+        ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, false));
     }
 
     if (verbose) cout << "\nMissing transition at 'Jan 1, 1'" << endl;
@@ -2779,7 +2781,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nIncorrect first transition" << endl;
@@ -2792,7 +2794,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nMissing one transition" << endl;
@@ -2803,7 +2805,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[1], D[1]);
         TZ.addTransition(TRANSITION_TIMES[2], D[2]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nOne extra transition" << endl;
@@ -2817,7 +2819,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[4] - 1, D[1]);
         TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nIncorrect transition data" << endl;
@@ -2831,7 +2833,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2840,7 +2842,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[1] - 1, D[1]);
             TZ.addTransition(TRANSITION_TIMES[2],     D[2]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2851,7 +2853,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3],     D[0]);
             TZ.addTransition(TRANSITION_TIMES[4],     D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
         }
     }
 
@@ -2865,7 +2867,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
         TZ.addTransition(TRANSITION_TIMES[3], D[0]);
         TZ.addTransition(TRANSITION_TIMES[4], D[0]);
 
-        ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+        ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
     }
 
     if (verbose) cout << "\nIncorrect local time descriptor data" << endl;
@@ -2880,7 +2882,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2892,7 +2894,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], D[1]);
 
-            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
         }
         {
             baltzo::Zoneinfo TZ;
@@ -2904,7 +2906,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
             TZ.addTransition(TRANSITION_TIMES[3], D[0]);
             TZ.addTransition(TRANSITION_TIMES[4], dError);
 
-            ASSERT(0 != verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+            ASSERT(0 != verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
         }
     }
 
@@ -2922,7 +2924,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
 
         TZ.setPosixExtendedRangeDescription("abc\n");
 
-        ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_, true));
+        ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_, true));
     }
     return 0;
 }
@@ -3356,7 +3358,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Call the 'read' function on a number of real-life Zoneinfo data.
-        //:   Verify the retrieved data with 'verifyTimeZoneVersion2Format'.
+        //:   Verify the retrieved data with 'verifyTimeZoneVersion2Or3Format'.
         //:   The chosen time zones are:
         //:   o America/New_York -- due to common usage.
         //:   o Europe/London -- due to common usage.
@@ -3429,7 +3431,7 @@ int main(int argc, char *argv[])
 
                 ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
                                 SIZE);
-                ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+                ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
             }
         }
       } break;
@@ -3477,7 +3479,7 @@ int main(int argc, char *argv[])
                           << "TESTING TIME ZONE STRING READING" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting version '\0' binary file." << endl;
+        if (verbose) cout << "\nTesting version '\\0' binary file." << endl;
         {
             RawHeader RH;
             RH.setNumIsGmt(0);
@@ -3493,7 +3495,7 @@ int main(int argc, char *argv[])
 
             baltzo::Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
         }
 
         if (verbose) cout << "\nTesting version '2' and '3' binary file."
@@ -3549,9 +3551,9 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, version,
                                  0 == Obj::read(&TZ, inputStream));
                     LOOP2_ASSERT(LINE, version,
-                                 0 == verifyTimeZoneVersion2Format(result,
-                                                                   TZ,
-                                                                   LINE));
+                                 0 == verifyTimeZoneVersion2Or3Format(result,
+                                                                      TZ,
+                                                                      LINE));
                 }
             }
         }
@@ -3678,8 +3680,9 @@ int main(int argc, char *argv[])
                 baltzo::Zoneinfo TZ;
 
                 LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, stream));
-                LOOP_ASSERT(LINE, 0 ==
-                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                                       TZ,
+                                                                       LINE));
             }
         }
       } break;
@@ -3833,8 +3836,9 @@ int main(int argc, char *argv[])
                 ASSERT(TRANS      == HD.numTransitions());
                 ASSERT(AB_DATA    == HD.abbrevDataSize());
 
-                LOOP_ASSERT(LINE, 0 ==
-                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                                       TZ,
+                                                                       LINE));
             }
         }
       } break;
@@ -3966,9 +3970,11 @@ int main(int argc, char *argv[])
 
                     baltzo::Zoneinfo TZ;
                     LOOP2_ASSERT(LINE, LLT_LINE,
-                                             0 == Obj::read(&TZ, inputStream));
+                                 0 == Obj::read(&TZ, inputStream));
                     LOOP2_ASSERT(LINE, LLT_LINE,
-                              0 == verifyTimeZoneVersion2Format(ZI, TZ, LINE));
+                                 0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                                      TZ,
+                                                                      LINE));
                 }
             }
         }
@@ -4103,8 +4109,9 @@ int main(int argc, char *argv[])
 
                 baltzo::Zoneinfo TZ;
                 LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 ==
-                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                                       TZ,
+                                                                       LINE));
 
                 baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
@@ -4153,7 +4160,7 @@ int main(int argc, char *argv[])
 
             baltzo::Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
         }
 
         if (verbose) cout <<
@@ -4266,7 +4273,7 @@ int main(int argc, char *argv[])
 
             baltzo::Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
         }
 
         if (verbose) cout <<
@@ -4435,8 +4442,9 @@ int main(int argc, char *argv[])
                 baltzo::Zoneinfo TZ;
 
                 LOOP_ASSERT(LINE, 0 == Obj::read(&TZ, inputStream));
-                LOOP_ASSERT(LINE, 0 ==
-                                   verifyTimeZoneVersion2Format(ZI, TZ, LINE));
+                LOOP_ASSERT(LINE, 0 == verifyTimeZoneVersion2Or3Format(ZI,
+                                                                       TZ,
+                                                                       LINE));
             }
         }
 
@@ -4490,7 +4498,7 @@ int main(int argc, char *argv[])
 
             baltzo::Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
         }
 
         if (verbose) cout << "\nTesting invalid UTC offset." << endl;
@@ -4659,7 +4667,7 @@ int main(int argc, char *argv[])
 
             baltzo::Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
 
             baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
@@ -4748,7 +4756,7 @@ int main(int argc, char *argv[])
 
             baltzo::Zoneinfo TZ;
             ASSERT(0 == Obj::read(&TZ, inputStream));
-            ASSERT(0 == verifyTimeZoneVersion2Format(ZI, TZ, L_));
+            ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
 
             baltzo::Zoneinfo::TransitionConstIterator iter =
                                                            TZ.endTransitions();
@@ -4822,7 +4830,7 @@ int main(int argc, char *argv[])
         //: 4 'verifyTimeZone' correctly reports whether a 'baltzo::Zoneinfo'
         //:   matches the version '\0' Zoneinfo binary data.
         //:
-        //: 4 'verifyTimeZoneVersion2Format' correctly reports whether a
+        //: 4 'verifyTimeZoneVersion2Or3Format' correctly reports whether a
         //:   'baltzo::Zoneinfo' matches the version '2' Zoneinfo binary data.
         //
         // Plan:
@@ -5166,10 +5174,10 @@ int main(int argc, char *argv[])
             testVerifyTimeZone(verbose);
         }
 
-        if (verbose) cout << "\nTesting 'verifyTimeZoneVersion2Format'."
+        if (verbose) cout << "\nTesting 'verifyTimeZoneVersion2Or3Format'."
                                                                        << endl;
         {
-            testVerifyTimeZoneVersion2Format(verbose);
+            testVerifyTimeZoneVersion2Or3Format(verbose);
         }
       } break;
       case 1: {
@@ -5214,7 +5222,7 @@ int main(int argc, char *argv[])
 
         ZoneinfoData ZI(reinterpret_cast<const char *>(CHATHAM_DATA),
                         sizeof(CHATHAM_DATA));
-        verifyTimeZoneVersion2Format(ZI, TZ, L_);
+        verifyTimeZoneVersion2Or3Format(ZI, TZ, L_);
 
 
         baltzo::Zoneinfo TZ1;
@@ -5307,7 +5315,7 @@ int main(int argc, char *argv[])
 
         ZoneinfoData data(buffer, size);
         if ('2' == data.getRawHeader()->version() &&
-            0 != verifyTimeZoneVersion2Format(data, timeZone, L_)) {
+            0 != verifyTimeZoneVersion2Or3Format(data, timeZone, L_)) {
             cout << "Failed to parse file" << endl;
             exit(-1);
         } else if (0 != verifyTimeZone(data, timeZone, L_)) {
