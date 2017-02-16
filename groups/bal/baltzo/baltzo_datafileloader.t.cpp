@@ -1155,8 +1155,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "DEFFAULT CTOR & PRIMARY MANIPULATORS'" << endl
-                          << "==================================" << endl;
+                          << "DEFAULT CTOR & PRIMARY MANIPULATORS" << endl
+                          << "===================================" << endl;
 
         const char *D1 = INVALID_PATH;  // rootPath
 
@@ -1244,8 +1244,8 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(CONFIG, oa.numBlocksInUse(),
                          0 == oa.numBlocksInUse());
 
-            // 'rootPath' returns string by value, so memory can be allocated
-            // by default allocator for some configurations, but it should be
+            // Temporary string is created for comparison in assertion, so some
+            // memory is allocated by default allocator, but it should be
             // released correctly at this point.
 
             LOOP2_ASSERT(CONFIG, noa.numBlocksInUse(),
