@@ -226,6 +226,8 @@ void OverloadForNullptr(void *) {}
 
 namespace {
 
+// Check support for the perfect forwaring idiom
+//
 template <class T>
 struct my_remove_reference {
     typedef T type;
@@ -269,6 +271,103 @@ struct RvalueArg {};
 
 struct RvalueTest {
     RvalueTest(RvalueArg const &) {}
+};
+
+
+// Check for support for move-constructors declared with a 'typedef'.  This is
+// known to expose a bug on some compilers that causes issues for our
+// compatibility with emulated C++03 move.
+
+template <class TYPE>
+struct my_movable_ref_helper {
+    // The class template 'MovableRef_Helper' just defines a nested type
+    // 'type' that is used by an alias template.  Using this indirection the
+    // template argument of the alias template is prevented from being deduced.
+    using type = TYPE&&;
+        // The type 'type' defined to be an r-value reference to the argument
+        // type of 'MovableRef_Helper.
+};
+
+template <class TYPE>
+using my_movable_ref = typename my_movable_ref_helper<TYPE>::type;
+    // The alias template 'MovableRef<TYPE>' yields an r-value reference of
+    // type 'TYPE&&'.
+
+
+template <class TYPE>
+struct TemplateType {
+    TemplateType();
+    TemplateType(const TemplateType&);
+
+    template <class OTHER>
+    TemplateType(my_movable_ref<TemplateType<OTHER> >);
+
+    template <class OTHER>
+    TemplateType(my_movable_ref<OTHER>);
+
+    TemplateType& operator=(const TemplateType&);
+
+    template <class OTHER>
+    TemplateType& operator=(my_movable_ref<TemplateType<OTHER> >);
+
+    template <class OTHER>
+    TemplateType& operator=(my_movable_ref<OTHER>);
+};
+
+template <class TYPE>
+TemplateType<TYPE>::TemplateType() {}
+
+template <class TYPE>
+TemplateType<TYPE>::TemplateType(const TemplateType&) {}
+
+template <class TYPE>
+template <class OTHER>
+TemplateType<TYPE>::TemplateType(my_movable_ref<TemplateType<OTHER> >) {}
+
+template <class TYPE>
+template <class OTHER>
+TemplateType<TYPE>::TemplateType(my_movable_ref<OTHER>) {}
+
+template <class TYPE>
+TemplateType<TYPE>&
+TemplateType<TYPE>::operator=(const TemplateType&)
+{
+    return *this;
+}
+
+template <class TYPE>
+template <class OTHER>
+TemplateType<TYPE>&
+TemplateType<TYPE>::operator=(my_movable_ref<TemplateType<OTHER> >)
+{
+    return *this;
+}
+
+template <class TYPE>
+template <class OTHER>
+TemplateType<TYPE>&
+TemplateType<TYPE>::operator=(my_movable_ref<OTHER>)
+{
+    return *this;
+}
+
+template <class TYPE>
+TYPE make_rvalue() { return TYPE(); }
+
+
+// Further test for deduction in the presence of a movable-ref alias template
+struct Utility {
+    template <class TYPE>
+    static void sink(TYPE *, my_movable_ref<TYPE>) {}
+};
+
+
+template <class TYPE>
+struct Wrapper {
+    void test() {
+        TYPE x = TYPE();
+        Utility::sink(&x, TYPE());
+    }
 };
 
 }  // close unnamed namespace
@@ -424,6 +523,12 @@ int main(int argc, char *argv[])
                             "=========================\n");
 
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
+
+        TemplateType<int> x = make_rvalue<TemplateType<int> >();
+        x = make_rvalue<TemplateType<int> >();
+
+        Wrapper<int> z{};
+        z.test();
 #endif
       } break;
       case 13: {

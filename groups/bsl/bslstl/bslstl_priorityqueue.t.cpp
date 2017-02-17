@@ -569,7 +569,7 @@ enum CalledMethod
     e_EMPLACE_9                         = 1 << 17,  // 'emplace_back' method
                                                     // with nine parameters
 
-    e_EMPLACE_10                        = 1 << 18,  // 'emplace_back' method
+    e_EMPLACE_10                        = 1 << 18   // 'emplace_back' method
                                                     // with ten parameters
 };
 

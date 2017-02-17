@@ -861,10 +861,10 @@ int main(int argc, char *argv[])
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_ENDTOEND_ARRAY(char[], au,    0);
         TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
-#endif
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)                  \
- &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)                 \
+  &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
         TEST_ENDTOEND_ARRAY(char *&&, au,  0);
+# endif
 #endif
 
         if (veryVerbose) printf("function types\n");
@@ -1002,7 +1002,8 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<double *volatile>(p);
         testForwardToTargetVal<PF      volatile>(f_p);
         testForwardToTargetVal<Pm      volatile>(m_p);
-        testForwardToTargetVal<Pmf     volatile>(mf_p);
+        testForwardToTargetVal<Pmf     volatile>(mf_p); // fails at runtime on
+                                                        // Oracle CC 12.4
 #if !defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
         testForwardToTargetVal<A       volatile>(a);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
@@ -1022,14 +1023,14 @@ int main(int argc, char *argv[])
         testForwardToTargetArray<AU         &>(au);
         testForwardToTargetArray<AU const   &>(au);
         testForwardToTargetArray<AU volatile&>(au);
-#endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)   \
- &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)   \
+  &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
         testForwardToTargetArray<A          &&>(native_std::move(a));
         testForwardToTargetArray<A  const   &&>(native_std::move(a));
         testForwardToTargetArray<AU         &&>(native_std::move(au));
         testForwardToTargetArray<AU const   &&>(native_std::move(au));
+# endif
 #endif
 
         testForwardToTargetRef<Enum    &>(e);
