@@ -17,6 +17,10 @@ BSLS_IDENT("$Id: $")
 // documentation and to make other changes.  The steps to generate and update
 // this file can be found in the 'doc/generating_codec_options.txt' file.
 
+#ifndef INCLUDED_BALSCM_VERSION
+#include <balscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

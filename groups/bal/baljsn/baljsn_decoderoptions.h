@@ -67,6 +67,10 @@ BSLS_IDENT("$Id: $")
 //  assert(SKIP_UNKNOWN_ELEMENTS == options.skipUnknownElements());
 //..
 
+#ifndef INCLUDED_BALSCM_VERSION
+#include <balscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

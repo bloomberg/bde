@@ -69,3 +69,5 @@ const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION =
 
 7. Replace the prefixes of the enumerator names in 'baljsn::EncodingStyle'
    from 'E_' to 'e_'.
+
+8. Add an include for 'balscm_version.h' in all the header files.
