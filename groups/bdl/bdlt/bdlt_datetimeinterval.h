@@ -583,7 +583,9 @@ bool operator>=(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
     // 'rhs' time interval values holds, and 'false' otherwise.  'lhs' is less
     // than 'rhs' if the following expression evaluates to 'true':
     //..
-    //  lhs.totalMilliseconds() < rhs.totalMilliseconds()
+    //     lhs.days() < rhs.days()
+    //  || (lhs.days() == rhs.days() && lhs.fractionalDayInMicroseconds()
+    //                                     < rhs.fractionalDayInMicroseconds())
     //..
     // The other relationships are defined similarly.
 
