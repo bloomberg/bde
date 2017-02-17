@@ -12,20 +12,23 @@ We dont anticipate anyone bdex-serializing these options therefore that
 functionality is skipped.  The 'noAggregateConversion' option skips any
 aggregate conversion code from these components.
 
-2. Copy the component level doc from the old components to the generated
-   components.
+2. Copy the component level doc and implementation note doc from the old
+   components to the generated components.
 
 3. Replace use of bdeat with bdlat.  'bas_codegen.pl' generates components
    using 'bdeat' (as opposed to 'bdlat') components.  Change the generated
-   components to use the newer components instead.
+   components to use the newer components instead.  This will include replacing
+   'bdeat_' with 'bdlat_', 'BDEAT' with 'BDLAT', and 'BDEAT_*' enums with 'e_'.
 
-4. Add a 'baljsn::EncoderOptions::setEncodingStyle' overload that takes a
-   'baljsn::EncoderOptions::EncodingStyle' argument.  'baejsn_EncoderOptions'
-   was written with 'EncodingStyle' as an in-class enumeration and not a
-   separate type/component.  To allow backwards-compatibility when baejsn is
-   aliased to baljsn we add a similar in-class enumeration to
-   'baljsn::EncoderOptions' and add an overload that allows setting that
-   attribute.
+4. 'baejsn_EncoderOptions' was written with 'EncodingStyle' as an in-class
+   enumeration and not a separate type/component.  To allow
+   backwards-compatibility when baejsn is aliased to baljsn we add a similar
+   in-class enumeration to 'baljsn::EncoderOptions'.  The generated class will
+   have a data member 'd_encodingStyle' of type 'baljsn::EncodingStyle::Value'
+   but we will need to add a manipulator 'setEncodingStyle' that accepts a
+   'baljsn::EncoderOptions::EncodingStyle' argument.  Similarly, the accessor
+   will need to be modified to return a
+   'baljsn::EncoderOptions::EncodingStyle'.
 
 5. Insert missing pre-condition asserts when setting constrained attributes.
    'bas_codegen.pl' generates constrained attributes in a schema as separate
@@ -63,3 +66,6 @@ const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION =
                                           bsl::numeric_limits<float>::digits10;
 const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION =
                                          bsl::numeric_limits<double>::digits10;
+
+7. Replace the prefixes of the enumerator names in 'baljsn::EncodingStyle'
+   from 'E_' to 'e_'.

@@ -26,22 +26,22 @@
     <xs:annotation>
       <xs:documentation>
         Options for performing JSON encoding.
-        Encoding style is either COMPACT or PRETTY.  If encoding style is
-        COMPACT, no whitespace will be added between elements.  If encoding
+        'EncodingStyle' is either 'COMPACT' or 'PRETTY'.  If 'EncodingStyle' is
+        'COMPACT', no whitespace will be added between elements.  If encoding
         style is 'PRETTY', then the 'InitialIndentLevel' and 'SpacesPerLevel'
         parameters are used to specify the formatting of the output.  Note
         that 'InitialIndentLevel' and 'SpacesPerLevel' are ignored when
-        'EncodingStyle' is COMPACT (this is the default).  The
-        'encodeEmptyArrays' and 'encodeNullElements' encode empty array
+        'EncodingStyle' is 'COMPACT' (this is the default).  The
+        'EncodeEmptyArrays' and 'EncodeNullElements' encode empty array
         and null elements respectively.  By default empty array and null
-        elements are not encoded.  The 'encodeInfAndNaNAsStrings' attribute
+        elements are not encoded.  The 'EncodeInfAndNaNAsStrings' attribute
         provides users the option to encode 'Infinity' and 'NaN' floating point
         values as strings.  These values do not have a valid JSON
         representation and by default such value will result in an encoding
-        error.  The 'datetimeFractionalSecondPrecision' specifies the precision
+        error.  The 'DatetimeFractionalSecondPrecision' specifies the precision
         of milliseconds printed with date time values.  By default a precision
-        of '3' decimal places is used.  The 'maxFloatPrecision' and
-        'maxDoublePrecision' attributes allow specifying the maximum precision
+        of '3' decimal places is used.  The 'MaxFloatPrecision' and
+        'MaxDoublePrecision' attributes allow specifying the maximum precision
         for 'float' and 'double' values.
       </xs:documentation>
     </xs:annotation>
@@ -97,13 +97,13 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name='encodeInfAndNaNAsStrings' type='xs:boolean'
+      <xs:element name='EncodeInfAndNaNAsStrings' type='xs:boolean'
             minOccurs='0' maxOccurs='1'
             default='false'
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            option specifying a way to encode 'infinity' and 'NaN' floating
+            option specifying a way to encode 'Infinity' and 'NaN' floating
             point values.  JSON does not provide a way to encode these values
             as they are not numbers.  Although the resulting output is a valid
             JSON document, decoders expecting floating point numbers to be
@@ -125,7 +125,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name='maxFloatPrecision' type='xs:int'
+      <xs:element name='MaxFloatPrecision' type='xs:int'
             minOccurs='0' maxOccurs='1'
             default='0'
             bdem:allowsDirectManipulation='0'>
@@ -136,7 +136,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name='maxDoublePrecision' type='xs:int'
+      <xs:element name='MaxDoublePrecision' type='xs:int'
             minOccurs='0' maxOccurs='1'
             default='0'
             bdem:allowsDirectManipulation='0'>
@@ -171,7 +171,7 @@
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            Option to skip unknown elements
+            option to skip unknown elements
           </xs:documentation>
         </xs:annotation>
       </xs:element>

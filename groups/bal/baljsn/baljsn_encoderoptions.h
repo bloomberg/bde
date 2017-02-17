@@ -73,6 +73,12 @@ BSLS_IDENT("$Id: $")
 //: o 'maxDoublePrecision': option specifying the maximum number of decimal
 //:                         places used to encode each 'double' value.
 //
+///Implementation Note
+///- - - - - - - - - -
+// This file was generated from a script and was subsequently modified to add
+// documentation and to make other changes.  The steps to generate and update
+// this file can be found in the 'doc/generating_codec_options.txt' file.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -97,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //  baljsn::EncoderOptions options;
 //  assert(0     == options.initialIndentLevel());
 //  assert(0     == options.spacesPerLevel());
-//  assert(EncoderOptions::e_COMPACT == options.encodingStyle());
+//  assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
 //  assert(false == options.encodeEmptyArrays());
 //  assert(false == options.encodeNullElements());
 //  assert(false == options.encodeInfAndNaNAsStrings());
@@ -185,13 +191,23 @@ namespace baljsn {
                             // ====================
 
 class EncoderOptions {
-    // Options for performing JSON encoding.  Encoding style is either COMPACT
-    // or PRETTY.  If encoding style is COMPACT, no whitespace will be added
-    // between elements.  If encoding style is 'PRETTY', then the
+    // Options for performing JSON encoding.  'EncodingStyle' is either
+    // 'COMPACT' or 'PRETTY'.  If 'EncodingStyle' is 'COMPACT', no whitespace
+    // will be added between elements.  If encoding style is 'PRETTY', then the
     // 'InitialIndentLevel' and 'SpacesPerLevel' parameters are used to specify
     // the formatting of the output.  Note that 'InitialIndentLevel' and
-    // 'SpacesPerLevel' are ignored when 'EncodingStyle' is COMPACT (this is
-    // the default). 
+    // 'SpacesPerLevel' are ignored when 'EncodingStyle' is 'COMPACT' (this is
+    // the default).  The 'EncodeEmptyArrays' and 'EncodeNullElements' encode
+    // empty array and null elements respectively.  By default empty array and
+    // null elements are not encoded.  The 'EncodeInfAndNaNAsStrings' attribute
+    // provides users the option to encode 'Infinity' and 'NaN' floating point
+    // values as strings.  These values do not have a valid JSON representation
+    // and by default such value will result in an encoding error.  The
+    // 'DatetimeFractionalSecondPrecision' specifies the precision of
+    // milliseconds printed with date time values.  By default a precision of
+    // '3' decimal places is used.  The 'MaxFloatPrecision' and
+    // 'MaxDoublePrecision' attributes allow specifying the maximum precision
+    // for 'float' and 'double' values. 
 
     // INSTANCE DATA
     int                   d_initialIndentLevel;
@@ -199,28 +215,29 @@ class EncoderOptions {
     int                   d_spacesPerLevel;
         // spaces per additional level of indentation 
     int                   d_datetimeFractionalSecondPrecision;
-        // option specifying the number of decimal places used for seconds when
-        // encoding 'Datetime' and 'DatetimeTz' values. 
+        // option specifying the number of decimal places used for milliseconds
+        // when encoding 'Datetime' and 'DatetimeTz' values 
     int                   d_maxFloatPrecision;
         // option specifying the maximum number of decimal places used to
-        // encode each 'float' value. 
+        // encode each 'float' value 
     int                   d_maxDoublePrecision;
         // option specifying the maximum number of decimal places used to
-        // encode each 'double' value. 
-    EncodingStyle::Value  d_encodingStyle;
-        // encoding style (see component-level doc) 
+        // encode each 'double' value 
+    baljsn::EncodingStyle::Value  d_encodingStyle;
+        // encoding style used to encode values 
     bool                  d_encodeEmptyArrays;
-        // Option specifying if empty arrays should be encoded. 
+        // option specifying if empty arrays should be encoded 
     bool                  d_encodeNullElements;
-        // Option specifying if null elements should be encoded. 
+        // option specifying if null elements should be encoded 
     bool                  d_encodeInfAndNaNAsStrings;
-        // JSON does not provide a way to encode these values as they are not
-        // numbers.  This option provides a way to encode these values. 
-        // Although the resulting output is a valid JSON document, decoders
-        // expecting floating point numbers to be encoded only as numbers will
-        // fail to decode.  Users of this option must therefore exercise
-        // caution and ensure that if this option is used then the parser
-        // decoding the generated JSON can handle doubles as strings. 
+        // option specifying a way to encode 'Infinity' and 'NaN' floating
+        // point values.  JSON does not provide a way to encode these values as
+        // they are not numbers.  Although the resulting output is a valid JSON
+        // document, decoders expecting floating point numbers to be encoded
+        // only as numbers will fail to decode.  Users of this option must
+        // therefore exercise caution and ensure that if this option is used
+        // then the parser decoding the generated JSON can handle doubles as
+        // strings. 
 
   public:
     // TYPES
@@ -435,7 +452,7 @@ class EncoderOptions {
         // Return a reference to the non-modifiable "SpacesPerLevel" attribute
         // of this object.
 
-    baljsn::EncodingStyle::Value encodingStyle() const;
+    baljsn::EncoderOptions::EncodingStyle encodingStyle() const;
         // Return a reference to the non-modifiable "EncodingStyle" attribute
         // of this object.
 
@@ -487,7 +504,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const EncoderOptions& rhs);
 
 // TRAITS
 
-BDEAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(baljsn::EncoderOptions)
+BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(baljsn::EncoderOptions)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
@@ -635,7 +652,7 @@ inline
 void EncoderOptions::setEncodingStyle(
                                    baljsn::EncoderOptions::EncodingStyle value)
 {
-    d_encodingStyle = (baljsn::EncodingStyle::Value)value;
+    d_encodingStyle = static_cast<baljsn::EncodingStyle::Value>(value);
 }
 
 inline
@@ -805,9 +822,9 @@ int EncoderOptions::spacesPerLevel() const
 }
 
 inline
-EncodingStyle::Value EncoderOptions::encodingStyle() const
+baljsn::EncoderOptions::EncodingStyle EncoderOptions::encodingStyle() const
 {
-    return d_encodingStyle;
+    return static_cast<baljsn::EncoderOptions::EncodingStyle>(d_encodingStyle);
 }
 
 inline
@@ -893,9 +910,8 @@ bsl::ostream& baljsn::operator<<(
 }  // close enterprise namespace
 #endif
 
-
-// GENERATED BY BLP_BAS_CODEGEN_3.8.22 Tue Jan  3 11:23:49 2017
-// USING bas_codegen.pl -m msg -p baljsn -E --noExternalization --noAggregateConversion baljsn.xsd
+// GENERATED BY BLP_BAS_CODEGEN_3.8.24 Fri Feb 17 12:35:40 2017
+// USING bas_codegen.pl -m msg --package baljsn --noExternalization -E --noAggregateConversion baljsn.xsd
 // SERVICE VERSION 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

@@ -173,9 +173,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baljsn::EncoderOptions       Obj;
-typedef baljsn::EncodingStyle        ES;
-typedef baljsn::EncodingStyle::Value Style;
+typedef baljsn::EncoderOptions                Obj;
+typedef baljsn::EncoderOptions::EncodingStyle Style;
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -208,43 +207,43 @@ const DefaultDataRow DEFAULT_DATA[] =
 //----  ------   ---       -----            ---    ---    ----- --- -- --
 
 // default (must be first)
-{ L_,       0,       0,    ES::e_COMPACT,  false, false, false, 3, 6, 15  },
+{ L_,       0,       0,    Obj::e_COMPACT,  false, false, false, 3, 6, 15  },
 
 // 'initialIndentLevel'
-{ L_,       1,       0,    ES::e_PRETTY,   false, false, false, 3, 9, 17  },
-{ L_, INT_MAX,       0,    ES::e_COMPACT,  false, false, false, 3, 9, 17  },
+{ L_,       1,       0,    Obj::e_PRETTY,   false, false, false, 3, 9, 17  },
+{ L_, INT_MAX,       0,    Obj::e_COMPACT,  false, false, false, 3, 9, 17  },
 
 // 'spacesPerLevel'
-{ L_,       0,       1,    ES::e_PRETTY,   false, false, false, 3, 9, 17  },
-{ L_,       0, INT_MAX,    ES::e_COMPACT,  false, false, false, 3, 9, 17  },
+{ L_,       0,       1,    Obj::e_PRETTY,   false, false, false, 3, 9, 17  },
+{ L_,       0, INT_MAX,    Obj::e_COMPACT,  false, false, false, 3, 9, 17  },
 
 // 'encodingStyle'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   false, false, false, 3, 9, 17  },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  false, false, false, 3, 9, 17  },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, false, 3, 9, 17  },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, false, 3, 9, 17  },
 
 // 'encodeEmptyArrays'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   true,  false, false, 3, 9, 17  },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  true,  false, false, 3, 9, 17  },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   true,  false, false, 3, 9, 17  },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  true,  false, false, 3, 9, 17  },
 
 // 'encodeNullElements'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   false, true,  false, 3, 9, 17  },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  false, true,  false, 3, 9, 17  },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, true,  false, 3, 9, 17  },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, true,  false, 3, 9, 17  },
 
 // 'encodeInfAndNaNAsStrings'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   false, false, true, 3, 9, 17   },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  false, false, true, 3, 9, 17   },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 3, 9, 17   },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 3, 9, 17   },
 
 // 'datetimeFractionalSecondPrecision'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   false, false, true, 4, 9, 17   },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  false, false, true, 6, 9, 17   },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 4, 9, 17   },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 6, 9, 17   },
 
 // 'maxFloatPrecision'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   false, false, true, 3, 3, 17   },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  false, false, true, 3, 6, 17   },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 3, 3, 17   },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 3, 6, 17   },
 
 // 'maxDoublePrecision'
-{ L_, INT_MAX,       1,    ES::e_PRETTY,   false, false, true, 3, 9,  9   },
-{ L_,       1, INT_MAX,    ES::e_COMPACT,  false, false, true, 3, 9, 15   },
+{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 3, 9,  9   },
+{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 3, 9, 15   },
 
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -316,7 +315,7 @@ int main(int argc, char *argv[])
     baljsn::EncoderOptions options;
     ASSERT(0 == options.initialIndentLevel());
     ASSERT(0 == options.spacesPerLevel());
-    ASSERT(baljsn::EncodingStyle::e_COMPACT == options.encodingStyle());
+    ASSERT(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
     ASSERT(false == options.encodeEmptyArrays());
     ASSERT(false == options.encodeNullElements());
     ASSERT(false == options.encodeInfAndNaNAsStrings());
@@ -330,7 +329,7 @@ int main(int argc, char *argv[])
 // pre-defined initial indent level and spaces per level:
 //..
     options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
-    ASSERT(baljsn::EncodingStyle::e_PRETTY == options.encodingStyle());
+    ASSERT(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
 
     options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
     ASSERT(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
@@ -851,8 +850,8 @@ int main(int argc, char *argv[])
                    // Attribute 3 Values: 'encodingStyle'
                    // -----------------------------------
 
-        const T3 A3 = ES::e_COMPACT;         // baseline
-        const T3 B3 = ES::e_PRETTY;
+        const T3 A3 = Obj::e_COMPACT;         // baseline
+        const T3 B3 = Obj::e_PRETTY;
 
                  // ---------------------------------------
                  // Attribute 4 Values: 'encodeEmptyArrays'
@@ -1107,8 +1106,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
              "\nCreate a table of distinct value/format combinations." << endl;
 
-        Style C = ES::e_COMPACT;
-        Style P = ES::e_PRETTY;
+        Style C = Obj::e_COMPACT;
+        Style P = Obj::e_PRETTY;
 
         const bool T = true;
         const bool F = false;
@@ -1142,7 +1141,7 @@ int main(int argc, char *argv[])
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
-                                 "encodingStyle = COMPACT"                   NL
+                                 "encodingStyle = e_COMPACT"                 NL
                                  "encodeEmptyArrays = true"                  NL
                                  "encodeNullElements = true"                 NL
                                  "encodeInfAndNaNAsStrings = true"           NL
@@ -1156,7 +1155,7 @@ int main(int argc, char *argv[])
 
                                  " initialIndentLevel = 89"                  NL
                                  " spacesPerLevel = 10"                      NL
-                                 " encodingStyle = PRETTY"                   NL
+                                 " encodingStyle = e_PRETTY"                 NL
                                  " encodeEmptyArrays = true"                 NL
                                  " encodeNullElements = true"                NL
                                  " encodeInfAndNaNAsStrings = true"          NL
@@ -1170,7 +1169,7 @@ int main(int argc, char *argv[])
 
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
-                                 "encodingStyle = COMPACT"                   SP
+                                 "encodingStyle = e_COMPACT"                 SP
                                  "encodeEmptyArrays = true"                  SP
                                  "encodeNullElements = false"                SP
                                  "encodeInfAndNaNAsStrings = true"           SP
@@ -1191,7 +1190,7 @@ int main(int argc, char *argv[])
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
-                                 "encodingStyle = COMPACT"                   NL
+                                 "encodingStyle = e_COMPACT"                 NL
                                  "encodeEmptyArrays = true"                  NL
                                  "encodeNullElements = true"                 NL
                                  "encodeInfAndNaNAsStrings = true"           NL
@@ -1205,7 +1204,7 @@ int main(int argc, char *argv[])
                                "      ["                                     NL
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
-                         "        encodingStyle = PRETTY"                    NL
+                         "        encodingStyle = e_PRETTY"                  NL
                          "        encodeEmptyArrays = false"                 NL
                          "        encodeNullElements = false"                NL
                          "        encodeInfAndNaNAsStrings = true"           NL
@@ -1219,7 +1218,7 @@ int main(int argc, char *argv[])
 
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
-                                 "encodingStyle = COMPACT"                   SP
+                                 "encodingStyle = e_COMPACT"                 SP
                                  "encodeEmptyArrays = true"                  SP
                                  "encodeNullElements = false"                SP
                                  "encodeInfAndNaNAsStrings = true"           SP
@@ -1233,7 +1232,7 @@ int main(int argc, char *argv[])
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
-                                 "encodingStyle = PRETTY"                    NL
+                                 "encodingStyle = e_PRETTY"                  NL
                                  "encodeEmptyArrays = false"                 NL
                                  "encodeNullElements = true"                 NL
                                  "encodeInfAndNaNAsStrings = true"           NL
@@ -1247,7 +1246,7 @@ int main(int argc, char *argv[])
 
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
-                         "        encodingStyle = PRETTY"                    NL
+                         "        encodingStyle = e_PRETTY"                  NL
                          "        encodeEmptyArrays = true"                  NL
                          "        encodeNullElements = false"                NL
                          "        encodeInfAndNaNAsStrings = true"           NL
@@ -1260,7 +1259,7 @@ int main(int argc, char *argv[])
  { L_, -3, -2,  89,  10, C, T,  T,  T, "["                                   SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
-                                 "encodingStyle = COMPACT"                   SP
+                                 "encodingStyle = e_COMPACT"                 SP
                                  "encodeEmptyArrays = true"                  SP
                                  "encodeNullElements = true"                 SP
                                  "encodeInfAndNaNAsStrings = true"           SP
@@ -1281,7 +1280,7 @@ int main(int argc, char *argv[])
                          "      ["                                           NL
                          "         initialIndentLevel = 89"                  NL
                          "         spacesPerLevel = 10"                      NL
-                         "         encodingStyle = PRETTY"                   NL
+                         "         encodingStyle = e_PRETTY"                 NL
                          "         encodeEmptyArrays = true"                 NL
                          "         encodeNullElements = true"                NL
                          "         encodeInfAndNaNAsStrings = true"          NL
@@ -1302,7 +1301,7 @@ int main(int argc, char *argv[])
                                  "["                                         SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
-                                 "encodingStyle = COMPACT"                   SP
+                                 "encodingStyle = e_COMPACT"                 SP
                                  "encodeEmptyArrays = false"                 SP
                                  "encodeNullElements = true"                 SP
                                  "encodeInfAndNaNAsStrings = true"           SP
@@ -1315,7 +1314,7 @@ int main(int argc, char *argv[])
                                  "["                                         SP
                                  "initialIndentLevel = 7"                    SP
                                  "spacesPerLevel = 5"                        SP
-                                 "encodingStyle = PRETTY"                    SP
+                                 "encodingStyle = e_PRETTY"                  SP
                                  "encodeEmptyArrays = false"                 SP
                                  "encodeNullElements = false"                SP
                                  "encodeInfAndNaNAsStrings = true"           SP
@@ -1452,7 +1451,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = ES::e_COMPACT;        // 'encodingStyle'
+        const Style D3   = Obj::e_COMPACT;        // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
         const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
@@ -1466,7 +1465,7 @@ int main(int argc, char *argv[])
 
         const int   A1   = INT_MAX;              // 'initialIndentLevel'
         const int   A2   = 4;                    // 'spacesPerLevel'
-        const Style A3   = ES::e_PRETTY;         // 'encodingStyle'
+        const Style A3   = Obj::e_PRETTY;         // 'encodingStyle'
         const bool  A4   = true;                 // 'encodeEmptyArrays'
         const bool  A5   = true;                 // 'encodeNullElements'
         const bool  A6   = true;                 // 'encodeInfAndNaNAsStrings'
@@ -1649,7 +1648,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = ES::e_COMPACT;        // 'encodingStyle'
+        const Style D3   = Obj::e_COMPACT;        // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
         const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
@@ -1660,7 +1659,7 @@ int main(int argc, char *argv[])
 
         const int   A1   = 1;                    // 'initialIndentLevel'
         const int   A2   = 4;                    // 'spacesPerLevel'
-        const Style A3   = ES::e_PRETTY;         // 'encodingStyle'
+        const Style A3   = Obj::e_PRETTY;         // 'encodingStyle'
         const bool  A4   = true;                 // 'encodeEmptyArrays'
         const bool  A5   = true;                 // 'encodeNullElements'
         const bool  A6   = true;                 // 'encodeInfAndNaNAsStrings'
@@ -1672,7 +1671,7 @@ int main(int argc, char *argv[])
 
         const int   B1   = INT_MAX;               // 'initialIndentLevel'
         const int   B2   = INT_MAX;               // 'spacesPerLevel'
-        const Style B3   = ES::e_COMPACT;         // 'encodingStyle'
+        const Style B3   = Obj::e_COMPACT;         // 'encodingStyle'
         const bool  B4   = false;                 // 'encodeEmptyArrays'
         const bool  B5   = false;                 // 'encodeNullElements'
         const bool  B6   = false;                 // 'encodeInfAndNaNAsStrings'
@@ -2227,7 +2226,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // 'initialIndentLevel'
         const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = ES::e_COMPACT;        // 'encodingStyle'
+        const Style D3   = Obj::e_COMPACT;        // 'encodingStyle'
         const bool  D4   = false;                // 'encodeEmptyArrays'
         const bool  D5   = false;                // 'encodeNullElements'
         const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
@@ -2310,8 +2309,8 @@ int main(int argc, char *argv[])
 
         // Attribute 3 Values: 'encodingStyle'
 
-        const T3 D3 = ES::e_COMPACT;    // default value
-        const T3 A3 = ES::e_PRETTY;
+        const T3 D3 = Obj::e_COMPACT;    // default value
+        const T3 A3 = Obj::e_PRETTY;
 
         // Attribute 4 Values: 'encodeEmptyArrays'
 
