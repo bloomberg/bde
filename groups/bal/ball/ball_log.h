@@ -275,8 +275,8 @@ BSLS_IDENT("$Id: $")
 //..
 // '<ts>' is the timestamp, '<pid>' is the process id, '<tid>' is the thread
 // id, 'x.cpp' is the expansion of the '__FILE__' macro that is the name of the
-// source file containing the call, and 1161 is the line number of the call,
-// and the trailing date following "settlement date" is the value of 'settle'.
+// source file containing the call, 1161 is the line number of the call, and
+// the trailing date following "settlement date" is the value of 'settle'.
 //
 // Next, we set the category to "EQUITY.NASD.SUNW", which has been defined with
 // 'ball::Administration::addCategory' with its pass-through level set to
@@ -390,7 +390,7 @@ BSLS_IDENT("$Id: $")
 //  <ts> <pid> <tid> WARN x.cpp 1281 EQUITY.NASD.SUNW [5] 400 shares of SUNW
 //  sold at 5.650000 settlement date 17FEB2017
 //..
-// Now, the category "EQUITY.NASD.SUNW" just went out of scope and now category
+// Now, the category "EQUITY.NASD.SUNW" just went out of scope and category
 // "EQUITY.NASD" is visible again, so it applies to the following:
 //..
 //  BALL_LOGVA_INFO("[6] %d shares of %s sold at %f settlement date %s\n",

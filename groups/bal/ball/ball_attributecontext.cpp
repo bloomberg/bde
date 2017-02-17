@@ -4,7 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 
+#include <ball_attributecontainer.h>   // for testing only
 #include <ball_categorymanager.h>
+#include <ball_predicate.h>            // for testing only
+#include <ball_rule.h>
+#include <ball_thresholdaggregate.h>
 
 #include <bdlb_bitutil.h>
 #include <bdlb_print.h>
@@ -17,8 +21,6 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 #include <bslmt_once.h>
 #include <bslmt_threadlocalvariable.h>
-
-#include <bsls_assert.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_ostream.h>
@@ -54,10 +56,10 @@ namespace ball {
 // MANIPULATORS
 RuleSet::MaskType
 AttributeContext_RuleEvaluationCache::update(
-                                bsls::Types::Int64            timestamp,
-                                RuleSet::MaskType             relevantRuleMask,
-                                const RuleSet&                rules,
-                                const AttributeContainerList& attributes)
+                               bsls::Types::Int64            timestamp,
+                               RuleSet::MaskType             relevantRulesMask,
+                               const RuleSet&                rules,
+                               const AttributeContainerList& attributes)
 {
     // If the timestamp has changed, the cache is considered entirely out of
     // date.
@@ -68,7 +70,7 @@ AttributeContext_RuleEvaluationCache::update(
         d_timestamp  = timestamp;
     }
 
-    RuleSet::MaskType needEvaluations = ~d_evalMask & relevantRuleMask;
+    RuleSet::MaskType needEvaluations = ~d_evalMask & relevantRulesMask;
 
     int i;
 
@@ -124,7 +126,7 @@ AttributeContextProctor::~AttributeContextProctor()
 {
     const bslmt::ThreadUtil::Key& contextKey = AttributeContext::contextKey();
 
-    AttributeContext *context = (AttributeContext*)
+    AttributeContext *context = (AttributeContext *)
                                     bslmt::ThreadUtil::getSpecific(contextKey);
 
     if (context) {
@@ -160,7 +162,7 @@ bslma::Allocator *AttributeContext::s_globalAllocator_p = 0;
 
 // PRIVATE CREATORS
 AttributeContext::AttributeContext(bslma::Allocator *globalAllocator)
-: d_containerList(globalAllocator)
+: d_containerList(bslma::Default::globalAllocator(globalAllocator))
 , d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
 {
 }
@@ -187,7 +189,7 @@ void AttributeContext::removeContext(void *arg)
     g_threadLocalContext = 0;
 #endif
 
-    AttributeContext *context = (AttributeContext*)arg;
+    AttributeContext *context = (AttributeContext *)arg;
     if (context) {
         bslma::Allocator *allocator = context->d_allocator_p;
 
@@ -200,19 +202,27 @@ void AttributeContext::removeContext(void *arg)
 }
 
 // CLASS METHODS
-void
-AttributeContext::initialize(CategoryManager  *categoryManager,
-                             bslma::Allocator *globalAllocator)
+void AttributeContext::initialize(CategoryManager  *categoryManager,
+                                  bslma::Allocator *globalAllocator)
 {
-    if (s_globalAllocator_p) {
+    BSLS_ASSERT_OPT(categoryManager);
+
+    if (s_categoryManager_p) {
         bsl::fprintf(stderr,
                      "Attempt to re-initialize 'AttributeContext'. %s:%d.\n",
                      __FILE__,
                      __LINE__);
         return;                                                       // RETURN
     }
-    s_globalAllocator_p = bslma::Default::globalAllocator(globalAllocator);
+
     s_categoryManager_p = categoryManager;
+    s_globalAllocator_p = bslma::Default::globalAllocator(globalAllocator);
+}
+
+void AttributeContext::reset()
+{
+    s_categoryManager_p = 0;
+    s_globalAllocator_p = 0;
 }
 
 AttributeContext *AttributeContext::lookupContext()
@@ -270,9 +280,11 @@ AttributeContext *AttributeContext::getContext()
 // ACCESSORS
 bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 {
-    RuleSet::MaskType relevantRuleMask = category->relevantRuleMask();
+    BSLS_ASSERT(category);
 
-    if (!relevantRuleMask) {
+    RuleSet::MaskType relevantRulesMask = category->relevantRuleMask();
+
+    if (!relevantRulesMask) {
         return false;                                                 // RETURN
     }
 
@@ -280,8 +292,8 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
     // cache (see implementation note at the top).
 
     if (d_ruleCache_p.isDataAvailable(s_categoryManager_p->ruleSetTimestamp(),
-                                      relevantRuleMask)) {
-        return relevantRuleMask & d_ruleCache_p.knownActiveRules();   // RETURN
+                                      relevantRulesMask)) {
+        return relevantRulesMask & d_ruleCache_p.knownActiveRules();  // RETURN
     }
 
     // We lock the mutex to ensure the rules are not modified as we evaluate
@@ -290,9 +302,9 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
     bslmt::LockGuard<bslmt::Mutex> ruleGuard(
                                          &s_categoryManager_p->rulesetMutex());
 
-    return relevantRuleMask
+    return relevantRulesMask
            & d_ruleCache_p.update(s_categoryManager_p->ruleSetTimestamp(),
-                                  relevantRuleMask,
+                                  relevantRulesMask,
                                   s_categoryManager_p->ruleSet(),
                                   d_containerList);
 }
@@ -301,9 +313,8 @@ void
 AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
                                            const Category     *category) const
 {
-    if (!category) {
-        return;                                                       // RETURN
-    }
+    BSLS_ASSERT(levels);
+    BSLS_ASSERT(category);
 
     // Set the default levels for 'category'.
     levels->setLevels(category->recordLevel(),
@@ -311,9 +322,9 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
                       category->triggerLevel(),
                       category->triggerAllLevel());
 
-    RuleSet::MaskType relevantRuleMask = category->relevantRuleMask();
+    RuleSet::MaskType relevantRulesMask = category->relevantRuleMask();
 
-    if (!relevantRuleMask) {
+    if (!relevantRulesMask) {
         return;                                                       // RETURN
     }
 
@@ -323,9 +334,9 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
 
     RuleSet::MaskType activeAndRelevantRules = 0;
     if (d_ruleCache_p.isDataAvailable(s_categoryManager_p->ruleSetTimestamp(),
-                                      relevantRuleMask)) {
+                                      relevantRulesMask)) {
         activeAndRelevantRules = d_ruleCache_p.knownActiveRules()
-                                 & relevantRuleMask;
+                                 & relevantRulesMask;
         if (!activeAndRelevantRules) {
             return;                                                   // RETURN
         }
@@ -342,10 +353,10 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // must have assigned 'activeAndRelevantRules' before obtaining the lock.
 
     if (!d_ruleCache_p.isDataAvailable(s_categoryManager_p->ruleSetTimestamp(),
-                                       relevantRuleMask)) {
-          activeAndRelevantRules = relevantRuleMask
+                                       relevantRulesMask)) {
+          activeAndRelevantRules = relevantRulesMask
                 & d_ruleCache_p.update(s_categoryManager_p->ruleSetTimestamp(),
-                                       relevantRuleMask,
+                                       relevantRulesMask,
                                        s_categoryManager_p->ruleSet(),
                                        d_containerList);
     }

@@ -69,8 +69,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended use of 'ball::AttributeContext'.
 //
-///Managing Attributes
-///- - - - - - - - - -
+///Example 1: Managing Attributes
+///- - - - - - - - - - - - - - -
 // First we will define a thread function that will create and install two
 // attributes.  Note that we will use the 'AttributeSet' implementation of the
 // 'ball::AttributeContainer' protocol defined in the component documentation
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //      attributes.insert(a1);
 //      attributes.insert(a2);
 //..
-// Next we obtain a reference to the current thread's attribute context using
+// Next, we obtain a reference to the current thread's attribute context using
 // the 'getContext' class method:
 //..
 //      ball::AttributeContext *context = ball::AttributeContext::getContext();
@@ -131,8 +131,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to call the 'hasRelevantActiveRules'
 // and 'determineThresholdLevels' methods.  These methods are used (primarily
 // by other components in the 'ball' package) to determine the effect of the
@@ -159,14 +159,14 @@ BSLS_IDENT("$Id: $")
 // threshold levels indicate the minimum severity for logged messages that will
 // trigger the relevant action.  The four thresholds are the "record level"
 // (messages logged with a higher severity than this threshold should be added
-// to the current logger's record buffer), the "passthrough level" (messages
+// to the current logger's record buffer), the "pass-through level" (messages
 // logged with a severity higher than this threshold should be published
 // immediately), the "trigger level" (messages logged with a higher severity
 // than this threshold should trigger the publication of the entire contents of
 // the current logger's record buffer), and the "trigger-all level" (messages
 // logged with a higher severity than this threshold should trigger the
 // publication of every logger's record buffer), respectively.  Note that
-// clients are generally most interested in the "passthrough" threshold level.
+// clients are generally most interested in the "pass-through" threshold level.
 // Also note that a higher number indicates a lower severity.
 //..
 //  const ball::Category *cat1 =
@@ -181,9 +181,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(false == context->hasRelevantActiveRules(cat1));
 //..
-// We call 'determineThresholdLevels' on 'cat1'.  This will simply return
-// the logging threshold levels we defined for 'cat1' when it was created
-// because no rules have been defined that might modify those thresholds:
+// We call 'determineThresholdLevels' on 'cat1'.  This will simply return the
+// logging threshold levels we defined for 'cat1' when it was created because
+// no rules have been defined that might modify those thresholds:
 //..
 //  ball::ThresholdAggregate cat1ThresholdLevels(0, 0, 0, 0);
 //  context->determineThresholdLevels(&cat1ThresholdLevels, cat1);
@@ -192,7 +192,7 @@ BSLS_IDENT("$Id: $")
 //  assert( 64 == cat1ThresholdLevels.triggerLevel());
 //  assert( 32 == cat1ThresholdLevels.triggerAllLevel());
 //..
-// Next we create a rule that will apply to those categories whose names match
+// Next, we create a rule that will apply to those categories whose names match
 // the pattern "My*", where '*' is a wild-card value.  The rule defines a set
 // of thresholds levels that may override the threshold levels of those
 // categories whose name matches the rule's pattern:
@@ -224,7 +224,7 @@ BSLS_IDENT("$Id: $")
 //  assert( 70 == thresholdLevels.triggerLevel());
 //  assert( 40 == thresholdLevels.triggerAllLevel());
 //..
-// In this case the "passthrough", "trigger", and "trigger-all" threshold
+// In this case the "pass-through", "trigger", and "trigger-all" threshold
 // levels defined by 'myRule' (110, 70, and 40) are greater (i.e., define a
 // lower severity) than those respective values defined for 'cat1' (96, 64,
 // and 32), so those values override the values defined for 'cat1'.  On the
@@ -256,7 +256,7 @@ BSLS_IDENT("$Id: $")
 // returns the threshold levels we defined for 'cat1' when we created it:
 //..
 //  context->determineThresholdLevels(&thresholdLevels, cat1);
-//  assert(thresholdLevels  == cat1ThresholdLevels);
+//  assert(thresholdLevels == cat1ThresholdLevels);
 //..
 // Finally, we add an attribute to the current thread's attribute context (as
 // we did in the first example, "Managing Attributes").  Note that we keep an
@@ -277,7 +277,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true == context->hasRelevantActiveRules(cat1));
 //..
-// Now when we call 'determineThresholdLevels'; it will again return the
+// Now, when we call 'determineThresholdLevels'; it will again return the
 // maximum threshold level from 'cat1' and 'myRule':
 //..
 //  context->determineThresholdLevels(&thresholdLevels, cat1);
@@ -315,6 +315,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -326,8 +330,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
+class Attribute;
+class AttributeContainer;
 class Category;
 class CategoryManager;
+class ThresholdAggregate;
 
              // ==========================================
              // class AttributeContext_RuleEvaluationCache
@@ -392,11 +399,11 @@ class AttributeContext_RuleEvaluationCache {
         // object to its default constructed state (empty).
 
     RuleSet::MaskType update(bsls::Types::Int64            timestamp,
-                             RuleSet::MaskType             relevantRuleMask,
+                             RuleSet::MaskType             relevantRulesMask,
                              const RuleSet&                rules,
                              const AttributeContainerList& attributes);
         // Update, for the specified 'timestamp', the cache for those rules
-        // indicated by the specified 'relevantRuleMask' bit mask in the
+        // indicated by the specified 'relevantRulesMask' bit mask in the
         // specified set of 'rules', by evaluating those rules for the
         // specified 'attributes'; return the bit mask indicating those rules
         // that are known to be active.  If a bit in the returned bit mask
@@ -404,7 +411,7 @@ class AttributeContext_RuleEvaluationCache {
         // "active"; however, if a bit is set to 0, the corresponding rule is
         // either not active *or* has not been evaluated.  This operation does,
         // however, guarantee that all the rules indicated by the
-        // 'relevantRuleMask' *will* be evaluated.  A particular rule is
+        // 'relevantRulesMask' *will* be evaluated.  A particular rule is
         // considered "active" if all of it's predicates are satisfied by
         // 'attributes' (i.e., if 'Rule::evaluate' returns 'true' for
         // 'attributes').  The behavior is undefined unless 'rules' is not
@@ -416,7 +423,7 @@ class AttributeContext_RuleEvaluationCache {
                          RuleSet::MaskType  relevantRulesMask) const;
         // Return 'true' if this cache contains up-to-date cached rule
         // evaluations having the specified 'timestamp' for the set of rules
-        // indicated by the specified 'relevantRuleMask' bit mask, and 'false'
+        // indicated by the specified 'relevantRulesMask' bit mask, and 'false'
         // otherwise.
 
     RuleSet::MaskType knownActiveRules() const;
@@ -565,38 +572,44 @@ class AttributeContext {
         // Initialize the static data members of 'AttributeContext' using the
         // specified 'categoryManager'.  Optionally specify a 'globalAllocator'
         // used to supply memory.  If 'globalAllocator' is 0, the currently
-        // installed global allocator is used.  Calling this method more than
-        // once will log an error message to 'stderr', but will have no other
-        // effect.  Note that in practice this method will be called
-        // *automatically* when the 'LoggerManager' singleton is initialized --
-        // i.e., it is not intended to be called directly by clients of the
-        // 'ball' package.
+        // installed global allocator is used.  Unless 'reset' is subsequently
+        // called, invoking this method more than once will log an error
+        // message to 'stderr', but will have no other effect.  Note that in
+        // practice this method will be called *automatically* when the
+        // 'LoggerManager' singleton is initialized -- i.e., it is not intended
+        // to be called directly by clients of the 'ball' package.
+
+    static void reset();
+        // Reset the static data members of 'AttributeContext' to their initial
+        // state (0).  Unless 'initialize' is subsequently called, invoking
+        // this method more than once has no effect.  Note that in practice
+        // this method will be called *automatically* when the 'LoggerManager'
+        // singleton is destroyed -- i.e., it is not intended to be called
+        // directly by clients of the 'ball' package.
 
     static AttributeContext *getContext();
         // Return the address of the current thread's attribute context, if
         // such context exists; otherwise, create an attribute context, install
         // it in thread-local storage, and return the address of the newly
         // created context.  Note that this method can be invoked safely even
-        // if 'AttributeContext::initialize' has not yet been called.
+        // if the 'initialize' class method has not yet been called.
 
     static AttributeContext *lookupContext();
         // Return the address of the modifiable 'AttributeContext' object
         // installed in local storage for the current thread, or 0 if no
         // attribute context has been created for this thread.  Note that this
-        // method can be invoked safely even if 'AttributeContext::initialize'
+        // method can be invoked safely even if the 'initialize' class method
         // has not yet been called.
 
     // MANIPULATORS
     iterator addAttributes(const AttributeContainer *attributes);
         // Add the specified 'attributes' to the list of attribute containers
-        // maintained by this object.  If 'attributes' is subsequently modified
-        // prior to being removed from this object (see 'removeAttributes') the
-        // 'clearCache' method must be invoked.  The behavior is undefined
-        // unless 'attributes' remains valid *and* *unmodified* (unless
-        // 'clearCache' is called) until this object is destroyed or
-        // 'attributes' is removed from this context.  Note that this method
-        // can be invoked safely even if 'AttributeContext::initialize' has not
-        // yet been called.
+        // maintained by this object.  The behavior is undefined unless
+        // 'attributes' remains valid *and* *unmodified* until either
+        // 'attributes' is removed from this context, 'clearCache' is called,
+        // or this object is destroyed.  Note that this method can be invoked
+        // safely even if the 'initialize' class method has not yet been
+        // called.
 
     void clearCache();
         // Clear this object's cache of evaluated rules.  Note that this method
@@ -606,7 +619,7 @@ class AttributeContext {
     void removeAttributes(iterator element);
         // Remove the specified 'element' from the list of attribute containers
         // maintained by this object.  Note that this method can be invoked
-        // safely even if 'AttributeContext::initialize' has not yet been
+        // safely even if the 'initialize' class method has not yet been
         // called.
 
     // ACCESSORS
@@ -621,8 +634,10 @@ class AttributeContext {
         // This method operates on the set of rules maintained by the category
         // manager supplied to the 'initialize' class method (which, in
         // practice, should be the global set of rules for the process).  The
-        // behavior is undefined unless 'AttributeContext::initialize' has
-        // previously been invoked.
+        // behavior is undefined unless 'initialize' has previously been
+        // invoked without a subsequent call to 'reset', and 'category' is
+        // contained in the registry maintained by the category manager
+        // supplied to 'initialize'.
 
     void determineThresholdLevels(ThresholdAggregate *levels,
                                   const Category     *category) const;
@@ -639,19 +654,21 @@ class AttributeContext {
         // operates on the set of rules maintained by the category manager
         // supplied to the 'initialize' class method (which, in practice,
         // should be the global set of rules for the process).  The behavior is
-        // undefined unless 'AttributeContext::initialize' has previously been
-        // invoked.
+        // undefined unless 'initialize' has previously been invoked without a
+        // subsequent call to 'reset', and 'category' is contained in the
+        // registry maintained by the category manager supplied to
+        // 'initialize'.
 
     bool hasAttribute(const Attribute& value) const;
         // Return 'true' if an attribute having the specified 'value' exists in
         // any of the attribute containers maintained by this object, and
         // 'false' otherwise.  Note that this method can be invoked safely even
-        // if 'AttributeContext::initialize' has not yet been called.
+        // if the 'initialize' class method has not yet been called.
 
     const AttributeContainerList& containers() const;
         // Return a 'const' reference to the list of attribute containers
         // maintained by this object.  Note that this method can be invoked
-        // safely even if 'AttributeContext::initialize' has not yet been
+        // safely even if the 'initialize' class method has not yet been
         // called.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -752,6 +769,8 @@ inline
 AttributeContext::iterator
 AttributeContext::addAttributes(const AttributeContainer *attributes)
 {
+    BSLS_ASSERT_SAFE(attributes);
+
     d_ruleCache_p.clear();
     return d_containerList.pushFront(attributes);
 }

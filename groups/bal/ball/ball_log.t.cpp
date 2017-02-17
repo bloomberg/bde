@@ -1169,8 +1169,8 @@ if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
 //..
 // '<ts>' is the timestamp, '<pid>' is the process id, '<tid>' is the thread
 // id, 'x.cpp' is the expansion of the '__FILE__' macro that is the name of the
-// source file containing the call, and 1161 is the line number of the call,
-// and the trailing date following "settlement date" is the value of 'settle'.
+// source file containing the call, 1161 is the line number of the call, and
+// the trailing date following "settlement date" is the value of 'settle'.
 //
 // Next, we set the category to "EQUITY.NASD.SUNW", which has been defined with
 // 'ball::Administration::addCategory' with its pass-through level set to
@@ -1287,7 +1287,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 //  <ts> <pid> <tid> WARN x.cpp 1281 EQUITY.NASD.SUNW [5] 400 shares of SUNW
 //  sold at 5.650000 settlement date 17FEB2017
 //..
-// Now, the category "EQUITY.NASD.SUNW" just went out of scope and now category
+// Now, the category "EQUITY.NASD.SUNW" just went out of scope and category
 // "EQUITY.NASD" is visible again, so it applies to the following:
 //..
     BALL_LOGVA_INFO("[6] %d shares of %s sold at %f settlement date %s\n",
@@ -4114,7 +4114,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         const char *FILE = __FILE__;
 
         if (verbose) bsl::cout << "Now test the variadic '*_LOGVA_*' macros"
-                                              " with varying argument cout.\n";
+                                                  " with varying arguments.\n";
 
         ASSERT(!bsl::strcmp("sieve", CAT->categoryName()));
 
