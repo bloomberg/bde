@@ -721,7 +721,7 @@ MovableRef<typename bsl::remove_reference<TYPE>::type>
 MovableRefUtil::move(TYPE&& rvalue) BSLS_CPP11_NOEXCEPT {
     return static_cast<typename bsl::remove_reference<TYPE>::type&&>(rvalue);
 #else  // support r-value references and alias templates
-MovableRefUtil::move(MovableRef<TYPE> rvalue) {
+MovableRefUtil::move(MovableRef<TYPE> rvalue) BSLS_CPP11_NOEXCEPT {
     return rvalue;
 #endif // support r-value references and alias templates
 }

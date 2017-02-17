@@ -78,11 +78,38 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-struct NthParameter_Sentinel;  // Declared but not defined
-
                         // ===========================
                         // class template NthParameter
                         // ===========================
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130 \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+template <std::size_t N, class... PARAMS>
+struct NthParameter {
+    using Type = typename NthParameter<N - 1, PARAMS...>::Type;
+        // The type of the Nth parameter, computed by recursively stripping
+        // off the first parameter until N == 0.
+};
+
+template <class FIRST_PARAM, class... PARAMS>
+struct NthParameter<0, FIRST_PARAM, PARAMS...> {
+    // Specialization of 'NthParameter' the matches finding the first item in
+    // the list.
+
+    using Type = FIRST_PARAM;
+};
+
+template <std::size_t N>
+struct NthParameter<N> {
+    // Specialization of 'NthParameter' for when 'N' excedes the actual
+    // number of parameters.
+
+    // No 'Type' member is defined, so that failure by specifying too large a
+    // value for 'N' fails in a SFINAE-friendly manner.
+};
+#else
+
+struct NthParameter_Sentinel;  // Declared but not defined
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
 
@@ -892,8 +919,9 @@ struct NthParameter<0, NthParameter_Sentinel> {
     // is defined as an incomplete class.
     typedef NthParameter_Sentinel Type;
 #endif
-
 };
+
+#endif // Sun C++11 workaround
 
 }  // close package namespace
 

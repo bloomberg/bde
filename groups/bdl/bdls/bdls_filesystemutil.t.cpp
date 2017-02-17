@@ -2940,7 +2940,7 @@ int main(int argc, char *argv[])
                                         filename.size() +
                                         1);
 
-            int rc = bind(socketFd, (struct sockaddr *)&address, ADDR_LEN);
+            int rc = ::bind(socketFd, (struct sockaddr *)&address, ADDR_LEN);
             LOOP3_ASSERT(rc, errno, strerror(errno), 0 == rc);
 
 

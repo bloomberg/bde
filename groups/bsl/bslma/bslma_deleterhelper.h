@@ -139,7 +139,7 @@ struct DeleterHelper {
              // local struct DeleterHelper_Helper
              // =================================
 
-template <int IS_POLYMORPHIC>
+template <bool IS_POLYMORPHIC>
 struct DeleterHelper_Helper {
     template <class TYPE>
     static void *caster(const TYPE *object)
@@ -149,7 +149,7 @@ struct DeleterHelper_Helper {
 };
 
 template <>
-struct DeleterHelper_Helper<1> {
+struct DeleterHelper_Helper<true> {
     template <class TYPE>
     static void *caster(const TYPE *object)
     {

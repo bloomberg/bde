@@ -96,6 +96,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
+#include <bslmf_addrvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
@@ -135,7 +139,8 @@ template <class TYPE>
 struct TypeRep {
     // Generate a reference to 'TYPE' for use in meta-functions.
 
-    static TYPE&& rep();
+//    static TYPE&& rep();
+    static typename bsl::add_rvalue_reference<TYPE>::type rep();
         // Provide a reference to a 'TYPE' object.  This function has no body
         // and must never be called at run time.  Thus, it does not matter if
         // 'TYPE' has a default constructor or not.

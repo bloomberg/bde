@@ -75,10 +75,13 @@
 // constrained.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
-|| (defined(BSLS_PLATFORM_CMP_CLANG) && !defined(__GXX_EXPERIMENTAL_CXX0X__)) \
-|| (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-# define BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING 1
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
+ && (defined(BSLS_PLATFORM_CMP_IBM)   \
+  || defined(BSLS_PLATFORM_CMP_CLANG) \
+  || defined(BSLS_PLATFORM_CMP_MSVC)  \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+     )
+# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
@@ -3540,7 +3543,7 @@ void Harness::testCase23(
     //   void createInplace(bslma::Allocator *, const A1& a1, ...& a14)
     // --------------------------------------------------------------------
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
     if (verbose) printf("\nTesting 'createInplace' with 0 arguments"
                         "\n----------------------------------------\n");
 
@@ -3795,7 +3798,7 @@ void Harness::testCase23(
     testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>(target);
     testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>(target);
     testCase23_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>(target);
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
     testCase23_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
     testCase23_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
     testCase23_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(target);
@@ -3811,7 +3814,7 @@ void Harness::testCase23(
     testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(target);
     testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(target);
     testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(target);
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 }
 
 template <int N_ARGS,
@@ -4513,7 +4516,7 @@ void Harness::testCase33(ALLOCATOR basicAllocator)
     //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a14)
     // --------------------------------------------------------------------
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
     if (verbose) printf("\nTesting constructor with 0 arguments"
                         "\n-------------------------------------\n");
 
@@ -4768,7 +4771,7 @@ void Harness::testCase33(ALLOCATOR basicAllocator)
     testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>(basicAllocator);
     testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>(basicAllocator);
     testCase33_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>(basicAllocator);
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
     testCase33_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
     testCase33_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
     testCase33_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
@@ -4784,7 +4787,7 @@ void Harness::testCase33(ALLOCATOR basicAllocator)
     testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
     testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
     testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 }
 
 template <int N_ARGS,
@@ -11586,7 +11589,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting with allocator-aware types"
                             "\n==================================\n");
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         if (verbose) printf("\nTesting constructor with 0-13 arguments"
                             "\n---------------------------------------\n");
 
@@ -11794,7 +11797,7 @@ int main(int argc, char *argv[])
 
             ASSERT(dam.isTotalSame());
         }
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
         Harness::testCase34_AllocatorAware< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase34_AllocatorAware< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase34_AllocatorAware< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
@@ -11810,7 +11813,7 @@ int main(int argc, char *argv[])
         Harness::testCase34_AllocatorAware<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         Harness::testCase34_AllocatorAware<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
         // TBD: EXCEPTION-SAFETY TESTS (0-14 arguments)
         //      (no negative testing as contract is wide)
@@ -11975,7 +11978,7 @@ int main(int argc, char *argv[])
                           "\n'make_shared' with default allocator for args"
                           "\n---------------------------------------------\n");
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         if (verbose) printf("\nTesting constructor with no arguments"
                             "\n-------------------------------------\n");
 
@@ -12230,7 +12233,7 @@ int main(int argc, char *argv[])
         Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
         Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
         Harness::testCase32_DefaultAllocator<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
         Harness::testCase32_DefaultAllocator< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_DefaultAllocator< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_DefaultAllocator< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
@@ -12246,13 +12249,13 @@ int main(int argc, char *argv[])
         Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
 
         if (verbose) printf("\n'make_shared' with local allocator for args"
                             "\n-------------------------------------------\n");
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         if (verbose) printf("\nTesting constructor with no arguments"
                             "\n-------------------------------------\n");
 
@@ -12507,7 +12510,7 @@ int main(int argc, char *argv[])
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
         Harness::testCase32_LocalAllocator<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
         Harness::testCase32_LocalAllocator< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_LocalAllocator< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_LocalAllocator< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
@@ -12523,7 +12526,7 @@ int main(int argc, char *argv[])
         Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
 
 

@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
+#if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
 
 // Provide an override for 'count' since Sun only provides a 4 argument version
 // while the C++ standard requires a 3 argument version.

@@ -929,8 +929,9 @@ typedef bslma::ManagedPtr<void>               VObj;
 // The 'bsls_IsPolymorphic' trait does not work correctly on the following two
 // platforms, which causes 'bslma::DeleterHelper' to dispatch to an
 // implementation that cannot compile.
-#if !defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_HP)
-#define BSLMA_MANAGEDPTR_TESTVIRTUALINHERITANCE
+#if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
+    defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLMA_MANAGEDPTR_TESTVIRTUALINHERITANCE
 #endif
 
 struct Base {
