@@ -347,17 +347,14 @@ struct ForwardingType {
     enum {
         k_IS_REFERENCE = bsl::is_reference<TYPE>::value,
 
-        k_CATEGORY = (bsl::is_function<UnrefType>::value    ?
-                                        ForwardingType_Dispatch::e_FUNCTION   :
-                      bsl::is_array<UnrefType>::value       ?
-                                        ForwardingType_Dispatch::e_ARRAY      :
-                      bsl::is_rvalue_reference<TYPE>::value ?
-                                        ForwardingType_Dispatch::e_RVALUE_REF :
-                      bsl::is_fundamental<TYPE>::value ||
-                      bsl::is_pointer<TYPE>::value ||
-                      bsl::is_member_pointer<TYPE>::value ||
-                      bsl::is_enum<TYPE>::value             ?
-                                        ForwardingType_Dispatch::e_BASIC      :
+        k_CATEGORY = (
+bsl::is_function   <UnrefType>::value ? ForwardingType_Dispatch::e_FUNCTION   :
+bsl::is_array      <UnrefType>::value ? ForwardingType_Dispatch::e_ARRAY      :
+bsl::is_rvalue_reference<TYPE>::value ? ForwardingType_Dispatch::e_RVALUE_REF :
+bsl::is_fundamental     <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
+bsl::is_pointer         <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
+bsl::is_member_pointer  <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
+bsl::is_enum            <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
                                         ForwardingType_Dispatch::e_CLASS)
     };
 

@@ -123,6 +123,10 @@ struct TestType {
    // argument for the template parameter 'TYPE' of 'bsl::remove_const'.
 };
 
+typedef int TestType::* Pm;
+typedef int (TestType::*Pmf)();
+typedef int (TestType::*Pmq)() const;
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -200,9 +204,15 @@ int main(int argc, char *argv[])
         //:
         //: 2 'bsl::remove_const' remove any top-level 'const'-qualifier.
         //
+        //: 3 'bsl::remove_const' removes any top-level 'const'-qualifier from
+        //:   a pointer-to-member object type, and not from the qualifier in
+        //:   the pointed-to member.
+        //
         // Plan:
         //   Verify that 'bsl::remove_const::type' has the correct type for
-        //   each concern.
+        //   each concern.  Use typedefs to verify pointer-to-member types to
+        //   be clear whether the pointed-to member, or the type itself, is
+        //   cv-qualified.
         //
         // Testing:
         //   bsl::remove_const::type
@@ -272,12 +282,46 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<const volatile void>::type,
                                            volatile void>::value));
 
-        ASSERT((is_same<remove_const<const int TestType::* const>::type,
-                                     const int TestType::*      >::value));
-        ASSERT((is_same<
-                   remove_const<const int TestType::* const volatile>::type,
-                                const int TestType::*       volatile>::value));
+        // C-3
+        ASSERT((is_same<remove_const<               Pm>::type,
+                                                    Pm>::value));
+        ASSERT((is_same<remove_const<const          Pm>::type,
+                                                    Pm>::value));
+        ASSERT((is_same<remove_const<      volatile Pm>::type,
+                                           volatile Pm>::value));
+        ASSERT((is_same<remove_const<const volatile Pm>::type,
+                                           volatile Pm>::value));
 
+        ASSERT((is_same<remove_const<               Pmf>::type,
+                                                    Pmf>::value));
+        ASSERT((is_same<remove_const<const          Pmf>::type,
+                                                    Pmf>::value));
+        ASSERT((is_same<remove_const<      volatile Pmf>::type,
+                                           volatile Pmf>::value));
+        ASSERT((is_same<remove_const<const volatile Pmf>::type,
+                                           volatile Pmf>::value));
+
+        ASSERT((is_same<remove_const<               Pmq>::type,
+                                                    Pmq>::value));
+        ASSERT((is_same<remove_const<const          Pmq>::type,
+                                                    Pmq>::value));
+        ASSERT((is_same<remove_const<      volatile Pmq>::type,
+                                           volatile Pmq>::value));
+        ASSERT((is_same<remove_const<const volatile Pmq>::type,
+                                           volatile Pmq>::value));
+
+        // C-4
+        ASSERT((is_same<remove_const<int const(&)()>::type,
+                                     int const(&)()>::value));
+
+        typedef int const FnType();
+        ASSERT((is_same<remove_const<const FnType&>::type,
+                                     const FnType&>::value));
+
+        ASSERT((is_same<remove_const<int const(* const  )()>::type,
+                                     int const(*        )()>::value));
+        ASSERT((is_same<remove_const<int const(* const &)()>::type,
+                                     int const(* const &)()>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
