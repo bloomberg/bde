@@ -49,14 +49,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Operations
 ///----------
-// The C++11 standard [queue.defn] declares any container type supporting
-// operations 'front', 'back', 'push_back' and 'pop_front' can be used to
-// instantiate the parameterized type 'CONTAINER'.  Below is a list of public
-// methods of 'queue' class that effectively forward their implementations to
-// corresponding operations in the held container (referenced as 'c').
+// The C++11 standard [queue.defn] declares that any container type supporting
+// operations 'front', 'back', 'push_back', and 'pop_front' can be used for the
+// 'CONTAINER' template parameter.  Below is a list of public methods of the
+// 'queue' class that forward to their corresponding operations in the held
+// container (referred to as 'c' in the table).
 //..
 //  +--------------------------------------+---------------------------+
-//  | Public methods in 'queue'            | Operation in 'CONTAINER'  |
+//  | Public methods in 'queue'            | Operation on 'CONTAINER'  |
 //  +======================================+===========================+
 //  | void push(const value_type& value);  | c.push_back(value);       |
 //  | void pop();                          | c.pop_front();            |
@@ -69,6 +69,18 @@ BSLS_IDENT("$Id: $")
 //  | const_reference back()  const;       | c.back();                 |
 //  +--------------------------------------+---------------------------+
 //..
+//
+///Requirements on 'VALUE'
+///-----------------------
+// If a type is specified for the 'CONTAINER' template parameter, a type
+// equivalent to 'CONTAINER::value_type' must be specified for 'VALUE' or else
+// compilation failure will result.
+//
+// The following term is used to more precisely specify the requirements on
+// template parameter types in function-level documentation:
+//: *equality-comparable*: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
 //
 ///Usage
 ///-----

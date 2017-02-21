@@ -31,34 +31,41 @@ BSLS_IDENT("$Id: $")
 // we emulate move semantics, but limit forwarding (in 'emplace') to 'const'
 // lvalues, and make no effort to emulate 'noexcept' or initializer-lists.
 //
-///Requirements of Parameterized 'CONTAINER' Type
-///----------------------------------------------
-// This class can accept 'bsl::deque', 'bsl::vector', or 'bsl::list' as the
-// template parameter 'CONTAINER'.  In addition, other container classes could
-// be supplied for the 'CONTAINER' argument, but the supplied 'CONTAINER'
-// template parameter must support the following public types:
+///Requirements on 'CONTAINER'
+///---------------------------
+// The 'bsl::stack' adapter can accept 'bsl::deque', 'bsl::vector', or
+// 'bsl::list' for the (optional) 'CONTAINER' template parameter.  If no type
+// is specified for 'CONTAINER', 'bsl::deque' is used.  Other classes can be
+// supplied for 'CONTAINER' provided that they support the following public
+// types:
 //: o 'value_type'
 //: o 'reference'
 //: o 'const_reference'
 //: o 'size_type'
+//: o 'allocator_type' (if any 'stack' constructor taking an allocator is used)
 //
-// In addition, the supplied 'CONTAINER' template parameter must support the
-// following methods, (depending on the methods of 'stack' being used):
-//: o constructors used must take a parameter of type 'allocator_type'
+// In addition, the class supplied for the 'CONTAINER' template parameter must
+// support the following methods (depending on the methods of 'stack' being
+// used):
 //: o 'void push_back(const value_type&)'
 //: o 'void pop_back()'
 //: o 'value_type& back()'
 //: o 'size_type size()'
 //: o '==', '!=', '<', '>', '<=', '>='
 //: o 'operator='
-//: o ADL with 'std::swap' in the lookup set.
+//: o free 'swap' (found via ADL with 'std::swap' in the lookup set)
 //
-///Note on Parameterized 'VALUE' Type
-///----------------------------------
-// If the 'CONTAINER' type is specified, the 'VALUE' type specified is ignored
-// and 'CONTAINER::value_type' is used in its place.  It is recommended, if
-// 'CONTAINER' is specified, that a type equivalent to 'CONTAINER::value_type'
-// be specified to the 'VALUE' template parameter so as not to mislead readers.
+///Requirements on 'VALUE'
+///-----------------------
+// If a type is specified for the 'CONTAINER' template parameter, a type
+// equivalent to 'CONTAINER::value_type' must be specified for 'VALUE' or else
+// compilation failure will result.
+//
+// The following term is used to more precisely specify the requirements on
+// template parameter types in function-level documentation:
+//: *equality-comparable*: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
 //
 ///Memory Allocation
 ///-----------------
