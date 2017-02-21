@@ -92,8 +92,16 @@ void aSsErT(bool condition, const char *message, int line)
 // simply returning the original type in such cases.  However, that simply
 // exposes that our current implementation of 'is_function' does not detect
 // such types either.
-# define BSLMF_REMOVEVOLATILE_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES
+# define BSLMF_REMOVEVOLATILE_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
 #endif
+
+# if defined(BSLS_PLATFORM_CMP_IBM)
+#   define BSLMF_REMOVEVOLATILE_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES 1
+// The IBM compiler cannot handle references to cv-qualified types, where such
+// referenced types are typedefs to regular (non-abominable) functions.  A
+// conforming compiler should silently drop the cv-qualifier, although some may
+// be noisy and issue a warning.  Last tested with xlC 12.2
+# endif
 
 #endif // BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS
 
@@ -249,6 +257,10 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<const void>::type,
                                         const void>::value));
 
+        ASSERT((is_same<remove_volatile<
+                               volatile int (TestType::*)() volatile>::type,
+                               volatile int (TestType::*)() volatile>::value));
+
         ASSERT((is_same<remove_volatile<volatile int TestType::*>::type,
                                         volatile int TestType::*>::value));
 
@@ -326,9 +338,12 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<int volatile(&)()>::type,
                                         int volatile(&)()>::value));
 
+# if!defined(BSLMF_REMOVEVOLATILE_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES)
         typedef int const FnType();
+
         ASSERT((is_same<remove_volatile<volatile FnType&>::type,
                                         volatile FnType&>::value));
+#endif
 
         ASSERT((is_same<remove_volatile<int volatile(* volatile  )()>::type,
                                         int volatile(*           )()>::value));

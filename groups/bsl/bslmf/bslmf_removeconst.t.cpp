@@ -92,9 +92,16 @@ void aSsErT(bool condition, const char *message, int line)
 // simply returning the original type in such cases.  However, that simply
 // exposes that our current implementation of 'is_function' does not detect
 // such types either.
-#   define BSLMF_REMOVECONST_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES
+#   define BSLMF_REMOVECONST_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
 # endif
 
+# if defined(BSLS_PLATFORM_CMP_IBM)
+#   define BSLMF_REMOVECONST_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES 1
+// The IBM compiler cannot handle references to cv-qualified types, where such
+// referenced types are typedefs to regular (non-abominable) functions.  A
+// conforming compiler should silently drop the cv-qualifier, although some may
+// be noisy and issue a warning.  Last tested with xlC 12.2
+# endif
 #endif // BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS
 
 //=============================================================================
@@ -243,6 +250,9 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<const int TestType::*>::type,
                                      const int TestType::*>::value));
 
+        ASSERT((is_same<remove_const<const int (TestType::*)() const>::type,
+                                     const int (TestType::*)() const>::value));
+
 #if !defined(BSLMF_REMOVECONST_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES)
         ASSERT((is_same<remove_const<int const() const>::type,
                                      int const() const>::value));
@@ -314,9 +324,12 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<int const(&)()>::type,
                                      int const(&)()>::value));
 
+# if!defined(BSLMF_REMOVECONST_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES)
         typedef int const FnType();
+
         ASSERT((is_same<remove_const<const FnType&>::type,
                                      const FnType&>::value));
+#endif
 
         ASSERT((is_same<remove_const<int const(* const  )()>::type,
                                      int const(*        )()>::value));
