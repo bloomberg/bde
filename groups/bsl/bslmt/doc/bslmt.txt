@@ -19,49 +19,51 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmt' package currently has 42 components having 16 levels of physical
+ The 'bslmt' package currently has 43 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  16. bslmt_once
-      bslmt_rwmutex
+  17. bslmt_once
+      bslmt_rwmutex                                      !DEPRECATED!
 
-  15. bslmt_latch
+  16. bslmt_latch
       bslmt_meteredmutex
       bslmt_qlock
       bslmt_readerwriterlock
-      bslmt_readerwritermutex
       bslmt_turnstile
 
-  14. bslmt_barrier
+  15. bslmt_barrier
 
-  13. bslmt_condition
+  14. bslmt_condition
 
-  12. bslmt_conditionimpl_win32                                       !PRIVATE!
+  13. bslmt_conditionimpl_win32                                       !PRIVATE!
 
-  11. bslmt_sluice
+  12. bslmt_sluice
 
-  10. bslmt_threadgroup
+  11. bslmt_readerwritermutex
+      bslmt_threadgroup
 
-   9. bslmt_semaphore
+  10. bslmt_semaphore
 
-   8. bslmt_semaphoreimpl_counted                                     !PRIVATE!
+   9. bslmt_semaphoreimpl_counted                                     !PRIVATE!
       bslmt_timedsemaphore
 
-   7. bslmt_conditionimpl_pthread                                     !PRIVATE!
+   8. bslmt_conditionimpl_pthread                                     !PRIVATE!
       bslmt_mutexassert
       bslmt_semaphoreimpl_darwin                                      !PRIVATE!
       bslmt_semaphoreimpl_pthread                                     !PRIVATE!
       bslmt_semaphoreimpl_win32                                       !PRIVATE!
       bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
 
-   6. bslmt_mutex
+   7. bslmt_mutex
       bslmt_recursivemutex
       bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
       bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
 
-   5. bslmt_threadutil
+   6. bslmt_threadutil
+
+   5. bslmt_entrypointfunctoradapter
 
    4. bslmt_threadutilimpl_pthread                                    !PRIVATE!
       bslmt_threadutilimpl_win32                                      !PRIVATE!
@@ -75,11 +77,10 @@
       bslmt_saturatedtimeconversionimputil
       bslmt_threadattributes
 
-   1. bslmt_entrypointfunctoradapter
-      bslmt_lockguard
+   1. bslmt_lockguard
       bslmt_platform
-      bslmt_readlockguard
       bslmt_readerwritermuteximpl
+      bslmt_readlockguard
       bslmt_threadlocalvariable
       bslmt_writelockguard
 ..
@@ -99,7 +100,7 @@
 :      Provide a win32 implementation of 'bslmt::Condition'.
 :
 : 'bslmt_configuration':
-:      Provide utilities to allow configuration of values for BSL.
+:      Provide utilities to allow configuration of values for BCE.
 :
 : 'bslmt_entrypointfunctoradapter':
 :      Provide types and utilities to simplify thread creation.
@@ -155,7 +156,7 @@
 : 'bslmt_recursivemuteximpl_win32':                                   !PRIVATE!
 :      Provide a win32 implementation of 'bslmt::RecursiveMutex'.
 :
-: 'bslmt_rwmutex':
+: 'bslmt_rwmutex':                                       !DEPRECATED!
 :      Provide a platform-independent RW mutex class.
 :
 : 'bslmt_saturatedtimeconversionimputil':

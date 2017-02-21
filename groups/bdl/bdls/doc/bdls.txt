@@ -10,23 +10,22 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdls' package currently has 9 components having 5 levels of physical
+ The 'bdls' package currently has 9 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. bdls_osutil
-
   4. bdls_pipeutil
-     bdls_processutil
 
   3. bdls_fdstreambuf
      bdls_filedescriptorguard
 
   2. bdls_filesystemutil
+     bdls_osutil
 
   1. bdls_memoryutil
      bdls_pathutil
+     bdls_processutil
      bdls_testutil                                       !DEPRECATED!
 ..
 
