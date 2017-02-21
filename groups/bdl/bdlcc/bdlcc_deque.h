@@ -301,7 +301,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - -
 // First, we declare the 'Event' type, that will be contained in our
 // 'bdlcc::Deque' object.
-//
+//..
 //  struct Event {
 //      enum EventType {
 //          e_IN_PROGRESS   = 1,
