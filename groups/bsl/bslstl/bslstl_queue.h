@@ -213,6 +213,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_cpp11.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace bsl {
 
                              // ===========
@@ -277,16 +281,28 @@ class queue {
         BloombergLP::bslma::UsesBslmaAllocator<container_type>::value);
 
     // CREATORS
-    queue();
+    explicit queue();
         // Create an empty queue having a container of the parameterized
         // 'CONTAINER' type.
+
+    queue(const queue& original);
+        // Create a queue having the value of the specified 'original'.
+
+    queue(BloombergLP::bslmf::MovableRef<queue> container);
+        // Create a queue having the value of the specified 'original'.  The
+        // allocator associated with 'original' (if any) is propagated for use
+        // in the new queue.  'original' is left in valid but unspecified
+        // state.
 
     explicit queue(const CONTAINER& container);
         // Create a queue having the specified 'container' that holds elements
         // of the parameterized 'VALUE' type.
 
-    queue(const queue& original);
-        // Create a queue having the value of the specified 'original'.
+    explicit queue(BloombergLP::bslmf::MovableRef<CONTAINER> container);
+        // Create a queue having the same sequence of values as the specified
+        // 'container'.  The allocator associated with 'container' (if any) is
+        // propagated for use in the new queue.  'container' is left in valid
+        // but unspecified state.
 
     template <class ALLOCATOR>
     explicit
@@ -322,18 +338,6 @@ class queue {
         // allocator of the 'CONTAINER' parameter type,
         // 'CONTAINER::allocator_type'.  Otherwise this constructor is
         // disabled.
-
-    explicit queue(BloombergLP::bslmf::MovableRef<CONTAINER> container);
-        // Create a queue having the same sequence of values as the specified
-        // 'container'.  The allocator associated with 'container' (if any) is
-        // propagated for use in the new queue.  'container' is left in valid
-        // but unspecified state.
-
-    queue(BloombergLP::bslmf::MovableRef<queue> original);
-        // Create a queue having the value of the specified 'original'.  The
-        // allocator associated with 'original' (if any) is propagated for use
-        // in the new queue.  'original' is left in valid but unspecified
-        // state.
 
     template <class ALLOCATOR>
     queue(BloombergLP::bslmf::MovableRef<CONTAINER> container,
@@ -665,15 +669,22 @@ queue<VALUE, CONTAINER>::queue()
 
 template <class VALUE, class CONTAINER>
 inline
-queue<VALUE, CONTAINER>::queue(const CONTAINER& container)
-: c(container)
+queue<VALUE, CONTAINER>::queue(const queue& original)
+: c(original.c)
 {
 }
 
 template <class VALUE, class CONTAINER>
 inline
-queue<VALUE, CONTAINER>::queue(const queue& original)
-: c(original.c)
+queue<VALUE, CONTAINER>::queue(BloombergLP::bslmf::MovableRef<queue> original)
+: c(MoveUtil::move(MoveUtil::access(original).c))
+{
+}
+
+template <class VALUE, class CONTAINER>
+inline
+queue<VALUE, CONTAINER>::queue(const CONTAINER& container)
+: c(container)
 {
 }
 
@@ -729,13 +740,6 @@ queue<VALUE, CONTAINER>::queue(
            typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type *)
 : c(MoveUtil::move(container), basicAllocator)
-{
-}
-
-template <class VALUE, class CONTAINER>
-inline
-queue<VALUE, CONTAINER>::queue(BloombergLP::bslmf::MovableRef<queue> original)
-: c(MoveUtil::move(MoveUtil::access(original).c))
 {
 }
 

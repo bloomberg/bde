@@ -783,6 +783,183 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+
+      case 25: {
+        DATA VALUES1[] = {
+            // line,  key,  data,  level
+            { L_ , 1, "back 1", 0},
+            { L_ , 1, "middle-back  1 ", 0}, //we have to list these backwards
+            { L_ , 1, "middle-fwd 1", 0}, // because this list gets inserted
+            { L_ , 1, "fwd 1", 0}, // front to back
+            { L_ , 3, "3", 1}, 
+            { L_ , 0, "0", 2},
+            { L_ , 2, "2", 3},
+            { L_ , 4, "last 4", 4},
+            { L_ , 4, "middle 4", 4},
+            { L_ , 4, "first 4", 4},
+            { L_ , 8, "last 8", 4},
+            { L_ , 8, "first 8", 4},
+        };
+        if (verbose) cout << endl
+                          << "findLowerBoundR/findUpperBoundR test" << endl
+                          << "====================================" << endl;
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
+        typedef bdlcc::SkipList<int, bsl::string> SkipList;
+        {
+            SkipList Obj(&ta);
+            POPULATE_LIST_EX(&Obj, VALUES1);
+
+            SkipList::PairHandle h;
+            //validate error when trying to find something greater than max key
+            ASSERT(Obj.findLowerBoundR(&h, 10));
+            ASSERT(Obj.findUpperBoundR(&h, 10));
+
+            //validate success when trying to find something smaller 
+            //than min key
+            ASSERT(!Obj.findLowerBoundR(&h,-1));
+            ASSERT(h.key() == 0);
+            ASSERT(h.data() == "0"); 
+            
+            ASSERT(!Obj.findUpperBoundR(&h,-1));
+            ASSERT(h.key() == 0);
+            ASSERT(h.data() == "0"); 
+
+            //check front edge
+            ASSERT(!Obj.findUpperBoundR(&h, 0));
+            ASSERT(h.key() == 1);
+            ASSERT(h.data() == "fwd 1"); 
+            
+            ASSERT(!Obj.findLowerBoundR(&h, 0));
+            ASSERT(h.key() == 0);
+            ASSERT(h.data() == "0"); 
+            
+            //check somewhere inside of list
+            ASSERT(!Obj.findLowerBoundR(&h,6));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+            
+            ASSERT(!Obj.findUpperBoundR(&h,6));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+
+            //check back edge
+            ASSERT(Obj.findUpperBoundR(&h, 8));
+            
+            ASSERT(!Obj.findLowerBoundR(&h, 8));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+
+            //check middle
+            ASSERT(!Obj.findUpperBoundR(&h, 4));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+            
+            ASSERT(!Obj.findLowerBoundR(&h, 4));
+            ASSERT(h.key() == 4);
+            ASSERT(h.data() == "first 4"); 
+            
+            if (veryVerbose) {
+                Obj.print(cout);
+            } else if (verbose) Obj.print(cout, 0, -1) << endl;
+        }
+
+        V(da.numBytesInUse());
+        ASSERT(0 == da.numBytesInUse());
+        V(ta.numBytesInUse());
+        ASSERT(0 == ta.numBytesInUse());
+
+      } break;
+      case 24: {
+        DATA VALUES1[] = {
+            // line,  key,  data,  level
+            { L_ , 1, "back 1", 0},
+            { L_ , 1, "middle-back  1 ", 0}, //we have to list these backwards
+            { L_ , 1, "middle-fwd 1", 0}, // because this list gets inserted
+            { L_ , 1, "fwd 1", 0}, // front to back
+            { L_ , 3, "3", 1}, 
+            { L_ , 0, "0", 2},
+            { L_ , 2, "2", 3},
+            { L_ , 4, "last 4", 4},
+            { L_ , 4, "middle 4", 4},
+            { L_ , 4, "first 4", 4},
+            { L_ , 8, "last 8", 4},
+            { L_ , 8, "first 8", 4},
+        };
+        if (verbose) cout << endl
+                          << "findLowerBound/findUpperBound test" << endl
+                          << "==================================" << endl;
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
+        typedef bdlcc::SkipList<int, bsl::string> SkipList;
+        {
+            SkipList Obj(&ta);
+            POPULATE_LIST_EX(&Obj, VALUES1);
+
+            SkipList::PairHandle h;
+            //validate error when trying to find something greater than max key
+            ASSERT(Obj.findLowerBound(&h, 10));
+            ASSERT(Obj.findUpperBound(&h, 10));
+
+            //validate success when trying to find something smaller 
+            //than min key
+            ASSERT(!Obj.findLowerBound(&h,-1));
+            ASSERT(h.key() == 0);
+            ASSERT(h.data() == "0"); 
+            
+            ASSERT(!Obj.findUpperBound(&h,-1));
+            ASSERT(h.key() == 0);
+            ASSERT(h.data() == "0"); 
+
+            //check front edge
+            ASSERT(!Obj.findUpperBound(&h, 0));
+            ASSERT(h.key() == 1);
+            ASSERT(h.data() == "fwd 1"); 
+            
+            ASSERT(!Obj.findLowerBound(&h, 0));
+            ASSERT(h.key() == 0);
+            ASSERT(h.data() == "0"); 
+          
+            //check somewhere inside of list
+            ASSERT(!Obj.findLowerBound(&h,6));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+            
+            ASSERT(!Obj.findUpperBound(&h,6));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+
+            //check back edge
+            ASSERT(Obj.findUpperBound(&h, 8));
+            
+            ASSERT(!Obj.findLowerBound(&h, 8));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+
+            //check middle
+            ASSERT(!Obj.findUpperBound(&h, 4));
+            ASSERT(h.key() == 8);
+            ASSERT(h.data() == "first 8"); 
+            
+            ASSERT(!Obj.findLowerBound(&h, 4));
+            ASSERT(h.key() == 4);
+            ASSERT(h.data() == "first 4"); 
+            
+            if (veryVerbose) {
+                Obj.print(cout);
+            } else if (verbose) Obj.print(cout, 0, -1) << endl;
+        }
+
+        V(da.numBytesInUse());
+        ASSERT(0 == da.numBytesInUse());
+        V(ta.numBytesInUse());
+        ASSERT(0 == ta.numBytesInUse());
+
+      } break;
       case 23: {
         // --------------------------------------------------------------------
         // DISTRIBUTION TEST
@@ -1655,6 +1832,7 @@ int main(int argc, char *argv[])
         // find test
         // --------------------------------------------------------------------
         DATA VALUES1[] = {
+            // line,  key,  data,  level
             { L_ , 1, "1", 0},
             { L_ , 3, "3", 1},
             { L_ , 0, "0", 2},
@@ -1957,20 +2135,19 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // isNewTop
+        // isNewTop/isNewFront
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "isNewTop Test" << endl
-                          << "=============" << endl;
+        typedef bdlcc::SkipList<int, const char *> SkipList;
+        SkipList Obj;
 
         {
-            typedef bdlcc::SkipList<int, const char *> SkipList;
+            if (verbose) cout << endl
+                              << "isNewTop Test" << endl
+                              << "=============" << endl;
 
-            bool isNewTop;
-
-            SkipList Obj;
             SkipList::PairHandle h;
+            bool isNewTop;
 
             Obj.add(2, "2");
             ASSERT(1 == Obj.length());
@@ -1984,6 +2161,40 @@ int main(int argc, char *argv[])
 
             Obj.add(&h, 0, "0", &isNewTop);
             ASSERT(isNewTop);
+        }
+        {
+            if (verbose) cout << endl
+                              << "isNewFront Test" << endl
+                              << "===============" << endl;
+               
+            ASSERT(4 == Obj.length());
+
+            SkipList::Pair *h;
+            bool isNewFront;
+
+            Obj.frontRaw(&h);
+            ASSERT(!strcmp("0",h->data()));
+            ASSERT(0 == h->key());
+
+            ASSERT(!Obj.update(h,5,&isNewFront));
+            ASSERT(!isNewFront);
+            Obj.releaseReferenceRaw(h);
+                
+            Obj.frontRaw(&h);
+            ASSERT(!strcmp("1",h->data()));
+            ASSERT(1 == h->key());
+                
+            SkipList::Pair *h2;
+            ASSERT(!Obj.nextRaw(&h2,h));
+            Obj.releaseReferenceRaw(h);
+            ASSERT(2 == h2->key());
+            ASSERT(!Obj.update(h2,0,&isNewFront));
+            ASSERT(isNewFront);
+            Obj.releaseReferenceRaw(h2);
+
+            Obj.frontRaw(&h);
+            ASSERT(!strcmp("2",h->data()));
+            Obj.releaseReferenceRaw(h);
         }
       } break;
       case 3: {

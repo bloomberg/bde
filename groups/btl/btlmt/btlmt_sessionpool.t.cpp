@@ -19,6 +19,9 @@
 #include <btlso_flag.h>
 
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
@@ -554,8 +557,7 @@ class TestFactory : public btlmt::SessionFactory {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestFactory,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestFactory, bslma::UsesBslmaAllocator);
 
     // CREATORS
     TestFactory(BlobReadCallback *callback = 0,
@@ -1107,8 +1109,7 @@ class TesterFactory : public btlmt::SessionFactory {
     enum { LISTENER = 0, CONNECTOR };
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TesterFactory, bslma::UsesBslmaAllocator);
 
     // CREATORS
     TesterFactory(int               mode,
@@ -1500,8 +1501,8 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_EchoSessionFactory,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_EchoSessionFactory,
+                                       bslma::UsesBslmaAllocator);
 
         // CREATORS
         my_EchoSessionFactory(bslma::Allocator *basicAllocator = 0);
@@ -1666,8 +1667,8 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_EchoServer,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_EchoServer,
+                                       bslma::UsesBslmaAllocator);
 
         // CREATORS
         my_EchoServer(bslmt::Mutex     *coutLock,

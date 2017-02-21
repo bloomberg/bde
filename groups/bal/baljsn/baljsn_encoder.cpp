@@ -19,7 +19,7 @@ Encoder_Formatter::Encoder_Formatter(bsl::ostream&         stream,
 : d_outputStream(stream)
 , d_isArrayElement(false)
 {
-    if (EncoderOptions::e_PRETTY == options.encodingStyle()) {
+    if (baljsn::EncoderOptions::e_PRETTY == options.encodingStyle()) {
         d_usePrettyStyle = true;
         d_indentLevel    = options.initialIndentLevel();
         d_spacesPerLevel = options.spacesPerLevel();

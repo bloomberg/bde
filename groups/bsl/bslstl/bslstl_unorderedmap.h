@@ -1069,6 +1069,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 namespace bsl {
+
                             // ==================
                             // class unorderedmap
                             // ==================
@@ -1265,7 +1266,7 @@ class unordered_map {
         // bucket allocation strategy of the hash-table (but never fewer).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    explicit unordered_map(
+    unordered_map(
             std::initializer_list<value_type> values,
             size_type                         initialNumBuckets = 0,
             const HASH&                       hashFunction      = HASH(),
@@ -2900,7 +2901,6 @@ inline
 bool bsl::operator==(
              const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
              const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     return lhs.d_impl == rhs.d_impl;
 }
@@ -2908,8 +2908,8 @@ bool bsl::operator==(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
-            const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-            const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -2973,7 +2973,7 @@ struct IsBitwiseMoveable<
           ALLOCATOR> >::type
 {};
 
-}
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

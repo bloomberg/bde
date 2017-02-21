@@ -49,8 +49,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we prepare in-memory representation of the protocol header with
 // protocol version set to '0x1', message type set to '0x02' and message length
-// set to '0x1234' in the big-endian byte order ( most significant bytes first
-// ):
+// set to '0x1234' in the big-endian byte order (most significant bytes
+// first):
 //..
 //  const char buffer[8] = { 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x12, 0x34 };
 //..

@@ -18,6 +18,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -328,7 +329,7 @@ void aSsErT(bool condition, const char *message, int line)
 //              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature

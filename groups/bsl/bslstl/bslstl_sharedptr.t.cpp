@@ -75,10 +75,13 @@
 // constrained.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
-|| (defined(BSLS_PLATFORM_CMP_CLANG) && !defined(__GXX_EXPERIMENTAL_CXX0X__)) \
-|| (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-# define BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING 1
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
+ && (defined(BSLS_PLATFORM_CMP_IBM)   \
+  || defined(BSLS_PLATFORM_CMP_CLANG) \
+  || defined(BSLS_PLATFORM_CMP_MSVC)  \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+     )
+# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
@@ -592,7 +595,7 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_NOEXCEPT(...)
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_BOOL_CONSTANT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::bool_constant<EXPRESSION> NAME{}
     // This leading branch is the preferred version for C++17, but the feature
@@ -3077,7 +3080,7 @@ class SelfReference
 };
 
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
 # ifdef BSLS_PLATFORM_CMP_GNU
 #   pragma GCC diagnostic push
@@ -3937,7 +3940,7 @@ void Harness::testCase23(
     //   void createInplace(bslma::Allocator *, const A1& a1, ...& a14)
     // --------------------------------------------------------------------
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
     if (verbose) printf("\nTesting 'createInplace' with 0 arguments"
                         "\n----------------------------------------\n");
 
@@ -4192,7 +4195,7 @@ void Harness::testCase23(
     testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>(target);
     testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>(target);
     testCase23_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>(target);
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
     testCase23_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
     testCase23_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(target);
     testCase23_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(target);
@@ -4208,7 +4211,7 @@ void Harness::testCase23(
     testCase23_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(target);
     testCase23_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(target);
     testCase23_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(target);
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 }
 
 template <int N_ARGS,
@@ -4910,7 +4913,7 @@ void Harness::testCase33(ALLOCATOR basicAllocator)
     //   shared_ptr<T> allocate_shared<T, A>(A, const A1& a1,..&a14)
     // --------------------------------------------------------------------
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
     if (verbose) printf("\nTesting constructor with 0 arguments"
                         "\n-------------------------------------\n");
 
@@ -5165,7 +5168,7 @@ void Harness::testCase33(ALLOCATOR basicAllocator)
     testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>(basicAllocator);
     testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>(basicAllocator);
     testCase33_RunTest<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>(basicAllocator);
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
     testCase33_RunTest< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
     testCase33_RunTest< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
     testCase33_RunTest< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>(basicAllocator);
@@ -5181,7 +5184,7 @@ void Harness::testCase33(ALLOCATOR basicAllocator)
     testCase33_RunTest<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>(basicAllocator);
     testCase33_RunTest<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>(basicAllocator);
     testCase33_RunTest<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>(basicAllocator);
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 }
 
 template <int N_ARGS,
@@ -7090,7 +7093,7 @@ int main(int argc, char *argv[])
         ASSERT(!(is_constructible<
                              bsl::shared_ptr<bslma::TestAllocator>,
                                                   void *>::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<bslma::TestAllocator>,
                                      std::auto_ptr<bslma::TestAllocator> >::value));
@@ -7099,7 +7102,7 @@ int main(int argc, char *argv[])
                                std::auto_ptr<bslma::Allocator> >::value));
         // Note that this converts through auto_ptr_ref, and cannot be blocked.
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<bslma::TestAllocator>,
                                    std::unique_ptr<bslma::TestAllocator> >::value));
@@ -7145,7 +7148,7 @@ int main(int argc, char *argv[])
         ASSERT(!(is_constructible<
                              bsl::shared_ptr<bslma::Allocator>,
                                                   void *>::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<bslma::Allocator>,
                                      std::auto_ptr<bslma::TestAllocator> >::value));
@@ -7153,7 +7156,7 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<bslma::Allocator>,
                                std::auto_ptr<bslma::Allocator> >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<bslma::Allocator>,
                                    std::unique_ptr<bslma::TestAllocator> >::value));
@@ -7208,7 +7211,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslma::TestAllocator *
@@ -7218,7 +7221,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslma::TestAllocator *
@@ -7289,7 +7292,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , support::FactoryDeleter *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , support::FactoryDeleter *
@@ -7299,7 +7302,7 @@ int main(int argc, char *argv[])
                                       , support::FactoryDeleter *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , support::FactoryDeleter *
@@ -7353,7 +7356,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , bslstl::SharedPtrNilDeleter
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -7363,7 +7366,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -7433,7 +7436,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , void(*)(bslma::Allocator *)
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -7443,7 +7446,7 @@ int main(int argc, char *argv[])
                                       , void(*)(bslma::Allocator *)
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -7502,7 +7505,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bslma::Allocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslma::Allocator *
@@ -7514,7 +7517,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslma::Allocator *
@@ -7600,7 +7603,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bslma::Allocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -7612,7 +7615,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -7698,7 +7701,7 @@ int main(int argc, char *argv[])
                                       , void(*)(bslma::Allocator *)
                                       , bslma::Allocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -7710,7 +7713,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -7775,7 +7778,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslma::Allocator *
@@ -7787,7 +7790,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslma::Allocator *
@@ -7874,7 +7877,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -7886,7 +7889,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -7972,7 +7975,7 @@ int main(int argc, char *argv[])
                                       , void(*)(bslma::Allocator *)
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::TestAllocator *)
@@ -7984,7 +7987,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -8050,7 +8053,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bsl::allocator<char>
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslma::Allocator *
@@ -8062,7 +8065,7 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslma::Allocator *
@@ -8128,7 +8131,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bsl::allocator<char>
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -8140,7 +8143,7 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , bslstl::SharedPtrNilDeleter
@@ -8247,7 +8250,7 @@ int main(int argc, char *argv[])
                                       , void(*)(bslma::Allocator *)
                                       , bsl::allocator<char>
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::auto_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -8259,7 +8262,7 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<bslma::Allocator>
                                       , std::unique_ptr<bslma::TestAllocator>
                                       , void(*)(bslma::Allocator *)
@@ -8699,7 +8702,7 @@ int main(int argc, char *argv[])
         ASSERT(!(is_constructible<
                              bsl::shared_ptr<      int>,
                                                   void *>::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<      int>,
                                      std::auto_ptr<int> >::value));
@@ -8708,7 +8711,7 @@ int main(int argc, char *argv[])
                                std::auto_ptr<const int> >::value));
         // Note that this converts through auto_ptr_ref, and cannot be blocked.
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<      int>,
                                    std::unique_ptr<int> >::value));
@@ -8754,7 +8757,7 @@ int main(int argc, char *argv[])
         ASSERT(!(is_constructible<
                              bsl::shared_ptr<const int>,
                                                   void *>::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<const int>,
                                      std::auto_ptr<int> >::value));
@@ -8762,7 +8765,7 @@ int main(int argc, char *argv[])
                              bsl::shared_ptr<const int>,
                                std::auto_ptr<const int> >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<const int>,
                                    std::unique_ptr<int> >::value));
@@ -8808,7 +8811,7 @@ int main(int argc, char *argv[])
         ASSERT( (is_constructible<
                              bsl::shared_ptr<     void>,
                                                   void *>::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<     void>,
                                      std::auto_ptr<int> >::value));
@@ -8817,7 +8820,7 @@ int main(int argc, char *argv[])
                                std::auto_ptr<const int> >::value));
         // Note that this converts through auto_ptr_ref, and cannot be blocked.
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible<
                              bsl::shared_ptr<     void>,
                                    std::unique_ptr<int> >::value));
@@ -8871,7 +8874,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT( (is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::TestAllocator *
@@ -8881,7 +8884,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT( (is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslma::TestAllocator *
@@ -8956,7 +8959,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , support::FactoryDeleter *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , support::FactoryDeleter *
@@ -8966,7 +8969,7 @@ int main(int argc, char *argv[])
                                       , support::FactoryDeleter *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , support::FactoryDeleter *
@@ -9020,7 +9023,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , bslstl::SharedPtrNilDeleter
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9030,7 +9033,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9100,7 +9103,7 @@ int main(int argc, char *argv[])
                                       , void *
                                       , void(*)(const int *)
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(const int *)
@@ -9110,7 +9113,7 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , void(*)(const int *)
@@ -9169,7 +9172,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bslma::Allocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::Allocator *
@@ -9181,7 +9184,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslma::Allocator *
@@ -9267,7 +9270,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bslma::Allocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9279,7 +9282,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9365,7 +9368,7 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       , bslma::Allocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(const int *)
@@ -9377,7 +9380,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , void(*)(const int *)
@@ -9442,7 +9445,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::Allocator *
@@ -9454,7 +9457,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslma::Allocator *
@@ -9541,7 +9544,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9553,7 +9556,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9639,7 +9642,7 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       , bslma::TestAllocator *
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(int *)
@@ -9651,7 +9654,7 @@ int main(int argc, char *argv[])
                                       , bslma::TestAllocator *
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , void(*)(const int *)
@@ -9717,7 +9720,7 @@ int main(int argc, char *argv[])
                                       , bslma::Allocator *
                                       , bsl::allocator<char>
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslma::Allocator *
@@ -9729,7 +9732,7 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslma::Allocator *
@@ -9795,7 +9798,7 @@ int main(int argc, char *argv[])
                                       , bslstl::SharedPtrNilDeleter
                                       , bsl::allocator<char>
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9807,7 +9810,7 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , bslstl::SharedPtrNilDeleter
@@ -9914,7 +9917,7 @@ int main(int argc, char *argv[])
                                       , void(*)(const int *)
                                       , bsl::allocator<char>
                                       >::value));
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::auto_ptr<int>
                                       , void(*)(const int *)
@@ -9926,7 +9929,7 @@ int main(int argc, char *argv[])
                                       , bsl::allocator<char>
                                       >::value));
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
         ASSERT(!(is_constructible< bsl::shared_ptr<const int>
                                       , std::unique_ptr<int>
                                       , void(*)(const int *)
@@ -10907,7 +10910,7 @@ int main(int argc, char *argv[])
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -12107,7 +12110,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting with allocator-aware types"
                             "\n==================================\n");
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         if (verbose) printf("\nTesting constructor with 0-13 arguments"
                             "\n---------------------------------------\n");
 
@@ -12315,7 +12318,7 @@ int main(int argc, char *argv[])
 
             ASSERT(dam.isTotalSame());
         }
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
         Harness::testCase34_AllocatorAware< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase34_AllocatorAware< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase34_AllocatorAware< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
@@ -12331,7 +12334,7 @@ int main(int argc, char *argv[])
         Harness::testCase34_AllocatorAware<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         Harness::testCase34_AllocatorAware<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         Harness::testCase34_AllocatorAware<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
         // TBD: EXCEPTION-SAFETY TESTS (0-14 arguments)
         //      (no negative testing as contract is wide)
@@ -12496,7 +12499,7 @@ int main(int argc, char *argv[])
                           "\n'make_shared' with default allocator for args"
                           "\n---------------------------------------------\n");
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         if (verbose) printf("\nTesting constructor with no arguments"
                             "\n-------------------------------------\n");
 
@@ -12751,7 +12754,7 @@ int main(int argc, char *argv[])
         Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
         Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
         Harness::testCase32_DefaultAllocator<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
         Harness::testCase32_DefaultAllocator< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_DefaultAllocator< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_DefaultAllocator< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
@@ -12767,13 +12770,13 @@ int main(int argc, char *argv[])
         Harness::testCase32_DefaultAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         Harness::testCase32_DefaultAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         Harness::testCase32_DefaultAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
 
         if (verbose) printf("\n'make_shared' with local allocator for args"
                             "\n-------------------------------------------\n");
 
-#if !defined(BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING)
+#if !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         if (verbose) printf("\nTesting constructor with no arguments"
                             "\n-------------------------------------\n");
 
@@ -13028,7 +13031,7 @@ int main(int argc, char *argv[])
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,1,0>();
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,1>();
         Harness::testCase32_LocalAllocator<14,1,1,1,1,1,1,1,1,1,1,1,1,1,1>();
-#else // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#else // BSL_DO_NOT_TEST_MOVE_FORWARDING
         Harness::testCase32_LocalAllocator< 0,2,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_LocalAllocator< 1,0,2,2,2,2,2,2,2,2,2,2,2,2,2>();
         Harness::testCase32_LocalAllocator< 2,0,0,2,2,2,2,2,2,2,2,2,2,2,2>();
@@ -13044,7 +13047,7 @@ int main(int argc, char *argv[])
         Harness::testCase32_LocalAllocator<12,0,0,0,0,0,0,0,0,0,0,0,0,2,2>();
         Harness::testCase32_LocalAllocator<13,0,0,0,0,0,0,0,0,0,0,0,0,0,2>();
         Harness::testCase32_LocalAllocator<14,0,0,0,0,0,0,0,0,0,0,0,0,0,0>();
-#endif // BSLSTL_SHAREDPTR_DO_NOT_TEST_MOVE_FORWARDING
+#endif // BSL_DO_NOT_TEST_MOVE_FORWARDING
 
 
 
@@ -17455,7 +17458,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -18430,7 +18433,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push
@@ -18510,7 +18513,7 @@ int main(int argc, char *argv[])
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVED_AUTO_PTR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
 
 # if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40400
 #   pragma GCC diagnostic push

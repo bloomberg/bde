@@ -19,6 +19,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -27,11 +31,17 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
     // Import selected symbols into bsl namespace
+
     using native_std::bad_alloc;
     using native_std::new_handler;
     using native_std::nothrow;
     using native_std::nothrow_t;
     using native_std::set_new_handler;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    using native_std::bad_array_new_length;
+    using native_std::get_new_handler;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by

@@ -320,6 +320,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_cpp11.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -336,7 +340,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_hash.h>
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 # ifndef INCLUDED_TUPLE
 #  include <tuple>  // 'std::tuple'
 #  define INCLUDED_TUPLE
@@ -362,10 +366,14 @@ BSL_OVERRIDES_STD mode"
 #ifdef std
 #   error This header should not be #included with 'std' being a macro
 #endif
+
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+ || !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 namespace std {
 template <class TYPE>
 void swap(TYPE& a, TYPE& b);
 }  // close namespace std
+#endif
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 
@@ -430,8 +438,7 @@ struct Pair_BslmaIdiom : bsl::integral_constant<int,
 struct Pair_MakeUtil {
     // This class provides a suite of utility functions for returning newly
     // constructed pair elements by value.
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
     // CLASS METHODS
     template <class TYPE, class ...Args, int ...I>
     static TYPE make(
@@ -582,9 +589,7 @@ struct Pair_First {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-// TBD: confirm macro
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
     template<class ...Args>
     Pair_First(native_std::tuple<Args...> tuple);
     template<class ...Args>
@@ -711,9 +716,7 @@ struct Pair_Second {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-// TBD: confirm macro
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
     template<class ...Args>
     Pair_Second(native_std::tuple<Args...> tuple);
     template<class ...Args>
@@ -929,8 +932,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // a compile-time error.  This method requires that 'T1' and 'T2' be
         // convertible from 'U1' and 'U2', respectively.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     template<class ...Args1, class ...Args2>
     pair(native_std::piecewise_construct_t,
          native_std::tuple<Args1...> first_args,
@@ -1217,8 +1219,7 @@ namespace bsl {
                              // struct Pair_MakeUtil
                              // --------------------
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 template <class TYPE, class ...Args, int ...I>
 inline
 TYPE Pair_MakeUtil::make(
@@ -1433,8 +1434,7 @@ Pair_First<TYPE>::Pair_First(U& value,
 }
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 template <class TYPE>
 template <class ...Args>
 inline
@@ -1626,8 +1626,7 @@ Pair_Second<TYPE>::Pair_Second(U&                             value,
 }
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_HAS_TUPLE_HEADER)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 template <class TYPE>
 template <class ...Args>
 inline
@@ -1748,8 +1747,7 @@ pair<T1, T2>::pair(U1& a, U2& b, AllocatorPtr basicAllocator)
 }
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 template <class T1, class T2>
 template<class ...Args1, class ...Args2>
 inline

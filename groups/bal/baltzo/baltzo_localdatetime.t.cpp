@@ -11,8 +11,10 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -224,10 +226,8 @@ static bool someDiff(const Obj& a, const Obj& b)
 //                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT((bslalg::HasTrait<Obj,
-                               bslalg::TypeTraitBitwiseMoveable>::VALUE));
-BSLMF_ASSERT((bslalg::HasTrait<Obj,
-                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING

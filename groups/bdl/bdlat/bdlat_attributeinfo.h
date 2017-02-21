@@ -84,6 +84,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_bdeatoverrides.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif

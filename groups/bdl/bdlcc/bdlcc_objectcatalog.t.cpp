@@ -23,6 +23,9 @@
 #include <bdlt_currenttime.h>
 
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
@@ -845,8 +848,7 @@ class AllocPattern {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(AllocPattern,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(AllocPattern, bslma::UsesBslmaAllocator);
 
     static int objCount;
 

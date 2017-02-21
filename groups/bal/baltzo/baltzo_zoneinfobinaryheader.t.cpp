@@ -258,6 +258,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     // 'version'
     { L_,   '\0',       0,       0,       0,       0,       1,       1 },
     { L_,    '2',       0,       0,       0,       0,       1,       1 },
+    { L_,    '3',       0,       0,       0,       0,       1,       1 },
 
     // 'numIsGmt'
     { L_,   '\0',       0,       0,       0,       0,       1,       1 },
@@ -767,7 +768,8 @@ int main(int argc, char *argv[])
 
                 { L_,        '2' - 1,   false   },
                 { L_,        '2' + 0,    true   },
-                { L_,        '2' + 1,   false   },
+                { L_,        '3' + 0,    true   },
+                { L_,        '3' + 1,   false   },
 
                 { L_,   CHAR_MAX - 1,   false   },
                 { L_,   CHAR_MAX + 0,   false   },
@@ -1889,15 +1891,16 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using the table-driven technique:  (C-1..3, 5, 7)
         //:
-        //:   1 Define twelve carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output
+        //:   1 Define thirteen carefully selected combinations of (three)
+        //:     object values ('A', 'B' and 'C'), having distinct values for
+        //:     each corresponding salient attribute, and various values for
+        //:     the two formatting parameters, along with the expected output
         //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
         //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
         //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
         //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
         //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
+        //:     5 { C   } x {  2     } x {  3        }  -->  1 expected output
         //:
         //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
         //:
@@ -2114,6 +2117,22 @@ int main(int argc, char *argv[])
                                                     "numLocalTimeTypes = 24" SP
                                                     "abbrevDataSize = 25"    SP
                                                     "]"
+                                                                             },
+
+        // -----------------------------------------------------------------
+        // P-2.1.5: { C } x { 2 }     x { 3 }         -->  1 expected output
+        // -----------------------------------------------------------------
+
+        { L_,   2,  3,  '3',    21,    22,     0,    23,  24,    25,
+                                           "      ["                         NL
+                                           "         version = 51"           NL
+                                           "         numIsGmt = 21"          NL
+                                           "         numIsStd = 22"          NL
+                                           "         numLeaps = 0"           NL
+                                           "         numTransitions = 23"    NL
+                                           "         numLocalTimeTypes = 24" NL
+                                           "         abbrevDataSize = 25"    NL
+                                           "      ]"                         NL
                                                                              },
 #undef NL
 #undef SP
@@ -2633,7 +2652,14 @@ int main(int argc, char *argv[])
                                      NTRANS,
                                      NLTT,
                                      ABBRSZ));
-                ASSERT_SAFE_FAIL(Obj('2' + 1,        // version
+                ASSERT_SAFE_PASS(Obj('3',            // version
+                                     NISGMT,
+                                     NISSTD,
+                                     NLEAPS,
+                                     NTRANS,
+                                     NLTT,
+                                     ABBRSZ));
+                ASSERT_SAFE_FAIL(Obj('3' + 1,        // version
                                      NISGMT,
                                      NISSTD,
                                      NLEAPS,
@@ -2977,7 +3003,7 @@ int main(int argc, char *argv[])
 
         // 'B' values
 
-        const char B1   = '\0';
+        const char B1   = '3';
         const int  B2   =  INT_MAX;
         const int  B3   =  INT_MAX;
         const int  B4   =  0;
@@ -3326,7 +3352,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(obj.setVersion('2' - 1));
                 ASSERT_SAFE_PASS(obj.setVersion('2'    ));
-                ASSERT_SAFE_FAIL(obj.setVersion('2' + 1));
+                ASSERT_SAFE_PASS(obj.setVersion('3'    ));
+                ASSERT_SAFE_FAIL(obj.setVersion('3' + 1));
             }
 
             if (veryVerbose) cout << "\tnumIsGmt" << endl;

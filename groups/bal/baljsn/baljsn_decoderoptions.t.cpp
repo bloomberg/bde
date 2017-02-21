@@ -932,9 +932,15 @@ int main(int argc, char *argv[])
         //LINE L SPL  MD   SUE  EXP
         //---- - ---  ---  ---  ---
 
-        { L_, -9, -9,  89, true,  "[ 89 true ]"                              },
+        { L_, -9, -9,  89, true, "["                                         SP
+                                 "maxDepth = 89"                             SP
+                                 "skipUnknownElements = true"                SP
+                                 "]"                                         },
 
-        { L_, -9, -9,   7, false, "[ 7 false ]"                              },
+        { L_, -9, -9,   7, false, "["                                        SP
+                                 "maxDepth = 7"                              SP
+                                 "skipUnknownElements = false"               SP
+                                 "]"                                         },
 
 #undef NL
 #undef SP

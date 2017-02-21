@@ -321,6 +321,10 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
 {
+    BSLS_ASSERT(0          <= minThreads);
+    BSLS_ASSERT(minThreads <= maxThreads);
+    BSLS_ASSERT(0          <= maxIdleTime);
+
     // Force all threads to be detached.
 
     d_threadAttributes.setDetachedState(

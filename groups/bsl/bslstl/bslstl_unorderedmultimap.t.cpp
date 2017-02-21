@@ -24,6 +24,8 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
@@ -307,28 +309,24 @@ void debugprint(const bsl::pair<FIRST, SECOND>& p)
 
 // unordered_multimap-specific print function.
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void debugprint(
-              const bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>& s)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+void debugprint(const unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
+                                                                             s)
 {
     if (s.empty()) {
         printf("<empty>");
     }
     else {
-        typedef bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC> Obj;
-        typedef typename Obj::const_local_iterator LCIter;
+        typedef unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR> Obj;
+        typedef typename Obj::const_iterator CIter;
 
-        for (size_t n = 0; n < s.bucket_count(); ++n) {
-            if (s.cbegin(n) == s.cend(n)) {
-                continue;
-            }
-            printf("\nBucket [" ZU "]: ", n);
-            for (LCIter lci = s.cbegin(n); lci != s.cend(n); ++lci) {
-                bsls::BslTestUtil::callDebugprint(static_cast<char>(
-                      bsltf::TemplateTestFacility::getIdentifier(lci->first)));
-            }
-            printf("\n");
+        putchar('"');
+        const CIter end = s.cend();
+        for (CIter ci = s.cbegin(); end != ci; ++ci) {
+            putchar(static_cast<char>(
+                       bsltf::TemplateTestFacility::getIdentifier(ci->first)));
         }
+        putchar('"');
     }
     fflush(stdout);
 }
@@ -694,6 +692,42 @@ struct ExceptionProctor{
         // Release this proctor from verifying the state of the object.
     {
         d_object_p = 0;
+    }
+};
+
+                            // ====================
+                            // class CompareProctor
+                            // ====================
+
+template <class OBJECT>
+struct CompareProctor {
+    // Take pointers to two non-owned objects of the same type, and ensure that
+    // they compare equal upon destruction.
+
+    const OBJECT *d_a_p;
+    const OBJECT *d_b_p;
+    const int     d_line;
+
+    // CREATOR
+    CompareProctor(const OBJECT& a, const OBJECT& b, int line)
+    : d_a_p(&a)
+    , d_b_p(&b)
+    , d_line(line)
+    {}
+
+    ~CompareProctor()
+    {
+        ASSERTV(d_line, !d_a_p == !d_b_p);
+
+        if (d_a_p) {
+            ASSERTV(d_line, *d_a_p, *d_b_p, *d_a_p == *d_b_p);
+        }
+    }
+
+    // MANIPULATORS
+    void release()
+    {
+        d_a_p = d_b_p = 0;
     }
 };
 
@@ -1194,8 +1228,7 @@ class TestDriver {
         return t;
     }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     template <int N_ARGS_KEY,
               int NK1,
               int NK2,
@@ -1244,7 +1277,8 @@ class TestDriver {
     static void testCase33();
         // Test Typedefs.
 
-    static void testCase32();
+    static void testCase32_outOfLine();
+    static void testCase32_inline();
         // Test methods taking intializer lists.
 
     static void testCase31a();
@@ -1492,8 +1526,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
     return ret;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 template <int N_ARGS_KEY,
           int NK1,
@@ -2073,8 +2106,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX;  const Obj& X = mX;
-        Obj mY;  const Obj& Y = mY;
+        Obj mX;  const Obj& X = mX;    (void) X;
+        Obj mY;  const Obj& Y = mY;    (void) Y;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
@@ -2096,7 +2129,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
@@ -2123,7 +2156,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
@@ -2144,8 +2177,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj x;
-        Obj y;
+        Obj x;    (void) x;
+        Obj y;    (void) y;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
@@ -2162,7 +2195,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
@@ -2178,7 +2211,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX; const Obj& X = mX;
+        Obj mX; const Obj& X = mX;    (void) X;
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
@@ -2196,8 +2229,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase37()
     //..
 
     {
-        Obj mX;
-        Obj mY;
+        Obj mX;    (void) mX;
+        Obj mY;    (void) mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
@@ -2374,7 +2407,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase33()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_outOfLine()
 {
     // ------------------------------------------------------------------------
     // TESTING FUNCTIONS TAKING INITIALIZER LISTS
@@ -2400,7 +2433,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     const TestValues V;
 
-    if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
+    if (veryVerbose) { P(NameOf<KEY>().name()) P(NameOf<VALUE>().name()); }
 
     typedef std::initializer_list<ValueType> InitList;
 
@@ -2668,7 +2701,237 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
         }
         ASSERT(dam.isTotalSame());
     }
+
+    {
+        typedef bsl::pair<int, Obj> MyPair;
+
+        bslma::TestAllocator         ta("ta", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&ta);
+
+        const MyPair& mp = MyPair(5, { V[0], V[1], V[2] });
+
+        ASSERT(3 == mp.second.size());
+    }
 #endif  // defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_inline()
+{
+    // ------------------------------------------------------------------------
+    // TESTING INITIALIZER LIST C'TORS INLINE
+    //
+    // Concerns:
+    //: 1 That the initializer list constructors can work with an inline
+    //:   initializer list.
+    //
+    // Plan:
+    //: 1 Repeat the tests done in 'testCase33_outOfLine', except test only
+    //:   with a single, inline constructor list.
+    //: 2 There is a bug in the GNU compiler where, if an exception is thrown
+    //:   while creating an inline initializer_list, the partially completely
+    //:   list is not correctly destroyed and memory can be leaked.  So if
+    //:   we're on that compiler, disable the default allocator from throwing
+    //:   exceptions (inline initiailizer_list's are always created using the
+    //:   default allocator).
+    //
+    // Testing:
+    //   void Obj(initializer_list<Pair>);
+    //   void Obj(initializer_list<Pair>, size_t);
+    //   void Obj(initializer_list<Pair>, size_t, HASH);
+    //   void Obj(initializer_list<Pair>, size_t, HASH, EQUAL);
+    //   void Obj(initializer_list<Pair>, const ALLOC&);
+    //   void Obj(initializer_list<Pair>, size_t, const ALLOC&);
+    //   void Obj(initializer_list<Pair>, size_t, HASH, const ALLOC&);
+    //   void Obj(initializer_list<Pair>, size_t, HASH, EQUAL, const ALLOC&);
+    //   void insert(initializer_list<Pair>);
+    //   Obj& operator=(initializer_list<Pair>);
+    // ------------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    if (verbose) printf("INITIALIZER_LIST not supported -- no test: %s\n",
+                        NameOf<KEY>().name());
+#else
+    if (verbose) printf(
+                "TESTING INITIALIZER LIST C'TORS AND MANIPULATORS INLINE: %s\n"
+                "=======================================================\n",
+                NameOf<KEY>().name());
+
+    bslma::TestAllocator ta("ta", veryVeryVeryVerbose);    // testValues
+    bslma::TestAllocator fa("fa", veryVeryVeryVerbose);    // footprint
+    bslma::TestAllocator oa("oa", veryVeryVeryVerbose);    // other
+    bslma::TestAllocator da("da", veryVeryVeryVerbose);    // default
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const char   testValuesSpec[] = { "ABC" };
+    const size_t testValuesSpecLen = sizeof(testValuesSpec) - 1;
+
+    TestValues  testValues(testValuesSpec, &ta);
+    ASSERT(testValues.size() == testValuesSpecLen);
+
+#define u_INIT_LIST                                                           \
+              { testValues[1], testValues[0], testValues[2], testValues[0] }
+
+    const TestHashFunctor<KEY> hf(5);
+    const TestEqualityComparator<KEY> ec(5);
+
+    bool done = false;
+    int totalThrows = 0;
+    for (char ctor = 'a'; ctor <= 'h' ; ++ctor) {
+        bool ibPassed = false;
+        bool hfPassed = false;
+        bool ecPassed = false;
+        bool oaPassed = false;
+
+        Obj *p = 0;
+
+        bslma::TestAllocator& usedAlloc = ctor < 'e' ? da : oa;
+        int numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
+            ++numThrows;
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+            // There's a bug in 'std::initializer_list' in the GNU g++ compiler
+            // which, if a throw occurs while the initializer list is being
+            // constructed, it isn't destroyed properly and memory is leaked.
+            // To avoid that, do this test without the exceptions if
+            // '&usedAlloc == &da'.
+
+            // Therefore, default allocator should never throw on allocations.
+
+            da.setAllocationLimit(-1);
+#endif
+
+            switch (ctor) {
+              case 'a': {
+                  p = new (fa) Obj(u_INIT_LIST);
+              } break;
+              case 'b': {
+                  p = new (fa) Obj(u_INIT_LIST, 1000);
+                  ibPassed = true;
+              } break;
+              case 'c': {
+                  p = new (fa) Obj(u_INIT_LIST, 1000, hf);
+                  ibPassed = true;
+                  hfPassed = true;
+              } break;
+              case 'd': {
+                  p = new (fa) Obj(u_INIT_LIST, 1000, hf, ec);
+                  ibPassed = true;
+                  hfPassed = true;
+                  ecPassed = true;
+              } break;
+              case 'e': {
+                  p = new (fa) Obj(u_INIT_LIST, &oa);
+                  oaPassed = true;
+              } break;
+              case 'f': {
+                  p = new (fa) Obj(u_INIT_LIST, 1000, &oa);
+                  ibPassed = true;
+                  oaPassed = true;
+              } break;
+              case 'g': {
+                  p = new (fa) Obj(u_INIT_LIST, 1000, hf, &oa);
+                  ibPassed = true;
+                  hfPassed = true;
+                  oaPassed = true;
+              } break;
+              case 'h': {
+                  p = new (fa) Obj(u_INIT_LIST, 1000, hf, ec, &oa);
+                  ibPassed = true;
+                  hfPassed = true;
+                  ecPassed = true;
+                  oaPassed = true;
+
+                  done = true;
+              } break;
+              default: {
+                  ASSERTV(ctor, 0 && "invalid ctor choice");
+              } return;                                               // RETURN
+            }
+
+            ASSERT(p);
+            ASSERT(!p->empty() && 4 == p->size());
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        const Obj& X = *p;
+
+        ASSERTV(NameOf<KEY>(), numThrows, ctor, !oaPassed || 0 < numThrows);
+        totalThrows += numThrows;
+
+        // Make sure parameters either got passed or were default constructed
+        // appropriately.
+
+        const size_t bc = X.bucket_count();
+        ASSERTV(bc, ibPassed, ibPassed ? (bc > 1000) : (bc < 1000));
+
+        const int hfId = X.hash_function().id();
+        ASSERTV(hfId, hfPassed, hfId == (hfPassed ? 5 : 0));
+
+        const int ecId = X.key_eq().id();
+        ASSERTV(ecId, ecPassed, ecId == (ecPassed ? 5 : 0));
+
+        ASSERTV(X.get_allocator().mechanism() == (oaPassed ? &oa : &da));
+        ASSERTV(oaPassed || 0 == oa.numAllocations());
+
+        // Make sure the container works OK.
+
+        ASSERTV(NameOf<KEY>(), X.size(), 4 == X.size());
+        ASSERTV(NameOf<KEY>(), verifySpec(X, "AABC"));
+
+        ASSERTV(!oa.numBlocksInUse() != !da.numBlocksInUse());
+
+        fa.deleteObjectRaw(p);
+
+        ASSERTV(ctor, 0 == fa.numBlocksInUse());
+        ASSERTV(ctor, 0 == oa.numBlocksInUse());
+        ASSERTV(ctor, 0 == da.numBlocksInUse());
+    }
+
+    ASSERTV(fa.numBlocksTotal() == 'h' + 1 - 'a' + totalThrows);
+
+    {
+        Obj mX(&oa);    const Obj& X = gg(&mX, "CDE");
+
+        mX.insert(u_INIT_LIST);
+
+        ASSERTV(X, verifySpec(X, "AABCCDE"));
+    }
+
+    {
+        Obj mX(&oa);    const Obj& X = gg(&mX, "CDE");
+        Obj Y(X, &oa);
+
+        int numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+            ++numThrows;
+
+            CompareProctor<Obj> proctor(Y, X, L_);
+
+            Obj *ret = &(mX = u_INIT_LIST);
+            ASSERT(&X == ret);
+
+            proctor.release();
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+        ASSERTV(!TYPE_ALLOC || !PLAT_EXC || 0 < numThrows);
+        ASSERTV(X, verifySpec(X, "AABC"));
+        ASSERTV(Y, verifySpec(Y, "CDE"));
+    }
+
+    {
+        typedef bsl::pair<int, Obj> MyPair;
+
+        bslma::DefaultAllocatorGuard dag(&ta);
+
+        const MyPair& mp = MyPair(5, u_INIT_LIST);
+
+        ASSERTV(mp.second, 4 == mp.second.size());
+    }
+
+#undef u_INIT_LIST
+
+    ASSERT(done);
+#endif
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
@@ -2727,8 +2990,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a()
     //   iterator emplace_hint(const_iterator hint, Args&&... args);
     // ------------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- || !defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     if (verbose) printf("EMPLACE WITH HINT: not tested\n");
 #else
     if (verbose) printf(
@@ -3180,8 +3442,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a()
     //   iterator emplace(Args&&... args);
     // ------------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
- || !defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
     if (verbose) printf("Testcase31a -- no test\n");
 #else
     if (verbose) printf("TESTING FORWARDING OF ARGUMENTS WITH EMPLACE\n"
@@ -10863,11 +11124,20 @@ int main(int argc, char *argv[])
         // TESTING METHODS TAKING INITIALIZER LISTS
         // --------------------------------------------------------------------
         RUN_EACH_TYPE(TestDriver,
-                      testCase32,
+                      testCase32_outOfLine,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase32,
+                      testCase32_outOfLine,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase32_inline,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase32_inline,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
       } break;

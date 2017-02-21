@@ -123,6 +123,7 @@ BSLS_IDENT("$: $")
 //          }
 //      }
 //  }
+//..
 // Next, we dynamically allocate an 'EntryPointFunctorAdapter' wrapping an
 // instance of this functor:
 //..

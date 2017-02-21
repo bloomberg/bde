@@ -60,6 +60,19 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                  DEFECT MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION != 0x514
+# define SUN_HAS_PROBLEM_WITH_LITERALS
+    // The 5.14 compiler has an odd problem where literals, passed as rvalues
+    // to functions, match 'const volatile' references during argument type
+    // deduction, but cannot actually match that signature so fail to compile
+    // when called.  Even more oddly, this does not affect all types, so tests
+    // may be selectively disabled waiting for a compiler patch.
+#endif
+
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -207,7 +220,9 @@ int main(int argc, char *argv[])
         ASSERT(! isY(X()));
         ASSERT(  isY(Y()));
         ASSERT(  isY(Z()));
+#if !defined(SUN_HAS_PROBLEM_WITH_LITERALS)
         ASSERT(! isY(int()));
+#endif
         ASSERT(! isY(4));
         ASSERT(! isY(4.0));
         ASSERT(! isY("The king is a fink!"));
@@ -254,9 +269,11 @@ int main(int argc, char *argv[])
         ASSERT(! my_isBtraits(ci));
         ASSERT(! my_isBtraits(cvi));
         ASSERT(! my_isBtraits(&i));
-        ASSERT(! my_isBtraits(&vi));
         ASSERT(! my_isBtraits(&ci));
+#if !defined(SUN_HAS_PROBLEM_WITH_LITERALS)
+        ASSERT(! my_isBtraits(&vi));
         ASSERT(! my_isBtraits(&cvi));
+#endif
 
         const my_Traits<my_A> ta = my_Traits<my_A>();
         my_Traits<my_B>       tb;
@@ -264,7 +281,9 @@ int main(int argc, char *argv[])
         ASSERT(  my_isBtraits(tb));
 
         // int or void* matches bslmf::MatchAnyType
+#if !defined(SUN_HAS_PROBLEM_WITH_LITERALS)
         ASSERT(! my_isBtraits(0));
+#endif
         ASSERT(! my_isBtraits((void*) 0));
 
       } break;

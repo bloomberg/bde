@@ -19,8 +19,8 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -28,12 +28,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #include <memory>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_ALGORITHMS
-    #define USING_CPP11_NATIVE_STD(algo) using native_std::algo;
-#else
-    #define USING_CPP11_NATIVE_STD(algo)
-#endif
 
 namespace bsl {
     // Import selected symbols into bsl namespace
@@ -47,17 +41,36 @@ namespace bsl {
     using native_std::raw_storage_iterator;
     using native_std::return_temporary_buffer;
     using native_std::uninitialized_copy;
-    USING_CPP11_NATIVE_STD(uninitialized_copy_n);
     using native_std::uninitialized_fill;
     using native_std::uninitialized_fill_n;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_UNIQUE_PTR)
-    using native_std::unique_ptr;
-#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+    using native_std::auto_ptr;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
 
-#if !defined(BSLS_LIBRARYFEATURES_REMOVE_AUTOPTR)
-    using native_std::auto_ptr;  // May not be available from C++17 libraries
-#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using native_std::addressof;
+    using native_std::pointer_traits;
+    using native_std::uninitialized_copy_n;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_STANDARD_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+    using native_std::unique_ptr;
+    using native_std::default_delete;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    using native_std::align;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+    using native_std::declare_no_pointers;
+    using native_std::declare_reachable;
+    using native_std::get_pointer_safety;
+    using native_std::pointer_safety;
+    using native_std::undeclare_no_pointers;
+    using native_std::undeclare_reachable;
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
@@ -81,8 +94,6 @@ namespace bsl {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
-
-#undef USING_CPP11_NATIVE_STD
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

@@ -124,8 +124,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // very long, it may still pay to use JIT even for one-off matches.
 //
 // If 'RegEx::k_FLAG_JIT' is included in the flags supplied to 'prepare', then
-// all following matchings will be performed with JIT optimization.  To turn
-// off JIT optimization support, regular expression should be prepared again,
+// all following matches will be performed with JIT optimization.  To turn off
+// JIT optimization support, regular expression should be prepared again,
 // without using 'k_FLAG_JIT'.
 //
 // JIT is supported on following platforms:
@@ -145,8 +145,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Legend
 //  ------
 //  'SIMPLE_PATTERN':
-//      Pattern - (abc)*
-//      Subject -  XXXabcZZZ
+//      Pattern - X(abc)*Z
+//      Subject - XXXabcabcZZZ
 //
 //  'EMAIL_PATTERN':
 //      Pattern - [A-Za-z0-9._-]+@[[A-Za-z0-9.-]+
@@ -165,7 +165,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  +--------------------+---------------------+---------------------+
 //  | Pattern            | 'match' without-JIT |  'match' using-JIT  |
 //  +====================+=====================+=====================+
-//  | SIMPLE_PATTERN     |    0.0161 (~3.1x)   |        0.0052       |
+//  | SIMPLE_PATTERN     |    0.0559 (~5.1x)   |        0.0108       |
 //  +--------------------+---------------------+---------------------+
 //  | EMAIL_PATTERN      |    0.0222 (~2.6x)   |        0.0086       |
 //  +--------------------+---------------------+---------------------+
@@ -180,7 +180,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  +--------------------+-----------------------+-----------------------+
 //  | Pattern            | 'prepare' without-JIT |  'prepare' using-JIT  |
 //  +====================+=======================+=======================+
-//  | SIMPLE_PATTERN     |         0.1806        |     1.9612 (~10.9x)   |
+//  | SIMPLE_PATTERN     |         0.2514        |     2.1426 (~8.5x)   |
 //  +--------------------+-----------------------+-----------------------+
 //  | EMAIL_PATTERN      |         0.3386        |     2.5758 (~7.6x)    |
 //  +--------------------+-----------------------+-----------------------+
@@ -190,10 +190,41 @@ BSLS_IDENT("$Id$ $CSID$")
 // Note that the tests were run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
 // compiled with gcc-4.8.2 in optimized mode.
 //
+///Thread Safety
+///-------------
+// 'bdlpcre::RegEx' is *const* *thread-safe*, meaning that accessors may be
+// invoked concurrently from different threads, but it is not safe to access or
+// modify a 'bdlpcre::RegEx' in one thread while another thread modifies the
+// same object.  Specifically, the 'match' method can be called from multiple
+// threads after the pattern has been prepared.
+//
+// Note that 'bdlpcre::RegEx' incurs some overhead in order to provide
+// thread-safe pattern matching functionality.  To perform the pattern match,
+// the underlaying PCRE2 library requires a set of buffers that cannot be
+// shared between threads.
+//
+// The table below demonstrate the difference of invoking the 'match' method
+// from main (thread that invokes 'prepare') and other threads:
+//..
+//   Table 3: Performance cost for 'match' in multi-threaded application
+//  +--------------------+-----------------------+----------------------------+
+//  | Pattern            | 'match' (main thread) |  'match' (other thread(s)) |
+//  +====================+=======================+============================+
+//  | SIMPLE_PATTERN     |    0.0549 (~1.4x)     |           0.0759           |
+//  +--------------------+-----------------------+----------------------------+
+//  | EMAIL_PATTERN      |    0.0259 (~1.8x)     |           0.0464           |
+//  +--------------------+-----------------------+----------------------------+
+//  | IP_ADDRESS_PATTERN |    0.0377 (~1.5x)     |           0.0560           |
+//  +--------------------+-----------------------+----------------------------+
+//..
+// Note that JIT stack is functionally part of the match context. Using large
+// JIT stack can incur additional performance penalty in the multi-threaded
+// applications.
+//
 ///Note on memory allocation exceptions
 ///------------------------------------
 // PCRE2 library supports memory allocation/deallocation functions supplied by
-// the client.  'bdlpcre_regex' provides wrappers around bslma allocators which
+// the client.  'bdlpcre_regex' provides wrappers around bslma allocators that
 // are called from the context of the PCRE2 library (C linkage).  Any
 // exceptions thrown during memory allocation are caught by the wrapper
 // functions and are not propagated to the PCRE2 library.
@@ -490,6 +521,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include <bslma_managedptr.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -536,6 +571,8 @@ namespace BloombergLP {
 
 namespace bdlpcre {
 
+class RegEx_MatchContext;
+
                              // ===========
                              // class RegEx
                              // ===========
@@ -558,15 +595,22 @@ class RegEx {
 
     // PRIVATE DATA
     int                    d_flags;             // prepare/match flags
+
     bsl::string            d_pattern;           // regular expression pattern
+
     pcre2_general_context *d_pcre2Context_p;    // PCRE2 general context
+
     pcre2_compile_context *d_compileContext_p;  // PCRE2 compile context
-    pcre2_match_context   *d_matchContext_p;    // PCRE2 match context
-    pcre2_jit_stack       *d_jitStack_p;        // PCRE2 JIT stack
+
     pcre2_code            *d_patternCode_p;     // PCRE2 compiled pattern
-    pcre2_match_data      *d_matchData_p;       // PCRE2 match data for pattern
+
     int                    d_depthLimit;        // evaluation recursion depth
+
     size_t                 d_jitStackSize;      // PCRE JIT stack size
+
+    bslma::ManagedPtr<RegEx_MatchContext>
+                           d_matchContext;      // match context helper
+
     bslma::Allocator      *d_allocator_p;       // allocator to supply memory
 
   private:
@@ -575,62 +619,71 @@ class RegEx {
     RegEx& operator=(const RegEx&);
 
     // PRIVATE ACCESSORS
-    int privateMatch(const char *subject,
-                      size_t     subjectLength,
-                      size_t     subjectOffset,
-                      bool       skipValidation) const;
+    int privateMatch(const char          *subject,
+                     size_t               subjectLength,
+                     size_t               subjectOffset,
+                     bool                 skipValidation,
+                     pcre2_match_data    *matchData,
+                     pcre2_match_context *matchContext) const;
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
         // ('pattern()').  Begin matching at the specified 'subjectOffset' in
         // 'subject'.  The specified 'skipValidation' flag indicates whether
-        // UTF string validity check should be bypassed or not.  Load
-        // 'd_matchData_p' with the results of the match.  Return 0 on success,
-        // 1 if the depth limit was exceeded, 2 if memory available for the
-        // JIT stack is not large enough (applicable only if 'pattern()' was
-        // prepared with 'k_FLAG_JIT'), and another non-zero value otherwise.
-        // The behavior is undefined unless 'isPrepared() == true',
-        // '(subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.
+        // UTF string validity check should be bypassed or not.  Use the
+        // specified 'matchData' and 'matchContext' as PCRE2 match data and
+        // context buffers respectively.  Return 0 on success, 1 if the depth
+        // limit was exceeded, 2 if memory available for the JIT stack is not
+        // large enough (applicable only if 'pattern()' was prepared with
+        // 'k_FLAG_JIT'), and another non-zero value otherwise.  The behavior
+        // is undefined unless 'isPrepared() == true',
+        // 'subject || subjectLength == 0', 'subjectOffset <= subjectLength',
+        // and 'matchData' and 'matchContext' point to a valid PCRE2 match data
+        // buffers.  The behavior is also undefined if 'pattern()' was prepared
+        // with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
+        // 'subject' need not be null-terminated and may contain embedded null
+        // characters.
 
-    void extractMatchResult(bsl::pair<size_t, size_t> *result) const;
-        // Extract result of matching from 'd_matchData_p' and load the
-        // specified 'result' with the '(offset, length)' pair indicating the
-        // leftmost match of 'pattern()'.
+    void extractMatchResult(pcre2_match_data          *matchData,
+                            bsl::pair<size_t, size_t> *result) const;
+        // Extract result of matching from the specified 'matchData' and load
+        // the specified 'result' with the '(offset, length)' pair indicating
+        // the leftmost match of 'pattern()'.
 
-    void extractMatchResult(bslstl::StringRef *result,
+    void extractMatchResult(pcre2_match_data  *matchData,
+                            bslstl::StringRef *result,
                             const char        *subject) const;
-        // Extract result of matching the specified 'subject' from
-        // 'd_matchData_p' and load the specified 'result' with the
+        // Extract result of matching the specified 'subject' from the
+        // specified 'matchData' and load the specified 'result' with the
         // 'bslstl::StringRef' indicating the leftmost match of 'pattern()'.
 
     void extractMatchResult(
+                        pcre2_match_data                        *matchData,
                         bsl::vector<bsl::pair<size_t, size_t> > *result) const;
-        // Extract result of matching from 'd_matchData_p' and (1) load the
-        // first element of the specified 'result' with '(offset, length)' pair
-        // indicating the leftmost match of 'pattern()', (2) load elements of
-        // 'result' in the range '[ 1 ..  numSubpatterns() ]' with the pairs
+        // Extract result of matching from the specified 'matchData' and (1)
+        // load the first element of the specified 'result' with
+        // '(offset, length)' pair indicating the leftmost match of
+        // 'pattern()', (2) load elements of 'result' in the range
+        // '[ 1 .. numSubpatterns() ]' with the pairs indicating the respective
+        // matches of sub-patterns (unmatched sub-patterns have their
+        // respective 'result' elements loaded with '(-1, 0)' pair;
+        // sub-patterns matching multiple times have their respective 'result'
+        // elements loaded with the pairs indicating the rightmost match).
+        // 'result' will contain exactly 'numSubpatterns() + 1' elements.
+
+    void extractMatchResult(pcre2_match_data               *matchData,
+                            bsl::vector<bslstl::StringRef> *result,
+                            const char                     *subject) const;
+        // Extract result of matching the specified 'subject' from the
+        // specified 'matchData' and (1) load the first element of the
+        // specified 'result' with 'bslstl::StringRef' indicating the leftmost
+        // match of 'pattern()', (2) load elements of 'result' in the range
+        // '[ 1 ..  numSubpatterns() ]' with the 'bslstl::StringRef' objects
         // indicating the respective matches of sub-patterns (unmatched
         // sub-patterns have their respective 'result' elements loaded with
-        // '(-1, 0)' pair; sub-patterns matching multiple times have their
-        // respective 'result' elements loaded with the pairs indicating the
+        // empty 'StringRef'; sub-patterns matching multiple times have their
+        // respective 'result' elements loaded with the objects indicating the
         // rightmost match).  'result' will contain exactly
         // 'numSubpatterns() + 1' elements.
-
-    void extractMatchResult(bsl::vector<bslstl::StringRef> *result,
-                            const char                     *subject) const;
-        // Extract result of matching the specified 'subject' from
-        // 'd_matchData_p' and (1) load the first element of the specified
-        // 'result' with 'bslstl::StringRef' indicating the leftmost match of
-        // 'pattern()', (2) load elements of 'result' in the range '[ 1 ..
-        // numSubpatterns() ]' with the 'bslstl::StringRef' objects indicating
-        // the respective matches of sub-patterns (unmatched sub-patterns have
-        // their respective 'result' elements loaded with empty 'StringRef';
-        // sub-patterns matching multiple times have their respective 'result'
-        // elements loaded with the objects indicating the rightmost match).
-        // 'result' will contain exactly 'numSubpatterns() + 1' elements.
 
   public:
     // TRAITS
@@ -827,16 +880,16 @@ class RegEx {
         // ('bslstl::StringRef') indicating the respective matches of
         // sub-patterns (unmatched sub-patterns have their respective 'result'
         // elements loaded with '(-1, 0)' pair (empty 'StringRef');
-        // sub-patterns matching multiple times have their respective
-        // 'result' elements loaded with the pairs indicating the rightmost
-        // match), and (3) return 0.  Otherwise, return a non-zero value with
-        // no effect on 'result'.  The return value is 1 if the failure is
-        // caused by exceeding the depth limit, and 2 if memory available for
-        // the JIT stack is not large enough (applicable only if 'pattern()'
-        // was prepared with 'k_FLAG_JIT').  The behavior is undefined unless
+        // sub-patterns matching multiple times have their respective 'result'
+        // elements loaded with the pairs indicating the rightmost match), and
+        // (3) return 0.  Otherwise, return a non-zero value with no effect on
+        // 'result'.  The return value is 1 if the failure is caused by
+        // exceeding the depth limit, and 2 if memory available for the JIT
+        // stack is not large enough (applicable only if 'pattern()' was
+        // prepared with 'k_FLAG_JIT').  The behavior is undefined unless
         // 'isPrepared() == true', 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined
-        // if 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
+        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
         // valid UTF-8.  Note that 'subject' need not be null-terminated and
         // may contain embedded null characters.  Also note that after a
         // successful call, 'result' will contain exactly
@@ -976,22 +1029,8 @@ inline
 RegEx::~RegEx()
 {
     clear();
-    pcre2_match_context_free(d_matchContext_p);
     pcre2_compile_context_free(d_compileContext_p);
     pcre2_general_context_free(d_pcre2Context_p);
-}
-
-// MANIPULATORS
-inline
-int RegEx::setDepthLimit(int depthLimit)
-{
-    int previous = d_depthLimit;
-
-    d_depthLimit = depthLimit;
-
-    pcre2_set_match_limit(d_matchContext_p, d_depthLimit);
-
-    return previous;
 }
 
 // ACCESSORS
@@ -1010,7 +1049,7 @@ int RegEx::flags() const
 inline
 bool RegEx::isPrepared() const
 {
-    return (0 != d_patternCode_p && 0 != d_matchData_p);
+    return (0 != d_patternCode_p);
 }
 
 inline

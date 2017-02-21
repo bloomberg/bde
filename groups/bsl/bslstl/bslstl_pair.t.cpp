@@ -36,6 +36,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_cpp11.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>
@@ -2000,7 +2001,7 @@ void testFunctionality(bsl::true_type usesBslmaAllocator)
     ASSERT(0 == ta3.numBlocksInUse());
 }
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 class TupleTestDriver {
     // This 'class' is used for doing the tests with 'EmplacableTestType' and
     // 'AllocEmplacableTestType'.  For simplicity, we chose to implement them
@@ -3981,7 +3982,7 @@ int main(int argc, char *argv[])
         //   bsl::pair(piecewise_construct, tuple, tuple, alloc);
         // --------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
         // These series were machine generated to generate all possible
         // combinations of calls with no repetition:
 

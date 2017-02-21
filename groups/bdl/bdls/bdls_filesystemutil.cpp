@@ -31,6 +31,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 #include <bsl_limits.h>
 #include <bsl_string.h>
@@ -195,6 +196,42 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
                        : lstat64(fileName, statResult);
 #endif
 }
+
+
+
+extern "C" {
+
+// The following function must have a long, unique name.  Even though it's
+// declared 'static', on Solaris CC it winds up having global linkage.
+
+static
+int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
+                                                          const char *,
+                                                          int         errorNum)
+    // Return 0 if the specified 'errorNum' is an 'errno'-type value describing
+    // that access wasn't granted due to file permissions, which will manifest
+    // itself as one of the values 'EPERM', 'EACCES', or 'ENOENT' and 1
+    // otherwise.
+{
+    // One use of this function is to pass it to 'glob', which will use the
+    // function to indicate whether or not to stop traversing files based on
+    // the type of error encountered.
+
+    // The only error condition we will tolerate is if we weren't permitted to
+    // open one of the files, which may manifest as one of the following 3
+    // values.
+
+    return EPERM != errorNum && EACCES != errorNum && ENOENT != errorNum;
+}
+
+// Copy that hideously long name to function ptr to make referring to it more
+// convenient.
+
+typedef int (*IsNotFilePermissionsErrorFuncPtr)(const char *, int);
+static const IsNotFilePermissionsErrorFuncPtr isNotFilePermissionsError_p =
+                    &bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError;
+
+}  // close extern "C"
 
 #endif
 
@@ -825,7 +862,7 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return 0;
 }
 
-void FilesystemUtil::visitPaths(
+int FilesystemUtil::visitPaths(
                            const char                              *patternStr,
                            const bsl::function<void(const char*)>&  visitor)
 {
@@ -838,25 +875,31 @@ void FilesystemUtil::visitPaths(
 
     BSLS_ASSERT(patternStr);
 
+    int numFiles = 0;   // Count # of files visited to be returned if
+                        // successful.
+
     bsl::string dirName;
     if (0 != PathUtil::getDirname(&dirName, patternStr)) {
         // There is no leaf, therefore there can be nothing to do (but not an
-        // error)
+        // error).  Return # of files found, which is 0.
 
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (bsl::string::npos != dirName.find_first_of("*?")) {
-
         bsl::vector<bsl::string> leaves;
         bsl::vector<bsl::string> paths, workingPaths;
         bsl::string pattern = patternStr;
         while (PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
-            int rc = PathUtil::getLeaf(&leaves.back(), pattern);
-            (void) rc;  // Used only in assert.
-            BSLS_ASSERT(0 == rc);
-            PathUtil::popLeaf(&pattern);
+            if (0 != PathUtil::getLeaf(&leaves.back(), pattern)) {
+                BSLS_ASSERT_OPT(0 && "'getLeaf' failed after"
+                                                 " 'hasLeaf' returned 'true'");
+            }
+            if (0 != PathUtil::popLeaf(&pattern)) {
+                BSLS_ASSERT_OPT(0 && "'popLeaf' failed after"
+                                                 " 'hasLeaf' returned 'true'");
+            }
         }
 
         paths.push_back(pattern);
@@ -875,22 +918,29 @@ void FilesystemUtil::visitPaths(
                 bsl::vector<bsl::string>::iterator it;
                 for (it = workingPaths.begin(); it != workingPaths.end();
                                                                         ++it) {
-                    visitPaths(it->c_str(), bdlf::BindUtil::bind(
+                    int rc = visitPaths(it->c_str(),
+                                        bdlf::BindUtil::bind(
                                                       &pushBackWrapper,
                                                       &paths,
                                                       bdlf::PlaceHolders::_1));
+                    if (rc < 0) {
+                        return rc;                                    // RETURN
+                    }
                 }
             }
             leaves.pop_back();
         }
-        for (bsl::vector<bsl::string>::iterator it = paths.begin();
-                                                     it != paths.end(); ++it) {
+
+        numFiles += static_cast<int>(paths.size());
+
+        typedef bsl::vector<bsl::string>::const_iterator CIter;
+        CIter end = paths.end();
+        for (CIter it = paths.begin(); it != paths.end(); ++it) {
             visitor(it->c_str());
         }
     }
     else {
-        // No special characters except possibly in the leaf.  This is the BASE
-        // CASE.
+        // No wild cards except possibly in the leaf.  This is the BASE CASE.
 
         bsl::string      dirNamePath = dirName;
         WIN32_FIND_DATAW findDataW;
@@ -899,7 +949,10 @@ void FilesystemUtil::visitPaths(
         bsl::string      narrowName;
 
         if (!narrowToWide(&widePattern, patternStr)) {
-            return;                                                   // RETURN
+            // If the user passed invalid UTF-8 in 'patternStr', return
+            // failure.
+
+            return -1;                                                // RETURN
         }
 
         handle = FindFirstFileExW(widePattern.c_str(),
@@ -910,11 +963,14 @@ void FilesystemUtil::visitPaths(
                                   FIND_FIRST_EX_CASE_SENSITIVE);
 
         if (INVALID_HANDLE_VALUE == handle) {
-            return;                                                   // RETURN
+            // No files found, but not an error.
+
+            return 0;                                                 // RETURN
         }
 
         bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
 
+        bsl::string fullNamePath = dirNamePath;
         for (bool sts = true; sts; sts = FindNextFileW(handle, &findDataW)) {
             if (!wideToNarrow(&narrowName, findDataW.cFileName)) {
                 // Can't happen: wideToNarrow won't fail.
@@ -929,7 +985,8 @@ void FilesystemUtil::visitPaths(
                 continue;
             }
 
-            if (0 != PathUtil::appendIfValid(&dirNamePath, narrowName)) {
+            fullNamePath.resize(dirNamePath.length());
+            if (0 != PathUtil::appendIfValid(&fullNamePath, narrowName)) {
                 // Can't happen: 'findDataW.cFileName' will never be an
                 // absolute path.
 
@@ -937,10 +994,12 @@ void FilesystemUtil::visitPaths(
                                   "FindFirstFileW returned an absolute path.");
             }
 
-            visitor(dirNamePath.c_str());
-            PathUtil::popLeaf(&dirNamePath);
+            ++numFiles;
+            visitor(fullNamePath.c_str());
         }
     }
+
+    return numFiles;
 }
 
 int FilesystemUtil::visitTree(
@@ -1632,7 +1691,7 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return 0;
 }
 
-void FilesystemUtil::visitPaths(
+int FilesystemUtil::visitPaths(
                              const char                               *pattern,
                              const bsl::function<void(const char *)>&  visitor)
 {
@@ -1640,20 +1699,53 @@ void FilesystemUtil::visitPaths(
 
     glob_t pglob;
 
-    int rc = glob(pattern, GLOB_NOSORT, 0, &pglob);
+    int rc = glob(pattern, GLOB_NOSORT, isNotFilePermissionsError_p, &pglob);
     bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
-    if (GLOB_NOMATCH == rc) {
-        return;                                                       // RETURN
-    }
-    if (GLOB_NOSPACE == rc) {
-        bsls::BslExceptionUtil::throwBadAlloc();
-    }
+    switch (rc) {
+      case 0: {
+        // matched something
 
-    for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
-        BSLS_ASSERT(pglob.gl_pathv[i]);
-        if (!isDotOrDots(pglob.gl_pathv[i])) {
-            visitor(pglob.gl_pathv[i]);
+        BSLS_ASSERT(0 < pglob.gl_pathc);
+
+        unsigned numFiles = 0;
+        for (unsigned ii = 0; ii < pglob.gl_pathc; ++ii) {
+            BSLS_ASSERT(pglob.gl_pathv[ii]);
+            if (!isDotOrDots(pglob.gl_pathv[ii])) {
+                ++numFiles;
+                visitor(pglob.gl_pathv[ii]);
+            }
         }
+
+        // Note that if we only matched '.' and/or '..', 'numFiles' is 0.  Not
+        // an error.
+
+        return numFiles;                                              // RETURN
+      } break;
+      case GLOB_NOMATCH: {
+        // No files matched, not an error, return the # of files matched.
+
+        return 0;                                                     // RETURN
+      } break;
+      case GLOB_NOSPACE: {
+        // out of memory
+
+        // If exceptions are disabled, 'throwBadAlloc' should abort.
+
+        bsls::BslExceptionUtil::throwBadAlloc();
+
+        return -11;                                                   // RETURN
+      } break;
+      case GLOB_ABORTED: {
+        return -12;                                                   // RETURN
+      } break;
+      case GLOB_NOSYS: {
+        return -13;                                                   // RETURN
+      } break;
+      default: {
+        // unknown error
+
+        return -14;                                                   // RETURN
+      } break;
     }
 }
 
@@ -1672,7 +1764,7 @@ int FilesystemUtil::visitTree(
     BSLS_ASSERT_SAFE(!rootDir.empty());    // 'isDirectory' would have been
                                            // 'false' otherwise.
     if (bsl::string::npos != pattern.find('/')) {
-        return -1;                                                    // RETURN
+        return -2;                                                    // RETURN
     }
 
     if ('/' != rootDir.back()) {
@@ -1691,18 +1783,44 @@ int FilesystemUtil::visitTree(
         fullPattern =  rootDir;
         fullPattern += pattern;
 
-        int rc = ::glob(fullPattern.c_str(), GLOB_NOSORT, 0, &pglob);
+        int rc = ::glob(fullPattern.c_str(),
+                        GLOB_NOSORT,
+                        isNotFilePermissionsError_p,
+                        &pglob);
         bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
-        if (GLOB_NOSPACE == rc) {
-            bsls::BslExceptionUtil::throwBadAlloc();
-        }
-        const int numFound = GLOB_NOMATCH == rc
-                                        ? 0 : static_cast<int>(pglob.gl_pathc);
+        bsl::size_t numFound;
+        switch (rc) {
+          case 0: {
+            numFound = pglob.gl_pathc;
+          } break;
+          case GLOB_NOMATCH: {
+            numFound = 0;
+          } break;
+          case GLOB_NOSPACE: {
+            // out of memory
 
+            // If exceptions are disabled, 'throwBadAlloc' should abort.
+
+            bsls::BslExceptionUtil::throwBadAlloc();
+
+            // Should only get here if exceptions are disabled.
+
+            return -3;                                                // RETURN
+          } break;
+          case GLOB_NOSYS: {
+            return -4;                                                // RETURN
+          } break;
+          case GLOB_ABORTED: {
+            return -5;                                                // RETURN
+          } break;
+          default: {
+            return -6;                                                // RETURN
+          }
+        }
         nameRecs.reserve(2 * numFound);    // worst case is they're all
                                            // directories
 
-        for (int ii = 0; ii < numFound; ++ii) {
+        for (unsigned ii = 0; ii < numFound; ++ii) {
             const char *fullPath = pglob.gl_pathv[ii];
             BSLS_ASSERT_SAFE(fullPath);
             const char *basename = fullPath + truncTo;
@@ -1726,7 +1844,7 @@ int FilesystemUtil::visitTree(
     {
         DIR *dir = opendir(rootDir.c_str());
         if (0 == dir) {
-            return -1;                                                // RETURN
+            return (*isNotFilePermissionsError_p)(0, errno) ? -7 : 0; // RETURN
         }
         bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
@@ -1796,13 +1914,9 @@ int FilesystemUtil::visitTree(
             visitor(fullFn.c_str());
         }
         else {
-            // Note that 'visitTree' returns non-zero, it may mean the
-            // subdirectory didn't have read or execute permission for us, in
-            // which case 'EACCES == errno'.
-
             int rc = visitTree(fullFn, pattern, visitor, sortFlag);
-            if (0 != rc && EACCES != errno) {
-                return -1;                                            // RETURN
+            if (0 != rc) {
+                return rc;                                            // RETURN
             }
         }
     }
@@ -1986,18 +2100,19 @@ int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
     return 0;
 }
 
-void FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
-                                       const char               *pattern)
+int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
+                                      const char               *pattern)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(pattern);
 
     result->clear();
-    visitPaths(pattern,
-               bdlf::BindUtil::bind(&pushBackWrapper,
-                                    result,
-                                    bdlf::PlaceHolders::_1));
+    return visitPaths(pattern,
+                      bdlf::BindUtil::bind(&pushBackWrapper,
+                                           result,
+                                           bdlf::PlaceHolders::_1));
 }
+
 }  // close package namespace
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)

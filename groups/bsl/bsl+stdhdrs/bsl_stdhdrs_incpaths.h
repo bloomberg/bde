@@ -113,8 +113,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
-  // Sun CC 5.5 or above
-  //
+# if BSLS_PLATFORM_CMP_VERSION < 0x5130  // Sun CC 5.5 to 5.12.3
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
@@ -137,6 +136,58 @@ BSLS_IDENT("$Id: $")
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #   endif
+# else  // Oracle CC 5.12.4 or later
+#   define BSL_NATIVE_SUN_LIBRARY_HEADER(filename) <../../include/CC/filename>
+            // Support macro to keep whithin 79 char line limit, used by both
+            // non-C++11 libraries.
+
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
+
+#   if __cplusplus >= 201103  // C++11 libary is fixed as GCC
+#       define BSL_NATIVE_SUN_CPP11_HEADER(filename)                          \
+                                      <../../CC-gcc/include/c++/4.8.2/filename>
+            // Support macro to keep whithin 79 char line limit
+
+#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
+                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
+                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
+                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
+                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
+#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
+                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
+#   elif !defined(BDE_BUILD_TARGET_STLPORT)  // (default) Rogue Wave library
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
+                                   BSL_NATIVE_SUN_LIBRARY_HEADER(Cstd/filename)
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
+                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
+                                   BSL_NATIVE_SUN_LIBRARY_HEADER(Cstd/filename)
+#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
+                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
+#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
+                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
+#   else  // assuming STLport library selected on the command line
+#       define BSL_NATIVE_SUN_STLPORT_HEADER(filename)                        \
+                                           <../../include/CC/stlport4/filename>
+            // Support macro to keep whithin 79 char line limit
+
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
+                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
+#   endif
+# endif
 
 #elif defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_GNU)
 
