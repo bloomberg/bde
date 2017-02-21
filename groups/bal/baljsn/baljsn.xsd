@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+           xmlns:bdem='http://bloomberg.com/schemas/bdem'
+           bdem:package='baljsn'
+           elementFormDefault='qualified'>
+
+  <xs:annotation>
+    <xs:documentation>
+      Structures that control the JSON encoding and decoding process
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:simpleType name='EncodingStyle' bdem:preserveEnumOrder='1'>
+    <xs:annotation>
+      <xs:documentation>
+        Enumeration of encoding style (COMPACT or PRETTY).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base='xs:string'>
+      <xs:enumeration value='e_COMPACT'/>
+      <xs:enumeration value='e_PRETTY'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name='EncoderOptions'>
+    <xs:annotation>
+      <xs:documentation>
+        Options for performing JSON encoding.
+        'EncodingStyle' is either 'COMPACT' or 'PRETTY'.  If 'EncodingStyle' is
+        'COMPACT', no whitespace will be added between elements.  If encoding
+        style is 'PRETTY', then the 'InitialIndentLevel' and 'SpacesPerLevel'
+        parameters are used to specify the formatting of the output.  Note
+        that 'InitialIndentLevel' and 'SpacesPerLevel' are ignored when
+        'EncodingStyle' is 'COMPACT' (this is the default).  The
+        'EncodeEmptyArrays' and 'EncodeNullElements' encode empty array
+        and null elements respectively.  By default empty array and null
+        elements are not encoded.  The 'EncodeInfAndNaNAsStrings' attribute
+        provides users the option to encode 'Infinity' and 'NaN' floating point
+        values as strings.  These values do not have a valid JSON
+        representation and by default such value will result in an encoding
+        error.  The 'DatetimeFractionalSecondPrecision' specifies the precision
+        of milliseconds printed with date time values.  By default a precision
+        of '3' decimal places is used.  The 'MaxFloatPrecision' and
+        'MaxDoublePrecision' attributes allow specifying the maximum precision
+        for 'float' and 'double' values.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name='InitialIndentLevel' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            initial indentation level for the topmost element
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='SpacesPerLevel' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            spaces per additional level of indentation
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='EncodingStyle'
+                  type='EncodingStyle'
+                  minOccurs='0'
+                  default='e_COMPACT'
+                  bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            encoding style used to encode values
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='EncodeEmptyArrays' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying if empty arrays should be encoded
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='EncodeNullElements' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying if null elements should be encoded
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='EncodeInfAndNaNAsStrings' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying a way to encode 'Infinity' and 'NaN' floating
+            point values.  JSON does not provide a way to encode these values
+            as they are not numbers.  Although the resulting output is a valid
+            JSON document, decoders expecting floating point numbers to be
+            encoded only as numbers will fail to decode.  Users of this option
+            must therefore exercise caution and ensure that if this option is
+            used then the parser decoding the generated JSON can handle doubles
+            as strings.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='DatetimeFractionalSecondPrecision' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='3'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying the number of decimal places used for
+            milliseconds when encoding 'Datetime' and 'DatetimeTz' values
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='MaxFloatPrecision' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying the maximum number of decimal places used to
+            encode each 'float' value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='MaxDoublePrecision' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='0'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying the maximum number of decimal places used to
+            encode each 'double' value
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name='DecoderOptions'>
+    <xs:annotation>
+      <xs:documentation>
+        Options for controlling the JSON decoding process.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name='MaxDepth' type='xs:int'
+            minOccurs='0' maxOccurs='1'
+            default='32'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>maximum recursion depth</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='SkipUnknownElements' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option to skip unknown elements
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
