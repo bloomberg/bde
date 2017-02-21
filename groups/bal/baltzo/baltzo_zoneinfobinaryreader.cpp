@@ -55,7 +55,7 @@ struct RawHeader {
     // The byte sequence of the header of the Zoneinfo binary data format.
 
     char d_headerId[4];           // must be 'EXPECTED_HEADER_ID'
-    char d_version[1];            // must be '\0' or '2' (as of 2005)
+    char d_version[1];            // must be '\0', '2' or '3' (as of 2013)
     char d_reserved[15];          // unused
     char d_numIsGmt[4];           // number of encoded UTC/local indicators
     char d_numIsStd[4];           // number of encoded standard/wall indicators
@@ -90,13 +90,22 @@ BSLMF_ASSERT(8 == sizeof(RawLeapInfo));
 
 struct RawLeapInfo64 {
     // The byte sequence of a leap correction in the Zoneinfo binary data
-    // format version '2'.
+    // format version '2' or '3'.
 
     char d_transition[8];  // POSIX time at which the leap second occur
     char d_correction[4];  // accumulated leap correction
 };
 
 BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
+
+const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488;
+    // The value is a constant, used by the ZIC compiler (which "compiles" the
+    // data into zoneinfo binary files), and is used as the time point for the
+    // first local time transition to simplify the logic for determining the
+    // local time prior to time zones being established.  Note that time zones
+    // typically use "apparent solar time" (which has a fixed offset from UTC)
+    // as local time prior to laws regarding time zones being established (see
+    // https://en.wikipedia.org/wiki/Time_zone).
 
 }  // close unnamed namespace
 
@@ -163,6 +172,32 @@ int readRawArray(bsl::vector<TYPE> *result,
     return 0;
 }
 
+static inline
+int readRawTz(bsl::string   *result,
+              bsl::istream&  stream)
+    // Read the trailing POSIX(-like) TZ environment string  from the specified
+    // 'stream' and append it to the specified 'result'.  Return 0 on success,
+    // and non-zero value otherwise.  The first character is discarded from the
+    // stream whether it is newline character or not.  The final '\n' is not
+    // appended to the 'result'.
+{
+    BSLS_ASSERT(result);
+
+    char c;
+    if (!stream.read(&c, sizeof(char))) {
+        return -1;                                                    // RETURN
+    }
+
+    if ('\n' != c) {
+        return -2;                                                    // RETURN
+    }
+
+    while (stream.read(&c, sizeof(char)) && '\n' != c) {
+        result->push_back(c);
+    }
+    return 0;
+}
+
 template <class TYPE>
 static inline
 bool validIndex(const bsl::vector<TYPE>& vector, int index)
@@ -209,9 +244,9 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
     }
 
     char version = *rawHeader.d_version;
-    if ('\0' != version && '2' != version) {
+    if ('\0' != version && '2' != version && '3' != version) {
         BSLS_LOG_ERROR("Found unexpected version value: %d ('%c'). "
-                       "Expecting '\\0' or '2'.", (int)version, version);
+                       "Expecting '\\0', '2', or '3'.", (int)version, version);
         return -3;                                                    // RETURN
     }
     result->setVersion(version);
@@ -335,17 +370,17 @@ int loadLocalTimeDescriptors(
 }
 
 static
-int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
-                           baltzo::ZoneinfoBinaryHeader *headerResult,
-                           bsl::istream&                 stream)
-    // Read time zone information in the version '2' file format from the
-    // specified 'stream', and load the description into the specified
+int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
+                              baltzo::ZoneinfoBinaryHeader *headerResult,
+                              bsl::istream&                 stream)
+    // Read time zone information in the version '2' or '3' file format from
+    // the specified 'stream', and load the description into the specified
     // 'zoneinfoResult', and the header information into the specified
     // 'headerResult'.  Return 0 on success and a non-zero value if 'stream'
-    // does not provide a sequence of bytes consistent with version '2'
+    // does not provide a sequence of bytes consistent with version '2' or '3'
     // Zoneinfo binary format.  The 'stream' must refer to the first byte of
-    // the version '2' header (which typically follows the version '\0' format
-    // data in a Zoneinfo binary file).  If an error occurs during the
+    // the version '2' or '3' header (which typically follows the version '\0'
+    // format data in a Zoneinfo binary file).  If an error occurs during the
     // operation, the resulting value of 'zoneinfoResult' is unspecified.
 {
     int rc = readHeader(headerResult, stream);
@@ -446,10 +481,27 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
             return -32;                                               // RETURN
         }
 
+        if ((transitions[i] < firstTransitionTime) &&
+            (transitions[i] != MINIMUM_ZIC_TRANSITION)) {
+            BSLS_LOG_WARN("Minimal value, other than ZIC default transition, "
+                          "is presented.");
+        }
+
         const int curDescriptorIndex = localTimeIndices[i];
 
         zoneinfoResult->addTransition(transitions[i],
                                       descriptors[curDescriptorIndex]);
+    }
+
+    // Add the optional trailing POSIX(-like) TZ environment string.
+    if (headerResult->version() == '2' || headerResult->version() == '3')  {
+        bsl::string tz;
+        if (0 != readRawTz(&tz, stream)) {
+            BSLS_LOG_ERROR(
+                        "Unable to read 'tz' information from Zoneinfo file.");
+            return -33;                                               // RETURN
+        }
+        zoneinfoResult->setPosixExtendedRangeDescription(tz);
     }
 
     return 0;
@@ -528,14 +580,16 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
         return -16;                                                   // RETURN
     }
 
-    if ('2' == headerResult->version()) {
-        // If the file is version '2', then the data containing 32-bit epoch
-        // offsets is immediately followed by another header and set of data
-        // containing 64-bit epoch offsets.  The data containing 64-bit epoch
-        // offsets is always used because it contains additional transitions
-        // that can not be represented in 32-bit values.
+    if ('2' == headerResult->version() || '3' == headerResult->version()) {
+        // If the file is version '2' or '3', then the data containing 32-bit
+        // epoch offsets is immediately followed by another header and set of
+        // data containing 64-bit epoch offsets.  The data containing 64-bit
+        // epoch offsets is always used because it contains additional
+        // transitions that can not be represented in 32-bit values.  In
+        // addition, a POSIX(-like) TZ environment string may be found after
+        // the data.
 
-        return readVersion2FormatData(zoneinfoResult, headerResult, stream);
+        return readVersion2Or3FormatData(zoneinfoResult, headerResult, stream);
                                                                       // RETURN
     }
 

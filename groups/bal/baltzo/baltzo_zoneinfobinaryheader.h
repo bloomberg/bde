@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Name               Type  Default  Simple Constraints
 //  -----------------  ----  -------  ------------------
-//  version            char  '\0'     == '\0' || == '2'
+//  version            char  '\0'     == '\0' || == '2' || == '3'
 //  numIsGmt           int    0       >= 0
 //  numIsStd           int    0       >= 0
 //  numLeaps           int    0       == 0
@@ -31,7 +31,8 @@ BSLS_IDENT("$Id: $")
 //  numLocalTimeTypes  int    1       >= 1
 //  abbrevDataSize     int    1       >= 1
 //..
-//: o 'version': Zoneinfo file format version, as of 2011, either '\0' or '2'.
+//: o 'version': Zoneinfo file format version, as of 2013, either '\0', '2',
+//    or '3'.
 //:
 //: o 'numIsGmt': number of encoded UTC/local indicators in the file,
 //:   indicating whether a transition time was originally specified as UTC in
@@ -195,7 +196,7 @@ class ZoneinfoBinaryHeader {
 
     // DATA
     char d_version;            // file format version of the Zoneinfo, as of
-                               // 2011, it can be either '\0' or '2'.
+                               // 2013, it can be either '\0', '2', or '3'.
 
     int  d_numIsGmt;           // number of encoded UTC/local indicators in the
                                // file, indicating whether a transition time
@@ -272,10 +273,11 @@ class ZoneinfoBinaryHeader {
         // Create a 'ZoneinfoBinaryHeader' having the specified 'version',
         // 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
         // 'numLocalTimeTypes', and 'abbrevDataSize' values.  The behavior is
-        // undefined unless '0 == version || 50 == version', '0 <= numIsGmt',
-        // '0 <= numIsStd', '0 == numLeaps', '0 <= numTransitions',
-        // '1 <= numLocalTimeTypes', and '1 <= abbrevDataSize'.  Note that 50
-        // is the value of ascii character '2'.
+        // undefined unless '0 == version || 50 == version || 51 == version',
+        // '0 <= numIsGmt', '0 <= numIsStd', '0 == numLeaps',
+        // '0 <= numTransitions', '1 <= numLocalTimeTypes', and
+        // '1 <= abbrevDataSize'.  Note that 50 is the value of ASCII
+        // character '2' and 51 is the value of ASCII character '3'.
 
     ~ZoneinfoBinaryHeader();
         // Destroy this object.
@@ -287,8 +289,9 @@ class ZoneinfoBinaryHeader {
 
     void setVersion(char value);
         // Set the 'version' attribute of this object to the specified 'value'.
-        // The behavior is undefined unless '0 == value || 50 == value'.  Note
-        // that 50 is the value of ascii character '2'.
+        // The behavior is undefined unless '0 == value || 50 == value ||
+        // 51 == value'.  Note that 50 is the value of ASCII character '2' and
+        // 51 is the value of ASCII character '3'.
 
     void setNumIsGmt(int value);
         // Set the 'numIsGmt' attribute of this object to the specified
@@ -406,7 +409,7 @@ void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
 inline
 bool baltzo::ZoneinfoBinaryHeader::isValidVersion(char value)
 {
-    return '\0' == value || '2' == value;
+    return '\0' == value || '2' == value || '3' == value;
 }
 
 inline

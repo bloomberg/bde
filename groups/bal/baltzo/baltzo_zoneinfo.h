@@ -51,6 +51,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: o the ordered sequence of 'baltzo::ZoneinfoTransition' objects,
 //:   representing the various transitions from UTC for this time zone.
+//:
+//: o an optional POSIX-like TZ environment string used to represent
+//:   far-reaching times past the end of the explicit time zone data.
 //
 // A 'baltzo::Zoneinfo' object also provides the method
 // 'findTransitionForUtcTime' that allows a client to find, in the sequence of
@@ -72,11 +75,20 @@ BSLS_IDENT("$Id: $")
 // about the Zoneinfo database -- including the time zone rules for the
 // supported time zones, and source code for the 'zic' compiler (for compiling
 // those rules into the binary representation used by this component) -- can be
-// found online at 'http://www.twinsun.com/tz/tz-link.htm'.  This time-zone
-// information can be used to perform the conversion of dates and times from
-// UTC to their corresponding dates and times in a given time zone and
-// vice-versa.  (See 'baltzo_zoneinfobinaryreader' for more information about
-// the binary file format.)
+// found online at 'http://www.iana.org/time-zones/repository/tz-link.html'.
+// This time zone information can be used to perform the conversion of dates
+// and times from UTC to their corresponding dates and times in a given time
+// zone and vice-versa.  (See 'baltzo_zoneinfobinaryreader' for more
+// information about the binary file format.)
+//
+///posixExtendedRangeDescription
+///-----------------------------
+// This string may be populated with a POSIX-like TZ string that describes
+// rules for local time are handled before the first and after the last
+// local-time transitions maintained by this object.  Typically this is used
+// for computing local time values far in the future.  The rules for the
+// encoded string can be found online at
+// 'http://www.ibm.com/developerworks/aix/library/au-aix-posix/'.
 //
 ///Usage
 ///-----
@@ -271,6 +283,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -439,18 +455,25 @@ class Zoneinfo {
         // by a 'Zoneinfo' object.
 
     // DATA
-    bsl::string         d_identifier;   // this time zone's id
+    bsl::string         d_identifier;
+                          // this time zone's id
 
-    DescriptorSet       d_descriptors;  // set of local time descriptors for
-                                        // this time zone (e.g., 'EST')
+    DescriptorSet       d_descriptors;
+                          // set of local time descriptors for this time zone
+                          // (e.g., 'EST')
 
-    TransitionSequence  d_transitions;  // transitions, from one local time
-                                        // descriptor to another (e.g., 'EST'
-                                        // to 'EDT'), ordered by the time the
-                                        // transition occurred (or will occur)
+    TransitionSequence  d_transitions;
+                          // transitions, from one local time descriptor to
+                          // another (e.g., 'EST' to 'EDT'), ordered by the
+                          // time the transition occurred (or will occur)
 
-    bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
-                                        // (held, not owned)
+    bsl::string         d_posixExtendedRangeDescription;
+                          // optional POSIX-like TZ environment string
+                          // representing far-reaching times
+
+    bslma::Allocator   *d_allocator_p;
+                          // allocator used to supply memory (held, not
+                          // owned)
 
     // FRIENDS
     friend bool operator==(const Zoneinfo&, const Zoneinfo&);
@@ -502,6 +525,12 @@ class Zoneinfo {
         // Set the 'identifier' attribute of this object to the specified
         // 'value'.
 
+    void setPosixExtendedRangeDescription(const bslstl::StringRef&  value);
+    void setPosixExtendedRangeDescription(const char               *value);
+        // Set the 'posixExtendedRangeDescription' attribute of this object,
+        // used to describe local time transitions far in the future, to the
+        // specified 'value' (see {posixExtendedRangeDescription}).
+
     void swap(Zoneinfo& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
@@ -530,6 +559,12 @@ class Zoneinfo {
     const bsl::string& identifier() const;
         // Return a reference providing non-modifiable access to the
         // 'identifier' attribute of this object.
+
+    const bsl::string& posixExtendedRangeDescription() const;
+        // Return a reference providing non-modifiable access to the
+        // 'posixExtendedRangeDescription' attribute of this object, used to
+        // describe local time transitions far in the future (see
+        // {posixExtendedRangeDescription}).
 
     bsl::size_t numTransitions() const;
         // Return the number of transitions maintained by this zone info.
@@ -671,6 +706,7 @@ baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 : d_identifier(basicAllocator)
 , d_descriptors(basicAllocator)
 , d_transitions(basicAllocator)
+, d_posixExtendedRangeDescription(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -700,6 +736,23 @@ void baltzo::Zoneinfo::setIdentifier(const char *value)
 }
 
 inline
+void baltzo::Zoneinfo::setPosixExtendedRangeDescription(
+                                                const bslstl::StringRef& value)
+{
+    BSLS_ASSERT_SAFE(0 != value.data());
+
+    d_posixExtendedRangeDescription.assign(value.begin(), value.end());
+}
+
+inline
+void baltzo::Zoneinfo::setPosixExtendedRangeDescription(const char *value)
+{
+    BSLS_ASSERT_SAFE(value);
+
+    d_posixExtendedRangeDescription.assign(value, value + bsl::strlen(value));
+}
+
+inline
 void baltzo::Zoneinfo::swap(Zoneinfo& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
@@ -707,6 +760,8 @@ void baltzo::Zoneinfo::swap(Zoneinfo& other)
     bsl::swap(d_identifier,  other.d_identifier);
     bsl::swap(d_descriptors, other.d_descriptors);
     bsl::swap(d_transitions, other.d_transitions);
+    bsl::swap(d_posixExtendedRangeDescription,
+              other.d_posixExtendedRangeDescription);
 }
 
 // ACCESSORS
@@ -728,6 +783,12 @@ inline
 const bsl::string& baltzo::Zoneinfo::identifier() const
 {
     return d_identifier;
+}
+
+inline
+const bsl::string& baltzo::Zoneinfo::posixExtendedRangeDescription() const
+{
+    return d_posixExtendedRangeDescription;
 }
 
 inline
@@ -754,7 +815,9 @@ baltzo::Zoneinfo::endTransitions() const
 inline
 bool baltzo::operator==(const Zoneinfo& lhs, const Zoneinfo& rhs)
 {
-    return lhs.identifier()     == rhs.identifier()
+    return lhs.identifier() == rhs.identifier()
+        && lhs.posixExtendedRangeDescription() ==
+                                            rhs.posixExtendedRangeDescription()
         && lhs.numTransitions() == rhs.numTransitions()
         && bsl::equal(lhs.d_transitions.begin(),
                       lhs.d_transitions.end(),

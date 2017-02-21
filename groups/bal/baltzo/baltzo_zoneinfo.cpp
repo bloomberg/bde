@@ -146,6 +146,8 @@ baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
 : d_identifier(original.d_identifier, basicAllocator)
 , d_descriptors(original.d_descriptors, basicAllocator)
 , d_transitions(basicAllocator)
+, d_posixExtendedRangeDescription(original.d_posixExtendedRangeDescription,
+                                  basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     TransitionConstIterator it  = original.d_transitions.begin();
@@ -270,6 +272,9 @@ bsl::ostream& baltzo::Zoneinfo::print(bsl::ostream& stream,
     }
     stream << "]";
 
+    bdlb::Print::newlineAndIndent(stream, level, spacesPerLevel);
+    stream << "TZ = " << '"' << d_posixExtendedRangeDescription << '"';
+
     bdlb::Print::newlineAndIndent(stream, level - 1, spacesPerLevel);
     stream << "]";
 
@@ -284,7 +289,8 @@ bsl::ostream& baltzo::Zoneinfo::print(bsl::ostream& stream,
 bsl::ostream& baltzo::operator<<(bsl::ostream&   stream,
                                  const Zoneinfo& object)
 {
-    stream << "[ \"" << object.identifier() << "\" [";
+    stream << "[ \"" << object.identifier() << "\" "
+           <<   "\"" << object.posixExtendedRangeDescription() << "\" [";
 
     Zoneinfo::TransitionConstIterator it  = object.beginTransitions();
     Zoneinfo::TransitionConstIterator end = object.endTransitions();
