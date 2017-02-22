@@ -455,7 +455,6 @@ typedef bsls::Platform::OsHpUx OsType;
 
         // DATA
         PidMap::const_iterator  d_it;          // wrapped iterator
-
         bslmt::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
         // PRIVATE CREATORS
@@ -494,21 +493,23 @@ typedef bsls::Platform::OsHpUx OsType;
         ConstIterator& operator++();
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return a reference to the
-            // modifiable value type of this iterator.
+            // modifiable value type of this iterator.  The behavior of this
+            // function is undefined unless this iterator is dereferenceable.
 
         ConstIterator operator++(int);
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return the iterator pointing
-            // to the previous modifiable value type.
+            // to the previous modifiable value type.  The behavior of this
+            // function is undefined unless this iterator is dereferenceable.
 
         // ACCESSORS
         reference operator*() const;
-            // Return a reference to the non-modifiable copy of value type of
-            // this iterator.
+            // Return a reference to the non-modifiable value type of this
+            // iterator.
 
         pointer operator->() const;
-            // Return a reference to the non-modifiable copy of value type of
-            // this iterator.
+            // Return a reference to the non-modifiable value type of this
+            // iterator.
 
         bool operator==(const ConstIterator& rhs) const;
             // Return 'true' if the specified 'rhs' iterator points to the
