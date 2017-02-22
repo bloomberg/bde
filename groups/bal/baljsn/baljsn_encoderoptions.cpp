@@ -195,6 +195,8 @@ EncoderOptions::EncoderOptions(const EncoderOptions& original)
 
 EncoderOptions::~EncoderOptions()
 {
+    BSLS_ASSERT_SAFE(0 <= d_initialIndentLevel);
+    BSLS_ASSERT_SAFE(0 <= d_spacesPerLevel);
 }
 
 // MANIPULATORS

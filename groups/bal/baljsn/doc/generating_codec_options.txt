@@ -71,3 +71,11 @@ const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION =
    from 'E_' to 'e_'.
 
 8. Add an include for 'balscm_version.h' in all the header files.
+
+9. Add back deprecated enumerator names in EncoderOptions:
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_COMPACT = e_COMPACT
+      , BAEJSN_PRETTY  = e_PRETTY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
