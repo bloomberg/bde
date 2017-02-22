@@ -1571,18 +1571,22 @@ balb::PerformanceMonitor::Statistics::operator=(const Statistics& rhs)
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&rhs.d_guard);
 
-    d_pid = rhs.d_pid;
-    d_description = rhs.d_description;
-    d_startTimeUtc = rhs.d_startTimeUtc;
-    d_startTime = rhs.d_startTime;
-    d_elapsedTime = rhs.d_elapsedTime;
-    d_numSamples = static_cast<int>(rhs.d_numSamples);
+    if (this != &rhs) {
+        bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_guard);
 
-    for (int i = 0; i < e_NUM_MEASURES; ++i) {
-        d_lstData[i] = rhs.d_lstData[i];
-        d_minData[i] = rhs.d_minData[i];
-        d_maxData[i] = rhs.d_maxData[i];
-        d_totData[i] = rhs.d_totData[i];
+        d_pid = rhs.d_pid;
+        d_description = rhs.d_description;
+        d_startTimeUtc = rhs.d_startTimeUtc;
+        d_startTime = rhs.d_startTime;
+        d_elapsedTime = rhs.d_elapsedTime;
+        d_numSamples = static_cast<int>(rhs.d_numSamples);
+
+        for (int i = 0; i < e_NUM_MEASURES; ++i) {
+            d_lstData[i] = rhs.d_lstData[i];
+            d_minData[i] = rhs.d_minData[i];
+            d_maxData[i] = rhs.d_maxData[i];
+            d_totData[i] = rhs.d_totData[i];
+        }
     }
     return *this;
 }

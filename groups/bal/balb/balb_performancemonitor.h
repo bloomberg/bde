@@ -341,39 +341,39 @@ typedef bsls::Platform::OsHpUx OsType;
             // for the current platform.
 
         // DATA
-        int                     d_pid;
-                                  // process identifier
+        int                    d_pid;
+                                 // process identifier
 
-        bsl::string             d_description;
-                                  // process description
+        bsl::string            d_description;
+                                 // process description
 
-        bdlt::Datetime          d_startTimeUtc;
-                                  // process start time, in UTC time
+        bdlt::Datetime         d_startTimeUtc;
+                                 // process start time, in UTC time
 
-        bsls::TimeInterval      d_startTime;
-                                  // process start time, since the system
-                                  // epoch
+        bsls::TimeInterval     d_startTime;
+                                 // process start time, since the system
+                                 // epoch
 
-        double                  d_elapsedTime;
-                                  // time elapsed since process startup
+        double                 d_elapsedTime;
+                                 // time elapsed since process startup
 
-        bsls::AtomicInt         d_numSamples;
-                                  // num samples taken
+        bsls::AtomicInt        d_numSamples;
+                                 // num samples taken
 
-        double                  d_lstData[e_NUM_MEASURES];
-                                  // latest collected data
+        double                 d_lstData[e_NUM_MEASURES];
+                                 // latest collected data
 
-        double                  d_minData[e_NUM_MEASURES];
-                                  // min
+        double                 d_minData[e_NUM_MEASURES];
+                                 // min
 
-        double                  d_maxData[e_NUM_MEASURES];
-                                  // max
+        double                 d_maxData[e_NUM_MEASURES];
+                                 // max
 
-        double                  d_totData[e_NUM_MEASURES];
-                                  // cumulative
+        double                 d_totData[e_NUM_MEASURES];
+                                 // cumulative
 
-        mutable bslmt::RWMutex  d_guard;
-                                  // serialize write access
+        mutable bslmt::RWMutex d_guard;
+                                 // serialize write access
 
     public:
         // TRAITS
@@ -455,9 +455,6 @@ typedef bsls::Platform::OsHpUx OsType;
 
         // DATA
         PidMap::const_iterator  d_it;          // wrapped iterator
-
-        mutable Statistics      d_snapshot;    // copy of data this iterator
-                                               // pointing to
 
         bslmt::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
@@ -638,8 +635,7 @@ balb::PerformanceMonitor::ConstIterator::reference
 balb::PerformanceMonitor::ConstIterator::operator*() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
-    d_snapshot = *d_it->second.first;
-    return d_snapshot;
+    return *d_it->second.first;
 }
 
 inline
@@ -647,8 +643,7 @@ balb::PerformanceMonitor::ConstIterator::pointer
 balb::PerformanceMonitor::ConstIterator::operator->() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
-    d_snapshot = *d_it->second.first;
-    return &d_snapshot;
+    return d_it->second.first.get();
 }
 
 // MANIPULATORS
@@ -741,6 +736,7 @@ const bsl::string& balb::PerformanceMonitor::Statistics::description() const
 inline
 double balb::PerformanceMonitor::Statistics::elapsedTime() const
 {
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_elapsedTime;
 }
 
