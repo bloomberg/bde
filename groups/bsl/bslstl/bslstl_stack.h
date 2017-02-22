@@ -33,27 +33,29 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'CONTAINER'
 ///---------------------------
-// The 'bsl::stack' adapter can accept 'bsl::deque', 'bsl::vector', or
-// 'bsl::list' for the (optional) 'CONTAINER' template parameter.  If no type
-// is specified for 'CONTAINER', 'bsl::deque' is used.  Other classes can be
-// supplied for 'CONTAINER' provided that they support the following public
-// types:
+// The 'bsl::stack' adapter can accept for its (optional) 'CONTAINER' template
+// parameter 'bsl::deque' (the default), 'bsl::vector', 'bsl::list', or other
+// container classes that support the following types and methods.
+//
+///Required Types
+///- - - - - - -
 //: o 'value_type'
 //: o 'reference'
 //: o 'const_reference'
 //: o 'size_type'
 //: o 'allocator_type' (if any 'stack' constructor taking an allocator is used)
 //
-// In addition, the class supplied for the 'CONTAINER' template parameter must
-// support the following methods (depending on the methods of 'stack' being
-// used):
-//: o 'void push_back(const value_type&)'
+///Required Methods, Free Operators, and Free Functions
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+//: o 'void push_back(const value_type&)' (and variant taking rvalue reference)
 //: o 'void pop_back()'
-//: o 'value_type& back()'
-//: o 'size_type size()'
-//: o '==', '!=', '<', '>', '<=', '>='
-//: o 'operator='
-//: o free 'swap' (found via ADL with 'std::swap' in the lookup set)
+//: o 'reference back()'
+//: o 'size_type size() const'
+//: o 'const_reference back() const'
+//: o 'emplace_back'
+//: o copy-assignment and move-assignment operators
+//: o free '==', '!=', '<', '>', '<=', '>=' operators
+//: o free 'swap' function (found via ADL with 'std::swap' in the lookup set)
 //
 ///Requirements on 'VALUE'
 ///-----------------------
@@ -63,9 +65,10 @@ BSLS_IDENT("$Id: $")
 //
 // The following term is used to more precisely specify the requirements on
 // template parameter types in function-level documentation:
-//: *equality-comparable*: The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//
+//: *equality-comparable*:
+//:   The type provides an equality-comparison operator that defines an
+//:   equivalence relationship and is both reflexive and transitive.
 //
 ///Memory Allocation
 ///-----------------
@@ -465,8 +468,8 @@ class stack {
         // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
         // (template parameter) 'ALLOCATOR' is 'bsl::allocator' (the default).
         // Also note that this method assumes that 'CONTAINER' has a move
-        // constructor.  Finally note that if 'CONTAINER::allocator_type' does
-        // not exist, this constructor may not be used.
+        // constructor.  Also note that if 'CONTAINER::allocator_type' does not
+        // exist, this constructor may not be used.
 
     // MANIPULATORS
     stack& operator=(const stack& rhs);
