@@ -893,12 +893,13 @@ int CachePerformance::testRead(CachePerformance *cacheperf_p, VecIntType& args)
     // to read from. Use the thread index as the seed.
 	int numThreads = cacheperf_p->numThreads();
 	int numCalcs = cacheperf_p->numCalcs();
+	int numCalls = numCalcs / numThreads;
 	int range = args[0];
 	int threadIdx = args[1];
 	int countErr = 0;
 	srand(threadIdx);
 	bsl::shared_ptr<bsl::string> valuePtr;
-	for(int i = 0; i < numCalcs; ++i) {
+	for(int i = 0; i < numCalls; ++i) {
 		int key = rand() % range;
         int rc = cacheperf_p->cache().tryGetValue(&valuePtr, key);
         if (rc != 0 && numCalcs == range) {
@@ -916,20 +917,35 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p, VecIntType& a
 	// Run tryGetValue multiple times. args[0] is the number
     // of values to load. arg[1] is the sparsity: 1 - 0, 1, 2, ...
     // 2 - 0, 2, 4, ..., etc. 0 to arg[2] - 1 is the range
-    // to read from.
-	int numThreads = cacheperf_p->numThreads();
+    // to read from. The first numWThreads are write threads. The rest are
+	// read threads.
+	int numThreads  = cacheperf_p->numThreads();
+	int numWThreads = cacheperf_p->numWThreads();
 	int numCalcs = cacheperf_p->numCalcs();
 	int range = args[0];
 	int threadIdx = args[1];
+	bool isWThread = threadIdx < numWThreads ? true : false;
 	int countErr = 0;
 	srand(threadIdx);
 	bsl::shared_ptr<bsl::string> valuePtr;
 	for(int i = 0; i < numCalcs; ++i) {
 		int key = rand() % range;
-        int rc = cacheperf_p->cache().tryGetValue(&valuePtr, key);
-        if (rc != 0) ++countErr;
+		if (isWThread) {
+			char buf[12];
+			bsl::sprintf(buf, "V%d", key);
+			string val(buf);
+			cacheperf_p->cache().insert(key, val);
+		}
+		else {
+            int rc = cacheperf_p->cache().tryGetValue(&valuePtr, key);
+            if (rc != 0 && numCalcs == range) {
+            	cout << "rc=" << rc << ",key=" << key << ",i=" << i << "\n";
+            	++countErr;
+            }
+		}
 	}
-	bsl::cout << "countErr=" << countErr << "\n";
+	if (countErr > 0)
+        bsl::cout << "countErr=" << countErr << "\n";
 	return 0;
 }
 
@@ -3290,8 +3306,6 @@ int main(int argc, char *argv[])
         times = cp.runTests(args, cacheperf::CachePerformance::testInsertBulk);
         cp.printResult();
       } break;
-  	// Run tryGetValue multiple times. 0 to arg[0] - 1 is the range
-      // to read from. Use the thread index as the seed.
       case -3: {
         // --------------------------------------------------------------------
         // READ PERFORMANCE TEST
@@ -3336,6 +3350,56 @@ int main(int argc, char *argv[])
         args.push_back(numCalcs * sparsity);
         cacheperf::CachePerformance::VecTimeType times(&talloc);
         times = cp.runTests(args, cacheperf::CachePerformance::testRead);
+        cp.printResult();
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // READ/WRITE PERFORMANCE TEST
+        //   Takes 2nd parameter as number of threads, and 3rd as number of
+    	//   calcs. 4th parameter is the number of write threads. Defaults to
+    	//   half of total number of threads. 5th parameter of F will use FIFO
+    	//   for eviction policy, LRU otherwise.
+    	//   6th parameter is the sparsity of values loaded, which impacts how
+    	//   many hits we get. Defaults to 1. Sparsity is the distance between
+    	//   consecutive values inserted.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   Performance of tryGetValue
+        // --------------------------------------------------------------------
+    	bslma::TestAllocator talloc("ptm3", false);
+       	//bslma::TestAllocator talloc("ptm3", veryVeryVeryVerbose);
+
+      	int numThreads  = argc > 2 ? atoi(argv[2]) : 1;
+    	int numCalcs    = argc > 3 ? atoi(argv[3]) : 200000;
+      	int numWThreads = argc > 4 ? atoi(argv[4]) : numThreads / 2;
+    	bdlcc::CacheEvictionPolicy::Enum  evictionPolicy =
+    		(argc > 5 && argv[5][0] == 'F' ?
+            bdlcc::CacheEvictionPolicy::e_FIFO :
+       		bdlcc::CacheEvictionPolicy::e_LRU);
+    	int sparsity = argc > 6 ? atoi(argv[6]) : 1;
+        cacheperf::CachePerformance cp("testRW1", evictionPolicy,
+        		1e7, 2e7, numThreads - numWThreads, numWThreads, numCalcs,
+				10, &talloc);
+
+        cacheperf::CachePerformance::VecIntType args(&talloc);	// args vector
+        args.push_back(numCalcs);
+        args.push_back(sparsity);
+        int countIns = cp.initialize(args, cacheperf::CachePerformance::initRead);
+        cout << "Inserted " << countIns << "\n";
+
+        args.clear(); // Now, load args for testReadWrite
+        args.push_back(numCalcs * sparsity);
+        cacheperf::CachePerformance::VecTimeType times(&talloc);
+        times = cp.runTests(args, cacheperf::CachePerformance::testReadWrite);
         cp.printResult();
       } break;
       default: {
