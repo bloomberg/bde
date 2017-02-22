@@ -223,7 +223,7 @@ bslalg::SwapUtil::swap(&c1, &c2);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING swap
+        // TESTING 'swap'
         //
         // Concerns:
         //: 1 'bslalg::SwapUtil::swap' calls the 'swap' found by ADL in the
@@ -236,14 +236,14 @@ bslalg::SwapUtil::swap(&c1, &c2);
         //: 1 Create two objects of type 'SwapTester' which provides its own
         //:   overload of 'swap'.  Call the 'bslalg::SwapUtil::swap' on them
         //:   and verify that the overloaded 'swap' has been called.
-        //: 2 Call 'bslalg::SwapUtil::swap' on two ints.  Since 'int' doesn't
+        //: 2 Call 'bslalg::SwapUtil::swap' on two 'int's.  Since 'int' doesn't
         //:   have its own 'swap' overload, the generic 'swap' has to be found.
         //
         // Testing:
         //   void swap(T *a, T *b);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'swap'\n");
+        if (verbose) printf("\nTESTING 'swap'\n");
 
         SwapTester a;
         SwapTester b;

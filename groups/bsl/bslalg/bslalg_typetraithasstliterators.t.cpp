@@ -84,7 +84,7 @@ namespace BloombergLP {
 namespace bslalg {
 template <>
 struct HasStlIterators<Container> : bsl::true_type {};
-}  // close namespace bslmf
+}  // close package namespace
 }  // close enterprise namespace
 
 //=============================================================================
@@ -141,8 +141,8 @@ int main(int argc, char *argv[])
         //   class bslalg::TypeTraitHasStlIterators;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+        if (verbose) printf("\nTESTING TRAIT CLASS"
+                            "\n===================\n");
 
         Obj mX;
 

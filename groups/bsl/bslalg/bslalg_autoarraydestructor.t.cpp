@@ -625,8 +625,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING USAGE\n"
-                            "=============\n");
+        if (verbose) printf("\nTESTING USAGE EXAMPLE"
+                            "\n=====================\n");
 // Then, we create a 'TestAllocator' to supply memory (and to verify that no
 // memory is leaked):
 
@@ -720,8 +720,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING OBSOLETE USAGE."
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING OBSOLETE USAGE EXAMPLE"
+                            "\n==============================\n");
 
         if (verbose)
             printf("Testing 'my_Array::insert' and 'my_Array::remove'.\n");
@@ -822,8 +822,8 @@ int main(int argc, char *argv[])
         //   T *moveEnd(ptrdiff_t offset = 1);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg::AutoArrayDestructor'."
-                            "\n======================================\n");
+        if (verbose) printf("\nTESTING 'class bslalg::AutoArrayDestructor'"
+                            "\n===========================================\n");
 
         const int MAX_SIZE = 16;
         static union {
@@ -977,7 +977,7 @@ int main(int argc, char *argv[])
 
             ASSERT(&buf[0]        == mG.moveBegin(-2));
             ASSERT(&buf[MAX_SIZE] == mG.moveEnd(MAX_SIZE - 6));
-        }  // deallocates buf
+        }  // deallocates 'buf'
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

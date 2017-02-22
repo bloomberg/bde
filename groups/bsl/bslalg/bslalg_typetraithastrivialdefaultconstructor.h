@@ -45,12 +45,12 @@ namespace bslalg {
             //=============================================
 
 struct TypeTraitHasTrivialDefaultConstructor {
-    // A 'TYPE' with this trait has a trival default constructor.  Objects of a
-    // type with this trait can be default-initialized by simply writing zeros
-    // into the memory footprint of the object.  Although it is possible for
-    // such a type not to be bitwise copyable, undefined behavior may result if
-    // this trait is assigned to such a type.  (See the description of
-    // 'TypeTraitBitwiseCopyable'.)
+    // A 'TYPE' with this trait has a trivial default constructor.  Objects of
+    // a type with this trait can be default-initialized by simply writing
+    // zeros into the memory footprint of the object.  Although it is possible
+    // for such a type not to be bitwise copyable, undefined behavior may
+    // result if this trait is assigned to such a type.  (See the description
+    // of 'TypeTraitBitwiseCopyable'.)
 
     template <class TYPE>
     struct NestedTraitDeclaration :

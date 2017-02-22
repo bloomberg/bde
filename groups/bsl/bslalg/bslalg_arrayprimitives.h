@@ -458,8 +458,8 @@ struct ArrayPrimitives {
     // This 'struct' provides a namespace for a suite of independent utility
     // functions that operate on arrays of elements of parameterized type
     // 'TARGET_TYPE'.  Depending on the traits of 'TARGET_TYPE', the default
-    // and copy constructors, destructor, assignment operators, etc. may not be
-    // invoked, optimized away by no-op or bit-wise move or copy.
+    // and copy constructors, destructor, assignment operators, etcetera may
+    // not be invoked, optimized away by no-op or bit-wise move or copy.
 
   public:
     // TYPES
@@ -1592,16 +1592,15 @@ struct ArrayPrimitives {
       size_type                                                    numElements,
       ALLOCATOR                                                    allocator);
         // Insert the specified 'numElements' copies of the specified 'value'
-        // into the array of type
-        // 'allocator_traits<ALLOCATOR>::value_type' starting at the specified
-        // 'toBegin' location, shifting forward the elements from 'toBegin' to
-        // the specified 'toEnd' location by 'numElements' positions.  If a
-        // (copy or move) constructor or a (copy or move) assignment operator
-        // throws an exception, any elements created after 'toEnd' are
-        // destroyed and the elements in the range '[toBegin .. toEnd)' are
-        // left in a valid but unspecified state.  The behavior is undefined
-        // unless 'toBegin' refers to space sufficient to hold at least
-        // 'toEnd - toBegin + numElements' elements.
+        // into the array of type 'allocator_traits<ALLOCATOR>::value_type'
+        // starting at the specified 'toBegin' location, shifting forward the
+        // elements from 'toBegin' to the specified 'toEnd' location by
+        // 'numElements' positions.  If a (copy or move) constructor or a (copy
+        // or move) assignment operator throws an exception, any elements
+        // created after 'toEnd' are destroyed and the elements in the range
+        // '[toBegin .. toEnd)' are left in a valid but unspecified state.  The
+        // behavior is undefined unless 'toBegin' refers to space sufficient to
+        // hold at least 'toEnd - toBegin + numElements' elements.
 
     template <class TARGET_TYPE>
     static void insert(TARGET_TYPE        *toBegin,
@@ -1671,19 +1670,19 @@ struct ArrayPrimitives {
         // Insert, into the array at the specified 'toBegin' location, the
         // specified 'numElements' from the range starting at the specified
         // 'fromBegin' and ending immediately before the specified 'fromEnd'
-        // iterators of the (template parameter) 'FWD_ITER' type (or
-        // the (template parameter) 'SOURCE_TYPE *'), into the array of
-        // elements of the parameterized 'TARGET_TYPE' starting at the
-        // specified 'toBegin' address and ending immediately before the
-        // specified 'toEnd' address, shifting the elements in the array by
-        // 'numElements' positions towards larger addresses. The behavior is
-        // undefined unless the destination array contains 'numElements'
-        // uninitialized elements after 'toEnd', 'numElements' is the distance
-        // between 'fromBegin' and 'fromEnd', and the input array and the
-        // destination array do not overlap.  If a copy constructor or
-        // assignment operator for 'TARGET_TYPE' throws an exception, then any
-        // elements created after 'toEnd' are destroyed and the elements in the
-        // range '[ toBegin, toEnd )' will have unspecified, but valid, values.
+        // iterators of the (template parameter) 'FWD_ITER' type (or the
+        // (template parameter) 'SOURCE_TYPE *'), into the array of elements of
+        // the parameterized 'TARGET_TYPE' starting at the specified 'toBegin'
+        // address and ending immediately before the specified 'toEnd' address,
+        // shifting the elements in the array by 'numElements' positions
+        // towards larger addresses.  The behavior is undefined unless the
+        // destination array contains 'numElements' uninitialized elements
+        // after 'toEnd', 'numElements' is the distance between 'fromBegin' and
+        // 'fromEnd', and the input array and the destination array do not
+        // overlap.  If a copy constructor or assignment operator for
+        // 'TARGET_TYPE' throws an exception, then any elements created after
+        // 'toEnd' are destroyed and the elements in the range
+        // '[ toBegin, toEnd )' will have unspecified, but valid, values.
 
     template <class ALLOCATOR>
     static void moveInsert(
@@ -8450,7 +8449,7 @@ void ArrayPrimitives_Imp::insert(
     if (toBegin < toEnd) {
         // Insert in the middle.  Note that the rvalue reference cannot refer
         // back to an element in the vector (interpreted in the standard as if
-        // a temporary). Also note that there is no strong exception guarantee
+        // a temporary).  Also note that there is no strong exception guarantee
         // if copy constructor, move constructor, or assignment operator throw.
 
         //..
@@ -8680,8 +8679,8 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         // 'value' could be a reference inside the input range, or even outside
         // but with lifetime controlled by one of these values, and so the next
         // transformation could invalidate 'value'.  Note: One cannot rely on
-        // 'TARGET_TYPE' to have a single-argument copy ctor (i.e., default
-        // allocator argument to 0) if it takes an allocator; hence the
+        // 'TARGET_TYPE' to have a single-argument copy constructor (i.e.,
+        // default allocator argument to 0) if it takes an allocator; hence the
         // constructor proxy.
 
         bsls::ObjectBuffer<TARGET_TYPE> space;

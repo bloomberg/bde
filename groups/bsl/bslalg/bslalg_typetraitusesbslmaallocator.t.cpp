@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
         //   class bslalg::TypeTraitUsesBslmaAllocator;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+        if (verbose) printf("\nTESTING TRAIT CLASS"
+                            "\n===================\n");
 
         Obj mX;
 

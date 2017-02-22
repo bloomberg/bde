@@ -204,7 +204,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<my_Class1> : bsl::false_type { };
 
-}  // close bslmf namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // BREATHING TEST
         //
         // Concerns:
         //
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+                            "\n==============\n");
 
         // Nil traits
         TRAIT_TEST(my_Class0, TRAIT_NIL);

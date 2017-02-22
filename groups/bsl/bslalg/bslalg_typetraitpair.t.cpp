@@ -141,8 +141,8 @@ int main(int argc, char *argv[])
         //   class bslalg::TypeTraitPair;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+        if (verbose) printf("\nTESTING TRAIT CLASS"
+                            "\n===================\n");
 
         Obj mX;
         (void) mX;

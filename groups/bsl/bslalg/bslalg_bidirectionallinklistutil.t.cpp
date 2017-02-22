@@ -137,7 +137,7 @@ struct Bucket {
 
     void destroy(bslma::Allocator *alloc = 0);
         // Destroy the nodes in the list ranging from 'this->d_first' to
-        // 'this->d_last'.  Note that if any surving nodes are pointing at
+        // 'this->d_last'.  Note that if any surviving nodes are pointing at
         // either of those nodes, they will be left dangling.
 
     // ACCESSORS
@@ -264,14 +264,14 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING USAGE
+        // USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("Usage Example\n"
-                            "=============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
 // Next, in our 'main', we declare a 'typedef' for the component name and a
-// a contanst 'invalid' garbage pointer we use when we want data to be garbage.
+// a constant 'invalid' garbage pointer we use when we want data to be garbage.
 
         typedef BidirectionalLinkListUtil Util;
         Link * const invalid = (Link *) 0XBADDEED5;
@@ -412,8 +412,8 @@ int main(int argc, char *argv[])
         //:   o In the middle of a list.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING spliceListBeforeTarget\n"
-                            "==============================\n");
+        if (verbose) printf("\nTESTING 'spliceListBeforeTarget'"
+                            "\n================================\n");
 
         if (verbose) printf("insert single link, target == 0\n");
         {
@@ -884,8 +884,8 @@ int main(int argc, char *argv[])
         //:   of a list.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'insertLinkAfterTarget'\n"
-                            "================================\n");
+        if (verbose) printf("\nTESTING 'insertLinkAfterTarget'"
+                            "\n===============================\n");
 
         Link bogusLink;
         bogusLink.setPreviousLink(DEFAULT_BOGUS);
@@ -955,7 +955,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // Testing 'insertLinkBeforeTarget'
+        // TESTING 'insertLinkBeforeTarget'
         //
         // Concerns:
         //: 1 That the function works correctly when '0 == target'.
@@ -967,8 +967,8 @@ int main(int argc, char *argv[])
         //:   of a list.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'insertLinkBeforeTarget'\n"
-                            "================================\n");
+        if (verbose) printf("\nTESTING 'insertLinkBeforeTarget'"
+                            "\n================================\n");
 
         Link bogusLink;
         bogusLink.setPreviousLink(DEFAULT_BOGUS);
@@ -1131,10 +1131,10 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING Bucket: 'clone', 'destroy', 'length'
+        // TESTING BUCKET: 'clone', 'destroy', AND 'length'
         //
         // Concern:
-        //: 1 That 'clone' accuratel copies a bucket, and 'destroy'
+        //: 1 That 'clone' accurately copies a bucket, and 'destroy'
         //:   effectively destroys it.
         //: 2 That 'length' accurately measures the length of a bucket.
         //
@@ -1149,8 +1149,9 @@ int main(int argc, char *argv[])
         //:   redundant frees or leaked memory.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING isWellFormed\n"
-                            "====================\n");
+        if (verbose) printf(
+                       "\nTESTING BUCKET: 'clone', 'destroy', AND 'length'"
+                       "\n================================================\n");
 
         enum { NUM_DATA                        = NUM_DEFAULT_DATA };
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1202,8 +1203,8 @@ int main(int argc, char *argv[])
         //: 1 Feed all combinations of ranges of links to 'isWellFormed
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING isWellFormed\n"
-                            "====================\n");
+        if (verbose) printf("\nTESTING i'isWellFormed'"
+                            "\n=======================\n");
 
         enum { NUM_DATA                        = NUM_DEFAULT_DATA };
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;

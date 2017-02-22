@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
         // Concerns
         //: 1 The usage example provided in the component header file must
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 
 
         if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+                            "\n=============\n");
 
 // Then, we define 'main' for our test, and create three nodes that we'll use
 // to construct a tree:
@@ -458,10 +458,9 @@ int main(int argc, char *argv[])
         //   void decrementNumNodes();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMANIPULATORS 'incrementNumNodes' & "
-                            "'decrementNumNodes'"
-                            "\n==================================="
-                            "===================\n");
+        if (verbose) printf(
+                 "\nMANIPULATORS 'incrementNumNodes' & 'decrementNumNodes'"
+                 "\n======================================================\n");
 
         Obj mX; const Obj& X = mX;
 
@@ -486,7 +485,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // ACCESSOR 'sentinel':
+        // ACCESSOR 'sentinel'
         //   Ensure that invariant of the sentinel node always hold.
         //
         // Concerns:
@@ -662,7 +661,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE CTOR & MANIPULATOR 'reset'
+        // VALUE CONSTRUCTOR & MANIPULATOR 'reset'
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing by either constructing the object with the
         //   value constructor or default constructing the object and changing
@@ -715,8 +714,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 
-        if (verbose) printf("\nVALUE CTOR & MANIPULATOR 'reset'"
-                            "\n================================\n");
+        if (verbose) printf("\nVALUE CONSTRUCTOR & MANIPULATOR 'reset'"
+                            "\n=======================================\n");
 
         static RbTreeNode n1, n2, n3, n4;
 
@@ -773,7 +772,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR & PRIMARY MANIPULATORS
+        // DEFAULT CONSTRUCTOR & PRIMARY MANIPULATORS
         //   Ensure that we can use default constructor to create an object
         //   (having the default-constructed value).  Also ensure that we can
         //   primary manipulators to put that object into any state relevant
@@ -822,8 +821,8 @@ int main(int argc, char *argv[])
         //   void setNumNodes(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
-                            "\n===================================\n");
+        if (verbose) printf("\nDEFAULT CONSTRUCTOR & PRIMARY MANIPULATORS"
+                            "\n==========================================\n");
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 

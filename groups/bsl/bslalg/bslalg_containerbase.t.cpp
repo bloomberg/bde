@@ -136,7 +136,7 @@ class Allocator {
 
     // CREATORS
     Allocator();
-        // Construct a proxy object which will forward allocation calls to the
+        // Construct a proxy object that will forward allocation calls to the
         // object pointed to by 'bslma::Default::defaultAllocator()'.
         // Postcondition:
         //..
@@ -144,7 +144,7 @@ class Allocator {
         //..
 
     Allocator(BloombergLP::bslma::Allocator *mechanism);
-        // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
+        // Convert a 'bslma::Allocator' pointer to a 'allocator' object that
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the currently installed
         // default allocator is used instead.  Postcondition:

@@ -27,10 +27,10 @@ BSLS_IDENT("$Id: $")
 //
 // Overview of the operation of 'AutoArrayMoveDestructor':
 // ----------------------------------------------------------------------------
-// Supposee we want to double the length of an array by prepending copies a
+// Suppose we want to double the length of an array by prepending copies a
 // 'value' at the start of the array.  Note that we assume there is ample
 // uninitialized memory after the end of the initial array for these new
-// values to be instered.
+// values to be inserted.
 //
 // Legend:
 //..
@@ -44,12 +44,12 @@ BSLS_IDENT("$Id: $")
 //                 ')' -- position of 'guard.end()'
 //..
 // The copy constructor for the type being inserted may throw, so we need to
-// have a guard object which allows us to make some guarantee about the state
-// of the array after the guard is destroyed.  What we want to guarantee is
-// that there are as many valid objects at the start of the array as before
-// with no other valid objects in existence.
+// have a guard object that allows us to make some guarantee about the state of
+// the array after the guard is destroyed.  What we want to guarantee is that
+// there are as many valid objects at the start of the array as before with no
+// other valid objects in existence.
 //
-// The following steps show a succssful operation prepending copies of the
+// The following steps show a successful operation prepending copies of the
 // value 'v':
 //..
 //  1: 'ABCDE.....'      -- initial memory.
@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 // we started, making the situation predictable for our next destructor.
 //
 // This was a very simple case, but using this guard in conjunction with
-// 'bslalg::AutoArrayDestructor', we can implment the more general case of
+// 'bslalg::AutoArrayDestructor', we can implement the more general case of
 // inserting arbitrary numbers of elements at the beginning of an array.
 //
 ///Usage
@@ -204,8 +204,8 @@ BSLS_IDENT("$Id: $")
 //      // memory.  We want to insert 'divider - start' copies of the specified
 //      // 'value' at the front half of the range '[ start, finish )', moving
 //      // the exising elements back to make room for them.  Note that the copy
-//      // c'tor of 'TestType' allocates memory and may throw, so we have to
-//      // leave the array in a somewhat predicatable state if we do throw.
+//      // constructor of 'TestType' allocates memory and may throw, so we have
+//      // to leave the array in a somewhat predictable state if we do throw.
 //      // What the bslalg::AutoArrayMoveDestructor will do is guarantee that,
 //      // if it is destroyed before the insertion is complete, the range
 //      // '[ start, divider )' will contain valid elements, and that no other
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id: $")
 //                                                      finish);
 //
 //      while (guard.middle() < guard.end()) {
-//          // Call the copy c'tor, which may throw.
+//          // Call the copy constructor, which may throw.
 //
 //          new (guard.destination()) TestType(value, allocator);
 //
@@ -301,7 +301,7 @@ class AutoArrayMoveDestructor {
     OBJECT_TYPE *d_begin_p;  // address of first element in guarded range
 
     OBJECT_TYPE *d_middle_p; // address of first moved element in guarded range
-                             // which is also first address beyond last element
+                             // that is also first address beyond last element
                              // destroyed in same guarded range
 
     OBJECT_TYPE *d_end_p;    // first address beyond last (moved) element in

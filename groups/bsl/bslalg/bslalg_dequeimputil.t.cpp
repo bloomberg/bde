@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslstl::DequeImpUtil' TEMPLATE
+        // TESTING CLASS TEMPLATE 'bslalg::DequeImpUtil'
         //
         // Concerns:  That all the names are defined.
         //
@@ -105,8 +105,9 @@ int main(int argc, char *argv[])
         //   class template 'bslstl::DequeImp'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg::DequeImp"
-                            "\n=========================\n");
+        if (verbose) printf(
+                          "\nTESTING CLASS TEMPLATE 'bslalg::DequeImpUtil'"
+                          "\n=============================================\n");
 
 #define TEST_DEQUE_IMP(LINE_NUM, VALUE_TYPE, BLOCK_LENGTH)  {                \
                 const int LINE               = LINE_NUM;                     \
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // BREATHING TEST
         //
         // Concerns:
         //   That the basic usage is functional and correct.

@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
 
             bslalg::AutoScalarDestructor<T> mG(buf);
 
-        }  // deallocates buf
+        }  // deallocates 'buf'
 
       } break;
       default: {

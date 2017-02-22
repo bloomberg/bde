@@ -447,7 +447,8 @@ namespace UsageExample2 {
 // The following snippets of code illustrate the usage of this component in a
 // more typical scenario.
 //
-// The 'MyContainer' class below contains an object of a templated 'TYPE':
+// The 'MyContainer' class below contains an object of the specified parameter
+// 'TYPE':
 //..
 //  template <class TYPE>
 //  class MyContainer {
@@ -779,7 +780,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // USAGE EXAMPLE 2
         //   This will test the first usage example.
         //
         // Concerns:
@@ -793,8 +794,8 @@ int main(int argc, char *argv[])
         //   Usage Example 2
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Usage Example 2"
-                            "\n=======================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 2"
+                            "\n===============\n");
 
         UsageExample2::WithoutAllocatorTrait::run1();
         UsageExample2::WithoutAllocatorTrait::run2();
@@ -802,7 +803,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
+        // USAGE EXAMPLE 1
         //   This will test the first usage example.
         //
         // Concerns:
@@ -816,14 +817,14 @@ int main(int argc, char *argv[])
         //   Usage Example 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Usage Example 1"
-                            "\n=======================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 1"
+                            "\n===============\n");
 
         UsageExample1::run();
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // CONSTRUCTOR PROXY TEST
+        // TESTING CONSTRUCTOR PROXY
         //   This test thoroughly exercises the constructor proxy.
         //
         // Concerns:
@@ -872,8 +873,8 @@ int main(int argc, char *argv[])
         //   const TYPE& object() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nConstructor Proxy Test"
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING CONSTRUCTOR PROXY"
+                            "\n=========================\n");
 
         bslma::TestAllocator  testAllocator;
         bslma::Allocator     *ALLOCATOR = &testAllocator;

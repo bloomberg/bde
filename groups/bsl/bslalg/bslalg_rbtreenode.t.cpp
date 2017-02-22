@@ -362,9 +362,9 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
         //: 5 Rules (1-4) are obeyed, recursively, by the left and right
         //:   sub-trees of 'rootNode'.
         //
-        // Note that this particular specification of a the contraints on a
-        // red-black tree does not require the presense of, black colored, NIL
-        // leaf nodes, instead NULL children are implictly assumed to be NIL
+        // Note that this particular specification of a the constraints on a
+        // red-black tree does not require the presence of, black colored, NIL
+        // leaf nodes, instead NULL children are implicitly assumed to be NIL
         // leaf nodes (as typically is the case for C/C++ implementations).
         // This specification also does not require the root node to be
         // colored black, as there's no practical benefit to enforcing that
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING: reset
+        // TESTING 'reset'
         //
         // Concerns:
         //: 1 Sets the 'parent', 'leftChild', 'rightChild', and 'color'
@@ -611,8 +611,8 @@ int main(int argc, char *argv[])
         //   void reset(RbTreeNode *, RbTreeNode *, RbTreeNode *, Color );
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nreset()"
-                            "\n=======\n");
+        if (verbose) printf("\nTESTING 'reset'"
+                            "\n===============\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
 
@@ -674,7 +674,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // NON-CONST 'parent', 'leftChild' AND 'rightChild'
+        // TESTING NON-CONST 'parent', 'leftChild' AND 'rightChild'
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
@@ -700,8 +700,9 @@ int main(int argc, char *argv[])
         //   RbTreeNode *rightChild()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBASIC ACCESSORS"
-                            "\n===============\n");
+        if (verbose) printf(
+               "\nTESTING NON-CONST 'parent', 'leftChild' AND 'rightChild'"
+               "\n========================================================\n");
 
         // Attribute Types
 
@@ -1019,7 +1020,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'makeRed', 'makeBlack' and 'toggleColor'
+        // TESTING 'makeRed', 'makeBlack' AND 'toggleColor'
         //
         // Concerns:
         //: 1 'makeRed' and 'makeBlack' will set the 'color' attribute to their
@@ -1059,8 +1060,9 @@ int main(int argc, char *argv[])
         //   void makeRed();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nmakeRed/Black() and toggleColor()"
-                            "\n=================================\n");
+        if (verbose) printf(
+                       "\nTESTING 'makeRed', 'makeBlack' AND 'toggleColor'"
+                       "\n================================================\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
 
@@ -1255,7 +1257,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'gg' FUNCTION
+        // TESTING 'gg' FUNCTION
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -1287,8 +1289,8 @@ int main(int argc, char *argv[])
         //   Obj& gg(Obj *r, Color c, Obj *p, Obj *l, Obj *r)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVALUE CTOR"
-                            "\n==========\n");
+        if (verbose) printf("\nTESTING 'gg' FUNCTION"
+                            "\n=====================\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
 
@@ -1322,7 +1324,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
+        // DEFAULT CONSTRUCTOR, PRIMARY MANIPULATORS, & DESTRUCTOR
         //   Ensure that we can use the default constructor to create an
         //   object (having the default-constructed value), use the primary
         //   manipulators to put that object into any state relevant for
@@ -1380,8 +1382,9 @@ int main(int argc, char *argv[])
         //   void setRightChild(bslalg::RbTreeNode *address)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
-                            "\n==========================================\n");
+        if (verbose) printf(
+                "\nDEFAULT CONSTRUCTOR, PRIMARY MANIPULATORS, & DESTRUCTOR"
+                "\n=======================================================\n");
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 

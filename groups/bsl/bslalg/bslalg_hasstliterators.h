@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_detecttestedtraits, bslalg_typetraithasstliterators
 //
 //@DESCRIPTION: This component defines a tag type 'HasStlIterators' derived
-// from 'bslmf::DetectNestedTrait' type.  The type defines a metafunction which
+// from 'bslmf::DetectNestedTrait' type.  The type defines a metafunction that 
 // detects if a class has STL-like iterators, and provides a type
 // 'HasStilIterators<TYPE>::value' which aliases 'true_type' if 'TYPE' has
 // STL-like iterators, and 'false_type' otherwise.

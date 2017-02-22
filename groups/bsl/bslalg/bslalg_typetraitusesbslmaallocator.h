@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark types that use 'bslma' allocators.
 //
-//@DEPRECATED: Uee 'bslma_usesbslmaallocator' instead.
+//@DEPRECATED: Use 'bslma_usesbslmaallocator' instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitUsesBslmaAllocator: uses 'bslma' allocators
@@ -70,16 +70,16 @@ struct TypeTraitUsesBslmaAllocator {
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED		
-		
-                 //==========================================		
-                 // struct bdealg_TypeTraitUsesBdemaAllocator		
-                 //==========================================		
-		
-typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;		
-    // This alias is defined for backward compatibility.		
-		
-#endif // BDE_OMIT_INTERNAL_DEPRECATED		
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+                 //==========================================
+                 // struct bdealg_TypeTraitUsesBdemaAllocator
+                 //==========================================
+
+typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
+    // This alias is defined for backward compatibility.
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 
 typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;

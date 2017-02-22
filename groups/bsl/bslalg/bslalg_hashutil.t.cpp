@@ -31,7 +31,7 @@ using bslalg::HashUtil;
 //                                  --------
 // The component under test provides two hash functions.  We test them on a
 // two kinds of buffers (fixed-length - integer, and variable-length) during
-// the breathing test.  Together with the usage example which performs various
+// the breathing test.  Together with the usage example that performs various
 // experiments to be reported on in the component-level documentation, this is
 // appropriate testing.  There are no other concerns about this component.
 //-----------------------------------------------------------------------------
@@ -333,8 +333,8 @@ int main(int argc, char *argv[])
         //    HashUtil::computeHash(void*);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nHASHING FUNDAMENTAL TYPES"
-                            "\n=========================\n");
+        if (verbose) printf("\nTESTING HASHING FUNDAMENTAL TYPES"
+                            "\n=================================\n");
 
         ASSERT(3392050242U == HashUtil::computeHash((char)'a'));
         ASSERT(3392050242U == HashUtil::computeHash((signed char)'a'));
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
         //:   bits being toggled in the output.  Note that the hash function
         //:   currently only sets the low-order 32 bits of the result.  When
         //:   this is fixed the asserts should be changed to demand that at
-        //:   least a quarter of the bits in a 'size_t' have chagned.
+        //:   least a quarter of the bits in a 'size_t' have changed.
         //
         // Testing:
         //   BREATHING TEST
@@ -474,8 +474,8 @@ int main(int argc, char *argv[])
         //    HashUtil::computeHash(void*);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nHASHING FUNDAMENTAL TYPES"
-                            "\n=========================\n");
+        if (verbose) printf("\nPERFORMANCE MEASUREMENTS"
+                            "\n========================\n");
 
         time_computeHash((char)'a', "char");
         time_computeHash((signed char)'a', "signed char");
