@@ -901,7 +901,6 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::tryGetValue(
 
     typename MapType::iterator mapIt = d_map.find(key);
     if (mapIt == d_map.end()) {
-//        d_rwlock.unlock();
         return 1;                                                     // RETURN
     }
 
@@ -915,7 +914,6 @@ int Cache<KEYTYPE, VALUE, HASH, EQUAL>::tryGetValue(
             d_queue.splice(d_queue.end(), d_queue, queueIt);
         }
     }
-//    d_rwlock.unlock();
 
     return 0;
 }
