@@ -1231,8 +1231,8 @@ int main(int argc, char *argv[])
                     "2016-07-04T08:21:30.123456Z" },
               { L_, 0, "Date", bdlt::Date(), "0001-01-01" },
               { L_, 0, "Date", bdlt::Date(2005, 1, 22), "2005-01-22" },
-              { L_, 0, "Time", bdlt::Time(0, 0, 0, 1), "00:00:00.001" },
-              { L_, 0, "Time", bdlt::Time(), "24:00:00.000" },
+              { L_, 0, "Time", bdlt::Time(0, 0, 0, 1), "00:00:00.001000" },
+              { L_, 0, "Time", bdlt::Time(), "24:00:00.000000" },
           };
           enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
           bsl::ostringstream ss;
