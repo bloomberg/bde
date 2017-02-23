@@ -680,10 +680,10 @@ class Datetime {
         // value-semantic types and containers.
 
     // ACCESSORS
-    Date date() const;
+    const Date date() const;
         // Return the value of the "date" part of this object.
 
-    Time time() const;
+    const Time time() const;
         // Return the value of the "time" part of this object, truncated to
         // millisecond resolution.
 
@@ -1637,7 +1637,7 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 
 // ACCESSORS
 inline
-Date Datetime::date() const
+const Date Datetime::date() const
 {
     bsls::Types::Uint64 value = updatedRepresentation() & (~k_REP_MASK);
 
@@ -1645,7 +1645,7 @@ Date Datetime::date() const
 }
 
 inline
-Time Datetime::time() const
+const Time Datetime::time() const
 {
     int hour;
     int minute;
