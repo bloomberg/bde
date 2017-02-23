@@ -536,7 +536,7 @@ class MiniReader :  public Reader {
     explicit MiniReader(bslma::Allocator *basicAllocator = 0);
     explicit MiniReader(int bufSize, bslma::Allocator *basicAllocator = 0);
         // Construct a reader with the optionally specified 'bufSize' and use
-        // the optionally specified 'basicAllocator' to allocate memory.  The
+        // the optionally specified 'basicAllocator' to supply memory.  The
         // instantiated MiniReader will utilize a memory buffer of 'bufSize'
         // while reading the input document.  If 'basicAllocator' null, the
         // currently installed default allocator will be used.  Note that

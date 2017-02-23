@@ -340,7 +340,7 @@ struct StackTraceUtil {
         // Write to the specified 'stream' the stack addresses from a stack
         // trace of the current thread, in hex from top to bottom, and return
         // 'stream'.  Optionally specify 'delimiter', that is to be written
-        // between stack addresses.  If 'delimiter is not specified, the
+        // between stack addresses.  If 'delimiter' is not specified, the
         // addresses are separated by a single space.  Optionally specify
         // 'maxFrames', the upper limit of the number of frames to obtain,
         // where a negative or unspecified value will be interpreted as a large

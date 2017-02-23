@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocTestType', that uses a
-// 'bslma::Allocator' to allocate memory and defines the type trait
+// 'bslma::Allocator' to supply memory and defines the type trait
 // 'bslma::UsesBslmaAllocator'.  Furthermore, this class is not
 // bitwise-moveable, and will assert on destruction if it has been moved.  This
 // class is primarily provided to facilitate testing of templates by defining a
@@ -97,7 +97,7 @@ namespace bsltf {
 
 class AllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
-    // 'bslma::Allocator' to allocate memory and defines the type trait
+    // 'bslma::Allocator' to supply memory and defines the type trait
     // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
     // to facilitate testing of templates by defining a simple type
     // representative of user-defined types having an allocator.  See the

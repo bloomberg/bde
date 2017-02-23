@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // the pointer rather than the data that is pointed to.
 //
 // Within this component, 'hashAppend' has been implemented for all of the
-// fundamental types.  When 'hashAppend is reached on a fundamental type, the
+// fundamental types.  When 'hashAppend' is reached on a fundamental type, the
 // hashing algorithm is no longer propagated, and instead a pointer to the
 // beginning of the type in memory is passed to the algorithm, along with the
 // length of the type.  There are special cases with floating point numbers and

@@ -46,7 +46,7 @@ namespace bslalg {
 
 struct TypeTraitUsesBslmaAllocator {
     // A 'TYPE' with this trait uses an allocator derived from
-    // 'bslma::Allocator' to allocate memory.  See documentation on the
+    // 'bslma::Allocator' to supply memory.  See documentation on the
     // 'bslma_usesbslmaallocator' trait for the requirements on a 'TYPE' that
     // has this trait.
 
