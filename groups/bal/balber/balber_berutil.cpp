@@ -1472,7 +1472,9 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
     // if 'value' is not valid.
 
     const bdlt::Time& time = value.time();
-    if (0 != value.date().addDaysIfValid(0)
+    bdlt::Date        date = value.date();
+
+    if (0 != date.addDaysIfValid(0)
      || !bdlt::Time::isValid(time.hour(),
                             time.minute(),
                             time.second(),
