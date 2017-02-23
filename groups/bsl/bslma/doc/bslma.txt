@@ -16,16 +16,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 34 components having 9 levels of physical
+ The 'bslma' package currently has 39 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  9. bslma_managedptr
+  8. bslma_managedptr
+     bslma_stdallocator
+     bslma_stdtestallocator
 
-  8. bslma_managedptr_members                                         !PRIVATE!
-
-  7. bslma_managedptr_factorydeleter                                  !PRIVATE!
+  7. bslma_constructionutil
+     bslma_managedptr_factorydeleter                                  !PRIVATE!
+     bslma_managedptr_members                                         !PRIVATE!
      bslma_sequentialallocator                           !DEPRECATED!
 
   6. bslma_autorawdeleter
@@ -62,7 +64,9 @@
 
   2. bslma_allocator
 
-  1. bslma_deleterhelper
+  1. bslma_allocatortraits
+     bslma_deleterhelper
+     bslma_destructionutil
 ..
 
 /Component Synopsis
@@ -72,6 +76,9 @@
 :
 : 'bslma_allocatoradaptor':
 :      Provide a polymorphic adaptor for STL-style allocators
+:
+: 'bslma_allocatortraits':
+:      Provide a uniform interface to standard allocator types.
 :
 : 'bslma_autodeallocator':
 :      Provide a range proctor to managed a block of memory.
@@ -84,6 +91,9 @@
 :
 : 'bslma_bufferallocator':                               !DEPRECATED!
 :      Support efficient memory allocations from a user-supplied buffer.
+:
+: 'bslma_constructionutil':
+:      Provide methods to construct arbitrarily-typed objects uniformly.
 :
 : 'bslma_deallocatorguard':
 :      Provide a guard to unconditionally manage a block of memory.
@@ -99,6 +109,9 @@
 :
 : 'bslma_deleterhelper':
 :      Provide namespace for functions used to delete objects.
+:
+: 'bslma_destructionutil':
+:      Provide routines that destroy objects efficiently.
 :
 : 'bslma_destructorguard':
 :      Provide a guard to unconditionally manage an object.
@@ -122,7 +135,7 @@
 :      Provide a managed pointer class.
 :
 : 'bslma_managedptr_factorydeleter':                                  !PRIVATE!
-:      Provide a basic deleter for the managed pointer class.
+:      Provide a factory-based deleter for the managed pointer class.
 :
 : 'bslma_managedptr_members':                                         !PRIVATE!
 :      Provide the internal state of a managed pointer class.
@@ -156,6 +169,12 @@
 :
 : 'bslma_sharedptrrep':
 :      Provide an abstract class for a shared object manager.
+:
+: 'bslma_stdallocator':
+:      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:
+: 'bslma_stdtestallocator':
+:      Provide stl-compatible, 'bslma'-style allocator to track usage.
 :
 : 'bslma_testallocator':
 :      Provide instrumented malloc/free allocator to track memory usage.

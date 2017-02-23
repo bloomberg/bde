@@ -24,61 +24,61 @@
 ..
   8. bslstl_ownerless
 
-  7. bslstl_queue
-     bslstl_sharedptr
-     bslstl_stack
+  7. bslstl_sharedptr
 
-  6. bslstl_deque
-     bslstl_map
+  6. bslstl_map
      bslstl_multimap
      bslstl_multiset
+     bslstl_queue
      bslstl_set
+     bslstl_stack
+
+  5. bslstl_deque
+     bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
+     bslstl_setcomparator
+     bslstl_stringstream
+     bslstl_treenodepool
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  5. bslstl_hashtable
-     bslstl_istringstream
-     bslstl_mapcomparator
-     bslstl_ostringstream
+  4. bslstl_bitset
+     bslstl_hashtable
      bslstl_priorityqueue
      bslstl_randomaccessiterator
-     bslstl_setcomparator
-     bslstl_stringstream
-     bslstl_treenodepool
-
-  4. bslstl_bidirectionaliterator
-     bslstl_bitset
-     bslstl_hashtablebucketiterator
-     bslstl_hashtableiterator
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
+
+  3. bslstl_bidirectionaliterator
+     bslstl_function
+     bslstl_hashtablebucketiterator
+     bslstl_hashtableiterator
+     bslstl_string
      bslstl_vector
 
-  3. bslstl_algorithmworkaround
+  2. bslstl_algorithmworkaround
      bslstl_bidirectionalnodepool
      bslstl_forwarditerator
-     bslstl_function
      bslstl_iteratorutil
      bslstl_list
-     bslstl_string
+     bslstl_pair
      bslstl_treeiterator
 
-  2. bslstl_iterator
-     bslstl_pair
-     bslstl_sharedptrallocateinplacerep
-     bslstl_sharedptrallocateoutofplacerep
-     bslstl_simplepool
-
-  1. bslstl_allocator
-     bslstl_allocatortraits
+  1. bslstl_allocator                                    !DEPRECATED!
+     bslstl_allocatortraits                              !DEPRECATED!
      bslstl_badweakptr
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
+     bslstl_iterator
      bslstl_referencewrapper
+     bslstl_sharedptrallocateinplacerep
+     bslstl_sharedptrallocateoutofplacerep
+     bslstl_simplepool
      bslstl_stdexceptutil
      bslstl_stringrefdata
      bslstl_unorderedmapkeyconfiguration
@@ -90,10 +90,10 @@
 : 'bslstl_algorithmworkaround':
 :      Provide a namespace for work arounds for the standard algorithms
 :
-: 'bslstl_allocator':
+: 'bslstl_allocator':                                    !DEPRECATED!
 :      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
 :
-: 'bslstl_allocatortraits':
+: 'bslstl_allocatortraits':                              !DEPRECATED!
 :      Provide a uniform interface to standard allocator types.
 :
 : 'bslstl_badweakptr':

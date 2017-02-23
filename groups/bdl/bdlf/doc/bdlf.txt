@@ -37,7 +37,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlf' package currently has 21 components having 4 levels of physical
+ The 'bdlf' package currently has 20 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -62,7 +62,6 @@
      bdlf_bind_test0                                                  !PRIVATE!
 
   2. bdlf_bind_test                                                   !PRIVATE!
-     bdlf_function
 
   1. bdlf_memfn
      bdlf_placeholder
@@ -123,9 +122,6 @@
 :
 : 'bdlf_bind_testn':                                                  !PRIVATE!
 :      Provide a test sequence for 'bdlf_bind' with N arguments.
-:
-: 'bdlf_function':
-:      Provide a signature-specific function object (functor).
 :
 : 'bdlf_memfn':
 :      Provide member function pointer wrapper classes and utility.

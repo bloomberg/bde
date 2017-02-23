@@ -9,19 +9,21 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balst' package currently has 14 components having 5 levels of physical
+ The 'balst' package currently has 13 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. balst_assertionlogger
+  6. balst_assertionlogger
      balst_stacktraceprintutil
      balst_stacktracetestallocator
 
-  4. balst_stacktraceutil
+  5. balst_stacktraceutil
 
-  3. balst_stacktraceresolverimpl_dladdr                              !PRIVATE!
-     balst_stacktraceresolverimpl_elf                                 !PRIVATE!
+  4. balst_stacktraceresolverimpl_elf                                 !PRIVATE!
+
+  3. balst_stacktraceresolver_dwarfreader                             !PRIVATE!
+     balst_stacktraceresolverimpl_dladdr                              !PRIVATE!
      balst_stacktraceresolverimpl_windows                             !PRIVATE!
      balst_stacktraceresolverimpl_xcoff                               !PRIVATE!
 
@@ -49,6 +51,9 @@
 : 'balst_stacktraceprintutil':
 :      Provide a single function to perform and print a stack trace.
 :
+: 'balst_stacktraceresolver_dwarfreader':                             !PRIVATE!
+:      Provide mechanism for reading DWARF information from object files.
+:
 : 'balst_stacktraceresolver_filehelper':                              !PRIVATE!
 :      Provide platform-independent file input for stack trace resolvers.
 :
@@ -62,7 +67,7 @@
 :      Provide resolution of symbols in stack trace for Windows objects.
 :
 : 'balst_stacktraceresolverimpl_xcoff':                               !PRIVATE!
-:      Provide a utility to resolve xcoff symbols in a stack trace.
+:      Provide a mechanism to resolve xcoff symbols in a stack trace.
 :
 : 'balst_stacktracetestallocator':
 :      Provide a test allocator that reports the call stack for leaks.

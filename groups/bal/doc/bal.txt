@@ -11,23 +11,22 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bal' package group currently has 9 packages having 4 levels of physical
+ The 'bal' package group currently has 9 packages having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. baljsn
-
-  3. balb
-     balm
+  3. baljsn
      balst
-     baltzo
 
-  2. balber
+  2. balb
+     balber
      ball
+     balm
+     baltzo
+     balxml
 
   1. balscm
-     balxml
 ..
 
 /Package Synopsis

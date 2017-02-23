@@ -9,22 +9,24 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'btlso' package currently has 30 components having 6 levels of physical
+ The 'btlso' package currently has 31 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  6. btlso_inetstreamsocketfactory
-     btlso_tcptimereventmanager
+  7. btlso_tcptimereventmanager
 
-  5. btlso_defaulteventmanager
-     btlso_inetstreamsocket
+  6. btlso_defaulteventmanager
+     btlso_inetstreamsocketfactory
 
-  4. btlso_defaulteventmanager_devpoll                                !PRIVATE!
+  5. btlso_defaulteventmanager_devpoll                                !PRIVATE!
      btlso_defaulteventmanager_epoll                                  !PRIVATE!
      btlso_defaulteventmanager_poll                                   !PRIVATE!
      btlso_defaulteventmanager_pollset                                !PRIVATE!
      btlso_defaulteventmanager_select                                 !PRIVATE!
+     btlso_inetstreamsocket
+
+  4. btlso_eventcallbackregistry
      btlso_eventmanagertester
      btlso_streamsocket
 
@@ -80,6 +82,9 @@
 : 'btlso_event':
 :      Provide component to describe an event on a socket.
 :
+: 'btlso_eventcallbackregistry':
+:      A mapping of Events to callback functions with deferred removal
+:
 : 'btlso_eventmanager':
 :      Define a protocol for socket-event multiplexer.
 :
@@ -117,7 +122,7 @@
 :      Provide operations to resolve an IPv4 address given a name.
 :
 : 'btlso_sockethandle':
-:      Provide a platform-independent socket handle type
+:      Provide a platform-independent socket handle type.
 :
 : 'btlso_socketimputil':
 :      Provide platform-independent operations on sockets.

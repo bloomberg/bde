@@ -18,37 +18,39 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 62 components having 14 levels of physical
+ The 'bsls' package currently has 68 components having 13 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  14. bsls_byteorder
+  13. bsls_byteorder
+      bsls_stackaddressutil
 
-  13. bsls_byteorderutil
-
-  12. bsls_stopwatch
+  12. bsls_alignedbuffer
+      bsls_alignment
+      bsls_byteorderutil
+      bsls_dbghelpdllimpl_windows                                     !PRIVATE!
+      bsls_platformutil                                  !DEPRECATED!
       bsls_systemtime
 
-  11. bsls_alignedbuffer
-      bsls_alignment
-      bsls_platformutil                                  !DEPRECATED!
-      bsls_timeutil
-
-  10. bsls_alignmentutil
+  11. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_bsllock
-      bsls_bslonce
-      bsls_log
+      bsls_stopwatch
       bsls_timeinterval
 
-   9. bsls_asserttest
+  10. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
+      bsls_nameof
       bsls_spinlock
+      bsls_timeutil
 
-   8. bsls_assert
-      bsls_atomic
+   9. bsls_assert
+
+   8. bsls_atomic
+      bsls_bslonce
+      bsls_log
 
    7. bsls_atomicoperations
 
@@ -56,6 +58,7 @@
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
+      bsls_libraryfeatures
       bsls_objectbuffer
 
    5. bsls_alignmentfromtype
@@ -70,22 +73,24 @@
       bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
       bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
+      bsls_cpp11
+      bsls_nullptr
+      bsls_util
 
    4. bsls_alignmenttotype
       bsls_atomicoperations_default                                   !PRIVATE!
       bsls_buildtarget
-      bsls_cpp11
+      bsls_compilerfeatures
       bsls_int64                                         !DEPRECATED!
-      bsls_nullptr
+      bsls_logseverity
       bsls_performancehint
+      bsls_pointercastutil
       bsls_systemclocktype
       bsls_unspecifiedbool
-      bsls_util
 
    3. bsls_alignmentimp
       bsls_annotation
       bsls_bsltestutil
-      bsls_compilerfeatures
       bsls_linkcoercion
       bsls_nativestd
       bsls_types
@@ -219,6 +224,9 @@
 : 'bsls_cpp11':
 :      Provide macros for C++11 forward compatibility.
 :
+: 'bsls_dbghelpdllimpl_windows':                                      !PRIVATE!
+:      Provide access to the 'dbghelp.dll' shared library on Windows.
+:
 : 'bsls_exceptionutil':
 :      Provide simplified exception constructs for non-exception builds.
 :
@@ -228,17 +236,26 @@
 : 'bsls_int64':                                          !DEPRECATED!
 :      Provide namespace for platform-dependent 64-bit integer types.
 :
+: 'bsls_libraryfeatures':
+:      Provide macros to identify native standard library features.
+:
 : 'bsls_linkcoercion':
 :      Provide a way to force a link-time dependency into an object.
 :
 : 'bsls_log':
 :      Provide a namespace for low-level logging functions.
 :
+: 'bsls_logseverity':
+:      Enumerate a set of logging severity levels.
+:
 : 'bsls_macroincrement':
 :      Provide a macro to increment preprocessor numbers.
 :
 : 'bsls_macrorepeat':
-:      repreat a macro invocation with different numeric arguments
+:      repeat a macro invocation with different numeric arguments.
+:
+: 'bsls_nameof':
+:      Provide a 'NameOf' type for displaying template type at run-time.
 :
 : 'bsls_nativestd':
 :      Define the namespace 'native_std' as an alias for '::std'.
@@ -258,11 +275,17 @@
 : 'bsls_platformutil':                                   !DEPRECATED!
 :      Provide consistent interface for platform-dependent functionality.
 :
+: 'bsls_pointercastutil':
+:      Provide function to cast between function and data pointers.
+:
 : 'bsls_protocoltest':
 :      Provide classes and macros for testing abstract protocols.
 :
 : 'bsls_spinlock':
 :      Provide a spin lock.
+:
+: 'bsls_stackaddressutil':
+:      Provide a utility for obtaining return addresses from the stack.
 :
 : 'bsls_stopwatch':
 :      Provide access to user, system, and wall times of current process.

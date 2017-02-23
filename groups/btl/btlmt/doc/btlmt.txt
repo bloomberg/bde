@@ -35,13 +35,13 @@
 /Component Synopsis
 /------------------
 : 'btlmt_asyncchannel':
-:      Provide a protocol for asynchronous IO operations
+:      Provide a protocol for asynchronous IO operations.
 :
 : 'btlmt_channelpool':
 :      Provide thread-enabled stream-based IPv4 communication.
 :
 : 'btlmt_channelpoolchannel':
-:      Provide a concrete implementation of 'btlmt::AsyncChannel'
+:      Provide a concrete implementation of 'btlmt::AsyncChannel'.
 :
 : 'btlmt_channelpoolconfiguration':
 :      Provide a class for configuring channel pools.
@@ -53,13 +53,13 @@
 :      Enumerate the set of channel types.
 :
 : 'btlmt_session':
-:      Provide a *pure* protocol class for a session
+:      Provide a *pure* protocol class for a session.
 :
 : 'btlmt_sessionfactory':
-:      Provide a *pure* protocol class for creating sessions
+:      Provide a *pure* protocol class for creating sessions.
 :
 : 'btlmt_sessionpool':
-:      Provide thread-enabled session-based IPv4 communication
+:      Provide thread-enabled session-based IPv4 communication.
 :
 : 'btlmt_tcptimereventmanager':
 :      Provide a thread-enabled multiplexor of socket events and timers.
