@@ -63,11 +63,11 @@
 
    3. ball_attributecontainerlist
       ball_defaultattributecontainer
-      ball_loggermanagerconfiguration
       ball_userfields
 
    2. ball_attributecontainer
       ball_context
+      ball_loggermanagerconfiguration
       ball_predicate
       ball_recordbuffer
       ball_severityutil
