@@ -179,10 +179,12 @@ BSLS_IDENT("$Id: $")
 //          return;
 //      }
 //
-//      ASSERT(numNeeded);
-//      ASSERT(0 < blob->length());
+//      assert(numNeeded);
+//      assert(blob);
+//      assert(0 < blob->length());
 //
-//      ASSERT(0 == d_channel_p->write(*blob));
+//      int rc = d_channel_p->write(*blob);
+//      assert(0 == rc);
 //
 //      *numNeeded   = 1;
 //      btlb::BlobUtil::erase(blob, 0, blob->length());
@@ -313,13 +315,12 @@ BSLS_IDENT("$Id: $")
 //          // Create an echo server that listens for incoming connections on
 //          // the specified 'portNumber' managing up to the specified
 //          // 'numConnections' simultaneous connections.  Pass the specified
-//          // 'reuseAddressFlag' to the set the 'REUSE_ADDRESS' socket option
-//          // to the listening socket.  The echo server will use the
-//          // specified 'coutLock' to synchronize access to the standard
-//          // output.  Optionally specify a 'basicAllocator' used to supply
-//          // memory.  If 'basicAllocator' is 0, the currently installed
-//          // default allocator is used.  The behavior is undefined if
-//          // 'coutLock' is 0.
+//          // 'reuseAddressFlag' to set the 'REUSE_ADDRESS' socket option to
+//          // the listening socket.  The echo server will use the specified
+//          // 'coutLock' to synchronize access to the standard output.
+//          // Optionally specify a 'basicAllocator' used to supply memory.  If
+//          // 'basicAllocator' is 0, the currently installed default allocator
+//          // is used.
 //
 //      ~my_EchoServer();
 //          // Destroy this server.
@@ -387,6 +388,7 @@ BSLS_IDENT("$Id: $")
 //  my_EchoServer::my_EchoServer(bslmt::Mutex     *lock,
 //                               int               portNumber,
 //                               int               numConnections,
+//                               bool              reuseAddressFlag,
 //                               bslma::Allocator *basicAllocator)
 //  : d_sessionFactory(basicAllocator)
 //  , d_coutLock_p(lock)
@@ -413,13 +415,17 @@ BSLS_IDENT("$Id: $")
 //                       bdlf::MemFnUtil::memFn(&my_EchoServer::sessionStateCb,
 //                                              this);
 //
-//      ASSERT(0 == d_sessionPool_p->start());
+//      int rc = d_sessionPool_p->start();
+//      assert(0 == rc);
+//
 //      int handle;
-//      ASSERT(0 == d_sessionPool_p->listen(&handle,
-//                                          sessionStateCb,
-//                                          portNumber,
-//                                          numConnections,
-//                                          &d_sessionFactory));
+//      rc = d_sessionPool_p->listen(&handle,
+//                                   sessionStateCb,
+//                                   portNumber,
+//                                   numConnections,
+//                                   reuseAddressFlag,
+//                                   &d_sessionFactory);
+//      assert(0 == rc);
 //
 //      d_portNumber = d_sessionPool_p->portNumber(handle);
 //  }
@@ -444,8 +450,8 @@ BSLS_IDENT("$Id: $")
 // We can implement a simple "Hello World!" example to exercise our echo
 // server.
 //..
-//  int main() {
-//
+//  int main()
+//  {
 //      enum {
 //          BACKLOG = 5,
 //          REUSE   = 1
@@ -459,11 +465,16 @@ BSLS_IDENT("$Id: $")
 //      const char STRING[] = "Hello World!";
 //
 //      const btlso::IPv4Address ADDRESS("127.0.0.1", echoServer.portNumber());
-//      assert(0 == socket->connect(ADDRESS));
-//      assert(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+//
+//      int rc = socket->connect(ADDRESS);
+//      assert(0 == rc);
+//
+//      int numBytes = socket->write(STRING, sizeof(STRING));
+//      assert(sizeof(STRING) == numBytes);
 //
 //      char readBuffer[sizeof(STRING)];
-//      assert(sizeof(STRING) == socket->read(readBuffer, sizeof(STRING)));
+//      numBytes = socket->read(readBuffer, sizeof(STRING));
+//      assert(sizeof(STRING) == numBytes);
 //      assert(0 == bsl::strcmp(readBuffer, STRING));
 //
 //      factory.deallocate(socket);
