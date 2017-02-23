@@ -294,7 +294,7 @@ int PrintUtil::printDateAndTime(bsl::ostream&         stream,
                                  options->datetimeFractionalSecondPrecision());
     }
     else {
-        config.setFractionalSecondPrecision(6);
+        config.setFractionalSecondPrecision(3);
     }
 
     bdlt::Iso8601Util::generate(buffer, sizeof buffer, value, config);

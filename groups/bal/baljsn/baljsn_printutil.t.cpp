@@ -1327,17 +1327,17 @@ int main(int argc, char *argv[])
             oss.str("");
 
             Obj::printValue(oss, theTime);
-            ASSERTV(oss.str(),"\"23:59:59.999999\"" == oss.str());
+            ASSERTV(oss.str(),"\"23:59:59.999\"" == oss.str());
             oss.str("");
 
             Obj::printValue(oss, theTimeTz);
-            ASSERTV(oss.str(),"\"23:59:59.999999-12:00\"" == oss.str());
+            ASSERTV(oss.str(),"\"23:59:59.999-12:00\"" == oss.str());
             oss.str("");
 
             {
                 Obj::printValue(oss, theDatetime);
                 ASSERTV(oss.str(),
-                        "\"9999-12-31T23:59:59.999999\"" == oss.str());
+                        "\"9999-12-31T23:59:59.999\"" == oss.str());
                 oss.str("");
             }
             {
@@ -1366,14 +1366,14 @@ int main(int argc, char *argv[])
             {
                 baljsn::EncoderOptions opt;
                 opt.setDatetimeFractionalSecondPrecision(6);
-                Obj::printValue(oss, theTimeTz);
+                Obj::printValue(oss, theTimeTz, &opt);
                 ASSERTV(oss.str(),"\"23:59:59.999999-12:00\"" == oss.str());
                 oss.str("");
             }
             {
                 Obj::printValue(oss, theDatetimeTz);
                 ASSERTV(oss.str(),
-                        "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
+                        "\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
             }
         }
       } break;
