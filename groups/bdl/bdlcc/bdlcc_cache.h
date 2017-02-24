@@ -468,8 +468,11 @@ class Cache {
 
     // NOT IMPLEMENTED
     Cache(const Cache<KEYTYPE, VALUE, HASH, EQUAL>&);
+    // BDE_VERIFY pragma: -FD01
     Cache<KEYTYPE, VALUE, HASH, EQUAL>& operator=(
                                            const Cache<KEYTYPE, VALUE, HASH>&);
+
+    // BDE_VERIFY pragma: +FD01
 
   public:
     // CREATORS
@@ -535,9 +538,9 @@ class Cache {
         // with 'value'.
 
     int insertBulk(const bsl::vector<KVType>& data);
-        // Insert the specified 'data' (composed of KV pairs) into this cache.
-        // If a key already exists, then its value will be replaced with the
-        // value.  Return the number of items successfully inserted.
+        // Insert the specified 'data' (composed of Key-Value pairs) into this
+        // cache.  If a key already exists, then its value will be replaced
+        // with the value.  Return the number of items successfully inserted.
 
     int popFront();
         // Remove the item at the front of the eviction queue.  Invoke the
