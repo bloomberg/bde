@@ -71,7 +71,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bslalg::TypeTraitUsesBslmaAllocator  Obj;
 
 struct AllocatorAware {
-    AllocatorAware(bslma::Allocator * = 0) {}
+    explicit AllocatorAware(bslma::Allocator * = 0) {}
     AllocatorAware(const AllocatorAware&, bslma::Allocator * = 0) {}
 };
 
@@ -111,30 +111,15 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //    USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============");
-
-      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING TRAIT CLASS
         //
-        // Concerns:  That the name of the trait class does not change over
-        //   time.
+        // Concerns:
+        //: 1 The name of the trait class does not change over time.
         //
-        // Plan:  Create an instance of the trait class.
+        // Plan:
+        //: 1 Create an instance of the trait class.
         //
         // Testing:
         //   class bslalg::TypeTraitUsesBslmaAllocator;

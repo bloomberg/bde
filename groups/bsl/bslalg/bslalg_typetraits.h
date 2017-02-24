@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitBitwiseMoveable: bitwise-moveable trait
 //  bslalg::TypeTraitBitwiseCopyable: bitwise-copyable trait
 //  bslalg::TypeTraitBitwiseEqualityComparable: bitwise-eq.-comparable trait
+//  bslalg::TypeTraitHasPointerSemantics: dereferences like a pointer
 //  bslalg::TypeTraitHasStlIterators: has STL-like iterators
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
@@ -121,7 +122,8 @@ BSLS_IDENT("$Id: $")
 // require that an element always be initialized.
 //..
 //  // CREATORS
-//  MyGenericContainer(const TYPE& object, bslma::Allocator *allocator = 0);
+//  explicit MyGenericContainer(const TYPE& object,
+//                              bslma::Allocator *allocator = 0);
 //      // Create a container containing the specified 'object', using the
 //      // optionally specified 'allocator' to supply memory.  If 'allocator'
 //      // is 0, the currently installed allocator is used.
