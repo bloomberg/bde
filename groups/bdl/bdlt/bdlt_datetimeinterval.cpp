@@ -76,7 +76,7 @@ int printToBufferFormatted(char       *result,
         }
         else {
             //   '_' hh: mm: ss. mmm uuu
-            rc =  1 + 3 + 3 + 3 + fractionalSecondPrecision
+            rc =  1 + 3 + 3 + 3 + fractionalSecondPrecision;
         }
 
         if (day < 10) {
