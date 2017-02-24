@@ -169,6 +169,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
+#endif
+
 #ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
 #endif
