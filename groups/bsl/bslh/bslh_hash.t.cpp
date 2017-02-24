@@ -30,8 +30,8 @@ using namespace bslh;
 // functor.  The component will be tested for conformance to the interface
 // requirements on 'std::hash', outlined in the C++ Standard.  The output of
 // the component will also be tested to check that it matches the expected
-// output of the underlying hashing algorithms. This component also contains
-// 'hashAppend' free functions written for fundamental types. These free
+// output of the underlying hashing algorithms.  This component also contains
+// 'hashAppend' free functions written for fundamental types.  These free
 // functions will be tested to ensure they properly pass data into the hashing
 // algorithms they are given.
 //-----------------------------------------------------------------------------
@@ -157,8 +157,8 @@ void aSsErT(bool condition, const char *message, int line)
 // want to store objects of type 'Box' in a hash table, so we need to be able
 // to produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labor-intensive to write a proper hashing algorithm.  In
-// order to hash this 'Box', we will use the modular hashing system supplied in
+// difficult and labor-intensive to write a proper hashing algorithm.  In order
+// to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
 // First, we define 'Point', a class that allows us to identify a location on a
@@ -1802,7 +1802,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

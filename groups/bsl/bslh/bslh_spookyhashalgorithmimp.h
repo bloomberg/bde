@@ -410,10 +410,10 @@ class SpookyHashAlgorithmImp {
         // algorithm will be modified, meaning that calling final multiple
         // times will result in different hash values being returned.  The
         // returned hash will be the same as if 'Hash128' had been called will
-        // all of the accumulated data in one block.  The behavior is
-        // undefined unless both 'hash1' and 'hash2' point to 8 bytes of
-        // modifiable memory.  Note that a value will be returned even if
-        // 'update' has not been called.
+        // all of the accumulated data in one block.  The behavior is undefined
+        // unless both 'hash1' and 'hash2' point to 8 bytes of modifiable
+        // memory.  Note that a value will be returned even if 'update' has not
+        // been called.
 };
 
 // ============================================================================
@@ -566,7 +566,7 @@ void SpookyHashAlgorithmImp::shortMix(Uint64 &h0,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

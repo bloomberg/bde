@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // future releases.
 //
 // This class satisfies the requirements for regular 'bslh' hashing algorithms,
-// defined in bslh_hash.h.  More information can be found in the package level
+// defined in bslh_hash.h. More information can be found in the package level
 // documentation for 'bslh' (internal users can also find information here
 // {TEAM BDE:USING MODULAR HASHING<GO>})
 //
@@ -385,7 +385,7 @@ DefaultHashAlgorithm::result_type DefaultHashAlgorithm::computeHash()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

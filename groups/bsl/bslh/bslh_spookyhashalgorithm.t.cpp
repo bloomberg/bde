@@ -272,7 +272,7 @@ void aSsErT(bool condition, const char *message, int line)
 // will distribute the items evenly throughout the hash table.
 
     struct HashFuture {
-        // This struct is a  functor that will apply the SpookyHashAlgorithm to
+        // This struct is a functor that will apply the SpookyHashAlgorithm to
         // objects of type 'Future'.
 
         size_t operator()(const Future& future) const
@@ -397,9 +397,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, we want to actually use our hash table on 'Future' objects.  We
-// create an array of 'Future's based on data that was originally from some
-// external source:
+// Then, we want to actually use our hash table on 'Future' objects.  We create
+// an array of 'Future's based on data that was originally from some external
+// source:
 
         Future futures[] = { Future("Swiss Franc", 'F', 2014),
                              Future("US Dollar", 'G', 2015),

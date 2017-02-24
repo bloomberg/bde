@@ -612,9 +612,9 @@ class SkipList_NodeCreationHelper {
                                 bslma::Allocator *basicAllocator = 0);
         // Create a new scoped guard object to assist in exception-safe
         // initialization of the specified 'node', which was allocated from the
-        // specified 'poolManager'.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'poolManager'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~SkipList_NodeCreationHelper();
         // Destroy this scoped guard.  If the guard currently manages a node,

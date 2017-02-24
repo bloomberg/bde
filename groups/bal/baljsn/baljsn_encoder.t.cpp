@@ -28911,14 +28911,14 @@ class Address {
 
     // CREATORS
     explicit Address(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Address' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Address' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -29562,16 +29562,16 @@ class Employee {
 
     // CREATORS
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Employee' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~Employee();
         // Destroy this object.
