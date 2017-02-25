@@ -646,7 +646,6 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #   define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #   define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-#   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 # endif
 
@@ -654,6 +653,10 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
     // cases, that happen to be important to our vector implementation.
+
+#   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    // CC 12.4 has problems partially ordering template parameter packs that
+    // typically result in failing to compile with ambiguity errors.
 # endif
 
 // # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
