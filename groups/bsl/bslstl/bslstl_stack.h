@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // container classes that support the following types and methods.
 //
 ///Required Types
-///- - - - - - -
+/// - - - - - - -
 //: o 'value_type'
 //: o 'reference'
 //: o 'const_reference'
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //: o 'allocator_type' (if any 'stack' constructor taking an allocator is used)
 //
 ///Required Methods, Free Operators, and Free Functions
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
 //: o 'void push_back(const value_type&)' (and variant taking rvalue reference)
 //: o 'void pop_back()'
 //: o 'reference back()'
