@@ -70,6 +70,20 @@ void Latch::countDown(int numEvents)
     } while (current != d_sigCount.testAndSwapAcqRel(current, expected));
 }
 
+void Latch::timedWait(const bsls::TimeInterval &timeout)
+{
+    LockGuard<Mutex> lock(&d_mutex);
+
+    // Note that the following operation does not require memory visibility
+    // guarantees because they are already provided by the lock/unlock of
+    // 'd_mutex'.
+
+    int rc = 0;
+    while (d_sigCount.loadRelaxed() > 0 && rc == 0) {
+        rc = d_cond.timedWait(&d_mutex, timeout);
+    }
+}
+
 void Latch::wait()
 {
     LockGuard<Mutex> lock(&d_mutex);

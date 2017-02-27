@@ -349,6 +349,11 @@ class Latch {
         // latch does not exceed the count with which it was initialized.  Note
         // that the initial count of events is supplied at construction.
 
+    void timedWait(const bsls::TimeInterval &timeout);
+        // Block until the number of events that this latch is waiting for
+        // reaches 0, or until the specified 'timeout' expires.
+    // .
+
     void wait();
         // Block until the number of events that this latch is waiting for
         // reaches 0.
