@@ -570,7 +570,7 @@ class CachePerformance {
 
     // NOT IMPLEMENTED
     CachePerformance(const CachePerformance&);
-    CachePerformance& operator=(const CachePerformance);
+    CachePerformance& operator=(const CachePerformance&);
 
   public:
     CachePerformance(
@@ -617,6 +617,7 @@ class CachePerformance {
 
     int numRThreads() const;
         // Return the number of reader threads
+    
     int numWThreads() const;
         // Return the number of writer threads
 
