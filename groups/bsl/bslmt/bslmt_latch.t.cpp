@@ -1229,7 +1229,8 @@ int main(int argc, char *argv[])
                                   bsls::SystemTime::nowRealtimeClock();
         timeOut.addMicroseconds(1000000);
 
-        myLatch.timedWait(timeOut);
+        const int rc = myLatch.timedWait(timeOut);
+        ASSERT(-1 == rc);
         const int myCount = myLatch.currentCount();
         ASSERT(5 == myCount);
 
