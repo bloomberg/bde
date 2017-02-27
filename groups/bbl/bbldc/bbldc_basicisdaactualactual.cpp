@@ -19,29 +19,21 @@ namespace bbldc {
 double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate)
 {
-    const bool negationFlag = beginDate > endDate;
+    const int beginYear = beginDate.year();
+    const int endYear   = endDate.year();
 
-    const bdlt::Date minDate = negationFlag ? endDate   : beginDate;
-    const bdlt::Date maxDate = negationFlag ? beginDate : endDate;
+    const int daysInBeginYear =
+                          365 + bdlt::SerialDateImpUtil::isLeapYear(beginYear);
+    const int daysInEndYear =
+                            365 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
 
-    const int minYear = minDate.year();
-    const int maxYear = maxDate.year();
-
-    const int daysInMinYear =
-                            365 + bdlt::SerialDateImpUtil::isLeapYear(minYear);
-    const int daysInMaxYear =
-                            365 + bdlt::SerialDateImpUtil::isLeapYear(maxYear);
-
-    const int yDiff = maxYear - minYear - 1;
-    const int minYearDayDiff = bdlt::Date(minYear + 1, 1, 1) - minDate;
-    const int maxYearDayDiff = maxDate - bdlt::Date(maxYear, 1, 1);
-    double    result = (yDiff * daysInMinYear * daysInMaxYear
-    		         + minYearDayDiff * daysInMaxYear
-					 + maxYearDayDiff * daysInMinYear)
-					 / static_cast<double>(daysInMinYear * daysInMaxYear);
-    if (negationFlag) {
-        result = -result;
-    }
+    const int yDiff = endYear - beginYear - 1;
+    const int beginYearDayDiff = bdlt::Date(beginYear + 1, 1, 1) - beginDate;
+    const int endYearDayDiff = endDate - bdlt::Date(endYear, 1, 1);
+    double    result = (yDiff * daysInBeginYear * daysInEndYear
+    		         + beginYearDayDiff * daysInEndYear
+					 + endYearDayDiff * daysInBeginYear)
+					 / static_cast<double>(daysInBeginYear * daysInEndYear);
     return result;
 }
 
