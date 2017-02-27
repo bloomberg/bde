@@ -375,7 +375,11 @@ typedef bsls::Platform::OsHpUx OsType;
         mutable bslmt::RWMutex d_guard;
                                  // serialize write access
 
-    public:
+      private:
+        // NOT IMPLEMENTED
+        Statistics& operator=(const Statistics&);
+
+      public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(Statistics,
                                        bslma::UsesBslmaAllocator);
@@ -394,11 +398,6 @@ typedef bsls::Platform::OsHpUx OsType;
             // 0, the currently installed default allocator is used.
 
         // MANIPULATORS
-        Statistics& operator=(const Statistics& rhs);
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.
-
         void reset();
             // Reset the min, max, and average values collected for each
             // measure.
