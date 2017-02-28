@@ -234,7 +234,6 @@ int DatetimeInterval::printToBuffer(char *result,
     BSLS_ASSERT(0 <= fractionalSecondPrecision     );
     BSLS_ASSERT(     fractionalSecondPrecision <= 6);
 
-    int bytesForSign = 0;
     int d            = days();
     int h            = hours();
     int m            = minutes();
@@ -248,7 +247,6 @@ int DatetimeInterval::printToBuffer(char *result,
             --numBytes;
         }
 
-        bytesForSign =  1;
         d            = -d;
         h            = -h;
         m            = -m;
@@ -256,12 +254,18 @@ int DatetimeInterval::printToBuffer(char *result,
         ms           = -ms;
         us           = -us;
     }
+    else if (numBytes > 1) {
+        *result++ = '+';
+        --numBytes;
+    }
 
     int value;
 
     switch (fractionalSecondPrecision) {
       case 0: {
         char spec[] = "%d_%02d:%02d:%02d";
+
+        // Add one for the sign.
 
         return printToBufferFormatted(result,
                                       numBytes,
@@ -271,7 +275,7 @@ int DatetimeInterval::printToBuffer(char *result,
                                       m,
                                       s,
                                       0,
-                                      0) + bytesForSign;              // RETURN
+                                      0) + 1;                         // RETURN
       } break;
       case 1: {
         value = ms / 100;
@@ -299,6 +303,8 @@ int DatetimeInterval::printToBuffer(char *result,
 
     spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
 
+    // Add one for the sign.
+    
     return printToBufferFormatted(result,
                                   numBytes,
                                   spec,
@@ -307,7 +313,7 @@ int DatetimeInterval::printToBuffer(char *result,
                                   m,
                                   s,
                                   value,
-                                  fractionalSecondPrecision) + bytesForSign;
+                                  fractionalSecondPrecision) + 1;
 }
 
 bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
