@@ -61,11 +61,11 @@ int printToBufferFormatted(char       *result,
                        microsecond);
     }
 
-    if ((0 > rc || rc == numBytes) && numBytes > 0) {
-        rc = numBytes - 1;
-
-        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
-                                      // overflow.
+    if (0 > rc || rc == numBytes) {
+        if (numBytes > 0) {
+            result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                          // overflow.
+        }
 
         // Need to determine the length that would have been printed without
         // overflow.
@@ -234,12 +234,12 @@ int DatetimeInterval::printToBuffer(char *result,
     BSLS_ASSERT(0 <= fractionalSecondPrecision     );
     BSLS_ASSERT(     fractionalSecondPrecision <= 6);
 
-    int d            = days();
-    int h            = hours();
-    int m            = minutes();
-    int s            = seconds();
-    int ms           = milliseconds();
-    int us           = microseconds();
+    int d  = days();
+    int h  = hours();
+    int m  = minutes();
+    int s  = seconds();
+    int ms = milliseconds();
+    int us = microseconds();
 
     if (0 > d_days || 0 > d_microseconds) {
         if (numBytes > 1) {
@@ -247,12 +247,12 @@ int DatetimeInterval::printToBuffer(char *result,
             --numBytes;
         }
 
-        d            = -d;
-        h            = -h;
-        m            = -m;
-        s            = -s;
-        ms           = -ms;
-        us           = -us;
+        d  = -d;
+        h  = -h;
+        m  = -m;
+        s  = -s;
+        ms = -ms;
+        us = -us;
     }
     else if (numBytes > 1) {
         *result++ = '+';
