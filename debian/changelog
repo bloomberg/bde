@@ -1,9 +1,16 @@
-bsl-internal (3.0.14.0) unstable; urgency=low
+bsl-internal (3.0.15) unstable; urgency=low
 
+  * 97388f7 Merge pull request #994 from mgiroux/make-return-types-const
+
+ -- mgiroux <mgiroux@bloomberg.net>  Thu, 23 Feb 2017 12:49:22 -0500
+
+bsl-internal (3.0.14.0) git; urgency=low
+
+  * bc5de9f Changelog for version 3.0.14.0
   * c0916af Merge pull request #990 from mgiroux/review/bump-version-to-3.0.14
   * 7845ba6 bump patch version to 3.0.14
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 13 Feb 2017 13:03:42 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 13 Feb 2017 13:07:13 -0500
 
 bsl-internal (3.0.13.0) git; urgency=low
 
@@ -404,6 +411,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * a2a393f Merge pull request #286 from cwilson/bael-to-ball-migration-phase1-drqs-78487440
   * e6ca323 Merge pull request #308 from che2/third-party-use-relatively-include-paths-drqs-69714826-master
   * 47f794c Merge pull request #303 from jmendelsohn4/bdlma_aix_nightly_build-drqs-80716067
+  * 8f9a48b reduced cases where the really large allocations is performed
   * 3181dc9 Merge pull request #284 from jmendelsohn4/bbl_debian_changes-drqs-80375198
   * 28aea80 Merge pull request #294 from jcamino2/fix-date-comment
   * bd9e70a Merge pull request #289 from sbreitst/bsl_remove_cycle-drqs-80433527
@@ -419,6 +427,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 775304a Merge pull request #269 from jmendelsohn4/bdlma-drqs-78633855
   * 62befe6 Merge pull request #266 from ameredit/3_0/hash_warning_on_MSVC
   * cdd99c6 Merge pull request #182 from jmendelsohn4/bdlma-drqs-78633855
+  * fb7d992 fixing non-64 bit machine INT_MAX allocation requests
   * fb57c51 Merge pull request #265 from hversche/correct-bdlpcre-de-file
   * 6118c62 Merge pull request #259 from hversche/pr/257-rebased
   * ff4e438 Merge pull request #255 from rbhindwa/btlmt_channelpool-test-driver-failure-drqs-80033328
@@ -476,6 +485,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 5d9ec04 guard against uncaught exception reported with some gcc versions
   * bbbbd3b Merge pull request #174 from mgiroux/review/fix-bdld_datum-streamout-declaration-master
   * 8e91bff Merge pull request #124 from sbreitst/doc_bindA-drqs-76451807
+  * cd4e3d8 Merge branch 'master' of bbgithub:bde/bde into sequential-allocation-changes-20160219
   * ba894fb Merge pull request #170 from jmendelsohn4/bdlt_timeutil-nightly-build-20160219
   * 0fce752 Adopt commit bca5d3a from master: Merge pull request #166 from cwilson/bsls_compilerfeatures-SUPPORT_NOEXCEPT-echoed-in-doc-drqs-78478944
   * 53ce558 Adopt commit eaa2dbd from master: Merge pull request #149 from dharesig/bslstl-stringref-remove-copy-ctor
@@ -497,6 +507,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 0e5c39a Merge pull request #83 from abeels/fix-BOD-build-drqs-71435297
   * 4fe993c Merge pull request #84 from bchapman/bdlt_timeutil-drqs-70771884
   * ea106c3 Merge pull request #154 from osubbotin/review/bde-datum-rebase
+  * 8f0b9c4 Merge branch 'master' into sequential-allocation-changes-20160203
   * a0d1da1 Merge pull request #162 from abeels/bslstl_sharedptr-no-exception-build-drqs-78426023
   * 346d04c Merge pull request #151 from abeels/bslmt_latch-fix-negative-test-drqs-78220968
   * f43f8db Merge pull request #132 from sbreitst/ibm_isValidAddress-drqs-76925158
@@ -513,16 +524,19 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 7e8a761 Merge pull request #143 from ameredit/patch/disable_native_traits_on_windows
   * 9867a80 Merge pull request #94 from che2/fix-cycle-bdls
   * 3d6829b Merge pull request #118 from che2/decimal64-decoders-encoders-support-drqs-76475273
+  * 27dc1c4 Merge branch 'master' into sequential-allocation-changes-20160203
   * 034f33a Merge pull request #140 from hrosen4/bslmt_latch-bad_pow-drqs_78032891
   * 487ed4b Merge pull request #139 from abeels/backport-github-pr-201
   * d80f726 Merge pull request #123 from blivings/D76761821
   * 1ad050d Merge pull request #116 from hrosen4/bdlmt_threadpool-dtor-doc_drqs-76512668
+  * acb1dd2 Merge branch 'master' into sequential-allocation-changes-20160111
   * 80cc5ab Merge pull request #117 from hversche/pending/alias-bcemt_latch-to-bslmt_latch-drqs-74314192
   * 9d4693e Merge pull request #93 from bchapman/bdlde-rename-chars-to-code-points-drqs-70494301
   * dd0382d Merge pull request #115 from hrosen4/bdlmt_timereventscheduler-stop-doc_drqs-77120508
   * d9f6e2b Merge pull request #103 from ameredit/feature/traits_tests_check_for_old_gcc
   * 564bc39 Merge pull request #102 from ameredit/feature/bitwise_moveable_reference_wrapper
   * 283013e Merge pull request #114 from che2/decimal-stream-set-fail-bits-drqs-59317739
+  * 85b90f0 Merge branch 'master' into sequential-allocation-changes-20160111
   * 46402de Merge pull request #106 from ameredit/feature/strict_types_for_string
   * e3fa03f Merge pull request #104 from che2/add-reverse-iterators-stringref-drqs-55611625
   * 31e39bc Merge pull request #105 from sarahwon/patch-1
@@ -731,7 +745,9 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 96deef8 Changelog for version 2.24.0.3
   * b785f43 Merge remote-tracking branch 'remotes/origin/review/2015-opensource-bdlat' into review/2015-opensource-baseline
   * edaa52f Fix incomplete enum conversion in btlsos_tcptimedchannel.t.cpp
+  * f921ceb endpoint avoid excess allocation
   * ba852f5 Merge remote-tracking branch 'ab/2015-opensource-global-enum-fixes' into 2015-opensource-global-enum-fixes
+  * 2a7ebb7 Mark locations for new #ifndefs
   * a4abb65 Merge remote-tracking branch 'remotes/origin/review/2015-opensource-baltzo' into review/2015-opensource-baseline
   * 90726a1 [APPROVAL] OSS pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 9bc2166 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
@@ -841,6 +857,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 776f5f8 [APPROVAL] pending/master/msvc_fix_for_traits_of_cv_arrays_drqs67453073 to master
   * 5deb5ff [APPROVAL] INTERNAL hashAppend-re-merge to master
   * 79d3c85 [APPROVAL] hashAppend-re-merge to master
+  * 393ab11 Remove unnecessary include.  Move implementation to canonical location within file.  Reformat testcase based on comments.
   * f6e5bf8 [APPROVAL] OSS bbldcu_initial_development-drqs-64659538 to master
   * 2b8b55e [APPROVAL] bbldcu_initial_development-drqs-64659538 to master
   * 21cbc51 [APPROVAL] INTERNAL pending/master/fixing_bsltf_testing_assert_in_dtor_drqs67271958 to master
@@ -928,6 +945,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 6eabc0f [APPROVAL] OSS pending/master/bdlb_guidutil-stlport-fix-drqs-65917200 to master
   * ff110b9 [APPROVAL] pending/master/bdlb_guidutil-stlport-fix-drqs-65917200 to master
   * bf283f2 [APPROVAL] master-remove-atomics-from-logIfProblematic-drqs-66019213 to master
+  * 635b5e3 apply Hy review comments and bounds-check locationId
   * a4af946 [APPROVAL] OSS pending/master/bdlc_packedintarray_remove_iterator_category to master
   * 2a3a906 [APPROVAL] pending/master/bdlc_packedintarray_remove_iterator_category to master
   * a33be5a [APPROVAL] OSS reorganize-bde-oss-tools-drqs-64972737 to master
@@ -1144,6 +1162,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * fbcdd43 [APPROVAL] pending/master/enable_hash_const_char_star_drqs59061791 to master
   * af208d9 [APPROVAL] OSS pending/master/remove-gyp-remnants-drqs-59265638 to master
   * 81767c7 [APPROVAL] pending/master/remove-gyp-remnants-drqs-59265638 to master
+  * 9e4b95e fixed typos and reorganized location of methods
   * ba9ac03 [APPROVAL] OSS bsls_log-typos-drqs-60947360 to master
   * 26ea036 [APPROVAL] bsls_log-typos-drqs-60947360 to master
   * 41f6a34 [APPROVAL] INTERNAL pending/master/bdlt_date-proleptic-instrumentation-drqs-59817558 to master
@@ -1515,6 +1534,7 @@ bsl-internal (2.21.0.0.beta.1) git; urgency=low
   * b437adc [APPROVAL] pending/master/ostream-decimal-flags to master
   * f4975b1 Removed old version of multiplyByPowerOf10.
   * f5a92af [APPROVAL] OSS master to master
+  * c6bc9cb bslstl_function: Refactor swap() and moveInit(). Swap is still not avoiding memory allocations or functor moves when possible, so this is only a checkpoint for swap() implementation.
   * 3c48e29 [APPROVAL] pending/master/bdldfp-performance-tests to master
   * 356a1b7 [APPROVAL] INTERNAL rebase-forward_std_names-drqs-46623495 to master
   * 67eb6f5 [APPROVAL] rebase-forward_std_names-drqs-46623495 to master
