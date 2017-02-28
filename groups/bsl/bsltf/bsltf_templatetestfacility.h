@@ -539,6 +539,10 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_nonassignabletesttype.h>
 #endif
 
+#ifndef INCLUDED_BSLTF_NONCOPYCONSTRUCTIBLETESTTYPE
+#include <bsltf_noncopyconstructibletesttype.h>
+#endif
+
 #ifndef INCLUDED_BSLTF_NONDEFAULTCONSTRUCTIBLETESTTYPE
 #include <bsltf_nondefaultconstructibletesttype.h>
 #endif
@@ -812,6 +816,7 @@ void debugprint(const MovableTestType& obj);
 void debugprint(const MoveOnlyAllocTestType& obj);
 void debugprint(const NonTypicalOverloadsTestType& obj);
 void debugprint(const NonAssignableTestType& obj);
+void debugprint(const NonCopyConstructibleTestType& obj);
 void debugprint(const NonDefaultConstructibleTestType& obj);
 void debugprint(const NonEqualComparableTestType& obj);
 void debugprint(const SimpleTestType& obj);
@@ -1089,6 +1094,9 @@ void debugprint(const UnionTestType& obj);
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
                                           bsltf::NonTypicalOverloadsTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                         bsltf::NonCopyConstructibleTestType) \
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
                                       bsltf::NonDefaultConstructibleTestType)
@@ -1435,7 +1443,7 @@ void TemplateTestFacility::emplace(MethodPtr *address,
     emplace(address, identifier, bsl::allocator<MethodPtr>(allocator));
 }
 
-#if 0           
+#if 0
 // TBD: still working on this as part of C++11 project but should not affect
 //      component test drivers
 template <class ALLOCATOR>
@@ -1979,6 +1987,15 @@ int TemplateTestFacility::getIdentifier<bsltf::NonAssignableTestType>(
 template <>
 inline
 int TemplateTestFacility::getIdentifier<
+    bsltf::NonCopyConstructibleTestType>(
+                             const bsltf::NonCopyConstructibleTestType& object)
+{
+    return object.data();
+}
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<
     bsltf::NonDefaultConstructibleTestType>(
                           const bsltf::NonDefaultConstructibleTestType& object)
 {
@@ -2214,6 +2231,12 @@ void debugprint(const NonAssignableTestType& obj)
 }
 
 inline
+void debugprint(const NonCopyConstructibleTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
 void debugprint(const NonDefaultConstructibleTestType& obj)
 {
     printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
@@ -2238,7 +2261,6 @@ void debugprint(const EmplacableTestType& obj)
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif
