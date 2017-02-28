@@ -1,8 +1,16 @@
-bsl-internal (3.0.15) unstable; urgency=low
+bsl-internal (3.0.15.1) unstable; urgency=low
 
+  * 08c16ec Merge pull request #1016 from mgiroux/review/bump-patchversion-to-3.0.15
+  * 14fb3db bump patch version
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 28 Feb 2017 11:21:32 -0500
+
+bsl-internal (3.0.15) git; urgency=low
+
+  * c002860 Changelog for version 3.0.15
   * 97388f7 Merge pull request #994 from mgiroux/make-return-types-const
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 23 Feb 2017 12:49:22 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 28 Feb 2017 11:13:38 -0500
 
 bsl-internal (3.0.14.0) git; urgency=low
 
