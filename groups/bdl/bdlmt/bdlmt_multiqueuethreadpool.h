@@ -358,10 +358,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BSLS_SPINLOCK
-#include <bsls_spinlock.h>
-#endif
-
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
 #endif
