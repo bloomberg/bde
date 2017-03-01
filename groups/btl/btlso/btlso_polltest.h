@@ -2,10 +2,10 @@
 #ifndef INCLUDED_BTLSO_POLLTEST
 #define INCLUDED_BTLSO_POLLTEST
 
-#ifndef INCLUDED_BDES_IDENT
-#include <bdes_ident.h>
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
 #endif
-BDES_IDENT("$Id: $")
+BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

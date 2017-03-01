@@ -197,7 +197,7 @@ BSLS_IDENT("$Id: $")
     #endif
 
     // BDE_VERIFY pragma: push
-    // BDE_VERIFY pragma: -SEG02   // <poll.h> vs. <sys/poll.h>
+    // BDE_VERIFY pragma: -SEG02   // <poll.h> versus <sys/poll.h>
     #ifndef INCLUDED_SYS_POLL
         #include <sys/poll.h>
         #define INCLUDED_SYS_POLL
