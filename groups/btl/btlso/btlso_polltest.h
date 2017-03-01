@@ -2,10 +2,14 @@
 #ifndef INCLUDED_BTLSO_POLLTEST
 #define INCLUDED_BTLSO_POLLTEST
 
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
+#ifndef INCLUDED_BDES_IDENT
+#include <bdes_ident.h>
 #endif
-BSLS_IDENT("$Id: $")
+BDES_IDENT("$Id: $")
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include <btlscm_version.h>
+#endif
 
 //@PURPOSE: Provide a location for AIX <sys/poll.h> macro testing.
 //
@@ -14,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a location for verifying that headers
 // that include <sys/poll.h> on AIX work correctly.  Note that this component
 // does not define any types or functions.
-
-#ifndef INCLUDED_BTLSCM_VERSION
-#include <btlscm_version.h>
-#endif
 
 #endif
 

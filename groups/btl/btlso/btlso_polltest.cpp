@@ -1,8 +1,8 @@
 // btlso_polltest.cpp                                                 -*-C++-*-
 #include <btlso_polltest.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(btlso_polltest_cpp,"$Id$ $CSID$")
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(btlso_polltest_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace btlso {
