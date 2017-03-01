@@ -28,7 +28,6 @@
 //  using namespace bsl;
 
 using namespace BloombergLP;
-using namespace BloombergLP::bsltf;
 
 //=============================================================================
 //                             TEST PLAN
@@ -96,17 +95,21 @@ using namespace BloombergLP::bsltf;
 // [ 3] BSLIM_TESTUTIL_T_
 //
 // FREE OPERATORS
-// [ 8] ostream& operator<<(str, const EnumeratedTestType::Enum&);
-// [ 8] ostream& operator<<(str, const UnionTestType&);
-// [ 8] ostream& operator<<(str, const SimpleTestType&);
-// [ 8] ostream& operator<<(str, const AllocTestType&);
-// [ 8] ostream& operator<<(str, const BitwiseMoveableTestType&);
 // [ 8] ostream& operator<<(str, const AllocBitwiseMoveableTestType&);
-// [ 8] ostream& operator<<(str, const NonTypicalOverloadsTestType&);
+// [ 8] ostream& operator<<(str, const AllocTestType&);
+// [ 8] ostream& operator<<(str, const BitwiseCopyableTestType&);
+// [ 8] ostream& operator<<(str, const BitwiseMoveableTestType&);
+// [ 8] ostream& operator<<(str, const EnumeratedTestType::Enum&);
+// [ 8] ostream& operator<<(str, const MovableAllocTestType&);
+// [ 8] ostream& operator<<(str, const MovableTestType&);
+// [ 8] ostream& operator<<(str, const MoveOnlyAllocTestType&);
 // [ 8] ostream& operator<<(str, const NonAssignableTestType&);
 // [ 8] ostream& operator<<(str, const NonCopyConstructibleTestType&);
 // [ 8] ostream& operator<<(str, const NonDefaultConstructibleTestType&);
 // [ 8] ostream& operator<<(str, const NonEqualComparableTestType&);
+// [ 8] ostream& operator<<(str, const NonTypicalOverloadsTestType&);
+// [ 8] ostream& operator<<(str, const SimpleTestType&);
+// [ 8] ostream& operator<<(str, const UnionTestType&);
 //-----------------------------------------------------------------------------
 // [ 9] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -863,105 +866,132 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 For each 'bsltf' test type, create an object of such a type
         //:   having a unique value and stream its value into a
-        //:   'bsl::stringstream'.  Verify that the string output to the stream
-        //:   has the expected value.  (C-1)
+        //:   'bsl::ostringstream'.  Verify that the string output to the
+        //:   stream has the expected value.  (C-1)
         //
         // Testing:
-        //   ostream& operator<<(str, const EnumeratedTestType::Enum&);
-        //   ostream& operator<<(str, const UnionTestType&);
-        //   ostream& operator<<(str, const SimpleTestType&);
-        //   ostream& operator<<(str, const AllocTestType&);
-        //   ostream& operator<<(str, const BitwiseMoveableTestType&);
         //   ostream& operator<<(str, const AllocBitwiseMoveableTestType&);
-        //   ostream& operator<<(str, const NonTypicalOverloadsTestType&);
+        //   ostream& operator<<(str, const AllocTestType&);
+        //   ostream& operator<<(str, const BitwiseCopyableTestType&);
+        //   ostream& operator<<(str, const BitwiseMoveableTestType&);
+        //   ostream& operator<<(str, const EnumeratedTestType::Enum&);
+        //   ostream& operator<<(str, const MovableAllocTestType&);
+        //   ostream& operator<<(str, const MovableTestType&);
+        //   ostream& operator<<(str, const MoveOnlyAllocTestType&);
         //   ostream& operator<<(str, const NonAssignableTestType&);
         //   ostream& operator<<(str, const NonCopyConstructibleTestType&);
         //   ostream& operator<<(str, const NonDefaultConstructibleTestType&);
         //   ostream& operator<<(str, const NonEqualComparableTestType&);
+        //   ostream& operator<<(str, const NonTypicalOverloadsTestType&);
+        //   ostream& operator<<(str, const SimpleTestType&);
+        //   ostream& operator<<(str, const UnionTestType&);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << bsl::endl
                                << "OUTPUT ('<<') OPERATORS" << bsl::endl
                                << "=======================" << bsl::endl;
 
-        EnumeratedTestType::Enum o1 =
-                     TemplateTestFacility::create<EnumeratedTestType::Enum>(1);
+        using namespace BloombergLP::bsltf;
 
-        UnionTestType o2 = TemplateTestFacility::create<UnionTestType>(2);
+        AllocBitwiseMoveableTestType o1 =
+                 TemplateTestFacility::create<AllocBitwiseMoveableTestType>(1);
 
-        SimpleTestType o3 = TemplateTestFacility::create<SimpleTestType>(3);
+        AllocTestType o2 = TemplateTestFacility::create<AllocTestType>(2);
 
-        AllocTestType o4 = TemplateTestFacility::create<AllocTestType>(4);
+        BitwiseCopyableTestType o3 =
+                      TemplateTestFacility::create<BitwiseCopyableTestType>(3);
 
-        BitwiseMoveableTestType o5 =
-                      TemplateTestFacility::create<BitwiseMoveableTestType>(5);
+        BitwiseMoveableTestType o4 =
+                      TemplateTestFacility::create<BitwiseMoveableTestType>(4);
 
-        AllocBitwiseMoveableTestType o6 =
-                 TemplateTestFacility::create<AllocBitwiseMoveableTestType>(6);
+        EnumeratedTestType::Enum o5 =
+                     TemplateTestFacility::create<EnumeratedTestType::Enum>(5);
 
-        NonTypicalOverloadsTestType o7 =
-                  TemplateTestFacility::create<NonTypicalOverloadsTestType>(7);
+        MovableAllocTestType o6 =
+                         TemplateTestFacility::create<MovableAllocTestType>(6);
 
-        NonAssignableTestType o8 =
-                        TemplateTestFacility::create<NonAssignableTestType>(8);
+        MovableTestType o7 = TemplateTestFacility::create<MovableTestType>(7);
 
-        // NonCopyConstructibleTestType o9(9);
+        MoveOnlyAllocTestType o8(8);
 
-        NonDefaultConstructibleTestType o10 =
-             TemplateTestFacility::create<NonDefaultConstructibleTestType>(10);
+        NonAssignableTestType o9 =
+                        TemplateTestFacility::create<NonAssignableTestType>(9);
 
-        NonEqualComparableTestType o11 =
-                  TemplateTestFacility::create<NonEqualComparableTestType>(11);
+        NonCopyConstructibleTestType o10(10);
 
+        NonDefaultConstructibleTestType o11 =
+             TemplateTestFacility::create<NonDefaultConstructibleTestType>(11);
+
+        NonEqualComparableTestType o12 =
+                  TemplateTestFacility::create<NonEqualComparableTestType>(12);
+
+        NonTypicalOverloadsTestType o13 =
+                 TemplateTestFacility::create<NonTypicalOverloadsTestType>(13);
+
+        SimpleTestType o14 = TemplateTestFacility::create<SimpleTestType>(14);
+
+        UnionTestType o15 = TemplateTestFacility::create<UnionTestType>(15);
 
         bsl::ostringstream oss;
 
         oss << o1;
-        ASSERT(oss.str() == "1");
+        ASSERT( "1" == oss.str());
 
         oss.str("");
         oss << o2;
-        ASSERT(oss.str() == "2");
+        ASSERT( "2" == oss.str());
 
         oss.str("");
         oss << o3;
-        ASSERT(oss.str() == "3");
-
-        oss.str("");
-        oss << o3;
-        ASSERT(oss.str() == "3");
+        ASSERT( "3" == oss.str());
 
         oss.str("");
         oss << o4;
-        ASSERT(oss.str() == "4");
+        ASSERT( "4" == oss.str());
 
         oss.str("");
         oss << o5;
-        ASSERT(oss.str() == "5");
+        ASSERT( "5" == oss.str());
 
         oss.str("");
         oss << o6;
-        ASSERT(oss.str() == "6");
+        ASSERT( "6" == oss.str());
 
         oss.str("");
         oss << o7;
-        ASSERT(oss.str() == "7");
+        ASSERT( "7" == oss.str());
 
         oss.str("");
         oss << o8;
-        ASSERT(oss.str() == "8");
+        ASSERT( "8" == oss.str());
 
-        // oss.str("");
-        // oss << o9;
-        // ASSERT(oss.str() == "9");
+        oss.str("");
+        oss << o9;
+        ASSERT( "9" == oss.str());
 
         oss.str("");
         oss << o10;
-        ASSERT(oss.str() == "10");
+        ASSERT("10" == oss.str());
 
         oss.str("");
         oss << o11;
-        ASSERT(oss.str() == "11");
+        ASSERT("11" == oss.str());
+
+        oss.str("");
+        oss << o12;
+        ASSERT("12" == oss.str());
+
+        oss.str("");
+        oss << o13;
+        ASSERT("13" == oss.str());
+
+        oss.str("");
+        oss << o14;
+        ASSERT("14" == oss.str());
+
+        oss.str("");
+        oss << o15;
+        ASSERT("15" == oss.str());
 
       } break;
       case 7: {
