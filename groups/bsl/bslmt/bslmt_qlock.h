@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 //  int tryLock();  // Acquire the lock if possible.  Fail if lock is in use.
 //  void unlock();  // Free the lock.
 //..
-// As with other types of mutexes, only one thread my hold the lock at a time.
+// As with other types of mutexes, only one thread may hold the lock at a time.
 // Other threads attempting to call 'lock' will block until the lock becomes
 // available.  However, it is important to remember that the manipulators
 // listed above are only pass-through operations on the shared 'bslmt::QLock'
