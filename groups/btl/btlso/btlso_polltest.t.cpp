@@ -5,22 +5,22 @@
 #include <btlso_inetstreamsocket.h>
 #include <btlso_ipv4address.h>
 
+#include <bsl_iostream.h>
 #include <bsl_ostream.h>
 
 #include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
-#include <stdlib.h>    // 'atoi'
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component verifies that when btlso_defaulteventmanagerimpl.h (which
@@ -29,12 +29,12 @@ using namespace bsl;
 // references names defined as macros by <sys/poll.h> on AIX continues to
 // reference the correct names, despite the former file undefining those names.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] CONCERN: Correct use of events/revents macros.
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -46,9 +46,9 @@ static void aSsErT(int c, const char *s, int i)
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -61,18 +61,18 @@ static void aSsErT(int c, const char *s, int i)
                   << J << "\t" << #K << ": " << K << "\n"; \
                   aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define T_() cout << '\t' << flush            // Print tab without '\n'
 #define L_ __LINE__                           // Current line number
 
-//=============================================================================
+// ============================================================================
 //                      MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 

@@ -5,8 +5,7 @@
 BSLS_IDENT_RCSID(btlso_polltest_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
-
-namespace {
+namespace btlso {
 
 }  // close package namespace
 }  // close enterprise namespace

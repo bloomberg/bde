@@ -1,6 +1,6 @@
 // btlso_polltest.h                                                   -*-C++-*-
-#ifndef INCLUDED_BTLSO_POLLTEST     
-#define INCLUDED_BTLSO_POLLTEST     
+#ifndef INCLUDED_BTLSO_POLLTEST
+#define INCLUDED_BTLSO_POLLTEST
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
