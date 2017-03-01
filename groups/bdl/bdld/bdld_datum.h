@@ -2880,24 +2880,26 @@ Datum Datum::createDatetimeInterval(
     Datum result;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    bsls::Types::Int64 msValue = value.totalMilliseconds();
+    const int                usValue = value.microseconds();
+    const bsls::Types::Int64 msValue = value.totalMilliseconds();
 
-    if (/*value.totalMicroseconds() &&*/
+    if (usValue == 0 &&  // Low-resolution (old) interval
         Datum_Helpers32::storeSmallInt64(msValue,
                                          &result.d_as.d_short,
                                          &result.d_as.d_int)) {
-        result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
+        result.d_as.d_exponent =
+                                k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
     } else {
         void *mem = new (*basicAllocator) bdlt::DatetimeInterval(value);
         result = createExtendedDataObject(
-                                   e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
-                                   mem);
+                                e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
+                                mem);
     }
 #else   // BSLS_PLATFORM_CPU_32_BIT
-    result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
-    new (result.theInlineStorage()) bdlt::DatetimeInterval(value);
+        result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
+        result.d_as.d_int32 = value.days();
+        result.d_as.d_int64 = value.fractionalDayInMicroseconds();
 #endif  // BSLS_PLATFORM_CPU_32_BIT
-
     return result;
 }
 
@@ -3414,8 +3416,12 @@ bdlt::DatetimeInterval Datum::theDatetimeInterval() const
         extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC);
     return *static_cast<const bdlt::DatetimeInterval *>(d_as.d_cvp);
 #else  // BSLS_PLATFORM_CPU_32_BIT
-    return *reinterpret_cast<const bdlt::DatetimeInterval *>(
-                                                           theInlineStorage());
+    return bdlt::DatetimeInterval(d_as.d_int32,   // days
+                                  0,              // hours
+                                  0,              // minutes
+                                  0,              // seconds
+                                  0,              // milliseconds
+                                  d_as.d_int64);  // microseconds
 #endif // BSLS_PLATFORM_CPU_32_BIT
 }
 
