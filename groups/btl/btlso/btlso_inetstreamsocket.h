@@ -189,15 +189,31 @@ BSLS_IDENT("$Id: $")
     #include <bsl_c_sys_time.h>
     #endif
 
-    #ifndef INCLUDED_SYS_POLL
     #ifndef events
     #define BTLSO_INETSTREAMSOCKET_UNDEF_EVENTS
     #endif
     #ifndef revents
     #define BTLSO_INETSTREAMSOCKET_UNDEF_REVENTS
     #endif
-    #include <sys/poll.h>
-    #define INCLUDED_SYS_POLL
+
+    #ifndef INCLUDED_SYS_POLL
+        #include <sys/poll.h>
+        #define INCLUDED_SYS_POLL
+    #else
+        #ifdef BSLS_PLATFORM_OS_AIX
+            // The following set of checks mirror those found on AIX in
+            // <sys/poll.h>.  If <sys/poll.h> was already included by another
+            // of our headers, we were careful to undefine the 'events' and
+            // 'revents' macros since they cause unfortunate collisions, but
+            // here in this file we do want their effect.
+            #if _XOPEN_SOURCE_EXTENDED == 1 &&                                \
+                defined(_ALL_SOURCE) &&                                       \
+                !defined(__64BIT__) &&                                        \
+                !defined(__HIDE_SVR4_POLLFD_NAMES)
+                #define events reqevents   // renamed field in struct pollfd
+                #define revents rtnevents  // renamed field in struct pollfd
+            #endif
+        #endif
     #endif
 
     #ifndef INCLUDED_SYS_TYPES
