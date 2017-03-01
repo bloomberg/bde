@@ -47,7 +47,7 @@
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-
+#include <bsl_cmath.h>   // 'sqrt'
 #include <bsl_cstdlib.h>
 
 using bsl::cout;
@@ -110,6 +110,7 @@ using namespace BloombergLP;
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [14] USAGE EXAMPLE 1
+// [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -239,9 +240,9 @@ void incrementCounter(bsls::AtomicInt *counter)
     ++*counter;
 }
 
-static void waitTwiceAndIncrement(bslmt::Barrier  *barrier, 
+static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
                                   bsls::AtomicInt *counter,
-                                  int              incrementBy) 
+                                  int              incrementBy)
 {
     // Wait two times on the specified 'barrier' and increment the specified
     // 'counter' by the specified 'incrementBy' value.
@@ -260,13 +261,13 @@ static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
     }
 }
 
-static void waitPauseAndIncrement(bslmt::Barrier  *barrier, 
-                                  Obj             *pool, 
-                                  int              queueId, 
-                                  bsls::AtomicInt  *counter) 
+static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
+                                  Obj             *pool,
+                                  int              queueId,
+                                  bsls::AtomicInt  *counter)
 {
-    // Wait on the specified 'barrier', pause the queue with the specified 
-    // 'queueId' in the specified 'pool' and then increment the specified 
+    // Wait on the specified 'barrier', pause the queue with the specified
+    // 'queueId' in the specified 'pool' and then increment the specified
     // 'counter'.  Finally, wait on the barrier again.
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
@@ -773,7 +774,7 @@ class MQPoolPerformance {
 
     int numRThreads() const;
         // Return the number of reader threads
-    
+
     int numWThreads() const;
         // Return the number of writer threads
 
@@ -786,9 +787,8 @@ class MQPoolPerformance {
 
     // TEST FUNCTIONS
     static int testFastSearch(MQPoolPerformance *poolperf_p, VecIntType& args);
-        // Insert rows one at a time into the specified 'poolperf_p' using
-        // the specified 'args' vector.  Only value in 'args' is the current
-        // thread index, 0 to numThreads - 1.
+        // Run the fastSearch test functionInsert with the specified
+        // 'poolperf_p'.  The specified 'args' vector is empty.
 
 };  // END class MQPoolPerformance
 
@@ -917,7 +917,6 @@ void MQPoolPerformance::printResult()
     // print the output from the calculation
     bsl::cout << "Title=" << d_title << "\n";
     bsl::cout << bsl::fixed << bsl::setprecision(1);
-    //bsl::cout.imbue(bsl::locale::classic());
     bsl::cout << "Threads="   << d_numThreads
               << ",RThreads=" << d_numRThreads
               << ",WThreads=" << d_numWThreads << "\n";
@@ -990,9 +989,8 @@ const char* MQPoolPerformance::title() const
 int MQPoolPerformance::testFastSearch(MQPoolPerformance *poolperf_p,
                                  VecIntType&       args)
 {
-    // Insert rows one at a time into the specified 'poolperf_p' using the
-    // specified 'args' vector.  Only value in 'args' is the current thread
-    // index, 0 to numThreads - 1.
+    // Run the fastSearch test functionInsert with the specified
+    // 'poolperf_p'.  The specified 'args' vector is empty.
     bslma::TestAllocator ta(false);
 
     bsl::string WORDS[] = {
@@ -1265,7 +1263,7 @@ int main(int argc, char *argv[]) {
 #endif
             bsl::string FILES[] = {
                 PATH + "err.h", PATH + "errno.h", PATH + "error.h",
-				PATH + "zlib.h", PATH + "elf.h", PATH + "argp.h"
+                PATH + "zlib.h", PATH + "elf.h", PATH + "argp.h"
             };
             enum {
                 NUM_WORDS = sizeof WORDS / sizeof *WORDS,
@@ -1304,7 +1302,7 @@ int main(int argc, char *argv[]) {
       case 19: {
         // --------------------------------------------------------------------
         // FRONT
-        // 
+        //
         // Concerns:
         //   * 'addAtFront' positions a job at the front of the queue.
         //   * 'addAtFront' fails if the queue is disabled.
@@ -1323,7 +1321,7 @@ int main(int argc, char *argv[]) {
         }
 
         bslmt::ThreadAttributes   defaultAttrs;
-        
+
         Obj mX(defaultAttrs, 1, 1, INT_MAX);
         const Obj& X = mX;
         int rc = mX.start();
@@ -1341,7 +1339,7 @@ int main(int argc, char *argv[]) {
             id1 = mX.createQueue();
             // The first job we enqueue may or may not be dequeued before
             // 'addJobAtFront' executes.  Thus, the two possible values of
-            // 'value' are "abc" and "bac".  
+            // 'value' are "abc" and "bac".
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'b'));
@@ -1385,7 +1383,7 @@ int main(int argc, char *argv[]) {
 
             bsl::string value;
             mX.pauseQueue(id1);
-            
+
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'c'));
@@ -1411,7 +1409,7 @@ int main(int argc, char *argv[]) {
 
             bsl::string value;
             bslmt::Semaphore sema;
-            
+
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'a'));
@@ -1428,12 +1426,12 @@ int main(int argc, char *argv[]) {
 
             LOOP_ASSERT(value, "abc" == value);
         }
-      } break;            
+      } break;
 
       case 18: {
         // --------------------------------------------------------------------
         // PAUSE/RESUME
-        // 
+        //
         // Concerns:
         //   * Pausing a queue with jobs executing blocks until the current
         //     job finishes.
@@ -1448,14 +1446,14 @@ int main(int argc, char *argv[]) {
         //   * A pool having a paused queue may be stopped/shutdown.
         //
         // Plan:
-        //   Using an underlying threadpool with N threads, exercise the 
-        //   scenarios listed above.  Conditions that refer to a "paused 
+        //   Using an underlying threadpool with N threads, exercise the
+        //   scenarios listed above.  Conditions that refer to a "paused
         //   queue" should always have a job on the queue during the
         //   test.
         //
         //   Run the tests with N=1, to verify that no deadlocks exist that
         //   involve waiting for another threadpool thread, and N=2, to verify
-        //   no problems arise from putting two processing jobs into the 
+        //   no problems arise from putting two processing jobs into the
         //   threadpool for the same queue.
         // --------------------------------------------------------------------
         if (verbose) {
@@ -1467,9 +1465,9 @@ int main(int argc, char *argv[]) {
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadAttributes   detached;
         detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
-        
+
         enum { SHORT_SLEEP = 20 * 1000 }; // 20 ms
- 
+
        const struct Params {
             int d_numThreads;
             int d_numResumers;
@@ -1491,12 +1489,12 @@ int main(int argc, char *argv[]) {
                     " thread"  <<
                     (NUM_THREADS > 1 ? "s" : "") << endl;
             }
-            
+
             Obj mX(defaultAttrs, NUM_THREADS, NUM_THREADS, INT_MAX);
             const Obj& X = mX;
             int rc = mX.start();
             ASSERT(0 == rc);
-            
+
             bslmt::Barrier controlBarrier(2);
             bsls::AtomicInt count(0);
             int id1;
@@ -1515,17 +1513,17 @@ int main(int argc, char *argv[]) {
                         mX.resumeQueue(id);
                     }
                 }
-                
+
                 if (veryVerbose) {
                     cout << "\tPause blocks until job finishes" << endl;
                 }
-                Func job = bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
-                                                &controlBarrier, 
+                Func job = bdlf::BindUtil::bind(&waitTwiceAndIncrement,
+                                                &controlBarrier,
                                                 &count, 1);
                 id1 = mX.createQueue();
                 mX.enqueueJob(id1, job);
                 mX.enqueueJob(id1, job);
-                
+
                 // ensure the first job is running
                 controlBarrier.wait();
 
@@ -1534,7 +1532,7 @@ int main(int argc, char *argv[]) {
                 bslmt::ThreadUtil::create(
                                    &handle, detached,
                                    bdlf::BindUtil::bind(&waitPauseAndIncrement,
-                                                        &pauseBarrier, 
+                                                        &pauseBarrier,
                                                         &mX, id1, &pauseCount));
                 pauseBarrier.wait();
                 // Now the thread will invoke pauseQueue. Wait a little bit
@@ -1543,8 +1541,8 @@ int main(int argc, char *argv[]) {
                 bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
                 ASSERT(0 == pauseCount);
                 controlBarrier.wait();
-                
-                // Having unblocked the threadpool job, pause() should now be 
+
+                // Having unblocked the threadpool job, pause() should now be
                 // able to complete
                 pauseBarrier.wait();
                 ASSERT(1 == pauseCount);
@@ -1552,14 +1550,14 @@ int main(int argc, char *argv[]) {
 
                 // Pausing waited till the first job completed
                 ASSERT(1 == count);
-                
+
                 // At this point there's still one blocked job sitting on
                 // the queue. Try to wait for it for a short time -- this
                 // will fail, as the queue is paused.
                 ASSERT(0 != controlBarrier.timedWait(
                                       bsls::SystemTime::nowRealtimeClock()
                                       .addMicroseconds(SHORT_SLEEP)));
-                       
+
             }
             {
                 if (veryVerbose) {
@@ -1568,7 +1566,7 @@ int main(int argc, char *argv[]) {
                 }
                 int id2 = mX.createQueue();
                 bsls::AtomicInt count2(0);
-                Func job = 
+                Func job =
                     bdlf::BindUtil::bind(&incrementCounter, &count2);
 
                 mX.enqueueJob(id2, job);
@@ -1582,9 +1580,9 @@ int main(int argc, char *argv[]) {
                          << endl;
                 }
                 // Queue id1 is still paused
-                Func job = 
-                    bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
-                                         &controlBarrier, 
+                Func job =
+                    bdlf::BindUtil::bind(&waitTwiceAndIncrement,
+                                         &controlBarrier,
                                          &count, 2);
                 mX.enqueueJob(id1, job);
                 // Try a timedWait; adding a job should not cause anything to
@@ -1614,7 +1612,7 @@ int main(int argc, char *argv[]) {
                                                    &mX, id1, &numSuccesses),
                               NUM_RESUMERS);
                 tg.joinAll();
-                                                   
+
                 ASSERT(!X.isPaused(id1));
                 ASSERT(1 == numSuccesses);
                 controlBarrier.wait();
@@ -1633,12 +1631,12 @@ int main(int argc, char *argv[]) {
                 }
                 // Reset the count
                 count = 0;
-                
+
                 // Pause the queue again and submit another job
                 mX.pauseQueue(id1);
                 Func job = bdlf::BindUtil::bind(&incrementCounter, &count);
                 mX.enqueueJob(id1, job);
-                
+
                 // Drain; should return with no effect
                 mX.drain();
                 ASSERT(0 == count);
@@ -1665,13 +1663,13 @@ int main(int argc, char *argv[]) {
                 // though paused)
                 Func job = bdlf::BindUtil::bind(&incrementCounter, &count);
                 ASSERT(0 == mX.enqueueJob(id1, job));
-                
+
                 mX.shutdown();
                 ASSERT(0 == count);
             }
         }
       } break;
-          
+
       case 17: {
         // --------------------------------------------------------------------
         // TESTING UNDER STRESS
@@ -3229,7 +3227,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == X.numElements(id));
                 mX.stop();
                 ASSERT(1 == X.numElements(id));
-                
+
                 ASSERT(0 == mX.start());
                 mX.resumeQueue(id);
                 ASSERT(!X.isPaused(id));
@@ -3238,7 +3236,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == counter);
                 mX.stop();
             }
-                
+
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Re-start the pool.  Enqueue a job to the queue.  Then, delete
             // the queue.
@@ -3533,16 +3531,23 @@ int main(int argc, char *argv[]) {
       }  break;
       case -2: {
         // --------------------------------------------------------------------
-        // TESTING PERFORMANC OF USAGE EXAMPLE
+        // TESTING PERFORMANCE OF USAGE EXAMPLE
+        //   Tests performance of the usage example.  To provide control over
+        //   the test, command line parameters are used.
+        //   2nd parameter: multiply the number of jobs sumitted by this
+        //   number.
+        //   3rd parameter: number of repetitions to peform.
         //
         // Concerns:
-        //  That 'start' fails gracefully when an owned threadpool can't be
-        //  started.
+        //: 1 Calculates wall time, user time, and system time for inserting
+        //:   the given rows in bulk.
         //
         // Plan:
-        //  Try to start enough threads to exhaust the address space, and
-        //  observe the failure.  Note that this is a '-1' because allocating
-        //  that much RAM in the nightly build would be a problem.
+        //: 1 Create a MQPerformance object, and use testFastSearch.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE PERFORMANCE
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing Performance of usage example\n"
