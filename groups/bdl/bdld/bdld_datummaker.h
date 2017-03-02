@@ -104,10 +104,6 @@
 #include <bdld_decimal.h>
 #endif
 
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
-#include <bdlb_nullablevalue.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -1902,11 +1898,6 @@ class DatumMaker {
     bdld::Datum operator()(const char               *value) const;
         // Return a 'bdld::Datum' having the specified 'value'.  The returned
         // 'bdld::Datum' object will contain a deep-copy of 'value'.
-
-    template <class TYPE>
-    bdld::Datum operator()(const bdlb::NullableValue<TYPE>& value) const;
-        // Return a 'bdld::Datum' having the specified 'value', or null if
-        // 'value' is unset.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 	template <typename... ELEMENTS>
@@ -6208,13 +6199,6 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumMapEntry *value,
     *map.size()   = size;
     *map.sorted() = sorted;
     return bdld::Datum::adoptMap(map);
-}
-
-template <class TYPE>
-bdld::Datum DatumMaker::operator()(
-                                  const bdlb::NullableValue<TYPE>& value) const
-{
-    return value.isNull() ? (*this)() : (*this)(value.value());
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
