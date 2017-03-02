@@ -367,7 +367,6 @@ int main(int argc, char *argv[])
         //    operator()(const bslstl::StringRef&         value) const;
         //    operator()(const char                      *value) const;
         //    template <class TYPE>
-        //    operator()(const bdlb::NullableValue<TYPE>& value) const;
         //    bdld::Datum a(...) const;
         //    operator()(const bdld::Datum               *value,
         //               int                              size)  const;
@@ -404,10 +403,7 @@ int main(int argc, char *argv[])
         d = m(bdlt::Time(1, 1));
         d = m(bdld::DatumUdt(0, 1));
         d = m(bdld::Datum::createInteger(1));
-        typedef bdlb::NullableValue<bool> TriBool;
-        d = m(TriBool());
-        d = m(TriBool(true));
-        d = m(TriBool(false));
+
         ASSERT(tam.isInUseSame());
         ASSERT(dam.isInUseSame());
         tam.reset(); // Avoid false results if there was allocation above.
@@ -1085,7 +1081,6 @@ int main(int argc, char *argv[])
         //    operator()(const bslstl::StringRef&         value) const;
         //    operator()(const char                      *value) const;
         //    template <class TYPE>
-        //    operator()(const bdlb::NullableValue<TYPE>& value) const;
         //
         //---------------------------------------------------------------------
 
@@ -1129,12 +1124,6 @@ int main(int argc, char *argv[])
         ASSERT(bdld::Datum::createStringRef("foo", &sa) ==
                                                   m(bslstl::StringRef("foo")));
         ASSERT(bdld::Datum::createStringRef("foo", &sa) == m("foo"));
-
-        typedef bdlb::NullableValue<bool> TriBool;
-        ASSERT(bdld::Datum::createNull() == m(TriBool()));
-        ASSERT(bdld::Datum::createBoolean(true) == m(TriBool(true)));
-        ASSERT(bdld::Datum::createBoolean(false) == m(TriBool(false)));
-
 
       } break;
 
