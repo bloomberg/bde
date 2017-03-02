@@ -322,8 +322,9 @@ class Latch {
 
   public:
     // CREATORS
-    explicit Latch(int          count,
-    bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
+    explicit Latch(int                         count,
+                   bsls::SystemClockType::Enum clockType
+                                          = bsls::SystemClockType::e_REALTIME);
         // Create a latch that will synchronize on the specified 'count' of
         // events, and when 'count' events have been recorded will release any
         // waiting threads.  Optionally specify a 'clockType' indicating the
@@ -369,11 +370,11 @@ class Latch {
 
     int timedWait(const bsls::TimeInterval &timeout);
         // Block until the number of events that this latch is waiting for
-        // reaches 0, or until the specified 'timeout' expires.  Returns 0 if
-        // the number of events reached 0, -1 if timed out, and something else
-        // for an error.  The 'timeout' is an absolute time represented as an
-        // interval from some epoch, which is determined by the clock indicated
-        // at construction (see {Supported Clock-Types} in the component
+        // reaches 0, or until the specified 'timeout' expires.  Return 0 on
+        // success, -1 on timeout, and a non-zero value different from -1 if an
+        // error occurs.  The 'timeout' is an absolute time represented as an
+        // interval from some epoch as determined by the clock specified at
+        // construction (see {Supported Clock-Types} in the component
         // documentation).
 
     void wait();
