@@ -25,7 +25,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 37 components having 8 levels of physical
+ The 'bslalg' package currently has 38 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -44,36 +44,37 @@
      bslalg_constructorproxy
      bslalg_dequeiterator
      bslalg_hashtableanchor
-
-  3. bslalg_hashtablebucket
-     bslalg_scalarprimitives
      bslalg_selecttrait
      bslalg_typetraits                                   !DEPRECATED!
+
+  3. bslalg_hashtablebucket
+     bslalg_hastrait
+     bslalg_scalarprimitives
 
   2. bslalg_autoscalardestructor
      bslalg_bidirectionallinklistutil
      bslalg_bidirectionalnode
-     bslalg_hastrait
      bslalg_rangecompare
      bslalg_rbtreeanchor
+     bslalg_typetraithasstliterators                     !DEPRECATED!
 
   1. bslalg_bidirectionallink
      bslalg_containerbase
      bslalg_dequeimputil
      bslalg_functoradapter
      bslalg_hashutil
+     bslalg_hasstliterators
      bslalg_rbtreenode
      bslalg_scalardestructionprimitives
      bslalg_swaputil
-     bslalg_typetraitbitwisecopyable
-     bslalg_typetraitbitwiseequalitycomparable
+     bslalg_typetraitbitwisecopyable                     !DEPRECATED!
+     bslalg_typetraitbitwiseequalitycomparable           !DEPRECATED!
      bslalg_typetraitbitwisemoveable                     !DEPRECATED!
-     bslalg_typetraithaspointersemantics
-     bslalg_typetraithasstliterators
-     bslalg_typetraithastrivialdefaultconstructor
-     bslalg_typetraitnil
+     bslalg_typetraithaspointersemantics                 !DEPRECATED!
+     bslalg_typetraithastrivialdefaultconstructor        !DEPRECATED!
+     bslalg_typetraitnil                                 !DEPRECATED!
      bslalg_typetraitpair                                !DEPRECATED!
-     bslalg_typetraitusesbslmaallocator
+     bslalg_typetraitusesbslmaallocator                  !DEPRECATED!
 ..
 
 /Component Synopsis
@@ -112,7 +113,7 @@
 :      Provide basic parameters and primitive data structures for deques.
 :
 : 'bslalg_dequeiterator':
-:      Provide primitive data structures for implementing deques.
+:      Provide a primitive iterator over deque data structures.
 :
 : 'bslalg_dequeprimitives':
 :      Provide primitive algorithms that operate on deques.
@@ -131,6 +132,9 @@
 :
 : 'bslalg_hashutil':
 :      Provide a utility of hash functions.
+:
+: 'bslalg_hasstliterators':
+:      Provide a tag type used to detect STL-like iterators traits.
 :
 : 'bslalg_hastrait':
 :      Provide a meta function to identify if a type has a given trait.
@@ -159,25 +163,25 @@
 : 'bslalg_swaputil':
 :      Provide a simple to use 'swap' algorithm.
 :
-: 'bslalg_typetraitbitwisecopyable':
+: 'bslalg_typetraitbitwisecopyable':                     !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise copyable.
 :
-: 'bslalg_typetraitbitwiseequalitycomparable':
+: 'bslalg_typetraitbitwiseequalitycomparable':           !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise eq.-comparable.
 :
 : 'bslalg_typetraitbitwisemoveable':                     !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise moveable.
 :
-: 'bslalg_typetraithaspointersemantics':
+: 'bslalg_typetraithaspointersemantics':                 !DEPRECATED!
 :      Provide a trait to mark classes as having pointer semantics.
 :
-: 'bslalg_typetraithasstliterators':
+: 'bslalg_typetraithasstliterators':                     !DEPRECATED!
 :      Provide a trait to mark classes as having STL-like iterators.
 :
-: 'bslalg_typetraithastrivialdefaultconstructor':
+: 'bslalg_typetraithastrivialdefaultconstructor':        !DEPRECATED!
 :      Provide a trait to mark classes as having a trivial default ctor.
 :
-: 'bslalg_typetraitnil':
+: 'bslalg_typetraitnil':                                 !DEPRECATED!
 :      Provide a trait to mark classes as having no other traits.
 :
 : 'bslalg_typetraitpair':                                !DEPRECATED!
@@ -186,5 +190,5 @@
 : 'bslalg_typetraits':                                   !DEPRECATED!
 :      Provide compile-time traits that can be associated with types.
 :
-: 'bslalg_typetraitusesbslmaallocator':
+: 'bslalg_typetraitusesbslmaallocator':                  !DEPRECATED!
 :      Provide a trait to mark types that use 'bslma' allocators.

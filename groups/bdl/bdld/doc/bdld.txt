@@ -48,7 +48,7 @@
 :      Provide a type for an error code with an optional error message.
 :
 : 'bdld_datummaker':
-:      Provide a mechanism for easily creating 'dlct::Datum' objects.
+:      Provide a mechanism for easily creating 'bdld::Datum' objects.
 :
 : 'bdld_datummapbuilder':
 :      Provide a utility to build a 'Datum' object holding a map.

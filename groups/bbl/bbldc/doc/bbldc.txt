@@ -111,8 +111,8 @@
 : 'bbldc_terminateddaterangedaycountadapter':
 :      Provide a parameterized day-count convention implementation.
 :
-: 'bbldc_terminateddaycount':
-:      Provide a protocol for terminated day-count calculations.
+: 'bbldc_terminateddaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
 :
 : 'bbldc_terminatedisda30360eom':
 :      Provide stateless functions for ISDA 30/360 eom convention.

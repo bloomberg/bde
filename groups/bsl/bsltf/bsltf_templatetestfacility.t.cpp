@@ -47,6 +47,7 @@ using namespace BloombergLP::bsltf;
 // [ 7] void debugprint(const BitwiseMoveableTestType& obj);
 // [ 7] void debugprint(const AllocBitwiseMoveableTestType& obj);
 // [ 7] void debugprint(const NonTypicalOverloadsTestType& obj);
+// [ 7] void debugprint(const NonCopyConstructibleTestType& obj);
 // [ 7] void debugprint(const NonDefaultConstructibleTestType& obj);
 //
 // MACROS
@@ -394,7 +395,6 @@ void MyTestDriver<TYPE>::testCase2()
 
 namespace {
 
-
 template <class TYPE>
 struct TestHelper
 {
@@ -425,8 +425,6 @@ void TestHelper<TYPE>::breathingTest()
         ASSERTV(ti, value, ti == value);
     }
 };
-
-
 
 bool g_invokedFlags[50] = { 0 }; // flags used to indicate whether a template
                                  // instance has been invoked.
@@ -638,7 +636,7 @@ void TestHelper<TYPE>::test6Helper()
     bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
 
     bslma::TestAllocator objectAllocator("objectAllocator",
-                                          veryVeryVeryVerbose);
+                                         veryVeryVeryVerbose);
 
     bsls::ObjectBuffer<TYPE> buffer;
     TYPE &mX = buffer.object();
@@ -778,6 +776,7 @@ int main(int argc, char *argv[])
         //   void debugprint(const BitwiseMoveableTestType& obj);
         //   void debugprint(const AllocBitwiseMoveableTestType& obj);
         //   void debugprint(const NonTypicalOverloadsTestType& obj);
+        //   void debugprint(const NonCopyConstructibleTestType& obj);
         //   void debugprint(const NonDefaultConstructibleTestType& obj);
         // --------------------------------------------------------------------
 
@@ -799,14 +798,15 @@ int main(int argc, char *argv[])
         NonTypicalOverloadsTestType o7 =
                   TemplateTestFacility::create<NonTypicalOverloadsTestType>(7);
 
-        NonDefaultConstructibleTestType o8 =
-              TemplateTestFacility::create<NonDefaultConstructibleTestType>(8);
+        NonCopyConstructibleTestType o8(8);
 
-        MovableAllocTestType o9 =
-                         TemplateTestFacility::create<MovableAllocTestType>(9);
+        NonDefaultConstructibleTestType o9 =
+              TemplateTestFacility::create<NonDefaultConstructibleTestType>(9);
 
-        // MoveOnlyAllocTestType o10 =
-                     // TemplateTestFacility::create<MoveOnlyAllocTestType>(10);
+        MovableAllocTestType o10 =
+                        TemplateTestFacility::create<MovableAllocTestType>(10);
+
+        MoveOnlyAllocTestType o11(11);
 
         debugprint(o1);
         debugprint(o2);
@@ -817,6 +817,8 @@ int main(int argc, char *argv[])
         debugprint(o7);
         debugprint(o8);
         debugprint(o9);
+        debugprint(o10);
+        debugprint(o11);
 
         BSLS_BSLTESTUTIL_P(o1);
         BSLS_BSLTESTUTIL_P(o2);
@@ -826,6 +828,9 @@ int main(int argc, char *argv[])
         BSLS_BSLTESTUTIL_P(o6);
         BSLS_BSLTESTUTIL_P(o7);
         BSLS_BSLTESTUTIL_P(o8);
+        BSLS_BSLTESTUTIL_P(o9);
+        BSLS_BSLTESTUTIL_P(o10);
+        BSLS_BSLTESTUTIL_P(o11);
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
@@ -834,7 +839,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHODS 'create' and 'getIdentifier'
+        // CLASS METHOD 'emplace'
         //   Ensure that the class method 'TemplateTestFacility::emplace'
         //   overloads behave according to their contracts.
         //
@@ -868,6 +873,7 @@ int main(int argc, char *argv[])
         //   void emplace<TYPE>(TYPE *, int, bslma::Allocator *);
         //   void emplace<TYPE>(TYPE **, int, bslma::Allocator *);
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nCLASS METHOD 'emplace'"
                             "\n======================\n");
 
@@ -910,6 +916,7 @@ int main(int argc, char *argv[])
         //   void TemplateTestFacility::create(int value);
         //   int TemplateTestFacility::getIdentifier(const TYPE& object);
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nCLASS METHODS 'create' and 'getIdentifier'"
                             "\n=====================================\n");
 
@@ -921,8 +928,8 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES*' MACROS
-        //    Ensure that the macros defining the list of test types contain
-        //    all the types specified their contracts.
+        //   Ensure that the macros defining the list of test types contain all
+        //   the types specified their contracts.
         //
         // Concerns:
         //: 1 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' contains all of
@@ -1003,7 +1010,6 @@ int main(int argc, char *argv[])
                           BSLTF_TTF_TEST4_NUM_PRIMITIVE_TYPES,
                           BSLTF_TTF_TEST4_NUM_USER_DEFINED_TYPES);
 
-
         if (verbose)
             printf("\nTest BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR.\n");
 
@@ -1012,7 +1018,6 @@ int main(int argc, char *argv[])
                             test4Helper,
                             BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
         checkInvokedFlags(L_, 0, BSLTF_TTF_TEST4_NUM_REGULAR_TYPES);
-
 
         if (verbose)
             printf("\nTest BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD.\n");
@@ -1037,9 +1042,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // MACRO 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' Ensure that the
-        // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro behave according to
-        // its contract.
+        // MACRO 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'
+        //   Ensure that the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro
+        //   behave according to its contract.
         //
         // Concerns:
         //: 1 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' invokes instances of a

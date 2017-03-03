@@ -253,6 +253,10 @@ class EncoderOptions {
 
         e_COMPACT = baljsn::EncodingStyle::e_COMPACT,
         e_PRETTY  = baljsn::EncodingStyle::e_PRETTY
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_COMPACT = e_COMPACT
+      , BAEJSN_PRETTY  = e_PRETTY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {

@@ -25,7 +25,6 @@ BSLS_IDENT("$Id: $")
 //
 // Refer to the details of the JSON encoding format supported by this utility
 // in the package documentation file (doc/baljsn.txt).
-//..
 //
 ///Usage
 ///-----

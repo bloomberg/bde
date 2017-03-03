@@ -35,6 +35,48 @@ BSLS_IDENT("$Id: $")
 // we emulate move semantics, but limit forwarding (in 'emplace') to 'const'
 // lvalues, and make no effort to emulate 'noexcept' or initializer-lists.
 //
+///Requirements on 'CONTAINER'
+///---------------------------
+// The 'bsl::queue' adapter can accept for its (optional) 'CONTAINER' template
+// parameter 'bsl::deque' (the default), 'bsl::vector', or other container
+// classes that support the following types and methods.
+//
+///Required Types
+/// - - - - - - -
+//: o 'value_type'
+//: o 'reference'
+//: o 'const_reference'
+//: o 'size_type'
+//: o 'allocator_type' (if any 'queue' constructor taking an allocator is used)
+//
+///Required Methods, Free Operators, and Free Functions
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+//: o 'void push_back(const value_type&)' (and variant taking rvalue reference)
+//: o 'void pop_front()'
+//: o 'reference front()'
+//: o 'reference back()'
+//: o 'bool empty() const'
+//: o 'size_type size() const'
+//: o 'const_reference front() const'
+//: o 'const_reference back()  const'
+//: o 'emplace_back'
+//: o copy-assignment and move-assignment operators
+//: o free '==', '!=', '<', '>', '<=', '>=' operators
+//: o free 'swap' function (found via ADL with 'std::swap' in the lookup set)
+//
+///Requirements on 'VALUE'
+///-----------------------
+// If a type is specified for the 'CONTAINER' template parameter, a type
+// equivalent to 'CONTAINER::value_type' must be specified for 'VALUE' or else
+// compilation failure will result.
+//
+// The following term is used to more precisely specify the requirements on
+// template parameter types in function-level documentation:
+//
+//: *equality-comparable*:
+//:   The type provides an equality-comparison operator that defines an
+//:   equivalence relationship and is both reflexive and transitive.
+//
 ///Memory Allocation
 ///-----------------
 // The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
@@ -46,29 +88,6 @@ BSLS_IDENT("$Id: $")
 // to use 'bslma' style allocators should use 'bsl::allocator' as the
 // 'ALLOCATOR' template parameter, providing a C++11 standard-compatible
 // adapter for a 'bslma::Allocator' object.
-//
-///Operations
-///----------
-// The C++11 standard [queue.defn] declares any container type supporting
-// operations 'front', 'back', 'push_back' and 'pop_front' can be used to
-// instantiate the parameterized type 'CONTAINER'.  Below is a list of public
-// methods of 'queue' class that effectively forward their implementations to
-// corresponding operations in the held container (referenced as 'c').
-//..
-//  +--------------------------------------+---------------------------+
-//  | Public methods in 'queue'            | Operation in 'CONTAINER'  |
-//  +======================================+===========================+
-//  | void push(const value_type& value);  | c.push_back(value);       |
-//  | void pop();                          | c.pop_front();            |
-//  | reference front();                   | c.front();                |
-//  | reference back();                    | c.back();                 |
-//  +--------------------------------------+---------------------------+
-//  | bool empty() const;                  | c.empty();                |
-//  | size_type size() const;              | c.size();                 |
-//  | const_reference front() const;       | c.front();                |
-//  | const_reference back()  const;       | c.back();                 |
-//  +--------------------------------------+---------------------------+
-//..
 //
 ///Usage
 ///-----
@@ -351,7 +370,7 @@ class queue {
         // unspecified state.  Note that a 'bslma::Allocator *' can be supplied
         // for 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
         // 'bsl::allocator' (the default).  Also note that this method assumes
-        // that 'CONTAINER' has a move constructor.  Finally note that if
+        // that 'CONTAINER' has a move constructor.  Also note that if
         // 'CONTAINER::allocator_type' does not exist, this constructor is
         // disabled.
 
@@ -367,7 +386,7 @@ class queue {
         // Note that a 'bslma::Allocator *' can be supplied for
         // 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
         // 'bsl::allocator' (the default).  Also note that this method assumes
-        // that 'CONTAINER' has a move constructor.  Finally note that if
+        // that 'CONTAINER' has a move constructor.  Also note that if
         // 'CONTAINER::allocator_type' does not exist, this constructor is
         // disabled.
 
