@@ -20,14 +20,14 @@
  just alphabetical.
 ..
   3. baljsn_decoder
+     baljsn_encoder
 
-  2. baljsn_encoder
+  2. baljsn_printutil
      baljsn_tokenizer
 
   1. baljsn_decoderoptions
      baljsn_encoderoptions
      baljsn_parserutil
-     baljsn_printutil
 ..
 
 /Component Synopsis

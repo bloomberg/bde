@@ -1546,9 +1546,11 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
         }
 
         ASSERT(numNeeded);
+        ASSERT(blob);
         ASSERT(0 < blob->length());
 
-        ASSERT(0 == d_channel_p->write(*blob));
+        int rc = d_channel_p->write(*blob);
+        ASSERT(0 == rc);
 
         *numNeeded   = 1;
         btlb::BlobUtil::erase(blob, 0, blob->length());
@@ -1678,12 +1680,13 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
                       bslma::Allocator *basicAllocator = 0);
             // Create an echo server that listens for incoming connections on
             // the specified 'portNumber' managing up to the specified
-            // 'numConnections' simultaneous connections.  The echo server will
-            // use the specified 'coutLock' to synchronize access to the
-            // standard output.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.  The behavior is undefined
-            // unless coutLock is not 0.
+            // 'numConnections' simultaneous connections.  Pass the specified
+            // 'reuseAddressFlag' to set the 'REUSE_ADDRESS' socket option to
+            // the listening socket.  The echo server will use the specified
+            // 'coutLock' to synchronize access to the standard output.
+            // Optionally specify a 'basicAllocator' used to supply memory.  If
+            // 'basicAllocator' is 0, the currently installed default allocator
+            // is used.
 
         ~my_EchoServer();
             // Destroy this server.
@@ -1779,14 +1782,17 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
                          bdlf::MemFnUtil::memFn(&my_EchoServer::sessionStateCb,
                                                 this);
 
-        ASSERT(0 == d_sessionPool_p->start());
+        int rc = d_sessionPool_p->start();
+        ASSERT(0 == rc);
+
         int handle;
-        ASSERT(0 == d_sessionPool_p->listen(&handle,
-                                            sessionStateCb,
-                                            portNumber,
-                                            numConnections,
-                                            reuseAddressFlag,
-                                            &d_sessionFactory));
+        rc = d_sessionPool_p->listen(&handle,
+                                     sessionStateCb,
+                                     portNumber,
+                                     numConnections,
+                                     reuseAddressFlag,
+                                     &d_sessionFactory);
+        ASSERT(0 == rc);
 
         d_portNumber = d_sessionPool_p->portNumber(handle);
     }
@@ -1826,11 +1832,16 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
         const char STRING[] = "Hello World!";
 
         const btlso::IPv4Address ADDRESS("127.0.0.1", echoServer.portNumber());
-        ASSERT(0 == socket->connect(ADDRESS));
-        ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+        int rc = socket->connect(ADDRESS);
+        ASSERT(0 == rc);
+
+        int numBytes = socket->write(STRING, sizeof(STRING));
+        ASSERT(sizeof(STRING) == numBytes);
 
         char readBuffer[sizeof(STRING)];
-        ASSERT(sizeof(STRING) == socket->read(readBuffer, sizeof(STRING)));
+        numBytes = socket->read(readBuffer, sizeof(STRING));
+        ASSERT(sizeof(STRING) == numBytes);
         ASSERT(0 == bsl::strcmp(readBuffer, STRING));
 
         factory.deallocate(socket);
@@ -1979,14 +1990,14 @@ int main(int argc, char *argv[])
             btlso::InetStreamSocketFactory<btlso::IPv4Address> socketFactory;
             btlso::StreamSocket<btlso::IPv4Address> *socket =
             socketFactory.allocate();
-                
+
             rc = socket->connect(ADDRESS);
             ASSERT(0 == rc);
-                
+
             barrier.wait();
 
             int numWritten = 0;
-                
+
             // Write 1 MB
             const int BUF_SIZE = 32768;
             const char BUFFER[BUF_SIZE] = { 'Z' };
@@ -1997,7 +2008,7 @@ int main(int argc, char *argv[])
                     numWritten += rc;
                 }
             }
-                
+
             barrier.wait();
             socketFactory.deallocate(socket);
             const int TA_MAX_BYTES = testAllocator.numBytesMax();

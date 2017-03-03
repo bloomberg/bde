@@ -19,6 +19,7 @@ btlso_ipresolutioncache
 btlso_ipv4address
 btlso_lingeroptions
 btlso_platform
+btlso_polltest
 btlso_resolveutil
 btlso_sockethandle
 btlso_socketimputil

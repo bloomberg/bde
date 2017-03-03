@@ -49,13 +49,13 @@ BSLS_IDENT("$Id: $")
 // general, is not a C-style string.  Moreover, the notion of a null-string
 // value is not supported.
 //
-// The address and extent of the string referenced by 'bslstl::StringRef' are
-// indicated by the 'data' and 'length' accessors, respectively.  The
-// referenced string is also indicated by the 'begin' and 'end' accessors that
-// return STL-compatible iterators to the beginning of the string and one
-// character past the end of the string, respectively.  An overloaded
-// 'operator[]' is also provided for direct by-index access to individual
-// characters in the string.
+// The address of the string referenced by 'bslstl::StringRef' is indicated by
+// the 'data' accessor.  Its extent is indicated by the 'length' and 'size'
+// accessors.  The referenced string is also indicated by the 'begin' and 'end'
+// accessors that return STL-compatible iterators to the beginning of the
+// string and one character past the end of the string, respectively.  An
+// overloaded 'operator[]' is also provided for direct by-index access to
+// individual characters in the string.
 //
 // Several overloaded free operators are provided for 'bslstl::StringRef'
 // objects (as well as variants for all combinations involving
@@ -550,6 +550,10 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Return the length of the string referred to by this object.  Note
         // that this call is equivalent to 'end() - begin()'.
 
+    size_type size() const;
+        // Return the number of characters in the string referred to by this
+        // object.  Note that this call is equivalent to 'end() - begin()'.
+
     int compare(const StringRefImp& other) const;
         // Compare this and 'other' string objects using a lexicographical
         // comparison and return a negative value if this string is less than
@@ -1009,6 +1013,14 @@ template <class CHAR_TYPE>
 inline
 typename StringRefImp<CHAR_TYPE>::size_type
     StringRefImp<CHAR_TYPE>::length() const
+{
+    return end() - begin();
+}
+
+template <class CHAR_TYPE>
+inline
+typename StringRefImp<CHAR_TYPE>::size_type
+    StringRefImp<CHAR_TYPE>::size() const
 {
     return end() - begin();
 }

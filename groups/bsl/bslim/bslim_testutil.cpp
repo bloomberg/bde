@@ -11,47 +11,49 @@ namespace bslim {
                         // class TestUtil
                         // --------------
 
-bool TestUtil::compareText(bslstl::StringRef lhs,  
-                           bslstl::StringRef rhs, 
+// CLASS METHODS
+bool TestUtil::compareText(bslstl::StringRef lhs,
+                           bslstl::StringRef rhs,
                            bsl::ostream&     errorStream)
 {
     bslstl::StringRef::size_type i;
 
-    for (i = 0; i < lhs.length() && i < rhs.length(); ++i) { 
-        if (lhs[i] != rhs[i]) { 
-            errorStream << "lhs: \"" << lhs << "\"\n" 
-                        << "rhs: \"" << rhs << "\"\n" 
-                        << "Strings differ at index (" << i << ") " 
-                        << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") " 
-                        << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
-                        << bsl::endl; 
-            return false;                                             // RETURN 
-        } 
-    } 
- 
-    if (i < rhs.length()) { 
-        errorStream << "lhs: \"" << lhs << "\"\n" 
-                    << "rhs: \"" << rhs << "\"\n" 
-                    << "Strings differ at index (" << i << ") " 
-                    << "lhs[i] = END-OF-STRING " 
-                    << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
-                    << bsl::endl; 
-        return false;                                                 // RETURN 
- 
-    } 
-    if (i < lhs.length()) { 
-        errorStream << "lhs: \"" << lhs << "\"\n" 
-                    << "rhs: \"" << rhs << "\"\n" 
-                    << "Strings differ at index (" << i << ") " 
-                    << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") " 
-                    << "rhs[i] = END-OF-STRING" 
-                    << bsl::endl; 
-        return false;                                                 // RETURN 
-    } 
-    return true; 
+    for (i = 0; i < lhs.length() && i < rhs.length(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            errorStream << "lhs: \"" << lhs << "\"\n"
+                        << "rhs: \"" << rhs << "\"\n"
+                        << "Strings differ at index (" << i << ") "
+                        << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                        << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                        << bsl::endl;
+            return false;                                             // RETURN
+        }
+    }
+
+    if (i < rhs.length()) {
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = END-OF-STRING "
+                    << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
+                    << bsl::endl;
+        return false;                                                 // RETURN
+    }
+
+    if (i < lhs.length()) {
+        errorStream << "lhs: \"" << lhs << "\"\n"
+                    << "rhs: \"" << rhs << "\"\n"
+                    << "Strings differ at index (" << i << ") "
+                    << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                    << "rhs[i] = END-OF-STRING"
+                    << bsl::endl;
+        return false;                                                 // RETURN
+    }
+
+    return true;
 }
 
-}  // close namespace bslim
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

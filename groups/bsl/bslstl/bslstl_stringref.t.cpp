@@ -60,6 +60,7 @@ using namespace bsl;  // automatically added by script
 // [10] const_reverse_iterator rbegin() const;
 // [10] const_reverse_iterator rend() const;
 // [ 3] size_type              length() const;
+// [ 3] size_type              size() const;
 // [ 3] int                    isEmpty() const;
 // [ 3]                        operator bsl::string() const;
 // [ 3]                        operator native_std::string() const;
@@ -590,8 +591,8 @@ void testBasicAccessors(bool verbose)
                            << "\n======================="
                            << std::endl;
 
-    if (verbose) std::cout << "\nTesting:\n\t'begin'\n\t'data'"
-                              "\n\t'end'\n\t'length'\n\t'empty'"
+    if (verbose) std::cout << "\nTesting:\n\t'begin'\n\t'data'\n\t'end'"
+                              "\n\t'length\n\t'size''\n\t'empty'"
                               "\n\t'operator bsl::string'"
                               "\n\t'operator native_std::string'"
                            << "\n= = = = = = = = = = = = = = = = = = = ="
@@ -607,6 +608,8 @@ void testBasicAccessors(bool verbose)
         ASSERT(ES.data()    == ES.begin());
         ASSERT(ES.end()     == TestData<CHAR>::emptyString);
         ASSERT(ES.length()  ==
+           native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
+        ASSERT(ES.size()    ==
            native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
         ASSERT(ES.empty());
         ASSERT(ES.isEmpty());
@@ -628,6 +631,7 @@ void testBasicAccessors(bool verbose)
         ASSERT(NES.data()    == NES.begin());
         ASSERT(NES.end()     == TestData<CHAR>::nonEmptyString + LEN);
         ASSERT(NES.length()  == LEN);
+        ASSERT(NES.size()    == LEN);
         ASSERT(!NES.empty());
         ASSERT(!NES.isEmpty());
 
@@ -3034,6 +3038,7 @@ int main(int argc, char *argv[])
         //      const_iterator data() const;
         //      const_iterator end() const;
         //      size_type      length() const;
+        //      size_type      size() const;
         //      int            empty() const;
         //      int            isEmpty() const;
         //      int            compare(other) const;

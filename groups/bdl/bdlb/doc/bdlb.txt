@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 27 components having 4 levels of physical
+ The 'bdlb' package currently has 28 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -38,13 +38,14 @@
      bdlb_functionoutputiterator
      bdlb_guid
      bdlb_hashutil
-     bdlb_nullinputiterator
-     bdlb_nulloutputiterator
      bdlb_literalutil
+     bdlb_nulloutputiterator
      bdlb_print
      bdlb_random
      bdlb_randomdevice
      bdlb_string
+     bdlb_stringrefutil
+     bdlb_testinputiterator
      bdlb_tokenizer
 ..
 
@@ -95,20 +96,17 @@
 : 'bdlb_hashutil':
 :      Provide a utility of hash functions.
 :
+: 'bdlb_literalutil':
+:      Provide utility routines for programming language literals.
+:
 : 'bdlb_nullableallocatedvalue':
 :      Provide a template for nullable allocated (out-of-place) objects.
 :
 : 'bdlb_nullablevalue':
 :      Provide a template for nullable (in-place) objects.
 :
-: 'bdlb_nullinputiterator':
-:      Provide a pure input iterator for an empty range.
-:
 : 'bdlb_nulloutputiterator':
 :      Provide an output iterator type that discards output.
-:
-: 'bdlb_literalutil':
-:      Provide utility routines for programming language literals.
 :
 : 'bdlb_print':
 :      Provide platform-independent stream utilities.
@@ -124,6 +122,12 @@
 :
 : 'bdlb_string':
 :      Provide utility functions on C-style and 'STL' strings.
+:
+: 'bdlb_stringrefutil':
+:      Provide utility functions on 'bslstl::StringRef'-erenced strings.
+:
+: 'bdlb_testinputiterator':
+:      Provide a pure input iterator for an empty range.
 :
 : 'bdlb_tokenizer':
 :      Provide access to user-described tokens via string references.
