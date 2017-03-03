@@ -488,15 +488,21 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     elements->push_back(
         Datum::createDatetime(Datetime(2015, 2, 1, 1, 1, 1, 1), allocator));
     elements->push_back(Datum::createDatetimeInterval(
-                                  DatetimeInterval(0, 0, 0, 0, 1), allocator));
+                               DatetimeInterval(0, 0, 0, 0, 0, 0), allocator));
     elements->push_back(Datum::createDatetimeInterval(
-                                  DatetimeInterval(0, 0, 0, 1, 0), allocator));
+                               DatetimeInterval(0, 0, 0, 0, 0, 1), allocator));
     elements->push_back(Datum::createDatetimeInterval(
-                                  DatetimeInterval(0, 0, 1, 0, 0), allocator));
+                               DatetimeInterval(0, 0, 0, 0, 1, 0), allocator));
     elements->push_back(Datum::createDatetimeInterval(
-                                  DatetimeInterval(0, 1, 0, 0, 0), allocator));
+                               DatetimeInterval(0, 0, 0, 1, 0, 0), allocator));
     elements->push_back(Datum::createDatetimeInterval(
-                                  DatetimeInterval(1, 0, 0, 0, 0), allocator));
+                               DatetimeInterval(0, 0, 1, 0, 0, 0), allocator));
+    elements->push_back(Datum::createDatetimeInterval(
+                               DatetimeInterval(0, 1, 0, 0, 0, 0), allocator));
+    elements->push_back(Datum::createDatetimeInterval(
+                               DatetimeInterval(1, 0, 0, 0, 0, 0), allocator));
+    elements->push_back(Datum::createDatetimeInterval(
+                               DatetimeInterval(1, 1, 1, 1, 1, 1), allocator));
     elements->push_back(
                     Datum::createDecimal64(BDLDFP_DECIMAL_DD(0.0), allocator));
     elements->push_back(
@@ -8446,11 +8452,11 @@ int main(int argc, char *argv[])
 { L_,  -9, -9, Datum::createDatetime(bdlt::Datetime(), &oa),
                                                  "01JAN0001_24:00:00.000000" },
 { L_,   0,  0, Datum::createDatetimeInterval(bdlt::DatetimeInterval(), &oa),
-                                                    "+0_00:00:00.000"     NL },
+                                                     "0_00:00:00.000000"  NL },
 { L_,  -8, -8, Datum::createDatetimeInterval(bdlt::DatetimeInterval(), &oa),
-                                                    "+0_00:00:00.000"     NL },
+                                                     "0_00:00:00.000000"  NL },
 { L_,  -9, -9, Datum::createDatetimeInterval(bdlt::DatetimeInterval(), &oa),
-                                                    "+0_00:00:00.000"        },
+                                                     "0_00:00:00.000000"     },
 { L_,   0,  0, Datum::createDecimal64(BDLDFP_DECIMAL_DD(12.345), &oa),
                                                     "12.345"              NL },
 { L_,  -8, -8, Datum::createDecimal64(BDLDFP_DECIMAL_DD(12.345), &oa),
