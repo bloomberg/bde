@@ -40,6 +40,10 @@ BSLS_IDENT("$Id: $")
 // 'STR', that represents any of the three possible string styles.  Note that
 // the pseudo-signature '(STR, STR)' represents nine overloaded signatures, not
 // three signatures.
+//
+// Note that functions involving case and classification deal only with base
+// ASCII characters; in particular UTF-8 encoded characters are not treated as
+// such.
 //..
 //  Method                        Purpose
 //  --------------------------    --------------------------------------------

@@ -12,10 +12,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_string_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
+#include <bdlb_chartype.h>
 
-#include <bsl_cctype.h>
-#include <bsl_cstring.h>
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -32,10 +31,8 @@ bool String::areEqualCaseless(const char *lhsString,
 
     int i = 0;
     while (lhsString[i]) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toLower(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toLower(rhsString[i]);
         if (lhs != rhs) {
             return false;                                             // RETURN
         }
@@ -53,10 +50,8 @@ bool String::areEqualCaseless(const char *lhsString,
     BSLS_ASSERT(             0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toLower(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toLower(rhsString[i]);
         if (lhs != rhs || !lhs) {
             return false;                                             // RETURN
         }
@@ -79,10 +74,8 @@ bool String::areEqualCaseless(const char *lhsString,
     }
     int i = 0;
     while (i < lhsLength) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toLower(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toLower(rhsString[i]);
         if (lhs != rhs) {
             return false;                                             // RETURN
         }
@@ -116,10 +109,8 @@ int String::lowerCaseCmp(const char *lhsString, const char *rhsString)
 
     int i = 0;
     while (lhsString[i]) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toLower(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toLower(rhsString[i]);
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -137,10 +128,8 @@ int String::lowerCaseCmp(const char *lhsString,
     BSLS_ASSERT(             0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toLower(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toLower(rhsString[i]);
         if (lhs != rhs || !lhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -161,10 +150,8 @@ int String::lowerCaseCmp(const char *lhsString,
     int min = lhsLength < rhsLength ? lhsLength : rhsLength;
     int i = 0;
     while (i < min) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::tolower(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toLower(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toLower(rhsString[i]);
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -178,7 +165,7 @@ void String::ltrim(char *string)
     BSLS_ASSERT(string);
 
     int index = 0;
-    while (bsl::isspace(static_cast<unsigned char>(string[index]))) {
+    while (bdlb::CharType::isSpace(string[index])) {
         ++index;
     }
     bsl::size_t len = bsl::strlen(string + index);
@@ -192,8 +179,7 @@ void String::ltrim(char *string, int *length)
     BSLS_ASSERT(0 <= *length);
 
     int index = 0;
-    while (index < *length
-        && bsl::isspace(static_cast<unsigned char>(string[index]))) {
+    while (index < *length && bdlb::CharType::isSpace(string[index])) {
         ++index;
     }
     *length -= index;
@@ -209,8 +195,7 @@ void String::rtrim(char *string)
         ++index;
     }
     --index;
-    while (index >= 0
-                  && bsl::isspace(static_cast<unsigned char>(string[index]))) {
+    while (index >= 0 && bdlb::CharType::isSpace(string[index])) {
         string[index] = '\0';
         --index;
     }
@@ -224,8 +209,7 @@ void String::rtrim(const char *string, int *length)
 
     if (*length) {
         int index = *length - 1;
-        while (index >= 0
-                  && bsl::isspace(static_cast<unsigned char>(string[index]))) {
+        while (index >= 0 && bdlb::CharType::isSpace(string[index])) {
             --index;
         }
         *length = index + 1;
@@ -401,8 +385,7 @@ void String::toLower(char *string)
     BSLS_ASSERT(string);
 
     for (int i = 0; string[i]; ++i) {
-        string[i] = static_cast<char>(
-                          bsl::tolower(static_cast<unsigned char>(string[i])));
+        string[i] = bdlb::CharType::toLower(string[i]);
     }
 }
 
@@ -412,8 +395,7 @@ void String::toLower(char *string, int length)
     BSLS_ASSERT(          0 <= length);
 
     for (int i = 0; i < length; ++i) {
-        string[i] = static_cast<char>(
-                          bsl::tolower(static_cast<unsigned char>(string[i])));
+        string[i] = bdlb::CharType::toLower(string[i]);
     }
 }
 
@@ -422,8 +404,7 @@ void String::toUpper(char *string)
     BSLS_ASSERT(string);
 
     for (int i = 0; string[i]; ++i) {
-        string[i] = static_cast<char>(
-                          bsl::toupper(static_cast<unsigned char>(string[i])));
+        string[i] = bdlb::CharType::toUpper(string[i]);
     }
 }
 
@@ -433,8 +414,7 @@ void String::toUpper(char *string, int length)
     BSLS_ASSERT(          0 <= length);
 
     for (int i = 0; i < length; ++i) {
-        string[i] = static_cast<char>(
-                          bsl::toupper(static_cast<unsigned char>(string[i])));
+        string[i] = bdlb::CharType::toUpper(string[i]);
     }
 }
 
@@ -446,7 +426,7 @@ void String::trim(char *string)
     // set 'start', 'end', and 'trailing':
 
     char *start = string;    // will point to after initial spaces
-    while (bsl::isspace(static_cast<unsigned char>(*start))) {
+    while (bdlb::CharType::isSpace(*start)) {
         ++start;
     }
 
@@ -454,7 +434,7 @@ void String::trim(char *string)
     char *trailing = 0;      // will point to start of trailing spaces, or 0
                              // if there are none
     for (; *end; ++end) {
-        if (bsl::isspace(static_cast<unsigned char>(*end))) {
+        if (bdlb::CharType::isSpace(*end)) {
             if (!trailing) {
                 trailing = end;
             }
@@ -491,11 +471,11 @@ void String::skipLeadingTrailing(const char **begin, const char **end)
 
     --q;
 
-    while (q >= p && bsl::isspace(static_cast<unsigned char>(*q))) {
+    while (q >= p && bdlb::CharType::isSpace(*q)) {
         --q;
     }
 
-    while (p < q && bsl::isspace(static_cast<unsigned char>(*p))) {
+    while (p < q && bdlb::CharType::isSpace(*p)) {
         ++p;
     }
 
@@ -512,10 +492,8 @@ int String::upperCaseCmp(const char *lhsString, const char *rhsString)
 
     int i = 0;
     while (lhsString[i]) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::toupper(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::toupper(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toUpper(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toUpper(rhsString[i]);
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -533,10 +511,8 @@ int String::upperCaseCmp(const char *lhsString,
     BSLS_ASSERT(             0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::toupper(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::toupper(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toUpper(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toUpper(rhsString[i]);
         if (lhs != rhs || !lhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -557,10 +533,8 @@ int String::upperCaseCmp(const char *lhsString,
     int min = lhsLength < rhsLength ? lhsLength : rhsLength;
     int i = 0;
     while (i < min) {
-        unsigned char lhs = static_cast<unsigned char>(
-                       bsl::toupper(static_cast<unsigned char>(lhsString[i])));
-        unsigned char rhs = static_cast<unsigned char>(
-                       bsl::toupper(static_cast<unsigned char>(rhsString[i])));
+        unsigned char lhs = bdlb::CharType::toUpper(lhsString[i]);
+        unsigned char rhs = bdlb::CharType::toUpper(rhsString[i]);
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
