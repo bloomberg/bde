@@ -3063,7 +3063,7 @@ Datum Datum::createTime(const bdlt::Time& value)
     const bool rc = Datum_Helpers32::storeInt48(rawTime,
                                                 &result.d_as.d_short,
                                                 &result.d_as.d_int);
-    BSLS_ASSERT_SAFE(rc);
+    BSLS_ASSERT_SAFE(rc);  (void)rc;
 #else   // BSLS_PLATFORM_CPU_32_BIT
     result.d_as.d_type = e_INTERNAL_TIME;
     new (result.theInlineStorage()) bdlt::Time(value);
