@@ -70,6 +70,19 @@ BSLS_IDENT("$Id: $")
 // example below a latch is created with an event count that matches the number
 // of threads that will call 'arrive' on that latch.
 //
+///Supported Clock-Types
+///---------------------
+// The component 'bsls::SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -307,10 +320,16 @@ class Latch {
 
   public:
     // CREATORS
-    explicit Latch(int count);
+    explicit Latch(int                         count,
+                   bsls::SystemClockType::Enum clockType
+                                          = bsls::SystemClockType::e_REALTIME);
         // Create a latch that will synchronize on the specified 'count' of
         // events, and when 'count' events have been recorded will release any
-        // waiting threads.  The behavior is undefined unless '0 <= count'.
+        // waiting threads.  Optionally specify a 'clockType' indicating the
+        // type of the system clock against which the 'bsls::TimeInterval'
+        // timeouts passed to the 'timedWait' method are to be interpreted.  If
+        // 'clockType' is not specified then the realtime system clock is used.
+        // The behavior is undefined unless '0 <= count'.
 
     ~Latch();
         // Destroy this latch.  The behavior is undefined if any threads are
@@ -347,6 +366,15 @@ class Latch {
         // latch does not exceed the count with which it was initialized.  Note
         // that the initial count of events is supplied at construction.
 
+    int timedWait(const bsls::TimeInterval &timeout);
+        // Block until the number of events that this latch is waiting for
+        // reaches 0, or until the specified 'timeout' expires.  Return 0 on
+        // success, -1 on timeout, and a non-zero value different from -1 if an
+        // error occurs.  The 'timeout' is an absolute time represented as an
+        // interval from some epoch as determined by the clock specified at
+        // construction (see {Supported Clock-Types} in the component
+        // documentation).
+
     void wait();
         // Block until the number of events that this latch is waiting for
         // reaches 0.
@@ -379,9 +407,9 @@ class Latch {
 
 // CREATORS
 inline
-Latch::Latch(int count)
+Latch::Latch(int count, bsls::SystemClockType::Enum clockType)
 : d_mutex()
-, d_cond()
+, d_cond(clockType)
 , d_sigCount(count)
 {
     BSLS_ASSERT_SAFE(0 <= count);
