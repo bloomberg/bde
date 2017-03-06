@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Subbotin (osubbotin)
 //
 //@DESCRIPTION: This component provides a location to define a set of tests for
-// the inclusion of bsl standard library headers, and in particular to test
+// the inclusion of 'bsl' standard library headers, and in particular to test
 // types defined in 'bslstl'.  These tests are located in 'bslim' in order to
 // allow the standard library types to be included through the standard
 // '<bsl_*.h>' headers.  Note that this component does not define any types or
