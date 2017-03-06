@@ -34,7 +34,13 @@
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
 #include <bsl_c_string.h>
+
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
+// The header POSIX header <sys/time.h> is not available from Visual Studio.
+
 #include <bsl_c_sys_time.h>
+#endif
+
 #include <bsl_c_time.h>
 #include <bsl_c_wchar.h>
 #include <bsl_c_wctype.h>
@@ -59,7 +65,7 @@
 #include <bsl_ctime.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-// This standard header is not provided on most of platforms.
+// This standard header <cuchar> is not available on most of platforms.
 #include <bsl_cuchar.h>
 #endif
 

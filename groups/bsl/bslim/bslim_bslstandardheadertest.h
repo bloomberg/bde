@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a location for testing bsl standard library headers.
+//@PURPOSE: Provide a location for testing 'bsl' standard library headers.
 //
 //@CLASSES:
 //
@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // the inclusion of bsl standard library headers, and in particular to test
 // types defined in 'bslstl'.  These tests are located in 'bslim' in order to
 // allow the standard library types to be included through the standard
-// <bsl_*.h> headers.  Note that this component does not define any types or
+// '<bsl_*.h>' headers.  Note that this component does not define any types or
 // functions.
 
 
