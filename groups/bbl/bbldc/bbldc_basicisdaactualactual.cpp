@@ -35,7 +35,7 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                         + endYearDayDiff * daysInBeginYear;
     const int denominator = daysInBeginYear * daysInEndYear;
 
-    return numerator / static_cast<double>(daysInBeginYear * daysInEndYear);
+    return numerator / static_cast<double>(denominator);
 }
 
 }  // close package namespace
