@@ -1,5 +1,5 @@
-// bslim_containertest.cpp                                            -*-C++-*-
-#include <bslim_containertest.h>
+// bslim_bslstandardheadertest.cpp                                    -*-C++-*-
+#include <bslim_bslstandardheadertest.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
