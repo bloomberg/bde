@@ -688,7 +688,8 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // Return the thread handle of the dispatcher thread of this object.
 
     int isEnabled() const;
-        // Return 1 if the dispatch thread is created/running and 0 otherwise.
+        // Read the snapshot value of the state of the dispatcher thread and
+        // return 1 if it has been created or is running and 0 otherwise.
 
     bool hasTimeMetrics() const;
         // Return 'true' if the object returned by 'timeMetrics()' contains a
