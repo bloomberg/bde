@@ -221,7 +221,7 @@ void aSsErT(bool condition, const char *message, int line)
 // are salient to hashing tend to be the same as or a subset of the attributes
 // that are checked in 'operator=='.
 //..
-    bool operator==(const Point &lhs, const Point &rhs)
+    bool operator==(const Point& lhs, const Point& rhs)
         // Return true if the specified 'lhs' and 'rhs' have the same value.
         // Two 'Point' objects have the same value if they have the same x and
         // y coordinates.
@@ -237,7 +237,7 @@ void aSsErT(bool condition, const char *message, int line)
 // 'hashAppend' on them.
 //..
     template <class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+    void hashAppend(HASH_ALGORITHM& hashAlg, const Point& point)
         // Apply the specified 'hashAlg' to the specified 'point'
     {
         using bslh::hashAppend;
@@ -297,7 +297,7 @@ void aSsErT(bool condition, const char *message, int line)
 // Then, we define 'operator=='.  This time all of the data members are salient
 // to equality.
 //..
-    bool operator==(const Box &lhs, const Box &rhs)
+    bool operator==(const Box& lhs, const Box& rhs)
         // Return true if the specified 'lhs' and 'rhs' have the same value.
         // Two 'Box' objects have the same value if they have the same length,
         // width, and position.
@@ -315,7 +315,7 @@ void aSsErT(bool condition, const char *message, int line)
 // referenced algorithm functor.
 //..
     template <class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+    void hashAppend(HASH_ALGORITHM& hashAlg, const Box& box)
         // Apply the specified 'hashAlg' to the specified 'box'
     {
         using bslh::hashAppend;
@@ -776,7 +776,7 @@ namespace X {
     };
 
     template<class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM &hashAlg, A a)
+    void hashAppend(HASH_ALGORITHM& hashAlg, A a)
         // Do nothing with the specified 'hashAlg' and 'a'. This is a test
         // 'hashAppend' to ensure that the correct 'hashAppend' is picked up by
         // ADL.
@@ -788,7 +788,7 @@ namespace X {
 
 namespace Y {
     template<class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM &hashAlg, X::A a)
+    void hashAppend(HASH_ALGORITHM& hashAlg, X::A a)
         // Do nothing with the specified 'hashAlg' and 'a'. This is a test
         // 'hashAppend' that should not be picked up by ADL.
     {
