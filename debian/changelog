@@ -1,9 +1,17 @@
-bsl-internal (3.0.15.1) unstable; urgency=low
+bsl-internal (3.0.15.2) unstable; urgency=low
 
+  * 6e47c08 Merge pull request #1022 from afeher/fix-bdld_datummaker
+  * 73a2881 Merge pull request #1021 from hversche/pr/1020-rebased-releases/3.0.x
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Thu, 2 Mar 2017 17:07:36 -0500
+
+bsl-internal (3.0.15.1) git; urgency=low
+
+  * b8cfa78 Changelog for version 3.0.15.1
   * 08c16ec Merge pull request #1016 from mgiroux/review/bump-patchversion-to-3.0.15
   * 14fb3db bump patch version
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 28 Feb 2017 11:21:32 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 28 Feb 2017 11:26:12 -0500
 
 bsl-internal (3.0.15) git; urgency=low
 
