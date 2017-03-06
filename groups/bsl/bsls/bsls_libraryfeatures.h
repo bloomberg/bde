@@ -387,7 +387,8 @@ BSLS_IDENT("$Id: $")
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS' macro is
 // defined if *both* of the listed conditions are true:
 // defined if the '<atomic>' header provided by the native standard library
-// provides type aliases for all of the following precise bit-width atomic types:
+// provides type aliases for all of the following precise bit-width atomic
+// types:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -405,7 +406,7 @@ BSLS_IDENT("$Id: $")
 //:   o atomic_uintptr_t;
 //
 //: o Supported by the compiler vendor's STL implementation
-//:   o gcc 4.8
+//:   o gcc 5.4
 //:   o MSVC 2013
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
@@ -423,7 +424,7 @@ BSLS_IDENT("$Id: $")
 //: o 'at_quick_exit'
 //
 //: o Supported by the compiler vendor's STL implementation
-//:   o gcc 5.0
+//:   o gcc 5.4
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
@@ -555,26 +556,36 @@ BSLS_IDENT("$Id: $")
     // version/platform combination tested.  Assume universally available until
     // the day tool chains start removing this deprecated class template.
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
-
-    #if BSLS_PLATFORM_CMP_VERSION >= 40800
+#if defined(BSLS_PLATFORM_CMP_GNU)
+    #if (__STDC_VERSION__ >= 199901L)
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     #endif
+    #if defined(__GXX_EXPERIMENTAL_CXX0X__)
+        #if BSLS_PLATFORM_CMP_VERSION >= 40800
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+        #endif
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 50000
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-    #endif
+        #if BSLS_PLATFORM_CMP_VERSION >= 50000
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+        #endif
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 60000
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+        #if BSLS_PLATFORM_CMP_VERSION >= 50400
+            // Have not confirmed these features are in gcc 5.4+, but they are
+            // not available in gcc 5.3 (the most recent gcc installed on unix
+            // development hosts).  Setting this to be enabled beyond 5.3 to
+            // re-test this when it is appropriate.  (hversche 2017-03-06)
+
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+        #endif
+        #if BSLS_PLATFORM_CMP_VERSION >= 60000
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+        #endif
     #endif
 #endif
 
