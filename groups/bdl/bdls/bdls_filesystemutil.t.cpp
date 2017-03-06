@@ -2137,8 +2137,8 @@ int main(int argc, char *argv[])
         // creative file names to avoid collisions.  We can just create all our
         // temp files in the current working dir.
 
-        // The child process will chdir to 'origWorkingDirectory', which is the
-        // current directory it inherited from the parent process, so if it
+        // The child process will 'chdir' to 'origWorkingDirectory', which is
+        // the current directory it inherited from the parent process, so if it
         // refers to the same local file names, they will match.
 
         // It is important not to use '::tempFileName' here because otherwise

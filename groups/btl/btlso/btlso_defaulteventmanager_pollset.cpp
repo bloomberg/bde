@@ -379,8 +379,8 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
     uint32_t newMask = d_callbacks.getRegisteredEventMask(socketHandle);
     BSLS_ASSERT(1 >= bdlb::BitUtil::numBitsSet(newMask));
 
-    // Passing 'PS_DELETE' to pollset_ctl will erase the fd entirely. If there
-    // is an event remaining, we need to add it back.
+    // Passing 'PS_DELETE' to 'pollset_ctl' will erase the 'fd' entirely. If
+    // there is an event remaining, we need to add it back.
 
     ::poll_ctl ctl;
     ctl.cmd = PS_DELETE;

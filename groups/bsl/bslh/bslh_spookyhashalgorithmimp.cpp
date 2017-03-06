@@ -33,7 +33,8 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Third Party Doc
 ///---------------
 //
-// Spooky Hash A 128-bit non cryptographic hash, for checksums and table lookup
+// Spooky Hash
+// A 128-bit non cryptographic hash, for checksums and table lookup
 //
 // By Bob Jenkins.  Public domain.
 //   Oct 31 2010: published framework, disclaimer ShortHash isn't right

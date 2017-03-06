@@ -59,7 +59,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // SipHash reference C implementation
 //
 // Written in 2012 by Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-// Daniel J.  Bernstein <djb@cr.yp.to>
+// Daniel J. Bernstein <djb@cr.yp.to>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright
 // and related and neighboring rights to this software to the public domain

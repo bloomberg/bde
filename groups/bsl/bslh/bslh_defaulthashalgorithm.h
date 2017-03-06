@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // future releases.
 //
 // This class satisfies the requirements for regular 'bslh' hashing algorithms,
-// defined in bslh_hash.h. More information can be found in the package level
+// defined in bslh_hash.h.  More information can be found in the package level
 // documentation for 'bslh' (internal users can also find information here
 // {TEAM BDE:USING MODULAR HASHING<GO>})
 //

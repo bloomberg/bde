@@ -272,8 +272,8 @@ void aSsErT(bool condition, const char *message, int line)
 // will distribute the items evenly throughout the hash table.
 
     struct HashFuture {
-        // This struct is a functor that will apply the SpookyHashAlgorithm to
-        // objects of type 'Future'.
+        // This struct is a functor that will apply the 'SpookyHashAlgorithm'
+        // to objects of type 'Future'.
 
         size_t operator()(const Future& future) const
             // Return the hash of the of the specified 'future'.  Note that
