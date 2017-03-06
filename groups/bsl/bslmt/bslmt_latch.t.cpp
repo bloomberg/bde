@@ -1204,15 +1204,23 @@ int main(int argc, char *argv[])
         // TESTING 'timedWait'
         //
         // Concerns:
-        //: 1 A latch built will timeout after reaching 'timeout' time.  The
+        //: 1 A latch built with 0 has already reached the synchronization
+        //:   point.
+        //:
+        //: 2 A latch built will timeout after reaching 'timeout' time.  The
         //:   initial 'count' given the constructor is unchanged.
         //
         // Plan:
-        //: 1 Create a latch with an initial count of 5.
+        //: 1 Create a latch with an initial count of 0.
         //:
-        //: 2 Verify that 'timedWait()' call times out, and 'currentCount'
-        //    returns 5.
+        //: 2 Verify that 'wait()' calls do not block the test execution.
         //:   (C-1)
+        //:
+        //: 3 Create a latch with an initial count of 5.
+        //:
+        //: 4 Verify that 'timedWait()' call times out, and 'currentCount'
+        //    returns 5.
+        //:   (C-2)
         //
         // Testing:
         //   void timedWait(const bsls::TimeInterval &timeout);
@@ -1222,17 +1230,23 @@ int main(int argc, char *argv[])
                           << "TESTING 'timedWait'" << endl
                           << "===================" << endl;
 
-        bslmt::Latch myLatch(5);
+        {
+            bslmt::Latch myLatch(0);
+            myLatch.wait();
+        }
 
-        // define a timeout of 1s
-        bsls::TimeInterval timeOut =
-                                  bsls::SystemTime::nowRealtimeClock();
-        timeOut.addMicroseconds(1000000);
+        {
+            bslmt::Latch myLatch(5);
 
-        const int rc = myLatch.timedWait(timeOut);
-        ASSERT(-1 == rc);
-        const int myCount = myLatch.currentCount();
-        ASSERT(5 == myCount);
+            // define a timeout of 1s
+            bsls::TimeInterval timeOut = bsls::SystemTime::nowRealtimeClock();
+            timeOut.addMicroseconds(1000000);
+
+            const int rc = myLatch.timedWait(timeOut);
+            ASSERT(-1 == rc);
+            const int myCount = myLatch.currentCount();
+            ASSERT(5 == myCount);
+        }
 
       } break;
       case 5: {
