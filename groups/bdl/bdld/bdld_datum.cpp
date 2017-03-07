@@ -108,8 +108,9 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 //   character), storing the pointer to the allocated string.  Note that the
 //   string value passed in is copied.  If the string has fewer than 6
 //   characters, a copy is stored inline.  On 64-bit platforms, memory is
-//   allocated in 'copyString' only if the string has more than 15 characters
-//   (not including the terminating null character).
+//   allocated in 'copyString' only if the string has more than 13 characters
+//   (not including the terminating null character).  The maximum length for
+//   storing without allocation is held in 'Datum::k_SHORTSTRING_SIZE'.
 //
 // * On 32-bit platforms, NaN value is stored as a separate type and cannot be
 //   directly retrieved as a 'double' value.
