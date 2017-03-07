@@ -154,6 +154,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
 // [ 1] CONCERN: Support references as 'mapped_type' in map-like containers.
 
 // ============================================================================
@@ -390,6 +391,36 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // CONCERN: REGRESSION TEST FOR C99 FEATURES
+        //
+        // Concerns:
+        //: 1 Ensure that some C99 functions are available on some Bloomberg
+        //:   production platforms (to avoid any regressions from the
+        //:   introduction of bsls_libraryfeatures).
+        //
+        // Plan:
+        //: 1 Verify 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is 'true', and
+        //:   important '<cmath>' functions are available on Bloomberg
+        //:   production platforms.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "CONCERN: REGRESSION TEST FOR C99 FEATURES'\n"
+                      << "==========================================\n";
+        }
+        {
+              if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_MSVC)
+              typedef int (*FuncPtrType)(double);
+              FuncPtrType funcPtr = &bsl::fpclassify;
+#endif
+        }
+      } break;
       case 1: {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
         if (verbose) { bsl::cout << "Testing references as 'mapped_type'.\n"; }
