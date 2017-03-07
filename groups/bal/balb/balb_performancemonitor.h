@@ -79,50 +79,84 @@ BSLS_IDENT("$Id: $")
 // current process is running.  This error condition will be indicated by a
 // non-zero return value from 'registerPid'.
 //
-///Iterator Invalidation
-///---------------------
-// Registration of new pids does not invalidate existing iterators.
-// Unregistration of pid only invalidates iterators pointing to the statistics
-// for the pid being unregistered, all other iterators remain valid.
-//
 ///Thread Safety
 ///-------------
-// This class is completely thread safe.
+// The classes 'baea_PerformanceMonitor' and
+// 'baea_PerformanceMonitory::Statistics', provided by this component, are both
+// independently fully *thread-safe* (see 'bsldoc_gloassary').  However,
+// 'baea_PerformanceMonitor::ConstIterator' is only *const* *thread-safe*,
+// meaning it is not safe to access or modify a 'ConstIterator' in one thread
+// while another thread modifies the same object.  Additionally, unregistering
+// a pid with a 'baea_PerformanceMonitor' object invalidates all iterators
+// previously supplied by that object, and invalidates all references to
+// 'Statistics' objects retrieved from those iterators (irrespective of whether
+// the unregister occurs in a multi-threaded context), so external
+// synchronization is needed if 'unregisterPid' is called concurrently to
+// iterating over statistics.  Registration of new pids does not invalidate
+// existing iterators.  Also, in a multi-threaded context, a 'Statistics'
+// object accessed via a reference (or pointer) from a 'ConstIterator' object
+// may have its statistics updated at any time by a call to 'collect' or
+// 'resetStatistics' in another thread.   If consistent access is needed to
+// multiple items in a set of statistics, then the user should copy the
+// statistics object, and then inspect the copy at their leisure.
+//
+// Notice that this component was implemented with particular usage patterns in
+// mind, which are captured in the usage examples.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'balb::PerformanceMonitor'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.
+//
+// First, we instantiate a scheduler used by the performance monitor to
+// schedule collection events.
 //..
-//  // Instantiate a scheduler used by the performance monitor to schedule
-//  // collection events.
 //  bdlmt::TimerEventScheduler scheduler;
 //  scheduler.start();
-//
-//  // Create the performance monitor, monitoring the current process and
-//  // auto-collecting statistics every second.
+//..
+// Then, we create the performance monitor, monitoring the current process and
+// auto-collecting statistics every second.
+//..
 //  balb::PerformanceMonitor perfmon(&scheduler, 1.0);
+//  int                      rc  = perfmon.registerPid(0, "perfmon");
+//  const int                PID = bdls::ProcessUtil::getProcessId();
 //
-//  // Assume the existence of three pids, 1000, 1001, and 1002, running on
-//  // the local machine.
-//  perfmon.registerPid(1000, "task1");
-//  perfmon.registerPid(1001, "task2");
-//  perfmon.registerPid(1003, "task3");
-//
-//  // Print a formatted report of the performance statistics collected for
-//  // each pid every 10 seconds for one minute.
+//  assert(0 == rc);
+//  assert(1 == perfmon.numRegisteredPids());
+//..
+// Next, we print a formatted report of the performance statistics collected
+// for each pid every 10 seconds for one minute.  Note, that 'Statistics'
+// object can be simultaniously modified by scheduler callback and accessed via
+// 'ConstPointer'.  To get consistent data we create a local copy (copy
+// construction is guaranteed to be thread-safe).
+//..
 //  for (int i = 0; i < 6; ++i) {
 //      bslmt::ThreadUtil::microSleep(0, 10);
 //
-//      for (balb::PerformanceMonitor::ConstIterator it  = perfmon.begin();
-//                                                  it != perfmon.end();
-//                                                ++it) {
-//          const balb::PerformanceMonitor::Statistics& stats = *it;
-//          bsl::cout << "Pid = " << stats.pid() << ":\n";
-//          stats.print(bsl::cout);
-//      }
+//      balb::PerformanceMonitor::ConstIterator    it = perfmon.begin();
+//      const balb::PerformanceMonitor::Statistics stats = *it;
+//
+//      assert(PID == stats.pid());
+//
+//      bsl::cout << "Pid = " << stats.pid() << ":\n";
+//      stats.print(bsl::cout);
 //  }
+//..
+// Finally, we unregister process and stop scheduler to cease statistics
+// collection.  It is thread-safely because we don't have any 'ConstIterators'
+// objects or references to 'Statistics' objects.
+//..
+//  rc  = perfmon.unregisterPid(PID);
+//
+//  assert(0 == rc);
+//  assert(0 == perfmon.numRegisteredPids());
+//
+//  scheduler.stop();
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

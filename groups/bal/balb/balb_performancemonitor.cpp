@@ -1545,13 +1545,12 @@ balb::PerformanceMonitor::Statistics::Statistics(
 balb::PerformanceMonitor::Statistics::Statistics(
                                              const Statistics&  original,
                                              bslma::Allocator  *basicAllocator)
-: d_description(basicAllocator)
+: d_description(original.d_description, basicAllocator)
 , d_guard()
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&original.d_guard);
 
     d_pid = original.d_pid;
-    d_description = original.d_description;
     d_startTimeUtc = original.d_startTimeUtc;
     d_startTime = original.d_startTime;
     d_elapsedTime = original.d_elapsedTime;

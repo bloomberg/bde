@@ -7,12 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <balb_performancemonitor.h>
-
-#include <bslim_testutil.h>
-
-#include <bslmt_threadutil.h>
 
 #include <bdls_processutil.h>
 
@@ -29,11 +24,17 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -62,13 +63,36 @@ using namespace bsl;
 //                                 --------
 //
 // ----------------------------------------------------------------------------
+//                            // ----------------
+//                            // class Statistics
+//                            // ----------------
+// CREATORS
+// [ 9] Statistics(const Statistics& orig, Allocator *basicAllocator);
+//
+//                           // -------------------
+//                           // class ConstIterator
+//                           // -------------------
 // CLASS METHODS
+// [ 6] ConstIterator& operator++();
+// [ 6] ConstIterator operator++(int);
+// [ 5] reference operator*() const;
+// [ 5] pointer operator->() const;
+// [ 7] bool operator==(const ConstIterator& rhs) const;
+// [ 7] bool operator!=(const ConstIterator& rhs) const;
+//
+//                         // ------------------------
+//                         // class PerformanceMonitor
+//                         // ------------------------
+// CLASS METHODS
+// [ 8] ConstIterator begin() const;
+// [ 8] ConstIterator end() const;
+// [ 8] ConstIterator find(int pid) const;
 // [ 2] int numRegisteredPids() const
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
-// [ 4] CONCERN: The Process Start Time is Reasonable
-// [ 5] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
+// [10] USAGE EXAMPLE
+// [ 3] CONCERN: The Process Start Time is Reasonable
+// [ 4] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
 // [-1] TESTING VIRTUAL SIZE AND RESIDENT SIZE
 // [-3] DUMMY TEST CASE
 // ----------------------------------------------------------------------------
@@ -121,14 +145,54 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+typedef balb::PerformanceMonitor                Obj;
+typedef balb::PerformanceMonitor::ConstIterator ObjIterator;
+
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
+// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
+
 // ============================================================================
 //                       HELPER FUNCTIONS AND CLASSES
 // ----------------------------------------------------------------------------
+namespace {
+
+struct StatisticsStorage
+    // The structure to store values accessible via public interfaces of
+    // 'balb::PerformanceMonitor::Statistics' class.
+{
+    int            d_pid;                           // process identifier
+
+    bsl::string    d_description;                   // process description
+
+    bdlt::Datetime d_startTimeUtc;                  // process start time, in
+                                                    // UTC time
+
+    double         d_elapsedTime;                   // time elapsed since
+                                                    // process startup
+
+    double         d_lstData[Obj::e_NUM_MEASURES];  // latest collected data
+
+    double         d_minData[Obj::e_NUM_MEASURES];  // min value
+
+    double         d_maxData[Obj::e_NUM_MEASURES];  // max value
+};
+
+}  // close unnamed namespace
 
 namespace processSupport {
 
@@ -496,7 +560,724 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = (argc > 5);
 
     switch (test) { case 0:  // Zero is always the leading case.
+     case 10: {
+       // ---------------------------------------------------------------------
+       // USAGE EXAMPLE
+       //   Extracted from component header file.
+       //
+       // Concerns:
+       //: 1 The usage example provided in the component header file compiles,
+       //:   links, and runs as shown.
+       //
+       // Plan:
+       //: 1 Incorporate usage example from header into test driver, remove
+       //:   leading comment characters and replace 'assert' with 'ASSERT'.
+       //:   (C-1)
+       //
+       // Testing:
+       //   USAGE EXAMPLE
+       // ---------------------------------------------------------------------
+       if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                 << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'balb::PerformanceMonitor'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example shows how to monitor the currently executing process
+// and produce a formatted report of the collected measures after a certain
+// interval.
+//
+// First, we instantiate a scheduler used by the performance monitor to
+// schedule collection events.
+//..
+    bdlmt::TimerEventScheduler scheduler;
+    scheduler.start();
+//..
+// Then, we create the performance monitor, monitoring the current process and
+// auto-collecting statistics every second.
+//..
+    balb::PerformanceMonitor perfmon(&scheduler, 1.0);
+    int                      rc  = perfmon.registerPid(0, "perfmon");
+    const int                PID = bdls::ProcessUtil::getProcessId();
+
+    ASSERT(0 == rc);
+    ASSERT(1 == perfmon.numRegisteredPids());
+//..
+// Next, we print a formatted report of the performance statistics collected
+// for each pid every 10 seconds for one minute.  Note, that 'Statistics'
+// object can be simultaniously modified by scheduler callback and accessed via
+// 'ConstPointer'.  To get consistent data we create a local copy (copy
+// construction is guaranteed to be thread-safe).
+//..
+    for (int i = 0; i < 6; ++i) {
+        bslmt::ThreadUtil::microSleep(0, 10);
+
+        balb::PerformanceMonitor::ConstIterator    it = perfmon.begin();
+        const balb::PerformanceMonitor::Statistics stats = *it;
+
+        ASSERT(PID == stats.pid());
+
+        bsl::cout << "Pid = " << stats.pid() << ":\n";
+        stats.print(bsl::cout);
+    }
+//..
+// Finally, we unregister process and stop scheduler to cease statistics
+// collection.  It is thread-safely because we don't have any 'ConstIterators'
+// objects or references to 'Statistics' objects.
+//..
+    rc  = perfmon.unregisterPid(PID);
+
+    ASSERT(0 == rc);
+    ASSERT(0 == perfmon.numRegisteredPids());
+
+    scheduler.stop();
+//..
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING STATISTICS COPY CONSTRUCTOR
+        //
+        // Concerns:
+        //: 1 The new object's value is the same as that of the original object
+        //:   (relying on the public interfaces).
+        //:
+        //: 2 The value of the original object is left unaffected.
+        //:
+        //: 3 Subsequent changes in or destruction of the source object have no
+        //:   effect on the copy-constructed object.
+        //:
+        //: 4 The object has its internal memory management system hooked up
+        //:   properly so that *all* internally allocated memory draws from a
+        //:   user-supplied allocator whenever one is specified.
+        //
+        // Plan:
+        //: 1 Create a 'PerformanceMonitor' object, 'mX', and register current
+        //:   process for statistics collection.
+        //:
+        //: 2 Obtain iterator, 'mXIt', pointing the first element in the
+        //:   underlying map.  Create a const reference 'XIt' to the iterator.
+        //:
+        //: 3 Store current statistics values using accessors of the
+        //:   'Statistics' class.
+        //:
+        //: 4 Make a copy of origin object and verify it's value using
+        //:   accessors of the 'Statistics' class.  (C-1)
+        //:
+        //: 5 Compare accessible origin object fields with stored values.
+        //:   (C-2)
+        //:
+        //: 6 Collect latest statistics to update origin object and verify that
+        //:   copy isn't affected.
+        //:
+        //: 7 Unregister current process to destroy origin object and verify
+        //:   that copy isn't affected.  (C-3)
+        //:
+        //: 8 Register current process for statistics collection again.  Obtain
+        //:   iterator, 'mXIt', pointing the first element in the underlying
+        //:   map.  Create a const reference 'XIt' to the iterator.
+        //:
+        //: 9 Create several copies of current process statistics, passing
+        //:   different allocators to copy constructor, and verify that all
+        //:   memory is allocated by user-supplied allocator.  (C-4)
+        //
+        // Testing:
+        //   Statistics(const Statistics& orig, Allocator *basicAllocator);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING STATISTICS COPY CONSTRUCTOR\n"
+                          << "===================================\n";
+
+        bslma::TestAllocator         ma("monitor", veryVeryVeryVerbose);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj        mX(&ma);
+        const Obj& X   = mX;
+        const int  PID = bdls::ProcessUtil::getProcessId();
+        int        rc  = mX.registerPid(PID, LONG_STRING);
+        ASSERT(0 == rc);
+
+        if (verbose) cout << "\tTesting copying" << endl;
+        {
+            ObjIterator        mXIt = X.begin();
+            const ObjIterator& XIt  = mXIt;
+
+            // Store values to verify origin object after.
+
+            StatisticsStorage orig;
+
+            orig.d_pid          = XIt->pid();
+            orig.d_description  = XIt->description();
+            orig.d_startTimeUtc = XIt->startupTime();
+            orig.d_elapsedTime  = XIt->elapsedTime();
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure = static_cast<Obj::Measure>(i);
+
+                orig.d_lstData[measure] = XIt->latestValue(measure);
+                orig.d_minData[measure] = XIt->minValue(measure);
+                orig.d_maxData[measure] = XIt->maxValue(measure);
+            }
+
+            // Create a copy and verify its value.
+
+            Obj::Statistics        mXS = *XIt;
+            const Obj::Statistics& XS  = mXS;
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure = static_cast<Obj::Measure>(i);
+                ASSERT(XIt->latestValue(measure) == XS.latestValue(measure));
+                ASSERT(XIt->minValue(measure)    == XS.minValue(measure)   );
+                ASSERT(XIt->maxValue(measure)    == XS.maxValue(measure)   );
+
+                // Verify that origin object is left unaffected.
+
+                ASSERT(orig.d_lstData[measure] == XIt->latestValue(measure));
+                ASSERT(orig.d_minData[measure] == XIt->minValue(measure)   );
+                ASSERT(orig.d_maxData[measure] == XIt->maxValue(measure)   );
+            }
+
+            ASSERT(XIt->pid()         == XS.pid()        );
+            ASSERT(XIt->description() == XS.description());
+            ASSERT(XIt->startupTime() == XS.startupTime());
+            ASSERT(XIt->elapsedTime() == XS.elapsedTime());
+
+            // Verify that origin object is left unaffected.
+
+            ASSERT(orig.d_pid          == XIt->pid()        );
+            ASSERT(orig.d_description  == XIt->description());
+            ASSERT(orig.d_startTimeUtc == XIt->startupTime());
+            ASSERT(orig.d_elapsedTime  == XIt->elapsedTime());
+
+            // Changing origin object.
+
+            bslmt::ThreadUtil::microSleep(0, 2);
+            mX.collect();
+
+            ASSERT(XIt->pid()         == XS.pid()          );
+            ASSERT(XIt->description() == XS.description()  );
+            ASSERT(XIt->startupTime() == XS.startupTime()  );
+
+            ASSERT(orig.d_elapsedTime != XIt->elapsedTime());
+            ASSERT(orig.d_elapsedTime == XS.elapsedTime()  );
+
+            // Destroying origin object.
+
+            mX.unregisterPid(PID);
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure = static_cast<Obj::Measure>(i);
+
+                ASSERT(orig.d_lstData[measure] == XS.latestValue(measure));
+                ASSERT(orig.d_minData[measure] == XS.minValue(measure)   );
+                ASSERT(orig.d_maxData[measure] == XS.maxValue(measure)   );
+            }
+
+            ASSERT(orig.d_pid          == XS.pid()        );
+            ASSERT(orig.d_description  == XS.description());
+            ASSERT(orig.d_startTimeUtc == XS.startupTime());
+            ASSERT(orig.d_elapsedTime  == XS.elapsedTime());
+        }
+
+        if (verbose) cout << "\tTesting allocator propagation" << endl;
+        {
+            rc  = mX.registerPid(PID, LONG_STRING);
+            ASSERT(0 == rc);
+
+            ObjIterator        mXIt = X.begin();
+            const ObjIterator& XIt  = mXIt;
+
+            const bsls::Types::Int64 NUM_MONITOR_BYTES = ma.numBytesInUse();
+            ASSERT(0 != NUM_MONITOR_BYTES);
+
+            ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+            ASSERT(0                 == da.numBytesInUse());
+            ASSERT(0                 == sa.numBytesInUse());
+
+            // Default allocator.
+
+            {
+                const Obj::Statistics XSD(*XIt);
+                (void)XSD;  // quash potential compiler warnings
+
+                ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+                ASSERT(0                 != da.numBytesInUse());
+                ASSERT(0                 == sa.numBytesInUse());
+            }
+
+            ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+            ASSERT(0                 == da.numBytesInUse());
+            ASSERT(0                 == sa.numBytesInUse());
+
+            // Explicit null allocator.
+
+            {
+                const Obj::Statistics XSN(*XIt, 0);
+                (void)XSN;  // quash potential compiler warnings
+
+                ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+                ASSERT(0                 != da.numBytesInUse());
+                ASSERT(0                 == sa.numBytesInUse());
+            }
+
+            ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+            ASSERT(0                 == da.numBytesInUse());
+            ASSERT(0                 == sa.numBytesInUse());
+
+            // Supplied allocator.
+
+            {
+                const Obj::Statistics XSS(*XIt, &sa);
+                (void)XSS;  // quash potential compiler warnings
+
+                ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+                ASSERT(0                 == da.numBytesInUse());
+                ASSERT(0                 != sa.numBytesInUse());
+            }
+
+            ASSERT(NUM_MONITOR_BYTES == ma.numBytesInUse());
+            ASSERT(0                 == da.numBytesInUse());
+            ASSERT(0                 == sa.numBytesInUse());
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING ACCESSORS
+        //
+        // Concerns:
+        //: 1 The 'begin()' returns an iterator, referring to the first value
+        //:   in the underlying map.
+        //:
+        //: 2 The 'end()' returns an  iterator, referring to the address,
+        //:   following the last value in the underlying  map.
+        //:
+        //: 3 The 'find()' returns an iterator, referring to the value with
+        //:   process id, passed as a parameter.
+        //
+        // Plan:
+        //: 1 Spawn several processes and store their ids to separate map.
+        //:
+        //: 2 Create a 'PerformanceMonitor' object, 'mX'.
+        //:
+        //: 3 Using the loop-based approach:
+        //:
+        //:   1 Register processes one by one in back order (so 'begin' should
+        //:     return different values on each iteration).
+        //:
+        //:   2 Using 'pid' accessor of 'Statistics' class verify 'begin' and
+        //:     'find' return values. (C-1,3)
+        //:
+        //:   3 Execute an inner loop to iterate to the end of the map and
+        //:     verify 'end' return value using comparison operator.  (C-2)
+        //
+        // Testing:
+        //   ConstIterator begin() const;
+        //   ConstIterator end() const;
+        //   ConstIterator find(int pid) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING ACCESSORS\n"
+                          << "=================\n";
+
+        {
+            typedef bsl::map<int, int> Pids;
+
+            const int NUM_PROCESSES = 5;
+            Pids      pids;
+
+            // Spawn as a child processes several copies of this test driver,
+            // running test case -3, which simply sleep for one minute and
+            // exit.
+
+            bsl::string              command(argv[0]);
+            bsl::vector<bsl::string> arguments;
+
+            arguments.push_back(bsl::string("-3"));
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+
+                processSupport::ProcessHandle handle =
+                                      processSupport::exec(command, arguments);
+
+
+                // Store id of the spawned child process.
+
+                int pid = processSupport::getId(handle);
+                ASSERTV(pid, -1 != pid);
+
+                pids.insert(bsl::make_pair(pid, pid));
+            }
+
+            ASSERT(NUM_PROCESSES == pids.size());
+
+            // Checking.
+            Obj        mX;
+            const Obj& X = mX;
+
+            ASSERT(X.begin() == X.end());
+
+            Pids::reverse_iterator rPidsIt = pids.rbegin();
+            bsl::string            description;
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+                int PID = rPidsIt->first;
+                description += '0';
+
+                if (veryVerbose) {
+                    T_ P_(description) P(PID)
+                }
+
+                ASSERTV(description, 0 == mX.registerPid(PID, description));
+
+                ObjIterator        mXIt = X.begin();
+                const ObjIterator& XIt  = mXIt;
+                ASSERTV(description, PID == XIt->pid());
+
+                ObjIterator fIt = X.find(PID);
+                ASSERTV(description, PID == fIt->pid());
+
+                for(int j = 0; j < i + 1; ++j) {
+                    ++mXIt;
+                }
+                ASSERTV(description, XIt == X.end());
+
+                ++rPidsIt;
+            }
+        }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // ITERATOR EQUALITY-COMPARISON OPERATORS
+        //
+        // Concerns:
+        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
+        //:   to the same value in the same map.
+        //:
+        //: 2 'true  == (X == X)'  (i.e., identity)
+        //:
+        //: 3 'false == (X != X)'  (i.e., identity)
+        //:
+        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
+        //:
+        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
+        //:
+        //: 6 'X != Y' if and only if '!(X == Y)'
+        //:
+        //: 7 Non-modifiable objects can be compared (i.e., objects or
+        //:   references providing only non-modifiable access).
+        //:
+        //: 8 The equality operator's signature and return type are standard.
+        //:
+        //: 9 The inequality operator's signature and return type are standard.
+        //
+        // Plan:
+        //: 1 Use the respective addresses of 'operator==' and
+        //:  'operator!=' to initialize function pointers having the
+        //:   appropriate signatures and return types for those methods.
+        //:   (C-8..9)
+        //:
+        //: 2 Spawn several processes, create a 'PerformanceMonitor' object,
+        //:   'mX', and register these processes for statistics collection.
+        //:
+        //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterators,
+        //:   'mXIt1' and 'mXIt2', pointing the first element in the underlying
+        //:   map.
+        //:
+        //: 4 Increment both iterators separately to get situations when they
+        //    are anticipated to be equal or different and verify the
+        //    commutativity property and the expected return value for both
+        //    '==' and '!='.  (C-1..7)
+        //
+        // Testing:
+        //   bool operator==(const ConstIterator& rhs) const;
+        //   bool operator!=(const ConstIterator& rhs) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "ITERATOR EQUALITY-COMPARISON OPERATORS\n"
+                          << "======================================\n";
+
+        // Testing signatures.
+        {
+            typedef bool (ObjIterator::*operatorPtr)(const ObjIterator&) const;
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorEq = &ObjIterator::operator==;
+            operatorPtr operatorNe = &ObjIterator::operator!=;
+
+            (void) operatorEq;  // quash potential compiler warnings
+            (void) operatorNe;
+        }
+
+        // Testing behaviour.
+        {
+            typedef bsl::map<int, int> Pids;
+
+            const int NUM_PROCESSES = 5;
+            Pids      pids;
+
+            // Spawn as a child processes several copies of this test driver,
+            // running test case -3, which simply sleep for one minute and
+            // exit.
+
+            bsl::string              command(argv[0]);
+            bsl::vector<bsl::string> arguments;
+
+            arguments.push_back(bsl::string("-3"));
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+
+                processSupport::ProcessHandle handle =
+                                      processSupport::exec(command, arguments);
+
+
+                // Store id of the spawned child process.
+
+                int pid = processSupport::getId(handle);
+                ASSERTV(pid, -1 != pid);
+
+                pids.insert(bsl::make_pair(pid, pid));
+            }
+
+            ASSERT(NUM_PROCESSES == pids.size());
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            ASSERT(X.begin() == X.end());
+
+            Pids::iterator pidsIt = pids.begin();
+            bsl::string    description;
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+                int PID = pidsIt->first;
+                description += '0';
+
+                if (veryVerbose) {
+                    T_ P_(description) P(PID)
+                }
+
+                ASSERTV(description, 0 == mX.registerPid(PID, description));
+
+                ++pidsIt;
+            }
+
+            // Checking.
+
+            ObjIterator        mXIt1 = X.begin();
+            ObjIterator        mXIt2 = X.begin();
+            const ObjIterator& XIt1  = mXIt1;
+            const ObjIterator& XIt2  = mXIt2;
+
+            ASSERT(  XIt1 == XIt2 );
+            ASSERT(  XIt2 == XIt1 );
+            ASSERT(!(XIt1 != XIt2));
+            ASSERT(!(XIt2 != XIt1));
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+                ASSERTV(i,   mXIt1 == mXIt2 );
+                ASSERTV(i,   mXIt2 == mXIt1 );
+                ASSERTV(i, !(mXIt1 != mXIt2));
+                ASSERTV(i, !(mXIt2 != mXIt1));
+
+                ++mXIt1;
+
+                ASSERTV(i,   mXIt1 != mXIt2 );
+                ASSERTV(i,   mXIt2 != mXIt1 );
+                ASSERTV(i, !(mXIt1 == mXIt2));
+                ASSERTV(i, !(mXIt2 == mXIt1));
+
+                ++mXIt2;
+            }
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING INCRERMENT OPERATORS
+        //
+        // Concerns:
+        //: 1 The increment operators change the value of the object to
+        //:   refer to the next element in the map.
+        //:
+        //: 2 The signatures and return types are standard.
+        //:
+        //: 3 The value returned by the post-increment operator is the value of
+        //:   the object prior to the operator call.
+        //:
+        //: 4 The reference returned by the pre-increment operator refers to
+        //:   the object on which the operator was invoked.
+        //
+        // Plan:
+        //: 1 Use the respective addresses of 'operator++()' and
+        //:   'operator++(int)' to initialize function pointers having the
+        //:   appropriate signatures and return types for those methods.  (C-2)
+        //:
+        //: 2 Spawn several processes, create a 'PerformanceMonitor' object,
+        //:   'mX', and register these processes for statistics collection.
+        //:
+        //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterators,
+        //:   'preXIt' and 'postXIt', pointing the first element in the
+        //:   underlying map.
+        //:
+        //: 4 Iterate through the underlying map using the 'operator++()' and
+        //:   'operator++(int)' manipulators respectively and verify return
+        //:   values and iterator positions.
+        //
+        // Testing:
+        //   ConstIterator& operator++();
+        //   ConstIterator operator++(int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING INCRERMENT OPERATORS\n"
+                          << "============================\n";
+
+        // Testing signatures.
+        {
+            typedef ObjIterator  (ObjIterator::*postOperatorPtr)(int);
+            typedef ObjIterator& (ObjIterator::*preOperatorPtr )(   );
+
+            // Verify that the signature and return type are standard.
+
+            postOperatorPtr operatorPostInc = &ObjIterator::operator++;
+            preOperatorPtr  operatorPreInc  = &ObjIterator::operator++;
+
+            (void) operatorPostInc;  // quash potential compiler warning
+            (void) operatorPreInc;   // quash potential compiler warning
+        }
+
+        // Testing behaviour.
+        {
+            typedef bsl::map<int, int> Pids;
+
+            const int NUM_PROCESSES = 5;
+            Pids      pids;
+
+            // Spawn as a child processes several copies of this test driver,
+            // running test case -3, which simply sleep for one minute and
+            // exit.
+
+            bsl::string              command(argv[0]);
+            bsl::vector<bsl::string> arguments;
+
+            arguments.push_back(bsl::string("-3"));
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+
+                processSupport::ProcessHandle handle =
+                                      processSupport::exec(command, arguments);
+
+
+                // Store id of the spawned child process.
+
+                int pid = processSupport::getId(handle);
+                ASSERTV(pid, -1 != pid);
+
+                pids.insert(bsl::make_pair(pid, pid));
+            }
+
+            ASSERT(NUM_PROCESSES == pids.size());
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            ASSERT(X.begin() == X.end());
+
+            Pids::iterator pidsIt = pids.begin();
+            bsl::string    description;
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+                int PID = pidsIt->first;
+                description += '0';
+
+                if (veryVerbose) {
+                    T_ P_(description) P(PID)
+                }
+
+                ASSERTV(description, 0 == mX.registerPid(PID, description));
+
+                ++pidsIt;
+            }
+
+            // Checking.
+
+            ObjIterator preXIt  = X.begin();
+            ObjIterator postXIt = X.begin();
+
+            pidsIt = pids.begin();
+
+            for (int i = 0; i < NUM_PROCESSES - 1; ++i) {
+                ASSERTV(i, pidsIt->first     == (postXIt++)->pid());
+                ASSERTV(i, (++pidsIt)->first == (++preXIt)->pid());
+
+                ASSERTV(i, pidsIt->first == postXIt->pid());
+                ASSERTV(i, pidsIt->first ==  preXIt->pid());
+            }
+        }
+      } break;
       case 5: {
+        // --------------------------------------------------------------------
+        // CONCERN: TESTING ITERATOR ACCESSORS
+        //
+        // Concerns:
+        //: 1 The 'operator*' returns the reference to the value of the element
+        //:   to which this object refers.
+        //:
+        //: 2 The 'operator->' returns the address to the value of the element
+        //:   to which this object refers.
+        //:
+        //: 3 Both methods are declared 'const'.
+        //:
+        //: 4 The signatures and return types are standard.
+        //
+        // Plan:
+        //: 1 Use the addresses of 'operator*' and 'operator->' to initialize
+        //:   member-function pointers having the appropriate signatures and
+        //:   return types for the operators defined in this component.  (C-4)
+        //:
+        //: 2 Create a 'PerformanceMonitor' object, 'mX', and register current
+        //:   process for statistics collection.
+        //:
+        //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterator,
+        //:   'mXIt', pointing the first element in the underlying map.  Create
+        //:    a const reference 'XIt' to the iterator.
+        //:
+        //: 4 Invoke 'operator*' on 'XIt' and use the 'Statistics' class
+        //:   accessors 'pid' and 'description' to verify that it returns the
+        //:   expected value.  (C-1)
+        //:
+        //: 5 Invoke 'operator->' on 'XIt' and use the 'Statistics' class
+        //:   accessors 'pid' and 'description' to verify that it returns the
+        //:   expected value.  (C-2..3)
+        //
+        // Testing:
+        //   reference operator*() const;
+        //   pointer operator->() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING ITERATOR ACCESSORS\n"
+                          << "==========================\n";
+
+        Obj               mX;
+        const Obj&        X    = mX;
+        const bsl::string DESC = "perfmon";
+        const int         PID  = bdls::ProcessUtil::getProcessId();
+        int               rc   = mX.registerPid(PID, DESC);
+        ASSERT(0 == rc);
+
+        ObjIterator        mXIt = X.begin();
+        const ObjIterator& XIt  = mXIt;
+
+        ASSERT(PID  == (*XIt).pid()        );
+        ASSERT(PID  ==   XIt->pid()        );
+        ASSERT(DESC == (*XIt).description());
+        ASSERT(DESC ==   XIt->description());
+
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // CONCERN: Statistics are Reset Correctly
         //
@@ -523,7 +1304,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-            balb::PerformanceMonitor perfmon(&ta);
+            Obj perfmon(&ta);
 
             int pid = bdls::ProcessUtil::getProcessId();
 
@@ -534,8 +1315,7 @@ int main(int argc, char *argv[])
             // is always used as a baseline and hence is ignored
             perfmon.collect();
 
-            balb::PerformanceMonitor::ConstIterator perfmonIter =
-                                                             perfmon.find(pid);
+            ObjIterator perfmonIter = perfmon.find(pid);
             ASSERT(perfmonIter != perfmon.end());
 
             double userCpu = 0, systemCpu = 0, totalCpu = 0;
@@ -544,12 +1324,9 @@ int main(int argc, char *argv[])
             controlledCpuBurn();
             perfmon.collect();
 
-            userCpu = perfmonIter->avgValue(
-                                    balb::PerformanceMonitor::e_CPU_UTIL_USER);
-            systemCpu = perfmonIter->avgValue(
-                                  balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
-            totalCpu = perfmonIter->avgValue(
-                                         balb::PerformanceMonitor::e_CPU_UTIL);
+            userCpu   = perfmonIter->avgValue(Obj::e_CPU_UTIL_USER);
+            systemCpu = perfmonIter->avgValue(Obj::e_CPU_UTIL_SYSTEM);
+            totalCpu  = perfmonIter->avgValue(Obj::e_CPU_UTIL);
 
             if (verbose) {
                 cout << "  userCpu = " << userCpu
@@ -570,12 +1347,9 @@ int main(int argc, char *argv[])
             // We called collect almost a second after restting statistics, so
             // our CPU utilization should be really low
 
-            userCpu = perfmonIter->avgValue(
-                                    balb::PerformanceMonitor::e_CPU_UTIL_USER);
-            systemCpu = perfmonIter->avgValue(
-                                  balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
-            totalCpu = perfmonIter->avgValue(
-                                         balb::PerformanceMonitor::e_CPU_UTIL);
+            userCpu   = perfmonIter->avgValue(Obj::e_CPU_UTIL_USER);
+            systemCpu = perfmonIter->avgValue(Obj::e_CPU_UTIL_SYSTEM);
+            totalCpu  = perfmonIter->avgValue(Obj::e_CPU_UTIL);
 
             if (verbose) {
                 cout << "  userCpu = " << userCpu
@@ -589,7 +1363,7 @@ int main(int argc, char *argv[])
             ASSERT(totalCpu < 10);
         }
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // PROCESS START TIME SANITY
         //
@@ -608,7 +1382,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        balb::PerformanceMonitor perfmon(&ta);
+        Obj perfmon(&ta);
 
         int rc = perfmon.registerPid(0, "perfmon");
         ASSERT(0 == rc);
@@ -625,64 +1399,6 @@ int main(int argc, char *argv[])
         ASSERT(diff.totalSeconds() > -10);
         ASSERT(diff.totalSeconds() <  10);
       }  break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns:
-        //:  1 The usage example shown in the component-level documentation
-        //:    compiles and executes as expected.
-        //
-        // Plan:
-        //:  1 Implement the test exactly as shown in the example. (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING USAGE EXAMPLE\n"
-                             "=====================\n";
-
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
-        {
-            // Instantiate a scheduler used by the performance monitor to
-            // schedule collection events.
-            bdlmt::TimerEventScheduler scheduler;
-            scheduler.start();
-
-            // Create the performance monitor, monitoring the current process
-            // and auto-collecting statistics every second.
-            balb::PerformanceMonitor perfmon(&scheduler, 1.0, &ta);
-
-            if (0 != perfmon.registerPid(0, "mytask")) {
-                ASSERT(!"Failed to register process with performance monitor");
-                return testStatus;                                    // RETURN
-            }
-
-            // Print a formatted report of the performance statistics every 10
-            // seconds for one minute.  Note that the report interval may vary
-            // from the collection interval.
-            for (int i = 0; i < 6; ++i) {
-                bslmt::ThreadUtil::microSleep(0, 1);
-                for (balb::PerformanceMonitor::ConstIterator
-                                                         it  = perfmon.begin();
-                                                         it != perfmon.end();
-                                                       ++it)
-                {
-                    const balb::PerformanceMonitor::Statistics& stats = *it;
-
-                    if (veryVerbose) {
-                        bsl::cout << "Pid = " << stats.pid() << ":\n";
-                        stats.print(bsl::cout);
-                    }
-                }
-            }
-
-            scheduler.stop();
-        }
-        ASSERT(0  < ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING 'numRegisteredPids'
@@ -716,7 +1432,7 @@ int main(int argc, char *argv[])
                           << "===========================\n";
 
         bdlmt::TimerEventScheduler scheduler;
-        balb::PerformanceMonitor   perfmon(&scheduler, 1.0);
+        Obj                        perfmon(&scheduler, 1.0);
 
         ASSERT(0 == perfmon.numRegisteredPids());
 
@@ -790,8 +1506,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             {
-                balb::PerformanceMonitor perfmon(&ta);
-                int                     rc;
+                Obj perfmon(&ta);
+                int rc;
 
                 rc = perfmon.registerPid(0, "mytask");
                 ASSERT(0 == rc);
@@ -801,13 +1517,11 @@ int main(int argc, char *argv[])
 
                     perfmon.collect();
 
-                    for (balb::PerformanceMonitor::ConstIterator
-                                                        it  = perfmon.begin();
-                                                        it != perfmon.end();
-                                                      ++it)
+                    for (ObjIterator it  = perfmon.begin();
+                                     it != perfmon.end();
+                                   ++it)
                     {
-                        const balb::PerformanceMonitor::Statistics &stats =
-                                                                           *it;
+                        const Obj::Statistics &stats = *it;
 
                         if (veryVerbose) {
                             bsl::cout << "Pid = " << stats.pid() << ":\n";
@@ -821,21 +1535,19 @@ int main(int argc, char *argv[])
                 bdlmt::TimerEventScheduler scheduler;
                 scheduler.start();
 
-                balb::PerformanceMonitor perfmon(&scheduler, 1.0, &ta);
-                int                     rc;
+                Obj perfmon(&scheduler, 1.0, &ta);
+                int rc;
 
                 rc = perfmon.registerPid(0, "mytask");
                 ASSERT(0 == rc);
 
                 for (int i = 0; i < 6; ++i) {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    for (balb::PerformanceMonitor::ConstIterator
-                                                        it  = perfmon.begin();
-                                                        it != perfmon.end();
-                                                      ++it)
+                    for (ObjIterator it  = perfmon.begin();
+                                     it != perfmon.end();
+                                   ++it)
                     {
-                        const balb::PerformanceMonitor::Statistics& stats =
-                                                                           *it;
+                        const Obj::Statistics& stats = *it;
 
                         if (veryVerbose) {
                             bsl::cout << "Pid = " << stats.pid() << ":\n";
@@ -878,21 +1590,18 @@ int main(int argc, char *argv[])
         bslma::Default::setGlobalAllocator(&ta);
 
         {
-            balb::PerformanceMonitor perfmon(&ta);
+            Obj                perfmon(&ta);
 
-            int                     bufferSize        = 0;
+            int                bufferSize          = 0;
 
-            double                  virtualSize       = 0;
-            double                  residentSize      = 0;
+            double             virtualSize         = 0;
+            double             residentSize        = 0;
 
-            bsls::Types::Int64      currentBytesInUse = 0;
-            bsls::Types::Int64      peakBytesInUse    = 0;
+            bsls::Types::Int64 currentBytesInUse   = 0;
+            bsls::Types::Int64 peakBytesInUse      = 0;
 
-            balb::PerformanceMonitor::Measure virtualSizeMeasure =
-                                  balb::PerformanceMonitor::e_VIRTUAL_SIZE;
-
-            balb::PerformanceMonitor::Measure residentSizeMeasure =
-                                  balb::PerformanceMonitor::e_RESIDENT_SIZE;
+            Obj::Measure       virtualSizeMeasure  = Obj::e_VIRTUAL_SIZE;
+            Obj::Measure       residentSizeMeasure = Obj::e_RESIDENT_SIZE;
 
             perfmon.registerPid(0, "test");
 
