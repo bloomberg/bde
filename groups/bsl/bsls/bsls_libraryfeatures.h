@@ -558,7 +558,12 @@ BSLS_IDENT("$Id: $")
     // the day tool chains start removing this deprecated class template.
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
-    #if (__STDC_VERSION__ >= 199901L)
+    #if (__STDC_VERSION__ >= 199901L) ||                                      \
+           (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                            \
+            BSLS_PLATFORM_CMP_VERSION >= 40800)
+        // C99 functions are available in C++11 builds, and are also required
+        // when building on Sun gcc compilers in C++03 mode.
+
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     #endif
