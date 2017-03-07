@@ -68,16 +68,16 @@
 // [ 3] BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 // [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+// [ 6] BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+// [ 6] BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+
 // ----------------------------------------------------------------------------
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: never
 //      defined
 // ----------------------------------------------------------------------------
 // TBD Add tests for the new macros (and amendments to existing macros):
 //
-//: o BSLS_LIBRARYFEATURES_HAS_C99_BASELINE_LIBRARY
-//: o BSLS_LIBRARYFEATURES_HAS_C99_FULL_LIBRARY
-//: o BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 //: o BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 //: o BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 //: o BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
@@ -154,6 +154,34 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
                                                                      false;
 #endif
 
+
+                    // case 6
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
+     #include <cstdlib>
+     #include <cctype>
+     #include <cmath>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
+     #include <cstdlib>
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
+                                                                  true;
+#else
+                                                                  false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
+                                                                  true;
+#else
+                                                                  false;
+#endif
+
+
                     // case 5
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR) || \
@@ -215,7 +243,7 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined =
 
 #endif
 
-static const bool 
+static const bool
             u_BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined
                                                                               =
 #if   defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
@@ -578,7 +606,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -598,6 +626,77 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_C99_*
+        //
+        // Concerns:
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is defined only when
+        //:   the native standard library provides C99 features.
+        //:
+        //: 2 'BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF' is defined only when
+        //:   the native standard library provides C99 snprintf.
+        //
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is defined
+        //:   compile code that uses C99 library functions.
+        //:
+        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF' is defined compile
+        //:   code using 'snprintf'.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+        //   BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                      "TESTING 'BSLS_LIBRARYFEATURES_HAS_C99_*'\n"
+                      "========================================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY_defined);
+            P(u_BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF_defined);
+        }
+
+        if (u_BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR_defined) {
+            ASSERT(true ==
+                    u_BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined);
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+        // Test a subset of C99 features
+
+        // cmath
+        {
+            typedef int (*FuncPtrType)(double);
+            FuncPtrType funcPtr = &native_std::fpclassify;
+            (void)funcPtr;  // suppress unused variable warning
+        }
+
+        // cstdlib
+        {
+            typedef native_std::lldiv_t dummy;
+            dummy x;  // suppress unused typedef warning
+            (void)x;  // suppress unused variable warning
+        }
+
+        // cctype
+        {
+            typedef int (*FuncPtrType)(int);
+            FuncPtrType funcPtr = &native_std::isblank;
+            (void)funcPtr;  // suppress unused variable warning
+
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+        (void)&native_std::snprintf;
+#endif
+
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
