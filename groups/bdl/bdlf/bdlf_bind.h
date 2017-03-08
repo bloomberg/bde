@@ -1173,16 +1173,18 @@ class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
          LIST  const&                                list,
          bslma::Allocator                           *allocator = 0)
         // Create a 'Bind' object that is bound to the specified 'func'
-        // invocable object, using the optionally specified 'allocator' to
-        // supply memory.
+        // invocable object.  Optionally specify an 'allocator' used to supply
+        // memory.  If 'allocator' is 0, the currently installed default
+        // allocator is used.
     : Base(func, list, allocator)
     {
     }
 
     Bind(const Bind& other, bslma::Allocator *allocator = 0)
         // Create a 'Bind' object that is bound to the same invocable object
-        // with the same bound parameters as the specified 'other', using the
-        // optionally specified 'allocator' to supply memory.
+        // with the same bound parameters as the specified 'other'.  Optionally
+        // specify an 'allocator' used to supply memory.  If 'allocator' is 0,
+        // the currently installed default allocator is used.
     : Base(other, allocator)
     {
     }

@@ -613,8 +613,8 @@ class ObjectPool_DefaultProxy {
     ObjectPool_DefaultProxy(const Creator&    rhs,
                             bslma::Allocator *basicAllocator);
         // Create a proxy for a newly created function object constructed from
-        // the specified 'rhs' creator.  Use a 'basicAllocator' to supply
-        // memory.
+        // the specified 'rhs' creator.  Use the specified 'basicAllocator' to
+        // supply memory.
 
     ~ObjectPool_DefaultProxy();
         // Destroy this proxy and the underlying object.
@@ -859,8 +859,8 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // geometrically up to an implementation-defined maximum.  When objects
         // are returned to the pool, the default value of RESETTER is invoked
         // with a pointer to the returned object to restore the object to a
-        // reusable state.  The optionally specified 'basicAllocator' is used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // reusable state.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless
         // '0 != growBy'.
 
@@ -882,10 +882,10 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // grows geometrically up to an implementation-defined maximum.  When
         // objects are returned to the pool, the default value of RESETTER is
         // invoked with a pointer to the returned object to restore the object
-        // to a reusable state.  The optionally specified 'basicAllocator' is
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless '0 != growBy'.
+        // to a reusable state.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // '0 != growBy'.
 
     ObjectPool(const CREATOR&    objectCreator,
                const RESETTER&   objectResetter,
@@ -902,10 +902,10 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // '-growBy' and grows geometrically up to an implementation-defined
         // maximum.  When objects are returned to the pool, the specified
         // 'objectResetter' is invoked with a pointer to the returned object to
-        // restore the object to a reusable state.  The optionally specified
-        // 'basicAllocator' is used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.  The behavior
-        // is undefined unless '0 != growBy'.
+        // restore the object to a reusable state.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless '0 != growBy'.
 
     template <class ANYPROTO>
     explicit

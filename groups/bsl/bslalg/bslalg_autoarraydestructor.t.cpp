@@ -33,7 +33,7 @@ using namespace BloombergLP;
 // The component to be tested provides a proctor to help with exception-safety
 // guarantees.  The test sequence is very simple: we only have to ascertain
 // that the index computation is correct and that the proctor does destroy its
-// guarded range unless 'release has been called.  We use a test type that
+// guarded range unless 'release' has been called.  We use a test type that
 // monitors the number of constructions and destructions, and that allocates in
 // order to take advantage of the standard 'bslma' exception test.
 //-----------------------------------------------------------------------------

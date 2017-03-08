@@ -16,9 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'AllocBitwiseMoveableTestType', that is
-// bitwise-moveable, uses a 'bslma::Allocator' to allocate memory, and defines
-// the type traits 'bslma::UsesBslmaAllocator' and
-// 'bslmf::IsBitwiseMoveable'.
+// bitwise-moveable, uses a 'bslma::Allocator' to supply memory, and defines
+// the type traits 'bslma::UsesBslmaAllocator' and 'bslmf::IsBitwiseMoveable'.
 //
 ///Attributes
 ///----------
@@ -100,7 +99,7 @@ namespace bsltf {
 
 class AllocBitwiseMoveableTestType {
     // This unconstrained (value-semantic) attribute class that is
-    // bitwise-moveable, uses a 'bslma::Allocator' to allocate memory, and
+    // bitwise-moveable, uses a 'bslma::Allocator' to supply memory, and
     // defines the type traits 'bslma::UsesBslmaAllocator' and
     // 'bslmf::IsBitwiseMoveable'.  See the Attributes section under
     // @DESCRIPTION in the component-level documentation for information on the

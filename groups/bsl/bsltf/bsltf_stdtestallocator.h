@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //      // CONSTRUCTORS
 //      MyContainer(const TYPE& object);
 //          // Create an container containing the specified 'object', using the
-//          // parameterized 'ALLOCATOR' to allocate memory.
+//          // parameterized 'ALLOCATOR' to supply memory.
 //
 //      ~MyContainer();
 //          // Destroy this container.

@@ -1548,7 +1548,7 @@ class Datum {
 
     Datum clone(bslma::Allocator *basicAllocator) const;
         // Return a datum holding a "deep-copy" of this object, using the
-        // specified 'basicAllocator' to allocate memory.
+        // specified 'basicAllocator' to supply memory.
 
                                // Type-Identifiers
 

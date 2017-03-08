@@ -187,7 +187,7 @@ class HashCrossReference {
         // Look up the specified 'value', having hash value 'hashValue', and
         // return its index in 'd_bucketArray' stored in the specified 'idx.
         // If not found, return the vacant entry in 'd_bucketArray' where it
-        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // should be inserted.  Return 'true' if 'value' is found and 'false'
         // otherwise.
     {
         const TYPE *ptr;

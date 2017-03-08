@@ -76,8 +76,8 @@ namespace bsltf {
 template <int N>
 class AllocArgumentType {
     // This class template declares a separate type for each template parameter
-    // value 'N', 'bsltf::AllocArgumentType<N>, that wraps an integer value and
-    // provides implicit conversion to and from 'int'.  The wrapped integer
+    // value 'N', 'bsltf::AllocArgumentType<N>', that wraps an integer value
+    // and provides implicit conversion to and from 'int'.  The wrapped integer
     // will be dynamically allocated using the supplied allocator, or the
     // default allocator if none is supplied.  Its main purpose is that having
     // separate types for testing enables distinguishing them when calling

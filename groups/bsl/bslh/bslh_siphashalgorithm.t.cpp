@@ -161,9 +161,9 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // It is possible that an attacker with knowledge of the hashing algorithm we
 // are using could specially craft input that will cause collisions in our hash
 // table, degrading performance to O(n).  To avoid this we will need to use a
-// secure hash algorithm with a random seed.  This algorithm will need to be
-// in the form of a hash functor -- an object that will take objects stored in
-// our array as input, and yield an integer value which is hard enough for an
+// secure hash algorithm with a random seed.  This algorithm will need to be in
+// the form of a hash functor -- an object that will take objects stored in our
+// array as input, and yield an integer value which is hard enough for an
 // outside observer to predict that it appear random.  The functor can pass the
 // attributes of the 'TYPE' that are salient to hashing into the hashing
 // algorithm, and then return the hash that is produced.
@@ -240,7 +240,7 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 
 //..
 // Then, we define a 'Future' class, which holds a cstring 'name', char
-// 'callMonth', and short 'callYear'. This class can be used to store custom
+// 'callMonth', and short 'callYear'.  This class can be used to store custom
 // futures that the users have uploaded.
 //..
 
@@ -432,9 +432,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 //..
-// Then, we want to actually use our hash table on 'Future' objects.  We
-// create an array of 'Future's based on data that was originally from some
-// external source:
+// Then, we want to actually use our hash table on 'Future' objects.  We create
+// an array of 'Future's based on data that was originally from some external
+// source:
 //..
         Future futures[] = { Future("Swiss Franc", 'F', 2014),
                              Future("US Dollar", 'G', 2015),

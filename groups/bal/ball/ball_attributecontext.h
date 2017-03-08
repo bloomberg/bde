@@ -578,9 +578,9 @@ class AttributeContext {
         // maintained by this object.  If 'attributes' is subsequently
         // modified, prior to being removed, the 'clearCache()' method must be
         // invoked.  The behavior is undefined unless 'attributes' remains
-        // valid *and* *unmodified* (unless 'clearCache() is called) until this
-        // object is destroyed or 'attributes' is removed from this context.
-        // Note that this method can be invoked safely, even if
+        // valid *and* *unmodified* (unless 'clearCache()' is called) until
+        // this object is destroyed or 'attributes' is removed from this
+        // context.  Note that this method can be invoked safely, even if
         // 'AttributeContext::initialize()' has not been called.
 
     void clearCache();

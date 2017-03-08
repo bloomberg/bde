@@ -128,23 +128,23 @@ class Cusip {
 
     // CREATORS
     explicit Cusip(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Cusip' having the default value.  Use the
-        // optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Create an object of type 'Cusip' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     Cusip(const Cusip& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Cusip' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     explicit Cusip(const bsl::string&  value,
                    bslma::Allocator   *basicAllocator = 0);
-        // Create an object of type 'Cusip' having the specified 'value'.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Create an object of type 'Cusip' having the specified 'value'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     ~Cusip();
         // Destroy this object.

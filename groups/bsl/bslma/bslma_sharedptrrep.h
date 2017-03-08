@@ -94,7 +94,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                              int               day);
 //          // Create a shared representation of a 'bdet_Datetime' object
 //          // having the specified 'year', 'month' and 'day' using the
-//          // specified 'basicAllocator' to allocate memory.
+//          // specified 'basicAllocator' to supply memory.
 //
 //      // MANIPULATORS
 //      virtual void disposeRep();

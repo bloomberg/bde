@@ -22,7 +22,7 @@
 ///Callback Function Requirements
 ///------------------------------
 // Functions registered as callbacks for messages must be invokable as
-// 'void(*)(const bsl::string&, bsl::istream&).  (This signature is
+// 'void(*)(const bsl::string&, bsl::istream&)'.  (This signature is
 // 'balb::ControlManager::ControlHandler').  When the function is invoked, the
 // first argument is the message prefix, and the second is a stream on the
 // remainder of the message.

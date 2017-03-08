@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 //  class MyFixedSizeArray : private bslalg::ContainerBase<ALLOCATOR>
 //      // This class implements a container that contains a fixed number of
 //      // elements of the parameterized type 'VALUE' using the parameterized
-//      // 'ALLOCATOR' to allocate memory.  The number of elements is specified
+//      // 'ALLOCATOR' to supply memory.  The number of elements is specified
 //      // on construction.
 //  {
 //..

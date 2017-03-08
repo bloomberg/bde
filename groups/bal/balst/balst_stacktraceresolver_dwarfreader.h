@@ -235,7 +235,7 @@ class StackTraceResolver_DwarfReader {
              Offset                                libraryFileSize);
         // Initialize this 'Reader' object using the specified 'fileHelper' and
         // the specified 'buffer', to operate on the specified 'section', where
-        // the specified 'libraryFileSize is the size of the library or
+        // the specified 'libraryFileSize' is the size of the library or
         // executable file.  'buffer' is assumed to be at least
         // 'k_SCRATCH_BUF_LEN' long.
 

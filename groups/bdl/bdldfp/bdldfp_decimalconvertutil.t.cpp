@@ -316,7 +316,7 @@ static void memrev(void *buffer, size_t count)
                         // Memory copy with reversal functions
 
 unsigned char *memReverseIfNeeded(void *buffer, size_t count)
-    // Reverse the first specified 'count' bytes from the specified 'buffer`,
+    // Reverse the first specified 'count' bytes from the specified 'buffer',
     // if the host endian is different from network endian, and return the
     // address computed from 'static_cast<unsigned char *>(buffer) + count'.
 {

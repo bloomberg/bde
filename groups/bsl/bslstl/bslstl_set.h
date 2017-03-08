@@ -1015,8 +1015,8 @@ class set {
         // Insert the specified 'value' into this set (in amortized constant
         // time if the specified 'hint' is a valid immediate successor to
         // 'value') if a key equivalent to 'value' does not already exist in
-        // this set; otherwise, this method has no effect.  'value is left in a
-        // valid but unspecified state.  Return an iterator referring to the
+        // this set; otherwise, this method has no effect.  'value' is left in
+        // a valid but unspecified state.  Return an iterator referring to the
         // (possibly newly inserted) 'value_type' object in this set that is
         // equivalent to 'value'.  If 'hint' is not a valid immediate successor
         // to 'value', this operation has 'O[log(N)]' complexity, where 'N' is

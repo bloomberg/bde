@@ -165,8 +165,8 @@ class TestString {
     explicit TestString(const char *s, bslma::Allocator *allocator = 0);
     explicit TestString(const bsl::string& s, bslma::Allocator *allocator = 0);
         // Create a string, optionally initialized with the optionally
-        // specified 's', using the optionally specified 'allocator' to supply
-        // memory.  If allocator is null, the currently-installed default
+        // specified 's'.  Optionally specify an 'allocator' used to supply
+        // memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
 
     ~TestString();

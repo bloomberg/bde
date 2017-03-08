@@ -1857,7 +1857,7 @@ class DatumMaker {
     // CREATORS
     explicit DatumMaker(bslma::Allocator *basicAllocator);
         // Create a new 'DatumMaker' object using the specified
-        // 'basicAllocator' to allocate memory for created 'bdld::Datum'
+        // 'basicAllocator' to supply memory for created 'bdld::Datum'
         // objects.
 
     // ACCESSORS

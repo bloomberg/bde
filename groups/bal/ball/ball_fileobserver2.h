@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - -
 // The calculation of the local time offset adds some overhead to the
 // publication of each log record.  If that is problematic, the overhead can be
-// mitigated if the owner of 'main installs a high-performance local-time
+// mitigated if the owner of 'main' installs a high-performance local-time
 // offset callback for 'bdlt::CurrentTime'.  See {'bsls_systemtime'} for
 // details of installing such callback and see {'baltzo_localtimeoffsetutil'}
 // for a an example facility.  Note that such callbacks can improve performance

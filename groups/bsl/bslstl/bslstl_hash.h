@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 //          // Look up the specified 'value', having hash value 'hashValue',
 //          // and return its index in 'd_bucketArray'.  If not found, return
 //          // the vacant entry in 'd_bucketArray' where it should be inserted.
-//          // Return 'true' if 'value is found and 'false' otherwise.
+//          // Return 'true' if 'value' is found and 'false' otherwise.
 //      {
 //          const TYPE *ptr;
 //          for (*idx = hashValue & d_bucketArrayMask;

@@ -70,7 +70,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                             bslma::Allocator   *basicAllocator)
 //      // Convert the specified 'token' into the appropriate type of scalar
 //      // value and then create and return a 'Datum' object using that value.
-//      // Use the specified 'basicAllocator' to allocate memory.
+//      // Use the specified 'basicAllocator' to supply memory.
 //  {
 //      bool isInteger = true;
 //      bool isDouble = false;
