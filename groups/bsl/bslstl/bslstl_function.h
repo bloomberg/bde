@@ -3996,7 +3996,7 @@ class Function_Imp<RET(ARGS...)> :
     Function_Imp& operator=(const Function_Imp&);
     Function_Imp& operator=(BloombergLP::bslmf::MovableRef<Function_Imp>);
     template<class FUNC>
-    Function_Imp& operator=(FUNC&& func);
+    Function_Imp& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func);
     Function_Imp& operator=(nullptr_t);
 
 

@@ -300,6 +300,32 @@ static char C11[1 + bslmf::IsConvertible<int,   char >::VALUE];    // sz=2
 static char C12[1 + bslmf::IsConvertible<void*, int  >::VALUE];    // sz=1
 static char C13[1 + bslmf::IsConvertible<int,   int *>::VALUE];    // sz=1
 
+// Support types to demonstrate a convertible bug with Oracle CC 12.4.  The
+// member function are declared, but never defined, as we are testing only
+// compile-time properties associated with conversions.
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+struct Mover {
+    // Forwarding emulation tool, that acts like a movable (rvalue) reference
+    // in C++03.
+
+    operator TYPE&() const;
+};
+#else
+template <class TYPE>
+using Mover = TYPE&&;
+#endif
+
+struct Movable {
+    // This 'struct' is both copyable and movable, in both C++11, and through
+    // move-semantic emulation in C++03.
+
+    Movable();
+    Movable(const Movable&);
+    Movable(Mover<Movable>); // implicit
+};
+
 //=============================================================================
 //                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -594,6 +620,17 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,    float,  ConvertibleFrom<V_(int  )>  );
         ASSERT_IS_CONVERTIBLE(true, V_(int  ), ConvertibleFrom<   float >  );
         ASSERT_IS_CONVERTIBLE(true, V_(float), ConvertibleFrom<   int   >  );
+
+        // Test implicit conversion of user-defined movable types.
+
+        ASSERT_IS_CONVERTIBLE(true, Movable, Movable);
+        ASSERT_IS_CONVERTIBLE(true, const Movable, Movable);
+        ASSERT_IS_CONVERTIBLE(true, Mover<Movable>, Movable);
+        ASSERT_IS_CONVERTIBLE(true, const Mover<Movable>, Movable);
+        ASSERT_IS_CONVERTIBLE(true, Movable, const Movable);
+        ASSERT_IS_CONVERTIBLE(true, const Movable, const Movable);
+        ASSERT_IS_CONVERTIBLE(true, Mover<Movable>, const Movable);
+        ASSERT_IS_CONVERTIBLE(true, const Mover<Movable>, const Movable);
 
 #undef ASSERT_IS_CONVERTIBLE
       } break;
