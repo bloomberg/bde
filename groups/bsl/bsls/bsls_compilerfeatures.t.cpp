@@ -393,6 +393,29 @@ struct PackSize<T> {
 
 }  // close unnamed namespace
 
+namespace {
+// This is a second test to highlight why variadic templates do not work
+// sufficiently well to be supported on the Sun CC 12.4 compiler (and any
+// others that suffer similar bugs).
+
+template <class TYPE>
+void func(TYPE*, const TYPE&) {
+    // This function should deduce 'TYPE' from the pointer, and bind to a
+    // reference of any argument convertible to that type.
+}
+
+template <class TYPE, class ARG1, class... TAIL>
+void func(TYPE *, const ARG1&, const TAIL&...) {
+    // This function should deduce 'TYPE' from the pointer, perfectly match
+    // the second argument.
+}
+
+void test_func() {
+    int x = 0;
+    func(&x, 0);  // This line will be ambiguous on buggy compilers
+}
+
+}  // close unnamed namespace
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 //=============================================================================

@@ -59,6 +59,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_objectbuffer.h>
 #endif
 
+#ifndef INCLUDED_NEW
+#include <new>
+#define INCLUDED_NEW
+#endif
+
 #ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
 #define INCLUDED_TYPEINFO
