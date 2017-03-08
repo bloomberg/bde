@@ -261,16 +261,16 @@ class EncoderOptions {
     // CREATORS
     explicit EncoderOptions(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'EncoderOptions' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // default value.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
     EncoderOptions(const EncoderOptions& original,
                               bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'EncoderOptions' having the
-        // value of the specified 'original' object.  Use the optionally
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
+        // value of the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~EncoderOptions();
         // Destroy this object.

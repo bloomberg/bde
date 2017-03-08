@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 // minimize the amount of memory allocation required if addresses are
 // frequently added and removed from the container.  This component also
 // defines a class 'ball::AttributeContainerListIterator' (as well as the alias
-// 'ball::AttributeContainerList::iterator) that provides an STL-style iterator
-// over the addresses in a 'ball::AttributeContainer'.
+// 'ball::AttributeContainerList::iterator)' that provides an STL-style
+// iterator over the addresses in a 'ball::AttributeContainer'.
 //
 ///Thread Safety
 ///-------------

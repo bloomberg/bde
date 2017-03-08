@@ -195,8 +195,8 @@ namespace BloombergLP {
 
         Bind_Impl(const Bind_Impl& other, bslma::Allocator * = 0)
             // Create a 'Bind_Impl' object that is bound to the same invocable
-            // object with the same bound parameters as the specified 'other',
-            // using the optionally specified 'allocator' to supply memory.
+            // object with the same bound parameters as the specified 'other'.
+            // Optionally specify an allocator used to supply memory.
         : d_func(other.d_func), d_arg(other.d_arg)
         {
         }

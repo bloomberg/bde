@@ -123,15 +123,15 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  MyGenericContainer(const TYPE& object, bslma::Allocator *allocator = 0);
 //      // Create a container containing the specified 'object', using the
-//      // optionally specified 'allocator' to allocate memory.  If
-//      // 'allocator' is 0, the currently installed allocator is used.
+//      // optionally specified 'allocator' to supply memory.  If 'allocator'
+//      // is 0, the currently installed allocator is used.
 //
 //  MyGenericContainer(const MyGenericContainer&  container,
 //                     bslma::Allocator          *allocator = 0);
 //      // Create a container containing the same object as the specified
-//      // 'container', using the optionally specified 'allocator' to
-//      // allocate memory.  If 'allocator' is 0, the currently installed
-//      // allocator is used.
+//      // 'container', using the optionally specified 'allocator' to supply
+//      // memory.  If 'allocator' is 0, the currently installed allocator is
+//      // used.
 //
 //  ~MyGenericContainer();
 //      // Destroy this container.
@@ -172,7 +172,7 @@ BSLS_IDENT("$Id: $")
 //                                bslma::Allocator *allocator,
 //                                bslalg::TypeTraitUsesBslmaAllocator)
 //          // Create a copy of the specified 'value' at the specified
-//          // 'location', using the specified 'allocator' to allocate memory.
+//          // 'location', using the specified 'allocator' to supply memory.
 //      {
 //          new (location) TYPE(value, allocator);
 //      }

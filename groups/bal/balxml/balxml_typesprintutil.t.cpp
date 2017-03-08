@@ -670,21 +670,21 @@ class CustomizedString {
     // CREATORS
     explicit CustomizedString(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the default
-        // value.  Use the optionally specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // value.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     CustomizedString(const CustomizedString&  original,
                      bslma::Allocator        *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     explicit CustomizedString(const bsl::string&  value,
                               bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedString' having the specified
-        // 'value'.  Use the optionally specified 'basicAllocator' to supply
+        // 'value'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 

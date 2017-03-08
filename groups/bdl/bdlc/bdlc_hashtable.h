@@ -751,8 +751,8 @@ class HashTable {
     // CREATORS
     explicit HashTable(bsls::Types::Int64  capacityHint,
                        bslma::Allocator   *basicAllocator = 0);
-        // Create a double-hash table using the specified 'capacityHint'. Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create a double-hash table using the specified 'capacityHint'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '0 != capacityHint'.  Note
         // that 'capacityHint' can be either a positive integer or a negative
@@ -770,8 +770,8 @@ class HashTable {
               bslma::Allocator   *basicAllocator = 0);
         // Create a double-hash table with the specified 'capacityHint'.  Use
         // the specified 'hashFunctor1' as the first hash function; use the
-        // specified 'hashFunctor2' as the second hash function; use the
-        // optionally specified 'basicAllocator' to supply memory.  If
+        // specified 'hashFunctor2' as the second hash function.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '0 != capacityHint', and
         // 'hashFunction1' and 'hashFunction2' are valid.  Note that

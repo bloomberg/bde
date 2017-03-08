@@ -1786,7 +1786,7 @@ int main(int argc, char *argv[])
 
         enum { DATA_POINTS = 6 };
 
-        // Note that 'traces' (stack TRACES), 'ln' (Line NumberS), and 'GET_ST"
+        // Note that 'traces' (stack TRACES), 'ln' (Line NumberS), and 'GET_ST'
         // (GET Stack Trace) must have very short names since it is imperative
         // that we be able do several things on a single 79 column line.
 

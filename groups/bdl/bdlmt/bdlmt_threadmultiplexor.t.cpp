@@ -329,7 +329,7 @@ public:
             bslma::Allocator       *basicAllocator = 0);
        // Create a job queue that executes jobs in the specified 'threadPool'
        // using no more than the specified 'maxProcessors'.  Optionally specify
-       // a 'basicAllocator' used to supply memory.  If 'basicAllocator is 0,
+       // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
        // the currently installed default allocator is used.
 
    ~JobQueue();
