@@ -390,7 +390,7 @@ using Switch9 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8>;
                         // struct Switch
                         // =============
 
-template <int   SELECTOR,
+template <unsigned SELECTOR,
           class T0,
           class T1 = Nil,
           class T2 = Nil,
@@ -509,7 +509,7 @@ struct Switch<9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
                         // struct Switch2
                         // ==============
 
-template <int SELECTOR, class T0, class T1>
+template <unsigned SELECTOR, class T0, class T1>
 struct Switch2 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // two types 'T0' and 'T1', offers functionality identical to
@@ -539,7 +539,7 @@ struct Switch2<1, T0, T1> {
                         // struct Switch3
                         // ==============
 
-template <int SELECTOR, class T0, class T1, class T2>
+template <unsigned SELECTOR, class T0, class T1, class T2>
 struct Switch3 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // three types 'T0' up to 'T2', offers functionality identical to
@@ -577,7 +577,7 @@ struct Switch3<2, T0, T1, T2> {
                         // struct Switch4
                         // ==============
 
-template <int SELECTOR, class T0, class T1, class T2, class T3>
+template <unsigned SELECTOR, class T0, class T1, class T2, class T3>
 struct Switch4 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // four types 'T0' up to 'T3', offers functionality identical to
@@ -623,7 +623,7 @@ struct Switch4<3, T0, T1, T2, T3> {
                         // struct Switch5
                         // ==============
 
-template <int SELECTOR, class T0, class T1, class T2, class T3, class T4>
+template <unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4>
 struct Switch5 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // five types 'T0' up to 'T4', offers functionality identical to
@@ -677,7 +677,7 @@ struct Switch5<4, T0, T1, T2, T3, T4> {
                         // struct Switch6
                         // ==============
 
-template <int   SELECTOR,
+template <unsigned SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -751,7 +751,7 @@ struct Switch6<5, T0, T1, T2, T3, T4, T5> {
                         // struct Switch7
                         // ==============
 
-template <int   SELECTOR,
+template <unsigned SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -835,7 +835,7 @@ struct Switch7<6, T0, T1, T2, T3, T4, T5, T6> {
                         // struct Switch8
                         // ==============
 
-template <int   SELECTOR,
+template <unsigned SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -929,7 +929,7 @@ struct Switch8<7, T0, T1, T2, T3, T4, T5, T6, T7> {
                         // struct Switch9
                         // ==============
 
-template <int   SELECTOR,
+template <unsigned SELECTOR,
           class T0,
           class T1,
           class T2,
