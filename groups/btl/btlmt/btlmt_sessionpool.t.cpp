@@ -366,6 +366,40 @@ void readCbWithBlob(int         result,
     *numNeeded = 1;
 }
 
+void readCbWithReadSize(int            result,
+                        int           *numNeeded,
+                        btlb::Blob    *data,
+                        int            channelId,
+                        int            readSize,
+                        int            totalDataSize,
+                        bslmt::Barrier *barrier)
+{
+    static int numRead = 0;
+
+    if (result)
+    {
+        // Session is going down.
+
+        return;
+    }
+
+    ASSERT(numNeeded);
+    ASSERT(data);
+    ASSERT(0 < data->length());
+
+    const int bytesToRead = bsl::min(data->length(), readSize);
+
+    btlb::BlobUtil::erase(data, 0, bytesToRead);
+
+    numRead += bytesToRead;
+    if (numRead >= totalDataSize)
+    {
+        barrier->wait();
+        numRead = 0;
+    }
+    *numNeeded = 1;
+}
+
 void readCbWithBlobAndBarrier(int             result,
                               int            *numNeeded,
                               btlb::Blob     *data,
@@ -2129,7 +2163,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2151,7 +2185,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
 
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING close with and without enqueued data
         //

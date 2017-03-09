@@ -885,8 +885,7 @@ int SessionPool::connect(
 
     if (ret) {
         HandlePtr handle;
-        int rc = d_handles.remove(handleId, &handle);
-        (void)rc; BSLS_ASSERT(0 == rc);
+        d_handles.remove(handleId, &handle);
         handle->d_handleId = 0; // Do not call back anybody
         return ret;                                                   // RETURN
     }
@@ -959,9 +958,7 @@ int SessionPool::listen(
                                       platformErrorCode);
 
     if (ret) {
-        HandlePtr handle;
-        int rc = d_handles.remove(handleId, &handle);
-        (void)rc; BSLS_ASSERT(0 == rc);
+        d_handles.remove(handle->d_handleId);
         handle->d_handleId = 0; // Do not call back anybody
         return ret;                                                   // RETURN
     }
