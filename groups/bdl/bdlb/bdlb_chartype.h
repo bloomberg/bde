@@ -216,8 +216,8 @@ BSLS_IDENT("$Id: $")
 //     53    35    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        5
 //     54    36    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        6
 //     55    37    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        7
-//     56    38    _  _  _  -  D  X  A  _  P  G  _  _  A  I  _  A  _        8
-//     57    39    _  _  _  -  D  X  A  _  P  G  _  _  A  I  _  A  _        9
+//     56    38    _  _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        8
+//     57    39    _  _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        9
 //     58    3A    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        :
 //     59    3B    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ;
 //     60    3C    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        <
