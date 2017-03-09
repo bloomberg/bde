@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides an efficient, local-independent
 // alternative for the standard functionality found in '<ctype.h>'.  The
-// following character categories are supported (note that, 'IDENT', 'ALUND',
-// 'ALL', and 'NONE' are new):
+// following character categories are supported (note that 'ODIGIT', 'IDENT',
+// 'ALUND', 'ALL', and 'NONE' are new):
 //..
 //    ============================================================
 //                          Category   Description
@@ -345,7 +345,6 @@ struct CharType {
         e_UPPER,          // [A-Z]
         e_LOWER,          // [a-z]
         e_ALPHA,          // [A-Za-z]
-        e_ODIGIT,         // [0-7]
         e_DIGIT,          // [0-9]
         e_XDIGIT,         // [0-9A-Fa-f]
         e_ALNUM,          // [0-9A-Za-z]
@@ -358,7 +357,8 @@ struct CharType {
         e_IDENT,          // [ALNUM|_]
         e_ALUND,          // [ALPHA|_]
         e_ALL,            // [\0-\377]
-        e_NONE            // []
+        e_NONE,           // []
+        e_ODIGIT          // [0-7]
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEU_UPPER  = e_UPPER
@@ -398,7 +398,7 @@ struct CharType {
     };
 
     enum {
-        k_NUM_CATEGORIES = e_NONE + 1
+        k_NUM_CATEGORIES = e_ODIGIT + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
