@@ -455,7 +455,7 @@ class MmapAllocator : public bslma::Allocator {
 
 }  // close namespace test
 
-void report(int                bufferSize,
+void report(bsl::size_t        bufferSize,
             bsls::Types::Int64 currentBytesInUse,
             bsls::Types::Int64 peakBytesInUse,
             double             virtualSize,
@@ -514,9 +514,9 @@ double wasteCpuTime()
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     struct tms tmsBuffer;
-    int rc = times(&tmsBuffer);
+    clock_t    rc = times(&tmsBuffer);
     BSLS_ASSERT(-1 != rc);
-    int startTime = tmsBuffer.tms_utime + tmsBuffer.tms_stime;
+    clock_t startTime = tmsBuffer.tms_utime + tmsBuffer.tms_stime;
 
     double x = 1.0;
     do {
@@ -601,34 +601,36 @@ int main(int argc, char *argv[])
 //..
     balb::PerformanceMonitor perfmon(&scheduler, 1.0);
     int                      rc  = perfmon.registerPid(0, "perfmon");
-    const int                PID = bdls::ProcessUtil::getProcessId();
+    const int                pid = bdls::ProcessUtil::getProcessId();
 
     ASSERT(0 == rc);
     ASSERT(1 == perfmon.numRegisteredPids());
 //..
 // Next, we print a formatted report of the performance statistics collected
 // for each pid every 10 seconds for one minute.  Note, that 'Statistics'
-// object can be simultaniously modified by scheduler callback and accessed via
-// 'ConstPointer'.  To get consistent data we create a local copy (copy
-// construction is guaranteed to be thread-safe).
+// object can be simultaneously modified by scheduler callback and accessed via
+// a 'ConstIterator'.  To ensure that the call to 'Statistics::print' outputs
+// consistent data from a single update of the statistics for this process, we
+// create a local copy (copy construction is guaranteed to be thread-safe).
 //..
     for (int i = 0; i < 6; ++i) {
         bslmt::ThreadUtil::microSleep(0, 10);
 
-        balb::PerformanceMonitor::ConstIterator    it = perfmon.begin();
+        balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
         const balb::PerformanceMonitor::Statistics stats = *it;
 
-        ASSERT(PID == stats.pid());
+        ASSERT(pid == stats.pid());
 
-        bsl::cout << "Pid = " << stats.pid() << ":\n";
+        bsl::cout << "PID = " << stats.pid() << ":\n";
         stats.print(bsl::cout);
     }
 //..
-// Finally, we unregister process and stop scheduler to cease statistics
-// collection.  It is thread-safely because we don't have any 'ConstIterators'
-// objects or references to 'Statistics' objects.
+// Finally, we unregister the process and stop the scheduler to cease
+// collecting statistics for this process.  It is safe to call 'unregisterPid'
+// here, because we don't have any 'ConstIterators' objects or references to
+// 'Statistics' objects.
 //..
-    rc  = perfmon.unregisterPid(PID);
+    rc  = perfmon.unregisterPid(pid);
 
     ASSERT(0 == rc);
     ASSERT(0 == perfmon.numRegisteredPids());
@@ -658,29 +660,30 @@ int main(int argc, char *argv[])
         //:   process for statistics collection.
         //:
         //: 2 Obtain iterator, 'mXIt', pointing the first element in the
-        //:   underlying map.  Create a const reference 'XIt' to the iterator.
+        //:   underlying map.  Create a const reference, 'XIt', to the
+        //:   iterator.
         //:
         //: 3 Store current statistics values using accessors of the
         //:   'Statistics' class.
         //:
-        //: 4 Make a copy of origin object and verify it's value using
+        //: 4 Make a copy of origin object and verify its value using
         //:   accessors of the 'Statistics' class.  (C-1)
         //:
-        //: 5 Compare accessible origin object fields with stored values.
+        //: 5 Compare origin object fields with stored values from P-3.
         //:   (C-2)
         //:
         //: 6 Collect latest statistics to update origin object and verify that
-        //:   copy isn't affected.
+        //:   the copy isn't affected.
         //:
         //: 7 Unregister current process to destroy origin object and verify
-        //:   that copy isn't affected.  (C-3)
+        //:   that the copy isn't affected.  (C-3)
         //:
         //: 8 Register current process for statistics collection again.  Obtain
-        //:   iterator, 'mXIt', pointing the first element in the underlying
-        //:   map.  Create a const reference 'XIt' to the iterator.
+        //:   an iterator, 'mXIt', pointing the first element in the underlying
+        //:   map.  Create a const reference, 'XIt', to the iterator.
         //:
-        //: 9 Create several copies of current process statistics, passing
-        //:   different allocators to copy constructor, and verify that all
+        //: 9 Create several copies of the current process statistics, passing
+        //:   different allocators to the copy constructor, and verify that all
         //:   memory is allocated by user-supplied allocator.  (C-4)
         //
         // Testing:
@@ -865,14 +868,15 @@ int main(int argc, char *argv[])
         //:
         //: 3 Using the loop-based approach:
         //:
-        //:   1 Register processes one by one in back order (so 'begin' should
-        //:     return different values on each iteration).
+        //:   1 Register processes one by one in back order (so the 'begin'
+        //:     accessor should return different values on each iteration).
         //:
-        //:   2 Using 'pid' accessor of 'Statistics' class verify 'begin' and
-        //:     'find' return values. (C-1,3)
+        //:   2 Using 'pid' accessor of the 'Statistics' class verify return
+        //:     values of 'begin' and 'find' accessors. (C-1,3)
         //:
         //:   3 Execute an inner loop to iterate to the end of the map and
-        //:     verify 'end' return value using comparison operator.  (C-2)
+        //:     using comparison operator verify return values of the 'end'
+        //:     accessor. (C-2)
         //
         // Testing:
         //   ConstIterator begin() const;
@@ -988,7 +992,7 @@ int main(int argc, char *argv[])
         //:   map.
         //:
         //: 4 Increment both iterators separately to get situations when they
-        //    are anticipated to be equal or different and verify the
+        //    are anticipated to be and not to be equal and verify the
         //    commutativity property and the expected return value for both
         //    '==' and '!='.  (C-1..7)
         //
@@ -1100,8 +1104,8 @@ int main(int argc, char *argv[])
         // TESTING INCRERMENT OPERATORS
         //
         // Concerns:
-        //: 1 The increment operators change the value of the object to
-        //:   refer to the next element in the map.
+        //: 1 The increment operators change the value of the object to refer
+        //:   to the next element in the map.
         //:
         //: 2 The signatures and return types are standard.
         //:
@@ -1125,7 +1129,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 Iterate through the underlying map using the 'operator++()' and
         //:   'operator++(int)' manipulators respectively and verify return
-        //:   values and iterator positions.
+        //:   values and values of the iterators.
         //
         // Testing:
         //   ConstIterator& operator++();
@@ -1243,15 +1247,15 @@ int main(int argc, char *argv[])
         //:
         //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterator,
         //:   'mXIt', pointing the first element in the underlying map.  Create
-        //:    a const reference 'XIt' to the iterator.
+        //:    a const reference, 'XIt', to the iterator.
         //:
         //: 4 Invoke 'operator*' on 'XIt' and use the 'Statistics' class
-        //:   accessors 'pid' and 'description' to verify that it returns the
-        //:   expected value.  (C-1)
+        //:   accessors 'pid' and 'description' to verify that the operator
+        //:   returns the expected value.  (C-1)
         //:
         //: 5 Invoke 'operator->' on 'XIt' and use the 'Statistics' class
-        //:   accessors 'pid' and 'description' to verify that it returns the
-        //:   expected value.  (C-2..3)
+        //:   accessors 'pid' and 'description' to verify that the operator
+        //:   returns the expected value.  (C-2..3)
         //
         // Testing:
         //   reference operator*() const;
@@ -1592,7 +1596,7 @@ int main(int argc, char *argv[])
         {
             Obj                perfmon(&ta);
 
-            int                bufferSize          = 0;
+            bsl::size_t        bufferSize          = 0;
 
             double             virtualSize         = 0;
             double             residentSize        = 0;
