@@ -1162,8 +1162,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, isCntrl(i)  == !!iscntrl(i));
                 LOOP_ASSERT(i, isAscii(i)  == !!isascii(i));
 
-                LOOP_ASSERT(i, isIdent(i)  == isalnum(i) || '_');
-                LOOP_ASSERT(i, isAlund(i)  == isalpha(i) || '_');
+                LOOP_ASSERT(i, isIdent(i)  == (isalnum(i) || i == '_'));
+                LOOP_ASSERT(i, isAlund(i)  == (isalpha(i) || i == '_'));
                 LOOP_ASSERT(i, isAll(i)    == 1);
                 LOOP_ASSERT(i, isNone(i)   == 0);
             }
