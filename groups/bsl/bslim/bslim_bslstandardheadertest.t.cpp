@@ -56,7 +56,6 @@
 #include <bsl_csetjmp.h>
 #include <bsl_csignal.h>
 #include <bsl_cstdarg.h>
-#include <bsl_cstdbool.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
 #include <bsl_cstdio.h>
@@ -115,6 +114,7 @@
 #include <bsl_chrono.h>
 #include <bsl_cinttypes.h>
 #include <bsl_condition_variable.h>
+#include <bsl_cstdbool.h>
 #include <bsl_ctgmath.h>
 #include <bsl_future.h>
 #include <bsl_initializer_list.h>
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
         }
         {
               if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
               typedef int (*FuncPtrType)(double);
               FuncPtrType funcPtr = &bsl::fpclassify;
 #endif
