@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 #       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
                                           BSL_NATIVE_SUN_CPP11_HEADER(filename)
 #       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
-                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
+                                 BSL_NATIVE_SUN_CPP11_HEADER(backward/filename)
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                           BSL_NATIVE_SUN_CPP11_HEADER(filename)
 #   elif !defined(BDE_BUILD_TARGET_STLPORT)  // (default) Rogue Wave library
