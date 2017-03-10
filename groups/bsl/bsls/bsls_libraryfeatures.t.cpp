@@ -70,11 +70,11 @@
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
 // [ 6] BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 // [ 6] BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
-
+// [ 7] int native_std::isblank(int);
+// [ 7] bool native_std::isblank(char, const native_std::locale&);
 // ----------------------------------------------------------------------------
-// [ 7] USAGE EXAMPLE
-// [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: never
-//      defined
+// [ 8] USAGE EXAMPLE
+// [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 // TBD Add tests for the new macros (and amendments to existing macros):
 //
@@ -152,6 +152,24 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
                                                                      true;
 #else
                                                                      false;
+#endif
+
+                    // case 7
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+     #include <cctype>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+     #include <locale>
+#endif
+
+static const bool
+    u_BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES_defined =
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+                                                                          true;
+#else
+                                                                         false;
 #endif
 
 
@@ -606,7 +624,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -627,9 +645,65 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'isblank'
+        //
+        // Concerns:
+        //: 1 The one-argument form of 'isblank' is available when
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined.
+        //:
+        //: 2 The two-argument locale form of 'isblank' is available when
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES' is
+        //:   defined.
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
+        //:   compile code that uses the one-argument 'isblank'.
+        //:
+        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES' is
+        //:   defined compile code that uses the two-argument 'isblank'.
+        //
+        // Testing:
+        //   int native_std::isblank(int);
+        //   bool native_std::isblank(char, const native_std::locale&);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING 'isblank'\n"
+                            "=================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined)
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES_defined)
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) {
+            printf("Expecting 'isblank' from <cctype>\n");
+        }
+        int (*isblankc)(int) = &native_std::isblank;
+        (void)isblankc;
+#else
+        if (verbose) {
+            printf("Not expecting 'isblank' from <cctype>\n");
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+        if (verbose) {
+            printf("Expecting 'isblank' from <locale>\n");
+        }
+        bool (*isblankl)(char, const native_std::locale&) =
+            &native_std::isblank;
+        (void)isblankl;
+#else
+        if (verbose) {
+            printf("Not expecting 'isblank' from <locale>\n");
+        }
+#endif
+      } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_C99_*
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_C99_*'
         //
         // Concerns:
         //: 1 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is defined only when
