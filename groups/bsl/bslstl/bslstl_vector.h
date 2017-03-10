@@ -5774,6 +5774,13 @@ bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
+vector<VALUE_TYPE, ALLOCATOR>::vector() BSLS_CPP11_NOEXCEPT
+: Base(ALLOCATOR())
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
 vector<VALUE_TYPE, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)
                                                             BSLS_CPP11_NOEXCEPT
 : Base(basicAllocator)
