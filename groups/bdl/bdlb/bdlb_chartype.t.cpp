@@ -43,7 +43,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bool isUpper(char character);
 // [ 5] bool isLower(char character);
 // [ 5] bool isAlpha(char character);
-// [ 5] bool isoDigit(char character);
+// [ 5] bool isOdigit(char character);
 // [ 5] bool isDigit(char character);
 // [ 5] bool isXdigit(char character);
 // [ 5] bool isAlnum(char character);
@@ -61,7 +61,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] const char *stringUpper();
 // [ 6] const char *stringLower();
 // [ 6] const char *stringAlpha();
-// [ 6] const char *stringoDigit();
+// [ 6] const char *stringOdigit();
 // [ 6] const char *stringDigit();
 // [ 6] const char *stringXdigit();
 // [ 6] const char *stringAlnum();
@@ -78,7 +78,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] int numUpper();
 // [ 6] int numLower();
 // [ 6] int numAlpha();
-// [ 6] int numoDigit();
+// [ 6] int numOdigit();
 // [ 6] int numDigit();
 // [ 6] int numXdigit();
 // [ 6] int numAlnum();
@@ -165,6 +165,9 @@ void aSsErT(bool condition, const char *message, int line)
 // locale or one implementing the ASCII character set with a non-standard
 // character encoding (e.g., EBCDIC).
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01
+
 static bool isUpper(char c) {
     return 'A' <= c && c <= 'Z';
 }
@@ -174,8 +177,8 @@ static bool isLower(char c) {
 }
 
 static bool isAlpha(char c) {
-    return 'A' <= c && c <= 'Z'
-        || 'a' <= c && c <= 'z';
+    return ('A' <= c && c <= 'Z')
+        || ('a' <= c && c <= 'z');
 }
 
 static bool isOdigit(char c) {
@@ -256,8 +259,13 @@ static char toUpper(char c) {
     return isLower(c) ? c - 32 : c;
 }
 
+// BDE_VERIFY pragma: pop
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TW01
+
 // ============================================================================
-//             DEFINITIONAL DATA TO VERIFY DOCUMENTATION IN HEADER
+//             NORMATIVE DATA TO VERIFY DOCUMENTATION IN HEADER
 // ----------------------------------------------------------------------------
 // The following table mirrors the one in the header used to document which
 // characters belong to the respective categories.
@@ -400,6 +408,8 @@ static const char DOC_TABLE[128][bdlb::CharType::k_NUM_CATEGORIES] =
    { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0 },  // ~
    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0 },  // 177
 };
+
+// BDE_VERIFY pragma: pop
 
 // ============================================================================
 //                       SUPPORT FOR USAGE EXAMPLE
@@ -831,6 +841,7 @@ int main(int argc, char *argv[])
         //   bool isUpper(char character);
         //   bool isLower(char character);
         //   bool isAlpha(char character);
+        //   bool isOdigit(char character);
         //   bool isDigit(char character);
         //   bool isXdigit(char character);
         //   bool isAlnum(char character);
@@ -844,7 +855,6 @@ int main(int argc, char *argv[])
         //   bool isAlund(char character);
         //   bool isAll(char character);
         //   bool isNone(char character);
-        //   bool isOdigit(char character);
         //
         //   bool isCategory(char c, bdlb::CharType::Category category);
         //

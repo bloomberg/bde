@@ -20,6 +20,8 @@ namespace BloombergLP {
 // ***                      STATIC CONSTANT STRING VARIABLES                ***
 // ----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: -UC01
+
 static const char UPPER_STRING[]  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 static const char LOWER_STRING[]  = "abcdefghijklmnopqrstuvwxyz";

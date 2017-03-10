@@ -15,6 +15,9 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -BAN03
+
 //@PURPOSE: Supply local-independent version of '<ctype.h>' functionality.
 //
 //@CLASSES:
@@ -24,13 +27,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_string
 //
-//@DESCRIPTION: This component provides an efficient, local-independent
-// alternative for the standard functionality found in '<ctype.h>'.  The
-// following character categories are supported (note that 'ODIGIT', 'IDENT',
-// 'ALUND', 'ALL', and 'NONE' are new):
+//@DESCRIPTION: This component defines a utility class 'bdlb::CharType' that
+// provides an efficient, local-independent alternative for the standard
+// functionality found in '<ctype.h>'.  The following character categories are
+// supported (note that 'ODIGIT', 'IDENT', 'ALUND', 'ALL', and 'NONE' are new):
 //..
 //    ============================================================
-//                          Category   Description
+//    Category   Description
 //    --------   -------------------------------------------------
 //    UPPER      [A-Z]
 //    LOWER      [a-z]
@@ -323,6 +326,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+// BDE_VERIFY pragma: pop
+
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
@@ -330,6 +335,9 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
 
 namespace BloombergLP {
 
@@ -1116,6 +1124,8 @@ char CharType::toUpper(char input)
 
 }  // close package namespace
 }  // close enterprise namespace
+
+// BDE_VERIFY pragma: pop
 
 #endif
 
