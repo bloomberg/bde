@@ -775,12 +775,13 @@ class set {
 
   public:
     // CREATORS
-    explicit set(const COMPARATOR& comparator = COMPARATOR(),
+    set();
+        // Create an empty set.
+
+    explicit set(const COMPARATOR& comparator,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR())
-        // Create an empty set.  Optionally specify a 'comparator' used to
-        // order keys contained in this object.  If 'comparator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify a 'basicAllocator'
+        // Create an empty set.  Use the specified 'comparator' to order keys
+        // contained in this object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
@@ -1771,6 +1772,14 @@ set<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+set<KEY, COMPARATOR, ALLOCATOR>::set()
+: d_compAndAlloc(COMPARATOR(), ALLOCATOR())
+, d_tree()
+{
+}
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& basicAllocator)
