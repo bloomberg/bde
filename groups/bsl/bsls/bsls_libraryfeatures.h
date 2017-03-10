@@ -339,6 +339,7 @@ BSLS_IDENT("$Id: $")
 //:     o 'put_time'
 //:
 //:   o Functions defined in '<locale>'
+//:     o 'isblank'
 //:     o 'wstring_convert'
 //:     o 'wbuffer_convert'
 //:
