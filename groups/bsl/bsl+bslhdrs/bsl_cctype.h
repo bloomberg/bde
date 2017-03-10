@@ -44,9 +44,9 @@ namespace bsl {
     using native_std::tolower;
     using native_std::toupper;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     using native_std::isblank;
-#endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 }  // close package namespace
 
 
