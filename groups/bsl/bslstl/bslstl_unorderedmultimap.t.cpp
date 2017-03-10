@@ -11913,6 +11913,22 @@ int main(int argc, char *argv[])
         ASSERTV(x.bucket_count(), 2 * buckets, x.bucket_count() > 2 * buckets);
         ASSERTV(x.load_factor(), loadFactor, x.load_factor() < loadFactor);
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) {
+             printf("Test initializer lists.\n");
+        }
+        {
+            ASSERT((0 == []() -> bsl::unordered_multimap<char, int> {
+                return {};
+            }().size()));
+            ASSERT((1 == []() -> bsl::unordered_multimap<char, int> {
+                return {{'a', 1}};
+            }().size()));
+            ASSERT((3 == []() -> bsl::unordered_multimap<char, int> {
+                return {{'a', 1}, {'b', 2}, {'a', 3}};
+            }().size()));
+        }
+#endif
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");
       } break;

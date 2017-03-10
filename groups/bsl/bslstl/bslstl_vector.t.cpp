@@ -16044,6 +16044,16 @@ int main(int argc, char *argv[])
             (bslmf::IsBitwiseMoveable<vector<bsltf::AllocTestType> >::value));
         ASSERT(  (bslmf::IsBitwiseMoveable<vector<Vector_Imp<int> > >::value));
 #endif
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::vector<int> { return {}; }().size()));
+            ASSERT((1 == []() -> bsl::vector<int> { return {1}; }().size()));
+            ASSERT((3 == []() -> bsl::vector<int> {
+                return {3, 1, 3};
+            }().size()));
+        }
+#endif
       } break;
       case -1: {
         // --------------------------------------------------------------------

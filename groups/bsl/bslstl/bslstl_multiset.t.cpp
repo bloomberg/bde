@@ -10612,6 +10612,18 @@ int main(int argc, char *argv[])
             TestDriver<int, std::less<int> >::testCase1(std::less<int>(),
                                                         INT_VALUES,
                                                         NUM_INT_VALUES);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) {
+             printf("Test initializer lists.\n");
+        }
+        {
+            ASSERT((0 == []() -> bsl::multiset<int> { return {}; }().size()));
+            ASSERT((1 == []() -> bsl::multiset<int> { return {1}; }().size()));
+            ASSERT((3 == []() -> bsl::multiset<int> {
+                return {1, 2, 1};
+            }().size()));
+        }
+#endif
         }
       } break;
       default: {

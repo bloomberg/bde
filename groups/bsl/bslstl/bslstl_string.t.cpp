@@ -20745,10 +20745,15 @@ int main(int argc, char *argv[])
         }
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-        if (verbose) printf("\nAdditional tests: initializer list.\n");
-        bsl::string hello = { 'H', 'e', 'l', 'l', 'o' };
-        ASSERTV("Hello" == hello);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((""    == []() -> bsl::string { return {}; }()));
+            ASSERT(("a"   == []() -> bsl::string { return {'a'}; }()));
+            ASSERT(("aba" == []() -> bsl::string {
+                return {'a', 'b', 'a'};
+            }()));
+        }
 #endif
 
       } break;

@@ -11643,6 +11643,21 @@ if (verbose) {
 
         testErase(mZ);
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::unordered_set<int> {
+                return {};
+            }().size()));
+            ASSERT((1 == []() -> bsl::unordered_set<int> {
+                return {1};
+            }().size()));
+            ASSERT((2 == []() -> bsl::unordered_set<int> {
+                return {3, 1, 3};
+            }().size()));
+        }
+#endif
+
         if (veryVerbose) {
             printf("Final message to confim the end of the breathing test.\n");
         }

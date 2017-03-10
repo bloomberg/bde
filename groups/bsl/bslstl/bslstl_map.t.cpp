@@ -12202,6 +12202,19 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::map<char, int> { return {}; }().size()));
+            ASSERT((1 == []() -> bsl::map<char, int> {
+                return {{'a', 1}};
+            }().size()));
+            ASSERT((2 == []() -> bsl::map<char, int> {
+                return {{'a', 1}, {'b', 2}, {'a', 3}};
+            }().size()));
+        }
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

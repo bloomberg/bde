@@ -16709,6 +16709,17 @@ int main(int argc, char *argv[])
                bslmf::IsBitwiseMoveable<bsl::deque<bsl::deque<int> > >::value);
         }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::deque<int> { return {}; }().size()));
+            ASSERT((1 == []() -> bsl::deque<int> { return {1}; }().size()));
+            ASSERT((3 == []() -> bsl::deque<int> {
+                return {3, 1, 3};
+            }().size()));
+        }
+#endif
+
       } break;
       case -1: {
         // --------------------------------------------------------------------

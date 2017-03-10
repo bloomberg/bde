@@ -1369,9 +1369,8 @@ class basic_string
 
                    // *** 21.3.2 construct/copy/destroy: ***
 
-    explicit
-    basic_string(const ALLOCATOR& basicAllocator = ALLOCATOR())
-                                                           BSLS_CPP11_NOEXCEPT;
+    basic_string() BSLS_CPP11_NOEXCEPT;
+    explicit basic_string(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT;
         // Create an empty string.  Optionally specify the 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.
@@ -3643,6 +3642,16 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
 // CREATORS
 
                 // *** 21.3.2 construct/copy/destroy: ***
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string()
+                                                            BSLS_CPP11_NOEXCEPT
+: Imp()
+, BloombergLP::bslalg::ContainerBase<allocator_type>(ALLOCATOR())
+{
+    CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
+}
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
