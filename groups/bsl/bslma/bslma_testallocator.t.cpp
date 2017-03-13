@@ -291,7 +291,8 @@ static int globalNewCalledCountIsEnabled = 0;
 static int globalDeleteCalledCount = 0;
 static int globalDeleteCalledCountIsEnabled = 0;
 
-#ifdef BDE_BUILD_TARGET_EXC
+#if defined(BDE_BUILD_TARGET_EXC) && \
+   !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 void *operator new(size_t size) throw(std::bad_alloc)
 #else
 void *operator new(size_t size)
@@ -311,7 +312,11 @@ void *operator new(size_t size)
 }
 
 #ifdef BDE_BUILD_TARGET_EXC
+# if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+void operator delete(void *address) noexcept
+# else
 void operator delete(void *address) throw()
+# endif
 #else
 void operator delete(void *address)
 #endif
