@@ -459,7 +459,7 @@ namespace UsageExamples {
 // and a boolean value indicating if the value is newly inserted if it
 // previously exiting in the set.  The 'MyPair' class template will also appear
 // in {Example 2} and {Example 3}.  Note that in practice, users can use the
-// standard 'bsl::pair' in this role; the 'MyPair class template is used in
+// standard 'bsl::pair' in this role; the 'MyPair' class template is used in
 // these examples to avoid creating a dependency of 'bslstl_hashtable' on
 // 'bslstl_pair'.
 //..

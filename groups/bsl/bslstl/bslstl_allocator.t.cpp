@@ -28,7 +28,7 @@ using namespace BloombergLP;
 // the lifetime of an object.  A 'bsl::allocator' is parameterized by the type
 // that it allocates, and that influences the behavior of several manipulators
 // and accessors, mainly depending on the size of that type.  The same
-// 'bsl::allocator" can be re-parameterized for another type ("rebound") using
+// 'bsl::allocator' can be re-parameterized for another type ("rebound") using
 // the 'rebind' nested template.
 //
 // Although 'bsl::allocator' is a value-semantic type, the fact that its value

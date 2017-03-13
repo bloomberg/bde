@@ -53,6 +53,19 @@
 
 #include <algorithm>    // 'std::swap'
 
+// Local macros to detect and work around compiler defects.
+
+#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_RVALUE_REFERENCES) \
+ &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
+#   define BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY 1
+#endif
+
+#if defined(BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY)
+# define BAD_MOVE_GUARD(IDENTIFIER) int
+#else
+# define BAD_MOVE_GUARD(IDENTIFIER) IDENTIFIER
+#endif
+
 using namespace BloombergLP;
 using bsls::NameOf;
 
@@ -3942,10 +3955,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase14,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-                   // bsltf::MoveOnlyAllocTestType -- test case needs copy
+                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- test case needs copy
                    // c'tor.
       } break;
       case 13: {
@@ -4460,9 +4473,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_move,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_copy,
@@ -4470,10 +4483,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_copy,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-                   // bsltf::MoveOnlyAllocTestType - copy assign is needed
+                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) - copy assign is needed
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4532,10 +4545,10 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase11,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        // Cannot do 'bsltf::MoveOnlyAllocTestType' -- need copy c'tor.
+        // Cannot do 'BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)' -- need copy c'tor.
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -4574,9 +4587,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase10,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -4615,9 +4628,9 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase9,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType,
-                      bsltf::MoveOnlyAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
+                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
       } break;
       case 8: {
         // --------------------------------------------------------------------

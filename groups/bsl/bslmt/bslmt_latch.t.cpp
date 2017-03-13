@@ -11,6 +11,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_algorithm.h>   // 'bsl::min'
 #include <bsl_cstddef.h>
@@ -88,21 +90,22 @@ using namespace bsl;
 // [ 4] void arriveAndWait();
 // [ 1] void countDown(int n);
 // [ 5] void wait();
+// [ 6] void timedWait(const bsls::TimeInterval &timeout);
 //
 // ACCESSORS
 // [ 1] int currentCount() const;
 // [ 3] bool tryWait() const;
 //
 // Interactions between manipulators, concurrent usage:
-// [12] countDown(int n); wait(); arriveAndWait();
-// [11] arrive();         wait(); arriveAndWait();
-// [10] countDown(int n); wait();
-// [ 9] arrive();         wait();
-// [ 8] arriveAndWait();
-// [ 7] countDown(int n);
-// [ 6] arrive();
+// [13] countDown(int n); wait(); arriveAndWait();
+// [12] arrive();         wait(); arriveAndWait();
+// [11] countDown(int n); wait();
+// [10] arrive();         wait();
+// [ 9] arriveAndWait();
+// [ 8] countDown(int n);
+// [ 7] arrive();
 // ----------------------------------------------------------------------------
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 // The following table shows how the three groups of threads described are
 // mixed together in each test case, where:
@@ -869,7 +872,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -924,7 +927,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // PRODUCERS(C-D), CONSUMERS, AND PRODUCERS-CONSUMERS
         //
@@ -972,7 +975,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // PRODUCERS(ARRIVE), CONSUMERS, AND PRODUCERS-CONSUMERS
         //
@@ -1020,7 +1023,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // PRODUCERS(COUNT DOWN) AND CONSUMERS
         //
@@ -1060,7 +1063,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // PRODUCERS(ARRIVE) AND CONSUMERS
         //
@@ -1100,7 +1103,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // PRODUCERS-CONSUMERS
         //
@@ -1132,7 +1135,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // PRODUCERS(COUNT DOWN)
         //
@@ -1164,7 +1167,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // PRODUCERS(ARRIVE)
         //
@@ -1193,6 +1196,56 @@ int main(int argc, char *argv[])
             groups::test<groups::ThreadProducerArrive,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(i, 0, 0);
+        }
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'timedWait'
+        //
+        // Concerns:
+        //: 1 A latch built with 0 has already reached the synchronization
+        //:   point.
+        //:
+        //: 2 A latch built will timeout after reaching 'timeout' time.  The
+        //:   initial 'count' given the constructor is unchanged.
+        //
+        // Plan:
+        //: 1 Create a latch with an initial count of 0.
+        //:
+        //: 2 Verify that 'wait()' calls do not block the test execution.
+        //:   (C-1)
+        //:
+        //: 3 Create a latch with an initial count of 5.
+        //:
+        //: 4 Verify that 'timedWait()' call times out, and 'currentCount'
+        //    returns 5.
+        //:   (C-2)
+        //
+        // Testing:
+        //   void timedWait(const bsls::TimeInterval &timeout);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'timedWait'" << endl
+                          << "===================" << endl;
+
+        {
+            bslmt::Latch myLatch(0);
+            myLatch.wait();
+        }
+
+        {
+            bslmt::Latch myLatch(5);
+
+            // define a timeout of 1s
+            bsls::TimeInterval timeOut = bsls::SystemTime::nowRealtimeClock();
+            timeOut.addMicroseconds(1000000);
+
+            const int rc = myLatch.timedWait(timeOut);
+            ASSERT(-1 == rc);
+            const int myCount = myLatch.currentCount();
+            ASSERT(5 == myCount);
         }
 
       } break;

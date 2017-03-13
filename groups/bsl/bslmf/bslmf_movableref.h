@@ -610,7 +610,7 @@ struct MovableRefUtil {
     static MovableRef<TYPE> move(TYPE& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a movable reference of type 'MovableRef<TYPE>' from the
         // specified 'lvalue'.  For a C++03 implementation this function
-        // behaves like a factory for 'MovableRef<TYPE> objects.  For a C++11
+        // behaves like a factory for 'MovableRef<TYPE>' objects.  For a C++11
         // implementation this function behaves exactly like 'std::move(value)'
         // applied to l-values.
 #endif
@@ -658,7 +658,7 @@ struct MovableRefUtil {
     }
         // TBD: fix comment
         // Return a movable reference to the object referred to by the
-        // specified 'reference' if (template parameter) 'TYPE" has a move
+        // specified 'reference' if (template parameter) 'TYPE' has a move
         // constructor that does not throw or does not have a copy constructor
         // (i.e., is a move-only type); otherwise return an lvalue reference to
         // non-modifiable object.  This function uses traits to custom traits

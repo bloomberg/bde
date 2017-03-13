@@ -1,23 +1,25 @@
-// bslim_containertest.h                                              -*-C++-*-
-#ifndef INCLUDED_BSLIM_CONTAINERTEST
-#define INCLUDED_BSLIM_CONTAINERTEST
+// bslim_bslstandardheadertest.h                                      -*-C++-*-
+#ifndef INCLUDED_BSLIM_BSLSTANDARDHEADERTEST
+#define INCLUDED_BSLIM_BSLSTANDARDHEADERTEST
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a location for standard library containers tests.
+//@PURPOSE: Provide a location for testing 'bsl' standard library headers.
 //
 //@CLASSES:
 //
 //@AUTHOR: Oleg Subbotin (osubbotin)
 //
 //@DESCRIPTION: This component provides a location to define a set of tests for
-// standard library containers defined in 'bslstl'. These tests are located in
-// 'bslim' in order to allow the standard library types to be included through
-// the standard <bsl_*.h> headers. Note that this component does not define any
-// types or functions.
+// the inclusion of 'bsl' standard library headers, and in particular to test
+// types defined in 'bslstl'.  These tests are located in 'bslim' in order to
+// allow the standard library types to be included through the standard
+// '<bsl_*.h>' headers.  Note that this component does not define any types or
+// functions.
+
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -26,7 +28,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

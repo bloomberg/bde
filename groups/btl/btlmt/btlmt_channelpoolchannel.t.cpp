@@ -532,7 +532,7 @@ class my_Server {
               bslma::Allocator                       *basicAllocator = 0);
         // Construct this server configured by the specified 'config' using
         // 'btlb::Blob' for data reads.  Optionally specify 'basicAllocator'
-        // used to allocate memory.
+        // used to supply memory.
 
     ~my_Server();
         // Destroy this server.

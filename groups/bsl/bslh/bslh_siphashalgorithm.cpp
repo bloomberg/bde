@@ -82,7 +82,7 @@ typedef unsigned char       u8;
 
 inline
 static u64 rotl(u64 x, u64 b)
-    // Return the bits of the specified 'x' rotated to the left by  the
+    // Return the bits of the specified 'x' rotated to the left by the
     // specified 'b' number of bits.  Bits that are rotated off the end are
     // wrapped around to the beginning.
 {

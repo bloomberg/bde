@@ -1,5 +1,5 @@
-// bslim_containertest.t.cpp                                          -*-C++-*-
-#include <bslim_containertest.h>
+// bslim_bslstandardheadertest.t.cpp                                  -*-C++-*-
+#include <bslim_bslstandardheadertest.h>
 
 #include <bslim_testutil.h>
 
@@ -15,20 +15,121 @@
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
+// #include all of the headers defined in bsl+bslhdrs.
+
+#include <bsl_algorithm.h>
+#include <bsl_bitset.h>
+#include <bsl_c_assert.h>
+#include <bsl_c_ctype.h>
+#include <bsl_c_errno.h>
+#include <bsl_c_float.h>
+#include <bsl_c_iso646.h>
+#include <bsl_c_limits.h>
+#include <bsl_c_locale.h>
+#include <bsl_c_math.h>
+#include <bsl_c_setjmp.h>
+#include <bsl_c_signal.h>
+#include <bsl_c_stdarg.h>
+#include <bsl_c_stddef.h>
+#include <bsl_c_stdio.h>
+#include <bsl_c_stdlib.h>
+#include <bsl_c_string.h>
+
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
+// The POSIX header <sys/time.h> is not available from Visual Studio.
+
+#include <bsl_c_sys_time.h>
+#endif
+
+#include <bsl_c_time.h>
+#include <bsl_c_wchar.h>
+#include <bsl_c_wctype.h>
+#include <bsl_cassert.h>
 #include <bsl_cctype.h>
+#include <bsl_cerrno.h>
+#include <bsl_cfloat.h>
+#include <bsl_ciso646.h>
+#include <bsl_climits.h>
+#include <bsl_clocale.h>
+#include <bsl_cmath.h>
+#include <bsl_complex.h>
+#include <bsl_csetjmp.h>
+#include <bsl_csignal.h>
+#include <bsl_cstdarg.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstdint.h>
 #include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_ctime.h>
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900)
+// The standard header <cuchar> is not available on most platforms.
+
+#include <bsl_cuchar.h>
+#endif
+
+#include <bsl_cwchar.h>
+#include <bsl_cwctype.h>
 #include <bsl_deque.h>
+#include <bsl_exception.h>
+#include <bsl_fstream.h>
+#include <bsl_functional.h>
+#include <bsl_hash_map.h>
+#include <bsl_hash_set.h>
 #include <bsl_iomanip.h>
+#include <bsl_ios.h>
+#include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
+#include <bsl_istream.h>
+#include <bsl_iterator.h>
+#include <bsl_limits.h>
 #include <bsl_list.h>
+#include <bsl_locale.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
+#include <bsl_new.h>
+#include <bsl_numeric.h>
+#include <bsl_ostream.h>
+#include <bsl_queue.h>
 #include <bsl_set.h>
+#include <bsl_slist.h>
 #include <bsl_sstream.h>
+#include <bsl_stack.h>
+#include <bsl_stdexcept.h>
+#include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_strstream.h>
+#include <bsl_typeinfo.h>
 #include <bsl_unordered_map.h>
 #include <bsl_unordered_set.h>
+#include <bsl_utility.h>
+#include <bsl_valarray.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bsl_array.h>
+#include <bsl_atomic.h>
+#include <bsl_cfenv.h>
+#include <bsl_chrono.h>
+#include <bsl_cinttypes.h>
+#include <bsl_condition_variable.h>
+#include <bsl_cstdbool.h>
+#include <bsl_ctgmath.h>
+#include <bsl_future.h>
+#include <bsl_initializer_list.h>
+#include <bsl_mutex.h>
+#include <bsl_random.h>
+#include <bsl_ratio.h>
+#include <bsl_regex.h>
+#include <bsl_scoped_allocator.h>
+#include <bsl_system_error.h>
+#include <bsl_thread.h>
+#include <bsl_tuple.h>
+#include <bsl_type_traits.h>
+#include <bsl_typeindex.h>
+#endif
+
 
 #include <bsltf_templatetestfacility.h>
 
@@ -53,6 +154,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
 // [ 1] CONCERN: Support references as 'mapped_type' in map-like containers.
 
 // ============================================================================
@@ -289,6 +391,36 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // CONCERN: REGRESSION TEST FOR C99 FEATURES
+        //
+        // Concerns:
+        //: 1 Ensure that some C99 functions are available on some Bloomberg
+        //:   production platforms (to avoid any regressions from the
+        //:   introduction of bsls_libraryfeatures).
+        //
+        // Plan:
+        //: 1 Verify 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is 'true', and
+        //:   important '<cmath>' functions are available on Bloomberg
+        //:   production platforms.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "CONCERN: REGRESSION TEST FOR C99 FEATURES'\n"
+                      << "==========================================\n";
+        }
+        {
+              if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
+              typedef int (*FuncPtrType)(double);
+              FuncPtrType funcPtr = &bsl::fpclassify;
+#endif
+        }
+      } break;
       case 1: {
 #if !defined(BSLS_PLATFORM_CMP_SUN)
         if (verbose) { bsl::cout << "Testing references as 'mapped_type'.\n"; }

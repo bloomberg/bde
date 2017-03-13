@@ -364,11 +364,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
+ ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)
 // IBM xlC and Sun CC compilers have a hard time handling function types in
 // some of the template instantiations required by this component, so we simply
 // treat function types as 'void' types.  This gives the same result as neither
-// can hold a nested typedef.  Last tested with xlC 12 and Sun CC 12.3
+// can hold a nested typedef.  Last tested with xlC 12.
 # define BSLMF_DETECTNESTEDTRAIT_CANNOT_COMPILE_WITH_FUNCTION_TYPES  1
 #endif
 

@@ -72,6 +72,40 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//              PLATFORM DETECTION MACROS TO SUPPORT TESTING
+//-----------------------------------------------------------------------------
+
+//# define BSLMF_REMOVECV_SHOW_COMPILER_ERRORS 1
+#if !defined(BSLMF_REMOVECV_SHOW_COMPILER_ERRORS)
+
+# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
+  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
+  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
+// The xlC compiler matches function types with trailing cv-qualifiers as being
+// cv-qualified themselves.  However, in such cases the cv-qualifier applies to
+// the (hidden) 'this' pointer, as these function types exist only to be the
+// result-type of a pointer-to-member type.  By definition no function type can
+// ever be cv-qualified.  The Microsoft compiler cannot parse such types at
+// all.
+//
+// Note that we could obtain the correct answer by testing 'is_function', and
+// simply returning the original type in such cases.  However, that simply
+// exposes that our current implementation of 'is_function' does not detect
+// such types either.
+#   define BSLMF_REMOVECV_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
+# endif
+
+# if defined(BSLS_PLATFORM_CMP_IBM)
+#   define BSLMF_REMOVECV_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES 1
+// The IBM compiler cannot handle references to cv-qualified types, where such
+// referenced types are typedefs to regular (non-abominable) functions.  A
+// conforming compiler should silently drop the cv-qualifier, although some may
+// be noisy and issue a warning.  Last tested with xlC 12.2
+# endif
+
+#endif // BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS
+
+//=============================================================================
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
 
@@ -96,6 +130,10 @@ struct TestType {
    // This user-defined type is intended to be used during testing as an
    // argument for the template parameter 'TYPE' of 'bsl::remove_cv'.
 };
+
+typedef int TestType::* Pm;
+typedef int (TestType::*Pmf)();
+typedef int (TestType::*Pmq)() const;
 
 }  // close unnamed namespace
 
@@ -173,6 +211,10 @@ int main(int argc, char *argv[])
         //:   'volatile'-qualified as-is.
         //:
         //: 2 'bsl::remove_cv' removes any top-level cv-qualifiers.
+        //:
+        //: 3 'bsl::remove_cv' removes top-level cv-qualifiers from a
+        //:   pointer-to-member object type, and not from the qualifier in the
+        //:   pointed-to member.
         //
         // Plan:
         //   Verify that 'bsl::remove_cv::type' has the correct type for each
@@ -204,6 +246,21 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_cv<int[][2][3]>::type, int[][2][3]>::value));
 
         ASSERT((is_same<remove_cv<void>::type, void>::value));
+
+        ASSERT((is_same<remove_cv<const int TestType::*>::type,
+                                  const int TestType::*>::value));
+
+        ASSERT((is_same<remove_cv<const int (TestType::*)() const>::type,
+                                  const int (TestType::*)() const>::value));
+
+#if !defined(BSLMF_REMOVECV_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT((is_same<remove_cv<int const() const>::type,
+                                  int const() const>::value));
+
+        ASSERT((is_same<remove_cv<int const() const volatile>::type,
+                                  int const() const volatile>::value));
+#endif
+
 
         // C-2
         ASSERT((is_same<remove_cv<int const>::type, int>::value));
@@ -267,6 +324,56 @@ int main(int argc, char *argv[])
                                                  void>::value));
         ASSERT((is_same<remove_cv<const volatile void>::type,
                                                  void>::value));
+
+        // C -3
+        ASSERT((is_same<remove_cv<               Pm>::type,
+                                                 Pm>::value));
+        ASSERT((is_same<remove_cv<const          Pm>::type,
+                                                 Pm>::value));
+        ASSERT((is_same<remove_cv<      volatile Pm>::type,
+                                                 Pm>::value));
+        ASSERT((is_same<remove_cv<const volatile Pm>::type,
+                                                 Pm>::value));
+
+        ASSERT((is_same<remove_cv<               Pmf>::type,
+                                                 Pmf>::value));
+        ASSERT((is_same<remove_cv<const          Pmf>::type,
+                                                 Pmf>::value));
+        ASSERT((is_same<remove_cv<      volatile Pmf>::type,
+                                                 Pmf>::value));
+        ASSERT((is_same<remove_cv<const volatile Pmf>::type,
+                                                 Pmf>::value));
+
+        ASSERT((is_same<remove_cv<               Pmq>::type,
+                                                 Pmq>::value));
+        ASSERT((is_same<remove_cv<const          Pmq>::type,
+                                                 Pmq>::value));
+        ASSERT((is_same<remove_cv<      volatile Pmq>::type,
+                                                 Pmq>::value));
+        ASSERT((is_same<remove_cv<const volatile Pmq>::type,
+                                                 Pmq>::value));
+
+        // C-4
+        ASSERT((is_same<remove_cv<int const(&)()>::type,
+                                  int const(&)()>::value));
+
+#if !defined(BSLMF_REMOVECV_DO_NOT_TEST_CV_REF_TO_FUNCTION_TYPES)
+        typedef int const FnType();
+
+        ASSERT((is_same<remove_cv<const volatile FnType&>::type,
+                                  const volatile FnType&>::value));
+#endif
+
+        ASSERT((is_same<remove_cv<const int(*               )()>::type,
+                                  const int(*               )()>::value));
+        ASSERT((is_same<remove_cv<const int(* const         )()>::type,
+                                  const int(*               )()>::value));
+        ASSERT((is_same<remove_cv<const int(*       volatile)()>::type,
+                                  const int(*               )()>::value));
+        ASSERT((is_same<remove_cv<const int(* const volatile)()>::type,
+                                  const int(*               )()>::value));
+        ASSERT((is_same<remove_cv<const int(* volatile &)()>::type,
+                                  const int(* volatile &)()>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

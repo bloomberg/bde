@@ -107,7 +107,7 @@ void aSsErT(bool condition, const char *message, int line)
  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)     \
  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
 
-# define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND
+# define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND 1
     // This macro signifies that this compiler rejects 'Type[]' as incomplete,
     // even in contexts where it should be valid, such as where it will pass by
     // reference or pointer.
@@ -117,14 +117,14 @@ void aSsErT(bool condition, const char *message, int line)
     // This was last tested with MSVC 2015, but the bug may persist in later
     // versions, not yet released.  Update the version test accordingly.
 
-# define BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF
+# define BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF 1
     // This compiler cannot bind an rvalue array, such as 'char[]', to a
     // rvalue-reference to a decayed array pointer, which would be 'char *&&'
     // in this example.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
-# define BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS
+# define BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS 1
     // The Sun compiler has problems with any test involving arrays, triggering
     // internal compiler errors with no hint of the line(s) triggering the
     // problem.  This appears to be an artifact of several function templates
@@ -139,6 +139,27 @@ void aSsErT(bool condition, const char *message, int line)
     // This code has not yet been tested against the Sun CC 12.4 compiler (or
     // later) which has significantly improved standard conformance, including
     // support for most of C++11.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION 1
+    // This is an obscure bug encountered on AIX with xlC, last tested with
+    // version 12.2.  The problem is the compiler fails to find a match when
+    // passing a pointer-to-cv-qualified-member-function as an argument to a
+    // function:
+    //..
+    // struct Test {
+    //     void function() const;
+    // }
+    //
+    // typedef void (Test::*pmf)() const;  // use typedef so 'const'ness clear
+    //
+    // void match(pmf) {}
+    //
+    // int main() {
+    //     match(&Test::function); // xlC cannot find a match; fails to compile
+    // }
+    //..
 #endif
 
 //=============================================================================
@@ -201,6 +222,9 @@ class  Class  {
     Class(const volatile Class& other) : d_data(other.d_data) { }
         // Copy-construct from the specified 'other'.
 
+    int two() { return 2; }
+        // Return the value '2'.
+
     int value() const { return d_data; }
         // Return the value of this object.
 };
@@ -222,7 +246,8 @@ typedef char    A [5];
 typedef char   AU [];
 
 typedef int Struct::*Pm;
-typedef int (Class::*Pmf)() const;
+typedef int (Class::*Pmf)();
+typedef int (Class::*Pmq)() const;
 
 void func() { }
     // Noop function that takes no arguments and returns nothing.
@@ -731,7 +756,8 @@ int main(int argc, char *argv[])
         double *p = &d;
         F      *f_p = func;
         Pm      m_p  = &Struct::d_data;
-        Pmf     mf_p = &Class::value;
+        Pmf     mf_p = &Class::two;
+        Pmq     mf_q = &Class::value;
 
         char a[5]    = { '5', '4', '3', '2', '1' };
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
@@ -764,6 +790,9 @@ int main(int argc, char *argv[])
         TEST_ENDTOEND_RVALUE(F      * , f_p);
         TEST_ENDTOEND_RVALUE(Pm       , m_p);
         TEST_ENDTOEND_RVALUE(Pmf      , mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        TEST_ENDTOEND_RVALUE(Pmq      , mf_q);
+#endif
 
 #undef TEST_ENDTOEND_RVALUE
 
@@ -793,6 +822,9 @@ int main(int argc, char *argv[])
         TEST_ENDTOEND_LVALUE_REF(F      * , f_p);
         TEST_ENDTOEND_LVALUE_REF(Pm       , m_p);
         TEST_ENDTOEND_LVALUE_REF(Pmf      , mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        TEST_ENDTOEND_LVALUE_REF(Pmq      , mf_q);
+#endif
 
 #undef TEST_ENDTOEND_LVALUE_REF
 
@@ -825,6 +857,10 @@ int main(int argc, char *argv[])
         TEST_ENDTOEND_RVALUE_REF(F      * , f_p);
         TEST_ENDTOEND_RVALUE_REF(Pm       , m_p);
         TEST_ENDTOEND_RVALUE_REF(Pmf      , mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        TEST_ENDTOEND_RVALUE_REF(Pmq      , mf_q);
+#endif
+
 
 #undef TEST_ENDTOEND_RVALUE_REF
 
@@ -972,7 +1008,8 @@ int main(int argc, char *argv[])
 #endif
         F      *f_p = func;
         Pm      m_p  = &Struct::d_data;
-        Pmf     mf_p = &Class::value;
+        Pmf     mf_p = &Class::two;
+        Pmq     mf_q = &Class::value;
 
         testForwardToTargetVal<Enum    >(e);
         testForwardToTargetVal<Struct  >(s);
@@ -983,6 +1020,9 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<PF      >(f_p);
         testForwardToTargetVal<Pm      >(m_p);
         testForwardToTargetVal<Pmf     >(mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetVal<Pmq     >(mf_q);
+#endif
 
         testForwardToTargetVal<Enum    const>(e);
         testForwardToTargetVal<Struct  const>(s);
@@ -993,8 +1033,11 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<PF      const>(f_p);
         testForwardToTargetVal<Pm      const>(m_p);
         testForwardToTargetVal<Pmf     const>(mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetVal<Pmq     const>(mf_q);
+#endif
 
-        // Do note test volatile rvalues of class types.  They have no real use
+        // Do not test volatile rvalues of class types.  They have no real use
         // and require strange copy constructors and comparison operators to
         // test correctly.
         testForwardToTargetVal<Enum    volatile>(e);
@@ -1004,6 +1047,10 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p); // fails at runtime on
                                                         // Oracle CC 12.4
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetVal<Pmq     volatile>(mf_q);
+#endif
+
 #if !defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
         testForwardToTargetVal<A       volatile>(a);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
@@ -1045,6 +1092,9 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      &>(f_p);
         testForwardToTargetRef<Pm      &>(m_p);
         testForwardToTargetRef<Pmf     &>(mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetRef<Pmq     &>(mf_q);
+#endif
 
         testForwardToTargetRef<Enum    const&>(e);
         testForwardToTargetRef<Struct  const&>(s);
@@ -1055,6 +1105,9 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      const&>(f_p);
         testForwardToTargetRef<Pm      const&>(m_p);
         testForwardToTargetRef<Pmf     const&>(mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetRef<Pmq     const&>(mf_q);
+#endif
 
         testForwardToTargetRef<Enum    volatile&>(e);
         testForwardToTargetRef<Struct  volatile&>(s);
@@ -1065,6 +1118,9 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      volatile&>(f_p);
         testForwardToTargetRef<Pm      volatile&>(m_p);
         testForwardToTargetRef<Pmf     volatile&>(mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetRef<Pmq     volatile&>(mf_q);
+#endif
 
         testForwardToTargetRef<Enum    const volatile&>(e);
         testForwardToTargetRef<Struct  const volatile&>(s);
@@ -1075,6 +1131,9 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      const volatile&>(f_p);
         testForwardToTargetRef<Pm      const volatile&>(m_p);
         testForwardToTargetRef<Pmf     const volatile&>(mf_p);
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetRef<Pmq     const volatile&>(mf_q);
+#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         testForwardToTargetRef<Struct  &&>(native_std::move(s));
@@ -1090,6 +1149,9 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      &&>(native_std::move(f_p));
         testForwardToTargetRef<Pm      &&>(native_std::move(m_p));
         testForwardToTargetRef<Pmf     &&>(native_std::move(mf_p));
+# if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetRef<Pmq     &&>(native_std::move(mf_q));
+# endif
 #endif
 
         testForwardToTargetRef<Enum     const&&>(native_std::move(e));
@@ -1101,6 +1163,9 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF       const&&>(native_std::move(f_p));
         testForwardToTargetRef<Pm       const&&>(native_std::move(m_p));
         testForwardToTargetRef<Pmf      const&&>(native_std::move(mf_p));
+#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+        testForwardToTargetRef<Pmq      const&&>(native_std::move(mf_q));
+#endif
 
         // Do not test volatile rvalue references.  They have no real uses and
         // would require distortions in the test that could result in missing

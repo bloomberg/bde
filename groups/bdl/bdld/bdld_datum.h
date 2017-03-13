@@ -1133,11 +1133,11 @@ class Datum {
     // CLASS DATA
 
     // 64-bit variation
-    static const int k_TYPE_OFFSET  = 14;             // offset of type in the
+    static const int k_TYPE_OFFSET             = 14;  // offset of type in the
                                                       // internal storage
                                                       // buffer
 
-    static const int k_SHORTSTRING_SIZE  = 13;        // maximum size of short
+    static const int k_SHORTSTRING_SIZE        = 13;  // maximum size of short
                                                       // strings that stored in
                                                       // the internal storage
                                                       // buffer
@@ -1147,7 +1147,7 @@ class Datum {
                                                       // stored in the internal
                                                       // storage buffer
 
-    static const int k_SMALLBINARY_SIZE    = 13;      // maximum size of
+    static const int k_SMALLBINARY_SIZE        = 13;  // maximum size of
                                                       // small-size binaries
                                                       // stored in the internal
                                                       // storage buffer
@@ -1568,7 +1568,7 @@ class Datum {
 
     Datum clone(bslma::Allocator *basicAllocator) const;
         // Return a datum holding a "deep-copy" of this object, using the
-        // specified 'basicAllocator' to allocate memory.
+        // specified 'basicAllocator' to supply memory.
 
                                // Type-Identifiers
 

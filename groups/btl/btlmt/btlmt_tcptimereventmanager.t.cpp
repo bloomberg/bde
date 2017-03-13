@@ -456,7 +456,7 @@ static void dummyFunction(void) {
 
 }
 
-enum { NUM_REGISTER_PAIRS = 10 };
+enum { NUM_REGISTER_PAIRS = 5 };
 
 bslmt::Barrier *globalBarrier;
 
@@ -542,7 +542,6 @@ void *registerThread(void *arg)
     LOOP_ASSERT(defaultAllocator.numBytesInUse(),
                 0 == defaultAllocator.numBytesInUse());
 
-
     bsls::Stopwatch watch;
     watch.start();
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
@@ -594,18 +593,6 @@ void *deregisterThread(void *arg)
         LOOP_ASSERT(i, 0 == mX->isRegistered(fd, btlso::EventType::e_READ));
     }
 
-    globalBarrier->wait();
-    LOOP_ASSERT(defaultAllocator.numBytesInUse(),
-                0 == defaultAllocator.numBytesInUse());
-
-    for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
-        const btlso::TimerEventManager::Callback callback(
-                       bsl::allocator_arg_t(),
-                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
-                       &dummyFunction);
-    }
-
-    // 'testPairs' cannot be destroyed until ALL threads are done.
     globalBarrier->wait();
     LOOP_ASSERT(defaultAllocator.numBytesInUse(),
                 0 == defaultAllocator.numBytesInUse());
@@ -1815,7 +1802,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #1: Deregistration on disabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 5 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
             bslmt::ThreadUtil::Handle workers[NUM_THREADS];
@@ -1850,7 +1837,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #2: Deregistration on enabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 5 };
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
@@ -1891,6 +1878,8 @@ int main(int argc, char *argv[])
         //   o deregistration from different threads on enabled object works
         //     correctly
         //   o deregistration from an invoked callback works correctly
+        //   o deregistration does not remove the control fd from the event
+        //     manager's management
         //
         // Testing:
         //  void deregisterAllSocketEvents();
@@ -1904,7 +1893,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #1: Deregistration on disabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 5 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
             bslmt::ThreadUtil::Handle workers[NUM_THREADS];
@@ -1944,7 +1933,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #2: Deregistration on enabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 5 };
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
@@ -1966,6 +1955,7 @@ int main(int argc, char *argv[])
                                                    &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
+
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
@@ -1980,6 +1970,34 @@ int main(int argc, char *argv[])
                 P(numTotalSocketEvents);
             }
             LOOP_ASSERT(numTotalSocketEvents, 0 == numTotalSocketEvents);
+        }
+
+        if (verbose)
+            cout << "\tConcern #4: Deregistering all socket events "
+                 << "does not remove control fd." << endl;
+        {
+            btlso::DefaultEventManager<> em;
+            btlmt::TcpTimerEventManager manager(&em);
+            int rc = manager.enable();
+            ASSERT(0 == rc);
+            ASSERT(1 == em.numEvents());
+            manager.deregisterAllSocketEvents();
+            ASSERT(1 == em.numEvents());
+            rc = manager.disable();
+            ASSERT(0 == rc);
+            ASSERT(0 == em.numEvents());
+        }
+        {
+            btlso::DefaultEventManager<> em;
+            btlmt::TcpTimerEventManager manager(&em);
+            int rc = manager.enable();
+            ASSERT(0 == rc);
+            ASSERT(1 == em.numEvents());
+            manager.deregisterAll();
+            ASSERT(1 == em.numEvents());
+            rc = manager.disable();
+            ASSERT(0 == rc);
+            ASSERT(0 == em.numEvents());
         }
       } break;
       case 6: {
@@ -2004,7 +2022,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #1: Registration on disabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 5 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
             bslmt::ThreadUtil::Handle workers[NUM_THREADS];
@@ -2040,7 +2058,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #2: Registration on enabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 5 };
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());

@@ -130,7 +130,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
         // possible, currently the 'liberaryFileName()', 'mangledSymbolName()',
         // 'offsetFromSymbol()', and 'symbolName()' fields.  If
         // 'd_demangleFlag' is true, 'symbolName()' will be a demangled form of
-        // 'mangledSymbolName(), otherwise the two fields will be identical.
+        // 'mangledSymbolName()', otherwise the two fields will be identical.
         // Return 0 on success and a non-zero value if any problems were
         // encountered.  Note that this function is defined as a member
         // function to make use of the 'd_demanglingBuf_p' buffer, and avoid

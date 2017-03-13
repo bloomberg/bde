@@ -219,13 +219,13 @@ struct ResolveUtil {
                               int         *errorCode = 0);
         // Load into the specified 'result' the service port number associated
         // with the specified 'serviceName'.  Optionally specify a 'protocol'
-        // string, such as "tcp" or "udp"; if 'protocol is 0, an entry with any
-        // protocol may be returned.  Return 0, with no effect on 'errorCode',
-        // on success, and a negative value otherwise.  If an error occurs,
-        // load into the optionally specified 'errorCode' the native error code
-        // of the operation only on Windows platform.  Note that the IP address
-        // of 'result' is not modified.  The behavior is undefined if 'result'
-        // is 0.
+        // string, such as "tcp" or "udp"; if 'protocol' is 0, an entry with
+        // any protocol may be returned.  Return 0, with no effect on
+        // 'errorCode', on success, and a negative value otherwise.  If an
+        // error occurs, load into the optionally specified 'errorCode' the
+        // native error code of the operation only on Windows platform.  Note
+        // that the IP address of 'result' is not modified.  The behavior is
+        // undefined if 'result' is 0.
 
     static int getLocalHostname(bsl::string *result);
         // Load into the specified 'result' the name of the local machine as

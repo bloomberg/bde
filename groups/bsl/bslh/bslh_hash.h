@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // the pointer rather than the data that is pointed to.
 //
 // Within this component, 'hashAppend' has been implemented for all of the
-// fundamental types.  When 'hashAppend is reached on a fundamental type, the
+// fundamental types.  When 'hashAppend' is reached on a fundamental type, the
 // hashing algorithm is no longer propagated, and instead a pointer to the
 // beginning of the type in memory is passed to the algorithm, along with the
 // length of the type.  There are special cases with floating point numbers and
@@ -139,8 +139,8 @@ BSLS_IDENT("$Id: $")
 // want to store objects of type 'Box' in a hash table, so we need to be able
 // to produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labor-intensive to write a proper hashing algorithm.  In
-// order to hash this 'Box', we will use the modular hashing system supplied in
+// difficult and labor-intensive to write a proper hashing algorithm.  In order
+// to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
 // First, we define 'Point', a class that allows us to identify a location on a
@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 // are salient to hashing tend to be the same as or a subset of the attributes
 // that are checked in 'operator=='.
 //..
-//  bool operator==(const Point &lhs, const Point &rhs)
+//  bool operator==(const Point& lhs, const Point& rhs)
 //      // Return true if the specified 'lhs' and 'rhs' have the same value.
 //      // Two 'Point' objects have the same value if they have the same x and
 //      // y coordinates.
@@ -219,7 +219,7 @@ BSLS_IDENT("$Id: $")
 // 'hashAppend' on them.
 //..
 //  template <class HASH_ALGORITHM>
-//  void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+//  void hashAppend(HASH_ALGORITHM& hashAlg, const Point& point)
 //      // Apply the specified 'hashAlg' to the specified 'point'
 //  {
 //      using bslh::hashAppend;
@@ -279,7 +279,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define 'operator=='.  This time all of the data members are salient
 // to equality.
 //..
-//  bool operator==(const Box &lhs, const Box &rhs)
+//  bool operator==(const Box& lhs, const Box& rhs)
 //      // Return true if the specified 'lhs' and 'rhs' have the same value.
 //      // Two 'Box' objects have the same value if they have the same length,
 //      // width, and position.
@@ -297,7 +297,7 @@ BSLS_IDENT("$Id: $")
 // referenced algorithm functor.
 //..
 //  template <class HASH_ALGORITHM>
-//  void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+//  void hashAppend(HASH_ALGORITHM& hashAlg, const Box& box)
 //      // Apply the specified 'hashAlg' to the specified 'box'
 //  {
 //      using bslh::hashAppend;
@@ -521,12 +521,12 @@ typename bsl::enable_if<
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the 'enable_if' meta-function is used to
-    // enable this 'hashAppend' function for only integral (excluding 'bool'),
-    // pointer, and enum types, because these types can all be hashed as a
-    // continuous sequence of bytes. Also note that this function is defined
-    // inline because MS Visual Studio compilers before 2013 require (some)
-    // functions declared using enable_if be in-place inline.
+    // resulting hash value.  Note that the 'enable_if' meta-function is used
+    // to enable this 'hashAppend' function for only integral (excluding
+    // 'bool'), pointer, and enum types, because these types can all be hashed
+    // as a continuous sequence of bytes.  Also note that this function is
+    // defined inline because MS Visual Studio compilers before 2013 require
+    // (some) functions declared using enable_if be in-place inline.
 {
     hashAlg(&input, sizeof(input));
 }
@@ -540,11 +540,11 @@ typename bsl::enable_if<
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the 'enable_if' meta-function is used to
-    // enable this 'hashAppend' function for only floating point (excluding
+    // resulting hash value.  Note that the 'enable_if' meta-function is used
+    // to enable this 'hashAppend' function for only floating point (excluding
     // 'long double') types, because these types need to have +/-0.0 normalized
-    // to 0.0 before they can be hashed as a continuous sequence of bytes. Also
-    // note that this function is defined inline because MS Visual Studio
+    // to 0.0 before they can be hashed as a continuous sequence of bytes.
+    // Also note that this function is defined inline because MS Visual Studio
     // compilers before 2013 require (some) functions declared using enable_if
     // be in-place inline.
 {
@@ -558,27 +558,27 @@ typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the 'enable_if' meta-function is used to
-    // enable this 'hashAppend' function for only 'bool', because 'bool's can
-    // have multiple 'true' representations and need to be normalized before
-    // they can be hashed as a continuous sequence of bytes.
+    // resulting hash value.  Note that the 'enable_if' meta-function is used
+    // to enable this 'hashAppend' function for only 'bool', because 'bool's
+    // can have multiple 'true' representations and need to be normalized
+    // before they can be hashed as a continuous sequence of bytes.
 
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, long double>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the 'enable_if' meta-function is used to
-    // enable this 'hashAppend' function for only 'long double', because on
-    // some compilers 'long double's contain garbage and can not be hashed as
-    // a continuous sequence of bytes.
+    // resulting hash value.  Note that the 'enable_if' meta-function is used
+    // to enable this 'hashAppend' function for only 'long double', because on
+    // some compilers 'long double's contain garbage and can not be hashed as a
+    // continuous sequence of bytes.
 
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N]);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the entire 'char' array will be hashed
-    // in only one call to 'hashAlg'. Also note that this 'hashAppend' exists
+    // resulting hash value.  Note that the entire 'char' array will be hashed
+    // in only one call to 'hashAlg'.  Also note that this 'hashAppend' exists
     // because some platforms don't recognize that adding a const qualifier is
     // a better match for arrays than decaying to a pointer and using the
     // 'hashAppend' function for pointers.
@@ -587,16 +587,16 @@ template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N]);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the entire 'char' array will be hashed
+    // resulting hash value.  Note that the entire 'char' array will be hashed
     // in only one call to 'hashAlg'.
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N]);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the elements in 'input' will be hashed
+    // resulting hash value.  Note that the elements in 'input' will be hashed
     // one at a time by calling 'hashAppend' because the (template parameter)
-    // 'TYPE' might not be hashable as a contiguous sequence of bytes. Also
+    // 'TYPE' might not be hashable as a contiguous sequence of bytes.  Also
     // note that this 'hashAppend' exists because some platforms don't
     // recognize that adding a const qualifier is a better match for arrays
     // than decaying to a pointer and using the 'hashAppend' function for
@@ -606,7 +606,7 @@ template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value. Note that the elements in 'input' will be hashed
+    // resulting hash value.  Note that the elements in 'input' will be hashed
     // one at a time by calling 'hashAppend' because the (template parameter)
     // 'TYPE' might not be hashable as a contiguous sequence of bytes.
 
@@ -797,7 +797,7 @@ struct is_trivially_copyable< ::BloombergLP::bslh::Hash<TYPE> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -33780,14 +33780,14 @@ class Address {
 
     // CREATORS
     explicit Address(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Address' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Address' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Address(const Address& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Address' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -34364,16 +34364,16 @@ class Employee {
 
     // CREATORS
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Employee' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~Employee();
         // Destroy this object.
@@ -35013,15 +35013,15 @@ class Palette {
 
     // CREATORS
     explicit Palette(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Palette' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Palette' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Palette(const Palette& original,
             bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Palette' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -35799,16 +35799,16 @@ class FullName {
 
     // CREATORS
     explicit FullName(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'FullName' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'FullName' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     FullName(const FullName& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'FullName' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~FullName();
         // Destroy this object.
@@ -35975,16 +35975,16 @@ class Employee {
 
     // CREATORS
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Employee' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~Employee();
         // Destroy this object.
@@ -36954,7 +36954,7 @@ class HexBinaryCustomizedType {
     // CREATORS
     explicit HexBinaryCustomizedType(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'HexBinaryCustomizedType' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
+        // default value.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -36962,9 +36962,9 @@ class HexBinaryCustomizedType {
                            const HexBinaryCustomizedType&  original,
                            bslma::Allocator               *basicAllocator = 0);
         // Create an object of type 'HexBinaryCustomizedType' having the value
-        // of the specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // of the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~HexBinaryCustomizedType();
         // Destroy this object.

@@ -7,6 +7,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
@@ -223,6 +224,19 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        if (verbose) printf("\nVERIFYING CC 12.4 CONCERNS"
+                            "\n==========================\n");
+         typedef bsltf::MovableTestType Obj;
+
+         ASSERT(( bsl::is_convertible<Obj, Obj>::value ));
+         ASSERT(( bsl::is_convertible<Obj&, Obj>::value ));
+         ASSERT(( bsl::is_convertible<const Obj, Obj>::value ));
+         ASSERT(( bsl::is_convertible<const Obj&, Obj>::value ));
+         ASSERT(( bsl::is_convertible<bslmf::MovableRef<Obj>, Obj>::value ));
+         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>, Obj>::value ));
+         ASSERT(( bsl::is_convertible<const bslmf::MovableRef<Obj>&, Obj>::value ));
+        } break;
       case 11: {
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");

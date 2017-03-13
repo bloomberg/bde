@@ -926,10 +926,10 @@ struct ForEachIn {
         // The function extracts N-th element from the 'LIST' and
         // invokes its static method 'test' with the specified 'data',
         // 'numData', (N-1)-th item of the specified 'specs' array.  After that
-        // the function instantiates struct 'ForEachIn<LIST, N-1> and
+        // the function instantiates struct 'ForEachIn<LIST, N-1>' and
         // invokes its static method 'testInputLimit'.  The process
         // recursively continues unless N=0, in this case partial
-        // specialization for 'ForEachIn<LIST, 0> is instantiated (see
+        // specialization for 'ForEachIn<LIST, 0>' is instantiated (see
         // below) and recursion is stopped.
     {
         ASSERT(specs[N - 1]);

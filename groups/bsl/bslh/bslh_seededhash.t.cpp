@@ -129,7 +129,7 @@ void aSsErT(bool condition, const char *message, int line)
 // that an attacker with knowledge of the hashing algorithm we are using could
 // specially craft input that will cause collisions in our hash table,
 // degrading performance to O(n).  To avoid this we will need to use a secure
-// hash algorithm with a random seed.  This algorithm will need to be  in the
+// hash algorithm with a random seed.  This algorithm will need to be in the
 // form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield a 64-bit int value which is hard enough for an
 // outside observer to predict that it appear random.  'bslh::SeededHash'
@@ -717,7 +717,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

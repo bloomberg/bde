@@ -189,14 +189,14 @@ class ChoiceA {
 
     // CREATORS
     explicit ChoiceA(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'ChoiceA' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'ChoiceA' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     ChoiceA(const ChoiceA& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'ChoiceA' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -932,14 +932,14 @@ class ChoiceB {
 
     // CREATORS
     explicit ChoiceB(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'ChoiceB' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'ChoiceB' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     ChoiceB(const ChoiceB& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'ChoiceB' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -1627,21 +1627,21 @@ class CustomizedA {
     // CREATORS
     explicit CustomizedA(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     CustomizedA(const CustomizedA&  original,
                 bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     explicit CustomizedA(const bsl::string&  value,
                          bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedA' having the specified 'value'.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
@@ -1943,21 +1943,21 @@ class CustomizedB {
     // CREATORS
     explicit CustomizedB(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     CustomizedB(const CustomizedB&  original,
                 bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     explicit CustomizedB(const bsl::string&  value,
                          bslma::Allocator   *basicAllocator = 0);
         // Create an object of type 'CustomizedB' having the specified 'value'.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
@@ -2935,16 +2935,16 @@ class SequenceA {
 
     // CREATORS
     explicit SequenceA(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'SequenceA' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'SequenceA' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     SequenceA(const SequenceA& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceA' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~SequenceA();
         // Destroy this object.
@@ -3578,16 +3578,16 @@ class SequenceB {
 
     // CREATORS
     explicit SequenceB(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'SequenceB' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'SequenceB' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     SequenceB(const SequenceB& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'SequenceB' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~SequenceB();
         // Destroy this object.
@@ -4231,16 +4231,16 @@ class Employee {
 
     // CREATORS
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Employee' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Employee' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~Employee();
         // Destroy this object.
@@ -5017,14 +5017,14 @@ class Trainee {
 
     // CREATORS
     explicit Trainee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Trainee' having the default value.  Use
-        // the optionally specified 'basicAllocator' to supply memory.  If
+        // Create an object of type 'Trainee' having the default value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Trainee(const Trainee& original, bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'Trainee' having the value of the specified
-        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
@@ -5744,16 +5744,16 @@ class MixedSequence {
     // CREATORS
     explicit MixedSequence(bslma::Allocator *basicAllocator = 0);
         // Create an object of type 'MixedSequence' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     MixedSequence(const MixedSequence&  original,
                   bslma::Allocator     *basicAllocator = 0);
         // Create an object of type 'MixedSequence' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~MixedSequence();
         // Destroy this object.
