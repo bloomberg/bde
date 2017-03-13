@@ -408,7 +408,6 @@ BSLS_IDENT("$Id: $")
 //:   o atomic_uintptr_t;
 //
 //: o Supported by the compiler vendor's STL implementation
-//:   o gcc 5.4
 //:   o MSVC 2013
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
@@ -588,12 +587,12 @@ BSLS_IDENT("$Id: $")
             // re-test this when it is appropriate.  (hversche 2017-03-06)
 
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 60000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
         #endif
     #endif
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
