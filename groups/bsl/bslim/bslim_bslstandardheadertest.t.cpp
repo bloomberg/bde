@@ -75,8 +75,6 @@
 #include <bsl_exception.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
-#include <bsl_hash_map.h>
-#include <bsl_hash_set.h>
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
 #include <bsl_iosfwd.h>
@@ -93,7 +91,6 @@
 #include <bsl_ostream.h>
 #include <bsl_queue.h>
 #include <bsl_set.h>
-#include <bsl_slist.h>
 #include <bsl_sstream.h>
 #include <bsl_stack.h>
 #include <bsl_stdexcept.h>
@@ -106,6 +103,15 @@
 #include <bsl_utility.h>
 #include <bsl_valarray.h>
 #include <bsl_vector.h>
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// stlport containers are deprecated and are not forwarded in the opensource
+// distribution
+
+#include <bsl_hash_map.h>
+#include <bsl_hash_set.h>
+#include <bsl_slist.h>
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <bsl_array.h>
