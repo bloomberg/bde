@@ -408,7 +408,7 @@ BSLS_IDENT("$Id: $")
 //:   o atomic_uintptr_t;
 //
 //: o Supported by the compiler vendor's STL implementation
-//:   o not provided yet by any supported compilers
+//:   o MSVC 2013
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
