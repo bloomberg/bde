@@ -72,13 +72,13 @@
 // [ 6] BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 // [ 7] int native_std::isblank(int);
 // [ 7] bool native_std::isblank(char, const native_std::locale&);
+// [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // ----------------------------------------------------------------------------
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 // TBD Add tests for the new macros (and amendments to existing macros):
 //
-//: o BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 //: o BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 //: o BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
 //: o BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
@@ -152,6 +152,39 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
                                                                      true;
 #else
                                                                      false;
+#endif
+
+                    // case 8
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS_FORCE)
+
+    #include <atomic>
+
+    static void useCpp11PreciseBitwidthAtomics()
+        // Declare variables with each of the 'typedef's associated with the
+        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' flag as a
+        // compile-time test that these 'typedef's are available.
+    {
+        ASSERT(0 < sizeof(native_std::atomic_int8_t));
+        ASSERT(0 < sizeof(native_std::atomic_int16_t));
+        ASSERT(0 < sizeof(native_std::atomic_int32_t));
+        ASSERT(0 < sizeof(native_std::atomic_int64_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint8_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint16_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint32_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint64_t));
+        ASSERT(0 < sizeof(native_std::atomic_intptr_t));
+        ASSERT(0 < sizeof(native_std::atomic_uintptr_t));
+    }
+#endif
+
+static const bool
+    u_BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
+                                                                        true;
+#else
+                                                                        false;
 #endif
 
                     // case 7
@@ -624,7 +657,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -644,6 +677,47 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
+        //
+        // Concerns:
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
+        //:   flag is defined when the native standard library defines the
+        //:   following types:
+        //:
+        //:   o Types defined in '<atomic>'
+        //:
+        //:     o atomic class template and specializations for precise
+        //:       bitwidth integral types
+        //:
+        //:     o atomic class template and specializations for pointer types
+        //
+        //:Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
+        //:   defined conditionally compile code that includes '<atomic>', and
+        //:   uses each of the listed types at least once.  (C-1)
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+        "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'\n"
+        "=================================================================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
+        useCpp11PreciseBitwidthAtomics();
+#endif
+
+        if (verbose) {
+            P(
+             u_BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS_defined)
+        }
+
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+
       } break;
       case 7: {
         // --------------------------------------------------------------------

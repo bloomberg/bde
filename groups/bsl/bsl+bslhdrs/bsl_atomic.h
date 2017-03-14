@@ -109,7 +109,7 @@ namespace bsl {
     using native_std::atomic_uintmax_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // optional support for exact-bit-width types
     using native_std::atomic_int8_t;
     using native_std::atomic_int16_t;
@@ -121,7 +121,7 @@ namespace bsl {
     using native_std::atomic_uint64_t;
     using native_std::atomic_intptr_t;
     using native_std::atomic_uintptr_t;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
