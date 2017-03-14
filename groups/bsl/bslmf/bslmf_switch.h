@@ -220,6 +220,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
+#endif
+
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
@@ -239,7 +244,7 @@ namespace BloombergLP {
 namespace bslmf {
 
 #if defined(BSLMF_SWITCH_USING_VARIADIC_TEMPLATES)
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class ...TYPES>
 struct Switch {
     // This meta-function, parameterized by an integral 'SELECTOR' and types
@@ -320,7 +325,7 @@ struct Switch<9u, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TYPES...> {
     typedef T9 Type;
 };
 
-template <unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4,
+template <size_t SELECTOR, class T0, class T1, class T2, class T3, class T4,
           class T5, class T6, class T7, class T8, class T9, class T10,
           class ...TYPES>
 struct Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TYPES...>
@@ -329,19 +334,19 @@ struct Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TYPES...>
 };
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <unsigned SELECTOR, class T0, class T1>
+template <size_t SELECTOR, class T0, class T1>
 using Switch2 = Switch<SELECTOR, T0, T1>;
 
-template <unsigned SELECTOR, class T0, class T1, class T2>
+template <size_t SELECTOR, class T0, class T1, class T2>
 using Switch3 = Switch<SELECTOR, T0, T1, T2>;
 
-template <unsigned SELECTOR, class T0, class T1, class T2, class T3>
+template <size_t SELECTOR, class T0, class T1, class T2, class T3>
 using Switch4 = Switch<SELECTOR, T0, T1, T2, T3>;
 
-template <unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4>
+template <size_t SELECTOR, class T0, class T1, class T2, class T3, class T4>
 using Switch5 = Switch<SELECTOR, T0, T1, T2, T3, T4>;
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -350,7 +355,7 @@ template <unsigned SELECTOR,
           class T5>
 using Switch6 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5>;
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -360,7 +365,7 @@ template <unsigned SELECTOR,
           class T6>
 using Switch7 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6>;
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -371,7 +376,7 @@ template <unsigned SELECTOR,
           class T7>
 using Switch8 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7>;
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -390,7 +395,7 @@ using Switch9 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8>;
                         // struct Switch
                         // =============
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1 = Nil,
           class T2 = Nil,
@@ -509,7 +514,7 @@ struct Switch<9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
                         // struct Switch2
                         // ==============
 
-template <unsigned SELECTOR, class T0, class T1>
+template <size_t SELECTOR, class T0, class T1>
 struct Switch2 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // two types 'T0' and 'T1', offers functionality identical to
@@ -539,7 +544,7 @@ struct Switch2<1, T0, T1> {
                         // struct Switch3
                         // ==============
 
-template <unsigned SELECTOR, class T0, class T1, class T2>
+template <size_t SELECTOR, class T0, class T1, class T2>
 struct Switch3 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // three types 'T0' up to 'T2', offers functionality identical to
@@ -577,7 +582,7 @@ struct Switch3<2, T0, T1, T2> {
                         // struct Switch4
                         // ==============
 
-template <unsigned SELECTOR, class T0, class T1, class T2, class T3>
+template <size_t SELECTOR, class T0, class T1, class T2, class T3>
 struct Switch4 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // four types 'T0' up to 'T3', offers functionality identical to
@@ -623,7 +628,7 @@ struct Switch4<3, T0, T1, T2, T3> {
                         // struct Switch5
                         // ==============
 
-template <unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4>
+template <size_t SELECTOR, class T0, class T1, class T2, class T3, class T4>
 struct Switch5 {
     // This meta-function, parameterized by an integral 'SELECTOR' and exactly
     // five types 'T0' up to 'T4', offers functionality identical to
@@ -677,7 +682,7 @@ struct Switch5<4, T0, T1, T2, T3, T4> {
                         // struct Switch6
                         // ==============
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -751,7 +756,7 @@ struct Switch6<5, T0, T1, T2, T3, T4, T5> {
                         // struct Switch7
                         // ==============
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -835,7 +840,7 @@ struct Switch7<6, T0, T1, T2, T3, T4, T5, T6> {
                         // struct Switch8
                         // ==============
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
@@ -929,7 +934,7 @@ struct Switch8<7, T0, T1, T2, T3, T4, T5, T6, T7> {
                         // struct Switch9
                         // ==============
 
-template <unsigned SELECTOR,
+template <size_t SELECTOR,
           class T0,
           class T1,
           class T2,
