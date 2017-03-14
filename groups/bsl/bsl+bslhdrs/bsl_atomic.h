@@ -32,6 +32,7 @@ namespace bsl {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     // primary atomic templates, types, and functions
     using native_std::atomic;
+    using native_std::atomic_bool;
     using native_std::atomic_compare_exchange_weak;
     using native_std::atomic_compare_exchange_weak_explicit;
     using native_std::atomic_compare_exchange_strong;
