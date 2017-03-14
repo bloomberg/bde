@@ -19,6 +19,7 @@
 #include <bsl_deque.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
 #include <bsl_string.h>
@@ -62,12 +63,14 @@ using namespace bsl;
 //                                 Overview
 //                                 --------
 //
+// Thread-safety concerns are not tested because of imperfection of test
+// apparatus and component's design.
 // ----------------------------------------------------------------------------
 //                            // ----------------
 //                            // class Statistics
 //                            // ----------------
 // CREATORS
-// [ 9] Statistics(const Statistics& orig, Allocator *basicAllocator);
+// [10] Statistics(const Statistics& orig, Allocator *basicAllocator);
 //
 //                           // -------------------
 //                           // class ConstIterator
@@ -75,8 +78,8 @@ using namespace bsl;
 // CLASS METHODS
 // [ 6] ConstIterator& operator++();
 // [ 6] ConstIterator operator++(int);
-// [ 5] reference operator*() const;
-// [ 5] pointer operator->() const;
+// [ 4] reference operator*() const;
+// [ 4] pointer operator->() const;
 // [ 7] bool operator==(const ConstIterator& rhs) const;
 // [ 7] bool operator!=(const ConstIterator& rhs) const;
 //
@@ -84,15 +87,15 @@ using namespace bsl;
 //                         // class PerformanceMonitor
 //                         // ------------------------
 // CLASS METHODS
-// [ 8] ConstIterator begin() const;
+// [ 4] ConstIterator begin() const;
 // [ 8] ConstIterator end() const;
-// [ 8] ConstIterator find(int pid) const;
+// [ 9] ConstIterator find(int pid) const;
 // [ 2] int numRegisteredPids() const
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 // [ 3] CONCERN: The Process Start Time is Reasonable
-// [ 4] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
+// [ 5] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
 // [-1] TESTING VIRTUAL SIZE AND RESIDENT SIZE
 // [-3] DUMMY TEST CASE
 // ----------------------------------------------------------------------------
@@ -352,10 +355,6 @@ int terminateProcess(const ProcessHandle& handle)
 
 }  // close namespace processSupport
 
-// ============================================================================
-//                               MAIN PROGRAM
-// ----------------------------------------------------------------------------
-
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 namespace test {
 
@@ -454,7 +453,10 @@ class MmapAllocator : public bslma::Allocator {
 };
 
 }  // close namespace test
+#endif
 
+namespace {
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 void report(bsl::size_t        bufferSize,
             bsls::Types::Int64 currentBytesInUse,
             bsls::Types::Int64 peakBytesInUse,
@@ -551,6 +553,24 @@ long long controlledCpuBurn()
     return factorial;
 }
 
+ObjIterator advanceIt(const ObjIterator& begin, int n)
+    // Return a copy of the specified 'begin', incremented by the specified 'n'
+    // elements.
+{
+    ObjIterator ret = begin;
+    for (int i = 0; i < n; ++i) {
+        ++ret;
+    }
+
+    return ret;
+}
+
+}  // close unnamed namespace
+
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
@@ -560,25 +580,25 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = (argc > 5);
 
     switch (test) { case 0:  // Zero is always the leading case.
-     case 10: {
-       // ---------------------------------------------------------------------
-       // USAGE EXAMPLE
-       //   Extracted from component header file.
-       //
-       // Concerns:
-       //: 1 The usage example provided in the component header file compiles,
-       //:   links, and runs as shown.
-       //
-       // Plan:
-       //: 1 Incorporate usage example from header into test driver, remove
-       //:   leading comment characters and replace 'assert' with 'ASSERT'.
-       //:   (C-1)
-       //
-       // Testing:
-       //   USAGE EXAMPLE
-       // ---------------------------------------------------------------------
-       if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                 << "=============" << endl;
+      case 11: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
 
 ///Usage
 ///-----
@@ -638,13 +658,12 @@ int main(int argc, char *argv[])
     scheduler.stop();
 //..
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING STATISTICS COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The new object's value is the same as that of the original object
-        //:   (relying on the public interfaces).
+        //: 1 The new object aggregates the same values as the original object.
         //:
         //: 2 The value of the original object is left unaffected.
         //:
@@ -666,11 +685,10 @@ int main(int argc, char *argv[])
         //: 3 Store current statistics values using accessors of the
         //:   'Statistics' class.
         //:
-        //: 4 Make a copy of origin object and verify its value using
-        //:   accessors of the 'Statistics' class.  (C-1)
+        //: 4 Make a copy of origin object and verify its value using accessors
+        //:   of the 'Statistics' class.  (C-1)
         //:
-        //: 5 Compare origin object fields with stored values from P-3.
-        //:   (C-2)
+        //: 5 Compare origin object fields with stored values from P-3.  (C-2)
         //:
         //: 6 Collect latest statistics to update origin object and verify that
         //:   the copy isn't affected.
@@ -847,19 +865,113 @@ int main(int argc, char *argv[])
             ASSERT(0                 == sa.numBytesInUse());
         }
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
-        // TESTING ACCESSORS
+        // TESTING 'find'
         //
         // Concerns:
-        //: 1 The 'begin()' returns an iterator, referring to the first value
-        //:   in the underlying map.
+        //: 1 The 'find()' returns an iterator, referring to the value with
+        //:    process id, passed as a parameter, only if this process is
+        //:    watched by monitor.
         //:
-        //: 2 The 'end()' returns an  iterator, referring to the address,
+        //: 2 The 'find()' returns an iterator, referring to the address,
+        //:   following the last value in the underlying  map, if process with
+        //:   id, passed as a parameter, isn't watched by this monitor.
+        //
+        // Plan:
+        //: 1 Spawn several processes, create a 'PerformanceMonitor' object,
+        //:   'mX', and register these processes for statistics collection.
+        //:
+        //: 2 Using the loop-based approach:
+        //:
+        //:   1 Use ids of registered process to call the 'find' method and
+        //:   verify results, by comparing them with the results of iteration
+        //:   from the beginning.  (C-1)
+        //:
+        //: 3 Call the 'find' method with some dummy value, passed as a
+        //:   parameter, and verify that it returns an iterator, that
+        //:   represents the end of the sequence of sets of collected
+        //:   performance statistics. (C-2)
+        //
+        // Testing:
+        //   ConstIterator end() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'find'\n"
+                          << "==============\n";
+
+        typedef bsl::set<int> Pids;
+
+        const int NUM_PROCESSES = 5;
+        Pids      pids;
+
+        // Spawn as a child processes several copies of this test driver,
+        // running test case -3, which simply sleep for one minute and
+        // exit.
+
+        bsl::string              command(argv[0]);
+        bsl::vector<bsl::string> arguments;
+
+        arguments.push_back(bsl::string("-3"));
+
+        for (int i = 0; i < NUM_PROCESSES; ++i) {
+
+            processSupport::ProcessHandle handle =
+                                  processSupport::exec(command, arguments);
+
+
+            // Store id of the spawned child process.
+
+            int pid = processSupport::getId(handle);
+            ASSERTV(pid, -1 != pid);
+
+            pids.insert(pid);
+        }
+
+        Obj        mX;
+        const Obj& X = mX;
+
+        Pids::iterator pidsIt = pids.begin();
+        bsl::string    description;
+
+        while (pidsIt != pids.end()) {
+            int PID = *pidsIt;
+            description += '0';
+
+            if (veryVerbose) {
+                T_ P_(description) P(PID)
+            }
+
+            ASSERTV(description, 0 == mX.registerPid(PID, description));
+
+            ++pidsIt;
+        }
+
+        // Checking.
+
+        pidsIt    = pids.begin();
+        int shift = 0;
+
+        while (pidsIt != pids.end()) {
+            int                PID  = *pidsIt;
+            ObjIterator        mXIt = advanceIt(X.begin(), shift);
+            const ObjIterator& XIt  = mXIt;
+
+            ASSERT(XIt == X.find(PID));
+
+            ++shift;
+            ++pidsIt;
+        }
+
+        ASSERT(X.end() == X.find(-1));
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'end'
+        //
+        // Concerns:
+        //: 1 The 'end()' returns an  iterator, referring to the address,
         //:   following the last value in the underlying  map.
-        //:
-        //: 3 The 'find()' returns an iterator, referring to the value with
-        //:   process id, passed as a parameter.
         //
         // Plan:
         //: 1 Spawn several processes and store their ids to separate map.
@@ -868,89 +980,76 @@ int main(int argc, char *argv[])
         //:
         //: 3 Using the loop-based approach:
         //:
-        //:   1 Register processes one by one in back order (so the 'begin'
-        //:     accessor should return different values on each iteration).
+        //:   1 Register processes one by one (so the number of elements in the
+        //:     underlying map should change).
         //:
-        //:   2 Using 'pid' accessor of the 'Statistics' class verify return
-        //:     values of 'begin' and 'find' accessors. (C-1,3)
+        //:   2 Obtain an iterator, pointing to the first element and advance
+        //:     it to the position, following the last element in underlying
+        //:     map.
         //:
-        //:   3 Execute an inner loop to iterate to the end of the map and
-        //:     using comparison operator verify return values of the 'end'
-        //:     accessor. (C-2)
+        //:   3 Verify return value of the 'end' method by comparing it with
+        //:     the iterator from P-3.2. (C-1)
         //
         // Testing:
-        //   ConstIterator begin() const;
         //   ConstIterator end() const;
-        //   ConstIterator find(int pid) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING ACCESSORS\n"
-                          << "=================\n";
+        if (verbose) cout << "TESTING 'end'\n"
+                          << "=============\n";
 
-        {
-            typedef bsl::map<int, int> Pids;
+        typedef bsl::set<int> Pids;
 
-            const int NUM_PROCESSES = 5;
-            Pids      pids;
+        const int NUM_PROCESSES = 5;
+        Pids      pids;
 
-            // Spawn as a child processes several copies of this test driver,
-            // running test case -3, which simply sleep for one minute and
-            // exit.
+        // Spawn as a child processes several copies of this test driver,
+        // running test case -3, which simply sleep for one minute and
+        // exit.
 
-            bsl::string              command(argv[0]);
-            bsl::vector<bsl::string> arguments;
+        bsl::string              command(argv[0]);
+        bsl::vector<bsl::string> arguments;
 
-            arguments.push_back(bsl::string("-3"));
+        arguments.push_back(bsl::string("-3"));
 
-            for (int i = 0; i < NUM_PROCESSES; ++i) {
+        for (int i = 0; i < NUM_PROCESSES; ++i) {
 
-                processSupport::ProcessHandle handle =
-                                      processSupport::exec(command, arguments);
+            processSupport::ProcessHandle handle =
+                                  processSupport::exec(command, arguments);
 
 
-                // Store id of the spawned child process.
+            // Store id of the spawned child process.
 
-                int pid = processSupport::getId(handle);
-                ASSERTV(pid, -1 != pid);
+            int pid = processSupport::getId(handle);
+            ASSERTV(pid, -1 != pid);
 
-                pids.insert(bsl::make_pair(pid, pid));
+            pids.insert(pid);
+        }
+
+        Obj        mX;
+        const Obj& X = mX;
+
+        ASSERT(X.begin() == X.end());
+
+        Pids::iterator pidsIt = pids.begin();
+        bsl::string    description;
+
+        while (pidsIt != pids.end()) {
+            int PID = *pidsIt;
+            description += '0';
+
+            if (veryVerbose) {
+                T_ P_(description) P(PID)
             }
 
-            ASSERT(NUM_PROCESSES == pids.size());
+            ASSERTV(description, 0 == mX.registerPid(PID, description));
 
-            // Checking.
-            Obj        mX;
-            const Obj& X = mX;
+            ObjIterator        mXIt = advanceIt(X.begin(),
+                                                X.numRegisteredPids());
+            const ObjIterator& XIt  = mXIt;
 
-            ASSERT(X.begin() == X.end());
+            ASSERT(XIt == X.end());
 
-            Pids::reverse_iterator rPidsIt = pids.rbegin();
-            bsl::string            description;
-
-            for (int i = 0; i < NUM_PROCESSES; ++i) {
-                int PID = rPidsIt->first;
-                description += '0';
-
-                if (veryVerbose) {
-                    T_ P_(description) P(PID)
-                }
-
-                ASSERTV(description, 0 == mX.registerPid(PID, description));
-
-                ObjIterator        mXIt = X.begin();
-                const ObjIterator& XIt  = mXIt;
-                ASSERTV(description, PID == XIt->pid());
-
-                ObjIterator fIt = X.find(PID);
-                ASSERTV(description, PID == fIt->pid());
-
-                for(int j = 0; j < i + 1; ++j) {
-                    ++mXIt;
-                }
-                ASSERTV(description, XIt == X.end());
-
-                ++rPidsIt;
-            }
+            ++pidsIt;
         }
       } break;
       case 7: {
@@ -987,14 +1086,15 @@ int main(int argc, char *argv[])
         //: 2 Spawn several processes, create a 'PerformanceMonitor' object,
         //:   'mX', and register these processes for statistics collection.
         //:
-        //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterators,
-        //:   'mXIt1' and 'mXIt2', pointing the first element in the underlying
-        //:   map.
+        //: 3 For each value '(x, y)' in the cross product S x S, where S is a
+        //:   set of successive indexes from 0 till the number of registered
+        //:   processes from P-2:
         //:
-        //: 4 Increment both iterators separately to get situations when they
-        //    are anticipated to be and not to be equal and verify the
-        //    commutativity property and the expected return value for both
-        //    '==' and '!='.  (C-1..7)
+        //:  1 Use the 'begin' accessor to obtain iterators, 'mXIt1' and
+        //:    'mXIt2', pointing the first element in the underlying map.
+        //:
+        //:  2 Advance them x and y times accordingly, compare and verify
+        //:    comparison results.  (C-1..7)
         //
         // Testing:
         //   bool operator==(const ConstIterator& rhs) const;
@@ -1019,7 +1119,7 @@ int main(int argc, char *argv[])
 
         // Testing behaviour.
         {
-            typedef bsl::map<int, int> Pids;
+            typedef bsl::set<int> Pids;
 
             const int NUM_PROCESSES = 5;
             Pids      pids;
@@ -1044,21 +1144,17 @@ int main(int argc, char *argv[])
                 int pid = processSupport::getId(handle);
                 ASSERTV(pid, -1 != pid);
 
-                pids.insert(bsl::make_pair(pid, pid));
+                pids.insert(pid);
             }
-
-            ASSERT(NUM_PROCESSES == pids.size());
 
             Obj        mX;
             const Obj& X = mX;
 
-            ASSERT(X.begin() == X.end());
-
             Pids::iterator pidsIt = pids.begin();
             bsl::string    description;
 
-            for (int i = 0; i < NUM_PROCESSES; ++i) {
-                int PID = pidsIt->first;
+            while (pidsIt != pids.end()) {
+                int PID = *pidsIt;
                 description += '0';
 
                 if (veryVerbose) {
@@ -1072,30 +1168,18 @@ int main(int argc, char *argv[])
 
             // Checking.
 
-            ObjIterator        mXIt1 = X.begin();
-            ObjIterator        mXIt2 = X.begin();
-            const ObjIterator& XIt1  = mXIt1;
-            const ObjIterator& XIt2  = mXIt2;
-
-            ASSERT(  XIt1 == XIt2 );
-            ASSERT(  XIt2 == XIt1 );
-            ASSERT(!(XIt1 != XIt2));
-            ASSERT(!(XIt2 != XIt1));
-
             for (int i = 0; i < NUM_PROCESSES; ++i) {
-                ASSERTV(i,   mXIt1 == mXIt2 );
-                ASSERTV(i,   mXIt2 == mXIt1 );
-                ASSERTV(i, !(mXIt1 != mXIt2));
-                ASSERTV(i, !(mXIt2 != mXIt1));
+                for (int j = 0; j < NUM_PROCESSES; ++j) {
+                    ObjIterator        mXIt1 = advanceIt(X.begin(), i);
+                    ObjIterator        mXIt2 = advanceIt(X.begin(), j);
+                    const ObjIterator& XIt1  = mXIt1;
+                    const ObjIterator& XIt2  = mXIt2;
 
-                ++mXIt1;
-
-                ASSERTV(i,   mXIt1 != mXIt2 );
-                ASSERTV(i,   mXIt2 != mXIt1 );
-                ASSERTV(i, !(mXIt1 == mXIt2));
-                ASSERTV(i, !(mXIt2 == mXIt1));
-
-                ++mXIt2;
+                    ASSERTV(i, j, (i == j) == (XIt1 == XIt2));
+                    ASSERTV(i, j, (i == j) == (XIt2 == XIt1));
+                    ASSERTV(i, j, (i != j) == (XIt1 != XIt2));
+                    ASSERTV(i, j, (i != j) == (XIt2 != XIt1));
+                }
             }
         }
       } break;
@@ -1123,13 +1207,13 @@ int main(int argc, char *argv[])
         //: 2 Spawn several processes, create a 'PerformanceMonitor' object,
         //:   'mX', and register these processes for statistics collection.
         //:
-        //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterators,
-        //:   'preXIt' and 'postXIt', pointing the first element in the
-        //:   underlying map.
+        //: 3 Use the 'begin' accessor to obtain iterators, 'preXIt' and
+        //:   'postXIt', pointing the first element in the underlying map.
         //:
         //: 4 Iterate through the underlying map using the 'operator++()' and
         //:   'operator++(int)' manipulators respectively and verify return
-        //:   values and values of the iterators.
+        //:   values and values of the iterators, using dereference operator
+        //:   and 'pid' accessor of 'Statistics' class.
         //
         // Testing:
         //   ConstIterator& operator++();
@@ -1155,7 +1239,7 @@ int main(int argc, char *argv[])
 
         // Testing behaviour.
         {
-            typedef bsl::map<int, int> Pids;
+            typedef bsl::set<int> Pids;
 
             const int NUM_PROCESSES = 5;
             Pids      pids;
@@ -1180,21 +1264,17 @@ int main(int argc, char *argv[])
                 int pid = processSupport::getId(handle);
                 ASSERTV(pid, -1 != pid);
 
-                pids.insert(bsl::make_pair(pid, pid));
+                pids.insert(pid);
             }
-
-            ASSERT(NUM_PROCESSES == pids.size());
 
             Obj        mX;
             const Obj& X = mX;
 
-            ASSERT(X.begin() == X.end());
-
             Pids::iterator pidsIt = pids.begin();
             bsl::string    description;
 
-            for (int i = 0; i < NUM_PROCESSES; ++i) {
-                int PID = pidsIt->first;
+            while (pidsIt != pids.end()) {
+                int PID = *pidsIt;
                 description += '0';
 
                 if (veryVerbose) {
@@ -1206,82 +1286,36 @@ int main(int argc, char *argv[])
                 ++pidsIt;
             }
 
-            // Checking.
+            // Checking pre-increment iterator.
 
-            ObjIterator preXIt  = X.begin();
-            ObjIterator postXIt = X.begin();
-
+            ObjIterator preXIt = X.begin();
             pidsIt = pids.begin();
 
             for (int i = 0; i < NUM_PROCESSES - 1; ++i) {
-                ASSERTV(i, pidsIt->first     == (postXIt++)->pid());
-                ASSERTV(i, (++pidsIt)->first == (++preXIt)->pid());
-
-                ASSERTV(i, pidsIt->first == postXIt->pid());
-                ASSERTV(i, pidsIt->first ==  preXIt->pid());
+                ASSERTV(i,    *pidsIt  ==    preXIt->pid());
+                ASSERTV(i, *(++pidsIt) == (++preXIt)->pid());
+                ASSERTV(i,    *pidsIt  ==    preXIt->pid());
             }
+
+            ++preXIt;
+            ASSERT(X.end() == preXIt);
+
+            // Checking post-increment iterator.
+
+            ObjIterator postXIt = X.begin();
+            pidsIt = pids.begin();
+
+            for (int i = 0; i < NUM_PROCESSES - 1; ++i) {
+                ASSERTV(i, *pidsIt     == postXIt->pid());
+                ASSERTV(i, *pidsIt     == (postXIt++)->pid());
+                ASSERTV(i, *(++pidsIt) == postXIt->pid());
+            }
+
+            postXIt++;
+            ASSERT(X.end() == postXIt);
         }
       } break;
       case 5: {
-        // --------------------------------------------------------------------
-        // CONCERN: TESTING ITERATOR ACCESSORS
-        //
-        // Concerns:
-        //: 1 The 'operator*' returns the reference to the value of the element
-        //:   to which this object refers.
-        //:
-        //: 2 The 'operator->' returns the address to the value of the element
-        //:   to which this object refers.
-        //:
-        //: 3 Both methods are declared 'const'.
-        //:
-        //: 4 The signatures and return types are standard.
-        //
-        // Plan:
-        //: 1 Use the addresses of 'operator*' and 'operator->' to initialize
-        //:   member-function pointers having the appropriate signatures and
-        //:   return types for the operators defined in this component.  (C-4)
-        //:
-        //: 2 Create a 'PerformanceMonitor' object, 'mX', and register current
-        //:   process for statistics collection.
-        //:
-        //: 3 Use the (as yet unproven) 'begin' accessor to obtain iterator,
-        //:   'mXIt', pointing the first element in the underlying map.  Create
-        //:    a const reference, 'XIt', to the iterator.
-        //:
-        //: 4 Invoke 'operator*' on 'XIt' and use the 'Statistics' class
-        //:   accessors 'pid' and 'description' to verify that the operator
-        //:   returns the expected value.  (C-1)
-        //:
-        //: 5 Invoke 'operator->' on 'XIt' and use the 'Statistics' class
-        //:   accessors 'pid' and 'description' to verify that the operator
-        //:   returns the expected value.  (C-2..3)
-        //
-        // Testing:
-        //   reference operator*() const;
-        //   pointer operator->() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING ITERATOR ACCESSORS\n"
-                          << "==========================\n";
-
-        Obj               mX;
-        const Obj&        X    = mX;
-        const bsl::string DESC = "perfmon";
-        const int         PID  = bdls::ProcessUtil::getProcessId();
-        int               rc   = mX.registerPid(PID, DESC);
-        ASSERT(0 == rc);
-
-        ObjIterator        mXIt = X.begin();
-        const ObjIterator& XIt  = mXIt;
-
-        ASSERT(PID  == (*XIt).pid()        );
-        ASSERT(PID  ==   XIt->pid()        );
-        ASSERT(DESC == (*XIt).description());
-        ASSERT(DESC ==   XIt->description());
-
-      } break;
-      case 4: {
         // --------------------------------------------------------------------
         // CONCERN: Statistics are Reset Correctly
         //
@@ -1365,6 +1399,158 @@ int main(int argc, char *argv[])
             ASSERT(userCpu < 10);
             ASSERT(systemCpu < 10);
             ASSERT(totalCpu < 10);
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING ACCESSORS
+        //
+        // Concerns:
+        //: 1 The 'begin()' accessor of 'PerformanceMonitor' class returns an
+        //:   iterator, referring to the first value in the underlying map.
+        //:
+        //: 2 The 'operator*' of 'ConstIterator' class returns the reference to
+        //:   the value of the element, this object refers to.
+        //:
+        //: 3 The 'operator->' of 'ConstIterator' class returns the address of
+        //:   of the element, this object refers to.
+        //:
+        //: 4 The operators return references to actual 'Statistics' object,
+        //:   belonging to 'PerformanceMonitor', and not to some cached copy.
+        //:
+        //: 5 All methods are declared 'const'.
+        //:
+        //: 6 The signatures and return types of operators are standard.
+        //
+        // Plan:
+        //: 1 Use the addresses of 'operator*' and 'operator->' to initialize
+        //:   member-function pointers having the appropriate signatures and
+        //:   return types for the operators defined in this component.  (C-6)
+        //:
+        //: 2 Spawn several processes and store their ids to separate map.
+        //:
+        //: 3 Create a 'PerformanceMonitor' object, 'mX' and const reference to
+        //:   'mX', named 'X'.
+        //:
+        //: 4 Using the loop-based approach:
+        //:
+        //:   1 Register processes one by one in back order (so the 'begin'
+        //:     accessor should return different values on each iteration).
+        //:
+        //:   2 Use the 'begin' accessor to obtain iterator, 'mXIt' and
+        //:     create a const reference to 'mXIt', named 'XIt'.  (C-5)
+        //:
+        //:   3 Using 'operator*', 'operator->' and 'pid' accessor of the
+        //:     'Statistics' class verify return values of 'begin' accessor.
+        //:     (C-1..3)
+        //:
+        //: 4 Use the 'begin' accessor to obtain iterator, 'mXIt' and create a
+        //:   const reference to 'mXIt', named 'XIt'.  Get and store some value
+        //:   from the 'Statistics' object, this iterator pointing to.
+        //:
+        //: 5 Use the 'resetStatistics' manipulator to change 'Statistics'
+        //:   object, stored in 'PerformanceMonitor'.
+        //:
+        //: 6 Verify that value of the object, iterator pointing to, is
+        //:   changed.  (C-4)
+        //
+        // Testing:
+        //   ConstIterator begin() const;
+        //   reference operator*() const;
+        //   pointer operator->() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING ACCESSORS\n"
+                          << "=================\n";
+
+        if (verbose) cout << "Testing signatures." << endl;
+        {
+            typedef const Obj::Statistics& (ObjIterator::*opDPtr)() const;
+            typedef const Obj::Statistics* (ObjIterator::*opAPtr)() const;
+
+
+            // Verify that the signature and return type are standard.
+
+            opDPtr operatorDereference = &ObjIterator::operator*;
+            opAPtr operatorArrow       = &ObjIterator::operator->;
+
+            (void) operatorDereference;  // quash potential compiler warning
+            (void) operatorArrow;        // quash potential compiler warning
+        }
+
+        if (verbose) cout << "Testing behavior." << endl;
+        {
+            typedef bsl::set<int> Pids;
+
+            const int NUM_PROCESSES = 5;
+            Pids      pids;
+
+            // Spawn as a child processes several copies of this test driver,
+            // running test case -3, which simply sleep for one minute and
+            // exit.
+
+            bsl::string              command(argv[0]);
+            bsl::vector<bsl::string> arguments;
+
+            arguments.push_back(bsl::string("-3"));
+
+            for (int i = 0; i < NUM_PROCESSES; ++i) {
+
+                processSupport::ProcessHandle handle =
+                                      processSupport::exec(command, arguments);
+
+
+                // Store id of the spawned child process.
+
+                int pid = processSupport::getId(handle);
+                ASSERTV(pid, -1 != pid);
+
+                pids.insert(pid);
+            }
+
+            // Checking.
+            Obj        mX;
+            const Obj& X = mX;
+
+            ASSERT( X.end() == X.begin());
+
+            Pids::reverse_iterator rPidsIt = pids.rbegin();
+            bsl::string            description;
+
+            while (rPidsIt != pids.rend()) {
+                int PID = *rPidsIt;
+                description += '0';
+
+                if (veryVerbose) {
+                    T_ P_(description) P(PID)
+                }
+
+                ASSERTV(description, 0 == mX.registerPid(PID, description));
+
+                ObjIterator        mXIt = X.begin();
+                const ObjIterator& XIt  = mXIt;
+                ASSERTV(description, PID ==   XIt->pid());
+                ASSERTV(description, PID == (*XIt).pid());
+
+                ++rPidsIt;
+            }
+
+            // Check that accessors return reference to actual 'Statistics'
+            // object belonging to 'PerformanceMonitor', and not to some cached
+            // copy.
+
+            ObjIterator        mXIt    = X.begin();
+            const ObjIterator& XIt     = mXIt;
+            const double       ELAPSED = XIt->elapsedTime();
+
+            ASSERT(ELAPSED ==   XIt->elapsedTime());
+            ASSERT(ELAPSED == (*XIt).elapsedTime());
+
+            bslmt::ThreadUtil::microSleep(0, 1);
+            mX.resetStatistics();
+
+            ASSERT(ELAPSED !=   XIt->elapsedTime());
+            ASSERT(ELAPSED != (*XIt).elapsedTime());
         }
       } break;
       case 3: {

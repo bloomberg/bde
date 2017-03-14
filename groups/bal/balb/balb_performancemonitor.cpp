@@ -1744,8 +1744,6 @@ void PerformanceMonitor::setCollectionInterval(double interval)
 {
     BSLS_ASSERT(d_scheduler_p);
 
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
-
     if ((interval <= 0.0) && (d_clock != INVALID_TIMER_HANDLE)) {
         d_scheduler_p->cancelClock(d_clock, false);
         d_clock = INVALID_TIMER_HANDLE;

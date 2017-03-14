@@ -434,8 +434,8 @@ typedef bsls::Platform::OsHpUx OsType;
 
         Statistics(const Statistics&  original,
                    bslma::Allocator  *basicAllocator = 0);
-            // Create a 'Statistics' object having the same value as the
-            // specified 'original' object.  Optionally specify a
+            // Create a 'Statistics' object aggregating the same statistics
+            // values as the specified 'original' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
