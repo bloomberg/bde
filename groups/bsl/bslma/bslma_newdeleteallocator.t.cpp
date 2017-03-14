@@ -5,6 +5,7 @@
 #include <bslma_allocator.h>    // for testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
@@ -298,7 +299,8 @@ static volatile int   globalDeleteCalledCount = 0;
 static volatile int   globalDeleteCalledCountIsEnabled = 0;
 static volatile void *globalDeleteCalledLastArg = 0;
 
-#ifdef BDE_BUILD_TARGET_EXC
+#if defined(BDE_BUILD_TARGET_EXC) && \
+   !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 void *operator new(size_t size) throw(std::bad_alloc)
 #else
 void *operator new(size_t size)
@@ -325,7 +327,11 @@ void *operator new(size_t size)
 }
 
 #ifdef BDE_BUILD_TARGET_EXC
+# if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 void operator delete(void *address) throw()
+# else
+void operator delete(void *address) noexcept
+# endif
 #else
 void operator delete(void *address)
 #endif
