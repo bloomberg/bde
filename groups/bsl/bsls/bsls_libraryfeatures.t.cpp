@@ -166,16 +166,16 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
         // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' flag as a
         // compile-time test that these 'typedef's are available.
     {
-        (void) native_std::atomic_int8_t    mX1;
-        (void) native_std::atomic_int16_t   mX2;
-        (void) native_std::atomic_int32_t   mX3;
-        (void) native_std::atomic_int64_t   mX4;
-        (void) native_std::atomic_uint8_t   mX5;
-        (void) native_std::atomic_uint16_t  mX6;
-        (void) native_std::atomic_uint32_t  mX7;
-        (void) native_std::atomic_uint64_t  mX8;
-        (void) native_std::atomic_intptr_t  mX9;
-        (void) native_std::atomic_uintptr_t mX10;
+        ASSERT(0 < sizeof(native_std::atomic_int8_t));
+        ASSERT(0 < sizeof(native_std::atomic_int16_t));
+        ASSERT(0 < sizeof(native_std::atomic_int32_t));
+        ASSERT(0 < sizeof(native_std::atomic_int64_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint8_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint16_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint32_t));
+        ASSERT(0 < sizeof(native_std::atomic_uint64_t));
+        ASSERT(0 < sizeof(native_std::atomic_intptr_t));
+        ASSERT(0 < sizeof(native_std::atomic_uintptr_t));
     }
 #endif
 
