@@ -534,14 +534,18 @@ typedef bsls::Platform::OsHpUx OsType;
         ConstIterator& operator++();
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return a reference to the
-            // modifiable value type of this iterator.  The behavior of this
-            // function is undefined unless this iterator is dereferenceable.
+            // modifiable value type of this iterator.  If there is no next
+            // collection of statistics, this iterator will be set equal to
+            // 'end()'.  The behavior of this function is undefined unless this
+            // iterator is dereferenceable.
 
         ConstIterator operator++(int);
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return the iterator pointing
-            // to the previous modifiable value type.  The behavior of this
-            // function is undefined unless this iterator is dereferenceable.
+            // to the previous modifiable value type.  If there is no next
+            // collection of statistics, this iterator will be set equal to
+            // 'end()'.  The behavior of this function is undefined unless this
+            // iterator is dereferenceable.
 
         // ACCESSORS
         reference operator*() const;

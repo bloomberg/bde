@@ -63,7 +63,7 @@ using namespace bsl;
 //                                 Overview
 //                                 --------
 //
-// Thread-safety concerns are not tested because of imperfection of test
+// Thread-safety concerns are not tested because of limitations of test
 // apparatus and component's design.
 // ----------------------------------------------------------------------------
 //                            // ----------------
@@ -1198,6 +1198,9 @@ int main(int argc, char *argv[])
         //:
         //: 4 The reference returned by the pre-increment operator refers to
         //:   the object on which the operator was invoked.
+        //:
+        //: 5 Advancing iterator, referring to the last element in the map,
+        //:   sets this iterator equal to 'end()'
         //
         // Plan:
         //: 1 Use the respective addresses of 'operator++()' and
@@ -1213,7 +1216,10 @@ int main(int argc, char *argv[])
         //: 4 Iterate through the underlying map using the 'operator++()' and
         //:   'operator++(int)' manipulators respectively and verify return
         //:   values and values of the iterators, using dereference operator
-        //:   and 'pid' accessor of 'Statistics' class.
+        //:   and 'pid' accessor of 'Statistics' class.  (C-1,3..4)
+        //:
+        //: 5 Advance iterators once more and use (as yet unproven) 'end'
+        //:   accessor to verify posiotions of the iterators.  (C-5)
         //
         // Testing:
         //   ConstIterator& operator++();
@@ -1547,7 +1553,7 @@ int main(int argc, char *argv[])
             ASSERT(ELAPSED == (*XIt).elapsedTime());
 
             bslmt::ThreadUtil::microSleep(0, 1);
-            mX.resetStatistics();
+            mX.collect();
 
             ASSERT(ELAPSED !=   XIt->elapsedTime());
             ASSERT(ELAPSED != (*XIt).elapsedTime());
