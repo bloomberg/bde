@@ -55,6 +55,21 @@ namespace bsl {
     using native_std::tan;
     using native_std::tanh;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+    using native_std::fpclassify;
+    using native_std::isfinite;
+    using native_std::isinf;
+    using native_std::isnan;
+    using native_std::isnormal;
+    using native_std::signbit;
+    using native_std::isgreater;
+    using native_std::isgreaterequal;
+    using native_std::isless;
+    using native_std::islessequal;
+    using native_std::islessgreater;
+    using native_std::isunordered;
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
     using native_std::double_t;
     using native_std::float_t;
@@ -95,19 +110,6 @@ namespace bsl {
     using native_std::scalbn;
     using native_std::tgamma;
     using native_std::trunc;
-
-    using native_std::fpclassify;
-    using native_std::isfinite;
-    using native_std::isinf;
-    using native_std::isnan;
-    using native_std::isnormal;
-    using native_std::signbit;
-    using native_std::isgreater;
-    using native_std::isgreaterequal;
-    using native_std::isless;
-    using native_std::islessequal;
-    using native_std::islessgreater;
-    using native_std::isunordered;
 #endif  //  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 }  // close package namespace
 
