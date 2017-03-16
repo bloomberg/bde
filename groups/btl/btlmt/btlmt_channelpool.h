@@ -1181,20 +1181,20 @@ class ChannelPool {
         // during the 'connect' operation.  After the connection is
         // established, an internal channel is created and a channel state
         // callback is called supplying the 'e_CHANNEL_UP' event, the newly
-        // created channel ID, and the specified 'clientId' in an internal
-        // thread.  Return 0 on successful initiation, a positive value if
-        // there is an active connection attempt with the same 'clientId'
-        // (in which case this connection attempt may be retried after that
-        // other connection either succeeds, fails, or times out), or a
-        // negative value if an error occurred, with the value of -1
-        // indicating that the channel pool is not running.  Note that on
-        // synchronous failure, the value loaded into the optionally-specified
-        // 'platformErrorCode' is the error code returned by the underlying OS
-        // or '0' if the error was not a system error.
+        // created channel ID, and the 'clientId' in an internal thread.
+        // Return 0 on successful initiation, a positive value if there is an
+        // active connection attempt with the same 'clientId' (in which case
+        // this connection attempt may be retried after that other connection
+        // either succeeds, fails, or times out), or a negative value if an
+        // error occurred, with the value of -1 indicating that the channel
+        // pool is not running.  Note that on synchronous failure, the value
+        // loaded into the optionally-specified 'platformErrorCode' is the
+        // error code returned by the underlying OS or '0' if the error was not
+        // a system error.
 
                                   // *** Channel management part ***
     void importCb(
-             btlso::StreamSocket<btlso::IPv4Address> *socket,
+             btlso::StreamSocket<btlso::IPv4Address> *streamSocket,
              const bslma::ManagedPtrDeleter&          deleter,
              TcpTimerEventManager                    *manager,
              TcpTimerEventManager                    *srcManager,
@@ -1202,15 +1202,26 @@ class ChannelPool {
              bool                                     readEnabledFlag,
              bool                                     allowHalfOpenConnections,
              bool                                     imported);
-        // Add a newly allocated channel to the set of channels managed by this
-        // channel pool and invoke the channel pool callback in the specified
-        // 'manager'.  Upon destruction, 'socket' will be destroyed via the
-        // specified 'factory'.  Note that this method is executed whenever a
-        // connection is imported on the 'socket' corresponding to 'sourceId'.
-        // In addition, it is invoked by 'connectCb' to create a newly
-        // allocated channel once the socket connection is established.  This
-        // function should be executed in the dispatcher thread of the
-        // specified 'srcManager'.
+        // Add the specified 'streamSocket' to this channel pool using the
+        // specified 'sourceId' to identify the new connection, the specified
+        // 'readEnabledFlag' to specify whether automatic reading should be
+        // enabled on this channel immediately after importing, the
+        // specified 'allowHalfOpenConnections' to specify if half-open
+        // connections are allowed on this connection, and the specified
+        // 'imported' flag to specify if 'streamSocket' is an imported channel.
+        // Use the dispatcher thread of the specified 'srcManager' to execute
+        // this method.  After successfully importing 'streamSocket' assign a
+        // channel ID and invoke all subsequent callbacks for that channel in
+        // the dispatcher thread of the specified 'manager'.  Assume ownership
+        // from 'streamSocket', leaving it null, if this function returns
+        // successfully, and leave it unchanged if an error is returned.  Use
+        // the specified 'deleter' to destroy 'streamSocket'.  Return 0 on
+        // success and a non-zero value, with no effect on the channel pool,
+        // otherwise.  Note that the same 'sourceId' can be used in several
+        // calls to 'connect' or 'import' as long as two calls to connect with
+        // the same 'sourceId' do not overlap.  Also note that a half-closed
+        // 'streamSocket' can be imported into this channel pool, irrespective
+        // of the value of 'allowHalfOpenConnections'.
 
                                   // *** Clock management ***
 
@@ -1318,16 +1329,16 @@ class ChannelPool {
         // during the 'connect' operation.  After the connection is
         // established, an internal channel is created and a channel state
         // callback is called supplying the 'e_CHANNEL_UP' event, the newly
-        // created channel ID, and the specified 'clientId' in an internal
-        // thread.  Return 0 on successful initiation, a positive value if
-        // there is an active connection attempt with the same 'clientId'
-        // (in which case this connection attempt may be retried after that
-        // other connection either succeeds, fails, or times out), or a
-        // negative value if an error occurred, with the value of -1
-        // indicating that the channel pool is not running.  Note that on
-        // synchronous failure, the value loaded into the optionally-specified
-        // 'platformErrorCode' is the error code returned by the underlying OS
-        // or '0' if the error was not a system error.
+        // created channel ID, and the 'clientId' in an internal thread.
+        // Return 0 on successful initiation, a positive value if there is an
+        // active connection attempt with the same 'clientId' (in which case
+        // this connection attempt may be retried after that other connection
+        // either succeeds, fails, or times out), or a negative value if an
+        // error occurred, with the value of -1 indicating that the channel
+        // pool is not running.  Note that on synchronous failure, the value
+        // loaded into the optionally-specified 'platformErrorCode' is the
+        // error code returned by the underlying OS or '0' if the error was not
+        // a system error.
 
                                   // *** Channel management ***
 
@@ -1380,15 +1391,15 @@ class ChannelPool {
         // connections are allowed on this connection.  After successfully
         // importing 'streamSocket' assign a channel ID and invoke in an
         // internal thread the channel state callback specifying the
-        // 'e_CHANNEL_UP' event and the specified 'sourceId' as arguments.
-        // Assume ownership from 'streamSocket', leaving it null, if this
-        // function returns successfully, and leave it unchanged if an error is
-        // returned.  Return 0 on success and a non-zero value, with no effect
-        // on the channel pool, otherwise.  Note that the same 'sourceId' can
-        // be used in several calls to 'connect' or 'import' as long as two
-        // calls to connect with the same 'sourceId' do not overlap.  Also note
-        // that a half-closed 'streamSocket' can be imported into this channel
-        // pool, irrespective of the value of 'allowHalfOpenConnections'.
+        // 'e_CHANNEL_UP' event and 'sourceId' as arguments.  Assume ownership
+        // from 'streamSocket', leaving it null, if this function returns
+        // successfully, and leave it unchanged if an error is returned.
+        // Return 0 on success and a non-zero value, with no effect on the
+        // channel pool, otherwise.  Note that the same 'sourceId' can be used
+        // in several calls to 'connect' or 'import' as long as two calls to
+        // connect with the same 'sourceId' do not overlap.  Also note that a
+        // half-closed 'streamSocket' can be imported into this channel pool,
+        // irrespective of the value of 'allowHalfOpenConnections'.
 
     void setChannelContext(int channelId, void *context);
         // Associate the specified (opaque) 'context' with the channel having
@@ -2260,18 +2271,18 @@ int ChannelPool::write(int channelId, const btlb::Blob& message)
 
 inline
 int ChannelPool::listen(int                          serverId,
-                        const btlmt::ListenOptions&  options,
+                        const btlmt::ListenOptions&  listenOptions,
                         int                         *platformErrorCode)
 {
-    return listenImp(serverId, options, platformErrorCode);
+    return listenImp(serverId, listenOptions, platformErrorCode);
 }
 
 inline
-int ChannelPool::connect(int                           sourceId,
-                         const btlmt::ConnectOptions&  options,
+int ChannelPool::connect(int                           clientId,
+                         const btlmt::ConnectOptions&  connectOptions,
                          int                          *platformErrorCode)
 {
-    return connectImp(sourceId, options, platformErrorCode);
+    return connectImp(clientId, connectOptions, platformErrorCode);
 }
 
 inline

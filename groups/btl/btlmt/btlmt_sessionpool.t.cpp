@@ -11,10 +11,14 @@
 
 #include <btlmt_asyncchannel.h>
 #include <btlmt_channelpool.h>
+#include <btlmt_connectoptions.h>
+#include <btlmt_listenoptions.h>
 #include <btlmt_session.h>
 #include <btlmt_sessionfactory.h>
 
+#include <btlb_blob.h>
 #include <btlb_blobutil.h>
+#include <btlb_pooledblobbufferfactory.h>
 
 #include <btlso_flag.h>
 
@@ -776,14 +780,18 @@ class TesterFactory : public btlmt::SessionFactory {
 
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
-  public:
+    // NOT IMPLEMENTED
+    TesterFactory(const TesterFactory&  original,
+                  bslma::Allocator     *basicAllocator);
+
+    public:
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TesterFactory(bslma::Allocator *basicAllocator = 0);
+    explicit TesterFactory(bslma::Allocator *basicAllocator = 0);
         // Create a new 'TesterFactory' object of the specified 'mode'.
         // Optionally specify 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -927,7 +935,7 @@ int createConnection(
         return sessionPool->connect(&handleBuffer,
                                     *sessionStateCb,
                                     sessionFactory,
-                                    options);                       // RETURN
+                                    options);                         // RETURN
     } else {
         BSLS_ASSERT_OPT(socketFactory); // test invariant
         BSLS_ASSERT_OPT(ipAddress);
@@ -2219,8 +2227,8 @@ int main(int argc, char *argv[])
         // Testing:
         //-------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "TESTING close with and without "
-                               << "enqueued data" << bsl::endl
+        if (verbose) bsl::cout << "TESTING CLOSE WITH AND WITHOUT "
+                               << "ENQUEUED DATA" << bsl::endl
                                << "=============================="
                                << "============="
                                << bsl::endl;
@@ -2422,7 +2430,7 @@ int main(int argc, char *argv[])
                                   &sessionFactory,
                                   connectOptions);
             ASSERT(0 == rc);
-            
+
             StreamSocket *socket;
             do {
                 rc = serverSocket->accept(&socket);
@@ -2505,7 +2513,7 @@ int main(int argc, char *argv[])
                                   &sessionFactory,
                                   connectOptions);
             ASSERT(0 == rc);
-            
+
             StreamSocket *socket;
             do {
                 rc = serverSocket->accept(&socket);

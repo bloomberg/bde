@@ -45,8 +45,8 @@ BSLS_IDENT("$Id: $")
 // 'btlmt::ResolutionMode' usage.
 //
 // First, we create a variable 'value' of type
-// 'btlmt::ResolutionMode::Enum' and initialize it with the enumerator
-// value 'btlmt::ResolutionMode::e_RESOLVE_ONCE':
+// 'btlmt::ResolutionMode::Enum' and initialize it with the enumerator value
+// 'btlmt::ResolutionMode::e_RESOLVE_ONCE':
 //..
 //  btlmt::ResolutionMode::Enum value = btlmt::ResolutionMode::e_RESOLVE_ONCE;
 //..

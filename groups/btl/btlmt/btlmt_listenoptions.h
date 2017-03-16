@@ -162,8 +162,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we will populate a flag that specifies whether incoming connections
 // can be half-open.  A half-open connection has only its read-end or write-end
-// open.  For a connection the server may decide to close the read end
-// while continuing to enqueue write data.
+// open.  For a connection the server may decide to close the read end while
+// continuing to enqueue write data.
 //..
 //  const bool ALLOW_HALF_OPEN_CONNECTIONS = true;
 //  options.setAllowHalfOpenConnections(ALLOW_HALF_OPEN_CONNECTIONS);
@@ -478,7 +478,7 @@ bool btlmt::operator!=(const btlmt::ListenOptions& lhs,
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

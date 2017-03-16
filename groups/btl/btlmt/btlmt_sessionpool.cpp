@@ -14,9 +14,12 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 
 #include <btlmt_channelpool.h>
 #include <btlmt_channelpoolchannel.h>
+#include <btlmt_connectoptions.h>
+#include <btlmt_listenoptions.h>
 #include <btlmt_session.h>
 #include <btlmt_sessionfactory.h>
 
+#include <btlso_endpoint.h>
 #include <btlso_socketoptions.h>
 
 #include <btlb_pooledblobbufferfactory.h>
@@ -513,7 +516,7 @@ void SessionPool::init()
 }
 
 int SessionPool::makeConnectHandle(
-                         const SessionPool::SessionStateCallback&  cb,
+                         const SessionPool::SessionStateCallback&  callback,
                          int                                       numAttempts,
                          void                                     *userData,
                          SessionFactory                           *factory)
@@ -523,7 +526,7 @@ int SessionPool::makeConnectHandle(
                      d_allocator_p);
 
     handle->d_type                 = SessionPool_Handle::e_CONNECT_SESSION;
-    handle->d_sessionStateCB       = cb;
+    handle->d_sessionStateCB       = callback;
     handle->d_session_p            = 0;
     handle->d_channel_p            = 0;
     handle->d_numAttemptsRemaining = numAttempts;
@@ -859,7 +862,7 @@ int SessionPool::closeHandle(int handleId)
 
 int SessionPool::connect(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    SessionFactory                           *factory,
                    const btlmt::ConnectOptions&              options,
                    void                                     *userData,
@@ -873,7 +876,7 @@ int SessionPool::connect(
         return -1;                                                    // RETURN
     }
 
-    int handleId = makeConnectHandle(cb,
+    int handleId = makeConnectHandle(callback,
                                      options.numAttempts(),
                                      userData,
                                      factory);
@@ -894,7 +897,7 @@ int SessionPool::connect(
 
 int SessionPool::import(
    int                                               *handleBuffer,
-   const SessionPool::SessionStateCallback&           cb,
+   const SessionPool::SessionStateCallback&           callback,
    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
                                                      *streamSocket,
    bool                                               allowHalfOpenConnections,
@@ -908,7 +911,7 @@ int SessionPool::import(
                      d_allocator_p);
 
     handle->d_type             = SessionPool_Handle::e_IMPORTED_SESSION;
-    handle->d_sessionStateCB   = cb;
+    handle->d_sessionStateCB   = callback;
     handle->d_session_p        = 0;
     handle->d_channel_p        = 0;
     handle->d_userData_p       = userData;
@@ -1001,7 +1004,7 @@ int SessionPool::portNumber(int handle) const
 
 int SessionPool::listen(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    const btlso::IPv4Address&                 endpoint,
                    int                                       backlog,
                    int                                       reuseAddress,
@@ -1033,7 +1036,7 @@ int SessionPool::listen(
     listenOptions.setSocketOptions(updatedSocketOptions);
 
     return listen(handleBuffer,
-                  cb,
+                  callback,
                   factory,
                   listenOptions,
                   userData,
@@ -1042,7 +1045,7 @@ int SessionPool::listen(
 
 int SessionPool::connect(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    const char                               *hostname,
                    int                                       port,
                    int                                       numAttempts,
@@ -1069,7 +1072,7 @@ int SessionPool::connect(
     }
 
     return connect(handleBuffer,
-                   cb,
+                   callback,
                    factory,
                    connectOptions,
                    userData,
@@ -1078,7 +1081,7 @@ int SessionPool::connect(
 
 int SessionPool::connect(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    btlso::IPv4Address const&                 endpoint,
                    int                                       numAttempts,
                    const bsls::TimeInterval&                 interval,
@@ -1101,7 +1104,7 @@ int SessionPool::connect(
     }
 
     return connect(handleBuffer,
-                   cb,
+                   callback,
                    factory,
                    connectOptions,
                    userData,
@@ -1110,7 +1113,7 @@ int SessionPool::connect(
 
 int SessionPool::connect(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    const char                               *hostname,
                    int                                       port,
                    int                                       numAttempts,
@@ -1134,7 +1137,7 @@ int SessionPool::connect(
                                static_cast<btlmt::ResolutionMode::Enum>(mode));
 
     return connect(handleBuffer,
-                   cb,
+                   callback,
                    factory,
                    connectOptions,
                    userData,
@@ -1143,7 +1146,7 @@ int SessionPool::connect(
 
 int SessionPool::connect(
      int                                                    *handleBuffer,
-     const SessionPool::SessionStateCallback&                cb,
+     const SessionPool::SessionStateCallback&                callback,
      btlso::IPv4Address const&                               endpoint,
      int                                                     numAttempts,
      const bsls::TimeInterval&                               interval,
@@ -1163,7 +1166,7 @@ int SessionPool::connect(
     }
 
     return connect(handleBuffer,
-                   cb,
+                   callback,
                    factory,
                    connectOptions,
                    userData,

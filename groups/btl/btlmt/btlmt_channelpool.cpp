@@ -678,7 +678,7 @@ class Channel {
             int                              sourceId,
             const ChannelPoolConfiguration&  configuration,
             ChannelType::Value               channelType,
-            bool                             mode,
+            bool                             allowHalfOpenConnections,
             ChannelStateChangeCallback       channelCb,
             BlobBasedReadCallback            blobBasedReadCb,
             btlb::BlobBufferFactory         *writeBlobBufferPool,

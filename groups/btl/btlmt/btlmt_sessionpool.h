@@ -813,14 +813,14 @@ class SessionPool {
         // Initialize this session pool.
 
     int makeConnectHandle(
-                         const SessionPool::SessionStateCallback&  cb,
+                         const SessionPool::SessionStateCallback&  callback,
                          int                                       numAttempts,
                          void                                     *userData,
                          SessionFactory                           *factory);
        // Add a handle for a connection session with the specified
-       // 'numAttempts', 'userData', and 'cb' parameters to this session pool.
-       // The factory will be allocated from the specified 'factory'.  Return
-       // the identifier for the new handle.
+       // 'numAttempts', 'userData', and 'callback' parameters to this session
+       // pool.  The factory will be allocated from the specified 'factory'.
+       // Return the identifier for the new handle.
 
     // FRIENDS
     friend class SessionPoolSessionIterator;
@@ -919,19 +919,20 @@ class SessionPool {
         // parameters in the specified 'options'.  Once a connection is
         // successfully accepted, this session pool will allocate and start a
         // session for the connection using the specified 'factory'.  Load a
-        // handle for the listening connection into 'handleBuffer'.  Optionally
-        // specify 'platformErrorCode' that will be loaded with the
-        // platform-specific error code if this method fails.  Return 0 on
-        // success, and a non-zero value otherwise.  Every time a connection is
-        // accepted by this pool on this (newly-established) listening socket,
-        // the newly allocated session is passed to the specified 'callback'
-        // along with the optionally specified 'userData'.
-    
+        // handle for the listening connection into the specified
+        // 'handleBuffer'.  Every time a connection is accepted by this pool on
+        // this (newly-established) listening socket, the newly allocated
+        // session is passed to the specified 'callback' along with the
+        // optionally specified 'userData'.  Optionally specify
+        // 'platformErrorCode' that will be loaded with the platform-specific
+        // error code if this method fails.  Return 0 on success, and a
+        // non-zero value otherwise.
+
                                   // *** client-related section ***
     int closeHandle(int handle);
         // Close the listener or the connection represented by the specified
-        // 'handle'.  Return 0 on success, or a non-zero value if the specified
-        // 'handle' does not match any currently allocation session handle.
+        // 'handle'.  Return 0 on success, or a non-zero value if 'handle' does
+        // not match any currently allocation session handle.
 
     int connect(
               int                                      *handleBuffer,
@@ -944,11 +945,13 @@ class SessionPool {
         // parameters in the specified 'options'.  Once a connection is
         // successfully established, allocate and start a session using the
         // specified 'factory' and load a handle for the initiated connection
-        // into 'handleBuffer'.  Whenever this session state changes
+        // into the specified 'handleBuffer'.  On any session state changes
         // (i.e., is established), the specified 'callback' will be invoked
         // along with a pointer to newly created 'Session' and the optionally
-        // specified 'userData'.  Return 0 on successful initiation, and a
-        // non-zero value otherwise.
+        // specified 'userData'.  Optionally specify 'platformErrorCode' that
+        // will be loaded with the platform-specific error code if this method
+        // fails.Return 0 on successful initiation, and a non-zero value
+        // otherwise.
 
     int import(int                                            *handleBuffer,
                const SessionPool::SessionStateCallback&        callback,
@@ -1281,13 +1284,13 @@ int SessionPool::import(
 inline
 int SessionPool::import(
    int                                                         *handleBuffer,
-   const SessionPool::SessionStateCallback&                     cb,
+   const SessionPool::SessionStateCallback&                     callback,
    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > *streamSocket,
    SessionFactory                                              *sessionFactory,
    void                                                        *userData)
 {
     return import(handleBuffer,
-                  cb,
+                  callback,
                   streamSocket,
                   false,
                   sessionFactory,
@@ -1336,7 +1339,7 @@ int SessionPool::setWriteCacheWatermarks(int handleId,
 inline
 int SessionPool::listen(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    int                                       portNumber,
                    int                                       backlog,
                    SessionFactory                           *factory,
@@ -1348,7 +1351,7 @@ int SessionPool::listen(
     endpoint.setPortNumber(portNumber);
 
     return listen(handleBuffer,
-                  cb,
+                  callback,
                   endpoint,
                   backlog,
                   1,
@@ -1361,7 +1364,7 @@ int SessionPool::listen(
 inline
 int SessionPool::listen(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    int                                       portNumber,
                    int                                       backlog,
                    int                                       reuseAddress,
@@ -1374,7 +1377,7 @@ int SessionPool::listen(
     endpoint.setPortNumber(portNumber);
 
     return listen(handleBuffer,
-                  cb,
+                  callback,
                   endpoint,
                   backlog,
                   reuseAddress,
@@ -1387,7 +1390,7 @@ int SessionPool::listen(
 inline
 int SessionPool::listen(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
+                   const SessionPool::SessionStateCallback&  callback,
                    const btlso::IPv4Address&                 endpoint,
                    int                                       backlog,
                    SessionFactory                           *factory,
@@ -1396,7 +1399,7 @@ int SessionPool::listen(
                    int                                      *platformErrorCode)
 {
     return listen(handleBuffer,
-                  cb,
+                  callback,
                   endpoint,
                   backlog,
                   1,

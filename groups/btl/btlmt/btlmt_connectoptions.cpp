@@ -54,8 +54,8 @@ void ConnectOptions::reset()
 
 // ACCESSORS
 bsl::ostream& ConnectOptions::print(bsl::ostream& stream,
-                                   int           level,
-                                   int           spacesPerLevel) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -106,7 +106,7 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.

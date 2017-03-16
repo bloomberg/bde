@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlmt_channelpool
 //
 //@DESCRIPTION: This component provides a single, simply constrained
-// (value-semantic) attribute class, 'btlmt::ConnectOptions', that is
-// used to characterize options for connecting to servers.
+// (value-semantic) attribute class, 'btlmt::ConnectOptions', that is used to
+// characterize options for connecting to servers.
 //
 ///Attributes
 ///----------
@@ -117,10 +117,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Establishing a connection to a server
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// This component allows specifying configuration options for creating
-// sockets that connect to servers.  Consider that a client wants to establish
-// a connection to a server on a remote machine.  The following example will
-// show how to provide configuration options for doing so.
+// This component allows specifying configuration options for creating sockets
+// that connect to servers.  Consider that a client wants to establish a
+// connection to a server on a remote machine.  The following example will show
+// how to provide configuration options for doing so.
 //
 // We will assume that we have a 'connect' method that accepts a
 // 'btlmt::ConnectOptions' object as an argument, connects to the server
@@ -179,8 +179,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we will populate a flag that specifies whether incoming connections
 // can be half-open.  A half-open connection has only its read-end or write-end
-// open.  For a connection the server may decide to close the read end
-// while continuing to enqueue write data.
+// open.  For a connection the server may decide to close the read end while
+// continuing to enqueue write data.
 //..
 //  const bool ALLOW_HALF_OPEN_CONNECTIONS = true;
 //  options.setAllowHalfOpenConnections(ALLOW_HALF_OPEN_CONNECTIONS);
@@ -229,6 +229,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_socketoptions.h>
 #endif
 
+#ifndef INCLUDED_BDLB_NULLABLEVALUE
+#include <bdlb_nullablevalue.h>
+#endif
+
 #ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
 #endif
@@ -251,6 +255,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -288,7 +300,7 @@ class ConnectOptions {
     ServerEndpoint               d_serverEndpoint;  // server address to
                                                     // connect to
 
-    int                          d_numAttempts;     // num of connect attempts 
+    int                          d_numAttempts;     // num of connect attempts
 
     bsls::TimeInterval           d_timeout;         // time to wait between
                                                     // connect attempts
@@ -317,7 +329,7 @@ class ConnectOptions {
     BSLMF_NESTED_TRAIT_DECLARATION(ConnectOptions, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    ConnectOptions(bslma::Allocator *basicAllocator = 0);
+    explicit ConnectOptions(bslma::Allocator *basicAllocator = 0);
         // Create a socket options object having none of the option values
         // non-null.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, use the currently installed
@@ -663,7 +675,7 @@ void btlmt::swap(ConnectOptions& a, ConnectOptions& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

@@ -173,9 +173,9 @@ struct Flag {
 
         e_SHUTDOWN_GRACEFUL // Shut down this connection gracefully.  The
                             // input stream of the connection is shutdown
-                            // immediately.  Shut down of the output
-                            // stream happens once all enqueued write
-                            // data has been sent.
+                            // immediately.  Shut down of the output stream
+                            // happens once all enqueued write data has been
+                            // sent.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_SHUTDOWN_RECEIVE = e_SHUTDOWN_RECEIVE
