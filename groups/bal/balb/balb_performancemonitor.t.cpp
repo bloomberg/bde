@@ -1219,7 +1219,7 @@ int main(int argc, char *argv[])
         //:   and 'pid' accessor of 'Statistics' class.  (C-1,3..4)
         //:
         //: 5 Advance iterators once more and use (as yet unproven) 'end'
-        //:   accessor to verify posiotions of the iterators.  (C-5)
+        //:   accessor to verify positions of the iterators.  (C-5)
         //
         // Testing:
         //   ConstIterator& operator++();
