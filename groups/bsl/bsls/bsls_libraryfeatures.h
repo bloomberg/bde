@@ -13,6 +13,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_LIBRARYFEATURES_HAS_C90_GETS: C90 'gets' provided
+//  BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY: fpclassify et al. provided in std
 //  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY: C99 library provided
 //  BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF: C99 'snprintf' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR: 'auto_ptr' provided
@@ -67,6 +68,27 @@ BSLS_IDENT("$Id: $")
 // function (defined in '<cstdio>') is provided in namespace 'std' by the
 // native standard library.  This dangerous function is removed from the C++14
 // standard library, and its use with earlier dialects is strongly discouraged.
+//
+///'BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY'
+///-----------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY' macro is defined if *all* of
+// the listed floating-point classification functions, defined in the headers
+// named below, are implemented by the native standard library in namespace
+// 'std':
+//:
+//:   o Functions defined in '<cmath>'
+//:     o 'fpclassify'
+//:     o 'isfinite'
+//:     o 'isinf'
+//:     o 'isnan'
+//:     o 'isnormal'
+//:     o 'signbit'
+//:     o 'isgreater'
+//:     o 'isgreaterequal'
+//:     o 'isless'
+//:     o 'islessequal'
+//:     o 'islessgreater'
+//:     o 'isunordered'
 //
 ///'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY'
 ///--------------------------------------
@@ -558,11 +580,11 @@ BSLS_IDENT("$Id: $")
     // the day tool chains start removing this deprecated class template.
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
-    #if (__STDC_VERSION__ >= 199901L) ||                                      \
+    #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+    #if (__cplusplus >= 201103L) ||                                           \
            (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                            \
             BSLS_PLATFORM_CMP_VERSION >= 40800)
-        // C99 functions are available in C++11 builds, and are also required
-        // when building on Sun gcc compilers in C++03 mode.
+        // C99 functions are available in C++11 builds.
 
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
@@ -597,6 +619,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
+    // #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
     // #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -613,6 +636,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_SUN) && _cplusplus >= 201103L
 
     #if BSLS_PLATFORM_CMP_VERSION >= 0x5130
+        #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -629,6 +653,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
+
+    #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
 
     #if defined(__APPLE_CC__) && \
         __APPLE_CC__ >= 6000  && \
@@ -657,6 +683,7 @@ BSLS_IDENT("$Id: $")
     // Microsoft C++ compiler version 1800 (MSVC 2013)
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Visual Studio 2013
+        #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
