@@ -67,7 +67,7 @@ namespace bsl {
     using native_std::tan;
     using native_std::tanh;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_C99_FPCLASSIFY
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
     using native_std::fpclassify;
     using native_std::isfinite;
     using native_std::isinf;
