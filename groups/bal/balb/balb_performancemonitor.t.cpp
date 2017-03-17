@@ -1454,8 +1454,8 @@ int main(int argc, char *argv[])
         //:   const reference to 'mXIt', named 'XIt'.  Get and store some value
         //:   from the 'Statistics' object, this iterator pointing to.
         //:
-        //: 5 Use the 'resetStatistics' manipulator to change 'Statistics'
-        //:   object, stored in 'PerformanceMonitor'.
+        //: 5 Use the 'collect' manipulator to change 'Statistics' object,
+        //:   stored in 'PerformanceMonitor'.
         //:
         //: 6 Verify that value of the object, iterator pointing to, is
         //:   changed.  (C-4)
