@@ -7153,12 +7153,15 @@ VariantImp(TYPE&&                   value,
 #else
 VariantImp(bslmf::MovableRef<TYPE>  value)
 #endif
-: Base(Variant_TypeIndex<TYPES,
-                         typename bsl::remove_reference<TYPE>::type>::value,
+: Base(Variant_TypeIndex<
+                     TYPES,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
        0)
 {
-    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
-                                                                    BufferType;
+    typedef bsls::ObjectBuffer<
+                 typename bsl::remove_const<
+                 typename bsl::remove_reference<TYPE>::type>::type> BufferType;
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     bslma::ConstructionUtil::construct(
