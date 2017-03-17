@@ -2804,7 +2804,7 @@ int ReadServer::start()
     serverAddr.setPortNumber(d_port);
 
     listenOpts.setServerAddress(serverAddr);
-    listenOpts.setBacklog(5);
+    listenOpts.setBacklog(10);
 
     int    src = d_cp_p->start();
     int    lrc = d_cp_p->listen(SERVER_ID, listenOpts);
@@ -10168,10 +10168,12 @@ void TestDriver::testCase28()
  && !defined(BSLS_PLATFORM_OS_LINUX)            \
  && !defined(BSLS_PLATFORM_OS_WINDOWS)
             // Cannot be changed on Linux and not specified on Sun
-
             {   L_,   "C0",         0 },
             {   L_,   "C1",         0 },
+#ifndef BSLS_PLATFORM_OS_DARWIN
+            // Darwin assigns a maximum value of 2K
             {   L_,   "C2",         0 },
+#endif
 #else
             {   L_,   "C0",        -1 },
             {   L_,   "C1",        -1 },
@@ -10184,7 +10186,7 @@ void TestDriver::testCase28()
             {   L_,   "D0",        -1 },
             {   L_,   "D1",        -1 },
             {   L_,   "D2",        -1 },
-#elif !defined(BSLS_PLATFORM_OS_AIX)
+#elif !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_DARWIN)
             {   L_,   "D0",         0 },
             {   L_,   "D1",         0 },
             {   L_,   "D2",         0 },
@@ -12716,7 +12718,7 @@ void TestDriver::testCase18()
             enum {
                 MAX_THREADS = 5,
                 SERVER_ID   = 1013410001,
-                BACKLOG     = 1
+                BACKLOG     = 10
             };
 
             if (verbose)
@@ -12785,7 +12787,7 @@ void TestDriver::testCase18()
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
 
-#if defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_DARWIN)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
             rlim.rlim_cur = 4 * MAX_THREADS + 6;
@@ -12817,7 +12819,11 @@ void TestDriver::testCase18()
                 cout << "Reset FD limit to max available" << endl;
 
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
+#ifdef BSLS_PLATFORM_OS_DARWIN
+            rlim.rlim_cur = 100;
+#else
             rlim.rlim_cur = rlim.rlim_max;
+#endif
             ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
             if (veryVerbose) { P(rlim.rlim_cur); }
 

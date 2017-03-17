@@ -2947,7 +2947,7 @@ int main(int argc, char *argv[])
             Obj mX(pcbwe, config);
             ASSERT(0 == mX.start());
 
-            const char *host = "www.bloomberg.com";
+            const char *host = "172.217.11.46";
             const int   P = 12345;
 
             IPAddress ADDR(host, P);
