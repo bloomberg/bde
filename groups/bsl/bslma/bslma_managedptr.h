@@ -732,6 +732,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_CPP11
 #include <bsls_cpp11.h>
 #endif
@@ -1398,6 +1402,15 @@ class ManagedPtr<TARGET_TYPE&>;
     // early compile-fail check to catch misuse of managed pointer to reference
     // types, which is explicitly called out as not supported in the primary
     // class template contract.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TARGET_TYPE>
+class ManagedPtr<TARGET_TYPE&&>;
+    // This specialization is declared but not defined, in order to provide an
+    // early compile-fail check to catch misuse of managed pointer to reference
+    // types, which is explicitly called out as not supported in the primary
+    // class template contract.
+#endif
 
 // PRIVATE CLASS METHODS
 template <class TARGET_TYPE>
