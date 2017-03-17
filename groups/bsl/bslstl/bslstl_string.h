@@ -161,8 +161,8 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.erase(p1, p2)                         | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
-//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' use the   |
-//  |                                         | same allocator, O[n + m]      |
+//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' allocators|
+//  |                                         | compare equal, O[n + m]       |
 //  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
 //  | a.clear()                               | O[1]                          |
@@ -1365,13 +1365,14 @@ class basic_string
         // Efficiently exchange the value and allocator of this object with the
         // value and allocator of the specified 'other' object.  This method
         // provides the no-throw exception-safety guarantee, *unless* swapping
-        // the allocator objects can throw.
+        // the allocator objects can throw.  Note that this method should not
+        // be called unless the allocator traits support allocator propagation.
 
     void quickSwapRetainAllocators(basic_string& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
+        // exception-safety guarantee.  The behavior is undefined unless
+        // '*this' and 'other' allocators compare equal.
 
     // PRIVATE ACCESSORS
     int privateCompareRaw(size_type        lhsPosition,
@@ -1526,9 +1527,7 @@ class basic_string
         // Assign to this string the value of the specified 'rhs' string,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_copy_assignment', and return
-        // a reference providing modifiable access to this object.  If an
-        // exception is thrown, '*this' is left in a valid but unspecified
-        // state.
+        // a reference providing modifiable access to this object.
 
     basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
@@ -1539,8 +1538,7 @@ class basic_string
         // of 'rhs' is moved (in constant time) to this string if
         // 'get_allocator() == rhs.get_allocator()' (after accounting for the
         // aforementioned trait).  'rhs' is left in a valid but unspecified
-        // state, and if an exception is thrown, '*this' is left in a valid but
-        // unspecified state.
+        // state.
 
     basic_string& operator=(
                      const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs);
@@ -1700,7 +1698,7 @@ class basic_string
         // Assign to this string the value of the specified 'replacement'
         // string, and return a reference providing modifiable access to this
         // string.  'replacement' is left in a valid but unspecified state.
-        // If 'replacement' and 'this' have the same allocator then no
+        // If 'replacement' and 'this' allocators compare equal, then no
         // allocation will occur.
 
     basic_string& assign(const basic_string& replacement,
@@ -1995,9 +1993,10 @@ class basic_string
         // 'true', then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  The behavior is undefined unless
-        // either this object was created with the same allocator as 'other' or
-        // 'propagate_on_container_swap' is 'true'.
+        // guarantees 'O[1]' complexity if '*this' and 'other' allocators
+        // compare equal.  The behavior is undefined unless either '*this' and
+        // 'other' allocators compare equal or 'propagate_on_container_swap' is
+        // 'true'.
 
     // ACCESSORS
 
@@ -2587,14 +2586,14 @@ void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
     // specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
     // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity where 'n' and 'm' are the lenghts of
-    // 'a' and 'b', respectively.  Note that 'a' and 'b' are left in valid but
-    // unspecified states if an exception is thrown (in the case where
-    // 'propagate_on_container_swap' is 'false' and 'a' and 'b' were created
-    // with different allocators).
+    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' allocators
+    // compare equal, then this method provides the no-throw exception-safety
+    // guarantee and has 'O[1]' complexity; otherwise, this method has
+    // 'O[n + m]' complexity where 'n' and 'm' are the lenghts of 'a' and 'b',
+    // respectively.  Note that 'a' and 'b' are left in valid but unspecified
+    // states if an exception is thrown (in the case where
+    // 'propagate_on_container_swap' is 'false' and 'a' and 'b' allocators
+    // compare equal).
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&
