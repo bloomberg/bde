@@ -355,7 +355,7 @@ BSLS_IDENT("$Id: $")
 // This automatic deduction, however, cannot be extended to conversion
 // constructors, such as:
 //..
-//  x = (const char *)"Bye";  // ERROR
+//  x = static_cast<const char *>("Bye");  // ERROR
 //..
 // The compiler will diagnose that 'const char *' is not a variant type
 // specified in the list of parameter types used in the definition of 'List',
@@ -369,7 +369,7 @@ BSLS_IDENT("$Id: $")
 // 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
 // assign to the variant:
 //..
-//  x.assignTo<bsl::string>((const char *)"Bye");
+//  x.assignTo<bsl::string>(static_cast<const char *>("Bye"));
 //
 //  assert(!x.is<int>());
 //  assert(!x.is<double>());
@@ -446,7 +446,7 @@ BSLS_IDENT("$Id: $")
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
+//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 //
 //  my_PrintVisitor printVisitor;
 //
@@ -538,7 +538,7 @@ BSLS_IDENT("$Id: $")
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
+//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 //
 //  my_AddVisitor addVisitor;
 //
@@ -584,7 +584,7 @@ BSLS_IDENT("$Id: $")
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
+//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 //
 //  ThirdPartyVisitor visitor;
 //

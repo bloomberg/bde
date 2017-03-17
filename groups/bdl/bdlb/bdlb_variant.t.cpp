@@ -76,6 +76,7 @@ using namespace bsl;
 // We have chosen the primary manipulators for the 'bdlb::Variant' class to be
 // 'assign' and 'reset'.  The basic accessors are 'is<TYPE>', 'the<TYPE>', and
 // 'typeIndex'.
+// ----------------------------------------------------------------------------
 //
 //                      // ----------------------
 //                      // class bdlb::VariantImp
@@ -2123,6 +2124,8 @@ namespace TYPES_FOR_TESTING_VARIANTIMP {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2145,6 +2148,8 @@ namespace TYPES_FOR_TESTING_VARIANT {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2166,6 +2171,8 @@ namespace TYPES_FOR_TESTING_VARIANT2 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2187,6 +2194,8 @@ namespace TYPES_FOR_TESTING_VARIANT3 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2209,6 +2218,8 @@ namespace TYPES_FOR_TESTING_VARIANT4 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2231,6 +2242,8 @@ namespace TYPES_FOR_TESTING_VARIANT5 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2253,6 +2266,8 @@ namespace TYPES_FOR_TESTING_VARIANT6 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2275,6 +2290,8 @@ namespace TYPES_FOR_TESTING_VARIANT7 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2298,6 +2315,8 @@ namespace TYPES_FOR_TESTING_VARIANT8 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2321,6 +2340,8 @@ namespace TYPES_FOR_TESTING_VARIANT9 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2344,6 +2365,8 @@ namespace TYPES_FOR_TESTING_VARIANT10 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2367,6 +2390,8 @@ namespace TYPES_FOR_TESTING_VARIANT11 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2391,6 +2416,8 @@ namespace TYPES_FOR_TESTING_VARIANT12 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2415,6 +2442,8 @@ namespace TYPES_FOR_TESTING_VARIANT13 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2439,6 +2468,8 @@ namespace TYPES_FOR_TESTING_VARIANT14 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2463,6 +2494,8 @@ namespace TYPES_FOR_TESTING_VARIANT15 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2488,6 +2521,8 @@ namespace TYPES_FOR_TESTING_VARIANT16 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2513,6 +2548,8 @@ namespace TYPES_FOR_TESTING_VARIANT17 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2538,6 +2575,8 @@ namespace TYPES_FOR_TESTING_VARIANT18 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2563,6 +2602,8 @@ namespace TYPES_FOR_TESTING_VARIANT19 {
         const int         d_id;
 
         VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -2579,9 +2620,8 @@ namespace TYPES_FOR_TESTING_VARIANT19 {
 typedef int CorrelationId;
 typedef int Uuid;
 
-class DMPSourceData {
-  public:
-    Uuid uuid;
+struct DMPSourceData {
+    Uuid d_uuid;
 };
 
 struct AddListSubscription {
@@ -2589,22 +2629,26 @@ struct AddListSubscription {
 
 // This 'const' raised the issue.
 //  vvvvv
-    const Data          sourceData;
-    const CorrelationId correlationId;
+    const Data          d_sourceData;
+    const CorrelationId d_correlationId;
 
     explicit
     AddListSubscription(const DMPSourceData& data, CorrelationId correlationId)
-    : sourceData(data)
-    , correlationId(correlationId)
+        // Create an 'AddListSubscription' object having the specified 'data'
+        // and 'correlationId'.
+    : d_sourceData(data)
+    , d_correlationId(correlationId)
     {
     }
 };
 
 struct RemoveAllListSubscriptions {
-    const CorrelationId correlationId;
+    const CorrelationId d_correlationId;
 
     explicit RemoveAllListSubscriptions(CorrelationId correlationId)
-    : correlationId(correlationId)
+        // Create a 'RemoveAllListSubscriptions' object having the specified
+        // 'correlationId'.
+    : d_correlationId(correlationId)
     {
     }
 };
@@ -2612,26 +2656,28 @@ struct RemoveAllListSubscriptions {
 typedef bdlb::Variant<AddListSubscription,
                       RemoveAllListSubscriptions> ListSubscriptionMessage;
 
-// TBD another wrinkle related to 'const' that may fail on Linux w/C++11 ?
+// Another wrinkle related to 'const' that had failed on Windows.
 
 class Currency;
 class Security;
 
-bsl::vector<bdlb::Variant<Currency *, Security *> > v;
+typedef bsl::vector<bdlb::Variant<Currency *, Security *> > MyVector;
 
 class Currency {
   public:
-    void method()
+    void method(MyVector *v)
+        // Append 'this' to the specified 'v'.
     {
-        v.emplace_back(this);
+        v->emplace_back(this);
     }
 };
 
 class Security {
   public:
-    void method()
+    void method(MyVector *v)
+        // Append 'this' to the specified 'v'.
     {
-        v.emplace_back(this);
+        v->emplace_back(this);
     }
 };
 
@@ -2711,10 +2757,6 @@ struct TestUtil {
 // CLASS METHODS
 void TestUtil::testCase27()
 {
-    if (verbose) cout << endl
-                      << "MOVING OBJECT CONTAINING 'const' VARIANT" << endl
-                      << "========================================" << endl;
-
     using namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT;
 
     // Test 'VariantImp'.
@@ -2900,7 +2942,7 @@ void TestUtil::testCase27()
     // Reproduce issue reported in DRQS 97858910.
     {
         DMPSourceData sourceDefinition;
-        sourceDefinition.uuid = 66;
+        sourceDefinition.d_uuid = 66;
 
         CorrelationId cID = 77;
 
@@ -2908,7 +2950,7 @@ void TestUtil::testCase27()
                                                         cID));
     }
 
-    // TBD another wrinkle related to 'const' that may fail on Linux w/C++11 ?
+    // Another wrinkle related to 'const' that had failed on Windows.
     {
         int i;
         int *const p = &i;
@@ -26934,7 +26976,7 @@ int main(int argc, char *argv[])
 // This automatic deduction, however, cannot be extended to conversion
 // constructors, such as:
 //..
-//  x = (const char *)"Bye";  // ERROR
+//  x = static_cast<const char *>("Bye");  // ERROR
 //..
 // The compiler will diagnose that 'const char *' is not a variant type
 // specified in the list of parameter types used in the definition of 'List',
@@ -26948,7 +26990,7 @@ int main(int argc, char *argv[])
 // 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
 // assign to the variant:
 //..
-    x.assignTo<bsl::string>((const char *)"Bye");
+    x.assignTo<bsl::string>(static_cast<const char *>("Bye"));
 
     ASSERT(!x.is<int>());
     ASSERT(!x.is<double>());
@@ -27027,7 +27069,7 @@ int main(int argc, char *argv[])
 
     x[0].assign(1);
     x[1].assign(1.1);
-    x[2].assignTo<bsl::string>((const char *)"Hello");
+    x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 
     my_PrintVisitor printVisitor;
 
@@ -27121,7 +27163,7 @@ int main(int argc, char *argv[])
 
     x[0].assign(1);
     x[1].assign(1.1);
-    x[2].assignTo<bsl::string>((const char *)"Hello");
+    x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 
     my_AddVisitor addVisitor;
 
@@ -27169,7 +27211,7 @@ int main(int argc, char *argv[])
 
     x[0].assign(1);
     x[1].assign(1.1);
-    x[2].assignTo<bsl::string>((const char *)"Hello");
+    x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 
     ThirdPartyVisitor visitor;
 
@@ -27191,14 +27233,31 @@ int main(int argc, char *argv[])
         // MOVING OBJECT CONTAINING 'const' VARIANT
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 That when an object of a variant type 'VT' is move-constructed
+        //:   from a 'const VT', the value move constructor (i.e., the
+        //:   constructor taking 'TYPE&& value') does not participate in
+        //:   overload resolution.  In particular, the 'bsl::enable_if' on the
+        //:   value move constructor must correctly handle this situation.
         //
         // Plan:
-        //: 1 TBD
+        //: 1 The issue arose when a 'const VT' was a member of a type whose
+        //:   move and copy constructors were generated by the compiler, and an
+        //:   rvalue of such a type was being moved.  Test types are tailored
+        //:   for 'VariantImp', 'Variant', 'Variant2', etc., to ensure that
+        //:   compilation succeeds, verifying that the 'bsl::enable_if'
+        //:   conditions on the value move constructors are correct for this
+        //:   'const' issue.  Note that this issue is relevant to C++11 builds
+        //:   only.  (C-1)
         //
         // Testing:
         //   CONCERN: Moving an object containing a 'const' variant compiles.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MOVING OBJECT CONTAINING 'const' VARIANT"
+                          << endl
+                          << "========================================"
+                          << endl;
 
         TestUtil::testCase27();
 
