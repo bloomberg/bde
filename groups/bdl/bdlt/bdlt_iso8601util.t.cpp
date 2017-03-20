@@ -193,8 +193,8 @@ const int k_DATE_MAX_PRECISION       = 3;
 const int k_DATETZ_MAX_PRECISION     = 3;
 const int k_DATETIME_MAX_PRECISION   = 6;
 const int k_DATETIMETZ_MAX_PRECISION = 6;
-const int k_TIME_MAX_PRECISION       = 3;
-const int k_TIMETZ_MAX_PRECISION     = 3;
+const int k_TIME_MAX_PRECISION       = 6;
+const int k_TIMETZ_MAX_PRECISION     = 6;
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -819,7 +819,7 @@ if (veryVerbose)
 // produce an ISO 8601-compliant string for 'sourceTimeTz', this time writing
 // the output to a 'char *' buffer, and assert that both the return value and
 // the string that is produced are as expected.  Note that in comparing the
-// return value against 'BUFLEN - 2' we account for the omission of the ':'
+// return value against 'BUFLEN - 5' we account for the omission of the ':'
 // from the zone designator, and also for the fact that, although a null
 // terminator was generated, it is not included in the character count returned
 // by 'generate'.  Also note that we use 'bsl::strcmp' to compare the resulting
@@ -830,7 +830,7 @@ if (veryVerbose)
                                      BUFLEN,
                                      sourceTimeTz,
                                      configuration);
-    ASSERT(BUFLEN - 2 == rc);
+    ASSERT(BUFLEN - 5 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
 //..
 // For comparison, see the output that was produced by the streaming operator
@@ -839,13 +839,13 @@ if (veryVerbose)
 // Next, we parse the string that was just produced, loading the result of the
 // parse into a second 'bdlt::TimeTz' object, and assert that the parse was
 // successful and that the target object has the same value as that of the
-// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
+// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 5' is passed and *not*
 // 'BUFLEN' because the former indicates the correct number of characters in
 // 'buffer' that we wish to parse:
 //..
     bdlt::TimeTz targetTimeTz;
 
-    rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
+    rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 5);
 
     ASSERT(           0 == rc);
     ASSERT(sourceTimeTz == targetTimeTz);
@@ -855,7 +855,7 @@ if (veryVerbose)
 //..
     bdlt::Time targetTime;
 
-    rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
+    rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 5);
     ASSERT(                     0 == rc);
     ASSERT(sourceTimeTz.utcTime() == targetTime);
 //..
@@ -870,7 +870,7 @@ if (veryVerbose)
                                      BUFLEN,
                                      sourceTimeTz,
                                      configuration);
-    ASSERT(BUFLEN - 6 == rc);
+    ASSERT(BUFLEN - 9 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
 //..
 
@@ -1934,33 +1934,34 @@ if (veryVerbose)
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
+                int         d_usec;
                 int         d_offset;
             } DATA[] = {
                 // leap seconds
-                { L_, "00:00:60.000",    00, 01, 00, 000,   0 },
-                { L_, "22:59:60.999",    23, 00, 00, 999,   0 },
-                { L_, "23:59:60.999",    00, 00, 00, 999,   0 },
+                { L_, "00:00:60.000",    00, 01, 00, 000, 000,   0 },
+                { L_, "22:59:60.999",    23, 00, 00, 999, 000,   0 },
+                { L_, "23:59:60.999",    00, 00, 00, 999, 000,   0 },
 
                 // fractional seconds
-                { L_, "00:00:00.0001",   00, 00, 00, 000,   0 },
-                { L_, "00:00:00.0009",   00, 00, 00, 001,   0 },
-                { L_, "00:00:00.00001",  00, 00, 00, 000,   0 },
-                { L_, "00:00:00.00049",  00, 00, 00, 000,   0 },
-                { L_, "00:00:00.00050",  00, 00, 00, 001,   0 },
-                { L_, "00:00:00.00099",  00, 00, 00, 001,   0 },
-                { L_, "00:00:00.9994",   00, 00, 00, 999,   0 },
-                { L_, "00:00:00.9995",   00, 00, 01, 000,   0 },
-                { L_, "00:00:00.9999",   00, 00, 01, 000,   0 },
-                { L_, "00:00:59.9999",   00, 01, 00, 000,   0 },
-                { L_, "22:59:60.9999",   23, 00, 01, 000,   0 },
+                { L_, "00:00:00.0001",   00, 00, 00, 000, 100,   0 },
+                { L_, "00:00:00.0009",   00, 00, 00, 000, 900,   0 },
+                { L_, "00:00:00.00001",  00, 00, 00, 000,  10,   0 },
+                { L_, "00:00:00.00049",  00, 00, 00, 000, 490,   0 },
+                { L_, "00:00:00.00050",  00, 00, 00, 000, 500,   0 },
+                { L_, "00:00:00.00099",  00, 00, 00, 000, 990,   0 },
+                { L_, "00:00:00.9994",   00, 00, 00, 999, 400,   0 },
+                { L_, "00:00:00.9995",   00, 00, 00, 999, 500,   0 },
+                { L_, "00:00:00.9999",   00, 00, 00, 999, 900,   0 },
+                { L_, "00:00:59.9999",   00, 00, 59, 999, 900,   0 },
+                { L_, "23:59:59.9999",   23, 59, 59, 999, 900,   0 },
 
                 // omit fractional seconds
-                { L_, "12:34:45",        12, 34, 45, 000,   0 },
-                { L_, "12:34:45Z",       12, 34, 45, 000,   0 },
-                { L_, "12:34:45+00:30",  12, 34, 45, 000,  30 },
-                { L_, "00:00:00+00:30",  00, 00, 00, 000,  30 },
-                { L_, "12:34:45-01:30",  12, 34, 45, 000, -90 },
-                { L_, "23:59:59-01:30",  23, 59, 59, 000, -90 },
+                { L_, "12:34:45",        12, 34, 45, 000, 000,   0 },
+                { L_, "12:34:45Z",       12, 34, 45, 000, 000,   0 },
+                { L_, "12:34:45+00:30",  12, 34, 45, 000, 000,  30 },
+                { L_, "00:00:00+00:30",  00, 00, 00, 000, 000,  30 },
+                { L_, "12:34:45-01:30",  12, 34, 45, 000, 000, -90 },
+                { L_, "23:59:59-01:30",  23, 59, 59, 000, 000, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1972,6 +1973,7 @@ if (veryVerbose)
                 const int   MIN    = DATA[ti].d_min;
                 const int   SEC    = DATA[ti].d_sec;
                 const int   MSEC   = DATA[ti].d_msec;
+                const int   USEC   = DATA[ti].d_usec;
                 const int   OFFSET = DATA[ti].d_offset;
 
                 if (veryVerbose) { T_ P_(LINE) P(INPUT) }
@@ -1979,7 +1981,7 @@ if (veryVerbose)
                 bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                 bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
-                bdlt::TimeTz EXPECTED(bdlt::Time(HOUR, MIN, SEC, MSEC),
+                bdlt::TimeTz EXPECTED(bdlt::Time(HOUR, MIN, SEC, MSEC, USEC),
                                       OFFSET);
 
                 ASSERTV(LINE, INPUT, LENGTH,
@@ -3041,9 +3043,10 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
+            const int   USEC    = TIME_DATA[ti].d_usec;
             const char *ISO8601 = TIME_DATA[ti].d_iso8601;
 
-            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
+            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC, USEC);
             const bsl::string EXPECTED_TIME(ISO8601);
 
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
@@ -4428,9 +4431,10 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
+            const int   USEC    = TIME_DATA[ti].d_usec;
             const char *ISO8601 = TIME_DATA[ti].d_iso8601;
 
-            const TYPE        X(HOUR, MIN, SEC, MSEC);
+            const TYPE        X(HOUR, MIN, SEC, MSEC, USEC);
             const bsl::string BASE_EXPECTED(ISO8601);
 
             if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }

@@ -4592,7 +4592,8 @@ int main(int argc, char *argv[])
             typedef bdlt::Time Type;
 
             const Type  VALUE(21, 26, 43);
-            const char *EXP    = "0C 32 31 3A 32 36 3A 34 33 2E 30 30 30";
+            const char *EXP    = "0F 32 31 3A 32 36 3A 34 33 2E "
+                                 "30 30 30 30 30 30";
             const int   LENGTH = numOctets(EXP);
 
             bdlsb::MemOutStreamBuf osb;
@@ -4632,8 +4633,8 @@ int main(int argc, char *argv[])
             typedef bdlt::TimeTz Type;
 
             const Type  VALUE(bdlt::Time(21, 26, 43), 45);
-            const char *EXP    = "12 32 31 3A 32 36 3A 34 33 2E 30 30 30 2B 30"
-                                 " 30 3A 34 35";
+            const char *EXP    = "15 32 31 3A 32 36 3A 34 33 2E 30 30 30 "
+                                 "30 30 30 2B 30 30 3A 34 35";
             const int   LENGTH = numOctets(EXP);
 
             bdlsb::MemOutStreamBuf osb;
