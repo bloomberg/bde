@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(bdlt_datetime_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
-#include <bsl_c_stdio.h>          // 'snprintf'
+#include <bsl_cstdio.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 

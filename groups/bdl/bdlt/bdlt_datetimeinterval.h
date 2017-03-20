@@ -27,21 +27,26 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::DatetimeInterval' represents this value as six fields: days, hours,
 // minutes, seconds, milliseconds, and microseconds.  In the "canonical
 // representation" of a time interval, the days field may have any 32-bit
-// integer value, with the hours, minutes, seconds, milliseconds, microseconds
-// fields limited to the respective ranges '[-23 .. 23]', '[-59 .. 59]',
-// '[-59 .. 59]', '[-999 .. 999]', and '[-999 .. 999]', with the additional
-// constraint that the six fields are either all non-negative or all
+// integer value, with the hours, minutes, seconds, milliseconds, and
+// microseconds fields limited to the respective ranges '[-23 .. 23]',
+// '[-59 .. 59]', '[-59 .. 59]', '[-999 .. 999]', and '[-999 .. 999]', with the
+// additional constraint that the six fields are either all non-negative or all
 // non-positive.  When setting the value of a time interval via its six-field
 // representation, any integer value may be used in any field, with the
 // constraint that the resulting number of days be representable as a 32-bit
 // integer.  Similarly, the field values may be accessed in the canonical
 // representation using the 'days', 'hours', 'minutes', 'seconds',
-// 'milliseconds', and 'microseconds' methods.  The total value of the time
-// interval may be accessed in the respective field units via the 'totalDays',
-// 'totalHours', 'totalMinutes', 'totalSeconds', 'totalMilliseconds', and
-// 'totalMicroseconds' methods.  Note that, with the exception of
-// 'totalMicroseconds' (which returns an exact result), the other "total"
-// accessors round toward 0.
+// 'milliseconds', and 'microseconds' methods.
+// 
+// The primary accessors for this type are 'days' and
+// 'fractionalDayInMicroseconds'.  In combination, these two methods provide
+// complete and succinct access to the value of a 'DatetimeInterval'.
+// Furthermore, the total value of the time interval may be accessed in the
+// respective field units via the 'totalDays', 'totalHours', 'totalMinutes',
+// 'totalSeconds', 'totalMilliseconds', and 'totalMicroseconds' methods.  Note
+// that, with the exception of 'totalMicroseconds' (which returns an exact
+// result), the other "total" accessors round toward 0.  Also note that the
+// 'totalMicroseconds' accessor can fail for extreme 'DatetimeInterval' values.
 //
 // The following summarizes the canonical representation of the value of a
 // 'bdlt::DatetimeInterval':
@@ -55,12 +60,6 @@ BSLS_IDENT("$Id: $")
 //  milliseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
 //  microseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
 //..
-///Extremal Time Intervals
-///-----------------------
-// The 'bdlt::DatetimeInterval' class provides two integral constants,
-// 'k_MICROSECONDS_MAX' and 'k_MICROSECONDS_MIN', that define (respectively)
-// the maximum and minimum intervals representable by 'DatetimeInterval'
-// objects.
 //
 ///Usage
 ///-----
@@ -193,14 +192,14 @@ class DatetimeInterval {
     // microsecond resolution.  See {The Representation of a Time Interval} for
     // details.
 
-    // CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
     };
 
     // DATA
     int32_t            d_days;          // field for days
-    bsls::Types::Int64 d_microseconds;  // field for microseconds
+    bsls::Types::Int64 d_microseconds;  // field for fractional day
 
     // FRIENDS
     friend DatetimeInterval operator-(const DatetimeInterval&);
@@ -220,9 +219,10 @@ class DatetimeInterval {
         // Set this datetime interval to have the value given by the sum of the
         // specified 'days' and 'microseconds'.  The behavior is undefined
         // unless the total number of days, after converting to the canonical
-        // representation of the 'microseconds' having a magnitude of less than
-        // a day and 'days' and 'microseconds' are either both non-negative or
-        // non-positive, can be represented as a signed 32-bit integer.
+        // representation, can be represented as a signed 32-bit integer.  The
+        // canonical representation requires the 'microseconds' to have a
+        // magnitude of less than one day and the 'days' and 'microseconds'
+        // components to be either both non-negative or both non-positive.
 
   public:
     // PUBLIC CLASS DATA
@@ -341,7 +341,7 @@ class DatetimeInterval {
 
     void setTotalMicroseconds(bsls::Types::Int64 microseconds);
         // Set the overall value of this object to indicate the specified
-        // number of 'milliseconds'.  The behavior is undefined unless the
+        // number of 'microseconds'.  The behavior is undefined unless the
         // resulting time interval value is valid (i.e., the days field must
         // not overflow a 32-bit integer).
 
@@ -446,7 +446,7 @@ class DatetimeInterval {
         // Efficiently write to the specified 'result' buffer no more than the
         // specified 'numBytes' of a representation of the value of this
         // object.  Optionally specify 'fractionalSecondPrecision' digits to
-        // guide how many fractional second digits to output.  If
+        // indicate how many fractional second digits to output.  If
         // 'fractionalSecondPrecision' is not specified then 6 fractional
         // second digits will be output (3 digits for milliseconds and 3 digits
         // for microseconds).  Return the number of characters (not including
@@ -571,13 +571,14 @@ bool operator==(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' time intervals have the
     // same value, and 'false' otherwise.  Two time intervals have the same
     // value if all of the corresponding values of their days, hours, minutes,
-    // seconds, and milliseconds fields are the same.
+    // seconds, milliseconds, and microseconds fields are the same.
 
 bool operator!=(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' time intervals do not
     // have the same value, and 'false' otherwise.  Two time intervals do not
     // have the same value if any of the corresponding values of their days,
-    // hours, minutes, seconds, or milliseconds fields is not the same.
+    // hours, minutes, seconds, milliseconds, or microseconds fields is not
+    // the same.
 
 bool operator< (const DatetimeInterval& lhs, const DatetimeInterval& rhs);
 bool operator<=(const DatetimeInterval& lhs, const DatetimeInterval& rhs);
@@ -803,8 +804,8 @@ STREAM& DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
             if (   stream
                 && (   (0 <= tmpDays && 0 <= tmpMicroseconds)
                     || (0 >= tmpDays && 0 >= tmpMicroseconds))
-                && TimeUnitRatio::k_US_PER_D >  tmpMicroseconds
-                && TimeUnitRatio::k_US_PER_D > -tmpMicroseconds) {
+                &&  TimeUnitRatio::k_US_PER_D > tmpMicroseconds
+                && -TimeUnitRatio::k_US_PER_D < tmpMicroseconds) {
                 assign(tmpDays, tmpMicroseconds);
             }
             else {

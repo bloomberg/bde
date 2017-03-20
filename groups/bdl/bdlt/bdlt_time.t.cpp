@@ -236,6 +236,48 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
+      case 47: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID >= Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 46: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID > Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 45: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID <= Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 44: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID < Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 43: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID != Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 42: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID == Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
       case 41: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
@@ -462,6 +504,20 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(mInvalid.setSecond(0));
         ASSERT_SAFE_FAIL(mInvalid.setMillisecond(0));
         ASSERT_SAFE_FAIL(mInvalid.setMicrosecond(0));
+
+        ASSERT_SAFE_FAIL(mInvalid == Obj());
+        ASSERT_SAFE_FAIL(mInvalid != Obj());
+        ASSERT_SAFE_FAIL(mInvalid <  Obj());
+        ASSERT_SAFE_FAIL(mInvalid <= Obj());
+        ASSERT_SAFE_FAIL(mInvalid >  Obj());
+        ASSERT_SAFE_FAIL(mInvalid >= Obj());
+
+        ASSERT_SAFE_FAIL(Obj() == mInvalid);
+        ASSERT_SAFE_FAIL(Obj() != mInvalid);
+        ASSERT_SAFE_FAIL(Obj() <  mInvalid);
+        ASSERT_SAFE_FAIL(Obj() <= mInvalid);
+        ASSERT_SAFE_FAIL(Obj() >  mInvalid);
+        ASSERT_SAFE_FAIL(Obj() >= mInvalid);
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -3183,7 +3239,7 @@ if (veryVerbose)
         //:   the underlying equality operator on a single pair of 'int's is
         //:   invoked.
         //:
-        //: 2 The default value (24:00:00.000) is handled by the methods
+        //: 2 The default value (24:00:00.000000) is handled by the methods
         //:   correctly.
         //
         // Plan:
@@ -3230,7 +3286,7 @@ if (veryVerbose)
                 { 23, 21, 21, 209,  17 },
                 { 22, 22, 21, 209, 102 },
 
-                // 24:00:00.000.000 explicitly included
+                // 24:00:00.000.000000 explicitly included
                 { 24,  0,  0,   0,   0 },
             };
 

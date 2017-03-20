@@ -2658,6 +2658,32 @@ if (veryVerbose)
             ASSERT(X == T);
         }
         {
+            // Version 2.  Microseconds way too small.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            out.putInt32(0);
+            out.putInt64(k_USECS_MIN);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
             // Version 2.  Microseconds too large.
 
             Out out(VERSION_SELECTOR, &allocator);
@@ -3580,7 +3606,12 @@ if (veryVerbose)
     { L_, 100,  0,  0,  0,   0,   0,    6,     5, 20, "+100"                 },
     { L_, 100,  0,  0,  0,   0,   0,    6,     6, 20, "+100_"                },
     { L_, 100,  0,  0,  0,   0,   0,    6,    20, 20, "+100_00:00:00.00000"  },
-    { L_, 100,  0,  0,  0,   0,   0,    6,    21, 20, "+100_00:00:00.000000" },
+
+    { L_, INT_MAX, 23, 59, 59, 999, 999, 6,   28, 27,
+                                               "+2147483647_23:59:59.999999" },
+
+    { L_, INT_MIN, -23, -59, -59, -999, -999, 6, 28, 27,
+                                               "-2147483648_23:59:59.999999" },
     //----------v
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -3630,7 +3661,7 @@ if (veryVerbose)
                 char      *p = buf + sizeof(buf)/2;
                 const int  RC = X.printToBuffer(p, LIMIT, PREC);
 
-                LOOP2_ASSERT(LINE, RC, EXP_LEN == RC);
+                ASSERTV(LINE, EXP_LEN, RC, EXP_LEN == RC);
 
                 const int LENGTH = 0 == LIMIT
                                    ? 0

@@ -214,9 +214,9 @@
 
 /Singular 'Time' and 'Datetime' Values
 /-  -  -  -  -  -  -  -  -  -  -  -  -
- The 'bdlt::Time' class defines a singular value, "24:00:00.000", which is also
- the default-constructed value.  This singular value is distinguished in two
- ways:
+ The 'bdlt::Time' class defines a singular value, "24:00:00.000000", which is
+ also the default-constructed value.  This singular value is distinguished in
+ two ways:
 
 : o Relational comparisons to other time values are disallowed -- the behavior
 :   is undefined.  Note that comparisons of equality and inequality to other
@@ -225,8 +225,8 @@
 :   o Note that the singular value cannot appear as a key value in any of the
 :     standard ordered containers (which require weak ordering of keys).
 :
-: o The singular value is implicitly converted to "00:00:00.000" (midnight) in
-:   arithmetic operations using 'bdlt::Time' values.
+: o The singular value is implicitly converted to "00:00:00.000000" (midnight)
+:   in arithmetic operations using 'bdlt::Time' values.
 
  Similarly, the 'bdlt::Datetime' class defines one singular value,
  "0001/01/01_24:00:00.000000", which happens to be the default constructed

@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // In addition to the usual value-semantic complement of methods for getting
 // and setting value, the 'bdlt::Datetime' class provides methods and operators
 // for making relative adjustments to value ('addDays', 'addTime', 'addHours',
-// etc.). In particular, note that adding units of time to a 'bdlt::Datetime'
+// etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
 // object can affect the values of both the time and date parts of the object.
 // For example, invoking 'addHours(2)' on a 'bdlt::Datetime' object whose value
 // is "1987/10/03_22:30:00.000000" updates the value to
@@ -740,7 +740,7 @@ class Datetime {
         // Efficiently write to the specified 'result' buffer no more than the
         // specified 'numBytes' of a representation of the value of this
         // object.  Optionally specify 'fractionalSecondPrecision' digits to
-        // guide how many fractional second digits to output.  If
+        // indicate how many fractional second digits to output.  If
         // 'fractionalSecondPrecision' is not specified then 6 fractional
         // second digits will be output (3 digits for milliseconds and 3 digits
         // for microseconds).  Return the number of characters (not including
@@ -1937,23 +1937,13 @@ bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
         lhsTotalMicroseconds -= rhsTotalMicroseconds;
 
         return bdlt::DatetimeInterval(
-           0,
-           0,
-           0,
-           0,
-           0,
-           lhsTotalMicroseconds);  // RETURN
+                               0, 0, 0, 0, 0, lhsTotalMicroseconds);  // RETURN
     }
 
     rhsTotalMicroseconds -= lhsTotalMicroseconds;
 
     return bdlt::DatetimeInterval(
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      -static_cast<bsls::Types::Int64>(rhsTotalMicroseconds));
+        0, 0, 0, 0, 0, -static_cast<bsls::Types::Int64>(rhsTotalMicroseconds));
 }
 
 inline

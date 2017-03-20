@@ -10,6 +10,8 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_cstdio.h>    // 'sprintf'
 #include <bsl_ostream.h>
 
@@ -79,31 +81,31 @@ int printToBufferFormatted(char       *result,
             rc =  1 + 3 + 3 + 3 + fractionalSecondPrecision;
         }
 
-        if (day < 10) {
+        if (-10 < day && 10 > day) {
             rc += 1;
         }
-        else if (day < 100) {
+        else if (-100 < day && 100 > day) {
             rc += 2;
         }
-        else if (day < 1000) {
+        else if (-1000 < day && 1000 > day) {
             rc += 3;
         }
-        else if (day < 10000) {
+        else if (-10000 < day && 10000 > day) {
             rc += 4;
         }
-        else if (day < 100000) {
+        else if (-100000 < day && 100000 > day) {
             rc += 5;
         }
-        else if (day < 1000000) {
+        else if (-1000000 < day && 1000000 > day) {
             rc += 6;
         }
-        else if (day < 10000000) {
+        else if (-10000000 < day && 10000000 > day) {
             rc += 7;
         }
-        else if (day < 100000000) {
+        else if (-100000000 < day && 100000000 > day) {
             rc += 8;
         }
-        else if (day < 1000000000) {
+        else if (-1000000000 < day && 1000000000 > day) {
             rc += 9;
         }
         else {
@@ -241,22 +243,32 @@ int DatetimeInterval::printToBuffer(char *result,
     int ms = milliseconds();
     int us = microseconds();
 
-    if (0 > d_days || 0 > d_microseconds) {
-        if (numBytes > 1) {
-            *result++ = '-';
+    // Values with a non-negative day component will have the sign
+    // "pre-printed".
+    
+    int printedLength = 0;
+
+    if (0 <= d_days) {
+        if (1 < numBytes) {
+            if (0 <= d_microseconds) {
+                *result++ = '+';
+            }
+            else {
+                *result++ = '-';
+            }
             --numBytes;
         }
+        printedLength = 1;
+    }
 
-        d  = -d;
+    // Invert the time component values when the value is negative.
+    
+    if (0 > d_days || 0 > d_microseconds) {
         h  = -h;
         m  = -m;
         s  = -s;
         ms = -ms;
         us = -us;
-    }
-    else if (numBytes > 1) {
-        *result++ = '+';
-        --numBytes;
     }
 
     int value;
@@ -275,7 +287,7 @@ int DatetimeInterval::printToBuffer(char *result,
                                       m,
                                       s,
                                       0,
-                                      0) + 1;                         // RETURN
+                                      0) + printedLength;             // RETURN
       } break;
       case 1: {
         value = ms / 100;
@@ -313,7 +325,7 @@ int DatetimeInterval::printToBuffer(char *result,
                                   m,
                                   s,
                                   value,
-                                  fractionalSecondPrecision) + 1;
+                                  fractionalSecondPrecision) + printedLength;
 }
 
 bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
@@ -324,7 +336,7 @@ bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
     // directly to improve performance and in case the caller has done
     // something like:
     //..
-    //  os << bsl::setw(20) << myTime;
+    //  os << bsl::setw(20) << myInterval;
     //..
     // The user-specified width will be effective when 'buffer' is written to
     // the 'stream' (below).

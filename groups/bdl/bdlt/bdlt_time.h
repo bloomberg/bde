@@ -10,25 +10,26 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a value-semantic type representing time-of-day.
 //
 //@CLASSES:
-//  bdlt::Time: time-of-day value (at least microsecond resolution)
+//  bdlt::Time: time-of-day type (with microsecond resolution)
 //
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component implements a value-semantic time class,
 // 'bdlt::Time', that can represent the time of day to a resolution of one
 // microsecond (using a 24-hour clock).  Valid time values range from
-// 00:00:00.000000 (i.e., midnight) through 23:59:59.999999.  A time value can
-// be specified via five separate integer attribute values denoting hours
-// '[ 0 .. 23 ]', minutes '[ 0 .. 59 ]', seconds '[ 0 .. 59 ]', milliseconds
-// '[ 0 .. 999 ]', and microseconds '[ 0 .. 999 ]'.  In addition, the
-// 'bdlt::Time' type has one more valid value, 24:00:00.000000, which can be
-// set explicitly and accessed.  The value 24:00:00.00000 behaves, in most
-// cases, as if it were the value 00:00:00.000000; however, for all relational
-// comparison operators, 24:00:00.000000 is not a valid argument and,
-// therefore, would result in undefined behavior.  Each of the 'add'
-// manipulators, along with modifying the value of the object, return the
-// (signed) number of times that the 23:59:59.999999 - 00:00:00.000000 boundary
-// was crossed in performing the addition.
+// 00:00:00.000000 (i.e., midnight) through 23:59:59.999999 (i.e., one
+// microsecond before midnight.  A time value can be specified via five
+// separate integer attribute values denoting hours '[0 .. 23]', minutes
+// '[0 .. 59]', seconds '[0 .. 59]', milliseconds '[0 .. 999]', and
+// microseconds '[0 .. 999]'.  In addition, the 'bdlt::Time' type has one more
+// valid value, 24:00:00.000000, that can be set explicitly and accessed.  The
+// value 24:00:00.000000 behaves, in most cases, as if it were the value
+// 00:00:00.000000; however, for all relational comparison operators,
+// 24:00:00.000000 is not a valid argument and, therefore, would result in
+// undefined behavior.  Each of the 'add' manipulators, along with modifying
+// the value of the object, return the (signed) number of times that the
+// 23:59:59.999999 - 00:00:00.000000 boundary was crossed in performing the
+// addition.
 //
 ///Usage
 ///-----
@@ -132,6 +133,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSLS_LOG
 #include <bsls_log.h>
 #endif
@@ -166,26 +171,27 @@ class Time {
     // value to a resolution of one microsecond.  The valid range for times is
     // 00:00:00.000000 through 23:59:59.999999, except that 24:00:00.000000
     // represents the default-constructed value.  The value 24:00:00.000000
-    // behaves, in most cases, as if it were the value 00:00:00.000000; however
-    // for all relational comparison operators, 24:00:00.000000 is not a valid
-    // argument and, therefore, would result in undefined behavior.  Each add
-    // operation on a 'Time' object will return the (signed) number of times
-    // that the 23:59:59.999999 - 00:00:00.000000 boundary was crossed while
-    // performing the operation.  Attempting to construct a 'Time' with any
-    // attribute outside its valid range (or with an hour attribute value of
-    // 24, and any other attribute non-zero) will result in undefined behavior.
+    // behaves, in most cases, as if it were the value 00:00:00.000000;
+    // however, for all relational comparison operators, 24:00:00.000000 is not
+    // a valid argument and, therefore, would result in undefined behavior.
+    // Each add operation on a 'Time' object returns the (signed) number of
+    // times that the 23:59:59.999999 - 00:00:00.000000 boundary was crossed
+    // while performing the operation.  Attempting to construct a 'Time' with
+    // any attribute outside its valid range (or with an hour attribute value
+    // of 24 and any other attribute non-zero) has undefined behavior.
 
-    // CLASS DATA
-    static const bsls::Types::Int64 k_REP_MASK  = 0x0000004000000000ULL;
-
+    // PRIVATE TYPES
     enum {
         k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
     };
 
+    // CLASS DATA
+    static const bsls::Types::Int64 k_REP_MASK  = 0x0000004000000000ULL;
+
     static bsls::AtomicInt64 s_invalidRepresentationCount;
 
     // DATA
-    bsls::Types::Int64 d_value;  // encoded offset from 00:00:00.000
+    bsls::Types::Int64 d_value;  // encoded offset from 00:00:00.000000
 
     // FRIENDS
     friend DatetimeInterval operator-(const Time&, const Time&);
@@ -198,23 +204,28 @@ class Time {
     template <class HASHALG>
     friend void hashAppend(HASHALG& hashAlg, const Time&);
 
-    // PRIVATE MANIPULATOR
+    // PRIVATE MANIPULATORS
     void setMicrosecondsFromMidnight(bsls::Types::Int64 totalMicroseconds);
         // Assign to 'd_value' the representation of time such that the
-        // difference between this time and 0:00:00.000000 is the specified
-        // 'totalMicroseconds'.
+        // difference between this representation of time and 00:00:00.000000
+        // is the specified 'totalMicroseconds'.  If
+        // 'TimeUnitRatio::k_US_PER_D == totalMicroseconds', assign to
+        // 'd_value' the representation of 24:00:00.000000.  The behavior is
+        // undefined unless
+        // '0 <= totalMicroseconds <= TimeUnitRatio::k_US_PER_D'.
 
     // PRIVATE ACCESSORS
     bsls::Types::Int64 microsecondsFromMidnight() const;
-        // Return the difference, measured in microseconds, between this time
-        // value, with 24:00:00.000000 converted to 0:00:00.000000, and
-        // 0:00:00.000000.
+        // Return the difference, in microseconds, between the value of this
+        // object and 00:00:00.000000.  If the value of this object is
+        // 24:00:00.000000, it is treated as 00:00:00.000000.
 
     bsls::Types::Int64 updatedRepresentation() const;
-        // If 'd_value' is a valid representation, return 'd_value'.
-        // Otherwise, return the representation of the time corresponding to
-        // the time implied by assuming the value in 'd_value' is the total
-        // milliseconds since 0:00:00.000000.
+        // If 'd_value' was stored using the current representation scheme,
+        // return 'd_value'.  Otherwise, return the representation of the time
+        // corresponding to 'd_value' total milliseconds since 00:00:00.000000
+        // (i.e., convert from the old representation scheme to the current
+        // scheme).
 
   public:
     // CLASS METHODS
@@ -224,7 +235,7 @@ class Time {
                         int millisecond = 0,
                         int microsecond = 0);
         // Return 'true' if the specified 'hour', and the optionally specified
-        // 'minute', 'second', 'millisecond', and 'microsecond' represent a
+        // 'minute', 'second', 'millisecond', and 'microsecond', represent a
         // valid 'Time' value, and 'false' otherwise.  Unspecified arguments
         // default to 0.  The 'hour', 'minute', 'second', 'millisecond', and
         // 'microsecond' attributes comprise a valid 'Time' value if
@@ -247,7 +258,7 @@ class Time {
 
     // CREATORS
     Time();
-        // Create a 'Time' object having the value 24:00:00.000.
+        // Create a 'Time' object having the value 24:00:00.000000.
 
     explicit
     Time(int hour,
@@ -257,7 +268,7 @@ class Time {
          int microsecond = 0);
         // Create a 'Time' object having the (valid) value represented by the
         // specified 'hour', and the optionally specified 'minute', 'second',
-        // 'millisecond', and 'millisecond'.  Unspecified arguments default to
+        // 'millisecond', and 'microsecond'.  Unspecified arguments default to
         // 0.  The behavior is undefined unless all of the specified values are
         // within their valid ranges (see 'isValid').
 
@@ -326,11 +337,11 @@ class Time {
                 int                milliseconds = 0,
                 bsls::Types::Int64 microseconds = 0);
         // Add to the value of this time object the specified (signed) number
-        // of 'hours' and optionally specified (signed) numbers of 'minutes',
-        // 'seconds', 'milliseconds', and 'microseconds'; return the (signed)
-        // number of times that the 23:59:59.999999 - 00:00:00.000000 boundary
-        // was crossed in performing the operation.  Unspecified arguments
-        // default to 0.
+        // of 'hours', and the optionally specified (signed) numbers of
+        // 'minutes', 'seconds', 'milliseconds', and 'microseconds'; return
+        // the (signed) number of times that the 23:59:59.999999 -
+        // 00:00:00.000000 boundary was crossed in performing the operation.
+        // Unspecified arguments default to 0.
 
     void setHour(int hour);
         // Set the 'hour' attribute of this time object to the specified
@@ -367,7 +378,7 @@ class Time {
         // Set the value of this time object to the specified 'hour', and the
         // optionally specified 'minute', 'second', 'millisecond', and
         // 'microsecond'.  Unspecified arguments default to 0.  The behavior is
-        // undefined unless all of the specified value are within their valid
+        // undefined unless all of the specified values are within their valid
         // ranges (see 'isValid').
 
     int setTimeIfValid(int hour,
@@ -431,7 +442,7 @@ class Time {
         // Efficiently write to the specified 'result' buffer no more than the
         // specified 'numBytes' of a representation of the value of this
         // object.  Optionally specify 'fractionalSecondPrecision' digits to
-        // guide how many fractional second digits to output.  If
+        // indicate how many fractional second digits to output.  If
         // 'fractionalSecondPrecision' is not specified then 6 fractional
         // second digits will be output (3 digits for milliseconds and 3 digits
         // for microseconds).  Return the number of characters (not including
@@ -553,25 +564,25 @@ bool operator<(const Time& lhs, const Time& rhs);
     // Return 'true' if the specified 'lhs' time value is less than the
     // specified 'rhs' time value, and 'false' otherwise.  The behavior is
     // undefined unless 'lhs != Time()' and 'rhs != Time()' (i.e., they do not
-    // have the, default, value 24:00:00.000).
+    // have the, default, value 24:00:00.000000).
 
 bool operator<=(const Time& lhs, const Time& rhs);
     // Return 'true' if the specified 'lhs' time value is less than or equal to
     // the specified 'rhs' time value, and 'false' otherwise.  The behavior is
     // undefined unless 'lhs != Time()' and 'rhs != Time()' (i.e., they do not
-    // have the, default, value 24:00:00.000).
+    // have the, default, value 24:00:00.000000).
 
 bool operator>(const Time& lhs, const Time& rhs);
     // Return 'true' if the specified 'lhs' time value is greater than the
     // specified 'rhs' time value, and 'false' otherwise.  The behavior is
     // undefined unless 'lhs != Time()' and 'rhs != Time()' (i.e., they do not
-    // have the, default, value 24:00:00.000).
+    // have the, default, value 24:00:00.000000).
 
 bool operator>=(const Time& lhs, const Time& rhs);
     // Return 'true' if the specified 'lhs' time value is greater than or equal
     // to the specified 'rhs' time value, and 'false' otherwise.  The behavior
     // is undefined unless 'lhs != Time()' and 'rhs != Time()' (i.e., they do
-    // not have the, default, value 24:00:00.000).
+    // not have the, default, value 24:00:00.000000).
 
 bsl::ostream& operator<<(bsl::ostream& stream, const Time& time);
     // Write the value of the specified 'time' object to the specified output
@@ -591,10 +602,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Time& time);
                                 // class Time
                                 // ----------
 
-// PRIVATE MANIPULATOR
+// PRIVATE MANIPULATORS
 inline
 void Time::setMicrosecondsFromMidnight(bsls::Types::Int64 totalMicroseconds)
 {
+    BSLS_ASSERT_SAFE(                           0 <= totalMicroseconds
+                     && TimeUnitRatio::k_US_PER_D >= totalMicroseconds);
+
     d_value = totalMicroseconds | k_REP_MASK;
 }
 
@@ -901,13 +915,19 @@ bdlt::DatetimeInterval bdlt::operator-(const Time& lhs, const Time& rhs)
 inline
 bool bdlt::operator==(const Time& lhs, const Time& rhs)
 {
-    return lhs.d_value == rhs.d_value;
+    bsls::Types::Int64 lhsValue = lhs.microsecondsFromMidnight();
+    bsls::Types::Int64 rhsValue = rhs.microsecondsFromMidnight();
+
+    return lhsValue == rhsValue;
 }
 
 inline
 bool bdlt::operator!=(const Time& lhs, const Time& rhs)
 {
-    return lhs.d_value != rhs.d_value;
+    bsls::Types::Int64 lhsValue = lhs.microsecondsFromMidnight();
+    bsls::Types::Int64 rhsValue = rhs.microsecondsFromMidnight();
+
+    return lhsValue != rhsValue;
 }
 
 inline
@@ -918,7 +938,10 @@ bool bdlt::operator<(const Time& lhs, const Time& rhs)
     BSLS_ASSERT_SAFE(bdlt::TimeUnitRatio::k_US_PER_D
                                             != rhs.microsecondsFromMidnight());
 
-    return lhs.d_value < rhs.d_value;
+    bsls::Types::Int64 lhsValue = lhs.microsecondsFromMidnight();
+    bsls::Types::Int64 rhsValue = rhs.microsecondsFromMidnight();
+
+    return lhsValue < rhsValue;
 }
 
 inline
@@ -929,7 +952,10 @@ bool bdlt::operator<=(const Time& lhs, const Time& rhs)
     BSLS_ASSERT_SAFE(bdlt::TimeUnitRatio::k_US_PER_D
                                             != rhs.microsecondsFromMidnight());
 
-    return lhs.d_value <= rhs.d_value;
+    bsls::Types::Int64 lhsValue = lhs.microsecondsFromMidnight();
+    bsls::Types::Int64 rhsValue = rhs.microsecondsFromMidnight();
+
+    return lhsValue <= rhsValue;
 }
 
 inline
@@ -940,7 +966,10 @@ bool bdlt::operator>(const Time& lhs, const Time& rhs)
     BSLS_ASSERT_SAFE(bdlt::TimeUnitRatio::k_US_PER_D
                                             != rhs.microsecondsFromMidnight());
 
-    return lhs.d_value > rhs.d_value;
+    bsls::Types::Int64 lhsValue = lhs.microsecondsFromMidnight();
+    bsls::Types::Int64 rhsValue = rhs.microsecondsFromMidnight();
+
+    return lhsValue > rhsValue;
 }
 
 inline
@@ -951,7 +980,10 @@ bool bdlt::operator>=(const Time& lhs, const Time& rhs)
     BSLS_ASSERT_SAFE(bdlt::TimeUnitRatio::k_US_PER_D
                                             != rhs.microsecondsFromMidnight());
 
-    return lhs.d_value >= rhs.d_value;
+    bsls::Types::Int64 lhsValue = lhs.microsecondsFromMidnight();
+    bsls::Types::Int64 rhsValue = rhs.microsecondsFromMidnight();
+
+    return lhsValue >= rhsValue;
 }
 
 inline
@@ -966,7 +998,7 @@ inline
 void bdlt::hashAppend(HASHALG& hashAlg, const Time& object)
 {
     using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, object.updatedRepresentation());
+    hashAppend(hashAlg, object.microsecondsFromMidnight());
 }
 
 }  // close enterprise namespace
