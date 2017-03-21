@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //  |  Datetime(Date(2002, 03, 17)         |                                 |
 //  |           Time(15, 46, 09, 330))     |  2002-03-17T15:46:09.330        |
 //  +--------------------------------------+---------------------------------+
-//  |  DateTz(Date(2002, 03, 17), -120)    |  2002-03-17-02:00               |
+//  |  DateTz(Date(2002, 03, 17), -120)    |  2002-03-17-02:00 [*]           |
 //  +--------------------------------------+---------------------------------+
 //  |  TimeTz(Time(15, 46, 09, 330), 270)  |  15:46:09.330+04:30             |
 //  +--------------------------------------+---------------------------------+
@@ -110,6 +110,8 @@ BSLS_IDENT("$Id: $")
 //  |             0)                       |  2002-03-17T15:46:09.330+00:00  |
 //  +--------------------------------------+---------------------------------+
 //..
+// [*] Note that the ISO 8601 specification does not have an equivalent to
+// 'bdlt::DateTz'.
 //
 ///Configuration
 ///- - - - - - -
@@ -189,13 +191,11 @@ BSLS_IDENT("$Id: $")
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
 // present, it can have one or more digits (i.e., it can contain more than
-// six).  For 'Time' and 'TimeTz', if more than three digits are included in
-// the fractional second, values are rounded to a full millisecond; i.e.,
-// values greater than or equal to .5 milliseconds are rounded up.  For
-// 'Datetime' and 'DatetimeTz', if more than six digits are included in the
-// fractional second, values are rounded to a full microsecond; i.e., values
-// greater than or equal to .5 microseconds are rounded up.  These roundings
-// may incur a carry of one second into the 'second' attribute:
+// six).  For 'Datetime', 'DatetimeTz', 'Time', and 'TimeTz', if more than six
+// digits are included in the fractional second, values are rounded to a full
+// microsecond; i.e., values greater than or equal to .5 microseconds are
+// rounded up.  These roundings may incur a carry of one second into the
+// 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -206,10 +206,10 @@ BSLS_IDENT("$Id: $")
 //  |                                      |         -300)                   |
 //  |                                      |  # implied '.0'                 |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09.99949                      |  Time(15, 46, 09, 999)          |
+//  |  15:46:09.99999949                   |  Time(15, 46, 09, 999, 999)     |
 //  |                                      |  # truncate last two digits     |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09.9995                       |  Time(15, 46, 10, 000)          |
+//  |  15:46:09.9999995                    |  Time(15, 46, 10, 000, 000)     |
 //  |                                      |  # round up and carry           |
 //  +--------------------------------------+---------------------------------+
 //..
@@ -451,7 +451,7 @@ BSLS_IDENT("$Id: $")
 // produce an ISO 8601-compliant string for 'sourceTimeTz', this time writing
 // the output to a 'char *' buffer, and assert that both the return value and
 // the string that is produced are as expected.  Note that in comparing the
-// return value against 'BUFLEN - 2' we account for the omission of the ':'
+// return value against 'BUFLEN - 5' we account for the omission of the ':'
 // from the zone designator, and also for the fact that, although a null
 // terminator was generated, it is not included in the character count returned
 // by 'generate'.  Also note that we use 'bsl::strcmp' to compare the resulting
@@ -462,7 +462,7 @@ BSLS_IDENT("$Id: $")
 //                                   BUFLEN,
 //                                   sourceTimeTz,
 //                                   configuration);
-//  assert(BUFLEN - 2 == rc);
+//  assert(BUFLEN - 5 == rc);
 //  assert(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
 //..
 // For comparison, see the output that was produced by the streaming operator
@@ -471,13 +471,13 @@ BSLS_IDENT("$Id: $")
 // Next, we parse the string that was just produced, loading the result of the
 // parse into a second 'bdlt::TimeTz' object, and assert that the parse was
 // successful and that the target object has the same value as that of the
-// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
+// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 5' is passed and *not*
 // 'BUFLEN' because the former indicates the correct number of characters in
 // 'buffer' that we wish to parse:
 //..
 //  bdlt::TimeTz targetTimeTz;
 //
-//  rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
+//  rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 5);
 //
 //  assert(           0 == rc);
 //  assert(sourceTimeTz == targetTimeTz);
@@ -487,7 +487,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::Time targetTime;
 //
-//  rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
+//  rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 5);
 //  assert(                     0 == rc);
 //  assert(sourceTimeTz.utcTime() == targetTime);
 //..
@@ -502,7 +502,7 @@ BSLS_IDENT("$Id: $")
 //                                   BUFLEN,
 //                                   sourceTimeTz,
 //                                   configuration);
-//  assert(BUFLEN - 6 == rc);
+//  assert(BUFLEN - 9 == rc);
 //  assert(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
 //..
 
@@ -563,8 +563,8 @@ struct Iso8601Util {
         k_DATE_STRLEN       = 10,  // 'bdlt::Date'
         k_DATETZ_STRLEN     = 16,  // 'bdlt::DateTz'
 
-        k_TIME_STRLEN       = 12,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN     = 18,  // 'bdlt::TimeTz'
+        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
+        k_TIMETZ_STRLEN     = 21,  // 'bdlt::TimeTz'
 
         k_DATETIME_STRLEN   = 26,  // 'bdlt::Datetime'
         k_DATETIMETZ_STRLEN = 32,  // 'bdlt::DatetimeTz'

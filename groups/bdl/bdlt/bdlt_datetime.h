@@ -264,6 +264,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_bitutil.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -347,6 +351,8 @@ class Datetime {
     friend bool operator<=(const Datetime&, const Datetime&);
     friend bool operator> (const Datetime&, const Datetime&);
     friend bool operator>=(const Datetime&, const Datetime&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const Datetime&);
 
     // PRIVATE MANIPULATOR
     void setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds);
@@ -734,7 +740,7 @@ class Datetime {
         // Efficiently write to the specified 'result' buffer no more than the
         // specified 'numBytes' of a representation of the value of this
         // object.  Optionally specify 'fractionalSecondPrecision' digits to
-        // guide how many fractional second digits to output.  If
+        // indicate how many fractional second digits to output.  If
         // 'fractionalSecondPrecision' is not specified then 6 fractional
         // second digits will be output (3 digits for milliseconds and 3 digits
         // for microseconds).  Return the number of characters (not including
@@ -918,6 +924,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
     //..
     //  print(stream, 0, -1);
     //..
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Datetime& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Datetime'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -1147,17 +1160,16 @@ Datetime& Datetime::operator-=(const bsls::TimeInterval& rhs)
 inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
 
-    BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                                      microsecondsFromEpoch()));
 
     bsls::Types::Uint64 totalMicroseconds =
-                          microsecondsFromEpoch()
-                        + rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+                             microsecondsFromEpoch() + rhs.totalMicroseconds();
     setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
@@ -1166,17 +1178,16 @@ Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 inline
 Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
 
-    BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
                                                      microsecondsFromEpoch()));
 
     bsls::Types::Uint64 totalMicroseconds =
-                          microsecondsFromEpoch()
-                        - rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+                             microsecondsFromEpoch() - rhs.totalMicroseconds();
     setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
@@ -1216,8 +1227,7 @@ void Datetime::setDatetime(const Date& date, const Time& time)
     if (24 != time.hour()) {
         d_value = (static_cast<bsls::Types::Uint64>(date - Date())
                                                             << k_NUM_TIME_BITS)
-                + TimeUnitRatio::k_US_PER_MS *
-                                          (time - Time(0)).totalMilliseconds();
+                + (time - Time(0)).totalMicroseconds();
     }
     else {
         d_value = (static_cast<bsls::Types::Uint64>(date - Date())
@@ -1323,8 +1333,7 @@ void Datetime::setTime(const Time& time)
 
     if (24 != time.hour()) {
         d_value = (d_value & k_DATE_MASK)
-                | (TimeUnitRatio::k_US_PER_MS *
-                                         (time - Time(0)).totalMilliseconds());
+                | (time - Time(0)).totalMicroseconds();
     }
     else {
         d_value = (d_value & k_DATE_MASK) | TimeUnitRatio::k_US_PER_D;
@@ -1678,10 +1687,11 @@ Time Datetime::time() const
     int minute;
     int second;
     int millisecond;
+    int microsecond;
 
-    getTime(&hour, &minute, &second, &millisecond);
+    getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
-    return Time(hour, minute, second, millisecond);
+    return Time(hour, minute, second, millisecond, microsecond);
 }
 
 inline
@@ -1927,23 +1937,13 @@ bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
         lhsTotalMicroseconds -= rhsTotalMicroseconds;
 
         return bdlt::DatetimeInterval(
-           0,
-           0,
-           0,
-           0,
-           lhsTotalMicroseconds / bdlt::TimeUnitRatio::k_US_PER_MS);  // RETURN
+                               0, 0, 0, 0, 0, lhsTotalMicroseconds);  // RETURN
     }
 
     rhsTotalMicroseconds -= lhsTotalMicroseconds;
 
     return bdlt::DatetimeInterval(
-                      0,
-                      0,
-                      0,
-                      0,
-                      -static_cast<bsls::Types::Int64>(
-                                            rhsTotalMicroseconds
-                                          / bdlt::TimeUnitRatio::k_US_PER_MS));
+        0, 0, 0, 0, 0, -static_cast<bsls::Types::Int64>(rhsTotalMicroseconds));
 }
 
 inline
@@ -2012,6 +2012,15 @@ bool bdlt::operator>=(const Datetime& lhs, const Datetime& rhs)
     return lhsValue >= rhsValue;
 }
 
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const Datetime& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.updatedRepresentation());
+}
+
 }  // close enterprise namespace
 
 namespace bsl {
@@ -2028,7 +2037,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::Datetime> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -125,7 +125,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
 //
-//  Datume::destroy(datetime, allocator);
+//  Datum::destroy(datetime, allocator);
 //     // 'datetime' now refers to deallocated memory.  It cannot be used
 //     // used unless it is assigned a new value.
 //..
@@ -804,7 +804,7 @@ class Datum {
         // date-times internally the range of 1930 Apr 15 to 2109 Sept 18.
         // Note that the time part of date-time can be stored internally
         // without data loss, so that makes the no-allocation range to be
-        // 1930 Apr 15 00:00:00.000 to 2109 Sept 18 24:00:00.000. See
+        // 1930 Apr 15 00:00:00.000000 to 2109 Sept 18 24:00:00.000000. See
         // 'createDatetime' and 'theDatetime' methods for the implementation.
 
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -1133,11 +1133,11 @@ class Datum {
     // CLASS DATA
 
     // 64-bit variation
-    static const int k_TYPE_OFFSET  = 14;             // offset of type in the
+    static const int k_TYPE_OFFSET             = 14;  // offset of type in the
                                                       // internal storage
                                                       // buffer
 
-    static const int k_SHORTSTRING_SIZE  = 13;        // maximum size of short
+    static const int k_SHORTSTRING_SIZE        = 13;  // maximum size of short
                                                       // strings that stored in
                                                       // the internal storage
                                                       // buffer
@@ -1147,7 +1147,7 @@ class Datum {
                                                       // stored in the internal
                                                       // storage buffer
 
-    static const int k_SMALLBINARY_SIZE    = 13;      // maximum size of
+    static const int k_SMALLBINARY_SIZE        = 13;  // maximum size of
                                                       // small-size binaries
                                                       // stored in the internal
                                                       // storage buffer
@@ -1568,7 +1568,7 @@ class Datum {
 
     Datum clone(bslma::Allocator *basicAllocator) const;
         // Return a datum holding a "deep-copy" of this object, using the
-        // specified 'basicAllocator' to allocate memory.
+        // specified 'basicAllocator' to supply memory.
 
                                // Type-Identifiers
 
@@ -1791,8 +1791,8 @@ bool operator!=(const Datum& lhs, const Datum& rhs);
     // are not the same.  Two 'DatumUdt' objects are not equal if they have
     // different pointer or type values.  Two 'bdemf_Nil' values are always
     // equal.  Two datums with 'NaN' values are never equal.  Two datums that
-    // hold array of datums have different values if the the underlying arrays
-    // have different lengths or invoking '==' operator on at least one of the
+    // hold array of datums have different values if the underlying arrays have
+    // different lengths or invoking '==' operator on at least one of the
     // corresponding pair of contained elements returns 'false'.  Two datums
     // that hold map of datums have different values if the underlying maps
     // have different sizes or at least one of the corresponding pair of
@@ -2382,6 +2382,19 @@ struct Datum_Helpers32 : Datum_Helpers {
 #endif
 
     // CLASS METHODS
+    static bsls::Types::Int64 loadInt48(short high16, int low32);
+        // Load an Int64 from the specified 'high16' and 'low32' values created
+        // by storeSmallInt48.  This method is public for testing purpose only.
+        // It may change or be removed without notice.
+
+    static bool storeInt48(bsls::Types::Int64  value,
+                           short              *phigh16,
+                           int                *plow32);
+        // Store an Int64  in short at 'phigh16' and int at 'plow32' if its
+        // highest order 16 bits are zero.  Return true if it fits.  This
+        // method is public for testing purpose only. It may change or be
+        // removed without notice.
+
     static bsls::Types::Int64 loadSmallInt64(short high16, int low32);
         // Load an Int64 from the specified 'high16' and 'low32' values created
         // by storeSmallInt64.  This method is public for testing purpose only.
@@ -2435,7 +2448,6 @@ Type Datum_Helpers::store(void *destination, int offset, Type value)
                         // ----------------------
 
 // CLASS METHODS
-
 inline
 bsls::Types::Int64 Datum_Helpers32::loadSmallInt64(short high16, int low32)
 {
@@ -2452,13 +2464,41 @@ bool Datum_Helpers32::storeSmallInt64(bsls::Types::Int64  value,
                                       short              *phigh16,
                                       int                *plow32)
 {
-    // Check that the sign can be infered from the compressed 6-byte integer.
+    // Check that the sign can be inferred from the compressed 6-byte integer.
     // It is the case if the upper 16 bits are the same as the 17th bit.
 
     if ((load<short>(&value, b48) ==  0 && load<short>(&value, b32) >= 0) ||
         (load<short>(&value, b48) == -1 && load<short>(&value, b32) <  0)) {
         *phigh16 = load<short>(&value, b32);
         *plow32  = load<long> (&value, b00);
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+inline
+bsls::Types::Int64 Datum_Helpers32::loadInt48(short high16, int low32)
+{
+    bsls::Types::Int64 value;
+
+    store<short>(&value, b48, 0);
+    store<short>(&value, b32, high16);
+    store<long>(&value, b00, low32);
+
+    return value;
+}
+
+inline
+bool Datum_Helpers32::storeInt48(bsls::Types::Int64  value,
+                                 short              *phigh16,
+                                 int                *plow32)
+{
+    // Check 'value' is a 6-byte integer.  It is the case if the upper 16 bits
+    // are zero.
+
+    if (load<short>(&value, b48) == 0) {
+        *phigh16 = load<short>(&value, b32);
+        *plow32 = load<long>(&value, b00);
         return true;                                                  // RETURN
     }
     return false;
@@ -2814,7 +2854,8 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
         result.d_exp.d_value =
             (k_DOUBLE_MASK | e_INTERNAL_DATETIME) << k_TYPE_MASK_BITS
             | (0xffff & dateOffsetFromEpoch);
-        *reinterpret_cast<bdlt::Time*>(&result.d_as.d_int) = value.time();
+        bdlt::DatetimeInterval interval = value.time() - bdlt::Time();
+        result.d_as.d_int = static_cast<int>(interval.totalMilliseconds());
     } else {
         void *mem = new (*basicAllocator) bdlt::Datetime(value);
         result = createExtendedDataObject(e_EXTENDED_INTERNAL_DATETIME_ALLOC,
@@ -2839,23 +2880,26 @@ Datum Datum::createDatetimeInterval(
     Datum result;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    bsls::Types::Int64 msValue = value.totalMilliseconds();
+    const int                usValue = value.microseconds();
+    const bsls::Types::Int64 msValue = value.totalMilliseconds();
 
-    if (Datum_Helpers32::storeSmallInt64(msValue,
+    if (usValue == 0 &&  // Low-resolution (old) interval
+        Datum_Helpers32::storeSmallInt64(msValue,
                                          &result.d_as.d_short,
                                          &result.d_as.d_int)) {
-        result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
+        result.d_as.d_exponent =
+                                k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
     } else {
         void *mem = new (*basicAllocator) bdlt::DatetimeInterval(value);
         result = createExtendedDataObject(
-                                   e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
-                                   mem);
+                                e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
+                                mem);
     }
 #else   // BSLS_PLATFORM_CPU_32_BIT
-    result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
-    new (result.theInlineStorage()) bdlt::DatetimeInterval(value);
+        result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
+        result.d_as.d_int32 = value.days();
+        result.d_as.d_int64 = value.fractionalDayInMicroseconds();
 #endif  // BSLS_PLATFORM_CPU_32_BIT
-
     return result;
 }
 
@@ -3011,11 +3055,15 @@ Datum Datum::createTime(const bdlt::Time& value)
 {
     Datum result;
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    BSLMF_ASSERT(bsl::is_trivially_copyable<bdlt::Time>::value);
-
     result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_TIME)
                             << k_TYPE_MASK_BITS;
-    *reinterpret_cast<bdlt::Time*>(&result.d_as.d_int) = value;
+    bsls::Types::Int64 rawTime;
+    BSLMF_ASSERT(bsl::is_trivially_copyable<bdlt::Time>::value);
+    *reinterpret_cast<bdlt::Time*>(&rawTime) = value;
+    const bool rc = Datum_Helpers32::storeInt48(rawTime,
+                                                &result.d_as.d_short,
+                                                &result.d_as.d_int);
+    BSLS_ASSERT_SAFE(rc);  (void)rc;
 #else   // BSLS_PLATFORM_CPU_32_BIT
     result.d_as.d_type = e_INTERNAL_TIME;
     new (result.theInlineStorage()) bdlt::Time(value);
@@ -3331,10 +3379,12 @@ bdlt::Datetime Datum::theDatetime() const
     const InternalDataType type = internalType();
 
     if (type == e_INTERNAL_DATETIME) {
+        bdlt::Time time;
+        time.addMilliseconds(d_as.d_int);
         return bdlt::Datetime(
                bdlt::EpochUtil::epoch().date() + k_DATETIME_OFFSET_FROM_EPOCH +
                                                                   d_as.d_short,
-               *reinterpret_cast<const bdlt::Time*>(&d_as.d_int));    // RETURN
+               time);                                                 // RETURN
     }
 
     BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
@@ -3366,8 +3416,12 @@ bdlt::DatetimeInterval Datum::theDatetimeInterval() const
         extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC);
     return *static_cast<const bdlt::DatetimeInterval *>(d_as.d_cvp);
 #else  // BSLS_PLATFORM_CPU_32_BIT
-    return *reinterpret_cast<const bdlt::DatetimeInterval *>(
-                                                           theInlineStorage());
+    return bdlt::DatetimeInterval(d_as.d_int32,   // days
+                                  0,              // hours
+                                  0,              // minutes
+                                  0,              // seconds
+                                  0,              // milliseconds
+                                  d_as.d_int64);  // microseconds
 #endif // BSLS_PLATFORM_CPU_32_BIT
 }
 
@@ -3515,7 +3569,10 @@ bdlt::Time Datum::theTime() const
     BSLS_ASSERT_SAFE(isTime());
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    return *reinterpret_cast<const bdlt::Time *>(&d_as.d_int);
+    BSLMF_ASSERT(bsl::is_trivially_copyable<bdlt::Time>::value);
+    bsls::Types::Int64 rawTime;
+    rawTime = Datum_Helpers32::loadInt48(d_as.d_short, d_as.d_int);
+    return *reinterpret_cast<bdlt::Time*>(&rawTime);
 #else  // BSLS_PLATFORM_CPU_32_BIT
     return *reinterpret_cast<const bdlt::Time *>(theInlineStorage());
 #endif // BSLS_PLATFORM_CPU_32_BIT

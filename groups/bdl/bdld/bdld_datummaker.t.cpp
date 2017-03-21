@@ -4,9 +4,8 @@
 #include <bdlma_localsequentialallocator.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstdint.h>  // For INT64_MAX
+#include <bsl_limits.h>
 #include <bslma_default.h>
-#include <bslma_sequentialallocator.h>
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
 
@@ -367,6 +366,7 @@ int main(int argc, char *argv[])
         //    operator()(const bslstl::StringRef&         value) const;
         //    operator()(const char                      *value) const;
         //    template <class TYPE>
+        //    operator()(const bdlb::NullableValue<TYPE>& value) const;
         //    bdld::Datum a(...) const;
         //    operator()(const bdld::Datum               *value,
         //               int                              size)  const;
@@ -403,7 +403,10 @@ int main(int argc, char *argv[])
         d = m(bdlt::Time(1, 1));
         d = m(bdld::DatumUdt(0, 1));
         d = m(bdld::Datum::createInteger(1));
-
+        typedef bdlb::NullableValue<bool> TriBool;
+        d = m(TriBool());
+        d = m(TriBool(true));
+        d = m(TriBool(false));
         ASSERT(tam.isInUseSame());
         ASSERT(dam.isInUseSame());
         tam.reset(); // Avoid false results if there was allocation above.
@@ -431,7 +434,8 @@ int main(int argc, char *argv[])
         ASSERT(dam.isInUseSame());
         ASSERT(tam.isInUseSame());
 
-        d =  m(bsls::Types::Int64(INT64_MAX));
+        d =  m(bsls::Types::Int64(
+                              bsl::numeric_limits<bsls::Types::Int64>::max()));
         ASSERT(dam.isInUseSame());
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         ASSERT(tam.isInUseUp());
@@ -589,7 +593,7 @@ int main(int argc, char *argv[])
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma::SequentialAllocator sa(&ta);
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
         Obj m(&sa);
 
         const bdld::DatumMapEntry map[] = {
@@ -989,7 +993,7 @@ int main(int argc, char *argv[])
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma::SequentialAllocator sa(&ta);
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
         Obj m(&sa);
 
         const bdld::Datum arr[] = {
@@ -1081,6 +1085,7 @@ int main(int argc, char *argv[])
         //    operator()(const bslstl::StringRef&         value) const;
         //    operator()(const char                      *value) const;
         //    template <class TYPE>
+        //    operator()(const bdlb::NullableValue<TYPE>& value) const;
         //
         //---------------------------------------------------------------------
 
@@ -1089,7 +1094,7 @@ int main(int argc, char *argv[])
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        bslma::SequentialAllocator sa(&ta);
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
         Obj m(&sa);
 
         ASSERT(bdld::Datum::createNull() == m());
@@ -1124,6 +1129,12 @@ int main(int argc, char *argv[])
         ASSERT(bdld::Datum::createStringRef("foo", &sa) ==
                                                   m(bslstl::StringRef("foo")));
         ASSERT(bdld::Datum::createStringRef("foo", &sa) == m("foo"));
+
+        typedef bdlb::NullableValue<bool> TriBool;
+        ASSERT(bdld::Datum::createNull() == m(TriBool()));
+        ASSERT(bdld::Datum::createBoolean(true) == m(TriBool(true)));
+        ASSERT(bdld::Datum::createBoolean(false) == m(TriBool(false)));
+
 
       } break;
 

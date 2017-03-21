@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DatetimeTz dt2(dt1);
 //  assert(offset1   == dt2.offset());
 //  assert(datetime1 == dt2.localDatetime());
-//  assert(datetime2 != dt2.utcDatetime());
+//  assert(datetime2 == dt2.utcDatetime());
 //..
 // Now, create a third object, 'dt3', representing the time 10:33:25.000 on
 // 01/01/2001 in the PST time zone (UTC-8):
@@ -240,6 +240,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
+#endif
+
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -477,6 +481,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatetimeTz& rhs);
     // method has the same behavior as 'object.print(stream, 0, -1)', but with
     // the attribute names elided.
 
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const DatetimeTz& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DatetimeTz'.  Note that two
+    // objects which represent the same UTC time but have different offsets
+    // will not (necessarily) hash to the same value.
+
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -497,8 +510,11 @@ bool DatetimeTz::isValid(const Datetime& localDatetime, int offset)
                                   // Aspects
 
 inline
-int DatetimeTz::maxSupportedBdexVersion(int /* versionSelector */)
+int DatetimeTz::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20170401) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 
@@ -690,6 +706,16 @@ inline
 bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const DatetimeTz& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG& hashAlg, const DatetimeTz& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, object.localDatetime());
+    hashAppend(hashAlg, object.offset());
 }
 
 }  // close enterprise namespace
