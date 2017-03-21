@@ -804,7 +804,7 @@ class Datum {
         // date-times internally the range of 1930 Apr 15 to 2109 Sept 18.
         // Note that the time part of date-time can be stored internally
         // without data loss, so that makes the no-allocation range to be
-        // 1930 Apr 15 00:00:00.000 to 2109 Sept 18 24:00:00.000. See
+        // 1930 Apr 15 00:00:00.000000 to 2109 Sept 18 24:00:00.000000. See
         // 'createDatetime' and 'theDatetime' methods for the implementation.
 
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN

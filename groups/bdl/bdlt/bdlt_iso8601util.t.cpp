@@ -473,6 +473,8 @@ const BadTimeDataRow BAD_TIME_DATA[] =
     { L_,   "24:00:00.001"           },  // length = 12
     { L_,   "24:00:00.999"           },
     { L_,   "25:00:00.000"           },
+
+    { L_,   "24:00:00.000001"        },  // length = 15
 };
 const int NUM_BAD_TIME_DATA =
                 static_cast<int>(sizeof BAD_TIME_DATA / sizeof *BAD_TIME_DATA);
@@ -1001,7 +1003,8 @@ if (veryVerbose)
                     const int KLINE  = ZONE_DATA[tk].d_line;
                     const int OFFSET = ZONE_DATA[tk].d_offset;
 
-                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC)  == bdlt::Time()
+                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC)
+                                                                == bdlt::Time()
                         && OFFSET != 0) {
                         continue;  // skip invalid compositions
                     }
@@ -1012,7 +1015,7 @@ if (veryVerbose)
                         const int  PRECISION = CNFG_DATA[tc].d_precision;
                         const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
-
+ 
                         int expMsec = MSEC;
                         int expUsec = USEC;
                         {
@@ -1701,12 +1704,13 @@ if (veryVerbose)
             const int MIN   = TIME_DATA[ti].d_min;
             const int SEC   = TIME_DATA[ti].d_sec;
             const int MSEC  = TIME_DATA[ti].d_msec;
+            const int USEC  = TIME_DATA[ti].d_usec;
 
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
                 const int JLINE  = ZONE_DATA[tj].d_line;
                 const int OFFSET = ZONE_DATA[tj].d_offset;
 
-                if (   bdlt::Time(HOUR, MIN, SEC, MSEC) == bdlt::Time()
+                if (   bdlt::Time(HOUR, MIN, SEC, MSEC, USEC) == bdlt::Time()
                     && OFFSET != 0) {
                     continue;  // skip invalid compositions
                 }
@@ -1719,6 +1723,7 @@ if (veryVerbose)
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     int expMsec = MSEC;
+                    int expUsec = USEC;
                     {
                         // adjust the expected milliseconds to account for
                         // PRECISION truncating the value generated
@@ -1732,9 +1737,22 @@ if (veryVerbose)
                         for (int i = 3; i > precision; --i) {
                             expMsec *= 10;
                         }
+
+                        // adjust the expected microseconds to account for
+                        // PRECISION truncating the value generated
+
+                        precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                        for (int i = 3; i > precision; --i) {
+                            expUsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expUsec *= 10;
+                        }
                     }
 
-                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec);
+                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec, expUsec);
 
                     const bdlt::TimeTz TIMETZ(TIME, OFFSET);
 
@@ -1943,17 +1961,28 @@ if (veryVerbose)
                 { L_, "23:59:60.999",    00, 00, 00, 999, 000,   0 },
 
                 // fractional seconds
-                { L_, "00:00:00.0001",   00, 00, 00, 000, 100,   0 },
-                { L_, "00:00:00.0009",   00, 00, 00, 000, 900,   0 },
-                { L_, "00:00:00.00001",  00, 00, 00, 000,  10,   0 },
-                { L_, "00:00:00.00049",  00, 00, 00, 000, 490,   0 },
-                { L_, "00:00:00.00050",  00, 00, 00, 000, 500,   0 },
-                { L_, "00:00:00.00099",  00, 00, 00, 000, 990,   0 },
-                { L_, "00:00:00.9994",   00, 00, 00, 999, 400,   0 },
-                { L_, "00:00:00.9995",   00, 00, 00, 999, 500,   0 },
-                { L_, "00:00:00.9999",   00, 00, 00, 999, 900,   0 },
-                { L_, "00:00:59.9999",   00, 00, 59, 999, 900,   0 },
-                { L_, "23:59:59.9999",   23, 59, 59, 999, 900,   0 },
+                { L_, "00:00:00.0001",      00, 00, 00, 000, 100,   0 },
+                { L_, "00:00:00.0009",      00, 00, 00, 000, 900,   0 },
+                { L_, "00:00:00.00001",     00, 00, 00, 000,  10,   0 },
+                { L_, "00:00:00.00049",     00, 00, 00, 000, 490,   0 },
+                { L_, "00:00:00.00050",     00, 00, 00, 000, 500,   0 },
+                { L_, "00:00:00.00099",     00, 00, 00, 000, 990,   0 },
+                { L_, "00:00:00.0000001",   00, 00, 00, 000, 000,   0 },
+                { L_, "00:00:00.0000009",   00, 00, 00, 000, 001,   0 },
+                { L_, "00:00:00.00000001",  00, 00, 00, 000, 000,   0 },
+                { L_, "00:00:00.00000049",  00, 00, 00, 000, 000,   0 },
+                { L_, "00:00:00.00000050",  00, 00, 00, 000, 001,   0 },
+                { L_, "00:00:00.00000099",  00, 00, 00, 000, 001,   0 },
+                { L_, "00:00:00.9994",      00, 00, 00, 999, 400,   0 },
+                { L_, "00:00:00.9995",      00, 00, 00, 999, 500,   0 },
+                { L_, "00:00:00.9999",      00, 00, 00, 999, 900,   0 },
+                { L_, "00:00:59.9999",      00, 00, 59, 999, 900,   0 },
+                { L_, "23:59:59.9999",      23, 59, 59, 999, 900,   0 },
+                { L_, "00:00:00.9999994",   00, 00, 00, 999, 999,   0 },
+                { L_, "00:00:00.9999995",   00, 00,  1, 000, 000,   0 },
+                { L_, "00:00:00.9999999",   00, 00,  1, 000, 000,   0 },
+                { L_, "00:00:59.9999999",   00,  1, 00, 000, 000,   0 },
+                { L_, "23:59:59.9999999",   00, 00, 00, 000, 000,   0 },
 
                 // omit fractional seconds
                 { L_, "12:34:45",        12, 34, 45, 000, 000,   0 },

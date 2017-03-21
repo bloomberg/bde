@@ -1114,9 +1114,9 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
 
     // 1. Parse and validate time.
 
-    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
-    // greater).  Thus, we have to add it after setting the time, else it might
-    // not validate.
+    // Milliseconds could be rounded to 1000 (if fractional second is .9999995
+    // or greater).  Thus, we have to add it after setting the time, else it
+    // might not validate.
 
     int                hour, minute, second, millisecond;
     bsls::Types::Int64 microsecond;
@@ -1288,9 +1288,9 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
 
     // 1. Parse and validate time.
 
-    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
-    // greater).  Thus, we have to add it after setting the time, else it might
-    // not validate.
+    // Milliseconds could be rounded to 1000 (if fractional second is .9999995
+    // or greater).  Thus, we have to add it after setting the time, else it
+    // might not validate.
 
     int                hour, minute, second, millisecond;
     bsls::Types::Int64 microsecond;
@@ -1338,7 +1338,7 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
     // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
     // (above).
 
-    if (24 == hour && (millisecond || tzOffset)) {
+    if (24 == hour && (millisecond || microsecond || tzOffset)) {
         return -1;                                                    // RETURN
     }
 
@@ -1449,8 +1449,14 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 
     Datetime localDatetime;
 
-    if (0 != localDatetime.setDatetimeIfValid(
-           year, month, day, hour, minute, second, millisecond, microsecond)) {
+    if (0 != localDatetime.setDatetimeIfValid(year,
+                                              month,
+                                              day,
+                                              hour,
+                                              minute,
+                                              second,
+                                              millisecond,
+                                              static_cast<int>(microsecond))) {
         return -1;                                                    // RETURN
     }
 

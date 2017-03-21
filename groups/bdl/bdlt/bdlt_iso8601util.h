@@ -191,13 +191,11 @@ BSLS_IDENT("$Id: $")
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
 // present, it can have one or more digits (i.e., it can contain more than
-// six).  For 'Time' and 'TimeTz', if more than three digits are included in
-// the fractional second, values are rounded to a full millisecond; i.e.,
-// values greater than or equal to .5 milliseconds are rounded up.  For
-// 'Datetime' and 'DatetimeTz', if more than six digits are included in the
-// fractional second, values are rounded to a full microsecond; i.e., values
-// greater than or equal to .5 microseconds are rounded up.  These roundings
-// may incur a carry of one second into the 'second' attribute:
+// six).  For 'Datetime', 'DatetimeTz', 'Time', and 'TimeTz', if more than six
+// digits are included in the fractional second, values are rounded to a full
+// microsecond; i.e., values greater than or equal to .5 microseconds are
+// rounded up.  These roundings may incur a carry of one second into the
+// 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -208,10 +206,10 @@ BSLS_IDENT("$Id: $")
 //  |                                      |         -300)                   |
 //  |                                      |  # implied '.0'                 |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09.99949                      |  Time(15, 46, 09, 999)          |
+//  |  15:46:09.99999949                   |  Time(15, 46, 09, 999, 999)     |
 //  |                                      |  # truncate last two digits     |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09.9995                       |  Time(15, 46, 10, 000)          |
+//  |  15:46:09.9999995                    |  Time(15, 46, 10, 000, 000)     |
 //  |                                      |  # round up and carry           |
 //  +--------------------------------------+---------------------------------+
 //..
