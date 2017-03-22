@@ -129,8 +129,6 @@ TcpTimerEventManager::~TcpTimerEventManager()
 // MANIPULATORS
 int TcpTimerEventManager::dispatch(int flags)
 {
-    int ret;
-
     typedef bsl::vector<bdlcc::TimeQueueItem<bsl::function<void() > > >
         TimerArray;
     
@@ -139,7 +137,7 @@ int TcpTimerEventManager::dispatch(int flags)
         if (d_timers.minTime(&minTime)) {
             return -1;                                                // RETURN
         }
-        ret = d_manager_p->dispatch(minTime, flags);
+        int ret = d_manager_p->dispatch(minTime, flags);
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         if (now >= minTime) {
             TimerArray timers;
