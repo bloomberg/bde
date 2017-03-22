@@ -182,9 +182,9 @@ struct Case2 {
         e_CONST_C_STRING
     };
 
-    static int test(...                ) { return e_DEFAULT;        }
-    static int test(char       *       ) { return e_C_STRING;       }
-    static int test(char const * const&) { return e_CONST_C_STRING; }
+    static int test(...                );
+    static int test(char       *       );
+    static int test(char const * const&);
         // Return an integer identifying which of the following three type
         // categories matches the argument passed to this function:
         //..
@@ -197,6 +197,22 @@ struct Case2 {
         //..
 };
 
+int Case2::test(...)
+{
+    return e_DEFAULT;
+}
+
+int Case2::test(char *)
+{
+    return e_C_STRING;
+}
+
+int Case2::test(char const * const&)
+{
+    return e_CONST_C_STRING;
+}
+
+
 struct Case5 {
     enum {
         e_DEFAULT,
@@ -204,9 +220,9 @@ struct Case5 {
         e_INTEGER
     };
 
-    static int test(...       ) { return e_DEFAULT; }
-    static int test(double    ) { return e_DOUBLE;  }
-    static int test(const int&) { return e_INTEGER; }
+    static int test(...       );
+    static int test(double    );
+    static int test(const int&);
         // Return an integer identifying which of the following three type
         // categories matches the argument passed to this function:
         //..
@@ -218,6 +234,22 @@ struct Case5 {
         //  +---------------------+------------------+
         //..
 };
+
+int Case5::test(...)
+{
+    return e_DEFAULT;
+}
+
+int Case5::test(double)
+{
+    return e_DOUBLE;
+}
+
+int Case5::test(const int&)
+{
+    return e_INTEGER;
+}
+
 
 // ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
@@ -3793,8 +3825,8 @@ Tag DEPRECATED_SYMBOL()
 }
 
 Results check()
-    // Return a 'Results' object encoding information about the
-    // environment when this function was compiled.
+    // Return a 'Results' object encoding information about the environment
+    // when this function was compiled.
 {
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
@@ -3835,8 +3867,8 @@ Tag DEPRECATED_SYMBOL()
 #endif
 
 Results check()
-    // Return a 'Results' object encoding information about the
-    // environment when this function was compiled.
+    // Return a 'Results' object encoding information about the environment
+    // when this function was compiled.
 {
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
@@ -3870,8 +3902,8 @@ DEPRECATED_SYMBOL : Tag {
 };
 
 Results check()
-    // Return a 'Results' object encoding information about the
-    // environment when this function was compiled.
+    // Return a 'Results' object encoding information about the environment
+    // when this function was compiled.
 {
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
@@ -3906,8 +3938,8 @@ DEPRECATED_SYMBOL : Tag {
 #endif
 
 Results check()
-    // Return a 'Results' object encoding information about the
-    // environment when this function was compiled.
+    // Return a 'Results' object encoding information about the environment
+    // when this function was compiled.
 {
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
