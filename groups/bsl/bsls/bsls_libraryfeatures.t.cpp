@@ -215,7 +215,7 @@ static const bool
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
-     #include <cstdlib>
+     #include <cstdio>
 #endif
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY_defined =
