@@ -499,7 +499,7 @@ static int threshold        [NUM_UORS][MAX_MAJ][20] = {};
 static int majorVersion     [NUM_UORS][MAX_MAJ][20] = {};
 static int minorVersion     [NUM_UORS][MAX_MAJ][20] = {};
 
-void collectData()
+void collectData();
     // Populate the three-dimensional test result arrays used in cases 6,7, and
     // 8 with the states of the deprecation macros and control macros
     // corresponding to each of the fictional UORs configured in the "GLOBAL
@@ -510,6 +510,8 @@ void collectData()
     // versions having a minor version number in the range '[990 .. 999]',
     // store each macro state in the cell at index
     // '(uor_id, major_version, minor_version - 980)'.
+
+void collectData()
 {
     STATIC_ASSERT(minorVersionsAlignToTwenty, 0 == MAX_MIN % 20);
 
@@ -529,6 +531,9 @@ void collectData()
 // ----------------------------------------------------------------------------
 
 #define BSLS_DEPRECATE_T_DATA_COLLECTION 1
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD02  // re-inclusion confuses 'bde_verify'
 
 //                               UOR  MAJOR  MINOR
 //                               ---  -----  -----
@@ -800,6 +805,8 @@ void collectData()
 #include "bsls_deprecate.t.cpp"
 #define COLLECT_CODE             UVW,     4,     7
 #include "bsls_deprecate.t.cpp"
+
+// BDE_VERIFY pragma: pop
 
 #undef  BSLS_DEPRECATE_T_DATA_COLLECTION
 }
