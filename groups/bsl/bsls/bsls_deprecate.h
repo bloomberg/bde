@@ -170,13 +170,17 @@
 //  #define MY_DEPRECATED_MACRO
 //      // Macro definitions can be removed with 'BSLS_DEPRECATE_IS_ACTIVE'.
 //
+//  #endif  // !BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
+//
 //  namespace grppkg {
+//
+//  #if !BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 3)
 //
 //  SomeType myDeprecatedGlobalVariable;
 //      // Variables at namespace or global scope can be removed with
 //      // 'BSLS_DEPRECATE_IS_ACTIVE'.
 //
-//  #endif  // !BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
+//  #endif  // !BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 3)
 //
 //  // ...
 //
