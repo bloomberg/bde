@@ -20,25 +20,22 @@
 // ----------------------------------------------------------------------------
 // [ 1] CONFIRM VERSIONS WITH ACTIVE DEPRECATIONS
 
-// ============================================================================
-//                     STANDARD BDE ASSERT TEST FUNCTION
-// ----------------------------------------------------------------------------
+// BDE_VERIFY pragma: -TP19
+
+//=============================================================================
+//                       STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
 static int testStatus = 0;
 
-static void aSsErT(bool condition, const char *message, int line)
-{
-    if (condition) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+static void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-// ============================================================================
-//                  STANDARD BDE ASSERT TEST DRIVER MACROS
-// ----------------------------------------------------------------------------
-
-#define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (false)
+# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 // ============================================================================
 //                              TEST APPARATUS
@@ -49,22 +46,6 @@ static void aSsErT(bool condition, const char *message, int line)
 #define MACRO_TO_STRING(...)  MACRO_TO_STRING_A((__VA_ARGS__, EMPTY_STRING))
 #define MACRO_TO_STRING_A(T)  MACRO_TO_STRING_B T
 #define MACRO_TO_STRING_B(M, ...) #M
-
-// ============================================================================
-//                         NON-STANDARD TEST DRIVER MACROS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_MEQ(S, M)                                                      \
-    do {                                                                      \
-        int result = strcmp((S),(MACRO_TO_STRING(M)));                        \
-        if (result) {                                                         \
-            printf("string %s: '%s'; macro %s: [%s]; cmp: %d\n",              \
-                   #S, S, #M, MACRO_TO_STRING(M), result);                    \
-            aSsErT(true, "macro expansion matches string", __LINE__);         \
-        }                                                                     \
-    } while (false)
-        // Assert that the stringified expansion of the specified macro 'M' has
-        // the same value as the specified C-string 'S'.
 
 // ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING

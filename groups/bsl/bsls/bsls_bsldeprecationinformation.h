@@ -27,7 +27,12 @@
 // There is no usage example for this component since it is not meant for
 // direct client use.
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -SLM01
+
 #define BSL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
+
+// BDE_VERIFY pragma: pop
 
 #endif  // INCLUDED_BSLS_BSLDEPRECATIONINFORMATION
 
