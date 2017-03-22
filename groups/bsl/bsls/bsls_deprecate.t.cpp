@@ -186,6 +186,16 @@ struct Case2 {
     static int test(...                ) { return e_DEFAULT;        }
     static int test(char       *       ) { return e_C_STRING;       }
     static int test(char const * const&) { return e_CONST_C_STRING; }
+        // Return an integer identifying which of the following three type
+        // categories matches the argument passed to this function:
+        //..
+        //       Argument Type        Return Value
+        //  +---------------------+------------------+
+        //  | char const * const& | e_CONST_C_STRING |
+        //  | char       *        | e_C_STRING       |
+        //  | other               | e_DEFAULT        |
+        //  +---------------------+------------------+
+        //..
 };
 
 struct Case5 {
@@ -198,6 +208,16 @@ struct Case5 {
     static int test(...       ) { return e_DEFAULT; }
     static int test(double    ) { return e_DOUBLE;  }
     static int test(const int&) { return e_INTEGER; }
+        // Return an integer identifying which of the following three type
+        // categories matches the argument passed to this function:
+        //..
+        //       Argument Type        Return Value
+        //  +---------------------+------------------+
+        //  | const int&          | e_INTEGER        |
+        //  | double              | e_DOUBLE         |
+        //  | other               | e_DEFAULT        |
+        //  +---------------------+------------------+
+        //..
 };
 
 // ============================================================================
@@ -449,6 +469,16 @@ static int majorVersion     [NUM_UORS][MAX_MAJ][20] = {};
 static int minorVersion     [NUM_UORS][MAX_MAJ][20] = {};
 
 void collectData()
+    // Populate the three-dimensional test result arrays used in cases 6,7, and
+    // 8 with the states of the deprecation macros and control macros
+    // corresponding to each of the fictional UORs configured in the "GLOBAL
+    // DEPRECATION CONTROL MACRO SETTINGS" section.  In order to avoid compiler
+    // warnings related to the sizes of the arrays, for UOR versions having a
+    // minor version number in the range '[0 .. 9]', store each macro state in
+    // the cell at index '(uor_id, major_version, minor_version)', and for UOR
+    // versions having a minor version number in the range '[990 .. 999]',
+    // store each macro state in the cell at index
+    // '(uor_id, major_version, minor_version - 980)'.
 {
     STATIC_ASSERT(minorVersionsAlignToTwenty, 0 == MAX_MIN % 20);
 
@@ -743,7 +773,7 @@ void collectData()
 #undef  BSLS_DEPRECATE_T_DATA_COLLECTION
 }
 
-};  // close namespace defaultData
+}  // close namespace defaultData
 
 // ============================================================================
 //            TEST SUPPORT FOR CASE 11: LEGACY MACRO INTERACTION
