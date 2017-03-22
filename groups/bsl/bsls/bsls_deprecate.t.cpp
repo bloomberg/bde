@@ -783,11 +783,11 @@ void collectData()
 
 namespace legacyInteractions {
 
-enum {
-    e_UNKNOWN,
-    e_SUPPORTED,
-    e_DEPRECATED,
-    e_DELETED
+enum DeprecationStatus {
+    e_UNKNOWN,     // The status of the function or class has not been checked.
+    e_SUPPORTED,   // The function or class is present and not deprecated.
+    e_DEPRECATED,  // The function or class has been deprecated.
+    e_DELETED      // The function or class has been deleted.
 };
 
 struct SupportedTag {
@@ -811,9 +811,19 @@ DeletedTag DEPRECATED_SYMBOL()
 typedef SupportedTag Tag;
 
 struct Results {
-    int  d_deprecationStatus;
-    bool d_isActive;
-    bool d_isLegacyMacroDefined;
+    // This 'struct' encodes information about the deprecation configuration
+    // during the compilation of a particular code block.
+
+    int  d_deprecationStatus;     // The status of 'DEPRECATED_SYMBOL' in the
+                                  // current scope, represented as a value
+                                  // supported by 'DeprecationStatus'.
+
+    bool d_isActive;              // Whether or not 'bsls_deprecate'
+                                  // deprecations are active for version 4.3 of
+                                  // 'leg'.
+
+    bool d_isLegacyMacroDefined;  // Whether or not 'BDE_OMIT_DEPRECATED' is
+                                  // defined.
 };
 
 typedef Results (*Checker)();
@@ -3775,13 +3785,17 @@ namespace idiom1 {
 BSLS_DEPRECATE_STAND_IN
 #endif
 Tag DEPRECATED_SYMBOL();
+    // Return something.
 
 Tag DEPRECATED_SYMBOL()
 {
     return Tag();
 }
 
-Results check() {
+Results check()
+    // Return a 'Results' object encoding information about the
+    // environment when this function was compiled.
+{
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
     result.d_isActive =
@@ -3810,6 +3824,7 @@ namespace idiom2 {
 BSLS_DEPRECATE_STAND_IN
 #endif
 Tag DEPRECATED_SYMBOL();
+    // Return something.
 #endif
 
 #ifndef BDE_OMIT_DEPRECATED
@@ -3819,7 +3834,10 @@ Tag DEPRECATED_SYMBOL()
 }
 #endif
 
-Results check() {
+Results check()
+    // Return a 'Results' object encoding information about the
+    // environment when this function was compiled.
+{
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
     result.d_isActive =
@@ -3851,7 +3869,10 @@ BSLS_DEPRECATE_STAND_IN_STRUCT
 DEPRECATED_SYMBOL : Tag {
 };
 
-Results check() {
+Results check()
+    // Return a 'Results' object encoding information about the
+    // environment when this function was compiled.
+{
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
     result.d_isActive =
@@ -3884,7 +3905,10 @@ DEPRECATED_SYMBOL : Tag {
 };
 #endif
 
-Results check() {
+Results check()
+    // Return a 'Results' object encoding information about the
+    // environment when this function was compiled.
+{
     Results result;
     result.d_deprecationStatus = DEPRECATED_SYMBOL().value;
     result.d_isActive =

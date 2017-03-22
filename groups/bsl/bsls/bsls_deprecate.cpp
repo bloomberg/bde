@@ -1,6 +1,8 @@
 // bsls_deprecate.cpp                                                 -*-C++-*-
 #include <bsls_deprecate.h>
 
+// BDE_VERIFY pragma: -SH06  // Levelized below 'bsls_ident'
+
 ///Implementation Notes
 ///--------------------
 //
@@ -69,8 +71,8 @@
 // So, if we want to detect whether or not the user has asked to silence
 // deprecations for 'abc' version 3.1, we can't just compare
 // 'BB_SILENCE_DEPRECATION_ABC_3_1' to some value like 0 or 1.  We need
-// something like 'defined(BB_SILENCE_DEPRECATION_ABC_3_1)'.  Unfortuntely, the
-// preprocessor 'defined(...)' function cannot be used within a macro
+// something like 'defined(BB_SILENCE_DEPRECATION_ABC_3_1)'.  Unfortunately,
+// the preprocessor 'defined(...)' function cannot be used within a macro
 // definition.  This is OK:
 //..
 //  #if defined(BB_BUILDING_UOR_ABC)

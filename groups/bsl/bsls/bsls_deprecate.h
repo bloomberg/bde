@@ -661,7 +661,7 @@
         || BSLS_DEPRECATE_ISPASTTHRESHOLD(U, M, N)))
     // Expand to an expression evaluating to 'true' in a pre-processor context
     // if deprecations are active for the specified version 'M.N' of the
-    // specfied UOR 'U'.  Deprecations are active for version 'M.N' of UOR 'U'
+    // specified UOR 'U'.  Deprecations are active for version 'M.N' of UOR 'U'
     // if:
     //: o 'BB_SILENCE_DEPRECATION_<U>_<M>_<N>' has not been defined in this
     //:   translation unit, and
