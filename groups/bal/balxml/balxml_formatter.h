@@ -671,7 +671,8 @@ void Formatter::addAttribute(const bslstl::StringRef& name,
                               formattingMode,
                               &d_encoderOptions);
         d_outputStream << '"';
-        d_column += name.length() + 4;  // Minimum output if value is empty
+        d_column += static_cast<int>(name.length()) + 4;
+                                           // Minimum output if value is empty.
     }
 }
 
