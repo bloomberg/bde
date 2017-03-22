@@ -10788,6 +10788,22 @@ int main(int argc, char *argv[])
                                                              INT_VALUES,
                                                              NUM_INT_VALUES);
         }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) {
+             printf("Test initializer lists.\n");
+        }
+        {
+            ASSERT((0 == []() -> bsl::multimap<char, int> {
+                return {};
+            }().size()));
+            ASSERT((1 == []() -> bsl::multimap<char, int> {
+                return {{'a', 1}};
+            }().size()));
+            ASSERT((3 == []() -> bsl::multimap<char, int> {
+                return {{'a', 1}, {'b', 2}, {'a', 3}};
+            }().size()));
+        }
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -827,7 +827,8 @@ class map {
 
   public:
     // CREATORS
-    explicit map(const COMPARATOR& comparator     = COMPARATOR(),
+    map();
+    explicit map(const COMPARATOR& comparator,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Create an empty map.  Optionally specify a 'comparator' used to
         // order key-value pairs contained in this object.  If 'comparator' is
@@ -2009,6 +2010,14 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map()
+: d_compAndAlloc(COMPARATOR(), ALLOCATOR())
+, d_tree()
+{
+}
+
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& basicAllocator)

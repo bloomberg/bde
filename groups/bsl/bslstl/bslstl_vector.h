@@ -2621,8 +2621,8 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
 
     // *** construct/copy/destroy ***
 
-    explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
-                                                           BSLS_CPP11_NOEXCEPT;
+    vector() BSLS_CPP11_NOEXCEPT;
+    explicit vector(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT;
         // Create an empty vector.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed object of the (template parameter) type
@@ -5770,6 +5770,13 @@ bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                             // ------------
 
 // CREATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector() BSLS_CPP11_NOEXCEPT
+: Base(ALLOCATOR())
+{
+}
+
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)

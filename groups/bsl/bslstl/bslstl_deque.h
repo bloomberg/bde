@@ -997,8 +997,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     // *** construct/copy/destroy ***
 
-    explicit
-    deque(const ALLOCATOR& basicAllocator = ALLOCATOR());
+    deque();
+    explicit deque(const ALLOCATOR& basicAllocator);
         // Create an empty deque.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
@@ -3062,6 +3062,16 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
 }
 
 // CREATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+deque<VALUE_TYPE, ALLOCATOR>::deque()
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(ALLOCATOR())
+{
+    deque temp(k_RAW_INIT, this->get_allocator());
+    temp.privateInit(0);
+    Deque_Util::move(static_cast<Base *>(this), static_cast<Base *>(&temp));
+}
+
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>::deque(const ALLOCATOR& basicAllocator)
 : Deque_Base<VALUE_TYPE>()

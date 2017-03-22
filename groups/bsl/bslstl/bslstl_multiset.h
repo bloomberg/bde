@@ -744,7 +744,8 @@ class multiset {
 
   public:
     // CREATORS
-    explicit multiset(const COMPARATOR& comparator     = COMPARATOR(),
+    multiset();
+    explicit multiset(const COMPARATOR& comparator,
                       const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Create an empty multiset.  Optionally specify a 'comparator' used to
         // order keys contained in this object.  If 'comparator' is not
@@ -1709,6 +1710,14 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
 }
 
 // CREATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset()
+: d_compAndAlloc(COMPARATOR(), ALLOCATOR())
+, d_tree()
+{
+}
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& basicAllocator)

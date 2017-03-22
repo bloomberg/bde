@@ -773,7 +773,8 @@ class set {
 
   public:
     // CREATORS
-    explicit set(const COMPARATOR& comparator = COMPARATOR(),
+    set();
+    explicit set(const COMPARATOR& comparator,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Create an empty set.  Optionally specify a 'comparator' used to
         // order keys contained in this object.  If 'comparator' is not
@@ -1769,6 +1770,14 @@ set<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+set<KEY, COMPARATOR, ALLOCATOR>::set()
+: d_compAndAlloc(COMPARATOR(), ALLOCATOR())
+, d_tree()
+{
+}
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& basicAllocator)
