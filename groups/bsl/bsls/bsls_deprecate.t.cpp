@@ -4,7 +4,6 @@
 #if !defined(BSLS_DEPRECATE_T_DATA_COLLECTION)
 
 // BDE_VERIFY pragma: push    // Relax some bde_verify rules
-// BDE_VERIFY pragma: -TP16   // Test driver not yet complete
 // BDE_VERIFY pragma: -TP19   // Component levelized below 'bsls_bsltestutil',
 //                            // therefore cannot use usual boilerplate
 
@@ -780,6 +779,7 @@ void collectData()
 // ----------------------------------------------------------------------------
 
 #define BSLS_DEPRECATE_STAND_IN typedef DeprecatedTag Tag;
+#define BSLS_DEPRECATE_STAND_IN_STRUCT Tag : DeprecatedTag {}; struct
 
 namespace legacyInteractions {
 
@@ -803,12 +803,10 @@ struct DeletedTag {
 };
 
 DeletedTag DEPRECATED_SYMBOL()
+    // Return a default-constructed 'DeletedTag'.
 {
     return DeletedTag();
 }
-
-struct DEPRECATED_SYMBOL : DeletedTag {
-};
 
 typedef SupportedTag Tag;
 
@@ -991,6 +989,13 @@ namespace staticconcerns {
 
 BSLS_DEPRECATE
 void someDeprecatedFunction();
+    // Do something that is no longer supported through this interface.
+
+struct
+BSLS_DEPRECATE
+SomeDeprecatedClass
+{
+};
 
 }  // close namespace staticconcerns
 #else
@@ -1043,7 +1048,10 @@ int main(int argc, char *argv[])
         int c;
         ASSERT(sizeof(int) == sizeof(example_xxx_7_6::foo(&c, 0)));
         ASSERT(sizeof(int) == sizeof(example_xxx_7_6::bar(0)));
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -DP01   // Example calls deprecated function, necessarily
         ASSERT(sizeof(int) == sizeof(example_xxx_7_7::foo(&c, 0)));
+// BDE_VERIFY pragma: pop
         ASSERT(sizeof(int) == sizeof(example_xxx_7_7::bar(0)));
       } break;
       case 11: {
@@ -1181,26 +1189,53 @@ int main(int argc, char *argv[])
         // resolution) is converted into warnings.
         //
         // Concerns:
-        //: 1
+        //: 1 In idioms 1 and 3, the function may be deprecated, but is never
+        //:   deleted.
+        //:
+        //: 2 In idioms 2 and 4, the function is deleted whenever
+        //:   'BDE_OMIT_DEPRECATED' is defined.
+        //:
+        //: 3 In all idioms, the function is present and not deprecated if and
+        //:   only if 'BSLS_DEPRECATE_IS_ACTIVE' evaluates to 0 and
+        //:   'BDE_OMIT_DEPRECATED' is not defined.
+        //:
+        //: 4 In all idioms, the function is present and deprecated if
+        //:   'BSLS_DEPRECATE_IS_ACTIVE' evaluates to 1 but
+        //:   'BDE_OMIT_DEPRECATED' is not defined.
+        //:
+        //: 5 In idioms 1 and 3, the function is present and deprecated
+        //:   whenever 'BDE_OMIT_DEPRECATED' is defined.
         //
         // Plan:
-        //: 1 In one or more utility 'struct's, create a vocabulary of test
-        //:   functions that are deprecated with each of the patterns for
-        //:   combining modern and legacy macros.  For each function, also
-        //:   create a shadow function with the same signature at namespace
-        //:   scope, so that the shadow function returns a different value than
-        //:   the test function.
+        //: 1 Create a macro 'BSLS_DEPRECATE_STAND_IN' that can be placed
+        //:   syntactically in the same position relative to a function
+        //:   declaration as 'BSLS_DEPRECATE', and can change the meaning of
+        //:   the function in a way that can be detected at runtime.  The best
+        //:   technique we have found so far is to have
+        //:   'BSLS_DEPRECATE_STAND_IN' evaluate to a 'typedef' that redefines
+        //:   the return type of the marked function.
         //:
-        //: 2 Using the recursive inclusion technique, include each type under
-        //:   a different combination of deprecation conditions.  Cover the
-        //:   following cases:
+        //: 2 For each idiom, create a namespace in which a candidate function
+        //:   is deprecated using the idiom, except that
+        //:   'BSLS_DEPRECATE_STAND_IN' is used instead of 'BSLS_DEPRECATE'.
         //:
-        //: 3 Using the table-based approach, check that each type displays the
-        //:   correct combinations of 'bsls_deprecate' activation and code
-        //:   removal.  Code removal is discovered by making a call using the
-        //:   non-qualified name of the function, and examining the return
-        //:   value to determine whether the function actually called is the
-        //:   test function or the shadow function.
+        //: 3 Within the idiom namespace, define a test function that reports
+        //:   whether or not deprecations were active for the idiom at compile
+        //:   time, whether or not 'BDE_OMIT_DEPRECATED' was defined at compile
+        //:   time, and whether or not the candidate function was affected by
+        //:   'BSLS_DEPRECATE_STAND_IN'.
+        //:
+        //: 4 Repeatedly include the code described in steps 2 and 3 four
+        //:   times, to cover the possible combinations of 'bsls_deprecate'
+        //:   deprecations being active and inactive, and 'BDE_OMIT_DEPRECATED'
+        //:   being defined and undefined.  Embed each inclusion in a namespace
+        //:   that reflects the status of 'bsls_deprecate' and
+        //:   'BDE_OMIT_DEPRECATED' during that inclusion.  This step will
+        //:   generate 16 cases: 4 idioms x 4 configurations.
+        //:
+        //: 5 Using the table-based approach, call the test function for each
+        //:   of the 16 cases generated in step 4, to and assert the states
+        //:   that should have been in effect in each case.  (C 1-5)
         //
         // Testing:
         //   INTERACTIONS WITH LEGACY MACROS
@@ -1275,6 +1310,9 @@ int main(int argc, char *argv[])
 
       } break;
       case 10: {
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TW01  // that/which filter is not smart enough
+
         // --------------------------------------------------------------------
         // BSLS_DEPRECATE
         //
@@ -1300,6 +1338,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_DEPRECATE
         // --------------------------------------------------------------------
+
+// BDE_VERIFY pragma: pop
 
         if (verbose) {
             printf("\nBSLS_DEPRECATE"
@@ -1335,21 +1375,21 @@ int main(int argc, char *argv[])
             }
         }
 
-#if BSLS_DEPRECATE_COMPILER_SUPPORT
         if (verbose) printf("\nMacro is valid syntax for this compiler.\n");
         {
             struct LocalTestClass {
                 BSLS_DEPRECATE
-                int test() { return 0; }
+                int test()
+                    // Return 0.
+                {
+                    return 0;
+                }
             };
 
             // Suppress not-used warnings.
 
             (void) sizeof(LocalTestClass);
         }
-#else
-        if (verbose) printf("\nThis compiler does not support deprecation.\n");
-#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -3803,11 +3843,12 @@ Results check() {
 
 namespace idiom3 {
 
+struct
 #if    BSLS_DEPRECATE_IS_ACTIVE(LEG, 4, 3)  \
     || defined(BDE_OMIT_DEPRECATED)
-BSLS_DEPRECATE_STAND_IN
+BSLS_DEPRECATE_STAND_IN_STRUCT
 #endif
-struct DEPRECATED_SYMBOL : Tag {
+DEPRECATED_SYMBOL : Tag {
 };
 
 Results check() {
@@ -3835,10 +3876,11 @@ Results check() {
 namespace idiom4 {
 
 #ifndef BDE_OMIT_DEPRECATED
+struct
 #if BSLS_DEPRECATE_IS_ACTIVE(LEG, 4, 3)
-BSLS_DEPRECATE_STAND_IN
+BSLS_DEPRECATE_STAND_IN_STRUCT
 #endif
-struct DEPRECATED_SYMBOL : Tag {
+DEPRECATED_SYMBOL : Tag {
 };
 #endif
 
