@@ -13,6 +13,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_LIBRARYFEATURES_HAS_C90_GETS: C90 'gets' provided
+//  BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY: fpclassify et al. provided in std
 //  BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY: C99 library provided
 //  BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF: C99 'snprintf' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR: 'auto_ptr' provided
@@ -21,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API: GC support provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES: misc utils provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR: use "piecewise"
-//  BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS: bitwidth atomics
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: bitwidth atomics
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION: "program exit" provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE: 'tuple' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR: 'unique_ptr' provided
@@ -67,6 +68,27 @@ BSLS_IDENT("$Id: $")
 // function (defined in '<cstdio>') is provided in namespace 'std' by the
 // native standard library.  This dangerous function is removed from the C++14
 // standard library, and its use with earlier dialects is strongly discouraged.
+//
+///'BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY'
+///-----------------------------------------
+// The 'BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY' macro is defined if *all* of
+// the listed floating-point classification functions, defined in the headers
+// named below, are implemented by the native standard library in namespace
+// 'std':
+//:
+//:   o Functions defined in '<cmath>'
+//:     o 'fpclassify'
+//:     o 'isfinite'
+//:     o 'isinf'
+//:     o 'isnan'
+//:     o 'isnormal'
+//:     o 'signbit'
+//:     o 'isgreater'
+//:     o 'isgreaterequal'
+//:     o 'isless'
+//:     o 'islessequal'
+//:     o 'islessgreater'
+//:     o 'isunordered'
 //
 ///'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY'
 ///--------------------------------------
@@ -384,9 +406,9 @@ BSLS_IDENT("$Id: $")
 //:   o clang 3.0
 //:   o MSVC 2015
 //
-///'BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS'
+///'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
 ///---------------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS' macro is
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' macro is
 // defined if *both* of the listed conditions are true:
 // defined if the '<atomic>' header provided by the native standard library
 // provides type aliases for all of the following precise bit-width atomic
@@ -408,7 +430,6 @@ BSLS_IDENT("$Id: $")
 //:   o atomic_uintptr_t;
 //
 //: o Supported by the compiler vendor's STL implementation
-//:   o gcc 5.4
 //:   o MSVC 2013
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
@@ -559,11 +580,11 @@ BSLS_IDENT("$Id: $")
     // the day tool chains start removing this deprecated class template.
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
-    #if (__STDC_VERSION__ >= 199901L) ||                                      \
+    #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+    #if (__cplusplus >= 201103L) ||                                           \
            (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                            \
             BSLS_PLATFORM_CMP_VERSION >= 40800)
-        // C99 functions are available in C++11 builds, and are also required
-        // when building on Sun gcc compilers in C++03 mode.
+        // C99 functions are available in C++11 builds.
 
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
@@ -588,15 +609,17 @@ BSLS_IDENT("$Id: $")
             // re-test this when it is appropriate.  (hversche 2017-03-06)
 
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 60000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
         #endif
     #endif
+
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
+    // #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
     // #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -604,7 +627,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-    //  #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
@@ -613,6 +636,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_SUN) && _cplusplus >= 201103L
 
     #if BSLS_PLATFORM_CMP_VERSION >= 0x5130
+        #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -624,11 +648,13 @@ BSLS_IDENT("$Id: $")
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
+
+    #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
 
     #if defined(__APPLE_CC__) && \
         __APPLE_CC__ >= 6000  && \
@@ -647,7 +673,7 @@ BSLS_IDENT("$Id: $")
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 #endif
 
@@ -657,10 +683,11 @@ BSLS_IDENT("$Id: $")
     // Microsoft C++ compiler version 1800 (MSVC 2013)
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Visual Studio 2013
+        #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PRECISE_BITWIDTH_ATOMICS
+        #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
             // Note that 'unique_ptr' appears as early as version 1600 (MSVC
             // 2010) 'BSLS_COMPILER_FEATURES_HAS_RVALUE_REFERENCES', also
