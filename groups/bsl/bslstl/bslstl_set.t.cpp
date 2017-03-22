@@ -2510,7 +2510,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase31()
 
     if (verbose) printf("\tTesting 'emplace' with hint.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const char *const UNIQUE = DATA[ti].d_unique;
@@ -2683,7 +2683,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase31()
 
                 Obj mX(xoa);  const Obj& X = mX;
 
-                for (int tj = 0; tj < LENGTH; ++tj) {
+                for (size_t tj = 0; tj < LENGTH; ++tj) {
                     const bool   IS_UNIQ = UNIQUE[tj] == 'Y';
                     const size_t SIZE    = X.size();
 
@@ -3517,7 +3517,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase29()
                         bsl::allocator<KEY>  xscratch(&scratch);
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                             Obj mZ(xscratch);   const Obj& Z = mZ;
-                            for (int tk = 0; tk < tj; ++tk) {
+                            for (size_t tk = 0; tk < tj; ++tk) {
                                 primaryManipulator(
                                         &mZ,
                                         TstFacility::getIdentifier(VALUES[tk]),
@@ -3643,7 +3643,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase28()
 
     if (verbose) printf("\tTesting 'insert' without exceptions.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const char *const UNIQUE = DATA[ti].d_unique;
@@ -3831,7 +3831,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase28()
                     bsl::allocator<KEY> xscratch(&scratch);
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         Obj mZ(xscratch);   const Obj& Z = mZ;
-                        for (int tk = 0; tk < tj; ++tk) {
+                        for (size_t tk = 0; tk < tj; ++tk) {
                             primaryManipulator(
                                         &mZ,
                                         TstFacility::getIdentifier(VALUES[tk]),
@@ -4041,7 +4041,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
     if (veryVerbose)
         printf("\nTesting move assignment.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1   = DATA[ti].d_line;
             const int         INDEX1  = DATA[ti].d_index;
             const char *const SPEC1   = DATA[ti].d_results;
@@ -4070,7 +4070,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
             }
 
             // Create second object
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_results;
@@ -4275,7 +4275,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
     if (veryVerbose)
         printf("\nTesting move assignment with injected exceptions.\n");
     {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1   = DATA[ti].d_line;
             const int         INDEX1  = DATA[ti].d_index;
             const char *const SPEC1   = DATA[ti].d_results;
@@ -4298,7 +4298,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
             if (veryVeryVerbose) { T_ P_(LINE1) P(ZZ) }
 
             // Create second object
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_results;
@@ -5683,7 +5683,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase19()
             }
 
             // Create second object
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
@@ -6757,7 +6757,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase14()
         ASSERTV(1 == (bsl::is_same<CRIter,
                                    bsl::reverse_iterator<CIter> >::value));
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE   = DATA[ti].d_lineNum;
             const char *SPEC   = DATA[ti].d_spec;
             const int   LENGTH = static_cast<int>(strlen(SPEC));
@@ -7571,7 +7571,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase9()
             }
 
             // Create second object
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
@@ -7881,7 +7881,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
                             " allocators, and\n        swapping with"
                             " non-matching allocators.\n");
 
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const char *const ISPEC = DATA[ti].d_results;
 
         if (ti && DATA[ti].d_index == DATA[ti-1].d_index) {
@@ -7922,7 +7922,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase8_dispatch()
             ASSERTV(ISPEC, xoam.isTotalSame());
         }
 
-        for (int tj = 0; tj < NUM_DATA; ++tj) {
+        for (size_t tj = 0; tj < NUM_DATA; ++tj) {
             const char *const JSPEC = DATA[tj].d_results;
 
             if (tj && DATA[tj].d_index == DATA[tj-1].d_index) {
@@ -8638,7 +8638,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
                 ASSERTV(LINE1, X, !(X != X));
             }
 
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
+            for (size_t tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINE2   = DATA[tj].d_line;
                 const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
@@ -8999,7 +8999,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         size_t oldLen = 0;
-        for (int ti = 0; ti < NUM_DATA ; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA ; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
@@ -10938,6 +10938,13 @@ int main(int argc, char *argv[])
                                                         INT_VALUES,
                                                         NUM_INT_VALUES);
         }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        {
+            ASSERT((0 == []() -> bsl::set<int> { return {}; }().size()));
+            ASSERT((1 == []() -> bsl::set<int> { return {1}; }().size()));
+            ASSERT((2 == []() -> bsl::set<int> { return {3,1,3}; }().size()));
+        }
+#endif
       } break;
       case -1: {
         // --------------------------------------------------------------------

@@ -11472,6 +11472,20 @@ int main(int argc, char *argv[])
         ASSERTV(X.bucket_count(), 2 * buckets, X.bucket_count() > 2 * buckets);
         ASSERTV(X.load_factor(), loadFactor, X.load_factor() < loadFactor);
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::unordered_multiset<int> {
+                return {};
+            }().size()));
+            ASSERT((1 == []() -> bsl::unordered_multiset<int> {
+                return {1};
+            }().size()));
+            ASSERT((3 == []() -> bsl::unordered_multiset<int> {
+                return {3, 1, 3};
+            }().size()));
+        }
+#endif
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");
       } break;

@@ -2914,7 +2914,7 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
 
     {
         Obj mX;  const Obj& X = mX;
-        Obj mY;  const Obj& Y = mY;
+        Obj mY;
 
         ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
@@ -16131,6 +16131,17 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_trivially_copyable<list<char> >::value);
         ASSERT(! bsl::is_trivially_copyable<list<T> >::value);
         ASSERT(! bsl::is_trivially_copyable<list<list<int> > >::value);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::list<int> { return {}; }().size()));
+            ASSERT((1 == []() -> bsl::list<int> { return {1}; }().size()));
+            ASSERT((3 == []() -> bsl::list<int> {
+                return {3, 1, 3};
+            }().size()));
+        }
+#endif
 
       } break;
       case -1: {

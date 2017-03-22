@@ -229,8 +229,15 @@ const char *NameOf_Base::initBuffer(char       *buffer,
     char stringName[] = { "std::basic_string<char>" };
 
     static const char anonymous[] = { "<unnamed>::" };
-# else
+# elif BSLS_PLATFORM_CMP_VERSION < 50000
     char stringName[] = { "std::basic_string<char>" };
+
+    static const char anonymous[] = { "{anonymous}::" };
+# else
+    char stringName[] = { "std::__cxx11::basic_string<char>" };
+
+    u::substitute(buffer,     stringName,       "std::string");
+    u::substitute(stringName, "std::__cxx11::", "std::");
 
     static const char anonymous[] = { "{anonymous}::" };
 # endif
