@@ -1309,10 +1309,10 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -TW01  // that/which filter is not smart enough
 
+      case 10: {
         // --------------------------------------------------------------------
         // BSLS_DEPRECATE
         //
