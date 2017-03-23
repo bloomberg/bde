@@ -74,10 +74,11 @@ BSLS_IDENT("$Id: $")
 // timezone 4 hours ahead of UTC.
 //
 // An ISO 8601 *fractional* *second* corresponds to, for example, the
-// 'millisecond' attribute of a 'bdlt::Time' object, or the combined
-// 'millisecond' and 'microsecond' attributes of a 'bdlt::Datetime' object.
-// For example, the 'Time' value (and ISO 8601 string) '15:46:09.330' has a
-// 'millisecond' attribute value of 330; i.e., a fractional second of .33.
+// combined 'millisecond' and 'microsecond' attributes of a 'bdlt::Time'
+// object, or the combined 'millisecond' and 'microsecond' attributes of a
+// 'bdlt::Datetime' object.  For example, the 'Time' value (and ISO 8601
+// string) '15:46:09.330000' has a 'millisecond' attribute value of 330 and a
+// 'microsecond' attribute of 0; i.e., a fractional second of .33.
 //
 ///ISO 8601 String Generation
 ///--------------------------
@@ -87,7 +88,7 @@ BSLS_IDENT("$Id: $")
 // examples.  Note that for 'Datetime' and 'DatetimeTz', the fractional second
 // is generated with the precision specified in the configuration.  Also note
 // that for 'Time' and 'TimeTz', the fractional second is generated with the
-// precision specified in the configuration up to a maximum precision of 3.
+// precision specified in the configuration up to a maximum precision of 6.
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |    Generated ISO 8601 String    |
@@ -223,10 +224,11 @@ BSLS_IDENT("$Id: $")
 // Hence, they are not produced by any of the 'Iso8601Util' generate functions.
 // However, positive leap seconds *are* supported by the parse functions.  A
 // leap second is recognized when the value parsed for the 'second' attribute
-// of a 'Time' is 60--regardless of the values parsed for the 'hour', 'minute',
-// and 'millisecond' attributes.  Note that this behavior is more generous than
-// that afforded by the ISO 8601 specification (which indicates that a positive
-// leap second can only be represented as "23:59:60Z").
+// of a 'Time' is 60 -- regardless of the values parsed for the 'hour',
+// 'minute', 'millisecond', and 'microsecond' attributes.  Note that this
+// behavior is more generous than that afforded by the ISO 8601 specification
+// (which indicates that a positive leap second can only be represented as
+// "23:59:60Z").
 //
 // When a leap second is detected during parsing of an ISO 8601 string, the
 // 'second' attribute is taken to be 59, so that the value of the 'Time' object
@@ -262,18 +264,18 @@ BSLS_IDENT("$Id: $")
 //  +------------------------------------+-----------------------------------+
 //  |       Parsed ISO 8601 String       |        Result Object Value        |
 //  +====================================+===================================+
-//  |  24:00:00.000                      |  Time(24, 0, 0, 0)                |
+//  |  24:00:00.000000                   |  Time(24, 0, 0, 0)                |
 //  |                                    |  # preserve default 'Time' value  |
 //  +------------------------------------+-----------------------------------+
-//  |  24:00:00.000-04:00                |  TimeTz: parsing fails            |
+//  |  24:00:00.000000-04:00             |  TimeTz: parsing fails            |
 //  |                                    |  # zone designator not UTC        |
 //  +------------------------------------+-----------------------------------+
-//  |  0001-01-01T24:00:00.000           |  Datetime(Date(0001, 01, 01),     |
+//  |  0001-01-01T24:00:00.000000        |  Datetime(Date(0001, 01, 01),     |
 //  |                                    |           Time(24, 0, 0, 0))      |
 //  |                                    |  # preserve 'Datetime' default    |
 //  |                                    |  # value                          |
 //  +------------------------------------+-----------------------------------+
-//  |  2002-03-17T24:00:00.000           |  Datetime(Date(2002, 03, 17),     |
+//  |  2002-03-17T24:00:00.000000        |  Datetime(Date(2002, 03, 17),     |
 //  |                                    |           Time(24, 0, 0, 0))      |
 //  |                                    |  # preserve default 'Time' value  |
 //  +------------------------------------+-----------------------------------+
@@ -799,17 +801,17 @@ struct Iso8601Util {
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is present in 'string', the resulting 'Time' value is
-        // converted to the equivalent UTC time; if the zone designator is
-        // absent, UTC is assumed.  If a leap second is detected (i.e., the
-        // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
-        // the 'second' attribute is taken to be 59, then an additional second
-        // is added to 'result' at the end.  If the "hh:mm:ss" portion of
-        // 'string' is "24:00:00", then the fractional second must be absent or
-        // 0, and the zone designator must be absent or indicate UTC.  The
-        // behavior is undefined unless '0 <= length'.
+        // having more than six digits is present in 'string', it is rounded to
+        // the nearest value in microseconds.  If the optional zone designator
+        // is present in 'string', the resulting 'Time' value is converted to
+        // the equivalent UTC time; if the zone designator is absent, UTC is
+        // assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate UTC.  The behavior is
+        // undefined unless '0 <= length'.
 
     static int parse(Datetime *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified ISO
@@ -859,16 +861,15 @@ struct Iso8601Util {
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is not present in 'string', UTC is assumed.  If a leap
-        // second is detected (i.e., the parsed value of the 'second' attribute
-        // is 60; see {Leap Seconds}), the 'second' attribute is taken to be
-        // 59, then an additional second is added to 'result' at the end.  If
-        // the "hh:mm:ss" portion of 'string' is "24:00:00", then the
-        // fractional second must be absent or 0, and the zone designator must
-        // be absent or indicate UTC.  The behavior is undefined unless
-        // '0 <= length'.
+        // having more than six digits is present in 'string', it is rounded to
+        // the nearest value in microseconds.  If the optional zone designator
+        // is not present in 'string', UTC is assumed.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
     static int parse(DatetimeTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified ISO
@@ -916,8 +917,8 @@ struct Iso8601Util {
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
         // the optional zone designator is present in 'string', the resulting
         // 'Time' value is converted to the equivalent UTC time; if the zone
         // designator is absent, UTC is assumed.  If a leap second is detected
@@ -978,8 +979,8 @@ struct Iso8601Util {
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
         // the optional zone designator is not present in 'string', UTC is
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'

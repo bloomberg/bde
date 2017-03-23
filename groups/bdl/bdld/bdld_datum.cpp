@@ -65,7 +65,7 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // short length strings (6 or fewer characters in length), short
 // 'DatetimeInterval' ([-2^47 microseconds, +2^47 microseconds], approximately
 // +/- 1628 days), near 'Datetime' (now +/- approximately 89 years), small
-// 'Int64' ([-2^47, +2^47[) and small binary values are stored directly in the
+// 'Int64' ([-2^47, +2^47]) and small binary values are stored directly in the
 // 6 bytes of storage available in the fraction part.
 //
 ///Implementation on 64-bit platforms

@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::Time', that can represent the time of day to a resolution of one
 // microsecond (using a 24-hour clock).  Valid time values range from
 // 00:00:00.000000 (i.e., midnight) through 23:59:59.999999 (i.e., one
-// microsecond before midnight.  A time value can be specified via five
+// microsecond before midnight).  A time value can be specified via five
 // separate integer attribute values denoting hours '[0 .. 23]', minutes
 // '[0 .. 59]', seconds '[0 .. 59]', milliseconds '[0 .. 999]', and
 // microseconds '[0 .. 999]'.  In addition, the 'bdlt::Time' type has one more
@@ -225,7 +225,8 @@ class Time {
         // return 'd_value'.  Otherwise, return the representation of the time
         // corresponding to 'd_value' total milliseconds since 00:00:00.000000
         // (i.e., convert from the old representation scheme to the current
-        // scheme).
+        // scheme), or '24:00:00.000000' if 'd_value' is the old representation
+        // of the default-constructed value.
 
   public:
     // CLASS METHODS
@@ -606,8 +607,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Time& time);
 inline
 void Time::setMicrosecondsFromMidnight(bsls::Types::Int64 totalMicroseconds)
 {
-    BSLS_ASSERT_SAFE(                           0 <= totalMicroseconds
-                     && TimeUnitRatio::k_US_PER_D >= totalMicroseconds);
+    BSLS_ASSERT_SAFE(                        0 <= totalMicroseconds);
+    BSLS_ASSERT_SAFE(TimeUnitRatio::k_US_PER_D >= totalMicroseconds);
 
     d_value = totalMicroseconds | k_REP_MASK;
 }
@@ -679,8 +680,8 @@ int Time::maxSupportedBdexVersion(int versionSelector)
 // CREATORS
 inline
 Time::Time()
+: d_value(TimeUnitRatio::k_US_PER_D | k_REP_MASK)
 {
-    setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_D);
 }
 
 inline

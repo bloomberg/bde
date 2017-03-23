@@ -325,17 +325,18 @@ class Datetime {
     // 'Datetime' objects whose "time" part has the same value as that of a
     // default constructed 'Time' object.
 
+    // PRIVATE TYPES
+    enum {
+        k_NUM_TIME_BITS = 37,
+        k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
+    };
+
     // CLASS DATA
     static const bsls::Types::Uint64 k_MAX_US_FROM_EPOCH;
 
     static const bsls::Types::Uint64 k_REP_MASK  = 0x8000000000000000ULL;
     static const bsls::Types::Uint64 k_DATE_MASK = 0xffffffe000000000ULL;
     static const bsls::Types::Uint64 k_TIME_MASK = 0x0000001fffffffffULL;
-
-    enum {
-        k_NUM_TIME_BITS = 37,
-        k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
-    };
 
     static bsls::AtomicInt64 s_invalidRepresentationCount;
 
