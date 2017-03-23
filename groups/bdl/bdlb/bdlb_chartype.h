@@ -15,9 +15,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -BAN03
-
 //@PURPOSE: Supply local-independent version of '<ctype.h>' functionality.
 //
 //@CLASSES:
@@ -325,8 +322,6 @@ BSLS_IDENT("$Id: $")
 //      return true;
 //  }
 //..
-
-// BDE_VERIFY pragma: pop
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
