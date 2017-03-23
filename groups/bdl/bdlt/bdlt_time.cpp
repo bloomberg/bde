@@ -14,13 +14,17 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 
 ///IMPLEMENTATION NOTES
 ///--------------------
-// This component implements a time value, primarily, by storing the number of
-// microseconds since midnight.  The previous implementation stored
-// milliseconds.  To discover and correct inappropriate usage elsewhere (e.g.,
-// using 'memcpy' to assign a value), a versioning bit is used ('k_REP_MASK')
-// for the in-core representation.  When a value in the old format is detected,
-// logging and asserting occur and the value is converted from the old
-// millisecond representation to the new microsecond representation.
+// This component implements a time type by storing the number of microseconds
+// since midnight.  The previous implementation stored milliseconds.  To
+// discover and correct inappropriate usage elsewhere (e.g., using 'memcpy' to
+// assign a value), a versioning bit is used ('k_REP_MASK') for the in-core
+// representation.  When a value in the old format is detected, logging and
+// asserting occur and the value is converted from the old millisecond
+// representation to the new microsecond representation.
+//
+// The value of 'k_REP_MASK' was chosen to avoid the low-order 37 bits needed
+// for the time value, and to leave the high-order 16 bits empty in case storing
+// a time value in 6 bytes is valuable (e.g., 'bdld::Datum').
 
 namespace BloombergLP {
 namespace bdlt {

@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // The primary accessors for this type are 'days' and
 // 'fractionalDayInMicroseconds'.  In combination, these two methods provide
 // complete and succinct access to the value of a 'DatetimeInterval'.
-// Furthermore, the total value of the time interval may be accessed in the
+// Furthermore, the total value of the interval may be accessed in the
 // respective field units via the 'totalDays', 'totalHours', 'totalMinutes',
 // 'totalSeconds', 'totalMilliseconds', and 'totalMicroseconds' methods.  Note
 // that, with the exception of 'totalMicroseconds' (which returns an exact
@@ -220,9 +220,9 @@ class DatetimeInterval {
         // specified 'days' and 'microseconds'.  The behavior is undefined
         // unless the total number of days, after converting to the canonical
         // representation, can be represented as a signed 32-bit integer.  The
-        // canonical representation requires the 'microseconds' to have a
-        // magnitude of less than one day and the 'days' and 'microseconds'
-        // components to be either both non-negative or both non-positive.
+        // canonical representation requires 'microseconds' to have a magnitude
+        // of less than one day, and 'days' and 'microseconds' components to
+        // be either both non-negative or both non-positive.
 
   public:
     // PUBLIC CLASS DATA
@@ -341,9 +341,7 @@ class DatetimeInterval {
 
     void setTotalMicroseconds(bsls::Types::Int64 microseconds);
         // Set the overall value of this object to indicate the specified
-        // number of 'microseconds'.  The behavior is undefined unless the
-        // resulting time interval value is valid (i.e., the days field must
-        // not overflow a 32-bit integer).
+        // number of 'microseconds'.
 
     void addInterval(int                days,
                      bsls::Types::Int64 hours = 0,

@@ -1164,9 +1164,9 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
-    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
-    // (above).
+    // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
+    // The case where '0 != minute || 0 != second' is caught by
+    // 'setTimeIfValid' (above).
 
     if (24 == hour && (millisecond || microsecond || tzOffset)) {
         return -1;                                                    // RETURN
@@ -1334,9 +1334,9 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
-    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
-    // (above).
+    // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
+    // The case where '0 != minute || 0 != second' is caught by
+    // 'setTimeIfValid' (above).
 
     if (24 == hour && (millisecond || microsecond || tzOffset)) {
         return -1;                                                    // RETURN
@@ -1426,7 +1426,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     // '{Note Regarding the Time 24:00}' in the component-level documentation).
 
     if (24 == hour) {
-        // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.
+        // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
 
         if (minute || second || millisecond || microsecond || tzOffset) {
             return -1;                                                // RETURN
