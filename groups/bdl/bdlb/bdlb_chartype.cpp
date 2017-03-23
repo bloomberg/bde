@@ -20,6 +20,8 @@ namespace BloombergLP {
 // ***                      STATIC CONSTANT STRING VARIABLES                ***
 // ----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: -UC01
+
 static const char UPPER_STRING[]  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 static const char LOWER_STRING[]  = "abcdefghijklmnopqrstuvwxyz";
@@ -95,7 +97,6 @@ static const char *CATEGORY_STRING[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_STRING,
     LOWER_STRING,
     ALPHA_STRING,
-    ODIGIT_STRING,
     DIGIT_STRING,
     XDIGIT_STRING,
     ALNUM_STRING,
@@ -109,13 +110,13 @@ static const char *CATEGORY_STRING[bdlb::CharType::k_NUM_CATEGORIES] = {
     ALUND_STRING,
     ALL_STRING,
     NONE_STRING,
+    ODIGIT_STRING,
 };
 
 static const char *CATEGORY_NAME[bdlb::CharType::k_NUM_CATEGORIES] = {
     "UPPER",
     "LOWER",
     "ALPHA",
-    "ODIGIT",
     "DIGIT",
     "XDIGIT",
     "ALNUM",
@@ -129,6 +130,7 @@ static const char *CATEGORY_NAME[bdlb::CharType::k_NUM_CATEGORIES] = {
     "ALUND",
     "ALL",
     "NONE",
+    "ODIGIT",
 };
 
 // ============================================================================
@@ -343,7 +345,6 @@ static const bool *CATEGORY_TABLE[bdlb::CharType::k_NUM_CATEGORIES] = {
     UPPER_TABLE,
     LOWER_TABLE,
     ALPHA_TABLE,
-    ODIGIT_TABLE,
     DIGIT_TABLE,
     XDIGIT_TABLE,
     ALNUM_TABLE,
@@ -357,13 +358,13 @@ static const bool *CATEGORY_TABLE[bdlb::CharType::k_NUM_CATEGORIES] = {
     ALUND_TABLE,
     ALL_TABLE,
     NONE_TABLE,
+    ODIGIT_TABLE,
 };
 
 static const short int CATEGORY_COUNT[bdlb::CharType::k_NUM_CATEGORIES] = {
     static_cast<short int>(sizeof UPPER_STRING - 1),
     static_cast<short int>(sizeof LOWER_STRING - 1),
     static_cast<short int>(sizeof ALPHA_STRING - 1),
-    static_cast<short int>(sizeof ODIGIT_STRING - 1),
     static_cast<short int>(sizeof DIGIT_STRING - 1),
     static_cast<short int>(sizeof XDIGIT_STRING - 1),
     static_cast<short int>(sizeof ALNUM_STRING - 1),
@@ -377,6 +378,7 @@ static const short int CATEGORY_COUNT[bdlb::CharType::k_NUM_CATEGORIES] = {
     static_cast<short int>(sizeof ALUND_STRING - 1),
     static_cast<short int>(sizeof ALL_STRING   - 1),
     static_cast<short int>(sizeof NONE_STRING  - 1),
+    static_cast<short int>(sizeof ODIGIT_STRING - 1),
 };
 
 static const unsigned char TOUPPER_TABLE[256] = {
