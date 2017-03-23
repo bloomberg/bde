@@ -628,7 +628,7 @@ bsls::Types::Int64 Time::microsecondsFromMidnight() const
     bdlb::BitUtil::uint64_t count =
           static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
     if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_ERROR("detected invalid 'bdlt::Time'; see TEAM 579660115");
+        BSLS_LOG_SIMPLE("detected invalid 'bdlt::Time'; see TEAM 579660115");
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
