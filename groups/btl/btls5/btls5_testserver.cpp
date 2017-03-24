@@ -557,13 +557,11 @@ void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
     *consumed = static_cast<int>(sizeof(*data)) + ulen + 1 + plen;
 
     bsl::string username(reinterpret_cast<const char *>(ubuf),
-                         ulen,
-                         d_allocator_p);
+                         ulen);
     bsl::string password(reinterpret_cast<const char *>(ubuf + ulen + 1),
-                         plen,
-                         d_allocator_p);
+                         plen);
 
-    btls5::Credentials requestCredentials(username, password, d_allocator_p);
+    btls5::Credentials requestCredentials(username, password);
     LOG_DEBUG << " credentials " << requestCredentials;
 
     char response[2];
@@ -612,7 +610,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
     respBase->d_addressType = data->d_addressType;
 
     btlso::IPv4Address connectAddr;
-    btlso::Endpoint    destination(d_allocator_p);
+    btlso::Endpoint    destination;
 
     if (1 == data->d_addressType) {
         if (length < static_cast<int>(
@@ -659,7 +657,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
         bdlb::BigEndianInt16 port;
         memcpy(&port, hostBuffer + hostLen, sizeof(port));
         unsigned short nativePort = static_cast<short>(port);
-        destination.set(bsl::string(hostBuffer, hostLen, d_allocator_p),
+        destination.set(bsl::string(hostBuffer, hostLen),
                         nativePort);
         LOG_DEBUG << "connect addr=" << destination;
 
