@@ -3042,8 +3042,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 printf("\t\tCaught unknown exception.\n");
             }
         }
-        LOOP2_ASSERT(limit, exceptionCaught,
-                     (limit <= LENGTH) == exceptionCaught);
+        ASSERTV(limit,
+                exceptionCaught,
+                (limit <= LENGTH) == exceptionCaught);
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
@@ -3078,8 +3079,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 printf("\t\tCaught unknown exception.\n");
             }
         }
-        LOOP2_ASSERT(limit, exceptionCaught,
-                     (limit <= LENGTH) == exceptionCaught);
+        ASSERTV(limit,
+                exceptionCaught,
+                (limit <= LENGTH) == exceptionCaught);
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
@@ -3114,8 +3116,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 printf("\t\tCaught unknown exception.\n");
             }
         }
-        LOOP2_ASSERT(limit, exceptionCaught,
-                     (limit <= LENGTH) == exceptionCaught);
+        ASSERTV(limit,
+                exceptionCaught,
+                (limit <= LENGTH) == exceptionCaught);
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
@@ -3150,8 +3153,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 printf("\t\tCaught unknown exception.\n");
             }
         }
-        LOOP2_ASSERT(limit, exceptionCaught,
-                     (limit <= LENGTH) == exceptionCaught);
+        ASSERTV(limit,
+                exceptionCaught,
+                (limit <= LENGTH) == exceptionCaught);
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
@@ -3186,8 +3190,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 printf("\t\tCaught unknown exception.\n");
             }
         }
-        LOOP2_ASSERT(limit, exceptionCaught,
-                     (limit <= LENGTH) == exceptionCaught);
+        ASSERTV(limit,
+                exceptionCaught,
+                (limit <= LENGTH) == exceptionCaught);
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
@@ -3225,8 +3230,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                     printf("\t\tCaught unknown exception.\n");
                 }
             }
-            LOOP2_ASSERT(limit, exceptionCaught,
-                         (limit <= LENGTH) == exceptionCaught);
+            ASSERTV(limit,
+                    exceptionCaught,
+                    (limit <= LENGTH) == exceptionCaught);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
@@ -3238,12 +3244,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (veryVerbose) {
             switch (assignMethod) {
-                case 0: printf("\tWith assign(str).\n"); break;
-                case 1: printf("\tWith assign(str, pos, n).\n"); break;
-                case 2: printf("\tWith assign(C *s, n).n"); break;
-                case 3: printf("\tWith assign(C *s).\n"); break;
-                case 4: printf("\tWith assign(n, c).n"); break;
-                case 5: printf("\tWith assign<Iter>(f, l).\n"); break;
+                case 0: printf("\tWith assign(str).\n");          break;
+                case 1: printf("\tWith assign(str, pos, n).\n");  break;
+                case 2: printf("\tWith assign(C *s, n).n");       break;
+                case 3: printf("\tWith assign(C *s).\n");         break;
+                case 4: printf("\tWith assign(n, c).n");          break;
+                case 5: printf("\tWith assign<Iter>(f, l).\n");   break;
                 default: ASSERT(0);
             };
         }
@@ -3259,25 +3265,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (assignMethod) {
-                    case 0: {
-                                mX.assign(Y);
-                    } break;
-                    case 1: {
-                                mX.assign(Y, 0, LENGTH);
-                    } break;
-                    case 2: {
-                                mX.assign(Y.c_str(), LENGTH);
-                    } break;
-                    case 3: {
-                                mX.assign(Y.c_str());
-                    } break;
-                    case 4: {
-                                mX.assign(LENGTH, Y[0]);
-                    } break;
-                    case 5: {
-                                mX.assign(Y.begin(), Y.end());
-                    } break;
-                    default: ASSERT(0);
+                  case 0: mX.assign(Y);                   break;
+                  case 1: mX.assign(Y, 0, LENGTH);        break;
+                  case 2: mX.assign(Y.c_str(), LENGTH);   break;
+                  case 3: mX.assign(Y.c_str());           break;
+                  case 4: mX.assign(LENGTH, Y[0]);        break;
+                  case 5: mX.assign(Y.begin(), Y.end());  break;
+                  default: ASSERT(0);
                 };
             }
             catch (std::length_error& e) {
@@ -3298,8 +3292,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                     printf("\t\tCaught unknown exception.\n");
                 }
             }
-            LOOP2_ASSERT(limit, exceptionCaught,
-                         (limit <= LENGTH) == exceptionCaught);
+            ASSERTV(limit,
+                    exceptionCaught,
+                    (limit <= LENGTH) == exceptionCaught);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
@@ -3311,9 +3306,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (veryVerbose) {
             switch (operatorMethod) {
-                case 0: printf("\toperator+=(str).\n"); break;
-                case 1: printf("\toperator+=(C *s).\n"); break;
-                case 2: printf("\toperator+=(C c).\n"); break;
+                case 0: printf("\toperator+=(str).\n");   break;
+                case 1: printf("\toperator+=(C *s).\n");  break;
+                case 2: printf("\toperator+=(C c).\n");   break;
                 default: ASSERT(0);
             };
         }
@@ -3329,18 +3324,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (operatorMethod) {
-                    case 0: {
-                                mX += Y;
-                    } break;
-                    case 1: {
-                                mX += Y.c_str();
-                    } break;
-                    case 2: {
-                                for (size_t i = 0; i < Y.size(); ++i) {
-                                    mX += Y[i];
-                                }
-                    } break;
-                    default: ASSERT(0);
+                  case 0: {
+                    mX += Y;
+                  } break;
+                  case 1: {
+                    mX += Y.c_str();
+                  } break;
+                  case 2: {
+                    for (size_t i = 0; i < Y.size(); ++i) {
+                        mX += Y[i];
+                    }
+                  } break;
+                  default: ASSERT(0);
                 };
             }
             catch (std::length_error& e) {
@@ -3375,13 +3370,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (verbose) {
             switch (appendMethod) {
-                case 0: printf("\tWith append(str).\n");         break;
-                case 1: printf("\tWith append(str, pos, n).\n"); break;
-                case 2: printf("\tWith append(C *s, n).\n");     break;
-                case 3: printf("\tWith append(C *s).\n");        break;
-                case 4: printf("\tWith append(n, c).\n");        break;
-                case 5: printf("\tWith append<Iter>(f, l).\n");  break;
-                default: ASSERT(0);
+              case 0: printf("\tWith append(str).\n");         break;
+              case 1: printf("\tWith append(str, pos, n).\n"); break;
+              case 2: printf("\tWith append(C *s, n).\n");     break;
+              case 3: printf("\tWith append(C *s).\n");        break;
+              case 4: printf("\tWith append(n, c).\n");        break;
+              case 5: printf("\tWith append<Iter>(f, l).\n");  break;
+              default: ASSERT(0);
             };
         }
 
@@ -3396,25 +3391,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (appendMethod) {
-                    case 0: {
-                                mX.append(Y);
-                    } break;
-                    case 1: {
-                                mX.append(Y, 0, LENGTH);
-                    } break;
-                    case 2: {
-                                mX.append(Y.c_str(), LENGTH);
-                    } break;
-                    case 3: {
-                                mX.append(Y.c_str());
-                    } break;
-                    case 4: {
-                                mX.append(LENGTH, DEFAULT_VALUE);
-                    } break;
-                    case 5: {
-                                mX.append(Y.begin(), Y.end());
-                    } break;
-                    default: ASSERT(0);
+                  case 0: {
+                    mX.append(Y);
+                  } break;
+                  case 1: {
+                    mX.append(Y, 0, LENGTH);
+                  } break;
+                  case 2: {
+                    mX.append(Y.c_str(), LENGTH);
+                  } break;
+                  case 3: {
+                    mX.append(Y.c_str());
+                  } break;
+                  case 4: {
+                    mX.append(LENGTH, DEFAULT_VALUE);
+                  } break;
+                  case 5: {
+                    mX.append(Y.begin(), Y.end());
+                  } break;
+                  default: ASSERT(0);
                 };
             }
             catch (std::length_error& e) {
@@ -3436,8 +3431,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                     printf("\t\t\tCaught unknown exception.\n");
                 }
             }
-            LOOP2_ASSERT(limit, exceptionCaught,
-                         (limit <= LENGTH) == exceptionCaught);
+            ASSERTV(limit,
+                    exceptionCaught,
+                    (limit <= LENGTH) == exceptionCaught);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
@@ -3449,16 +3445,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (verbose) {
             switch (insertMethod) {
-                case 0: printf("\tWith push_back(c).\n");               break;
-                case 1: printf("\tWith insert(pos, str).\n");           break;
-                case 2: printf("\tWith insert(pos, str, pos2, n).\n");  break;
-                case 3: printf("\tWith insert(pos, C *s, n).\n");       break;
-                case 4: printf("\tWith insert(pos, C *s).\n");          break;
-                case 5: printf("\tWith insert(pos, n, C c).\n");        break;
-                case 6: printf("\tWith insert(p, C c).\n");             break;
-                case 7: printf("\tWith insert(p, n, C c).\n");          break;
-                case 8: printf("\tWith insert<Iter>(p, f, l).\n");      break;
-                default: ASSERT(0);
+              case 0: printf("\tWith push_back(c).\n");               break;
+              case 1: printf("\tWith insert(pos, str).\n");           break;
+              case 2: printf("\tWith insert(pos, str, pos2, n).\n");  break;
+              case 3: printf("\tWith insert(pos, C *s, n).\n");       break;
+              case 4: printf("\tWith insert(pos, C *s).\n");          break;
+              case 5: printf("\tWith insert(pos, n, C c).\n");        break;
+              case 6: printf("\tWith insert(p, C c).\n");             break;
+              case 7: printf("\tWith insert(p, n, C c).\n");          break;
+              case 8: printf("\tWith insert<Iter>(p, f, l).\n");      break;
+              default: ASSERT(0);
             };
         }
 
@@ -3473,38 +3469,38 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (insertMethod) {
-                    case 0: {
-                                for (size_t i = 0; i < LENGTH; ++i) {
-                                    mX.push_back(Y[i]);
-                                }
-                    } break;
-                    case 1: {
-                                mX.insert(0, Y);
-                    } break;
-                    case 2: {
-                                mX.insert(0, Y, 0, LENGTH);
-                    } break;
-                    case 3: {
-                                mX.insert(0, Y.c_str(), LENGTH);
-                    } break;
-                    case 4: {
-                                mX.insert(0, Y.c_str());
-                    } break;
-                    case 5: {
-                                mX.insert((size_t)0, LENGTH, DEFAULT_VALUE);
-                    } break;
-                    case 6: {
-                                for (size_t i = 0; i < LENGTH; ++i) {
-                                    mX.insert(mX.begin(), DEFAULT_VALUE);
-                                }
-                    } break;
-                    case 7: {
-                                mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
-                    } break;
-                    case 8: {
-                                mX.insert(mX.cbegin(), Y.begin(), Y.end());
-                    } break;
-                    default: ASSERT(0);
+                  case 0: {
+                    for (size_t i = 0; i < LENGTH; ++i) {
+                        mX.push_back(Y[i]);
+                    }
+                  } break;
+                  case 1: {
+                    mX.insert(0, Y);
+                  } break;
+                  case 2: {
+                    mX.insert(0, Y, 0, LENGTH);
+                  } break;
+                  case 3: {
+                    mX.insert(0, Y.c_str(), LENGTH);
+                  } break;
+                  case 4: {
+                    mX.insert(0, Y.c_str());
+                  } break;
+                  case 5: {
+                    mX.insert((size_t)0, LENGTH, DEFAULT_VALUE);
+                  } break;
+                  case 6: {
+                    for (size_t i = 0; i < LENGTH; ++i) {
+                        mX.insert(mX.begin(), DEFAULT_VALUE);
+                    }
+                  } break;
+                  case 7: {
+                    mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
+                  } break;
+                  case 8: {
+                    mX.insert(mX.cbegin(), Y.begin(), Y.end());
+                  } break;
+                  default: ASSERT(0);
                 };
             }
             catch (std::length_error& e) {
@@ -3526,8 +3522,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                     printf("\t\t\tCaught unknown exception.\n");
                 }
             }
-            LOOP2_ASSERT(limit, exceptionCaught,
-                         (limit <= LENGTH) == exceptionCaught);
+            ASSERTV(limit,
+                    exceptionCaught,
+                    (limit <= LENGTH) == exceptionCaught);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
@@ -3539,23 +3536,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (verbose) {
             switch (replaceMethod) {
-                case 1: printf("\tWith replace(pos1, n1, str).\n");
-                        break;
-                case 2: printf("\tWith replace(pos1, n1, str, pos2, n2).\n");
-                        break;
-                case 3: printf("\tWith replace(pos1, n1, C *s, n2).\n");
-                        break;
-                case 4: printf("\tWith replace(pos1, n1, C *s).\n");
-                        break;
-                case 5: printf("\tWith replace(pos1, n1, n2, C c).\n");
-                        break;
-                case 6: printf("\tWith replace(f, l, const C *s, n2).\n");
-                        break;
-                case 7: printf("\tWith replace(f, l, n, const C *s).\n");
-                        break;
-                case 8: printf("\treplace(f, l, n2, C c).\n");
-                        break;
-                default: ASSERT(0);
+              case 1: printf("\tWith replace(pos1, n1, str).\n");
+                      break;
+              case 2: printf("\tWith replace(pos1, n1, str, pos2, n2).\n");
+                      break;
+              case 3: printf("\tWith replace(pos1, n1, C *s, n2).\n");
+                      break;
+              case 4: printf("\tWith replace(pos1, n1, C *s).\n");
+                      break;
+              case 5: printf("\tWith replace(pos1, n1, n2, C c).\n");
+                      break;
+              case 6: printf("\tWith replace(f, l, const C *s, n2).\n");
+                      break;
+              case 7: printf("\tWith replace(f, l, n, const C *s).\n");
+                      break;
+              case 8: printf("\treplace(f, l, n2, C c).\n");
+                      break;
+              default: ASSERT(0);
             };
         }
 
@@ -3570,36 +3567,31 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (replaceMethod) {
-                    case 1: {
-                                mX.replace(0, 1, Y);
-                    } break;
-                    case 2: {
-                                mX.replace(0, 1, Y, 0, LENGTH);
-                    } break;
-                    case 3: {
-                                mX.replace(0, 1, Y.c_str(), LENGTH);
-                    } break;
-                    case 4: {
-                                mX.replace(0, 1, Y.c_str());
-                    } break;
-                    case 5: {
-                                mX.replace(0, 1, LENGTH, DEFAULT_VALUE);
-                    } break;
-                    case 6: {
-                                mX.replace(mX.begin(),
-                                           mX.end(),
-                                           Y.c_str(),
-                                           LENGTH);
-                    } break;
-                    case 7: {
-                                mX.replace(mX.begin(), mX.end(), Y.c_str());
-                    } break;
-                    case 8: {
-                                mX.replace(mX.begin(),
-                                           mX.end(),
-                                           LENGTH, DEFAULT_VALUE);
-                    } break;
-                    default: ASSERT(0);
+                  case 1: {
+                    mX.replace(0, 1, Y);
+                  } break;
+                  case 2: {
+                    mX.replace(0, 1, Y, 0, LENGTH);
+                  } break;
+                  case 3: {
+                    mX.replace(0, 1, Y.c_str(), LENGTH);
+                  } break;
+                  case 4: {
+                    mX.replace(0, 1, Y.c_str());
+                  } break;
+                  case 5: {
+                    mX.replace(0, 1, LENGTH, DEFAULT_VALUE);
+                  } break;
+                  case 6: {
+                    mX.replace(mX.begin(), mX.end(), Y.c_str(), LENGTH);
+                  } break;
+                  case 7: {
+                    mX.replace(mX.begin(), mX.end(), Y.c_str());
+                  } break;
+                  case 8: {
+                    mX.replace(mX.begin(), mX.end(), LENGTH, DEFAULT_VALUE);
+                  } break;
+                  default: ASSERT(0);
                 };
             } catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -3618,8 +3610,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                     printf("\t\tCaught unknown exception.\n");
                 }
             }
-            LOOP2_ASSERT(limit, exceptionCaught,
-                         (limit <= LENGTH) == exceptionCaught);
+            ASSERTV(limit,
+                    exceptionCaught,
+                    (limit <= LENGTH) == exceptionCaught);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
@@ -3632,7 +3625,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         const Obj X;
         expMaxSize = X.max_size();
     }
-    LOOP_ASSERT(EXP_MAX_SIZE, (size_t)-1 > EXP_MAX_SIZE);
+    ASSERTV(EXP_MAX_SIZE, (size_t)-1 > EXP_MAX_SIZE);
 
     if (EXP_MAX_SIZE >= (size_t)-2) {
         printf("\n\nERROR: Cannot continue this test case without attempting\n"
@@ -3691,10 +3684,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     {
         if (verbose) {
             switch (capacityMethod) {
-                case 0: printf("\tWith reserve(n).\n");        break;
-                case 1: printf("\tWith resize(n).\n");         break;
-                case 2: printf("\tWith resize(n, C c).\n");    break;
-                default: ASSERT(0);
+              case 0: printf("\tWith reserve(n).\n");        break;
+              case 1: printf("\tWith resize(n).\n");         break;
+              case 2: printf("\tWith resize(n, C c).\n");    break;
+              default: ASSERT(0);
             };
         }
 
@@ -3708,10 +3701,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 Obj mX;
 
                 switch (capacityMethod) {
-                    case 0:  mX.reserve(DATA[i]);                  break;
-                    case 1:  mX.resize(DATA[i]);                   break;
-                    case 2:  mX.resize(DATA[i], DEFAULT_VALUE);    break;
-                    default: ASSERT(0);
+                  case 0:  mX.reserve(DATA[i]);                  break;
+                  case 1:  mX.resize(DATA[i]);                   break;
+                  case 2:  mX.resize(DATA[i], DEFAULT_VALUE);    break;
+                  default: ASSERT(0);
                 };
             }
             catch (std::length_error& e) {
@@ -3746,8 +3739,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (verbose) {
             switch (appendMethod) {
-                case 4: printf("\tWith append(n, c).\n");        break;
-                default: ASSERT(0);
+              case 4: printf("\tWith append(n, c).\n");        break;
+              default: ASSERT(0);
             };
         }
 
@@ -3794,9 +3787,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (verbose) {
             switch (insertMethod) {
-                case 5: printf("\tWith insert(pos, n, C c).\n");        break;
-                case 7: printf("\tWith insert(p, n, C c).\n");          break;
-                default: ASSERT(0);
+              case 5: printf("\tWith insert(pos, n, C c).\n");        break;
+              case 7: printf("\tWith insert(p, n, C c).\n");          break;
+              default: ASSERT(0);
             };
         }
 
@@ -3811,13 +3804,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
                 const size_t LENGTH = DATA[i] - PADDING;
                 switch (insertMethod) {
-                    case 5: {
-                                mX.insert((size_t)0, LENGTH, DEFAULT_VALUE);
-                    } break;
-                    case 7: {
-                                mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
-                    } break;
-                    default: ASSERT(0);
+                  case 5: {
+                    mX.insert((size_t)0, LENGTH, DEFAULT_VALUE);
+                  } break;
+                  case 7: {
+                    mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
+                  } break;
+                  default: ASSERT(0);
                 };
             }
             catch (std::length_error& e) {
@@ -3852,11 +3845,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
         if (verbose) {
             switch (replaceMethod) {
-                case 5: printf("\tWith replace(pos1, n1, n2, C c).\n");
-                        break;
-                case 8: printf("\tWith replace(f, l, n2, C c).\n");
-                        break;
-                default: ASSERT(0);
+              case 5: printf("\tWith replace(pos1, n1, n2, C c).\n");  break;
+              case 8: printf("\tWith replace(f, l, n2, C c).\n");      break;
+              default: ASSERT(0);
             };
         }
 
@@ -3871,16 +3862,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 
                 const size_t LENGTH = DATA[i] - PADDING;
                 switch (replaceMethod) {
-                    case 5: {
-                                mX.replace(PADDING, PADDING,
-                                           LENGTH, DEFAULT_VALUE);
-                    } break;
-                    case 8: {
-                                mX.replace(mX.begin() + PADDING,
-                                           mX.begin() + 2 * PADDING,
-                                           LENGTH, DEFAULT_VALUE);
-                    } break;
-                    default: ASSERT(0);
+                  case 5: {
+                    mX.replace(PADDING, PADDING, LENGTH, DEFAULT_VALUE);
+                  } break;
+                  case 8: {
+                    mX.replace(mX.begin() + PADDING,
+                               mX.begin() + 2 * PADDING,
+                               LENGTH,
+                               DEFAULT_VALUE);
+                  } break;
+                  default: ASSERT(0);
                 };
             } catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -5306,7 +5297,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::
                 if (veryVerbose) { T_ P_(ISPEC) P_(JSPEC) P_(Y) P_(X) P(W) }
 
                 ASSERTV(ISPEC, JSPEC, Z, X, Z == X);
-                ASSERTV(ISPEC, JSPEC, W, Y, Y == Y);
+                ASSERTV(ISPEC, JSPEC, W, Y, W == Y);
 
                 if (member) {
                     mX.swap(mY);
@@ -5358,7 +5349,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase21_propagate_on_container_swap()
     //:   allocated from the other object's allocator.
     //
     // Plan:
-    //: 1 Specify a set S of object values with varied differences, ordered by
+    //: 1 Specify a set S of object values with distinct values, ordered by
     //:   increasing length, to be used in the following tests.
     //:
     //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
@@ -5368,11 +5359,11 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase21_propagate_on_container_swap()
     //:
     //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
     //:
-    //:   1 Initialize two objects from 'x', a control object 'ZZ' using a
+    //:   1 Initialize two objects from 'x', a control object 'Z' using a
     //:     scratch allocator and an object 'X' using one of the allocators
     //:     from P-2.
     //:
-    //:   2 Initialize two objects from 'y', a control object 'WW' using a
+    //:   2 Initialize two objects from 'y', a control object 'W' using a
     //:     scratch allocator and an object 'Y' using the other allocator from
     //:     P-2.
     //:
@@ -5402,6 +5393,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase21_propagate_on_container_swap()
     testCase21_propagate_on_container_swap_dispatch<true, false>();
     testCase21_propagate_on_container_swap_dispatch<true, true>();
 }
+
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
 {

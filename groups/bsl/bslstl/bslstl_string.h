@@ -1411,13 +1411,19 @@ class basic_string
         // default-constructed allocator is used.
 
     basic_string(const basic_string& original);
+        // Create a string that has the same value as the specified 'original'
+        // string.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // supply memory.
+
     basic_string(const basic_string& original,
                  const ALLOCATOR&    basicAllocator);
         // Create a string that has the same value as the specified 'original'
-        // string.  Optionally specify the 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is not specified, then a
-        // default-constructed allocator is used.  Note that it is important to
-        // have two copy constructors instead of a single:
+        // string and uses the specified 'basicAllocator' to supply memory.
+        //
+        // Note that it is important to have two copy constructors instead of a
+        // single:
         //..
         //  basic_string(const basic_string& original,
         //               const ALLOCATOR&    basicAllocator = ALLOCATOR());
@@ -1690,7 +1696,8 @@ class basic_string
     basic_string& assign(const basic_string& replacement);
         // Assign to this string the value of the specified 'replacement'
         // string, and return a reference providing modifiable access to this
-        // string.
+        // string.  Note that this method has exactly the same behaviour as
+        // corresponding 'operator='.
 
     basic_string& assign(
                       BloombergLP::bslmf::MovableRef<basic_string> replacement)
@@ -1698,8 +1705,8 @@ class basic_string
         // Assign to this string the value of the specified 'replacement'
         // string, and return a reference providing modifiable access to this
         // string.  'replacement' is left in a valid but unspecified state.
-        // If 'replacement' and 'this' allocators compare equal, then no
-        // allocation will occur.
+        // Note that this method has exactly the same behaviour as
+        // corresponding 'operator='.
 
     basic_string& assign(const basic_string& replacement,
                          size_type           position,
@@ -1727,6 +1734,8 @@ class basic_string
                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
         // Assign to this string the value of the specified 'strRef' string,
         // and return a reference providing modifiable access to this string.
+        // Note that this method has exactly the same behaviour as
+        // corresponding 'operator='.
 
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
@@ -3037,13 +3046,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
 
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
-
         this->d_length = 0;
         return privateAppendRaw(characterString, numChars);           // RETURN
-    }
-    else {
+    } else {
         // reallocation required, ensure strong exception-safety
-
         basic_string cpy(get_allocator());
         cpy.privateAppendRaw(characterString, numChars);
         cpy.swap(*this);
@@ -3061,13 +3067,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
 
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
-
         this->d_length = 0;
         return privateAppendRaw(numChars, character);                 // RETURN
-    }
-    else {
+    } else {
         // reallocation required, ensure strong exception-safety
-
         basic_string cpy(get_allocator());
         cpy.privateAppendRaw(numChars, character);
         cpy.swap(*this);
@@ -3142,8 +3145,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateClear(
     if (deallocateBufferFlag) {
         privateDeallocate();
         this->resetFields();
-    }
-    else {
+    } else {
         this->d_length = 0;
     }
 
@@ -3743,7 +3745,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                   const basic_string& original)
 : Imp(original)
-, ContainerBase(ALLOCATOR())
+, ContainerBase(AllocatorTraits::select_on_container_copy_construction(
+                                                     original.get_allocator()))
 {
     if (!this->isShortString()) {
         // Copy out-of-place string into either short buffer or new long
@@ -3793,10 +3796,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 {
     if (!this->isShortString()) {   // nothing to fix up if string is short
         basic_string& originalRef = MoveUtil::access(original);
+
         if (this->get_allocator() == originalRef.get_allocator()) {
             originalRef.resetFields();
-        }
-        else {
+        } else {
             privateCopyFromOutOfPlaceBuffer(originalRef);
         }
     }
@@ -3930,6 +3933,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
             basic_string other(rhs, rhs.get_allocator());
             quickSwapExchangeAllocators(other);
         } else {
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                                    rhs.size() > max_size())) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                  "string<...>::operator=(const string&...): string too long");
+            }
             privateAssign(rhs.data(), rhs.size());
         }
     }
@@ -3946,16 +3955,20 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
     basic_string& lvalue = rhs;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
-        if (get_allocator() == lvalue.get_allocator()) {
-            basic_string other(MoveUtil::move(lvalue));
-            quickSwapRetainAllocators(other);
-        }
-        else if (
-              AllocatorTraits::propagate_on_container_move_assignment::value) {
+        if (AllocatorTraits::propagate_on_container_move_assignment::value) {
             basic_string other(MoveUtil::move(lvalue));
             quickSwapExchangeAllocators(other);
-        }
-        else {
+        } else if (get_allocator() == lvalue.get_allocator()) {
+            basic_string other(MoveUtil::move(lvalue));
+            quickSwapRetainAllocators(other);
+        } else {
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                                 lvalue.size() > max_size())) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                       "string<...>::operator=(string&&...): string too long");
+            }
+
             privateAssign(lvalue.data(), lvalue.size());
         }
     }
@@ -3968,6 +3981,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                       const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs)
 {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+               static_cast<size_type>(rhs.end() - rhs.begin()) > max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+           "string<...>::operator=(const stringRefData&...): string too long");
+    }
+
     return privateAssign(rhs.begin(), rhs.end() - rhs.begin());
 }
 
@@ -4298,7 +4318,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                const basic_string& replacement)
 {
-    return assign(replacement, size_type(0), npos);
+    return this->operator=(replacement);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4309,13 +4329,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     basic_string& other = replacement;
-    if (get_allocator() == other.get_allocator()) {
-        basic_string temp(MoveUtil::move(other));
-        quickSwapRetainAllocators(temp);
-    } else {
-        privateAssign(other.data(), other.size());
-    }
-    return *this;
+    return this->operator=(MoveUtil::move(other));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4377,7 +4391,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
 {
-    return privateAssign(strRef.begin(), strRef.end() - strRef.begin());
+    return this->operator=(strRef);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4944,23 +4958,20 @@ void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+    if (AllocatorTraits::propagate_on_container_swap::value) {
+        quickSwapExchangeAllocators(other);
+    } else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    get_allocator() == other.get_allocator())) {
         quickSwapRetainAllocators(other);
     } else {
-        if (AllocatorTraits::propagate_on_container_swap::value) {
-            quickSwapExchangeAllocators(other);
-        }
-        else {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            basic_string toThisCopy(MoveUtil::move(other), get_allocator());
-            basic_string toOtherCopy(MoveUtil::move(*this),
-                                     other.get_allocator());
+        basic_string toThisCopy(MoveUtil::move(other), get_allocator());
+        basic_string toOtherCopy(MoveUtil::move(*this),
+                other.get_allocator());
 
-            this->quickSwapRetainAllocators(toThisCopy);
-            other.quickSwapRetainAllocators(toOtherCopy);
-        }
+        this->quickSwapRetainAllocators(toThisCopy);
+        other.quickSwapRetainAllocators(toOtherCopy);
     }
 }
 
