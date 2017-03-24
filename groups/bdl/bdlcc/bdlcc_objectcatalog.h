@@ -412,12 +412,10 @@ class ObjectCatalog {
 
     struct Node {
         union {
-            char                                d_value[sizeof(TYPE)];
+            bsls::ObjectBuffer<TYPE>            d_value;
 
             Node                               *d_next_p; // when free, pointer
                                                           // to next free node
-
-            bsls::AlignmentUtil::MaxAlignedType d_filler;
         };
         int  d_handle;
     };
@@ -636,7 +634,7 @@ TYPE *ObjectCatalog<TYPE>::getNodeValue(
 {
     BSLS_ASSERT_SAFE(node);
 
-    return reinterpret_cast<TYPE *>(node->d_value);
+    return node->d_value.address();
 }
 
 // PRIVATE MANIPULATORS
