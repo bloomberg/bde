@@ -11712,8 +11712,8 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
         RUN_EACH_TYPE(TestDriver,
                       testCase32a,
@@ -11730,8 +11730,8 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonDefaultConstructibleTestType,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
         RUN_EACH_TYPE(TestDriver,
                       testCase31a,
@@ -11830,8 +11830,8 @@ int main(int argc, char *argv[])
                       testCase24,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
         TestDriver<TestKeyType, TestValueType>::testCase24();
       } break;
@@ -11844,8 +11844,8 @@ int main(int argc, char *argv[])
                       testCase23,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::NonOptionalAllocTestType,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
         TestDriver<TestKeyType, TestValueType>::testCase23();
       } break;
@@ -12078,9 +12078,10 @@ int main(int argc, char *argv[])
         // 'bsl::map' calls the copy c'tor of 'KEY'.  So we can't swap a
         // container with a move-only 'KEY'.
 
-        MetaTestDriver<int, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase8();
+        MetaTestDriver<int,
+                    BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase8();
         MetaTestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                       BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase8();
+                    BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase8();
       } break;
       case 7: {
         // --------------------------------------------------------------------
