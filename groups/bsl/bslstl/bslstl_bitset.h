@@ -207,7 +207,7 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_LIMITS_H
 #include <limits.h>
-#define INCLUDED_CLIMITS
+#define INCLUDED_LIMITS_H
 #endif
 
 #ifndef INCLUDED_STRING_H
