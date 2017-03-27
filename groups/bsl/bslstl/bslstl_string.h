@@ -1533,14 +1533,14 @@ class basic_string
         // Assign to this string the value of the specified 'rhs' string,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_copy_assignment', and return
-        // a reference providing modifiable access to this object.
+        // a reference providing modifiable access to this string.
 
     basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this string the value of the specified 'rhs' string,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
-        // a reference providing modifiable access to this object.  The content
+        // a reference providing modifiable access to this string.  The content
         // of 'rhs' is moved (in constant time) to this string if
         // 'get_allocator() == rhs.get_allocator()' (after accounting for the
         // aforementioned trait).  'rhs' is left in a valid but unspecified
@@ -1550,16 +1550,16 @@ class basic_string
                      const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs);
         // Assign to this string the value of the specified 'rhs' string
         // reference, and return a reference providing modifiable access to
-        // this object.
+        // this string.
 
     basic_string& operator=(const CHAR_TYPE *rhs);
         // Assign to this string the value of the specified 'rhs' string, and
-        // return a reference providing modifiable access to this object.
+        // return a reference providing modifiable access to this string.
 
     basic_string& operator=(CHAR_TYPE character);
         // Assign to this string the value of the string of length one
         // consisting of the specified 'character', and return a reference
-        // providing modifiable access to this object.
+        // providing modifiable access to this string.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     basic_string& operator=(std::initializer_list<CHAR_TYPE> values);
@@ -1668,7 +1668,7 @@ class basic_string
                          size_type        numChars);
         // Append at the end of this string the specified 'numChars' characters
         // from the array starting at the specified 'characterString' address,
-        // and return a reference to this modifiable string.
+        // and return a reference providing modifiable access to this string.
 
     basic_string& append(const CHAR_TYPE *characterString);
         // Append the specified 'characterString' (of length
@@ -1695,18 +1695,25 @@ class basic_string
 
     basic_string& assign(const basic_string& replacement);
         // Assign to this string the value of the specified 'replacement'
-        // string, and return a reference providing modifiable access to this
-        // string.  Note that this method has exactly the same behaviour as
-        // corresponding 'operator='.
+        // string, propagate to this object the allocator of 'replacement' if
+        // the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_copy_assignment', and return a reference
+        // providing modifiable access to this string.  Note that this method
+        // has exactly the same behaviour as corresponding 'operator='.
 
     basic_string& assign(
                       BloombergLP::bslmf::MovableRef<basic_string> replacement)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this string the value of the specified 'replacement'
-        // string, and return a reference providing modifiable access to this
-        // string.  'replacement' is left in a valid but unspecified state.
-        // Note that this method has exactly the same behaviour as
-        // corresponding 'operator='.
+        // string, propagate to this object the allocator of 'replacement' if
+        // the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_move_assignment', and return a reference
+        // providing modifiable access to this string.  The content of
+        // 'replacement' is moved (in constant time) to this string if
+        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
+        // aforementioned trait).  'replacement' is left in a valid but
+        // unspecified state.  Note that this method has exactly the same
+        // behaviour as corresponding 'operator='.
 
     basic_string& assign(const basic_string& replacement,
                          size_type           position,
@@ -1732,10 +1739,10 @@ class basic_string
 
     basic_string& assign(
                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Assign to this string the value of the specified 'strRef' string,
-        // and return a reference providing modifiable access to this string.
-        // Note that this method has exactly the same behaviour as
-        // corresponding 'operator='.
+        // Assign to this string the value of the specified 'strRef' string
+        // reference, and return a reference providing modifiable access to
+        // this string.  Note that this method has exactly the same behaviour
+        // as corresponding 'operator='.
 
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
