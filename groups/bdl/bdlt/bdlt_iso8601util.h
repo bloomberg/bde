@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 // object, or the combined 'millisecond' and 'microsecond' attributes of a
 // 'bdlt::Datetime' object.  For example, the 'Time' value (and ISO 8601
 // string) '15:46:09.330000' has a 'millisecond' attribute value of 330 and a
-// 'microsecond' attribute of 0; i.e., a fractional second of .33.
+// 'microsecond' attribute of 0 (i.e., a fractional second of .33).
 //
 ///ISO 8601 String Generation
 ///--------------------------
