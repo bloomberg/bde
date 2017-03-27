@@ -610,7 +610,7 @@ class TestVisitor {
         // Store the specified 'v' of 'Datum::e_INTEGER64' type in 'd_type'.
 
     void operator()(double v);
-        // Store the specified 'v' of 'Datum::e_REAL' type in 'd_type'.
+        // Store the specified 'v' of 'Datum::e_DOUBLE' type in 'd_type'.
 
     void operator()(DatumError v);
         // Store the specified 'v' of 'Datum::e_ERROR' type in 'd_type'.
@@ -700,7 +700,7 @@ void TestVisitor::operator()(bsls::Types::Int64 v)
 void TestVisitor::operator()(double v)
 {
     (void) v;
-    d_type = Datum::e_REAL;
+    d_type = Datum::e_DOUBLE;
 }
 
 void TestVisitor::operator()(DatumError v)
@@ -1409,7 +1409,7 @@ void BenchmarkSuite::runVisit()
                       case Datum::e_INTEGER:
                         sum += iter->theInteger();
                         break;
-                      case Datum::e_REAL:
+                      case Datum::e_DOUBLE:
                         sum += iter->theDouble();
                         break;
                       case Datum::e_STRING:
@@ -2078,7 +2078,7 @@ int main(int argc, char *argv[])
             // ----  ---------------------------  -------------------
             {  L_,   Datum::e_NIL,                "NIL"               },
             {  L_,   Datum::e_INTEGER,            "INTEGER"           },
-            {  L_,   Datum::e_REAL,               "REAL"              },
+            {  L_,   Datum::e_DOUBLE,             "DOUBLE"            },
             {  L_,   Datum::e_STRING,             "STRING"            },
             {  L_,   Datum::e_BOOLEAN,            "BOOLEAN"           },
             {  L_,   Datum::e_ERROR,              "ERROR"             },
@@ -2200,7 +2200,7 @@ int main(int argc, char *argv[])
             // ----  ---------------------------  -------------------
             {  L_,   Datum::e_NIL,                "NIL"               },
             {  L_,   Datum::e_INTEGER,            "INTEGER"           },
-            {  L_,   Datum::e_REAL,               "REAL"              },
+            {  L_,   Datum::e_DOUBLE,             "DOUBLE"            },
             {  L_,   Datum::e_STRING,             "STRING"            },
             {  L_,   Datum::e_BOOLEAN,            "BOOLEAN"           },
             {  L_,   Datum::e_ERROR,              "ERROR"             },
@@ -4046,9 +4046,9 @@ int main(int argc, char *argv[])
                                                    Datum::e_DECIMAL64        },
 { L_,  Datum::createDecimal64(k_DECIMAL64_QNAN, &oa),
                                                    Datum::e_DECIMAL64        },
-{ L_,  Datum::createDouble(0.0),                   Datum::e_REAL             },
-{ L_,  Datum::createDouble(k_DOUBLE_INFINITY),     Datum::e_REAL             },
-{ L_,  Datum::createDouble(k_DOUBLE_SNAN),         Datum::e_REAL             },
+{ L_,  Datum::createDouble(0.0),                   Datum::e_DOUBLE           },
+{ L_,  Datum::createDouble(k_DOUBLE_INFINITY),     Datum::e_DOUBLE           },
+{ L_,  Datum::createDouble(k_DOUBLE_SNAN),         Datum::e_DOUBLE           },
 { L_,  Datum::createError(5),                      Datum::e_ERROR            },
 { L_,  Datum::createError(5, "error", &oa),        Datum::e_ERROR            },
 { L_,  Datum::createInteger(18),                   Datum::e_INTEGER          },
@@ -4270,9 +4270,9 @@ int main(int argc, char *argv[])
                                                   Datum::e_DECIMAL64         },
 { L_,  Datum::createDecimal64(k_DECIMAL64_QNAN, &oa),
                                                   Datum::e_DECIMAL64         },
-{ L_,  Datum::createDouble(0.0),                  Datum::e_REAL              },
-{ L_,  Datum::createDouble(k_DOUBLE_INFINITY),    Datum::e_REAL              },
-{ L_,  Datum::createDouble(k_DOUBLE_SNAN),        Datum::e_REAL              },
+{ L_,  Datum::createDouble(0.0),                  Datum::e_DOUBLE            },
+{ L_,  Datum::createDouble(k_DOUBLE_INFINITY),    Datum::e_DOUBLE            },
+{ L_,  Datum::createDouble(k_DOUBLE_SNAN),        Datum::e_DOUBLE            },
 { L_,  Datum::createError(5),                     Datum::e_ERROR             },
 { L_,  Datum::createError(5, "error", &oa),       Datum::e_ERROR             },
 { L_,  Datum::createInteger(18),                  Datum::e_INTEGER           },
