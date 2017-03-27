@@ -125,6 +125,12 @@ BSLS_IDENT("$Id: $")
 // between 'bdlt::Date' classes built to use the POSIX calendar and those built
 // to use the proleptic Gregorian calendar.
 //
+///ISO Standard Text Representation
+///--------------------------------
+// A common standard text representation of a date and time value is described
+// by ISO 8601.  BDE provides the 'bdlt_iso8601util' component for conversion
+// to and from the standard ISO8601 format.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

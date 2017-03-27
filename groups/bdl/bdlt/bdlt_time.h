@@ -28,6 +28,12 @@ BSLS_IDENT("$Id: $")
 // 23:59:59.999 - 00:00:00.000 boundary was crossed in performing the
 // addition.
 //
+///ISO Standard Text Representation
+///--------------------------------
+// A common standard text representation of a date and time value is described
+// by ISO 8601.  BDE provides the 'bdlt_iso8601util' component for conversion
+// to and from the standard ISO8601 format.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
