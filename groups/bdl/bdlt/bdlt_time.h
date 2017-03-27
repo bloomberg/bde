@@ -225,8 +225,9 @@ class Time {
         // return 'd_value'.  Otherwise, return the representation of the time
         // corresponding to 'd_value' total milliseconds since 00:00:00.000000
         // (i.e., convert from the old representation scheme to the current
-        // scheme), or '24:00:00.000000' if 'd_value' is the old representation
-        // of the default-constructed value.
+        // scheme), or return the current representation of 24:00:00.000000 if
+        // 'd_value' is the old representation of the default-constructed
+        // value.
 
   public:
     // CLASS METHODS

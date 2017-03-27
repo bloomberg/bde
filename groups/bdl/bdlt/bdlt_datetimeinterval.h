@@ -221,8 +221,8 @@ class DatetimeInterval {
         // unless the total number of days, after converting to the canonical
         // representation, can be represented as a signed 32-bit integer.  The
         // canonical representation requires 'microseconds' to have a magnitude
-        // of less than one day, and 'days' and 'microseconds' components to
-        // be either both non-negative or both non-positive.
+        // of less than one day, and 'days' and 'microseconds' to be either
+        // both non-negative or both non-positive.
 
   public:
     // PUBLIC CLASS DATA

@@ -23,8 +23,8 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 // representation to the new microsecond representation.
 //
 // The value of 'k_REP_MASK' was chosen to avoid the low-order 37 bits needed
-// for the time value, and to leave the high-order 16 bits empty in case storing
-// a time value in 6 bytes is valuable (e.g., 'bdld::Datum').
+// for the time value, and to leave the high-order 16 bits empty in case
+// storing a time value in 6 bytes is valuable (e.g., 'bdld::Datum').
 
 namespace BloombergLP {
 namespace bdlt {
