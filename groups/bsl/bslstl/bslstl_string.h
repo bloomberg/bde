@@ -3053,10 +3053,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
 
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
+
         this->d_length = 0;
         return privateAppendRaw(characterString, numChars);           // RETURN
-    } else {
+    }
+    else {
         // reallocation required, ensure strong exception-safety
+
         basic_string cpy(get_allocator());
         cpy.privateAppendRaw(characterString, numChars);
         cpy.swap(*this);
@@ -3074,10 +3077,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
 
     if (numChars <= capacity()) {
         // no reallocation required, perform assignment in-place
+
         this->d_length = 0;
         return privateAppendRaw(numChars, character);                 // RETURN
-    } else {
+    }
+    else {
         // reallocation required, ensure strong exception-safety
+
         basic_string cpy(get_allocator());
         cpy.privateAppendRaw(numChars, character);
         cpy.swap(*this);
@@ -3152,7 +3158,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateClear(
     if (deallocateBufferFlag) {
         privateDeallocate();
         this->resetFields();
-    } else {
+    }
+    else {
         this->d_length = 0;
     }
 
@@ -3806,7 +3813,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 
         if (this->get_allocator() == originalRef.get_allocator()) {
             originalRef.resetFields();
-        } else {
+        }
+        else {
             privateCopyFromOutOfPlaceBuffer(originalRef);
         }
     }
@@ -3939,7 +3947,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
         if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             basic_string other(rhs, rhs.get_allocator());
             quickSwapExchangeAllocators(other);
-        } else {
+        }
+        else {
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                                     rhs.size() > max_size())) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3965,10 +3974,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
         if (AllocatorTraits::propagate_on_container_move_assignment::value) {
             basic_string other(MoveUtil::move(lvalue));
             quickSwapExchangeAllocators(other);
-        } else if (get_allocator() == lvalue.get_allocator()) {
+        }
+        else if (get_allocator() == lvalue.get_allocator()) {
             basic_string other(MoveUtil::move(lvalue));
             quickSwapRetainAllocators(other);
-        } else {
+        }
+        else {
             if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                                  lvalue.size() > max_size())) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4967,10 +4978,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);
-    } else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+    }
+    else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                    get_allocator() == other.get_allocator())) {
         quickSwapRetainAllocators(other);
-    } else {
+    }
+    else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
         basic_string toThisCopy(MoveUtil::move(other), get_allocator());

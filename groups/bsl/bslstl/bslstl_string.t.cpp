@@ -2090,7 +2090,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             if (Obj().capacity() < LIST.size()) {
                 ASSERT(oam.isTotalUp());
-            } else {
+            }
+            else {
                 ASSERT(oam.isTotalSame());
             }
         }
@@ -2143,7 +2144,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             if (Obj().capacity() < LIST.size()) {
                 ASSERT(dam.isTotalUp());
-            } else {
+            }
+            else {
                 ASSERT(dam.isTotalSame());
             }
         }
@@ -2187,7 +2189,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
                 if (allocationExpected) {
                     ASSERT(oem.isTotalUp());
-                } else {
+                }
+                else {
                     ASSERT(oem.isTotalSame());
                 }
 
@@ -2270,7 +2273,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             if (capacity < LIST.size()) {
                 ASSERT(oam.isTotalUp());
-            } else {
+            }
+            else {
                 ASSERT(oam.isTotalSame());
             }
         }
@@ -2346,7 +2350,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
                     if (allocationExpected) {
                         ASSERT(oem.isTotalUp());
-                    } else {
+                    }
+                    else {
                         ASSERT(oem.isTotalSame());
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -2470,7 +2475,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 
             if (expectAllocation) {
                 ASSERT(oam.isTotalUp());
-            } else {
+            }
+            else {
                 ASSERT(oam.isTotalSame());
             }
         }
@@ -4810,7 +4816,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 LOOP2_ASSERT(LINE, SPEC, LENGTH - 1 == X.find_last_not_of(Z));
                 LOOP2_ASSERT(LINE, SPEC, LENGTH - 1 == X.find_last_not_of(
                                                                    Z.c_str()));
-            } else {
+            }
+            else {
                 LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_not_of(Z));
                 LOOP2_ASSERT(LINE, SPEC, npos == X.find_first_not_of(
                                                                    Z.c_str()));
@@ -5301,7 +5308,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::
 
                 if (member) {
                     mX.swap(mY);
-                } else {
+                }
+                else {
                     swap(mX, mY);
                 }
 
@@ -5311,7 +5319,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::
                 if (PROPAGATE) {
                     ASSERTV(ISPEC, JSPEC, PROPAGATE, mas == X.get_allocator());
                     ASSERTV(ISPEC, JSPEC, PROPAGATE, mat == Y.get_allocator());
-                } else {
+                }
+                else {
                     ASSERTV(ISPEC, JSPEC, PROPAGATE, mat == X.get_allocator());
                     ASSERTV(ISPEC, JSPEC, PROPAGATE, mas == Y.get_allocator());
                 }
@@ -11027,13 +11036,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                                      BB + 0 == AA);
                         LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE,
                                      B  + 0 ==  A);
-                    } else {
+                    }
+                    else {
                         LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE,
                                      BB + 1 == AA);
                         if (!reAlloc) {
                             LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE,
                                          B  + 1 ==  A);
-                        } else {
+                        }
+                        else {
                             LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE,
                                          B + 0 == A);
                         }
@@ -12197,7 +12208,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                             LOOP2_ASSERT(LINE, ti, 1 == X.size());
                             LOOP2_ASSERT(LINE, ti, 1 <= X.capacity());
                             LOOP2_ASSERT(LINE, ti, Y[POS] == X[0]);
-                        } else {
+                        }
+                        else {
                             LOOP2_ASSERT(LINE, ti, 0 == X.size());
                             LOOP2_ASSERT(LINE, ti, TYPE() == X[0]);
                         }
@@ -12594,7 +12606,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
                 if (INPUT_ITERATOR_TAG) {
                     LOOP2_ASSERT(LINE, ti, BB + 1 <= AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
-                } else {
+                }
+                else {
                     LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
                 }
@@ -12771,7 +12784,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::
 
                 if (PROPAGATE) {
                     ASSERTV(ISPEC, JSPEC, 0 == oat.numBlocksInUse());
-                } else {
+                }
+                else {
                     ASSERTV(ISPEC, JSPEC, oasm.isInUseSame());
                 }
             }
@@ -12933,7 +12947,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::
 
                 if (PROPAGATE) {
                     ASSERTV(ISPEC, JSPEC, 0 == oat.numBlocksInUse());
-                } else {
+                }
+                else {
                     ASSERTV(ISPEC, JSPEC, oasm.isInUseSame());
                 }
             }
@@ -14425,7 +14440,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                                 LOOP3_ASSERT(SPEC, N, i, CC + 1 == DD);
                                 LOOP3_ASSERT(SPEC, N, i,  C + 0  == D);
                             }
-                        } else {
+                        }
+                        else {
                             LOOP3_ASSERT(SPEC, N, i, CC + 0 == DD);
                             LOOP3_ASSERT(SPEC, N, i,  C + 0 ==  D);
                         }
@@ -14469,7 +14485,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
 
                     if (initCap < LENGTH) {
                         LOOP2_ASSERT(SPEC, N, BB + 1 == AA);
-                    } else {
+                    }
+                    else {
                         LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
                     }
                     LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
@@ -14662,7 +14679,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     // check that 'X' is unchanged.
                     if (XAllocated) {
                         LOOP2_ASSERT(SPEC, N, X.empty());
-                    } else {
+                    }
+                    else {
                         LOOP2_ASSERT(SPEC, N, X == W);
                     }
 
@@ -14718,7 +14736,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     if (!isShort) {
                         LOOP2_ASSERT(SPEC, N,  A == B  + 1);
                         LOOP2_ASSERT(SPEC, N, AA == BB + 1);
-                    } else {
+                    }
+                    else {
                         LOOP2_ASSERT(SPEC, N,  A == B);
                         LOOP2_ASSERT(SPEC, N, AA == BB);
                     }
@@ -14928,7 +14947,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                         else if (oldCap < Y11.capacity()) {
                             LOOP3_ASSERT(SPEC, N, i, CC + 1 == DD);
                             LOOP3_ASSERT(SPEC, N, i,  C + 0  == D);
-                        } else {
+                        }
+                        else {
                             LOOP3_ASSERT(SPEC, N, i, CC + 0 == DD);
                             LOOP3_ASSERT(SPEC, N, i,  C + 0 ==  D);
                         }
@@ -14982,7 +15002,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                     LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
                     if (XAllocated) {
                         LOOP2_ASSERT(SPEC, N,  B - 1 ==  A);
-                    } else {
+                    }
+                    else {
                         LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
                     }
 
@@ -15025,7 +15046,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
 
                     if (isShort) {
                         LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
-                    } else {
+                    }
+                    else {
                         LOOP2_ASSERT(SPEC, N, BB + 1 == AA);
                     }
                     LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
