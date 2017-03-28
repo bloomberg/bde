@@ -1275,6 +1275,11 @@ bool u::AddressRange::overlaps(const AddressRange& other) const
            : other.d_address + other.d_size > d_address;
 }
 
+                                // =========
+                                // FreeGuard
+                                // =========
+
+
 class FreeGuard {
     // This 'class' will manage a buffer, which was allocated by 'malloc' and
     // is returned by '__cxa_demangle'.
@@ -1475,7 +1480,8 @@ struct u::StackTraceResolver::HiddenRec {
     u::UintPtr      d_adjustment;       // adjustment between addresses
                                         // expressed in object file and actual
                                         // addresses in memory for current
-                                        // segment
+                                        // segment.  This value is added to
+                                        // address read from the object file.
 
     u::Offset       d_symTableOffset;   // symbol table section (symbol table
     u::Offset       d_symTableSize;     // does not contain symbol names, just
@@ -2963,26 +2969,27 @@ u::StackTraceResolver::~StackTraceResolverImpl()
 // PRIVATE MANIPULATORS
 int u::StackTraceResolver::loadSymbols(int matched)
 {
+    enum { k_SYM_SIZE = sizeof(u::ElfSymbol) };
+
     char *symbolBuf = d_scratchBufA_p;
     char *stringBuf = d_scratchBufB_p;
 
-    const int      symSize = static_cast<int>(sizeof(u::ElfSymbol));
-    const u::Offset maxSymbolsPerPass = u::k_SCRATCH_BUF_LEN / symSize;
-    const u::Offset numSyms = d_hidden.d_symTableSize / symSize;
+    const int       maxSymbolsPerPass = u::k_SCRATCH_BUF_LEN / k_SYM_SIZE;
+    const u::Offset numSyms = d_hidden.d_symTableSize / k_SYM_SIZE;
     u::Offset       sourceFileNameOffset = u::maxOffset;
 
-    u::UintPtr      numSymsThisTime;
+    unsigned       numSymsThisTime;
     for (u::Offset symIndex = 0; symIndex < numSyms;
                                                  symIndex += numSymsThisTime) {
-        numSymsThisTime = static_cast<u::UintPtr>(
-                              bsl::min(numSyms - symIndex, maxSymbolsPerPass));
+        numSymsThisTime = static_cast<unsigned>(
+                      bsl::min<Offset>(numSyms - symIndex, maxSymbolsPerPass));
 
         const u::Offset offsetToRead = d_hidden.d_symTableOffset +
-                                                            symIndex * symSize;
+                                                         symIndex * k_SYM_SIZE;
         int          rc = d_hidden.d_helper_p->readExact(
-                                                     symbolBuf,
-                                                     numSymsThisTime * symSize,
-                                                     offsetToRead);
+                                                  symbolBuf,
+                                                  numSymsThisTime * k_SYM_SIZE,
+                                                  offsetToRead);
         if (rc) {
             u_eprintf(
                      "failed to read %lu symbols from offset %llu, errno %d\n",
@@ -3287,9 +3294,9 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // Possible speedup: read all the section headers at once instead of one at
     // a time.
 
-    int     numSections = elfHeader.e_shnum;
+    int        numSections = elfHeader.e_shnum;
     u::UintPtr sectionHeaderSize = elfHeader.e_shentsize;
-    u::UintPtr sectionHeaderOffset = elfHeader.e_shoff;
+    u::Offset  sectionHeaderOffset = elfHeader.e_shoff;
     if (u::k_SCRATCH_BUF_LEN < sectionHeaderSize) {
         return -1;                                                    // RETURN
     }
@@ -3298,8 +3305,8 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
     // read the string table that is used for section names
 
-    int     stringSectionIndex = elfHeader.e_shstrndx;
-    u::UintPtr stringSectionHeaderOffset =
+    int       stringSectionIndex = elfHeader.e_shstrndx;
+    u::Offset stringSectionHeaderOffset =
                   sectionHeaderOffset + stringSectionIndex * sectionHeaderSize;
     if (0 != d_hidden.d_helper_p->readExact(sec,
                                             sectionHeaderSize,

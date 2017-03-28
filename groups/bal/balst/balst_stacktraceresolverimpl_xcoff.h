@@ -74,6 +74,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_heapbypassallocator.h>
 #endif
 
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#include <bdls_filesystemutil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -133,6 +137,10 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
                                           // unsigned on 64 bit, usually used
                                           // for absolute offsets into a file
 
+    typedef bdls::FilesystemUtil::Offset
+                                 Offset;  // Usually used for relative offsets
+                                          // into a file.
+
     // CONSTANTS
     enum FindIncludeFileFlags {
         // flags returned by 'findIncludeFile'
@@ -153,8 +161,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
                                               // the other fields.  Held, not
                                               // owned.
 
-    StackTraceFrame
-                         **d_segFramePtrs_p;  // pointers to stack trace frames
+    StackTraceFrame      **d_segFramePtrs_p;  // pointers to stack trace frames
                                               // contained in 'd_stackTrace_p'
                                               // listing only those frames
                                               // whose 'address' fields point
@@ -187,27 +194,27 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
 
     char                  *d_symbolBuf_p;     // buffer for reading symbols
 
-    bsls::Types::IntPtr    d_virtualToPhysicalOffset;
+    Offset                 d_virtualToPhysicalOffset;
                                               // translation from an address
                                               // given in the file to an
                                               // address in memory for the
                                               // current segment
 
-    UintPtr                d_archiveMemberOffset;
+    Offset                 d_archiveMemberOffset;
                                               // archive member offset, or 0 if
                                               // the segment is not an archive
                                               // member
 
-    UintPtr                d_archiveMemberSize;
+    Offset                 d_archiveMemberSize;
                                               // archive member size, or size
                                               // of the whole file if the
                                               // segment is not an archive
                                               // member
 
-    UintPtr                d_symTableOffset;  // absolute offset of symbol
+    Offset                 d_symTableOffset;  // absolute offset of symbol
                                               // table in the current file
 
-    UintPtr                d_stringTableOffset;
+    Offset                 d_stringTableOffset;
                                               // absolute offset of string
                                               // table in the current file
 
@@ -220,7 +227,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
                                               // object will be freed when this
                                               // allocator is destroyed.
 
-    static bslmt::QLock     s_demangleQLock;   // 'QLock' to guard access to
+    static bslmt::QLock     s_demangleQLock;  // 'QLock' to guard access to
                                               // the non-thread-safe 'Demangle'
                                               // function.
 

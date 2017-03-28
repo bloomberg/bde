@@ -581,6 +581,7 @@ typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
                                                             StackTraceResolver;
 
 typedef bsls::Types::UintPtr UintPtr;
+typedef bsls::Types::Uint64  Uint64;
 
 }  // close namespace local
 
@@ -588,13 +589,13 @@ typedef bsls::Types::UintPtr UintPtr;
 
 template <typename TYPE>
 inline static
-local::UintPtr parseNumber(const TYPE& text)
+local::Uint64 parseNumber(const TYPE& text)
     // Parse the specified 'text' object as a char representation of a decimal
     // number and return that number, stopping at the first character which is
     // not a decimal digit, or at the end 'text'.  Return the number.  The
     // behavior is undefined unless the number fits into an UintPtr value.
 {
-    local::UintPtr result = 0;
+    local::Uint64 result = 0;
     const char *p = (const char *) &text;
     const char *end = (const char *) &text + sizeof(text);
     for (; p < end && '0' <= *p && *p <= '9'; ++p) {
@@ -657,19 +658,19 @@ struct local::StackTraceResolver::AuxInfo {
     AUXENT  d_sourceAuxEnt;        // if the means of obtaining the source file
                                    // is not in d_sourceSymEnt, it is here
 
-    UintPtr d_includesStartIndex;  // start of range of symbol table
+    Offset  d_includesStartIndex;  // start of range of symbol table
                                    // entries corresponding to include
                                    // files
 
-    UintPtr d_includesEndIndex;    // end of above
+    Offset  d_includesEndIndex;    // end of above
 
-    UintPtr d_functionStartIndex;  // start of range of indexes for
+    Offset  d_functionStartIndex;  // start of range of indexes for
                                    // function we are looking up
 
-    UintPtr d_functionEndIndex;    // end of range of indexes for
+    Offset  d_functionEndIndex;    // end of range of indexes for
                                    // function we are looking up
 
-    UintPtr d_lineNumberOffset;    // offset into line number table
+    Offset  d_lineNumberOffset;    // offset into line number table
                                    // corresponding to this symbol
 
     int     d_lineNumberBase;      // amount to adust the line number if
@@ -693,15 +694,15 @@ struct local::StackTraceResolver::LoadAuxInfosInfo {
     // pointers only have to be initialized once per call to 'loadSymbols',
     // which is called once per call to 'resolveSegment'.
 
-    UintPtr  *d_symIndex;            // pointer to 'symIndex'
-    UintPtr  *d_funcEndIndex;        // pointer to 'funcEndIndex'
-    UintPtr  *d_lineNumberOffset;    // pointer to 'lineNumberOffset'
-    UintPtr  *d_sourceEndIndex;      // pointer to 'sourceEndIndex'
-    SYMENT  **d_symEnt;              // pointer to 'symEnt'
-    UintPtr  *d_includesStartIndex;  // pointer to 'includesStartIndex'
-    UintPtr  *d_includesEndIndex;    // pointer to 'includesEndIndex'
-    SYMENT   *d_savedSourceSymEnt;   // pointer to 'savedSourceSymEnt'
-    AUXENT   *d_savedSourceAuxEnt;   // pointer to 'savedSourceAuxEnt'
+    Offset  *d_symIndex;            // pointer to 'symIndex'
+    Offset  *d_funcEndIndex;        // pointer to 'funcEndIndex'
+    Offset  *d_lineNumberOffset;    // pointer to 'lineNumberOffset'
+    Offset  *d_sourceEndIndex;      // pointer to 'sourceEndIndex'
+    SYMENT **d_symEnt;              // pointer to 'symEnt'
+    Offset  *d_includesStartIndex;  // pointer to 'includesStartIndex'
+    Offset  *d_includesEndIndex;    // pointer to 'includesEndIndex'
+    SYMENT  *d_savedSourceSymEnt;   // pointer to 'savedSourceSymEnt'
+    AUXENT  *d_savedSourceAuxEnt;   // pointer to 'savedSourceAuxEnt'
 };
 
      // -------------------------------------------------------------------
@@ -767,9 +768,9 @@ int local::StackTraceResolver::findArchiveMember(const char *memberName)
 
     // all integer fields in the archive are represented as text
 
-    UintPtr firstMemberOffset = parseNumber(archiveHeader.fl_fstmoff);
-    UintPtr lastMemberOffset  = parseNumber(archiveHeader.fl_lstmoff);
-    UintPtr curOffset         = firstMemberOffset;
+    Offset firstMemberOffset = parseNumber(archiveHeader.fl_fstmoff);
+    Offset lastMemberOffset  = parseNumber(archiveHeader.fl_lstmoff);
+    Offset curOffset         = firstMemberOffset;
 
     // traverse the linked list of archive members
 
@@ -781,14 +782,14 @@ int local::StackTraceResolver::findArchiveMember(const char *memberName)
         if (d_helper->readExact(&memberHeader, sizeof(ar_hdr), curOffset)) {
             return -1;                                                // RETURN
         }
-        bsls::Types::IntPtr nameLength = parseNumber(memberHeader.ar_namlen);
+        Offset nameLength = parseNumber(memberHeader.ar_namlen);
         if (nameLength >= local::SCRATCH_BUF_LEN) {
             return -1;                                                // RETURN
         }
 
         // now read the member name into scratch buffer
 
-        UintPtr nameOffset =
+        Offset nameOffset =
               (char *) &memberHeader._ar_name.ar_name - (char *) &memberHeader;
         if (d_helper->readExact(d_scratchBuf_p,
                                 nameLength,
@@ -1158,33 +1159,33 @@ int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
     SYMENT savedSymEnt;               // place to save SYMENT in case we go on
                                       // to the next buffer
 
-    UintPtr primarySymIndex;          // index of the current SYMENT
+    Offset  primarySymIndex;          // index of the current SYMENT
 
     int numAux = 0;                   // number of remaining AUXENTs for
                                       // current SYMENT.  If 0 we're reading
                                       // the primary symbol, otherwise we're
                                       // reading an auxiliary symbol.
 
-    UintPtr csectIndex = -1;          // index of the current csect of interest
+    Offset csectIndex = -1;           // index of the current csect of interest
                                       // (if some of our addresses reside in
                                       // the csect), or -1
 
     const char *csectEndAddress = 0;  // end address of the csect above in
                                       // memory
 
-    UintPtr funcEndIndex = 0;         // end index of the current function,
+    Offset funcEndIndex = 0;          // end index of the current function,
                                       // from the function AUXENT
 
-    UintPtr lineNumberOffset = 0;     // the offset in the file where we are to
+    Offset lineNumberOffset = 0;      // the offset in the file where we are to
                                       // start looking for the line number
                                       // information
 
-    UintPtr sourceEndIndex = 0;       // index in symbol table where current
+    Offset sourceEndIndex = 0;        // index in symbol table where current
                                       // source file ends and next source file
                                       // starts
 
-    UintPtr includesStartIndex;
-    UintPtr includesEndIndex;         // indexes in symbol of range of entries
+    Offset includesStartIndex;
+    Offset includesEndIndex;          // indexes in symbol of range of entries
                                       // describing include files, gradually
                                       // populated when we encounter
                                       // sourcefile.
@@ -1193,7 +1194,7 @@ int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
 
     AUXENT savedSourceAuxEnt;         // place to save AUXENT of source file
 
-    UintPtr symIndex = 0;             // index of the current SYMENT or AUXENT
+    Offset symIndex = 0;              // index of the current SYMENT or AUXENT
 
     enum { NUM_TOTAL_SYMS = local::SYMBOL_BUF_LEN / SYMESZ };
                                       // number of SYMENT's / AUXENT's that
@@ -1212,12 +1213,12 @@ int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
     };
 
     while (numSyms > symIndex) {
-        const UintPtr numSymsToRead =
-                        bsl::min(numSyms - symIndex, (UintPtr) NUM_TOTAL_SYMS);
+        const Offset numSymsToRead =
+                 bsl::min<Offset>(numSyms - symIndex, (Offset) NUM_TOTAL_SYMS);
 
-        const UintPtr symBufStartIndex = symIndex;
+        const Offset symBufStartIndex = symIndex;
 
-        const UintPtr symBufStartOffset = d_symTableOffset + SYMESZ * symIndex;
+        const Offset symBufStartOffset = d_symTableOffset + SYMESZ * symIndex;
         if (d_helper->readExact(d_symbolBuf_p,
                                 numSymsToRead * SYMESZ,
                                 symBufStartOffset)) {
@@ -1226,7 +1227,7 @@ int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
             return -1;                                                // RETURN
         }
 
-        const UintPtr symBufEndIndex = symIndex + numSymsToRead;
+        const Offset symBufEndIndex = symIndex + numSymsToRead;
             // last index we're processing
 
         zprintf("Parsing [%lu, %lu)\n", symIndex, symBufEndIndex);
@@ -1332,15 +1333,15 @@ int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
                                 // union in order to give it
                                 // context-appropriate names
 
-                                UintPtr d_scnLen;               // assign to
+                                Offset d_scnLen;                // assign to
                                                                 // this
 
-                                UintPtr d_sdEndFunctionOffset;  // bytes of
+                                Offset d_sdEndFunctionOffset;   // bytes of
                                                                 // code in the
                                                                 // current
                                                                 // function
 
-                                UintPtr d_ldCsectIndex;         // index of the
+                                Offset d_ldCsectIndex;          // index of the
                                                                 // current
                                                                 // csect at
                                                                 // time of
@@ -1348,7 +1349,7 @@ int local::StackTraceResolver::loadSymbols(UintPtr numSyms,
                             } u;
 #ifdef __XCOFF64__
                             u.d_scnLen =
-                                    (UintPtr) auxEnt->x_csect.x_scnlen_hi << 32
+                                    (Offset) auxEnt->x_csect.x_scnlen_hi << 32
                                                  | auxEnt->x_csect.x_scnlen_lo;
 #else
                             u.d_scnLen = auxEnt->x_csect.x_scnlen;
@@ -1450,8 +1451,8 @@ const char *local::StackTraceResolver::getSourceName(
                                   local::SCRATCH_BUF_LEN,
                                   allocator())
            : bdlb::String::copy(sourceAuxEnt->x_file.x_fname,
-                               FILNMLEN,
-                               allocator());
+                                FILNMLEN,
+                                allocator());
 }
 
 const char *local::StackTraceResolver::getSymbolName(const SYMENT *symEnt)
@@ -1570,7 +1571,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
     scnhdr textSectionHeader;
     int textSectionNum = header.aouthdr.o_sntext;
-    UintPtr textSectionHeaderOffset = d_archiveMemberOffset + FILHSZ +
+    Offset textSectionHeaderOffset = d_archiveMemberOffset + FILHSZ +
                        header.filehdr.f_opthdr + (textSectionNum - 1) * SCNHSZ;
     if (d_helper->readExact(&textSectionHeader,
                             sizeof(scnhdr),
@@ -1578,7 +1579,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
         return -1;                                                    // RETURN
     }
 
-    UintPtr textSectionOffset = textSectionHeader.s_scnptr;
+    Offset textSectionOffset = textSectionHeader.s_scnptr;
     if (0 == textSectionOffset) {
         eprintf("null textSectionOffset\n");
         return -1;                                                    // RETURN
@@ -1588,7 +1589,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
     // offset s_scnptr has virtual address header.aouthdr.o_text_start
     //                 , is mapped to segmentPtrs + s_scnptr
 
-    d_virtualToPhysicalOffset = (UintPtr) segmentPtr + textSectionOffset -
+    d_virtualToPhysicalOffset = (Offset) segmentPtr + textSectionOffset -
                                                    header.aouthdr.o_text_start;
     d_symTableOffset = d_archiveMemberOffset + header.filehdr.f_symptr;
     const UintPtr numSyms = header.filehdr.f_nsyms;
