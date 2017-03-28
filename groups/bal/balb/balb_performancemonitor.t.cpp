@@ -776,7 +776,7 @@ int main(int argc, char *argv[])
 
             // Changing origin object.
 
-            bslmt::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(10000, 0);
             mX.collect();
 
             ASSERT(XIt->pid()         == XS.pid()          );
@@ -906,8 +906,8 @@ int main(int argc, char *argv[])
         Pids      pids;
 
         // Spawn as a child processes several copies of this test driver,
-        // running test case -3, which simply sleep for one minute and
-        // exit.
+        // running test case -3, which simply sleeps for half a minute and
+        // exits.
 
         bsl::string              command(argv[0]);
         bsl::vector<bsl::string> arguments;
@@ -1003,8 +1003,8 @@ int main(int argc, char *argv[])
         Pids      pids;
 
         // Spawn as a child processes several copies of this test driver,
-        // running test case -3, which simply sleep for one minute and
-        // exit.
+        // running test case -3, which simply sleeps for half a minute and
+        // exits.
 
         bsl::string              command(argv[0]);
         bsl::vector<bsl::string> arguments;
@@ -1125,8 +1125,8 @@ int main(int argc, char *argv[])
             Pids      pids;
 
             // Spawn as a child processes several copies of this test driver,
-            // running test case -3, which simply sleep for one minute and
-            // exit.
+            // running test case -3, which simply sleeps for half a minute and
+            // exits.
 
             bsl::string              command(argv[0]);
             bsl::vector<bsl::string> arguments;
@@ -1251,8 +1251,8 @@ int main(int argc, char *argv[])
             Pids      pids;
 
             // Spawn as a child processes several copies of this test driver,
-            // running test case -3, which simply sleep for one minute and
-            // exit.
+            // running test case -3, which simply sleeps for half a minute and
+            // exits.
 
             bsl::string              command(argv[0]);
             bsl::vector<bsl::string> arguments;
@@ -1492,8 +1492,8 @@ int main(int argc, char *argv[])
             Pids      pids;
 
             // Spawn as a child processes several copies of this test driver,
-            // running test case -3, which simply sleep for one minute and
-            // exit.
+            // running test case -3, which simply sleeps for half a minute and
+            // exits.
 
             bsl::string              command(argv[0]);
             bsl::vector<bsl::string> arguments;
@@ -1552,7 +1552,7 @@ int main(int argc, char *argv[])
             ASSERT(ELAPSED ==   XIt->elapsedTime());
             ASSERT(ELAPSED == (*XIt).elapsedTime());
 
-            bslmt::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(10000, 0);
             mX.collect();
 
             ASSERT(ELAPSED !=   XIt->elapsedTime());
@@ -1638,7 +1638,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == perfmon.numRegisteredPids());
 
         // Spawn as a child process another copy of this test driver, running
-        // test case -3, which simply sleeps for one minute and exits.
+        // test case -3, which simply sleeps for half a minute and exits.
 
         bsl::string              command(argv[0]);
         bsl::vector<bsl::string> arguments;
@@ -1889,13 +1889,13 @@ int main(int argc, char *argv[])
       case -3: {
         // --------------------------------------------------------------------
         // DUMMY TEST CASE
-        //   Sleep for 60 seconds.
+        //   Sleep for 30 seconds.
         //
         //   This test case provides a target for spawning a child process in
         //   test case 2.
         //
         // Concerns:
-        //:  1 Test runs for at least 60 seconds.
+        //:  1 Test runs for at least 30 seconds.
         //
         // Plan:
         //:  1 Confirm empirically by observing a test run.  (C-1)
@@ -1907,7 +1907,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "DUMMY TEST CASE\n"
                           << "===============\n";
 
-        bslmt::ThreadUtil::microSleep(0, 60);
+        bslmt::ThreadUtil::microSleep(0, 30);
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
