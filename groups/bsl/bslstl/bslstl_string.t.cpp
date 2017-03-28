@@ -313,7 +313,7 @@ using bsls::nameOfType;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [34] USAGE EXAMPLE
-// [11] ALLOCATOR-RELATED CONCERNS
+// [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
 // [27] DRQS 16870796
@@ -12662,50 +12662,50 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase11()
 {
-    // --------------------------------------------------------------------
-    // TEST AllocType-RELATED CONCERNS
+    // ------------------------------------------------------------------------
+    // TEST TYPE TRAITS
     //
-    // Concerns:
-    //   1) That creating an empty string does not allocate
-    //   2) That the allocator is passed through to elements
-    //   3) That the string class has the 'bslma::UsesBslmaAllocator'
+    // Concern:
+    //: 1 The object has the necessary type traits.
+    //:
+    //: 2 Empty string does not allocate.
     //
     // Plan:
-    //   We verify that the 'string' class has the traits, and
-    //   that allocator is not used for creating empty strings.
+    //: 1 Use 'BSLMF_ASSERT' and 'ASSERT' to verify the type traits.  (C-1)
+    //:
+    //: 2 Create empty string and verify Vthat no memory is allocated from
+    //:   any allocator.  (C-2)
     //
     // Testing:
-    //   TRAITS
-    //
-    // TBD: We do not yet implement the allocator propagation traits for
-    //      'std::allocator_traits', so defer testing generic allocator
-    //      propagation, limiting ourselves to the BDE model where allocators
-    //      never propagate on copy or swap.
-    // --------------------------------------------------------------------
-
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
-    Allocator            Z(&testAllocator);
-
-    const TYPE         *values     = 0;
-    const TYPE *const&  VALUES     = values;
-    const int           NUM_VALUES = getValues(&values);
-
-    (void) NUM_VALUES;
-    (void) VALUES;
+    //   CONCERN: The object has the necessary type traits
+    // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
 
-    ASSERT(( bslma::UsesBslmaAllocator<Obj>::value));
+    BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+    ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+    Allocator                    Z(&oa);
+
+    ASSERT(0 == da.numBytesInUse());
+    ASSERT(0 == oa.numBytesInUse());
 
     if (verbose) printf("\nTesting that empty string does not allocate.\n");
     {
         Obj mX(Z);
-        ASSERT(0 == testAllocator.numBytesInUse());
+
+        ASSERT(0 == da.numBytesInUse());
+        ASSERT(0 == oa.numBytesInUse());
     }
 
-    ASSERT(0 == testAllocator.numBytesInUse());
+    ASSERT(0 == da.numBytesInUse());
+    ASSERT(0 == oa.numBytesInUse());
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -20809,8 +20809,6 @@ int main(int argc, char *argv[])
         //:   types that use 'bsl::allocator'.
         //: 4 That the 'bslmf::IsBitwiseMoveable' traits is NOT set for string
         //:   types that use a non-bitwise-moveable allocator.
-        //: 5 That the allocator traits regarding allocator propagation are
-        //:   respected when copying/moving/assigning strings.
         //
         // Plan:
         //: See 'TestDriver<CHAR_TYPE>::testCase11' for details.
