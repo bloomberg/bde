@@ -14,6 +14,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslmf_issame.h>
+#include <bslmf_assert.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
