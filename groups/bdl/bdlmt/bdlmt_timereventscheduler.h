@@ -33,7 +33,12 @@ BSLS_IDENT("$Id: $")
 // at the creation time (see the section "The dispatcher thread and the
 // dispatcher functor").  Use this component for implementing timeouts,
 // deferred executions, calendars and reminders, and recurring tasks, among
-// other time-bound behaviors.
+// other time-bound behaviors.  The number of active events is limited by
+// default to 2**17 - 1, and in any case no more than 2**24 - 1.  Note that if
+// the scheduled event goes into infinite loop, and the default displatcher is
+// used, the event scheduler may get into live lock.  This can happen if the
+// scheduled event persistently requests to scheduled additional events, and
+// the queue is full.
 //
 ///Comparison to 'bdlmt::EventScheduler'
 ///- - - - - - - - - - - - - - - - - - -
@@ -702,7 +707,8 @@ class TimerEventScheduler {
         // identify the event.  The 'time' is an absolute time represented as
         // an interval from some epoch, which is detemined by the clock
         // indicated at construction (see {Supported Clock-Types} in the
-        // component documentation).
+        // component documentation).  If no space is available in the event
+        // list, 'bdlmt::TimerEventScheduler::e_INVALID_HANDLE' is returned.
 
     int rescheduleEvent(Handle                    handle,
                         const bsls::TimeInterval& newTime,
@@ -711,7 +717,6 @@ class TimerEventScheduler {
                         const EventKey&           key,
                         const bsls::TimeInterval& newTime,
                         bool                      wait = false);
-
         // Reschedule the event having the specified 'handle' at the specified
         // 'newTime'.  Optionally use the specified 'key' to uniquely identify
         // the event.  If the optionally specified 'wait' is true, then ensure
