@@ -1006,10 +1006,10 @@ class FrameRec {
     BSLMF_NESTED_TRAIT_DECLARATION(u::FrameRec, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    FrameRec(const void            *address,
-            balst::StackTraceFrame *stackTraceFrame,
-            int                     index,
-            bslma::Allocator       *allocator);
+    FrameRec(const void             *address,
+             balst::StackTraceFrame *stackTraceFrame,
+             int                     index,
+             bslma::Allocator       *allocator);
         // Create a 'u::FrameRec' referring to the specified 'address' and the
         // specified 'framePtr'.
 
@@ -1459,79 +1459,84 @@ struct u::StackTraceResolver::HiddenRec {
 
     // DATA
     StackTraceResolver_FileHelper
-                  *d_helper_p;          // file helper associated with current
-                                        // segment
+                    *d_helper_p;           // file helper associated with
+                                           // current segment
 
-    StackTrace    *d_stackTrace_p;      // the stack trace we are resolving
+    StackTrace       *d_stackTrace_p;      // the stack trace we are resolving
 
-    u::AddressRange d_addressRange;     // address range of the current segment
+    u::AddressRange   d_addressRange;      // address range of the current
+                                           // segment
 
-    u::FrameRecVec  d_frameRecs;        // Vector of address frame pairs for
-                                        // fast lookup of addresses.  Not local
-                                        // to current segment -- initialized
-                                        // once per resolve, and sorted by
-                                        // address.
+    u::FrameRecVec    d_frameRecs;         // Vector of address frame pairs
+                                           // for fast lookup of addresses.
+                                           // Not local to current segment --
+                                           // initialized once per resolve, and
+                                           // sorted by address.
 
-    u::FrameRecVecIt                    // This begin, end pair indicates the
-                   d_frameRecsBegin;    // range of frame records that pertain
-    u::FrameRecVecIt                    // to the current segment at a given
-                   d_frameRecsEnd;      // time.
+    u::FrameRecVecIt   d_frameRecsBegin;   // range of frame records that
+                                           // pertain
 
-    u::UintPtr      d_adjustment;       // adjustment between addresses
-                                        // expressed in object file and actual
-                                        // addresses in memory for current
-                                        // segment.  This value is added to
-                                        // address read from the object file.
+    u::FrameRecVecIt   d_frameRecsEnd;     // to the current segment at a
+                                           // given time.
 
-    u::Offset       d_symTableOffset;   // symbol table section (symbol table
-    u::Offset       d_symTableSize;     // does not contain symbol names, just
-                                        // offsets into string table) from the
-                                        // beginning of the executable or
-                                        // library file
+    u::UintPtr         d_adjustment;       // adjustment between addresses
+                                           // expressed in object file and
+                                           // actual addresses in memory for
+                                           // current segment.  This value is
+                                           // added to address read from the
+                                           // object file.
 
-    u::Offset       d_stringTableOffset;// string table offset from the
-    u::Offset       d_stringTableSize;  // beginning of the file
+    u::Offset          d_symTableOffset;   // symbol table section (symbol
+                                           // table
+
+    u::Offset          d_symTableSize;     // does not contain symbol names,
+                                           // just offsets into string table)
+                                           // from the beginning of the
+                                           // executable or library file
+
+    u::Offset          d_stringTableOffset;// string table offset from the
+    u::Offset          d_stringTableSize;  // beginning of the file
 
 #ifdef u_DWARF
-    u::Section      d_abbrevSec;        // .debug_abbrev section
-    u::Reader       d_abbrevReader;     // reader for that section
+    u::Section         d_abbrevSec;        // .debug_abbrev section
+    u::Reader          d_abbrevReader;     // reader for that section
 
-    u::Section      d_arangesSec;       // .debug_aranges section
-    u::Reader       d_arangesReader;    // reader for that section
+    u::Section         d_arangesSec;       // .debug_aranges section
+    u::Reader          d_arangesReader;    // reader for that section
 
-    u::Section      d_infoSec;          // .debug_info section
-    u::Reader       d_infoReader;       // reader for that section
+    u::Section         d_infoSec;          // .debug_info section
+    u::Reader          d_infoReader;       // reader for that section
 
-    u::Section      d_lineSec;          // .debug_line section
-    u::Reader       d_lineReader;       // reader for that section
+    u::Section         d_lineSec;          // .debug_line section
+    u::Reader          d_lineReader;       // reader for that section
 
-    u::Section      d_rangesSec;        // .debug_ranges section
-    u::Reader       d_rangesReader;     // reader for that section
+    u::Section         d_rangesSec;        // .debug_ranges section
+    u::Reader          d_rangesReader;     // reader for that section
 
-    u::Section      d_strSec;           // .debug_str section
-    u::Reader       d_strReader;        // reader for that section
+    u::Section         d_strSec;           // .debug_str section
+    u::Reader          d_strReader;        // reader for that section
 #endif
 
-    u::Offset       d_libraryFileSize;  // size of the current library or
-                                        // executable file
+    u::Offset          d_libraryFileSize;  // size of the current library or
+                                           // executable file
 
-    char          *d_scratchBufA_p;     // crratch buffer A (from resolver)
+    char             *d_scratchBufA_p;     // crratch buffer A (from resolver)
 
-    char          *d_scratchBufB_p;     // scratch buffer B (from resolver)
+    char             *d_scratchBufB_p;     // scratch buffer B (from resolver)
 #ifdef u_DWARF
-    char          *d_scratchBufC_p;     // scratch buffer C (from resolver)
+    char             *d_scratchBufC_p;     // scratch buffer C (from resolver)
 
-    char          *d_scratchBufD_p;     // scratch buffer D (from resolver)
+    char             *d_scratchBufD_p;     // scratch buffer D (from resolver)
 #endif
-    int            d_numTotalUnmatched; // Total number of unmatched frames
-                                        // remaining in this resolve.
+    int               d_numTotalUnmatched; // Total number of unmatched frames
+                                           // remaining in this resolve.
 
-    bool           d_isMainExecutable;  // 'true' if in main executable
-                                        // segment, as opposed to a shared
-                                        // library
-    bslma::Allocator
-                  *d_allocator_p;       // The resolver's heap bypass
-                                        // allocator.
+    bool              d_isMainExecutable;  // 'true' if in main executable
+                                           // segment, as opposed to a shared
+                                           // library
+
+    bslma::Allocator *d_allocator_p;       // The resolver's heap bypass
+                                           // allocator.
 
   private:
     // NOT IMPLEMENTED
@@ -3018,16 +3023,16 @@ int u::StackTraceResolver::loadSymbols(int matched)
                                 bsl::lower_bound(d_hidden.d_frameRecsBegin,
                                                  d_hidden.d_frameRecsEnd,
                                                  u::FrameRec(symbolAddress,
-                                                            0,
-                                                            0,
-                                                            &d_hbpAlloc));
+                                                             0,
+                                                             0,
+                                                             &d_hbpAlloc));
                     const u::FrameRecVecIt end =
                              bsl::lower_bound(d_hidden.d_frameRecsBegin,
                                               d_hidden.d_frameRecsEnd,
                                               u::FrameRec(endSymbolAddress,
-                                                         0,
-                                                         0,
-                                                         &d_hbpAlloc));
+                                                          0,
+                                                          0,
+                                                          &d_hbpAlloc));
                     for (u::FrameRecVecIt it = begin; it < end; ++it) {
                         if (it->isSymbolResolved()) {
                             continue;
@@ -3097,10 +3102,10 @@ int u::StackTraceResolver::loadSymbols(int matched)
 }
 
 int u::StackTraceResolver::processLoadedImage(const char *fileName,
-                                             const void *programHeaders,
-                                             int         numProgramHeaders,
-                                             void       *textSegPtr,
-                                             void       *baseAddress)
+                                              const void *programHeaders,
+                                              int         numProgramHeaders,
+                                              void       *textSegPtr,
+                                              void       *baseAddress)
     // Note this must be public so 'linkMapCallBack' can call it on Solaris.
     // Also note that it assumes that both scratch buffers are available for
     // writing.
@@ -3137,10 +3142,9 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
         // executable file, but those platforms have a standard virtual symlink
         // that points to the executable file name.
 
-        const int numChars = static_cast<int>(
-                                           readlink("/proc/self/exe",
-                                                    d_scratchBufA_p,
-                                                    u::k_SCRATCH_BUF_LEN));
+        const int numChars = static_cast<int>(readlink("/proc/self/exe",
+                                                       d_scratchBufA_p,
+                                                       u::k_SCRATCH_BUF_LEN));
         if (numChars > 0) {
             u_ASSERT_BAIL(numChars < u::k_SCRATCH_BUF_LEN);
             d_scratchBufA_p[numChars] = 0;
@@ -3227,15 +3231,15 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     d_hidden.d_frameRecsBegin = bsl::lower_bound(d_hidden.d_frameRecs.begin(),
                                                  d_hidden.d_frameRecs.end(),
                                                  u::FrameRec(sp,
-                                                            0,
-                                                            0,
-                                                            &d_hbpAlloc));
+                                                             0,
+                                                             0,
+                                                             &d_hbpAlloc));
     d_hidden.d_frameRecsEnd   = bsl::lower_bound(d_hidden.d_frameRecs.begin(),
                                                  d_hidden.d_frameRecs.end(),
                                                  u::FrameRec(se,
-                                                            0,
-                                                            0,
-                                                            &d_hbpAlloc));
+                                                             0,
+                                                             0,
+                                                             &d_hbpAlloc));
 
     int matched = static_cast<int>(
                           d_hidden.d_frameRecsEnd - d_hidden.d_frameRecsBegin);

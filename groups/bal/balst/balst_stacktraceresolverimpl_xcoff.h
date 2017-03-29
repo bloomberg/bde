@@ -90,26 +90,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-// These 2 symbols are needed by 'syms.h'.
-
-#undef __XCOFF64__
-#undef __XCOFF32__
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-# define __XCOFF64__
-#else
-# define __XCOFF32__
-#endif
-
-#ifndef INCLUDED_SYMS
-#include <syms.h>               // SYMENT, AUXENT
-#define INCLUDED_SYMS
-#endif
-
-#define BALST_STACKTRACERESOLVERIMPL_XCOFF_LINE __LINE__
+struct syment;    // defined in imp by included file '<syms.h>'
+union  auxent;    // defined in imp by included file '<syms.h>'
 
 namespace BloombergLP {
-
 namespace balst {
 
 template <typename RESOLVER_POLICY>
@@ -128,20 +112,23 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
     // constructor, are private except for that static method 'resolve' which
     // constructs and destroys the object.
 
+  public:
+    // PUBLIC TYPES
+    typedef bsls::Types::UintPtr UintPtr; // 32 bit unsigned on 32 bit, 64 bit
+                                          // unsigned on 64 bit
+
+    typedef bsls::Types::Uint64  Uint64;
+
+    typedef bdls::FilesystemUtil::Offset  // Usually used for offsets in a
+                                 Offset;  // file, absolute or relative.
+
+  private:
     // TYPES
     struct AuxInfo;                       // Internal -- fleshed out in the
                                           // implementation file
     struct LoadAuxInfosInfo;              // Internal -- fleshed out in the
                                           // implementation file
-    typedef bsls::Types::UintPtr UintPtr; // 32 bit unsigned on 32 bit, 64 bit
-                                          // unsigned on 64 bit, usually used
-                                          // for absolute offsets into a file
 
-    typedef bdls::FilesystemUtil::Offset
-                                 Offset;  // Usually used for relative offsets
-                                          // into a file.
-
-    // CONSTANTS
     enum FindIncludeFileFlags {
         // flags returned by 'findIncludeFile'
 
@@ -227,19 +214,18 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
                                               // object will be freed when this
                                               // allocator is destroyed.
 
-    static bslmt::QLock     s_demangleQLock;  // 'QLock' to guard access to
+    static bslmt::QLock    s_demangleQLock;   // 'QLock' to guard access to
                                               // the non-thread-safe 'Demangle'
                                               // function.
 
   private:
     // NOT IMPLEMENTED
     StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(
-                                          const StackTraceResolverImpl&);
+    StackTraceResolverImpl& operator=(const StackTraceResolverImpl&);
 
     // PRIVATE CREATORS
     StackTraceResolverImpl(StackTrace *stackTrace,
-                                 bool              demangle);
+                           bool        demangle);
         // Create an stack trace reolver that can populate other fields of the
         // specified 'stackFrames' object given previously populated 'address'
         // fields.  Specify 'demangle', which indicates whether demangling of
@@ -262,19 +248,19 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
         // negative value otherwise.  Note that this is never called on an
         // executable, only on archives.
 
-    UintPtr findCsectIndex(const char *symbolAddress,
-                           const char *csectEndAddress,
-                           UintPtr     primarySymIndex);
+    Offset findCsectIndex(const char *symbolAddress,
+                          const char *csectEndAddress,
+                          Offset      primarySymIndex);
         // Iterate through all the addresses in d_segAddresses_p, returning the
         // specified 'primarySymIndex', which is the index of the current
         // symbol, if any of them are in the range
         // '[symbolAddress, csectEndAddress)' and 'UintPtr(-1)' otherwise.
 
-    int findIncludeFile(SYMENT  *includeSymEnt,
-                        UintPtr  firstLineNumberOffset,
-                        UintPtr  lineNumberOffset,
-                        UintPtr  symStartIndex,
-                        UintPtr  symEndIndex);
+    int findIncludeFile(syment  *includeSymEnt,
+                        Offset   firstLineNumberOffset,
+                        Offset   lineNumberOffset,
+                        Offset   symStartIndex,
+                        Offset   symEndIndex);
         // Read the portion of the symbol table of the current segment starting
         // at the specified 'symStartIndex' and ending at the specified
         // 'symEndIndex' to determine if the specified 'lineNumberOffset' is in
@@ -291,8 +277,8 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
         // after 'findLineNumber'.
 
     int findLineNumber(int        *outLineNumber_p,
-                       UintPtr    *outLineNumberOffset_p,
-                       UintPtr     lineBufStartOffset,
+                       Offset     *outLineNumberOffset_p,
+                       Offset      lineBufStartOffset,
                        const void *segAddress);
         // Find a line number and line number offset of the source that refers
         // to the specified 'address', and load the results into the specified
@@ -317,21 +303,23 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
         // calling 'loadSymbols' function accessed through pointers in the
         // specified 'laiInfo' struct.
 
-    int loadSymbols(UintPtr numSyms,
-                    int     textSectionNum);
+    int loadSymbols(Offset numSyms,
+                    int    textSectionNum);
         // Read the specified 'numSym' symbols from the symbol table associated
         // with this segment, skipping those symbols not associated with the
         // text section indicated by the specified 'textSectionNum'.  Return 0
         // on success and a non-zero value otherwise.
 
-    const char *getSourceName(const AUXENT *auxent);
+    const char *getSourceName(const auxent *sourceAuxent);
         // Allocate memory for, and return a pointer to, a string containing
-        // the name of the source file referred to by the specified 'auxent'.
+        // the name of the source file referred to by the specified
+        // 'sourceAuxent'.
 
-    const char *getSymbolName(const SYMENT *syment);
+    const char *getSymbolName(const syment *sourceSyment);
         // Allocate memory for, and return a pointer to, a string containing
-        // the name of the symbol defined by the specified 'syment'.  Note the
-        // symbol is sometimes a function name, sometimes a source file name.
+        // the name of the symbol defined by the specified 'sourceSyment'.
+        // Note the symbol is sometimes a function name, sometimes a source
+        // file name.
 
     int resolveSegment(void       *segmentPtr,
                        UintPtr     segmentSize,
@@ -353,7 +341,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
     // PUBLIC CLASS METHODS
     static
     int resolve(StackTrace *stackTrace,
-                bool              demangle);
+                bool        demangle);
         // Populate information for the specified 'stackFrames', a vector of
         // stack trace frames in a stack trace object.  Specify 'demangle', to
         // determine whether demangling is to occur, and 'basicAllocator',
@@ -377,8 +365,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
 
 // PRIVATE MANIPULATORS
 inline
-bslma::Allocator *StackTraceResolverImpl<
-                                    ObjectFileFormat::Xcoff>::allocator()
+bslma::Allocator *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::allocator()
 {
     return &d_hbpAlloc;
 }
@@ -420,8 +407,8 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
 
     return line;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

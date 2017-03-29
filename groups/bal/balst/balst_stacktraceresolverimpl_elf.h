@@ -50,6 +50,8 @@ BSLS_IDENT("$Id: $")
 #include <balst_objectfileformat.h>
 #endif
 
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
+
 #ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
 #endif
@@ -79,9 +81,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-
 namespace balst {
 
 template <class RESOLVER_POLICY>
@@ -234,11 +233,9 @@ void StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
 }
 
 }  // close package namespace
-
-#endif
-
 }  // close enterprise namespace
 
+#endif
 #endif
 
 // ----------------------------------------------------------------------------
