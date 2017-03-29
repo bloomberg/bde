@@ -20799,7 +20799,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\nTESTING TYPE TRAITS"
                                 "\n===================\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
         const bool EXP_NOTHROW = true;
 #else
         const bool EXP_NOTHROW = false;
@@ -20836,30 +20836,40 @@ int main(int argc, char *argv[])
         BSLMF_ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
         BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
         BSLMF_ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
+
+        // MSVC has strange noexcept specifications for native strings.
+#if !(defined(BSLS_PLATFORM_CMP_MSVC))
         BSLMF_ASSERT(EXP_NOTHROW ==
                 bsl::is_nothrow_move_constructible<native_std::string>::value);
+#endif
 
         ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
         ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
+#if !(defined(BSLS_PLATFORM_CMP_MSVC))
         ASSERT(EXP_NOTHROW ==
                 bsl::is_nothrow_move_constructible<native_std::string>::value);
+#endif
 
         if (veryVerbose) printf("\tTesting 'native_std::wstring'.\n");
         BSLMF_ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
         BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
         BSLMF_ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
+#if !(defined(BSLS_PLATFORM_CMP_MSVC))
         BSLMF_ASSERT(EXP_NOTHROW ==
                bsl::is_nothrow_move_constructible<native_std::wstring>::value);
+#endif
 
         ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
         ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
+#if !(defined(BSLS_PLATFORM_CMP_MSVC))
         ASSERT(EXP_NOTHROW ==
                bsl::is_nothrow_move_constructible<native_std::wstring>::value);
+#endif
 
         if (veryVerbose)
-            printf("\tTesting string with non bitwise movable allocator.\n");
+            printf("\tTesting string with not bitwise movable allocator.\n");
 
         typedef LimitAllocator<bsl::allocator<char> >
                                                    NotBitwiseMoveableAllocator;
