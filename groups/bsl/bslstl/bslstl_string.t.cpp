@@ -10,6 +10,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_stdallocator.h>
+#include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
@@ -20771,26 +20772,19 @@ int main(int argc, char *argv[])
         //   - 'bsl::is_nothrow_move_constructible'
         //
         // Concerns:
-        //: 1 That the 'bslma::UsesBslmaAllocator' trait is set for string
-        //:   types that use 'bsl::allocator'.
+        //: 1 'bslma::UsesBslmaAllocator' trait is set for string types that
+        //:    use 'bslma' allocators and NOT set otherwise.
         //:
-        //: 2 That the 'bslma::UsesBslmaAllocator' trait is NOT set for string
-        //:   types that use a non-BDE allocator.
+        //: 2 'bsl::basic_string' should be bitwise movable if the allocator
+        //:   type is bitwise movable.
         //:
-        //: 3 That the 'bslmf::IsBitwiseMoveable' trait is set for string
-        //:   types that use 'bsl::allocator'.
+        //: 3 'bslalg::HasStlIterators' trait is set for 'bsl::basic_string'
         //:
-        //: 4 That the 'bslmf::IsBitwiseMoveable' trait is NOT set for string
-        //:   types that use a non-bitwise-moveable allocator.
-        //:
-        //: 5 That the 'bslalg::HasStlIterators' trait is set for BDE strings.
-        //:
-        //: 6 That the 'bsl::is_nothrow_move_constructible' trait is set in
-        //:   C++11 mode.
+        //: 4 'bsl::is_nothrow_move_constructible' trait is set when compiled
+        //:   in C++11 mode.
         //
         // Plan:
-        //: 1 Use 'BSLMF_ASSERT' and 'ASSERT' to verify the type traits.
-        //:   (C-1..6)
+        //: 1 Use 'ASSERT' to verify the type traits.  (C-1..4)
         //
         // Testing:
         //   CONCERN: The object has the necessary type traits
@@ -20806,11 +20800,6 @@ int main(int argc, char *argv[])
 #endif
 
         if (veryVerbose) printf("\tTesting 'bsl::string'.\n");
-        BSLMF_ASSERT(bslma::UsesBslmaAllocator<bsl::string>::value);
-        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<bsl::string>::value);
-        BSLMF_ASSERT(bslalg::HasStlIterators<bsl::string>::value);
-        BSLMF_ASSERT(EXP_NOTHROW ==
-                       bsl::is_nothrow_move_constructible<bsl::string>::value);
 
         ASSERT(bslma::UsesBslmaAllocator<bsl::string>::value);
         ASSERT(bslmf::IsBitwiseMoveable<bsl::string>::value);
@@ -20820,11 +20809,6 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose) printf("\tTesting 'bsl::wstring'.\n");
-        BSLMF_ASSERT(bslma::UsesBslmaAllocator<bsl::wstring>::value);
-        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<bsl::wstring>::value);
-        BSLMF_ASSERT(bslalg::HasStlIterators<bsl::wstring>::value);
-        BSLMF_ASSERT(EXP_NOTHROW ==
-                      bsl::is_nothrow_move_constructible<bsl::wstring>::value);
 
         ASSERT(bslma::UsesBslmaAllocator<bsl::wstring>::value);
         ASSERT(bslmf::IsBitwiseMoveable<bsl::wstring>::value);
@@ -20833,40 +20817,49 @@ int main(int argc, char *argv[])
                       bsl::is_nothrow_move_constructible<bsl::wstring>::value);
 
         if (veryVerbose) printf("\tTesting 'native_std::string'.\n");
-        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
-        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
-        BSLMF_ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
-
-        // MSVC has strange noexcept specifications for native strings.
-#if !(defined(BSLS_PLATFORM_CMP_MSVC))
-        BSLMF_ASSERT(EXP_NOTHROW ==
-                bsl::is_nothrow_move_constructible<native_std::string>::value);
-#endif
 
         ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
+
+        // SUN for some reasons declares this trait for native strings.
+#if !(defined(BSLS_PLATFORM_CMP_SUN))
         ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
+#endif
+
+        // MSVC has strange noexcept specifications for native strings.
 #if !(defined(BSLS_PLATFORM_CMP_MSVC))
         ASSERT(EXP_NOTHROW ==
                 bsl::is_nothrow_move_constructible<native_std::string>::value);
 #endif
 
         if (veryVerbose) printf("\tTesting 'native_std::wstring'.\n");
-        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
-        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
-        BSLMF_ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
-#if !(defined(BSLS_PLATFORM_CMP_MSVC))
-        BSLMF_ASSERT(EXP_NOTHROW ==
-               bsl::is_nothrow_move_constructible<native_std::wstring>::value);
-#endif
 
         ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
+
+#if !(defined(BSLS_PLATFORM_CMP_SUN))
         ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
+#endif
+
 #if !(defined(BSLS_PLATFORM_CMP_MSVC))
         ASSERT(EXP_NOTHROW ==
                bsl::is_nothrow_move_constructible<native_std::wstring>::value);
 #endif
+
+        if (veryVerbose)
+            printf("\tTesting string with bitwise movable allocator.\n");
+
+        typedef bslma::StdTestAllocator<char>  BitwiseMoveableAllocator;
+        typedef bsl::basic_string<char,
+                                  bsl::char_traits<char>,
+                                  BitwiseMoveableAllocator> StringBM;
+
+        ASSERT(bslma::UsesBslmaAllocator<StringBM>::value);
+        ASSERT(bslmf::IsBitwiseMoveable<BitwiseMoveableAllocator>::value);
+        ASSERT(bslmf::IsBitwiseMoveable<StringBM>::value);
+        ASSERT(bslalg::HasStlIterators<StringBM>::value);
+        ASSERT(EXP_NOTHROW ==
+                          bsl::is_nothrow_move_constructible<StringBM>::value);
 
         if (veryVerbose)
             printf("\tTesting string with not bitwise movable allocator.\n");
@@ -20875,18 +20868,14 @@ int main(int argc, char *argv[])
                                                    NotBitwiseMoveableAllocator;
         typedef bsl::basic_string<char,
                                   bsl::char_traits<char>,
-                                  NotBitwiseMoveableAllocator> TestString;
-        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestString>::value);
-        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<TestString>::value);
-        BSLMF_ASSERT(bslalg::HasStlIterators<TestString>::value);
-        BSLMF_ASSERT(EXP_NOTHROW ==
-                        bsl::is_nothrow_move_constructible<TestString>::value);
+                                  NotBitwiseMoveableAllocator> StringNBM;
 
-        ASSERT(!bslma::UsesBslmaAllocator<TestString>::value);
-        ASSERT(!bslmf::IsBitwiseMoveable<TestString>::value);
-        ASSERT(bslalg::HasStlIterators<TestString>::value);
+        ASSERT(!bslma::UsesBslmaAllocator<StringNBM>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<NotBitwiseMoveableAllocator>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<StringNBM>::value);
+        ASSERT(bslalg::HasStlIterators<StringNBM>::value);
         ASSERT(EXP_NOTHROW ==
-                        bsl::is_nothrow_move_constructible<TestString>::value);
+                         bsl::is_nothrow_move_constructible<StringNBM>::value);
 
       } break;
       case 10: {
