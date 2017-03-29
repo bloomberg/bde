@@ -14,6 +14,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslmf_issame.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_assert.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -1227,9 +1228,6 @@ struct TestDriver {
     template <class CONTAINER>
     static void testCase12Range(const CONTAINER&);
         // Test user-supplied constructor templates.
-
-    static void testCase11();
-        // Test allocator-related concerns.
 
     static void testCase10();
         // Test streaming functionality.  This test case tests nothing.
@@ -12663,53 +12661,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE, TRAITS, ALLOC>::testCase11()
-{
-    // ------------------------------------------------------------------------
-    // TEST TYPE TRAITS
-    //
-    // Concern:
-    //: 1 The object has the necessary type traits.
-    //:
-    //: 2 Empty string does not allocate.
-    //
-    // Plan:
-    //: 1 Use 'BSLMF_ASSERT' and 'ASSERT' to verify the type traits.  (C-1)
-    //:
-    //: 2 Create empty string and verify Vthat no memory is allocated from
-    //:   any allocator.  (C-2)
-    //
-    // Testing:
-    //   CONCERN: The object has the necessary type traits
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nTesting 'bslma::UsesBslmaAllocator'.\n");
-
-    BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-    ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
-
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-
-    bslma::DefaultAllocatorGuard dag(&da);
-    Allocator                    Z(&oa);
-
-    ASSERT(0 == da.numBytesInUse());
-    ASSERT(0 == oa.numBytesInUse());
-
-    if (verbose) printf("\nTesting that empty string does not allocate.\n");
-    {
-        Obj mX(Z);
-
-        ASSERT(0 == da.numBytesInUse());
-        ASSERT(0 == oa.numBytesInUse());
-    }
-
-    ASSERT(0 == da.numBytesInUse());
-    ASSERT(0 == oa.numBytesInUse());
-}
-
-template <class TYPE, class TRAITS, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
           bool OTHER_FLAGS>
 void TestDriver<TYPE, TRAITS, ALLOC>::
@@ -15975,48 +15926,51 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
     //   void clear();
     // --------------------------------------------------------------------
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
-    Allocator            Z(&testAllocator);
-
-    const TYPE         *values     = 0;
-    const TYPE *const&  VALUES     = values;
-    const int           NUM_VALUES = getValues(&values);
-
-    // --------------------------------------------------------------------
-
     if (verbose) printf("\n\tTesting default ctor (thoroughly).\n");
 
     if (verbose) printf("\t\tWithout passing in an allocator.\n");
     {
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
         const Obj X;
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
 
         if (1 == sizeof(TYPE)) {
-            ASSERTV(k_SHORT_BUFFER_CAPACITY_CHAR,   X.capacity(),
+            ASSERTV(k_SHORT_BUFFER_CAPACITY_CHAR,
+                    X.capacity(),
                     k_SHORT_BUFFER_CAPACITY_CHAR == X.capacity());
         }
         else if (sizeof(wchar_t) == sizeof(TYPE)) {
-            ASSERTV(k_SHORT_BUFFER_CAPACITY_WCHAR_T,   X.capacity(),
+            ASSERTV(k_SHORT_BUFFER_CAPACITY_WCHAR_T,
+                    X.capacity(),
                     k_SHORT_BUFFER_CAPACITY_WCHAR_T == X.capacity());
         }
+
+        // Verify no allocation from default allocators
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
     if (verbose) printf("\t\tPassing in an allocator.\n");
     {
-        const Int64 AA = testAllocator.numBlocksTotal();
-        const Int64 A  = testAllocator.numBlocksInUse();
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator         oa("object",  veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Allocator Z(&oa);
 
         const Obj X(Z);
-
-        const Int64 BB = testAllocator.numBlocksTotal();
-        const Int64 B  = testAllocator.numBlocksInUse();
 
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
 
-        ASSERT(AA + 0 == BB);
-        ASSERT(A + 0  == B);
+        // Verify no allocation from default and object allocators.
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+        ASSERTV(oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
+        ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
     }
 
     if (verbose) printf("\t\tIn place using a test allocator.\n");
@@ -16027,6 +15981,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
         Obj x(objectAllocator_p);
 
+        // Verify no allocation from global, default and object allocators.
         ASSERT(0 == globalAllocator_p->numBytesInUse());
         ASSERT(0 == defaultAllocator_p->numBytesInUse());
         ASSERT(0 == objectAllocator_p->numBytesInUse());
@@ -16034,6 +15989,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
     ASSERT(0 == globalAllocator_p->numBytesInUse());
     ASSERT(0 == defaultAllocator_p->numBytesInUse());
     ASSERT(0 == objectAllocator_p->numBytesInUse());
+
+    // --------------------------------------------------------------------
+    bslma::TestAllocator testAllocator("test", veryVeryVeryVerbose);
+    Allocator            Z(&testAllocator);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
 
     // --------------------------------------------------------------------
 
@@ -20799,53 +20762,121 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING ALLOCATOR-RELATED CONCERNS
+        // TEST TYPE TRAITS
+        //   In this test we verify that the following set of the traits have
+        //   expected values:
+        //   - 'bslma::UsesBslmaAllocator'
+        //   - 'bslmf::IsBitwiseMoveable'
+        //   - 'bslalg::HasStlIterators'
+        //   - 'bsl::is_nothrow_move_constructible'
         //
         // Concerns:
-        //: 1 That the 'bslma::UsesBslmaAllocator' traits is set for string
+        //: 1 That the 'bslma::UsesBslmaAllocator' trait is set for string
         //:   types that use 'bsl::allocator'.
-        //: 2 That the 'bslma::UsesBslmaAllocator' traits is NOT set for string
+        //:
+        //: 2 That the 'bslma::UsesBslmaAllocator' trait is NOT set for string
         //:   types that use a non-BDE allocator.
-        //: 3 That the 'bslmf::IsBitwiseMoveable' traits is set for string
+        //:
+        //: 3 That the 'bslmf::IsBitwiseMoveable' trait is set for string
         //:   types that use 'bsl::allocator'.
-        //: 4 That the 'bslmf::IsBitwiseMoveable' traits is NOT set for string
+        //:
+        //: 4 That the 'bslmf::IsBitwiseMoveable' trait is NOT set for string
         //:   types that use a non-bitwise-moveable allocator.
+        //:
+        //: 5 That the 'bslalg::HasStlIterators' trait is set for BDE strings.
+        //:
+        //: 6 That the 'bsl::is_nothrow_move_constructible' trait is set in
+        //:   C++11 mode.
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase11' for details.
+        //: 1 Use 'BSLMF_ASSERT' and 'ASSERT' to verify the type traits.
+        //:   (C-1..6)
         //
         // Testing:
-        //   TRAITS
-        //   ALLOCATOR-RELATED CONCERNS
+        //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING ALLOCATOR-RELATED CONCERNS"
-                            "\n==================================\n");
+        if (veryVerbose) printf("\nTESTING TYPE TRAITS"
+                                "\n===================\n");
 
-        ASSERT((bslma::UsesBslmaAllocator<bsl::string>::value));
-        ASSERT((bslma::UsesBslmaAllocator<bsl::wstring>::value));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        const bool EXP_NOTHROW = true;
+#else
+        const bool EXP_NOTHROW = false;
+#endif
 
-        ASSERT((bslmf::IsBitwiseMoveable<bsl::string>::value));
-        ASSERT((bslmf::IsBitwiseMoveable<bsl::wstring>::value));
+        if (veryVerbose) printf("\tTesting 'bsl::string'.\n");
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<bsl::string>::value);
+        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<bsl::string>::value);
+        BSLMF_ASSERT(bslalg::HasStlIterators<bsl::string>::value);
+        BSLMF_ASSERT(EXP_NOTHROW ==
+                       bsl::is_nothrow_move_constructible<bsl::string>::value);
 
-        ASSERT((!bslma::UsesBslmaAllocator<native_std::string>::value));
-        ASSERT((!bslma::UsesBslmaAllocator<native_std::wstring>::value));
+        ASSERT(bslma::UsesBslmaAllocator<bsl::string>::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::string>::value);
+        ASSERT(bslalg::HasStlIterators<bsl::string>::value);
+        ASSERT(EXP_NOTHROW ==
+                       bsl::is_nothrow_move_constructible<bsl::string>::value);
 
-        ASSERT((!bslmf::IsBitwiseMoveable<native_std::string>::value));
-        ASSERT((!bslmf::IsBitwiseMoveable<native_std::wstring>::value));
+
+        if (veryVerbose) printf("\tTesting 'bsl::wstring'.\n");
+        BSLMF_ASSERT(bslma::UsesBslmaAllocator<bsl::wstring>::value);
+        BSLMF_ASSERT(bslmf::IsBitwiseMoveable<bsl::wstring>::value);
+        BSLMF_ASSERT(bslalg::HasStlIterators<bsl::wstring>::value);
+        BSLMF_ASSERT(EXP_NOTHROW ==
+                      bsl::is_nothrow_move_constructible<bsl::wstring>::value);
+
+        ASSERT(bslma::UsesBslmaAllocator<bsl::wstring>::value);
+        ASSERT(bslmf::IsBitwiseMoveable<bsl::wstring>::value);
+        ASSERT(bslalg::HasStlIterators<bsl::wstring>::value);
+        ASSERT(EXP_NOTHROW ==
+                      bsl::is_nothrow_move_constructible<bsl::wstring>::value);
+
+        if (veryVerbose) printf("\tTesting 'native_std::string'.\n");
+        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
+        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
+        BSLMF_ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
+        BSLMF_ASSERT(EXP_NOTHROW ==
+                bsl::is_nothrow_move_constructible<native_std::string>::value);
+
+        ASSERT(!bslma::UsesBslmaAllocator<native_std::string>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
+        ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
+        ASSERT(EXP_NOTHROW ==
+                bsl::is_nothrow_move_constructible<native_std::string>::value);
+
+        if (veryVerbose) printf("\tTesting 'native_std::wstring'.\n");
+        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
+        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
+        BSLMF_ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
+        BSLMF_ASSERT(EXP_NOTHROW ==
+               bsl::is_nothrow_move_constructible<native_std::wstring>::value);
+
+        ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
+        ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
+        ASSERT(EXP_NOTHROW ==
+               bsl::is_nothrow_move_constructible<native_std::wstring>::value);
+
+        if (veryVerbose)
+            printf("\tTesting string with non bitwise movable allocator.\n");
 
         typedef LimitAllocator<bsl::allocator<char> >
                                                    NotBitwiseMoveableAllocator;
         typedef bsl::basic_string<char,
                                   bsl::char_traits<char>,
                                   NotBitwiseMoveableAllocator> TestString;
-        ASSERT((!bslmf::IsBitwiseMoveable<TestString>::value));
+        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestString>::value);
+        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<TestString>::value);
+        BSLMF_ASSERT(bslalg::HasStlIterators<TestString>::value);
+        BSLMF_ASSERT(EXP_NOTHROW ==
+                        bsl::is_nothrow_move_constructible<TestString>::value);
 
-        if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase11();
-
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase11();
+        ASSERT(!bslma::UsesBslmaAllocator<TestString>::value);
+        ASSERT(!bslmf::IsBitwiseMoveable<TestString>::value);
+        ASSERT(bslalg::HasStlIterators<TestString>::value);
+        ASSERT(EXP_NOTHROW ==
+                        bsl::is_nothrow_move_constructible<TestString>::value);
 
       } break;
       case 10: {
