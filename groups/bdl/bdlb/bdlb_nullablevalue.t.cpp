@@ -3937,6 +3937,11 @@ void TestDriver<TEST_TYPE>::testCase17()
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
+// TBD temporary!! (while trying to reproduce compilation failure w/xlC)
+namespace ParamUtil {
+    extern const char L_EQD_CONTRACTS[];
+}
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -5394,14 +5399,12 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullableValue<bsl::string> Obj;
 
-            const char L_EQD_CONTRACTS[] = "L_EQD_CONTRACTS";
-
             Obj mX;  const Obj& X = mX;
 
             ASSERT( X.isNull());
-            mX.makeValue(L_EQD_CONTRACTS);
+            mX.makeValue(ParamUtil::L_EQD_CONTRACTS);
             ASSERT(!X.isNull());
-            ASSERT(L_EQD_CONTRACTS == X.value());
+            ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
         }
 
 //#define SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
