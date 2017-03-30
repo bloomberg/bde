@@ -113,6 +113,20 @@ struct A {
     constexpr A(bool b) : m(b?42:x) { }
     int m;
 };
+
+class OracleMiscompile {
+    // This class and out-of-line constructor demonstrate a known problem when
+    // trying to support 'constexpr' with Oracle studio CC 5.12.4
+    unsigned d_data[2];
+
+  public:
+    constexpr OracleMiscompile();
+};
+
+constexpr OracleMiscompile::OracleMiscompile()
+: d_data()
+{
+}
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
@@ -928,6 +942,9 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("Testing constexpr\n"
                             "=================\n");
+
+        constexpr OracleMiscompile d; // Just declaring 'd' crashes CC 12.4.
+
         constexpr int v = A(true).m;
         ASSERT(v == 42);
 #endif
