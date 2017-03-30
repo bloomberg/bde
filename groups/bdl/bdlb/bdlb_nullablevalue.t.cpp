@@ -5390,6 +5390,20 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == da.numBlocksTotal());
 
+        if (verbose) cout << "\nReproduce DRQS 98587609" << endl;
+        {
+            typedef bdlb::NullableValue<bsl::string> Obj;
+
+            const char L_EQD_CONTRACTS[] = "L_EQD_CONTRACTS";
+
+            Obj mX;  const Obj& X = mX;
+
+            ASSERT( X.isNull());
+            mX.makeValue(L_EQD_CONTRACTS);
+            ASSERT(!X.isNull());
+            ASSERT(L_EQD_CONTRACTS == X.value());
+        }
+
 //#define SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
 #ifdef SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
         if (verbose) cout << "\nUsing 'bsl::string' and 'int'." << endl;
