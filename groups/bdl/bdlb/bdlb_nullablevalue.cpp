@@ -11,7 +11,11 @@
 
 // TBD temporary!! (while trying to reproduce compilation failure w/xlC)
 namespace ParamUtil {
-const char L_EQD_CONTRACTS[] = "L_EQD_CONTRACTS";
+    extern const char L_EQD_CONTRACTS[];
+}
+
+namespace ParamUtil {
+    const char L_EQD_CONTRACTS[] = "L_EQD_CONTRACTS";
 }
 
 #include <bsls_ident.h>
