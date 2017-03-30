@@ -353,7 +353,7 @@ BSLS_IDENT("$Id: $")
 // This automatic deduction, however, cannot be extended to conversion
 // constructors, such as:
 //..
-//  x = (const char *)"Bye";  // ERROR
+//  x = static_cast<const char *>("Bye");  // ERROR
 //..
 // The compiler will diagnose that 'const char *' is not a variant type
 // specified in the list of parameter types used in the definition of 'List',
@@ -367,7 +367,7 @@ BSLS_IDENT("$Id: $")
 // 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
 // assign to the variant:
 //..
-//  x.assignTo<bsl::string>((const char*)"Bye");
+//  x.assignTo<bsl::string>(static_cast<const char *>("Bye"));
 //
 //  assert(!x.is<int>());
 //  assert(!x.is<double>());
@@ -444,7 +444,7 @@ BSLS_IDENT("$Id: $")
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
+//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 //
 //  my_PrintVisitor printVisitor;
 //
@@ -536,7 +536,7 @@ BSLS_IDENT("$Id: $")
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
+//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 //
 //  my_AddVisitor addVisitor;
 //
@@ -582,7 +582,7 @@ BSLS_IDENT("$Id: $")
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
-//  x[2].assignTo<bsl::string>((const char *)"Hello");
+//  x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 //
 //  ThirdPartyVisitor visitor;
 //
@@ -671,6 +671,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECONST
+#include <bslmf_removeconst.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
@@ -1375,8 +1379,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     VariantImp(TYPE&&                   value,
                typename bsl::enable_if<
                    !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                    &&
                    !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                            void>::type * = 0);
@@ -2405,8 +2410,9 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     Variant(TYPE&&                   value,
             typename bsl::enable_if<
                 !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                 &&
                 !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                         void>::type * = 0);
@@ -2585,8 +2591,9 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     Variant2(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -2766,8 +2773,9 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     Variant3(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -2947,8 +2955,9 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     Variant4(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -3128,8 +3137,9 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     Variant5(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -3309,8 +3319,9 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     Variant6(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -3491,8 +3502,9 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     Variant7(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -3673,8 +3685,9 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     Variant8(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -3855,8 +3868,9 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     Variant9(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                  &&
                  !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                          void>::type * = 0);
@@ -4038,8 +4052,9 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     Variant10(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -4222,8 +4237,9 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     Variant11(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -4406,8 +4422,9 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     Variant12(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -4591,8 +4608,9 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     Variant13(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -4779,8 +4797,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     Variant14(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -4967,8 +4986,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     Variant15(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -5156,8 +5176,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     Variant16(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -5345,8 +5366,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     Variant17(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -5534,8 +5556,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     Variant18(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -5725,8 +5748,9 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     Variant19(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                   &&
                   !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                           void>::type * = 0);
@@ -7000,20 +7024,24 @@ VariantImp<TYPES>::
 VariantImp(TYPE&&                   value,
            typename bsl::enable_if<
                !bsl::is_same<
-                        SelfType,
-                        typename bsl::remove_reference<TYPE>::type>::value
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
                &&
                !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                        void>::type *)
 #else
 VariantImp(bslmf::MovableRef<TYPE>  value)
 #endif
-: Base(Variant_TypeIndex<TYPES,
-                         typename bsl::remove_reference<TYPE>::type>::value,
+: Base(Variant_TypeIndex<
+                     TYPES,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
        0)
 {
-    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
-                                                                    BufferType;
+    typedef bsls::ObjectBuffer<
+                 typename bsl::remove_const<
+                 typename bsl::remove_reference<TYPE>::type>::type> BufferType;
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     bslma::ConstructionUtil::construct(
@@ -7870,8 +7898,10 @@ Variant<TYPES...>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_same<SelfType,
-                          typename bsl::remove_reference<TYPE>::type>::value
+            !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
             &&
             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                     void>::type *)
@@ -8035,8 +8065,10 @@ Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_same<SelfType,
-                          typename bsl::remove_reference<TYPE>::type>::value
+            !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
             &&
             !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                     void>::type *)
@@ -8239,8 +8271,10 @@ Variant2<A1, A2>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant2(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -8386,8 +8420,10 @@ Variant3<A1, A2, A3>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant3(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -8535,8 +8571,10 @@ Variant4<A1, A2, A3, A4>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant4(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -8684,8 +8722,10 @@ Variant5<A1, A2, A3, A4, A5>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant5(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -8833,8 +8873,10 @@ Variant6<A1, A2, A3, A4, A5, A6>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant6(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -8982,8 +9024,10 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant7(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -9137,8 +9181,10 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant8(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -9302,8 +9348,10 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant9(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value
+             !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
              &&
              !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                      void>::type *)
@@ -9468,8 +9516,10 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant10(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -9635,8 +9685,10 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant11(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -9802,8 +9854,10 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant12(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -9973,8 +10027,10 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant13(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -10153,8 +10209,10 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant14(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -10333,8 +10391,10 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant15(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -10518,8 +10578,10 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant16(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -10714,8 +10776,10 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant17(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -10910,8 +10974,10 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant18(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)
@@ -11110,8 +11176,10 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant19(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value
+              !bsl::is_same<
+                      SelfType,
+                      typename bsl::remove_const<
+                      typename bsl::remove_reference<TYPE>::type>::type>::value
               &&
               !bsl::is_convertible<TYPE, bslma::Allocator *>::value,
                       void>::type *)

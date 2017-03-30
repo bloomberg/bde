@@ -40,6 +40,7 @@
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
 #undef ES
@@ -54,9 +55,9 @@ using namespace bsl;
     // This macro definition parallels that defined in the header file.
 #endif
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                            xlC Warning
 //                            -----------
 // There is a large set of template instantiations located at the bottom of the
@@ -75,6 +76,7 @@ using namespace bsl;
 // We have chosen the primary manipulators for the 'bdlb::Variant' class to be
 // 'assign' and 'reset'.  The basic accessors are 'is<TYPE>', 'the<TYPE>', and
 // 'typeIndex'.
+// ----------------------------------------------------------------------------
 //
 //                      // ----------------------
 //                      // class bdlb::VariantImp
@@ -158,9 +160,9 @@ using namespace bsl;
 // [ 6] bool operator!=(const VariantImp& lhs, const VariantImp& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const VariantImp&);
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [27] USAGE EXAMPLE
+// [28] USAGE EXAMPLE
 // [18] CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
 // [ 3] int ggg(Variant *, const char *, bool = true);
 // [ 3] VariantImp& gg(VariantImp *, const char *);
@@ -170,6 +172,7 @@ using namespace bsl;
 // [19] CONCERN: 'bsl::is_trivially_copyable' trait
 // [19] CONCERN: 'bslmf::IsBitwiseMoveable' trait
 // [20] CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload.
+// [27] CONCERN: Moving an object containing a 'const' variant compiles.
 // [10] Reserved for BDEX streaming.
 
 // ============================================================================
@@ -239,9 +242,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                   HELPER TYPEDEF/STRUCT/CLASS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 class  TestAllocObj;
 class  TestInt;
@@ -264,7 +267,7 @@ typedef bdlb::VariantImp<VariantTypes> Obj;
 
 typedef bsls::Types::Int64             Int64;
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                // ==============
                                // class TestVoid
@@ -321,7 +324,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid&)
     return stream;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                // ==================
                                // class TestAllocObj
@@ -413,7 +416,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocObj&)
     return stream;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                // =============
                                // class TestInt
@@ -567,7 +570,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
     return stream;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                // ================
                                // class TestString
@@ -729,7 +732,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestString& rhs)
     return stream;
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                // =============
                                // class TestArg
@@ -886,7 +889,30 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestArg<N>& rhs)
     return stream;
 }
 
-//-----------------------------------------------------------------------------
+// Declare place-filler types for testing 'VariantN' and 'Variant'.
+
+typedef TestArg< 1> TestArg1;
+typedef TestArg< 2> TestArg2;
+typedef TestArg< 3> TestArg3;
+typedef TestArg< 4> TestArg4;
+typedef TestArg< 5> TestArg5;
+typedef TestArg< 6> TestArg6;
+typedef TestArg< 7> TestArg7;
+typedef TestArg< 8> TestArg8;
+typedef TestArg< 9> TestArg9;
+typedef TestArg<10> TestArg10;
+typedef TestArg<11> TestArg11;
+typedef TestArg<12> TestArg12;
+typedef TestArg<13> TestArg13;
+typedef TestArg<14> TestArg14;
+typedef TestArg<15> TestArg15;
+typedef TestArg<16> TestArg16;
+typedef TestArg<17> TestArg17;
+typedef TestArg<18> TestArg18;
+typedef TestArg<19> TestArg19;
+typedef TestArg<20> TestArg20;
+
+// ----------------------------------------------------------------------------
 
                                // ===============
                                // struct Copyable
@@ -942,7 +968,7 @@ void checkCopyableParameters(const Copyable& object, int numTrue)
     }
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                              // ======================
                              // struct BitwiseCopyable
@@ -961,7 +987,7 @@ struct BitwiseCopyable {
     int d_x;  // take up space
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                              // ======================
                              // struct BitwiseMoveable
@@ -979,7 +1005,7 @@ struct BitwiseMoveable {
     int d_x;  // take up space
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                // ====================
                                // struct UsesAllocator
@@ -997,7 +1023,7 @@ struct UsesAllocator {
     bslma::Allocator *allocator;
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                                   // ================
                                   // struct NilTraits
@@ -1018,9 +1044,9 @@ struct NilTraits {
         // movable.
 };
 
-//=============================================================================
+// ============================================================================
 //                        GLOBAL CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const int         VA = 123;
 const int         VB = 456;
@@ -1072,9 +1098,9 @@ const bsl::string STRING_DATA[]      = { VS, VT, VU, VV, VW };
 #define EXPECTED_MOVE_STATE MoveState::e_NOT_MOVED
 #endif
 
-//=============================================================================
+// ============================================================================
 //                      WRAPPERS AND VISITORS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // ==================
                           // struct Convertible
@@ -1100,7 +1126,7 @@ struct Convertible {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // =========================
                           // class my_ModifyingVisitor
@@ -1150,7 +1176,7 @@ class my_ModifyingVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // ============================
                           // class my_NonReturningVisitor
@@ -1206,7 +1232,7 @@ class my_NonReturningVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // =========================
                           // class my_ReturningVisitor
@@ -1229,7 +1255,7 @@ class my_ReturningVisitor : public my_NonReturningVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // =====================
                           // class my_ConstVisitor
@@ -1279,7 +1305,7 @@ class my_ConstVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // ==============================
                           // class my_ConstReturningVisitor
@@ -1341,7 +1367,7 @@ class my_ConstReturningVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // ============================
                           // class my_UnsetVariantVisitor
@@ -1421,7 +1447,7 @@ class my_UnsetVariantVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // =====================================
                           // class my_UnsetVariantReturningVisitor
@@ -1442,7 +1468,7 @@ class my_UnsetVariantReturningVisitor : public my_UnsetVariantVisitor {
     }
 };
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                         // =========================
                         // class my_NilAssertVisitor
@@ -1477,7 +1503,7 @@ void dummyConvert(void *result, const bdlb::Variant<int>& value)
     value.apply(visitor);
 }
 
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
                           // =======================
                           // class my_VariantWrapper
@@ -1919,9 +1945,9 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
     return stream;
 }
 
-//=============================================================================
+// ============================================================================
 //              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters '[A .. E]' correspond to arbitrary (but unique) 'int' values to be
@@ -1962,7 +1988,7 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 // "ABC"        Assign three values corresponding to 'A', 'B', and 'C'.  Note
 //              that the generated value of the variant object is equal to 'C'.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int ggg(Obj *object, const char *spec, bool verboseFlag = true)
     // Configure the specified 'object' according to the specified 'spec',
@@ -2048,9 +2074,9 @@ Obj g(const char *spec)
     return gg(&object, spec);
 }
 
-//=============================================================================
+// ============================================================================
 //             VISITORs Without a 'bslmf::Nil' Overload (case 20)
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace visitorsWithoutNilOverload {
 
@@ -2081,6 +2107,586 @@ struct TestVisitorWithUndeclaredResultType {
 
 }  // close namespace visitorsWithoutNilOverload
 
+// ============================================================================
+//           Moving an Object Containing a 'const' Variant (case 27)
+// ----------------------------------------------------------------------------
+
+namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT {
+
+// types for testing 'VariantImp'
+
+namespace TYPES_FOR_TESTING_VARIANTIMP {
+
+    struct VariantHolder {
+        typedef bdlb::VariantImp<bslmf::TypeList<TestArg1> > HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::VariantImp<bslmf::TypeList<VariantHolder, TestArg2> >
+                                                                   TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANTIMP
+
+// types for testing 'Variant'
+
+namespace TYPES_FOR_TESTING_VARIANT {
+
+    struct VariantHolder {
+        typedef bdlb::Variant<TestArg1> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT
+
+// types for testing 'Variant2'
+
+namespace TYPES_FOR_TESTING_VARIANT2 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant2<TestArg1, TestArg2> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT2
+
+// types for testing 'Variant3'
+
+namespace TYPES_FOR_TESTING_VARIANT3 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant3<TestArg1, TestArg2, TestArg3> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT3
+
+// types for testing 'Variant4'
+
+namespace TYPES_FOR_TESTING_VARIANT4 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant4<TestArg1, TestArg2, TestArg3, TestArg4>
+                                                                   HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT4
+
+// types for testing 'Variant5'
+
+namespace TYPES_FOR_TESTING_VARIANT5 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
+                               TestArg5> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT5
+
+// types for testing 'Variant6'
+
+namespace TYPES_FOR_TESTING_VARIANT6 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
+                               TestArg5, TestArg6> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT6
+
+// types for testing 'Variant7'
+
+namespace TYPES_FOR_TESTING_VARIANT7 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
+                               TestArg5, TestArg6, TestArg7> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT7
+
+// types for testing 'Variant8'
+
+namespace TYPES_FOR_TESTING_VARIANT8 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant8<TestArg1, TestArg2, TestArg3, TestArg4,
+                               TestArg5, TestArg6, TestArg7, TestArg8>
+                                                                   HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT8
+
+// types for testing 'Variant9'
+
+namespace TYPES_FOR_TESTING_VARIANT9 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant9<TestArg1, TestArg2, TestArg3, TestArg4,
+                               TestArg5, TestArg6, TestArg7, TestArg8,
+                               TestArg9> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT9
+
+// types for testing 'Variant10'
+
+namespace TYPES_FOR_TESTING_VARIANT10 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant10<TestArg1, TestArg2,  TestArg3,  TestArg4,
+                                TestArg5, TestArg6,  TestArg7,  TestArg8,
+                                TestArg9, TestArg10> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT10
+
+// types for testing 'Variant11'
+
+namespace TYPES_FOR_TESTING_VARIANT11 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant11<TestArg1, TestArg2,  TestArg3,  TestArg4,
+                                TestArg5, TestArg6,  TestArg7,  TestArg8,
+                                TestArg9, TestArg10, TestArg11> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT11
+
+// types for testing 'Variant12'
+
+namespace TYPES_FOR_TESTING_VARIANT12 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant12<TestArg1, TestArg2,  TestArg3,  TestArg4,
+                                TestArg5, TestArg6,  TestArg7,  TestArg8,
+                                TestArg9, TestArg10, TestArg11, TestArg12>
+                                                                   HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT12
+
+// types for testing 'Variant13'
+
+namespace TYPES_FOR_TESTING_VARIANT13 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT13
+
+// types for testing 'Variant14'
+
+namespace TYPES_FOR_TESTING_VARIANT14 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT14
+
+// types for testing 'Variant15'
+
+namespace TYPES_FOR_TESTING_VARIANT15 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT15
+
+// types for testing 'Variant16'
+
+namespace TYPES_FOR_TESTING_VARIANT16 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16>
+                                                                   HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT16
+
+// types for testing 'Variant17'
+
+namespace TYPES_FOR_TESTING_VARIANT17 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                TestArg17> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT17
+
+// types for testing 'Variant18'
+
+namespace TYPES_FOR_TESTING_VARIANT18 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                TestArg17, TestArg18> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT18
+
+// types for testing 'Variant19'
+
+namespace TYPES_FOR_TESTING_VARIANT19 {
+
+    struct VariantHolder {
+        typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
+                                TestArg5,  TestArg6,  TestArg7,  TestArg8,
+                                TestArg9,  TestArg10, TestArg11, TestArg12,
+                                TestArg13, TestArg14, TestArg15, TestArg16,
+                                TestArg17, TestArg18, TestArg19> HeldVariant;
+
+        const HeldVariant d_variant;  // *must* be 'const'
+        const int         d_id;
+
+        VariantHolder(const TestArg1& arg1, int id)
+            // Create a 'VariantHolder' object having the specified 'arg1' and
+            // 'id'.
+        : d_variant(arg1)
+        , d_id(id)
+        {
+        }
+    };
+
+    typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+}  // close namespace TYPES_FOR_TESTING_VARIANT19
+
+// Preserve code snippets originally used to reproduce the issue reported in
+// DRQS 97858910.
+
+typedef int CorrelationId;
+typedef int Uuid;
+
+struct DMPSourceData {
+    Uuid d_uuid;
+};
+
+struct AddListSubscription {
+    typedef bdlb::Variant<DMPSourceData> Data;
+
+// This 'const' raised the issue.
+//  vvvvv
+    const Data          d_sourceData;
+    const CorrelationId d_correlationId;
+
+    explicit
+    AddListSubscription(const DMPSourceData& data, CorrelationId correlationId)
+        // Create an 'AddListSubscription' object having the specified 'data'
+        // and 'correlationId'.
+    : d_sourceData(data)
+    , d_correlationId(correlationId)
+    {
+    }
+};
+
+struct RemoveAllListSubscriptions {
+    const CorrelationId d_correlationId;
+
+    explicit RemoveAllListSubscriptions(CorrelationId correlationId)
+        // Create a 'RemoveAllListSubscriptions' object having the specified
+        // 'correlationId'.
+    : d_correlationId(correlationId)
+    {
+    }
+};
+
+typedef bdlb::Variant<AddListSubscription,
+                      RemoveAllListSubscriptions> ListSubscriptionMessage;
+
+// Another wrinkle related to 'const' that had failed on Windows.
+
+class Currency;
+class Security;
+
+typedef bsl::vector<bdlb::Variant<Currency *, Security *> > MyVector;
+
+class Currency {
+  public:
+    void method(MyVector *v)
+        // Append 'this' to the specified 'v'.
+    {
+        v->emplace_back(this);
+    }
+};
+
+class Security {
+  public:
+    void method(MyVector *v)
+        // Append 'this' to the specified 'v'.
+    {
+        v->emplace_back(this);
+    }
+};
+
+}  // close namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT
+
+// ============================================================================
+//                            OUT-OF-LINE TEST CASES
+// ----------------------------------------------------------------------------
+
                         // ===============
                         // struct TestUtil
                         // ===============
@@ -2095,6 +2701,9 @@ struct TestUtil {
     typedef bsltf::TemplateTestFacility TstFacility;
 
     // CLASS METHODS
+    static void testCase27();
+        // CONCERN: Moving an object containing a 'const' variant compiles.
+
     static void testCase26();
         // Test value move-assignment operator.
 
@@ -2146,6 +2755,211 @@ struct TestUtil {
                         // ---------------
 
 // CLASS METHODS
+void TestUtil::testCase27()
+{
+    using namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT;
+
+    // Test 'VariantImp'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANTIMP;  // 'VariantImp'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT;  // 'Variant'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant2'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT2;  // 'Variant2'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant3'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT3;  // 'Variant3'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant4'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT4;  // 'Variant4'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant5'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT5;  // 'Variant5'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant6'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT6;  // 'Variant6'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant7'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT7;  // 'Variant7'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant8'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT8;  // 'Variant8'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant9'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT9;  // 'Variant9'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant10'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT10;  // 'Variant10'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant11'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT11;  // 'Variant11'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant12'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT12;  // 'Variant12'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant13'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT13;  // 'Variant13'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant14'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT14;  // 'Variant14'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant15'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT15;  // 'Variant15'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant16'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT16;  // 'Variant16'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant17'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT17;  // 'Variant17'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant18'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT18;  // 'Variant18'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Test 'Variant19'.
+    {
+        using namespace TYPES_FOR_TESTING_VARIANT19;  // 'Variant19'
+
+        TestArg1 arg1;
+
+        TestVariant mX(VariantHolder(arg1, 77));
+    }
+
+    // Reproduce issue reported in DRQS 97858910.
+    {
+        DMPSourceData sourceDefinition;
+        sourceDefinition.d_uuid = 66;
+
+        CorrelationId cID = 77;
+
+        ListSubscriptionMessage LSM(AddListSubscription(sourceDefinition,
+                                                        cID));
+    }
+
+    // Another wrinkle related to 'const' that had failed on Windows.
+    {
+        int i;
+        int *const p = &i;
+
+        bsl::vector<bdlb::Variant<int *, double *> > v;
+        v.emplace_back(p);
+    }
+}
+
 void TestUtil::testCase26()
 {
     if (verbose) cout << endl
@@ -2305,29 +3119,6 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
-
-    // declare place-filler types for testing 'VariantN' and 'Variant'
-
-    typedef TestArg< 1>  TestArg1;
-    typedef TestArg< 2>  TestArg2;
-    typedef TestArg< 3>  TestArg3;
-    typedef TestArg< 4>  TestArg4;
-    typedef TestArg< 5>  TestArg5;
-    typedef TestArg< 6>  TestArg6;
-    typedef TestArg< 7>  TestArg7;
-    typedef TestArg< 8>  TestArg8;
-    typedef TestArg< 9>  TestArg9;
-    typedef TestArg<10>  TestArg10;
-    typedef TestArg<11>  TestArg11;
-    typedef TestArg<12>  TestArg12;
-    typedef TestArg<13>  TestArg13;
-    typedef TestArg<14>  TestArg14;
-    typedef TestArg<15>  TestArg15;
-    typedef TestArg<16>  TestArg16;
-    typedef TestArg<17>  TestArg17;
-    // typedef TestArg<18>  TestArg18;
-    // typedef TestArg<19>  TestArg19;
-    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -5415,29 +6206,6 @@ void TestUtil::testCase25()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
     }
-
-    // declare place-filler types for testing 'VariantN' and 'Variant'
-
-    typedef TestArg< 1>  TestArg1;
-    typedef TestArg< 2>  TestArg2;
-    typedef TestArg< 3>  TestArg3;
-    typedef TestArg< 4>  TestArg4;
-    typedef TestArg< 5>  TestArg5;
-    typedef TestArg< 6>  TestArg6;
-    typedef TestArg< 7>  TestArg7;
-    typedef TestArg< 8>  TestArg8;
-    typedef TestArg< 9>  TestArg9;
-    typedef TestArg<10>  TestArg10;
-    typedef TestArg<11>  TestArg11;
-    typedef TestArg<12>  TestArg12;
-    typedef TestArg<13>  TestArg13;
-    typedef TestArg<14>  TestArg14;
-    typedef TestArg<15>  TestArg15;
-    typedef TestArg<16>  TestArg16;
-    typedef TestArg<17>  TestArg17;
-    // typedef TestArg<18>  TestArg18;
-    // typedef TestArg<19>  TestArg19;
-    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -8971,29 +9739,6 @@ void TestUtil::testCase23()
             }
         }
     }
-
-    // declare place-filler types for testing 'VariantN' and 'Variant'
-
-    typedef TestArg< 1>  TestArg1;
-    typedef TestArg< 2>  TestArg2;
-    typedef TestArg< 3>  TestArg3;
-    typedef TestArg< 4>  TestArg4;
-    typedef TestArg< 5>  TestArg5;
-    typedef TestArg< 6>  TestArg6;
-    typedef TestArg< 7>  TestArg7;
-    typedef TestArg< 8>  TestArg8;
-    typedef TestArg< 9>  TestArg9;
-    typedef TestArg<10>  TestArg10;
-    typedef TestArg<11>  TestArg11;
-    typedef TestArg<12>  TestArg12;
-    typedef TestArg<13>  TestArg13;
-    typedef TestArg<14>  TestArg14;
-    typedef TestArg<15>  TestArg15;
-    typedef TestArg<16>  TestArg16;
-    typedef TestArg<17>  TestArg17;
-    // typedef TestArg<18>  TestArg18;
-    // typedef TestArg<19>  TestArg19;
-    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -13322,29 +14067,6 @@ void TestUtil::testCase22()
             }
         }
     }
-
-    // declare place-filler types for testing 'VariantN' and 'Variant'
-
-    typedef TestArg< 1>  TestArg1;
-    typedef TestArg< 2>  TestArg2;
-    typedef TestArg< 3>  TestArg3;
-    typedef TestArg< 4>  TestArg4;
-    typedef TestArg< 5>  TestArg5;
-    typedef TestArg< 6>  TestArg6;
-    typedef TestArg< 7>  TestArg7;
-    typedef TestArg< 8>  TestArg8;
-    typedef TestArg< 9>  TestArg9;
-    typedef TestArg<10>  TestArg10;
-    typedef TestArg<11>  TestArg11;
-    typedef TestArg<12>  TestArg12;
-    typedef TestArg<13>  TestArg13;
-    typedef TestArg<14>  TestArg14;
-    typedef TestArg<15>  TestArg15;
-    typedef TestArg<16>  TestArg16;
-    typedef TestArg<17>  TestArg17;
-    // typedef TestArg<18>  TestArg18;
-    // typedef TestArg<19>  TestArg19;
-    // typedef TestArg<20>  TestArg20;
 
     if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
     {
@@ -20214,28 +20936,8 @@ void TestUtil::testCase18()
 
     bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
-    typedef bslmf::TypeListNil TestNil;  // for brevity
-
-    typedef TestString   TestArg1;       // for concern 4
-    typedef TestArg<2>   TestArg2;
-    typedef TestArg<3>   TestArg3;
-    typedef TestArg<4>   TestArg4;
-    typedef TestArg<5>   TestArg5;
-    typedef TestArg<6>   TestArg6;
-    typedef TestArg<7>   TestArg7;
-    typedef TestArg<8>   TestArg8;
-    typedef TestArg<9>   TestArg9;
-    typedef TestArg<10>  TestArg10;
-    typedef TestArg<11>  TestArg11;
-    typedef TestArg<12>  TestArg12;
-    typedef TestArg<13>  TestArg13;
-    typedef TestArg<14>  TestArg14;
-    typedef TestArg<15>  TestArg15;
-    typedef TestArg<16>  TestArg16;
-    typedef TestArg<17>  TestArg17;
-    typedef TestArg<18>  TestArg18;
-    typedef TestArg<19>  TestArg19;
-    typedef TestArg<20>  TestArg20;
+    typedef bslmf::TypeListNil TestNil;   // for brevity
+    typedef TestString         TestArg1;  // for concern 4
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -23344,7 +24046,7 @@ void TestUtil::testCase18()
             ASSERT(V1 == X.the<TestArg1>());
             ASSERT(mR == &mX);
 
-	    mX = V8;
+            mX = V8;
             ASSERT( 8 == X.typeIndex());
             ASSERT(      X.is<TestArg8>());
             ASSERT(V8 == X.the<TestArg8>());
@@ -24632,11 +25334,11 @@ void TestUtil::testCase17()
         typedef bdlb::Variant<int, bslmf::Nil> Obj;
 
 #if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
-        ASSERT(2 == Obj::TypeList::LENGTH);  
+        ASSERT(2 == Obj::TypeList::LENGTH);
 #else
         // See the definition of 'Variant_TypeIndex' in the '.h' file.
 
-        ASSERT(1 == Obj::TypeList::LENGTH);  
+        ASSERT(1 == Obj::TypeList::LENGTH);
 #endif
 
         Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
@@ -24678,7 +25380,7 @@ void TestUtil::testCase17()
         typedef bdlb::Variant2<int, double> Obj;
 
         ASSERT(2 == Obj::TypeList::LENGTH);
-    
+
         Obj mX = Obj(bslmf::Nil());  const Obj& X = mX;
 
         ASSERT(false == X.isUnset());
@@ -26042,9 +26744,9 @@ void TestUtil::testCase12()
     }
 }
 
-//=============================================================================
+// ============================================================================
 //                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //..
     class my_PrintVisitor {
@@ -26102,9 +26804,9 @@ void TestUtil::testCase12()
     };
 //..
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -26120,7 +26822,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // zero is always the leading case.
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -26274,7 +26976,7 @@ int main(int argc, char *argv[])
 // This automatic deduction, however, cannot be extended to conversion
 // constructors, such as:
 //..
-//  x = (const char *)"Bye";  // ERROR
+//  x = static_cast<const char *>("Bye");  // ERROR
 //..
 // The compiler will diagnose that 'const char *' is not a variant type
 // specified in the list of parameter types used in the definition of 'List',
@@ -26288,7 +26990,7 @@ int main(int argc, char *argv[])
 // 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
 // assign to the variant:
 //..
-    x.assignTo<bsl::string>((const char*)"Bye");
+    x.assignTo<bsl::string>(static_cast<const char *>("Bye"));
 
     ASSERT(!x.is<int>());
     ASSERT(!x.is<double>());
@@ -26367,7 +27069,7 @@ int main(int argc, char *argv[])
 
     x[0].assign(1);
     x[1].assign(1.1);
-    x[2].assignTo<bsl::string>((const char *)"Hello");
+    x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 
     my_PrintVisitor printVisitor;
 
@@ -26461,7 +27163,7 @@ int main(int argc, char *argv[])
 
     x[0].assign(1);
     x[1].assign(1.1);
-    x[2].assignTo<bsl::string>((const char *)"Hello");
+    x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 
     my_AddVisitor addVisitor;
 
@@ -26509,7 +27211,7 @@ int main(int argc, char *argv[])
 
     x[0].assign(1);
     x[1].assign(1.1);
-    x[2].assignTo<bsl::string>((const char *)"Hello");
+    x[2].assignTo<bsl::string>(static_cast<const char *>("Hello"));
 
     ThirdPartyVisitor visitor;
 
@@ -26524,6 +27226,40 @@ int main(int argc, char *argv[])
     }
 //..
         }
+
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // MOVING OBJECT CONTAINING 'const' VARIANT
+        //
+        // Concerns:
+        //: 1 That when an object of a variant type 'VT' is move-constructed
+        //:   from a 'const VT', the value move constructor (i.e., the
+        //:   constructor taking 'TYPE&& value') does not participate in
+        //:   overload resolution.  In particular, the 'bsl::enable_if' on the
+        //:   value move constructor must correctly handle this situation.
+        //
+        // Plan:
+        //: 1 The issue arose when a 'const VT' was a member of a type whose
+        //:   move and copy constructors were generated by the compiler, and an
+        //:   rvalue of such a type was being moved.  Test types are tailored
+        //:   for 'VariantImp', 'Variant', 'Variant2', etc., to ensure that
+        //:   compilation succeeds, verifying that the 'bsl::enable_if'
+        //:   conditions on the value move constructors are correct for this
+        //:   'const' issue.  Note that this issue is relevant to C++11 builds
+        //:   only.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: Moving an object containing a 'const' variant compiles.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MOVING OBJECT CONTAINING 'const' VARIANT"
+                          << endl
+                          << "========================================"
+                          << endl;
+
+        TestUtil::testCase27();
 
       } break;
       case 26: {
