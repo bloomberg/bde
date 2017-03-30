@@ -340,8 +340,14 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(pc, !bsl::strcmp(pc,
                                 "balst_stacktraceresolverimpl_windows.t.cpp"));
+
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || \
+          BSLS_PLATFORM_CMP_VERSION < 1700 || BSLS_PLATFORM_CMP_VERSION >= 2000
+                // Statics are invisible on some versions of the MSVC compiler.
+
                 ASSERT(frame.symbolName() == "funcStaticOne");
                 ASSERT(npos!= frame.mangledSymbolName().find("funcStaticOne"));
+#endif
             } else if (false && 1 == i) {
                 // *NONE* of these test work.  dbghelp.dll totally falls on its
                 // face when there's an inline routine on the stack.  There's

@@ -3286,6 +3286,19 @@ int main(int argc, char *argv[])
         enum { NUM_MAX_DEPTHS = sizeof maxDepths / sizeof *maxDepths };
 
         for (int d = 0; d < NUM_MAX_DEPTHS; ++d) {
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+            if (maxDepths[d] < 5) {
+                // This test requires us to see the top 4 frames to work.
+
+                // On some, but not all, versions of the Windows compiler,
+                // 'StackAddressUtil::k_IGNORE_FRAMES' is one too low so we
+                // waste a frame on 'StackAddressUtil::getStackAddresses', so
+                // we need at least 5 frames to work.
+
+                break;
+            }
+#endif
+
             if (verbose) {
                 cout << endl << endl;
                 P(maxDepths[d]);

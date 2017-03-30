@@ -203,6 +203,21 @@ typedef bsls::StackAddressUtil Address;
     enum { OPT_ON = 0 };
 #endif
 
+// Linux clang can't demangle statics, and statics are invisible to Windows
+// cl-17 - cl-19.
+
+#if defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_CMP_CLANG)
+# define u_STATIC
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+# if BSLS_PLATFORM_CMP_VERSION >= 1700 || BSLS_PLATFORM_CMP_VERSION < 2000
+#   define u_STATIC
+# else
+#   define u_STATIC static
+# endif
+#else
+# define u_STATIC static
+#endif
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
 
@@ -1009,7 +1024,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
     }
 }
 
-static
+u_STATIC
 void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 {
     if (--*depth <= 0) {
@@ -1031,7 +1046,7 @@ void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 bool case_4_top_called_demangle = false;
 bool case_4_top_called_mangle   = false;
 
-static
+u_STATIC
 void case_4_top(bool demangle)
 {
     if (demangle) {
@@ -1109,7 +1124,7 @@ void bottom(bool demangle, double x)
 static bool calledCase3TopDemangle = false;
 static bool calledCase3TopMangle   = false;
 
-static
+u_STATIC
 void case_3_Top(bool demangle)
 {
     if (demangle) {

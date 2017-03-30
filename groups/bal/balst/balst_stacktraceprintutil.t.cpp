@@ -187,6 +187,39 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { e_OPT_ON = 0 };
 #endif
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    // Windows does not demangle parens or function args.
+
+    enum { e_DEMANGLE_PARENS = 0,
+
+# if BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000
+    // Windows cl-17 - cl-19 doesn't demangle the '::' part either.
+
+           e_DEMANGLE_COLONS  = 0 };
+# else
+           e_DEMANGLE_COLONS  = 1 };
+# endif
+
+#else
+    enum { e_DEMANGLE_PARENS = 1,
+           e_DEMANGLE_COLONS  = 1 };
+#endif
+
+// Linux clang can't demangle statics, and statics are invisible to Windows
+// cl-17 - cl-19.
+
+#if defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_CMP_CLANG)
+# define u_STATIC
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+# if BSLS_PLATFORM_CMP_VERSION >= 1700 || BSLS_PLATFORM_CMP_VERSION < 2000
+#   define u_STATIC
+# else
+#   define u_STATIC static
+# endif
+#else
+# define u_STATIC static
+#endif
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
 
@@ -282,7 +315,21 @@ void checkOutput(const bsl::string&               str,
         bsl::size_t newPos = str.find(matches[vecI], posN);
         LOOP4_ASSERT(vecI, matches[vecI], str, str.substr(posN),
                                                                NPOS != newPos);
-        posN = NPOS != newPos ? newPos : posN;
+
+
+        if (!e_PLAT_WIN) {
+            posN = NPOS != newPos ? newPos : posN;
+        }
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# if BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000
+        // On the cl-17 - cl-19 versions of the MSVC windows compiler,
+        // demangling is very confused and demangles namespaces, classes, and
+        // methods in switched-around order.
+
+        posN = 0
+# endif
+#endif
     }
 
     if (problem()) {
@@ -297,6 +344,11 @@ void checkOutput(const bsl::string&               str,
 namespace CASE_4 {
 
 // Pointer to be set to inline '&PrintUtil::forTestingOnlyDump'.
+
+bool isColonPair(const char *pc)
+{
+    return ':' == *pc && ':' == pc[1] && '\0' == pc[2];
+}
 
 void top()
 {
@@ -313,18 +365,6 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
-#if (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)) || \
-     defined(BSLS_PLATFORM_OS_WINDOWS)
-    // There is a problem with the configuration of our Linux machines with
-    // respect to the Clang compiler and its demangler being out of sync
-    // with each other with regard to how they handle file-scope statics.
-    // Some versions of windows also seem to have problems demangling.
-
-    const bool demangle = false;
-#else
-    const bool demangle = true;
-#endif
-
     if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
                                 !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
@@ -332,15 +372,21 @@ void top()
         // Windows doesn't provide the source file name for an inline routine.
 
         bsl::vector<const char *> matches(&ta);
+
+        matches.push_back("BloombergLP");
+        matches.push_back("::");
         matches.push_back("balst");
+        matches.push_back("::");
         matches.push_back("StackTracePrintUtil_Test");
-        matches.push_back(demangle
+        matches.push_back("::");
+        matches.push_back(e_DEMANGLE_PARENS
                              ? "printStackTraceToString(bsl::basic_string<char"
                              : "printStackTraceToString");
         matches.push_back(" source:balst_stacktraceprintutil.h");
         matches.push_back(" in balst_stacktraceprintutil.t");
         matches.push_back("\n");
-        matches.push_back(demangle ? "top()" : "top");
+        matches.push_back("CASE_4");
+        matches.push_back(e_DEMANGLE_PARENS ? "top()" : "top");
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
         matches.push_back(" in balst_stacktraceprintutil.t");
         matches.push_back("\n");
@@ -348,21 +394,40 @@ void top()
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
         matches.push_back(" in balst_stacktraceprintutil.t");
         matches.push_back("\n");
+        if (!e_DEMANGLE_COLONS) {
+            matches.erase(bsl::remove_if(matches.begin(),
+                                         matches.end(),
+                                         isColonPair),
+                          matches.end());
+        }
+
         checkOutput(dump, matches);
     }
     else {
         bsl::vector<const char *> matches(&ta);
+
+        matches.push_back("BloombergLP");
+        matches.push_back("::");
         matches.push_back("balst");
+        matches.push_back("::");
         matches.push_back("StackTracePrintUtil_Test");
-        matches.push_back(demangle
+        matches.push_back("::");
+        matches.push_back(e_DEMANGLE_PARENS
                              ? "printStackTraceToString(bsl::basic_string<char"
                              : "printStackTraceToString");
         matches.push_back("\n");
         matches.push_back("CASE_4");
-        matches.push_back(demangle ? "top()" : "top");
+        matches.push_back(e_DEMANGLE_PARENS ? "top()" : "top");
         matches.push_back("\n");
         matches.push_back("main");
         matches.push_back("\n");
+        if (!e_DEMANGLE_COLONS) {
+            matches.erase(bsl::remove_if(matches.begin(),
+                                         matches.end(),
+                                         isColonPair),
+                          matches.end());
+        }
+
         checkOutput(dump, matches);
     }
 
@@ -449,7 +514,8 @@ BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 
 #else
 
-static int phonyCompare(const void *, const void *)
+extern "C"
+int phonyCompare(const void *, const void *)
 {
     bslma::TestAllocator ta;
     bsl::stringstream ss(&ta);
@@ -511,33 +577,21 @@ namespace CASE_2 {
 
 bool calledTop = false;
 
-static
+u_STATIC
 int top()
 {
     if (calledTop) return 9;                                          // RETURN
     calledTop = true;
 
-#if (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)) || \
-     defined(BSLS_PLATFORM_OS_WINDOWS)
-    // There is a problem with the configuration of our Linux machines with
-    // respect to the Clang compiler and its demangler being out of sync
-    // with each other with regard to how they handle file-scope statics.
-    // Some versions of windows also seem to have problems demangling.
-
-    const bool demangle = false;
-#else
-    const bool demangle = true;
-#endif
-
     bslma::TestAllocator ta;
     bsl::vector<const char *> matches(&ta);
-    matches.push_back(demangle ? "top()" : "top");
+    matches.push_back(e_DEMANGLE_PARENS ? "top()" : "top");
     matches.push_back("\n");
-    matches.push_back(demangle ? "highMiddle(int" : "highMiddle");
+    matches.push_back(e_DEMANGLE_PARENS ? "highMiddle(int" : "highMiddle");
     matches.push_back("\n");
-    matches.push_back(demangle ? "lowMiddle()" : "lowMiddle");
+    matches.push_back(e_DEMANGLE_PARENS ? "lowMiddle()" : "lowMiddle");
     matches.push_back("\n");
-    matches.push_back(demangle ? "bottom()" : "bottom");
+    matches.push_back(e_DEMANGLE_PARENS ? "bottom()" : "bottom");
     matches.push_back("\n");
     matches.push_back("main");
     matches.push_back("\n");
@@ -566,7 +620,7 @@ int top()
 
 bool calledHighMiddle = false;
 
-static
+u_STATIC
 int highMiddle(int i)
 {
     if (calledHighMiddle) return 40;                                  // RETURN
@@ -617,7 +671,7 @@ int lowMiddle()
     return i;
 }
 
-static
+u_STATIC
 int bottom()
 {
     calledLowMiddle = false;
@@ -984,8 +1038,6 @@ int main(int argc, char *argv[])
 
         int result = TC::bottom(&ta);
         ASSERT(result >= 0x20);
-
-        ASSERT(0 == defaultAllocator.numAllocations());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -993,7 +1045,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    ASSERT(0 == defaultAllocator.numAllocations());
+    ASSERT(testStatus || 0 == defaultAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
