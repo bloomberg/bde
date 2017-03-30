@@ -1,12 +1,5 @@
 // bslmt_turnstile.h                                                  -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_TURNSTILE
 #define INCLUDED_BSLMT_TURNSTILE
 
@@ -150,12 +143,15 @@ class Turnstile {
 
     // DATA
     bsls::AtomicInt64         d_nextTurn;   // absolute time of next turn in
-                                           // microseconds
+                                            // microseconds
 
-    bsls::AtomicInt64         d_interval;   // interval time in microseconds
+    bsls::Types::Int64        d_interval;   // interval time in microseconds
 
     mutable bsls::AtomicInt64 d_timestamp;  // time of last call to 'now' in
-                                           // microseconds
+                                            // microseconds
+
+    int d_minTimeToCallSleep; // shortest period of time in microsecond that
+                              // the 'waitTurn' function will go to sleep.
 
     // PRIVATE TYPES
     typedef bsls::Types::Int64 Int64;
@@ -169,12 +165,16 @@ class Turnstile {
     // CREATORS
     explicit
     Turnstile(double                    rate,
-              const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
+              const bsls::TimeInterval& startTime = bsls::TimeInterval(0),
+              int                       minTimeToCallSleep = 100);
         // Create a turnstile object that admits clients at the specified
         // 'rate', expressed as the number of turns per second.  Optionally
         // specify the (relative) 'startTime' of the first turn.  If
         // 'startTime' is not specified, the first turn may be taken
-        // immediately.  The behavior is undefined unless '0 < rate'.
+        // immediately.  Optionally specify 'minTimeToCallSleep', the shortest
+        // period of time in microseconds that the 'waitTurn' function will go
+        // to sleep.  The behavior is undefined unless '0 < rate' and
+        // '1,000,000 / rate <= minTimeToCallSleep'.
 
     // ~Turnstile();
         // Destroy this object.  Note that this trivial destructor is generated
@@ -182,16 +182,22 @@ class Turnstile {
 
     // MANIPULATORS
     void reset(double                    rate,
-               const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
+               const bsls::TimeInterval& startTime = bsls::TimeInterval(0),
+               int                       minTimeToCallSleep = 100);
         // Reset the rate of this turnstile to the specified 'rate', expressed
         // as the number of turns per second.  Optionally specify the
         // (relative) 'startTime' of the first turn.  If 'startTime' is not
-        // specified, the first turn may be taken immediately.  Note that
-        // threads blocked on 'waitTurn' are not interrupted.
+        // specified, the first turn may be taken immediately.  Optionally
+        // specify 'minTimeToCallSleep', the shortest period of time in
+        // microseconds that the 'waitTurn' function will go to sleep.  The
+        // behavior is undefined unless '0 < rate' and
+        // '1,000,000 / rate <= minTimeToCallSleep'.  Note that threads blocked
+        // on 'waitTurn' are not interrupted.
 
-    bsls::Types::Int64 waitTurn();
+    bsls::Types::Int64 waitTurn(bool sleep = true);
         // Sleep until the next turn may be taken or return immediately if the
-        // turnstile is lagging behind schedule.  Return the non-negative
+        // turnstile is lagging behind schedule.  If the optionally specified
+        // 'sleep' is false, return immediately.  Return the non-negative
         // number of microseconds spent waiting.
 
     // ACCESSORS

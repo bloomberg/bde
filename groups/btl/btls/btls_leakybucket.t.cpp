@@ -17,6 +17,9 @@
 #include <bdlt_currenttime.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_systemtime.h>
+
+#include <bslmt_threadutil.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -83,7 +86,8 @@ using namespace bsl;
 // [11] void LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [19] USAGE EXAMPLE
+// [19] USAGE EXAMPLE #1
+// [20] USAGE EXAMPLE #2
 // [ 4] All accessor methods are declared 'const'.
 // [ *] All creator/manipulator ptr./ref. parameters are 'const'.
 //=============================================================================
@@ -443,23 +447,108 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+    case 20: {
+      // --------------------------------------------------------------------
+      // USAGE EXAMPLE #2
+      //   Extracted from component header file.
+      //
+      // Concerns:
+      //: 1 The usage example provided in the component header file compiles,
+      //:   links, and runs as shown.
+      //
+      // Plan:
+      //: 1 Incorporate usage example from header into test driver, replace
+      //:   leading comment characters with spaces, replace 'assert' with
+      //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+      //:   operations.  (C-1)
+      //
+      // Testing:
+      //   USAGE EXAMPLE #2
+
+      if (verbose) cout << endl
+                        << "TESTING USAGE EXAMPLE #2" << endl
+                        << "========================" << endl;
+      ///Usage
+      ///-----
+      //
+      ///Example 2: Simulate sending packets at a high rate
+      /// - - - - - - - - - - - - - - - - - - - - - - - - -
+      // The following usage example illustrates how handle high drain rates with
+      // small capacity of packets, by compensating for
+      // bslmt::ThreadUtil::microSleep lack of accuracy (sleeping longer than
+      // it is instructed to).
+      //
+      // First, we create a 'btls::LeakyBucket' object with a drain rate of
+      // 10,000 packets/s, a capacity of 5 packets, and a time origin set to
+      // the current time (as an interval from unix epoch).  Note that 'unit',
+      // the unit of measurement for leaky bucket, corresponds to 'packet' in
+      // this example.
+      //..
+      bsls::Types::Uint64 rate     = 10000;  // packets/second
+      bsls::Types::Uint64 capacity = 5;      // packets
+      bsls::TimeInterval  now      = bsls::SystemTime::nowMonotonicClock();
+      btls::LeakyBucket   bucket(rate, capacity, now);
+
+      // Then, we define the number of packets to transfer as 100,000, and
+      // the variable 'diffMicroDueSleep' to keep track of difference between
+      // allotted time (in microsecond) and actual time.
+      bsls::Types::Int64 start = now.totalMicroseconds();
+      int packetNum = 100000;
+      int diffMicroDueSleep = 0;
+
+      // Next, we send the packets of data using a loop.
+      while (packetNum > 0) {
+          while (bucket.wouldOverflow(now)) {
+              bsls::TimeInterval timeToSubmit =
+                  bucket.calculateTimeToSubmit(now);
+              bsls::Types::Int64 intervalStart = now.totalMicroseconds();
+              // Round up the number of microseconds.
+              // Note the correction by the previous microSleep inaccuracy.
+              bsls::Types::Int64 uS = timeToSubmit.totalMicroseconds()
+                  + ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0)
+                  - diffMicroDueSleep;
+              // Skip sleeping if we overslept before
+              if (uS <= 0) {
+                  break;
+              }
+              bslmt::ThreadUtil::microSleep(uS);
+              now = bsls::SystemTime::nowMonotonicClock();
+              bsls::Types::Int64 intervalEnd = now.totalMicroseconds();
+              diffMicroDueSleep = intervalEnd - intervalStart - uS;
+          }
+          --packetNum;
+          bucket.submit(1);
+      }
+      bsls::Types::Int64 end = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
+      bsls::Types::Int64  timeSpan = end - start;
+
+      // Finally, assert that the expected time span (packetNum / rate * 1e6)
+      // is close to the actual time span.
+      bsls::Types::Int64 expectedSpan = 1e6 * packetNum / rate;
+      bsls::Types::Int64 diffSpan = expectedSpan - timeSpan;
+      if (diffSpan < 0) {
+          diffSpan -= diffSpan;
+      }
+      ASSERT(expectedSpan * 0.001 >= diffSpan);
+      //..
+      } break;
       case 19: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLE #1
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   Incorporate usage example #1 from header into driver, remove
+        //   leading comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE #1
         // --------------------------------------------------------------------
 
             if (verbose) cout << endl
-                              << "TESTING USAGE EXAMPLE" << endl
-                              << "=====================" << endl;
+                              << "TESTING USAGE EXAMPLE #1" << endl
+                              << "========================" << endl;
 //..
 // First, we create a leaky bucket having a drain rate of 512 bytes/s, a
 // capacity of 2560 bytes, and a time origin set to the current time (as an
