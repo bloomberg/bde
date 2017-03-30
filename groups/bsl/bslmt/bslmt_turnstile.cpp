@@ -25,7 +25,7 @@ enum { k_MICROSECS_PER_SECOND = 1000 * 1000 };
 // CREATORS
 bslmt::Turnstile::Turnstile(double                    rate,
                             const bsls::TimeInterval& startTime,
-                            int                       minTimeToCallSleep)
+                            const bsls::TimeInterval& minTimeToCallSleep)
 {
     reset(rate, startTime, minTimeToCallSleep);
 }
@@ -33,13 +33,13 @@ bslmt::Turnstile::Turnstile(double                    rate,
 // MANIPULATORS
 void bslmt::Turnstile::reset(double                    rate,
                              const bsls::TimeInterval& startTime,
-                             int                       minTimeToCallSleep)
+                             const bsls::TimeInterval& minTimeToCallSleep)
 {
     d_interval  = static_cast<Int64>(k_MICROSECS_PER_SECOND / rate);
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 
-    d_minTimeToCallSleep = minTimeToCallSleep;
+    d_minTimeToCallSleep = minTimeToCallSleep.totalMicroseconds();
 
     BSLS_ASSERT_SAFE(0 < d_minTimeToCallSleep);
     BSLS_ASSERT_SAFE(d_minTimeToCallSleep <= d_interval);
