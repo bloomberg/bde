@@ -464,6 +464,7 @@ int main(int argc, char *argv[])
       //
       // Testing:
       //   USAGE EXAMPLE #2
+      ///------------------
 
       if (verbose) cout << endl
                         << "TESTING USAGE EXAMPLE #2" << endl
@@ -473,25 +474,27 @@ int main(int argc, char *argv[])
       //
       ///Example 2: Simulate sending packets at a high rate
       /// - - - - - - - - - - - - - - - - - - - - - - - - -
-      // The following usage example illustrates how handle high drain rates with
-      // small capacity of packets, by compensating for
+      // The following usage example illustrates how to handle high drain rates
+      // with a small capacity for packets, by compensating for
       // bslmt::ThreadUtil::microSleep lack of accuracy (sleeping longer than
       // it is instructed to).
       //
       // First, we create a 'btls::LeakyBucket' object with a drain rate of
-      // 10,000 packets/s, a capacity of 5 packets, and a time origin set to
-      // the current time (as an interval from unix epoch).  Note that 'unit',
-      // the unit of measurement for leaky bucket, corresponds to 'packet' in
-      // this example.
+      // 10,000 packets per second, a capacity of 5 packets, and a time origin
+      // set to the current time (as an interval measured from the unix epoch).
+      // Note that 'unit', the unit of measurement for leaky bucket,
+      // corresponds to 'packet' in this example.
       //..
       bsls::Types::Uint64 rate     = 10000;  // packets/second
       bsls::Types::Uint64 capacity = 5;      // packets
       bsls::TimeInterval  now      = bsls::SystemTime::nowMonotonicClock();
       btls::LeakyBucket   bucket(rate, capacity, now);
+      //..
 
       // Then, we define the number of packets to transfer as 100,000, and
-      // the variable 'diffMicroDueSleep' to keep track of difference between
-      // allotted time (in microsecond) and actual time.
+      // the variable 'diffMicroDueSleep' to keep track of the difference
+      // between the allotted time (in microsecond) and the actual time.
+      //..
       bsls::Types::Int64 start = now.totalMicroseconds();
       int packetNum = 100000;
       int diffMicroDueSleep = 0;
@@ -522,8 +525,10 @@ int main(int argc, char *argv[])
       bsls::Types::Int64 end = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
       bsls::Types::Int64  timeSpan = end - start;
 
-      // Finally, assert that the expected time span (packetNum / rate * 1e6)
+      //..
+      // Finally, assert that the expected time span (1e6 * packetNum / rate)
       // is close to the actual time span.
+      //..
       bsls::Types::Int64 expectedSpan = 1e6 * packetNum / rate;
       bsls::Types::Int64 diffSpan = expectedSpan - timeSpan;
       if (diffSpan < 0) {

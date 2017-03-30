@@ -174,7 +174,7 @@ class Turnstile {
         // immediately.  Optionally specify 'minTimeToCallSleep', the shortest
         // period of time in microseconds that the 'waitTurn' function will go
         // to sleep.  The behavior is undefined unless '0 < rate' and
-        // '1,000,000 / rate <= minTimeToCallSleep'.
+        // '1,000,000 / rate >= minTimeToCallSleep'.
 
     // ~Turnstile();
         // Destroy this object.  Note that this trivial destructor is generated
@@ -191,14 +191,16 @@ class Turnstile {
         // specify 'minTimeToCallSleep', the shortest period of time in
         // microseconds that the 'waitTurn' function will go to sleep.  The
         // behavior is undefined unless '0 < rate' and
-        // '1,000,000 / rate <= minTimeToCallSleep'.  Note that threads blocked
+        // '1,000,000 / rate >= minTimeToCallSleep'.  Note that threads blocked
         // on 'waitTurn' are not interrupted.
 
     bsls::Types::Int64 waitTurn(bool sleep = true);
         // Sleep until the next turn may be taken or return immediately if the
-        // turnstile is lagging behind schedule.  If the optionally specified
-        // 'sleep' is false, return immediately.  Return the non-negative
-        // number of microseconds spent waiting.
+        // turnstile is lagging behind schedule, or if the time to wait is less
+        // than 'minTimeToCallSleep'.  If the optionally specified 'sleep' is
+        // false, return immediately.  Return the non-negative number of
+        // microseconds spent waiting, or if 'sleep' is false, the number of
+        // microseconds the function would have had to wait..
 
     // ACCESSORS
     bsls::Types::Int64 lagTime() const;
