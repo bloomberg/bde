@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BDE_BUILD_TARGET_DBG)
         cout << "Resolving not supported without debug symbols\n";
         break;
-#else
+#endif
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  Also, apparently on Windows (but not on Linux,
         // though they use the same processor), if you take '&' of a global
@@ -299,9 +299,10 @@ int main(int argc, char *argv[])
         typedef bsls::Types::UintPtr UintPtr;
 
         balst::StackTrace st;
-        st.resize(2);
+        st.resize(3);
         st[0].setAddress(addFixedOffset((UintPtr) &funcStaticOne));
         st[1].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
+        st[2].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
         // Optimizers can be just UNBELIEVABLY clever.  If you declare a
         // routine inline, it is VERY aggressive about figuring out a way to
@@ -310,24 +311,6 @@ int main(int argc, char *argv[])
         // function ptr to it.
 
         int testFuncLine = 0;
-
-#if 0
-        // inline function test on windows (see comment further down)
-        // doesn't work
-
-        typedef int (*TestFuncPtr)();
-        TestFuncPtr tfp = &Obj::testFunc;
-        UintPtr testFuncPtr = (UintPtr) tfp;
-
-        // If we now just called through it, the optimizer would inline the
-        // call.  So let's juggle (without actually changing it) a bit in a way
-        // the optizer can't possibly figure out:
-
-        testFuncPtr = foilOptimizer(testFuncPtr);
-
-        testFuncLine = (* (TestFuncPtr) testFuncPtr)();
-        st[2].setAddress(addFixedOffset(testFuncPtr));
-#endif
 
         for (unsigned int i = 0; i < st.length(); ++i) {
             const balst::StackTraceFrame& frame = st[i];
@@ -339,15 +322,19 @@ int main(int argc, char *argv[])
             ASSERT(!frame.isLineNumberKnown());
         }
 
+        if (veryVerbose) {
+            cout << "Before resolving:\n" << st;
+        }
+
         Obj::resolve(&st, true);
+
+        if (veryVerbose) {
+            cout << "After  resolving:\n" << st;
+        }
 
         for (unsigned int i = 0; i < st.length(); ++i) {
             const balst::StackTraceFrame& frame = st[i];
             bsl::string libName;
-
-            if (veryVerbose) {
-                cout << "st[" << i << "] before resolving: " << st[i] << endl;
-            }
 
             ASSERT(frame.isMangledSymbolNameKnown());
             ASSERT(frame.isSymbolNameKnown());
@@ -365,49 +352,32 @@ int main(int argc, char *argv[])
                 continue;
             }
 #endif
+            const char *sourceName, *funcName;
+            switch (i) {
+              case 0: {
+                funcName = "funcStaticOne";
+                sourceName = "balst_stacktraceresolverimpl_windows.t.cpp";
+              } break;
+              case 1: {
+                funcName = "funcGlobalOne";
+                sourceName = "balst_stacktraceresolverimpl_windows.t.cpp";
+              } break;
+              case 2: {
+                funcName = "resolve";
+                sourceName = "balst_stacktraceresolverimpl_windows.cpp";
+              } break;
+            }
+
             bsl::size_t fnIdx;
-            ASSERT(npos != (fnIdx = frame.sourceFileName().find(
-                               "balst_stacktraceresolverimpl_windows.t.cpp")));
+            ASSERT(npos != (fnIdx = frame.sourceFileName().find(sourceName)));
             fnIdx = npos == fnIdx ? 0 : fnIdx;
-            LOOP_ASSERT(frame.sourceFileName(),
-                        !strcmp(frame.sourceFileName().c_str() + fnIdx,
-                               "balst_stacktraceresolverimpl_windows.t.cpp"));
+            LOOP2_ASSERT(frame.sourceFileName(), sourceName,
+                         !strcmp(frame.sourceFileName().c_str() + fnIdx,
+                                 sourceName));
 
-            const char *funcName = 0 == i ? "funcStaticOne"
-                                          : "funcGlobalOne";
-
-            ASSERT(frame.symbolName() == funcName);
+	    ASSERT(i >= 2 || frame.symbolName() == funcName);
+            ASSERT(npos != frame.symbolName().find(funcName));
             ASSERT(npos != frame.mangledSymbolName().find(funcName));
-
-#if 0
-            if (2 == i) {
-                // *NONE* of these test work.  dbghelp.dll totally falls on its
-                // face when there's an inline routine on the stack.  There's
-                // nothing we can do about it except completely implement a
-                // better dbghelp.dll ourselves.  And furthermore, it might
-                // not be a problem with dbghelp.dll at all, it might be a
-                // problem with the compiler, in which case we would have to
-                // write our own CC++ compiler for Microsoft.  And since our
-                // clients might not use that compiler, we would have to not
-                // only write a compiler, but write one so good that it becomes
-                // universally used on Windows.  Screw it.
-
-                ASSERT(frame.sourceFileName() ==
-                                     "balst_stacktraceresolverimpl_windows.h");
-
-                LOOP_ASSERT(frame.lineNumber(),
-                                  abs(frame.lineNumber() - testFuncLine) < 30);
-                ASSERT(npos != frame.mangledSymbolName().find("testFunc"));
-                LOOP_ASSERT(frame.symbolName(), frame.symbolName() ==
-                              "BloombergLP::balst::StackTraceResolverImpl"
-                              "<BloombergLP::balst::ObjectFileFormat::Windows>"
-                              "::testFunc");
-            }
-#endif
-
-            if (veryVerbose) {
-                cout << "st[" << i << "] after  resolving: " << st[i] << endl;
-            }
         }
       } break;
       default: {
