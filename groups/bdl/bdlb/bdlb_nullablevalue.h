@@ -376,6 +376,10 @@ class NullableValue {
         // objects being swapped is the same.  The behavior is undefined unless
         // this object was created with the same allocator, if any, as 'other'.
 
+    TYPE& makeValue(const TYPE& value);
+        // Assign to this object the specified 'value', and return a reference
+        // providing modifiable access to the underlying 'TYPE' object.
+
     template <class BDE_OTHER_TYPE>
     TYPE& makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
         // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
@@ -1118,6 +1122,15 @@ inline
 void NullableValue<TYPE>::swap(NullableValue<TYPE>& other)
 {
     d_imp.swap(other.d_imp);
+}
+
+template <class TYPE>
+inline
+TYPE& NullableValue<TYPE>::makeValue(const TYPE& value)
+{
+    d_imp.makeValue(value);
+
+    return d_imp.value();
 }
 
 template <class TYPE>
