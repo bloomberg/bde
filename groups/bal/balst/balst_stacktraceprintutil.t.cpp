@@ -327,7 +327,7 @@ void checkOutput(const bsl::string&               str,
         // demangling is very confused and demangles namespaces, classes, and
         // methods in switched-around order.
 
-        posN = 0
+        posN = 0;
 # endif
 #endif
     }
