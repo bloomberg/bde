@@ -208,7 +208,7 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 // Linux clang can't demangle statics, and statics are invisible to Windows
 // cl-17 - cl-19.
 
-#if defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
 # define u_STATIC
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 # if BSLS_PLATFORM_CMP_VERSION >= 1700 || BSLS_PLATFORM_CMP_VERSION < 2000
