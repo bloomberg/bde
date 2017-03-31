@@ -15,6 +15,8 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bsls_log.h>
+#include <bsls_logseverity.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -217,6 +219,18 @@ void stuffRandomAddresses(balst::StackTrace *v)
     }
 }
 
+void logMessageHandler(bsls::LogSeverity::Enum  severity,
+                       const char              *file,
+                       int                      line,
+                       const char              *message)
+    // Message handler in case the resolver logs any errors while running.
+    // Stream a message containing the specified 'severity', 'file', 'line',
+    // and 'message' to 'cout'.
+{
+    bsl::cout << "Resolver logged: " << bsls::LogSeverity::toAscii(severity) <<
+                 ' ' << file << ':' << line << ' ' << message << bsl:: endl;
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -226,6 +240,12 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
+
+    // The resolver reports problems with 'bsl::log'.  Route these to 'cout' so
+    // they will be visible in matrix builds.
+
+    bsls::Log::setLogMessageHandler(&logMessageHandler);
+    bsls::Log::setSeverityThreshold(e_TRACE);
 
     bslma::TestAllocator ta;
     bslma::TestAllocator da;
@@ -336,6 +356,8 @@ int main(int argc, char *argv[])
             const balst::StackTraceFrame& frame = st[i];
             bsl::string libName;
 
+	    const int iterationTestStatus = testStatus;
+
             ASSERT(frame.isMangledSymbolNameKnown());
             ASSERT(frame.isSymbolNameKnown());
             ASSERT(frame.isLibraryFileNameKnown());
@@ -369,15 +391,23 @@ int main(int argc, char *argv[])
             }
 
             bsl::size_t fnIdx;
-            ASSERT(npos != (fnIdx = frame.sourceFileName().find(sourceName)));
+            LOOP_ASSERT(i, npos !=
+                            (fnIdx = frame.sourceFileName().find(sourceName)));
             fnIdx = npos == fnIdx ? 0 : fnIdx;
-            LOOP2_ASSERT(frame.sourceFileName(), sourceName,
+            LOOP3_ASSERT(i frame.sourceFileName(), sourceName,
                          !strcmp(frame.sourceFileName().c_str() + fnIdx,
                                  sourceName));
 
-	    ASSERT(i >= 2 || frame.symbolName() == funcName);
-            ASSERT(npos != frame.symbolName().find(funcName));
-            ASSERT(npos != frame.mangledSymbolName().find(funcName));
+            LOOP3_ASSERT(i, frame.symbolName(), funcName,
+                                     i >= 2 || frame.symbolName() == funcName);
+            LOOP3_ASSERT(i, frame.symbolName(), funcName,
+                                    npos != frame.symbolName().find(funcName));
+            LOOP3_ASSERT(i, frame.mangledSymbolName(), funcName,
+                             npos != frame.mangledSymbolName().find(funcName));
+
+            if (testStatus > iterationTestStatus) {
+                P(st[i]);
+            }
         }
       } break;
       default: {
