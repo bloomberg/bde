@@ -5399,12 +5399,28 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullableValue<bsl::string> Obj;
 
-            Obj mX;  const Obj& X = mX;
+            {
+                Obj mX;  const Obj& X = mX;
 
-            ASSERT( X.isNull());
-            mX.makeValue(ParamUtil::L_EQD_CONTRACTS);
-            ASSERT(!X.isNull());
-            ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
+                ASSERT( X.isNull());
+                mX.makeValue(ParamUtil::L_EQD_CONTRACTS);
+                ASSERT(!X.isNull());
+                ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
+            }
+
+            {
+                const Obj X(ParamUtil::L_EQD_CONTRACTS);
+                ASSERT(!X.isNull());
+                ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
+            }
+
+            {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                const Obj X(ParamUtil::L_EQD_CONTRACTS, &oa);
+                ASSERT(!X.isNull());
+                ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
+            }
         }
 
 //#define SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
