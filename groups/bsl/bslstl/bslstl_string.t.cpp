@@ -1,5 +1,4 @@
 // bslstl_string.t.cpp                                                -*-C++-*-
-
 #include <bslstl_string.h>
 
 #include <bslstl_forwarditerator.h>
@@ -14,19 +13,19 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
-#include <bslmf_issame.h>
-#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_assert.h>
+#include <bslmf_isnothrowmoveconstructible.h>
+#include <bslmf_issame.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_macrorepeat.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
-#include <bsls_macrorepeat.h>
 
 #include <bsltf_stdstatefulallocator.h>
 
@@ -20822,12 +20821,14 @@ int main(int argc, char *argv[])
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::string>::value);
 
         // SUN for some reasons declares this trait for native strings.
-#if !(defined(BSLS_PLATFORM_CMP_SUN))
+#if !defined(BSLS_PLATFORM_CMP_SUN)
         ASSERT(!bslalg::HasStlIterators<native_std::string>::value);
 #endif
 
-        // MSVC has strange noexcept specifications for native strings.
-#if !(defined(BSLS_PLATFORM_CMP_MSVC))
+        // MSVC has unconditional 'noexcept' specifications for move
+        // constructor in C++11 mode.  Fixed in MSVC 2015.
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || \
+    (defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900))
         ASSERT(EXP_NOTHROW ==
                 bsl::is_nothrow_move_constructible<native_std::string>::value);
 #endif
@@ -20837,11 +20838,12 @@ int main(int argc, char *argv[])
         ASSERT(!bslma::UsesBslmaAllocator<native_std::wstring>::value);
         ASSERT(!bslmf::IsBitwiseMoveable<native_std::wstring>::value);
 
-#if !(defined(BSLS_PLATFORM_CMP_SUN))
+#if !defined(BSLS_PLATFORM_CMP_SUN)
         ASSERT(!bslalg::HasStlIterators<native_std::wstring>::value);
 #endif
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC))
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || \
+    (defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900))
         ASSERT(EXP_NOTHROW ==
                bsl::is_nothrow_move_constructible<native_std::wstring>::value);
 #endif
