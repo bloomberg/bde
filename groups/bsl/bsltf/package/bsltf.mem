@@ -18,6 +18,7 @@ bsltf_nonassignabletesttype
 bsltf_noncopyconstructibletesttype
 bsltf_nondefaultconstructibletesttype
 bsltf_nonequalcomparabletesttype
+bsltf_nonoptionalalloctesttype
 bsltf_nontypicaloverloadstesttype
 bsltf_simpletesttype
 bsltf_stdalloctesttype

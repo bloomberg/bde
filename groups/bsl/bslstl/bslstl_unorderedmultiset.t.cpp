@@ -5951,13 +5951,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             const ptrdiff_t v = verifySpec(X, EXP);
             ASSERTV(LINE, v, EXP, X.size(), -1 == v);
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    0 <= da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
 
             ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
 
             ASSERTV(LINE, -1 == verifySpec(Y, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    0 == da.numBlocksInUse() - 2 * TYPE_ALLOC * LENGTH);
 
             ObjStlAlloc mZ; const ObjStlAlloc& Z = mZ;
 
@@ -5965,7 +5965,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
 
             ASSERTV(LINE, -1 == verifySpec(Z, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    0 <= da.numBlocksInUse() - 2 * TYPE_ALLOC * LENGTH);
         }
 
         VALUES.resetIterators();
@@ -5977,7 +5977,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
 
             ASSERTV(LINE, -1 == verifySpec(X, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    0 == da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
         }
 
         VALUES.resetIterators();
@@ -5992,7 +5992,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             }
             ASSERTV(LINE, -1 == verifySpec(X, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    0 <= da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
         }
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
@@ -10049,7 +10049,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 ASSERTV(LENGTH, CONFIG, BB == AA);
                 // 2x time due to inserting full set of duplicated values
                 ASSERTV(LENGTH, CONFIG, B, A,
-                        B - LENGTH * TYPE_ALLOC * 2 == A);
+                        0 == B - LENGTH * TYPE_ALLOC * 2 - A);
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     int  id = TstFacility::getIdentifier(VALUES[tj]);
