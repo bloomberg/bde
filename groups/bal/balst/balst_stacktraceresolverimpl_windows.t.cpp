@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
     // they will be visible in matrix builds.
 
     bsls::Log::setLogMessageHandler(&logMessageHandler);
-    bsls::Log::setSeverityThreshold(e_TRACE);
+    bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_TRACE);
 
     bslma::TestAllocator ta;
     bslma::TestAllocator da;
