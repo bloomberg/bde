@@ -399,6 +399,7 @@ int main(int argc, char *argv[])
             enum { e_SOURCE = true };
             enum { e_DEMANGLE = true };
 # endif
+#endif
 
             if (e_SOURCE) {
                 bsl::size_t fnIdx;
