@@ -35,10 +35,10 @@ BSLS_IDENT("$Id: $")
 // deferred executions, calendars and reminders, and recurring tasks, among
 // other time-bound behaviors.
 //
-// The number of active events is limited by default to 2**17 - 1, and in any
-// case no more than 2**24 - 1.  Note that if the scheduled event goes into
-// infinite loop, and the default displatcher is used, the event scheduler may
-// get into live lock.
+// The number of active events permitted by the timer-event scheduler defaults
+// to an implementation defined constant, and in any case no more than
+// 2**24 - 1.  Note that if the scheduled event goes into infinite loop, and
+// the default displatcher is used, the event scheduler may get into live lock.
 //
 ///Comparison to 'bdlmt::EventScheduler'
 ///- - - - - - - - - - - - - - - - - - -
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // such limit; and 2) accessing the queue of a 'bdlmt::TimerEventScheduler' is
 // inefficient when there is a large number of managed events (since adding or
 // removing an event involves a linear search); 'bdlmt_eventscheduler' has a
-// more sophisticated queue which can be accessed in constant or worst-case
+// more sophisticated queue that can be accessed in constant or worst-case
 // log(n) time.  The advantage this component provides over
 // 'bdlmt_eventscheduler' is that it provides light-weight handles to events in
 // the queue, while 'bdlmt_eventscheduler' provides more heavy-weight
@@ -579,8 +579,8 @@ class TimerEventScheduler {
         // Clock-Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  Note that the
-        // maximal number of scheduled non-recurring events and recurring events
-        // defaults to 2**17 - 1 each.
+        // maximal number of scheduled non-recurring events and recurring
+        // events defaults to 2**17 - 1 each.
 
     explicit TimerEventScheduler(const Dispatcher&  dispatcherFunctor,
                                  bslma::Allocator  *basicAllocator = 0);
@@ -605,8 +605,8 @@ class TimerEventScheduler {
         // in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  Note that the
-        // maximal number of scheduled non-recurring events and recurring events
-        // defaults to 2**17 - 1 each.
+        // maximal number of scheduled non-recurring events and recurring
+        // events defaults to 2**17 - 1 each.
 
     TimerEventScheduler(int               numEvents,
                         int               numClocks,
@@ -677,13 +677,13 @@ class TimerEventScheduler {
         // Begin dispatching events on this scheduler using default attributes
         // for the dispatcher thread.  Return 0 on success, and a nonzero value
         // otherwise.  If another thread is currently executing 'stop', wait
-        // until the dispatcher thread stops before starting a new one.  If this
-        // scheduler has already started (and is not currently being stopped by
-        // another thread) then this invocation has no effect and 0 is returned.
-        // The behavior is undefined if this method is invoked in the
-        // dispatcher thread (i.e., in a job executed by this scheduler).  Note
-        // that any event whose time has already passed is pending and will be
-        // dispatched immediately.
+        // until the dispatcher thread stops before starting a new one.  If
+        // this scheduler has already started (and is not currently being
+        // stopped by another thread) then this invocation has no effect and 0
+        // is returned.  The behavior is undefined if this method is invoked in
+        // the dispatcher thread (i.e., in a job executed by this scheduler).
+        // Note that any event whose time has already passed is pending and
+        // will be dispatched immediately.
 
     int start(const bslmt::ThreadAttributes& threadAttributes);
         // Begin dispatching events on this scheduler using the specified
@@ -710,7 +710,7 @@ class TimerEventScheduler {
                          const bsl::function<void()>& callback,
                          const EventKey&              key = EventKey(0));
         // Schedule the specified 'callback' to be dispatched at the specified
-        // 'time'. On success, return a handle that can be used to cancel the
+        // 'time'.  On success, return a handle that can be used to cancel the
         // 'callback' (by invoking 'cancelEvent'), or return 'e_INVALID_HANDLE'
         // if scheduling this event would exceed the maximum number of
         // scheduled events for this object (see constructor).  Optionally
@@ -729,16 +729,16 @@ class TimerEventScheduler {
         // Reschedule the event having the specified 'handle' at the specified
         // 'newTime'.  Optionally use the specified 'key' to uniquely identify
         // the event.  If the optionally specified 'wait' is true, then ensure
-        // that the event having the specified 'handle' (if it is valid) is
-        // either successfully rescheduled or dispatched before the call
-        // returns.  Return 0 on successful reschedule, and a non-zero value if
-        // the 'handle' is invalid *or* if the event has already been
-        // dispatched *or* if the event has not yet been dispatched but will
-        // soon be dispatched.  If this method is being invoked from the
-        // dispatcher thread then the 'wait' is ignored to avoid deadlock.  The
-        // 'newTime' is an absolute time represented as an interval from some
-        // epoch, which is detemined by the clock indicated at construction
-        // (see {Supported Clock-Types} in the component documentation).
+        // that the event having the 'handle' (if it is valid) is either
+        // successfully rescheduled or dispatched before the call returns.
+        // Return 0 on successful reschedule, and a non-zero value if the
+        // 'handle' is invalid *or* if the event has already been dispatched
+        // *or* if the event has not yet been dispatched but will soon be
+        // dispatched.  If this method is being invoked from the dispatcher
+        // thread then the 'wait' is ignored to avoid deadlock.  The 'newTime'
+        // is an absolute time represented as an interval from some epoch,
+        // which is detemined by the clock indicated at construction (see
+        // {Supported Clock-Types} in the component documentation).
 
     int cancelEvent(Handle          handle,
                     bool            wait = false);
@@ -813,10 +813,10 @@ class TimerEventScheduler {
 class TimerEventSchedulerTestTimeSource {
     // This class provides a means to change the clock that is used by a given
     // event-scheduler to determine when events should be triggered.
-    // Constructing a 'TimerEventSchedulerTestTimeSource' alters the
-    // behavior of the supplied event-scheduler.  After a test time-source is
-    // created, the underlying scheduler will run events according to a
-    // discrete timeline, whose successive values are determined by calls to
+    // Constructing a 'TimerEventSchedulerTestTimeSource' alters the behavior
+    // of the supplied event-scheduler.  After a test time-source is created,
+    // the underlying scheduler will run events according to a discrete
+    // timeline, whose successive values are determined by calls to
     // 'advanceTime' on the test time-source, and can be retrieved by calling
     // 'now' on that test time-source.  Note that the "system-time" held by a
     // test time-source *does* *not* correspond to the current system time.
@@ -841,8 +841,8 @@ class TimerEventSchedulerTestTimeSource {
     TimerEventSchedulerTestTimeSource(TimerEventScheduler *scheduler);
         // Construct a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
-        // 'now' to be an arbitrary time value.  The behavior is undefined
-        // if any methods have previously been called on 'scheduler'.
+        // 'now' to be an arbitrary time value.  The behavior is undefined if
+        // any methods have previously been called on 'scheduler'.
 
     // MANIPULATORS
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
