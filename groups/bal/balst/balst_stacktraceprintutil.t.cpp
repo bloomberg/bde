@@ -192,8 +192,9 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 
     enum { e_DEMANGLE_PARENS = 0,
 
-# if BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000
-    // Windows cl-17 - cl-19 doesn't demangle the '::' part either.
+# if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000) \
+    || BSLS_PLATFORM_CMP_VERSION <  1600
+    // Windows cl-15, cl-17, cl-18 & cl-19 don't demangle the '::' part either.
 
            e_DEMANGLE_COLONS  = 0 };
 # else
@@ -369,7 +370,7 @@ void top()
                                 !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
-        // Windows doesn't provide the source file name for an inline routine.
+        // Windows often doesn't provide the source file name.
 
         bsl::vector<const char *> matches(&ta);
 

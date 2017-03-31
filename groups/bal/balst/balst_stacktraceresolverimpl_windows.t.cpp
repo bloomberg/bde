@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
             const balst::StackTraceFrame& frame = st[i];
             bsl::string libName;
 
-	    const int iterationTestStatus = testStatus;
+            const int iterationTestStatus = testStatus;
 
             ASSERT(frame.isMangledSymbolNameKnown());
             ASSERT(frame.isSymbolNameKnown());
@@ -366,14 +366,6 @@ int main(int argc, char *argv[])
                                    "\\balst_stacktraceresolverimpl_windows."));
             LOOP_ASSERT(libName, npos != libName.find(".exe"));
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || \
-          BSLS_PLATFORM_CMP_VERSION < 1700 || BSLS_PLATFORM_CMP_VERSION >= 2000
-                // Statics are invisible on some versions of the MSVC compiler.
-
-            if (0 == i) {
-                continue;
-            }
-#endif
             const char *sourceName, *funcName;
             switch (i) {
               case 0: {
@@ -390,20 +382,48 @@ int main(int argc, char *argv[])
               } break;
             }
 
-            bsl::size_t fnIdx;
-            LOOP_ASSERT(i, npos !=
-                            (fnIdx = frame.sourceFileName().find(sourceName)));
-            fnIdx = npos == fnIdx ? 0 : fnIdx;
-            LOOP3_ASSERT(i, frame.sourceFileName(), sourceName,
-                         !strcmp(frame.sourceFileName().c_str() + fnIdx,
-                                 sourceName));
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+# if BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000
+            if (0 == i) {
+                // Statics are invisible on some versions of the MSVC compiler.
 
-            LOOP3_ASSERT(i, frame.symbolName(), funcName,
+                continue;
+            }
+
+            enum { e_SOURCE = false };
+            enum { e_DEMANGLE = false };
+# elif BSLS_PLATFORM_CMP_VERSION < 1600
+            enum { e_SOURCE = false };
+            enum { e_DEMANGLE = false };
+# else
+            enum { e_SOURCE = true };
+            enum { e_DEMANGLE = true };
+# endif
+
+            if (e_SOURCE) {
+                bsl::size_t fnIdx;
+                LOOP_ASSERT(i, npos !=
+                            (fnIdx = frame.sourceFileName().find(sourceName)));
+                fnIdx = npos == fnIdx ? 0 : fnIdx;
+                LOOP3_ASSERT(i, frame.sourceFileName(), sourceName,
+                             !strcmp(frame.sourceFileName().c_str() + fnIdx,
+                                     sourceName));
+            }
+
+            if (e_DEMANGLE) {
+                LOOP3_ASSERT(i, frame.symbolName(), funcName,
                                      i >= 2 || frame.symbolName() == funcName);
-            LOOP3_ASSERT(i, frame.symbolName(), funcName,
+                LOOP3_ASSERT(i, frame.symbolName(), funcName,
                                     npos != frame.symbolName().find(funcName));
-            LOOP3_ASSERT(i, frame.mangledSymbolName(), funcName,
+                LOOP3_ASSERT(i, frame.mangledSymbolName(), funcName,
                              npos != frame.mangledSymbolName().find(funcName));
+            }
+            else {
+                LOOP3_ASSERT(i, frame.symbolName(), funcName,
+                                    npos != frame.symbolName().find(funcName));
+                LOOP3_ASSERT(i, frame.mangledSymbolName(), funcName,
+                             npos != frame.mangledSymbolName().find(funcName));
+            }
 
             if (testStatus > iterationTestStatus) {
                 P(st[i]);
