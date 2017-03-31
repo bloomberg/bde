@@ -267,8 +267,16 @@ void aSsErT(int c, const char *s, int i)
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
 // ============================================================================
-//          GLOBAL HELPER TYPES, CLASSES, and CONSTANTS FOR TESTING
+//      GLOBAL HELPER MACROS, TYPES, CLASSES, and CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+// Windows has difficulty resolving statics
+
+# define u_STATIC
+#else
+# define u_STATIC static
+#endif
 
 namespace {
 
@@ -1007,7 +1015,7 @@ static
 bslma::Allocator *leakTwiceAllocator = 0;
 int leakTwiceCount;
 
-static
+u_STATIC
 void leakTwiceC()
 {
     for (int i = 0; i < 100; ++i) {
@@ -1017,7 +1025,7 @@ void leakTwiceC()
 
 // not static
 
-static
+u_STATIC
 void leakTwiceB()
 {
     if (++leakTwiceCount > 10) {
@@ -1029,7 +1037,7 @@ void leakTwiceB()
     --leakTwiceCount;                 // force routine call instead of chaining
 }
 
-static
+u_STATIC
 void leakTwiceA()
 {
     if (++leakTwiceCount > 10) {
