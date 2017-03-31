@@ -383,16 +383,14 @@ int main(int argc, char *argv[])
             }
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-# if BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000
+# if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000) \
+    || BSLS_PLATFORM_CMP_VERSION < 1600
             if (0 == i) {
-                // Statics are invisible on some versions of the MSVC compiler.
+                // Statics are invisible on most versions of the MSVC compiler.
 
                 continue;
             }
 
-            enum { e_SOURCE = false };
-            enum { e_DEMANGLE = false };
-# elif BSLS_PLATFORM_CMP_VERSION < 1600
             enum { e_SOURCE = false };
             enum { e_DEMANGLE = false };
 # else
