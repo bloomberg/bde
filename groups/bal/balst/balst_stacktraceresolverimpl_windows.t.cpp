@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, npos !=
                             (fnIdx = frame.sourceFileName().find(sourceName)));
             fnIdx = npos == fnIdx ? 0 : fnIdx;
-            LOOP3_ASSERT(i frame.sourceFileName(), sourceName,
+            LOOP3_ASSERT(i, frame.sourceFileName(), sourceName,
                          !strcmp(frame.sourceFileName().c_str() + fnIdx,
                                  sourceName));
 
