@@ -203,6 +203,21 @@ typedef bsls::StackAddressUtil Address;
     enum { OPT_ON = 0 };
 #endif
 
+// Linux clang can't demangle statics, and statics are invisible to Windows
+// cl-17 - cl-19.
+
+#if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
+# define u_STATIC
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+# if BSLS_PLATFORM_CMP_VERSION >= 1700 || BSLS_PLATFORM_CMP_VERSION < 2000
+#   define u_STATIC
+# else
+#   define u_STATIC static
+# endif
+#else
+# define u_STATIC static
+#endif
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
 
@@ -264,6 +279,33 @@ bool problem()
     return false;
 }
 
+void stripReturnType(bsl::string *dst, const bsl::string& symbol)
+    // Copy the specified 'symbol' to the specified '*dst'.  If it is a
+    // demangled function name with the return type specified, remove the
+    // return type, otherwise leave it unmodified.
+{
+    const bsl::size_t npos = bsl::string::npos;
+
+    *dst = symbol;
+    const bsl::size_t paren = dst->find_first_of("(<");
+    if (npos == paren) {
+        // Not demangled.
+
+        return;                                                       // RETURN
+    }
+
+    const bsl::size_t space = dst->rfind(' ', paren);
+    if (npos == space) {
+        // No return type.
+
+        return;                                                       // RETURN
+    }
+
+    dst->erase(0, space + 1);
+}
+
+
+
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 
@@ -319,7 +361,8 @@ void checkOutput(const bsl::string&               str,
     const size_t NPOS = bsl::string::npos;
     for (bsl::size_t vecI = 0, posN = 0; vecI < matches.size(); ++vecI) {
         bsl::size_t newPos = str.find(matches[vecI], posN);
-        LOOP3_ASSERT(vecI, matches[vecI], str.substr(posN), NPOS != newPos);
+        LOOP4_ASSERT(vecI, matches[vecI], str, str.substr(posN),
+                                                               NPOS != newPos);
         posN = NPOS != newPos ? newPos : posN;
     }
 
@@ -883,17 +926,6 @@ void case_5_top(bool demangle, bool useTestAllocator)
         *out_p << cc("User time: ") << sw.accumulatedUserTime() <<
                 cc(", wall time: ") << sw.accumulatedWallTime() << endl;
 
-#if (defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
-  && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)))   \
-  || (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG))
-        // demangling never happens with Sun CC, and there is a problem with
-        // the configuration of our Linux machines with respect to the Clang
-        // compiler and its demangler being out of sync with each other with
-        // regard to how they handle file-scope statics.
-
-        demangle = false;
-#endif
-
         if (DEBUG_ON || !PLAT_WIN) {
             // check that the names are right
 
@@ -902,7 +934,9 @@ void case_5_top(bool demangle, bool useTestAllocator)
             const char *match = ".case_5_top";
             match += !dot;
             int len = (int) bsl::strlen(match);
-            const char *sn = st[0].symbolName().c_str();
+            bsl::string symbolName(&ta);
+            stripReturnType(&symbolName, st[0].symbolName());
+            const char *sn = symbolName.c_str();
             LOOP3_ASSERT(sn, match, len,
                                    !demangle || !bsl::strncmp(sn, match, len));
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
@@ -929,7 +963,8 @@ void case_5_top(bool demangle, bool useTestAllocator)
             bool finished = false;
             int recursersFound = 0;
             for (int i = 1; i < st.length(); ++i) {
-                sn = st[i].symbolName().c_str();
+                stripReturnType(&symbolName, st[i].symbolName());
+                sn = symbolName.c_str();
                 if (!sn || !*sn) {
                     ASSERT(sn && *sn);
                     break;
@@ -989,7 +1024,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
     }
 }
 
-static
+u_STATIC
 void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 {
     if (--*depth <= 0) {
@@ -1011,7 +1046,7 @@ void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 bool case_4_top_called_demangle = false;
 bool case_4_top_called_mangle   = false;
 
-static
+u_STATIC
 void case_4_top(bool demangle)
 {
     if (demangle) {
@@ -1026,15 +1061,16 @@ void case_4_top(bool demangle)
     ST st;
     int rc = Util::loadStackTraceFromStack(&st, 100, demangle);
     LOOP_ASSERT(rc, 0 == rc);
+
     if (0 == rc) {
         testStackTrace(st);
 
         bslma::TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("case_4_top");
-        matches.push_back("middle");
-        matches.push_back("bottom");
-        matches.push_back("main");
+        matches.push_back(demangle ? "case_4_top(bool" : "case_4_top");
+        matches.push_back(demangle ? "middle(bool" : "middle");
+        matches.push_back(demangle ? "bottom(bool" : "bottom");
+        matches.push_back("main");    // 'main' is a C, not C++, symbol.
 
         bsl::stringstream os(&ta);
         Util::printFormatted(os, st);
@@ -1088,7 +1124,7 @@ void bottom(bool demangle, double x)
 static bool calledCase3TopDemangle = false;
 static bool calledCase3TopMangle   = false;
 
-static
+u_STATIC
 void case_3_Top(bool demangle)
 {
     if (demangle) {
@@ -1116,10 +1152,10 @@ void case_3_Top(bool demangle)
 
         bslma::TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("case_3_Top");
-        matches.push_back("upperMiddle");
-        matches.push_back("lowerMiddle");
-        matches.push_back("bottom");
+        matches.push_back(demangle ? "case_3_Top(bool" :  "case_3_Top");
+        matches.push_back(demangle ? "upperMiddle(bool" : "upperMiddle");
+        matches.push_back(demangle ? "lowerMiddle(bool" : "lowerMiddle");
+        matches.push_back(demangle ? "bottom(bool" : "bottom");
         matches.push_back("main");
 
         bsl::stringstream os(&ta);
@@ -1197,9 +1233,12 @@ void top(bslma::Allocator *alloc)
     ASSERT(!topCalled);
     topCalled = true;
 
+    const bool demangle = true;
+
     bsl::vector<const char *> matches(alloc);
-    matches.push_back("top");
-    matches.push_back("bottom");
+    matches.push_back(demangle ? "top(BloombergLP::bslma::Allocator" : "top");
+    matches.push_back(demangle ? "bottom(BloombergLP::bslma::Allocator" :
+                                                                     "bottom");
     matches.push_back("main");
 
     ST st;

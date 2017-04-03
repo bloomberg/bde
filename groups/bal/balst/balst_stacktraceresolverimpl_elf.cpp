@@ -68,7 +68,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 # if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #   include <cxxabi.h>
 # else
-#   include <demangle.h>
+#   include <dlfcn.h>
 # endif
 
 #else
@@ -3493,25 +3493,55 @@ void u::StackTraceResolver::setFrameSymbolName(
  && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
     // Sun CC
 
-    int rc = -1;
+    int status = -1;
 
     if (d_demangle) {
-#if 0
-        // Calling the demangler with the Solaris CC compiler requires linking
-        // with '-ldemangle', which results in unresolved symbols in Robo.
-        // someday this should be redone loading the appropriate library via
-        // 'dlopen', until then, just use the mangled symbol.
+        typedef int (*FuncPtr)(const char *, char *, bsl::size_t);
+        static FuncPtr funcPtr = 0;
+        static bool    dlopenAttempted = false;
 
-        rc = ::cplus_demangle(frame->mangledSymbolName().c_str(),
-                              buffer,
-                              bufferLen);
+        // The dynamic lib that contains the C++ demangler on Solaris is not
+        // linked in by default unless the '-ldemangle' is set, which is
+        // often not the case.
 
-        u_TRACES && 0 != rc && u_zprintf("Demangling failed, rc:%d\n", rc);
-#endif
+        if (!dlopenAttempted) {
+            dlopenAttempted = true;
+
+            ::dlerror();    // clear 'dlerror'
+
+            // 'dlopen' will load the shared lib.  If the lib has already been
+            // loaded elsewhere in the program, this will not result in
+            // multiple copies -- 'dlopoen' will just return a handle to the
+            // the original copy and increase its reference count.
+
+            void *handle = ::dlopen("libdemangle.so", RTLD_LAZY);
+            if (!handle) {
+                u_eprintf("bslst: demangle: 'dlopen' failed, msg: \"%s\"\n",
+                                                                  ::dlerror());
+            }
+            else {
+                // 'dlopen' was successful, now get the pointer to
+                // 'cplus_demangle' within that shared lib.
+
+                ::dlerror();    // clear 'dlerror'
+
+                funcPtr = reinterpret_cast<FuncPtr>(
+                                            ::dlsym(handle, "cplus_demangle"));
+                if (!funcPtr) {
+                    u_eprintf("balst: demangle: 'dlsym' failed, msg: \"%s\"\n",
+                                                                  ::dlerror());
+                }
+            }
+        }
+        if (funcPtr) {
+            status = (*funcPtr)(frame->mangledSymbolName().c_str(),
+                                buffer,
+                                bufferLen);
+        }
     }
 
-    frame->setSymbolName(0 == rc ? buffer
-                                 : frame->mangledSymbolName().c_str());
+    frame->setSymbolName(0 == status ? buffer
+                                     : frame->mangledSymbolName().c_str());
 #endif
 }
 
