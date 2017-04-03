@@ -3937,7 +3937,7 @@ void TestDriver<TEST_TYPE>::testCase17()
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-// TBD temporary!! (while trying to reproduce compilation failure w/xlC)
+// TBD temporary!! (to reproduce compilation failure w/xlC)
 namespace ParamUtil {
     extern const char L_EQD_CONTRACTS[];
 }
@@ -5404,20 +5404,6 @@ int main(int argc, char *argv[])
 
                 ASSERT( X.isNull());
                 mX.makeValue(ParamUtil::L_EQD_CONTRACTS);
-                ASSERT(!X.isNull());
-                ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
-            }
-
-            {
-                const Obj X(ParamUtil::L_EQD_CONTRACTS);
-                ASSERT(!X.isNull());
-                ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
-            }
-
-            {
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-
-                const Obj X(ParamUtil::L_EQD_CONTRACTS, &oa);
                 ASSERT(!X.isNull());
                 ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
             }

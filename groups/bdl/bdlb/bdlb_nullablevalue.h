@@ -281,10 +281,6 @@ class NullableValue {
         // method will fail to compile if 'TYPE' does not take an optional
         // allocator at construction.
 
-    NullableValue(const TYPE& value);                               // IMPLICIT
-        // Create a nullable object having the specified (non-null) 'value' of
-        // (template parameter) 'TYPE'.
-
     template <class BDE_OTHER_TYPE>
     NullableValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
                   typename bsl::enable_if<
@@ -296,13 +292,6 @@ class NullableValue {
         // allocator to supply memory.  Note that this constructor does not
         // participate in overload resolution unless 'BDE_OTHER_TYPE' is
         // convertible to 'TYPE'.
-
-    NullableValue(const TYPE& value, bslma::Allocator *basicAllocator);
-        // Create a nullable object having the specified (non-null) 'value' of
-        // (template parameter) TYPE', and that uses the specified
-        // 'basicAllocator' to supply memory.  Note that this method will fail
-        // to compile if 'TYPE' does not take an optional allocator at
-        // construction.
 
     template <class BDE_OTHER_TYPE>
     NullableValue(
@@ -1017,13 +1006,6 @@ NullableValue<TYPE>::NullableValue(
 }
 
 template <class TYPE>
-inline
-NullableValue<TYPE>::NullableValue(const TYPE& value)
-{
-    d_imp.makeValueRaw(value);
-}
-
-template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
@@ -1032,15 +1014,6 @@ NullableValue<TYPE>::NullableValue(
                             void>::type *)
 {
     d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-}
-
-template <class TYPE>
-inline
-NullableValue<TYPE>::NullableValue(const TYPE&       value,
-                                   bslma::Allocator *basicAllocator)
-: d_imp(basicAllocator)
-{
-    d_imp.makeValueRaw(value);
 }
 
 template <class TYPE>

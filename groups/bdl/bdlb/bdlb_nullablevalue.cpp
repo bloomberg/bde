@@ -9,7 +9,7 @@
 
 #include <bdlb_nullablevalue.h>
 
-// TBD temporary!! (while trying to reproduce compilation failure w/xlC)
+// TBD temporary!! (to reproduce compilation failure w/xlC)
 namespace ParamUtil {
     extern const char L_EQD_CONTRACTS[];
 }
@@ -21,6 +21,35 @@ namespace ParamUtil {
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_nullablevalue_cpp,"$Id$ $CSID$")
 
+///IMPLEMENTATION NOTES
+///--------------------
+// An apparent bug in the IBM xlC compiler (Version: 12.01.0000.0012) required
+// that this otherwise unnecessary overload be included in the interface:
+//..
+//  NullableValue(const TYPE& value);                               // IMPLICIT
+//..
+// The obscure test case that demonstrates this could not be replicated in the
+// test driver:
+//..
+//  // paramutil.h
+//  namespace ParamUtil {
+//      extern const char L_SOME_STRING[];
+//  }
+//
+//  // paramutil.cpp
+//  #include <paramutil.h>
+//  namespace ParamUtil {
+//      const char L_SOME_STRING[] = "L_SOME_STRING";
+//  }
+//
+//  // client.cpp
+//  #include <paramutil.h>
+//  ...
+//      bdlb::NullableValue<bsl::string> mX;
+//      mX.makeValue(ParamUtil::L_SOME_STRING);
+//  ...
+//..
+//
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
