@@ -42,7 +42,7 @@ void bslmt::Turnstile::reset(double                    rate,
     d_minTimeToCallSleep = minTimeToCallSleep.totalMicroseconds();
 
     BSLS_ASSERT_SAFE(0 < d_minTimeToCallSleep);
-    BSLS_ASSERT_SAFE(d_minTimeToCallSleep <= d_interval);
+    BSLS_ASSERT_SAFE(    d_minTimeToCallSleep <= d_interval);
 }
 
 bsls::Types::Int64 bslmt::Turnstile::waitTurn(bool sleep)

@@ -150,8 +150,8 @@ class Turnstile {
     mutable bsls::AtomicInt64 d_timestamp;  // time of last call to 'now' in
                                             // microseconds
 
-    int d_minTimeToCallSleep; // shortest period of time in microsecond that
-                              // the 'waitTurn' function will go to sleep.
+    int d_minTimeToCallSleep; // shortest period of time, in microseconds, that
+                              // the 'waitTurn' function will go to sleep
 
     // PRIVATE TYPES
     typedef bsls::Types::Int64 Int64;
@@ -174,8 +174,9 @@ class Turnstile {
         // 'startTime' is not specified, the first turn may be taken
         // immediately.  Optionally specify 'minTimeToCallSleep', the shortest
         // period of time in seconds that the 'waitTurn' function will go to
-        // sleep.  The behavior is undefined unless '0 < rate' and
-        // '1 / rate >= minTimeToCallSleep'.
+        // sleep.  The behavior is undefined unless '0 < rate'.  Note that if
+        // '1 / rate >= minTimeToCallSleep', it is impossible to get evenly
+        // spaced intervals.
 
     // ~Turnstile();
         // Destroy this object.  Note that this trivial destructor is generated
@@ -192,16 +193,18 @@ class Turnstile {
         // specified, the first turn may be taken immediately.  Optionally
         // specify 'minTimeToCallSleep', the shortest period of time in
         // seconds that the 'waitTurn' function will go to sleep.  The behavior
-        // is undefined unless '0 < rate' and '1 / rate >= minTimeToCallSleep'.
-        // Note that threads blocked on 'waitTurn' are not interrupted.
+        // is undefined unless '0 < rate'.  Note that if
+        // '1 / rate >= minTimeToCallSleep'., it is impossible to get evely
+        // spaced intervals.  Also note that threads blocked on 'waitTurn' are
+        // not interrupted.
 
     bsls::Types::Int64 waitTurn(bool sleep = true);
         // Sleep until the next turn may be taken or return immediately if the
-        // turnstile is lagging behind schedule, or if the time to wait is less
-        // than 'minTimeToCallSleep'.  If the optionally specified 'sleep' is
-        // false, return immediately.  Return the non-negative number of
+        // optionally specified 'sleep' is false, this turnstile is lagging
+        // behind schedule, or if the calculated sleep duration is less than
+        // 'minTimeToCallSleep'.  Return the non-negative number of
         // microseconds spent waiting, or if 'sleep' is false, the number of
-        // microseconds the function would have had to wait..
+        // microseconds the function would have had to wait.
 
     // ACCESSORS
     bsls::Types::Int64 lagTime() const;
