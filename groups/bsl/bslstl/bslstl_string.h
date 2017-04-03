@@ -159,8 +159,8 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | a.erase(p1, p2)                         | O[1 + distance(p1, a.end())]  |
 //  |-----------------------------------------+-------------------------------|
-//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' use the   |
-//  |                                         | same allocator, O[n + m]      |
+//  | a.swap(b), swap(a,b)                    | O[1] if 'a' and 'b' allocators|
+//  |                                         | compare equal, O[n + m]       |
 //  |                                         | otherwise                     |
 //  |-----------------------------------------+-------------------------------|
 //  | a.clear()                               | O[1]                          |
@@ -522,9 +522,9 @@ BSLS_IDENT("$Id: $")
 // Then, we provide the implementation for 'replace':
 //..
 //  {
-//      const int   oldStringSize = oldString.size();
-//      const int   newStringSize = newString.size();
-//      bsl::string line;
+//      const bsl::string::size_type oldStringSize = oldString.size();
+//      const bsl::string::size_type newStringSize = newString.size();
+//      bsl::string                  line;
 //
 //      bsl::getline(inputStream, line);
 //..
@@ -610,6 +610,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
 #endif
@@ -674,6 +678,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_cpp11.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -727,7 +735,7 @@ using native_std::char_traits;
 
 template <class CHAR_TYPE,
           class CHAR_TRAITS = char_traits<CHAR_TYPE>,
-          class ALLOCATOR = allocator<CHAR_TYPE> >
+          class ALLOCATOR   = allocator<CHAR_TYPE> >
 class basic_string;
 
 // TYPEDEFS
@@ -973,7 +981,8 @@ class String_Imp {
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_string
-    : private String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>
+    : private String_Imp<CHAR_TYPE,
+                         typename allocator_traits<ALLOCATOR>::size_type>
     , public BloombergLP::bslalg::ContainerBase<ALLOCATOR>
 {
     // This class template provides an STL-compliant 'string' that conforms to
@@ -1008,21 +1017,32 @@ class basic_string
     // methods) should be assumed to be not alias-safe unless specifically
     // noted otherwise.
 
+    // PRIVATE TYPES
+    typedef BloombergLP::bslmf::MovableRefUtil         MoveUtil;
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
+
+    typedef bsl::allocator_traits<ALLOCATOR>           AllocatorTraits;
+        // This 'typedef' is an alias for the allocator traits type associated
+        // with this container.
+
   public:
     // PUBLIC TYPES
-    typedef CHAR_TRAITS                            traits_type;
-    typedef typename CHAR_TRAITS::char_type        value_type;
-    typedef ALLOCATOR                              allocator_type;
-    typedef typename ALLOCATOR::size_type          size_type;
-    typedef typename ALLOCATOR::difference_type    difference_type;
-    typedef value_type&                            reference;
-    typedef const value_type&                      const_reference;
-    typedef typename ALLOCATOR::pointer            pointer;
-    typedef typename ALLOCATOR::const_pointer      const_pointer;
-    typedef CHAR_TYPE                             *iterator;
-    typedef const CHAR_TYPE                       *const_iterator;
-    typedef bsl::reverse_iterator<iterator>        reverse_iterator;
-    typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
+    typedef CHAR_TRAITS                                traits_type;
+    typedef typename CHAR_TRAITS::char_type            value_type;
+
+    typedef ALLOCATOR                                  allocator_type;
+    typedef typename AllocatorTraits::size_type        size_type;
+    typedef typename AllocatorTraits::difference_type  difference_type;
+    typedef typename AllocatorTraits::pointer          pointer;
+    typedef typename AllocatorTraits::const_pointer    const_pointer;
+
+    typedef value_type&                                reference;
+    typedef const value_type&                          const_reference;
+    typedef CHAR_TYPE                                 *iterator;
+    typedef const CHAR_TYPE                           *const_iterator;
+    typedef bsl::reverse_iterator<iterator>            reverse_iterator;
+    typedef bsl::reverse_iterator<const_iterator>      const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
     // TRAITS
@@ -1038,6 +1058,8 @@ class basic_string
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
+
+    typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>        ContainerBase;
 
     // FRIENDS
     friend string to_string(int);
@@ -1069,10 +1091,10 @@ class basic_string
         // Copy the specified 'original' string content into this string
         // object, assuming that the default copy constructor of the
         // 'String_Imp' base class and the appropriate copy constructor of the
-        // 'bslstl::ContainerBase' base class have just been run.  The behavior
-        // is undefined unless 'original' holds an out-of-place representation
-        // of a string.  Note that the out-of-place representation may be
-        // short enough to fit into the small buffer storage.
+        // 'ContainerBase' base class have just been run.  The behavior is
+        // undefined unless 'original' holds an out-of-place representation of
+        // a string.  Note that the out-of-place representation may be short
+        // enough to fit into the small buffer storage.
 
     basic_string& privateAppendDispatch(iterator begin,
                                         iterator end);
@@ -1297,6 +1319,19 @@ class basic_string
         // 'newLength' exceeds the current capacity.  The behavior is undefined
         // unless 'newLength <= max_size()'.
 
+    void quickSwapExchangeAllocators(basic_string& other);
+        // Efficiently exchange the value and allocator of this object with the
+        // value and allocator of the specified 'other' object.  This method
+        // provides the no-throw exception-safety guarantee, *unless* swapping
+        // the allocator objects can throw.  Note that this method should not
+        // be called unless the allocator traits support allocator propagation.
+
+    void quickSwapRetainAllocators(basic_string& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless
+        // '*this' and 'other' allocators compare equal.
+
     // PRIVATE ACCESSORS
     int privateCompareRaw(size_type        lhsPosition,
                           size_type        lhsNumChars,
@@ -1334,16 +1369,22 @@ class basic_string
         // default-constructed allocator is used.
 
     basic_string(const basic_string& original);
+        // Create a string that has the same value as the specified 'original'
+        // string.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // supply memory.
+
     basic_string(const basic_string& original,
                  const ALLOCATOR&    basicAllocator);
         // Create a string that has the same value as the specified 'original'
-        // string.  Optionally specify the 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is not specified, then a
-        // default-constructed allocator is used.  Note that it is important to
-        // have two copy constructors instead of a single:
+        // string and uses the specified 'basicAllocator' to supply memory.
+        //
+        // Note that it is important to have two copy constructors instead of a
+        // single:
         //..
         //  basic_string(const basic_string& original,
-        //               const ALLCOATOR&    basicAllocator = ALLOCATOR());
+        //               const ALLOCATOR&    basicAllocator = ALLOCATOR());
         //..
         // When the copy constructor with the default allocator is used, xlC10
         // get confused and refuses to use the return value optimization, which
@@ -1447,31 +1488,36 @@ class basic_string
                     // *** 21.3.2 construct/copy/destroy: ***
 
     basic_string& operator=(const basic_string& rhs);
-        // Assign to this string the value of the specified 'rhs' string, and
-        // return a reference providing modifiable access to this object.
+        // Assign to this string the value of the specified 'rhs' string,
+        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
+        // type has trait 'propagate_on_container_copy_assignment', and return
+        // a reference providing modifiable access to this string.
 
     basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
-        // Assign to this string the value of the specified 'rhs' string, and
-        // return a reference providing modifiable access to this object.
-        // 'rhs' is left in a valid but unspecified state.  No memory
-        // allocation is performed if
-        // 'this->get_allocator() == rhs.get_allocator()'.
+        // Assign to this string the value of the specified 'rhs' string,
+        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
+        // type has trait 'propagate_on_container_move_assignment', and return
+        // a reference providing modifiable access to this string.  The content
+        // of 'rhs' is moved (in constant time) to this string if
+        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
+        // aforementioned trait).  'rhs' is left in a valid but unspecified
+        // state.
 
     basic_string& operator=(
                      const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs);
         // Assign to this string the value of the specified 'rhs' string
         // reference, and return a reference providing modifiable access to
-        // this object.
+        // this string.
 
     basic_string& operator=(const CHAR_TYPE *rhs);
         // Assign to this string the value of the specified 'rhs' string, and
-        // return a reference providing modifiable access to this object.
+        // return a reference providing modifiable access to this string.
 
     basic_string& operator=(CHAR_TYPE character);
         // Assign to this string the value of the string of length one
         // consisting of the specified 'character', and return a reference
-        // providing modifiable access to this object.
+        // providing modifiable access to this string.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     basic_string& operator=(std::initializer_list<CHAR_TYPE> values);
@@ -1580,7 +1626,7 @@ class basic_string
                          size_type        numChars);
         // Append at the end of this string the specified 'numChars' characters
         // from the array starting at the specified 'characterString' address,
-        // and return a reference to this modifiable string.
+        // and return a reference providing modifiable access to this string.
 
     basic_string& append(const CHAR_TYPE *characterString);
         // Append the specified 'characterString' (of length
@@ -1607,17 +1653,25 @@ class basic_string
 
     basic_string& assign(const basic_string& replacement);
         // Assign to this string the value of the specified 'replacement'
-        // string, and return a reference providing modifiable access to this
-        // string.
+        // string, propagate to this object the allocator of 'replacement' if
+        // the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_copy_assignment', and return a reference
+        // providing modifiable access to this string.  Note that this method
+        // has exactly the same behaviour as corresponding 'operator='.
 
     basic_string& assign(
                       BloombergLP::bslmf::MovableRef<basic_string> replacement)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this string the value of the specified 'replacement'
-        // string, and return a reference providing modifiable access to this
-        // string.  'replacement' is left in a valid but unspecified state.
-        // If 'replacement' and 'this' have the same allocator then no
-        // allocation will occur.
+        // string, propagate to this object the allocator of 'replacement' if
+        // the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_move_assignment', and return a reference
+        // providing modifiable access to this string.  The content of
+        // 'replacement' is moved (in constant time) to this string if
+        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
+        // aforementioned trait).  'replacement' is left in a valid but
+        // unspecified state.  Note that this method has exactly the same
+        // behaviour as corresponding 'operator='.
 
     basic_string& assign(const basic_string& replacement,
                          size_type           position,
@@ -1643,8 +1697,10 @@ class basic_string
 
     basic_string& assign(
                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Assign to this string the value of the specified 'strRef' string,
-        // and return a reference providing modifiable access to this string.
+        // Assign to this string the value of the specified 'strRef' string
+        // reference, and return a reference providing modifiable access to
+        // this string.  Note that this method has exactly the same behaviour
+        // as corresponding 'operator='.
 
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
@@ -1905,9 +1961,16 @@ class basic_string
 
     void swap(basic_string& other)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
-        // Exchange the value of this string with that of the specified
-        // 'string', so that the value of this string upon return equals that
-        // of 'other' prior to this call, and vice-versa.
+        // Exchange the value of this string with the value of the specified
+        // 'other' object.  Additionally, if
+        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
+        // 'true', then exchange the allocator of this object with that of the
+        // 'other' object, and do not modify either allocator otherwise.  This
+        // method provides the no-throw exception-safety guarantee and
+        // guarantees 'O[1]' complexity if '*this' and 'other' allocators
+        // compare equal.  The behavior is undefined unless either '*this' and
+        // 'other' allocators compare equal or 'propagate_on_container_swap' is
+        // 'true'.
 
     // ACCESSORS
 
@@ -2490,12 +2553,21 @@ operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
 
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
-          basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& rhs)
+void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
+          basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& b)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
-    // Exchange the values of the specified 'lhs' and 'rhs' strings in constant
-    // time without throwing an exception.  The behavior is undefined unless
-    // 'lhs.get_allocator() == rhs.get_allocator()'.
+    // Exchange the value of the specified 'a' object with the value of the
+    // specified 'b' object.  Additionally, if
+    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
+    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
+    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' allocators
+    // compare equal, then this method provides the no-throw exception-safety
+    // guarantee and has 'O[1]' complexity; otherwise, this method has
+    // 'O[n + m]' complexity where 'n' and 'm' are the lenghts of 'a' and 'b',
+    // respectively.  Note that 'a' and 'b' are left in valid but unspecified
+    // states if an exception is thrown (in the case where
+    // 'propagate_on_container_swap' is 'false' and 'a' and 'b' allocators
+    // compare equal).
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&
@@ -3398,7 +3470,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                  "string<...>::replace<InputIter>(pos,i,j): invalid position");
     }
-    basic_string temp(this->get_allocator());
+    basic_string temp(get_allocator());
     for (; first != last; ++first) {
         temp.push_back(*first);
     }
@@ -3406,7 +3478,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
         // Note: can potentially shrink the capacity, hence the reserve.
 
         temp.privateReserveRaw(capacity());
-        privateBase().swap(temp.privateBase());
+        quickSwapRetainAllocators(temp);
         return *this;                                                 // RETURN
     }
     return privateReplaceRaw(outPosition,
@@ -3567,6 +3639,24 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateResizeRaw(
     return *this;
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
+                               quickSwapExchangeAllocators(basic_string& other)
+{
+    privateBase().swap(other.privateBase());
+    using std::swap;
+    swap(ContainerBase::allocator(), other.ContainerBase::allocator());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
+                                 quickSwapRetainAllocators(basic_string& other)
+{
+    privateBase().swap(other.privateBase());
+}
+
 // PRIVATE ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
@@ -3617,7 +3707,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                const ALLOCATOR& basicAllocator)
                                                             BSLS_CPP11_NOEXCEPT
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 }
@@ -3627,7 +3717,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                   const basic_string& original)
 : Imp(original)
-, BloombergLP::bslalg::ContainerBase<allocator_type>(ALLOCATOR())
+, ContainerBase(AllocatorTraits::select_on_container_copy_construction(
+                                                     original.get_allocator()))
 {
     if (!this->isShortString()) {
         // Copy out-of-place string into either short buffer or new long
@@ -3643,7 +3734,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             const basic_string& original,
                                             const ALLOCATOR&    basicAllocator)
 : Imp(original)
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     if (!this->isShortString()) {
         // Copy out-of-place string into either short buffer or new long
@@ -3659,12 +3750,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                          BloombergLP::bslmf::MovableRef<basic_string> original)
                                                             BSLS_CPP11_NOEXCEPT
 : Imp(original)
-, BloombergLP::bslalg::ContainerBase<allocator_type>(
-          BloombergLP::bslmf::MovableRefUtil::access(original).get_allocator())
+, ContainerBase(MoveUtil::access(original).get_allocator())
 {
     if (!this->isShortString()) {   // nothing to fix up if string is short
-        basic_string& originalRef =
-                          BloombergLP::bslmf::MovableRefUtil::access(original);
+        basic_string& originalRef = MoveUtil::access(original);
         originalRef.resetFields();
     }
 }
@@ -3675,11 +3764,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                    BloombergLP::bslmf::MovableRef<basic_string> original,
                    const ALLOCATOR&                             basicAllocator)
 : Imp(original)
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     if (!this->isShortString()) {   // nothing to fix up if string is short
-        basic_string& originalRef =
-                          BloombergLP::bslmf::MovableRefUtil::access(original);
+        basic_string& originalRef = MoveUtil::access(original);
+
         if (this->get_allocator() == originalRef.get_allocator()) {
             originalRef.resetFields();
         }
@@ -3697,7 +3786,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             size_type           numChars,
                                             const ALLOCATOR&    basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     assign(original, position, numChars);
 }
@@ -3708,7 +3797,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              const ALLOCATOR&  basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     BSLS_ASSERT_SAFE(characterString);
 
@@ -3722,7 +3811,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              size_type         numChars,
                                              const ALLOCATOR&  basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
@@ -3736,7 +3825,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                               CHAR_TYPE         character,
                                               const ALLOCATOR&  basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     assign(numChars, character);
 }
@@ -3749,7 +3838,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                INPUT_ITER       last,
                                                const ALLOCATOR& basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     privateInitDispatch(first, last);
 }
@@ -3761,7 +3850,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
   const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
   const ALLOCATOR&                                              basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     this->assign(original.data(), original.length());
 }
@@ -3772,7 +3861,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
            const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
            const ALLOCATOR&                                     basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     assign(strRef.begin(), strRef.end());
 }
@@ -3784,7 +3873,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                std::initializer_list<CHAR_TYPE> values,
                                const ALLOCATOR&                 basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+, ContainerBase(basicAllocator)
 {
     privateInitDispatch(values.begin(), values.end());
 }
@@ -3812,7 +3901,22 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                                                        const basic_string& rhs)
 {
-    return assign(rhs, size_type(0), npos);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
+        if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
+            basic_string other(rhs, rhs.get_allocator());
+            quickSwapExchangeAllocators(other);
+        }
+        else {
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                                    rhs.size() > max_size())) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                  "string<...>::operator=(const string&...): string too long");
+            }
+            privateAssign(rhs.data(), rhs.size());
+        }
+    }
+    return *this;
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -3822,7 +3926,29 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                               BloombergLP::bslmf::MovableRef<basic_string> rhs)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    return assign(BloombergLP::bslmf::MovableRefUtil::move(rhs));
+    basic_string& lvalue = rhs;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
+        if (AllocatorTraits::propagate_on_container_move_assignment::value) {
+            basic_string other(MoveUtil::move(lvalue));
+            quickSwapExchangeAllocators(other);
+        }
+        else if (get_allocator() == lvalue.get_allocator()) {
+            basic_string other(MoveUtil::move(lvalue));
+            quickSwapRetainAllocators(other);
+        }
+        else {
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                                 lvalue.size() > max_size())) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                       "string<...>::operator=(string&&...): string too long");
+            }
+
+            privateAssign(lvalue.data(), lvalue.size());
+        }
+    }
+    return *this;
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -3831,6 +3957,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                       const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs)
 {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+               static_cast<size_type>(rhs.end() - rhs.begin()) > max_size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+           "string<...>::operator=(const stringRefData&...): string too long");
+    }
+
     return privateAssign(rhs.begin(), rhs.end() - rhs.begin());
 }
 
@@ -4161,7 +4294,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                const basic_string& replacement)
 {
-    return assign(replacement, size_type(0), npos);
+    return this->operator=(replacement);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4171,15 +4304,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                       BloombergLP::bslmf::MovableRef<basic_string> replacement)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    basic_string& other = BloombergLP::bslmf::MovableRefUtil::access(
-                                                                  replacement);
-    if (get_allocator() == other.get_allocator()) {
-        basic_string temp(BloombergLP::bslmf::MovableRefUtil::move(other));
-        privateBase().swap(temp.privateBase());
-    } else {
-        this->privateAssign(other.data(), other.size());
-    }
-    return *this;
+    basic_string& other = replacement;
+    return this->operator=(MoveUtil::move(other));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4241,7 +4367,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
 {
-    return privateAssign(strRef.begin(), strRef.end() - strRef.begin());
+    return this->operator=(strRef);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4808,15 +4934,22 @@ void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    if (get_allocator() == other.get_allocator()) {
-        privateBase().swap(other.privateBase());
+    if (AllocatorTraits::propagate_on_container_swap::value) {
+        quickSwapExchangeAllocators(other);
+    }
+    else if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   get_allocator() == other.get_allocator())) {
+        quickSwapRetainAllocators(other);
     }
     else {
-        basic_string s1(other, this->get_allocator());
-        basic_string s2(*this, other.get_allocator());
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-        s1.privateBase().swap(this->privateBase());
-        s2.privateBase().swap(other.privateBase());
+        basic_string toThisCopy(MoveUtil::move(other), get_allocator());
+        basic_string toOtherCopy(MoveUtil::move(*this),
+                other.get_allocator());
+
+        this->quickSwapRetainAllocators(toThisCopy);
+        other.quickSwapRetainAllocators(toOtherCopy);
     }
 }
 
@@ -5038,7 +5171,7 @@ typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
                                                             BSLS_CPP11_NOEXCEPT
 {
-    return BloombergLP::bslalg::ContainerBase<allocator_type>::allocator();
+    return ContainerBase::allocator();
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5545,13 +5678,11 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
 // FREE FUNCTIONS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
-               basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& rhs)
+void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
+               basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& b)
               BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    BSLS_ASSERT_SAFE(lhs.get_allocator() == rhs.get_allocator());
-
-    lhs.swap(rhs);
+    a.swap(b);
 }
 
 // FREE OPERATORS
