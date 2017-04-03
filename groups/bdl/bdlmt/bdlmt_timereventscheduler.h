@@ -567,7 +567,7 @@ class TimerEventScheduler {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Note that the  maximal number of
         // scheduled non-recurring events and recurring events defaults to
-        // 2**17 - 1 each.
+        // an implementation defined constant.
 
     explicit TimerEventScheduler(
                               bsls::SystemClockType::Enum  clockType,
@@ -580,7 +580,7 @@ class TimerEventScheduler {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  Note that the
         // maximal number of scheduled non-recurring events and recurring
-        // events defaults to 2**17 - 1 each.
+        // events defaults to an implementation defined constant.
 
     explicit TimerEventScheduler(const Dispatcher&  dispatcherFunctor,
                                  bslma::Allocator  *basicAllocator = 0);
@@ -592,7 +592,7 @@ class TimerEventScheduler {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Note that the  maximal number of
         // scheduled non-recurring events and recurring events defaults to
-        // 2**17 - 1 each.
+        // an implementation defined constant.
 
     explicit TimerEventScheduler(
                               const Dispatcher&            dispatcherFunctor,
@@ -606,7 +606,7 @@ class TimerEventScheduler {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  Note that the
         // maximal number of scheduled non-recurring events and recurring
-        // events defaults to 2**17 - 1 each.
+        // events defaults to an implementation defined constant.
 
     TimerEventScheduler(int               numEvents,
                         int               numClocks,
