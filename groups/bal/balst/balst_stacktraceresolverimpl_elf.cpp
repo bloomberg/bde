@@ -1275,9 +1275,9 @@ bool u::AddressRange::overlaps(const AddressRange& other) const
            : other.d_address + other.d_size > d_address;
 }
 
-                                // =========
-                                // FreeGuard
-                                // =========
+                              // ===============
+                              // class FreeGuard
+                              // ===============
 
 
 class FreeGuard {
