@@ -2,15 +2,12 @@
 #ifndef INCLUDED_BSLS_DEPRECATE
 #define INCLUDED_BSLS_DEPRECATE
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -TW01
-
 //@PURPOSE: Provide machinery to deprecate interfaces on a per-version basis.
 //
 //@MACROS:
 //  BSLS_DEPRECATE: tag an interface as deprecated
 //  BSLS_DEPRECATE_IS_ACTIVE: report status of deprecations in a UOR version
-//  BSLS_DEPRECATE_MAKE_VER: render threshold version for active deprecations
+//  BSLS_DEPRECATE_MAKE_VER: render threshold version for enforced deprecations
 //
 //@AUTHOR: Alexander Beels (abeels)
 //
@@ -23,8 +20,8 @@
 // deprecation facilities based exclusively on the use of '#ifndef' with global
 // macros (such as 'BDE_OMIT_DEPRECATED' and 'BDE_OMIT_INTERNAL_DEPRECATED'),
 // supported use of the 'bsls_deprecate' facility does *not* affect a UOR's
-// ABI[*].  It is therefore safe to link applications based on a mix of
-// libraries built with different deprecation policies.
+// ABI[*].  It is therefore safe to link applications based on libraries built
+// with different deprecation policies.
 //
 ///Overview: Common Uses
 ///---------------------
@@ -34,20 +31,26 @@
 // UOR owners who wish to mark an interface as deprecated can do so by tagging
 // the declaration of that interface with the 'BSLS_DEPRECATE' macro, wrapped
 // in an '#if' block to apply 'BSLS_DEPRECATE' only when
-// 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)' expands to 1 for a given version 'M.N'
-// of some UOR:
+// 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)' is true for a given version 'M.N' of
+// some UOR:
 //..
 //  #if BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)
 //  BSLS_DEPRECATE
 //  #endif
 //  int foo(const char *bar);  // 'foo' is deprecated starting with 'bde'
-//                             // version 3.2.  Once that version of 'bde' is
-//                             // released, code calling 'foo' will generate a
-//                             // deprecation warning on supported platforms.
+//                             // version 3.2.  Once the deprecation threshold
+//                             // for 'bde' advances to version 3.2, code
+//                             // calling 'foo' will generate a deprecation
+//                             // warning on supported platforms.
 //..
 //
 ///Keeping Your Code Free of Calls to Deprecated Interfaces
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// When an interface is tagged with 'BSLS_DEPRECATE' as shown above, the
+// deprecation is initially _not_ _enforced_ by default.  That is, a normal
+// build of code calling the deprecated interface will not emit a deprecation
+// warning.
+//
 // Downstream developers who wish to make sure that their code uses no
 // deprecated interfaces can do so by defining the symbol
 // 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' in their build system.
@@ -57,15 +60,22 @@
 //  # used in 'my_application', even if those deprecations are scheduled to
 //  # take effect in a future release.
 //..
+// *NEVER* define 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' for a
+// *PRODUCTION* *BUILD*.  If you do so, all libraries that you depend on will
+// be prevented from deprecating more code in future versions.
 //
 ///Preventing New Uses of Already-Deprecated Interfaces
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Once an interface has been tagged with 'BSLS_DEPRECATE', the library owner
-// can prevent new uses of that interface by defining a deprecation threshold
-// for the UOR that contains that interface, and placing that threshold at a
-// version greater than or equal to the version number specified in the
-// 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, n)' macro that controls 'BSLS_DEPRECATE'
-// for that interface:
+// At some point after an interface has been tagged with 'BSLS_DEPRECATE', the
+// library owner can make new uses of that interface generate warnings by
+// defining a deprecation threshold for the UOR that contains the deprecated
+// interface.  Defining a deprecation threshold _enforces_ deprecations made in
+// all versions up to and including the threshold version.  If the version
+// number of the deprecation threshold is greater than or equal to the version
+// number specified in the 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, n)' macro, then
+// the 'BSLS_DEPRECATE' macro will be enabled and generate a warning.
+//
+// Here is how the deprecation threshold might be defined:
 //..
 //  // bdescm_versiontag.h
 //
@@ -79,41 +89,49 @@
 //
 ///Background
 ///----------
-// This deprecation facility is based on two fundamental concepts:
+// Prior to this component, when a developer wanted to deprecate an API they
+// might either apply an attribute to the API that would generate a warning, or
+// they would use '#ifdef' to remove deprecated code when it is built with
+// appropriate options.  These solutions have a practical short-coming in a
+// production environment like Bloomberg's, where lower-level libraries cannot
+// check in changes that break the build of client libraries.  In such a
+// system, well meaning clients might build their libraries using '-Werror' or
+// with appropriate '#ifdef', to ensure their code does not use deprecated
+// APIs, but in so doing prevent any new deprecations from being added.  In
+// addition, the use of '#ifdef' results in ABI compatibility issues, as some
+// clients may build with deprecated code removed, and others may not.
 //
-//: 1 When a C++ entity is tagged with the 'BSLS_DEPRECATE' macro, that
-//:   deprecation will be either *active* or *inactive*, depending on the
-//:   deprecation settings for the UOR and version specified in the '#if' block
-//:   that surrounds the macro.  When a deprecation is inactive, it has no
-//:   effect.  When a deprecation is active, supported compilers will emit a
-//:   warning in appropriate build modes.  In an environment where compiler
-//:   warnings are considered to be build failures, it is possible (and
-//:   encouraged) to tag a C++ entity with a deprecation macro in one release
-//:   cycle, and not have that deprecation affect any clients by default until
-//:   a later release cycle.  During the intervening period, clients have an
-//:   opportunity to proactively check their code for uses of newly-deprecated
-//:   code.  By the time the deprecation becomes active by default, most
-//:   clients should have already changed their code to no longer rely on the
-//:   deprecated entity.
+// This deprecation facility is based around two concepts that attempt to
+// address those shortcomings:
+//
+//: 1 This facility is designed to provide ABI compatibility.
+//:   'BSLS_DEPRECATE_*' macros primarily trigger *compiler* *warnings* on
+//:   supported compilers, instead of removing code from the codebase.
 //:
-//: 2 'BSLS_DEPRECATE_*' macros are used primarily to trigger *compiler*
-//:   *warnings* on supported compilers, not to remove code from the codebase.
-//:   By not removing code from the codebase, we can be sure that deprecations
-//:   do not introduce any ABI incompatibilities (such as inconstent
-//:   application of ADL across the application).  The cost for maintaining ABI
-//:   compatibility is that clients cannot check whether they are using
-//:   deprecated interfaces unless they build their software with a supported
-//:   compiler and with warnings activated.  For this facility to be effective
-//:   across an enterprise, it is required that such a warning-enabled build be
-//:   part of the standard process for checking in code in the enterprise.
+//: 2 Typically, use of this facility will not immediately generate a warning
+//:   in client code.  The use of the 'BSLS_DEPRECATE' macro is typically
+//:   guarded by a version check (using 'BSLS_DEPRECATE_IS_ACTIVE').  In an
+//:   environment where compiler warnings are considered to be build failures,
+//:   it is possible (and encouraged) to tag a C++ entity with a deprecation
+//:   macro in one release cycle, and not have that deprecation affect any
+//:   clients by default until a later release cycle.  During the intervening
+//:   period, clients have an opportunity to pro-actively check their code for
+//:   uses of newly-deprecated code.
+//
+// Notice that the cost for maintaining ABI compatibility is that clients
+// cannot check whether they are using deprecated interfaces unless they build
+// their software with a supported compiler and with warnings activated.  For
+// this facility to be effective across an enterprise, it is required that such
+// a warning-enabled build be part of the standard process for checking in code
+// in the enterprise.
 //
 ///Mechanics
 ///---------
 // This component stipulates two sets of macros.  One set of deprecation
 // macros, defined in this component, identifies a C++ entity as being
 // deprecated in a given version of a given UOR.  A second set of control
-// macros, defined by clients of this component, controls which deprecation
-// macros are active or inactive at any point in the code.
+// macros, defined by clients of this component, controls the set of
+// deprecation macros that are enforced or unenforced at any point in the code.
 //
 ///Deprecation Macros
 /// - - - - - - - - -
@@ -124,7 +142,7 @@
 //:   'class' or 'struct' definitions, function declarations, and 'typedef's.
 //:
 //: 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)':
-//:   expands to 1 if deprecations are active for the specified version 'M.N'
+//:   expands to 1 if deprecations are enforced for the specified version 'M.N'
 //:   of the specified 'UOR', or to 0 otherwise.
 //
 // These two macros are intended to be placed together in a preprocessor '#if'
@@ -159,10 +177,9 @@
 // 'BSLS_DEPRECATE' cannot be applied uniformly to some C++ constructs, most
 // notably variables, 'enum' values, and preprocessor macros.  Fortunately,
 // these constructs can often be removed from a library without otherwise
-// affecting ABI, so 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)' can be used with the
-// '#if' directive to entirely remove blocks of code containing those C++
+// affecting ABI, so '!BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)' can be used with
+// the '#if' directive to entirely remove blocks of code containing those C++
 // constructs.
-//
 // Example:
 //..
 //  #if !BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
@@ -186,6 +203,9 @@
 //
 //  }  // close namespace 'grppkg'
 //..
+// Note the use of the '!' operator: deprecated code is compiled only if
+// deprecations are *not* enforced for the specified UOR version.
+//
 // Particular care must be taken to ensure that deprecating an 'enum' value
 // does not change other values in the same 'enum':
 //..
@@ -209,8 +229,8 @@
 //: '<UOR>_VERSION_DEPRECATION_THRESHOLD':
 //:   This macro should be defined in '<uor>scm_versiontag.h' alongside
 //:   '<UOR>_VERSION_MAJOR' and '<UOR>_VERSION_MINOR' to indicate the greatest
-//:   version of the unit of release 'UOR' for which deprecations are active by
-//:   default.  If not explicitly specified,
+//:   version of the unit of release 'UOR' for which deprecations are enforced
+//:   by default.  If not explicitly specified,
 //:   '<UOR>_VERSION_DEPRECATION_THRESHOLD' defaults to the version before that
 //:   specified by '<UOR>_VERSION_MAJOR' and '<UOR>_VERSION_MINOR'.
 //
@@ -230,10 +250,11 @@
 // (see below).
 //
 //: 'BB_BUILDING_UOR_<UOR>':
-//:   This macro should be defined whenever the owners of the specified 'UOR'
-//:   are building 'UOR' for inclusion in a library.  When this macro is
-//:   defined, deprecations will be inactive for all versions of 'UOR'.  This
-//:   macro must be defined before the first '#include' of a header from 'UOR'.
+//:   This macro prevents 'bsls_deprecate' from enforcing deprecations for all
+//:   versions of 'UOR'.  This macro is required in all '.cpp' files that
+//:   include a header in which a deprecated interface from *the same UOR* is
+//:   used in inline code.  This macro must be defined before the first
+//:   '#include' of a header from 'UOR'.
 //
 // Example:
 //..
@@ -251,10 +272,10 @@
 //: 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY':
 //:   This macro should be defined as a '-D' parameter during test builds of
 //:   components that are intended to be deprecation-clean.  When this macro is
-//:   defined, deprecations will be active for all versions of all UORs, except
-//:   as overridden by 'BB_BUILDING_UOR_*' or 'BB_SILENCE_DEPRECATION_*'.  This
-//:   macro must *never* appear in source code, and must *never* be defined
-//:   during any production or checkin build.
+//:   defined, deprecations will be enforced for all versions of all UORs,
+//:   except as overridden by 'BB_BUILDING_UOR_*' or
+//:   'BB_SILENCE_DEPRECATION_*'.  This macro must *never* appear in source
+//:   code, and must *never* be defined during any production or checkin build.
 //:
 //: 'BB_SILENCE_DEPRECATION_<UOR>_<M>_<N>':
 //:   This macro should be defined by clients of 'UOR' who still need to use an
@@ -333,7 +354,7 @@
 //
 //  };
 //..
-// At this point deprecations are not active by default for version 1.2 of
+// At this point deprecations are not enforced by default for version 1.2 of
 // 'abc', so the deprecation macro alone will not have any effect on clients.
 // A client building their code normally will trigger no compiler warnings:
 //..
@@ -343,7 +364,7 @@
 //..
 // If the owners of a client library or application wants to check that their
 // code uses no deprecated interfaces, they can define the
-// 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' flag in their test build
+// 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' flag in their *test* build
 // process.  A compiler that supports deprecation attributes will then trigger
 // compiler warnings:
 //..
@@ -352,12 +373,15 @@
 //  grppkg_fooutil.cpp:43: warning: function 'abcxyz::SomeUtil::someFunction'
 //  is explicitly deprecated.
 //..
+// WARNING: Clients at Bloomberg *must* *not* define
+// 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' in a production build.
+//
 // Now the owners have the opportunity to fix their code by removing the
 // dependency on 'abcxyz::SomeUtil::someFunction'.
 //
 // At some point in the future, probably on release of 'abc' version 1.3, the
-// owners of 'abc' will make deprecations active by default for version 1.2 of
-// 'abc', by setting the deprecation threshold for 'abc' in their version
+// owners of 'abc' will make deprecations enforced by default for version 1.2
+// of 'abc', by setting the deprecation threshold for 'abc' in their version
 // control headers:
 //..
 //  // abcscm_versiontag.h
@@ -385,7 +409,7 @@
 // 'grppkg_fooutil'.  In a development context that requires that all
 // production builds remain warning-free, we would be at an impasse: either the
 // owners of 'grp' must clean up their code immediately, or the owners of 'abc'
-// will not be able to activate deprecations by default for version 1.2.
+// will not be able to enforce deprecations by default for version 1.2.
 //
 // This impasse can be resolved by allowing the owners of 'grp' to locally
 // silence warnings caused by deprecations for version 1.2 of 'abc'.  This is
@@ -495,8 +519,6 @@
 //  #define XXX_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(7, 7)
 //..
 
-// BDE_VERIFY pragma: pop
-
                                // ==============
                                // BSLS_DEPRECATE
                                // ==============
@@ -555,12 +577,12 @@
                              // BSLS_DEPRECATE_CAT
                              // ==================
 
-#define BSLS_DEPRECATE_CAT(A, B)   BSLS_DEPRECATE_CAT_A(A, B)
-    // Expand to the expansion of the specified 'A', joined to the expansion of
-    // the specified 'B'.
+#define BSLS_DEPRECATE_CAT(X, Y)   BSLS_DEPRECATE_CAT_A(X, Y)
+    // Expand to the expansion of the specified 'X', joined to the expansion of
+    // the specified 'Y'.
 
-#define BSLS_DEPRECATE_CAT_A(A, B) BSLS_DEPRECATE_CAT_B(A, B)
-#define BSLS_DEPRECATE_CAT_B(A, B) A ## B
+#define BSLS_DEPRECATE_CAT_A(X, Y) BSLS_DEPRECATE_CAT_B(X, Y)
+#define BSLS_DEPRECATE_CAT_B(X, Y) X ## Y
     // Internal implementation machinery for 'BSLS_DEPRECATE_CAT'
 
 
@@ -660,9 +682,9 @@
      &&(   BSLS_DEPRECATE_ISDEFINED(BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY)\
         || BSLS_DEPRECATE_ISPASTTHRESHOLD(U, M, N)))
     // Expand to an expression evaluating to 'true' in a pre-processor context
-    // if deprecations are active for the specified version 'M.N' of the
-    // specified UOR 'U'.  Deprecations are active for version 'M.N' of UOR 'U'
-    // if:
+    // if deprecations are being enforced for the specified version 'M.N' of
+    // the specified UOR 'U'.  Deprecations will be enforced for version 'M.N'
+    // of UOR 'U' if:
     //: o 'BB_SILENCE_DEPRECATION_<U>_<M>_<N>' has not been defined in this
     //:   translation unit, and
     //:

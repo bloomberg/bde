@@ -10,7 +10,7 @@
 /// - - - - - - - - - - - - - - - - - - - - -
 // Microsoft Visual Studio preprocessor's handling of variadic arguments
 // differs from the handling found in most (all?) other compilers.  To allow
-// the macros to evaluate properly on all platforms, an special pattern is
+// the macros to evaluate properly on all platforms, a special pattern is
 // needed for expanding '__VA_ARGS__' as it is passed to the next macro in a
 // macro chain.
 //
@@ -66,7 +66,7 @@
 //..
 // Now, note that the behavior of '-D...' is not addressed by the standard.
 // The symbol so defined could end up expanding to nil (i.e., the same as
-// `#define SYMBOL`), or it couild end up expanding to either '0' or '1'.
+// `#define SYMBOL`), or it could end up expanding to either '0' or '1'.
 //
 // So, if we want to detect whether or not the user has asked to silence
 // deprecations for 'abc' version 3.1, we can't just compare
