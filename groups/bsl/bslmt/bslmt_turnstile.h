@@ -176,7 +176,8 @@ class Turnstile {
         // period of time in seconds that the 'waitTurn' function will go to
         // sleep.  The behavior is undefined unless '0 < rate'.  Note that if
         // '1 / rate >= minTimeToCallSleep', it is impossible to get evenly
-        // spaced intervals.
+        // spaced intervals since the sleep period is less than
+        // 'minTimeToCallSleep'.
 
     // ~Turnstile();
         // Destroy this object.  Note that this trivial destructor is generated
@@ -194,9 +195,10 @@ class Turnstile {
         // specify 'minTimeToCallSleep', the shortest period of time in
         // seconds that the 'waitTurn' function will go to sleep.  The behavior
         // is undefined unless '0 < rate'.  Note that if
-        // '1 / rate >= minTimeToCallSleep'., it is impossible to get evely
-        // spaced intervals.  Also note that threads blocked on 'waitTurn' are
-        // not interrupted.
+        // '1 / rate >= minTimeToCallSleep', it is impossible to get evenly
+        // spaced intervals since the sleep period is less than
+        // 'minTimeToCallSleep'.  Also note that threads blocked on 'waitTurn'
+        // are not interrupted.
 
     bsls::Types::Int64 waitTurn(bool sleep = true);
         // Sleep until the next turn may be taken or return immediately if the
