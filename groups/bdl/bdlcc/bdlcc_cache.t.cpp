@@ -261,7 +261,7 @@ void example1()
     //..
     // Notice that after we insert "Steve", the size of the cache is at the
     // high watermark.  After the following item, "Tim", is inserted, the size
-    // of the cache goes back down to 5, the low watermark.
+    // of the cache goes back down to 6, the low watermark.
     //
     // Finally, we observe the following output to stdout:
     //..
@@ -294,9 +294,10 @@ struct MyValue {
 };
 
 typedef bdlcc::Cache<int, MyValue> MyCache;
-
+//..
 // Then, suppose that we have access to a function 'retrieveValue' that returns
 // a 'MyValue' object given a 'int' key:
+//..
 MyValue retrieveValue(int key)
 {
     MyValue ret = {key, bdlt::CurrentTime::utc()};
@@ -316,8 +317,8 @@ struct MyVisitor {
     {}
 
     bool operator() (int key, const MyValue& value)
-        // Check if the specified 'value' is older than 1 hour.  If so, insert
-        // the specified 'key' into 'd_oldKeys'.
+        // Check if the specified 'value' is older than 1 hour.  If so,
+        // insert the specified 'key' into 'd_oldKeys'.
     {
         if (veryVerbose) {
             bsl::cout << "Visiting " << key
@@ -352,7 +353,8 @@ void myWorker(MyCache *cache)
         bslmt::ThreadUtil::microSleep(0, 5);
         MyVisitor visitor;
         cache->visit(visitor);
-        for (bsl::vector<int>::const_iterator itr = visitor.d_oldKeys.begin();
+        for (bsl::vector<int>::const_iterator itr =
+             visitor.d_oldKeys.begin();
              itr != visitor.d_oldKeys.end(); ++itr) {
             if (veryVerbose) bsl::cout << "Updating " << *itr << bsl::endl;
             cache->insert(*itr, retrieveValue(*itr));
@@ -676,8 +678,7 @@ CachePerformance::CachePerformance(
                               int                               numCalcs,
                               int                               numRepeats,
                               bslma::Allocator                 *basicAllocator)
-: d_cache(evictionPolicy, lowWatermark, highWatermark, basicAllocator)
-, d_allocator_p(basicAllocator)
+: d_allocator_p(basicAllocator)
 , d_title(title, basicAllocator)
 , d_numRThreads(numRThreads)
 , d_numWThreads(numWThreads)
@@ -687,6 +688,7 @@ CachePerformance::CachePerformance(
 , d_vecWTime(basicAllocator)
 , d_vecUTime(basicAllocator)
 , d_vecSTime(basicAllocator)
+, d_cache(evictionPolicy, lowWatermark, highWatermark, basicAllocator)
 {
 }
 
@@ -731,12 +733,12 @@ CachePerformance::VecTimeType CachePerformance::runTests(VecIntType&      args,
     }
     else {
         // SD = SQRT(E(X^2) - E(X)^2)
-        d_seWTime = bsl::sqrt(static_cast<double>(d_seWTime / d_numRepeats
-            - d_avgWTime * d_avgWTime));
-        d_seUTime = bsl::sqrt(static_cast<double>(d_seUTime / d_numRepeats
-            - d_avgUTime * d_avgUTime));
-        d_seSTime = bsl::sqrt(static_cast<double>(d_seSTime / d_numRepeats
-            - d_avgSTime * d_avgSTime));
+        d_seWTime = static_cast<TimeType>(bsl::sqrt(static_cast<double>(
+            d_seWTime / d_numRepeats - d_avgWTime * d_avgWTime)));
+        d_seUTime = static_cast<TimeType>(bsl::sqrt(static_cast<double>(
+            d_seUTime / d_numRepeats - d_avgUTime * d_avgUTime)));
+        d_seSTime = static_cast<TimeType>(bsl::sqrt(static_cast<double>(
+            d_seSTime / d_numRepeats - d_avgSTime * d_avgSTime)));
     }
     VecTimeType ret(d_allocator_p);
     ret.push_back(d_avgWTime);
@@ -755,6 +757,7 @@ CachePerformance::VecTimeType CachePerformance::runTest(VecIntType&       args,
         bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
         args.push_back(-1);
         int      rc = func(this, args);
+        (void) rc;
         TimeType endWTime = bsls::TimeUtil::getTimer();
         TimeType endUTime, endSTime;
         bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
@@ -801,11 +804,14 @@ void CachePerformance::printResult()
               << ",WThreads=" << d_numWThreads << "\n";
     // Time is printed in milliseconds
     bsl::cout << "Wall Time="   << d_avgWTime / 1000 << "+/-"
-            << d_seWTime / static_cast<double>(d_avgWTime) * 100.0 << "%\n";
+            << static_cast<double>(d_seWTime) / static_cast<double>(d_avgWTime)
+			   * 100.0 << "%\n";
     bsl::cout << "User Time="   << d_avgUTime / 1000 << "+/-"
-            << d_seUTime / static_cast<double>(d_avgUTime) * 100.0 << "%\n";
+            << static_cast<double>(d_seUTime) / static_cast<double>(d_avgUTime)
+			   * 100.0 << "%\n";
     bsl::cout << "System Time="   << d_avgSTime / 1000 << "+/-"
-            << d_seSTime / static_cast<double>(d_avgSTime) * 100.0 << "%\n";
+            << static_cast<double>(d_seSTime) / static_cast<double>(d_avgSTime)
+			   * 100.0 << "%\n";
 }
 
 void* CachePerformance::workFunc(void* arg)
@@ -817,6 +823,7 @@ void* CachePerformance::workFunc(void* arg)
     TimeType startUTime, startSTime;
     bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
     int      rc = wdp->d_func(wdp->d_cacheperf_p, wdp->d_data);
+    (void) rc;
     TimeType endWTime = bsls::TimeUtil::getTimer();
     TimeType endUTime, endSTime;
     bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
@@ -1006,7 +1013,6 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
     // 2 - 0, 2, 4, ..., etc.  '0 to arg[2] - 1' is the range to read from.
     // The first numWThreads are write threads.  The rest are read threads.
     int countErr = 0;
-    int numThreads  = cacheperf_p->numThreads();
     int numWThreads = cacheperf_p->numWThreads();
     int numCalcs = cacheperf_p->numCalcs();
     int range = args[0];
@@ -3558,7 +3564,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
