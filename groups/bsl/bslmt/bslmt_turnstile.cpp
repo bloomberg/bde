@@ -39,7 +39,7 @@ void bslmt::Turnstile::reset(double                    rate,
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 
-    d_minTimeToCallSleep = minTimeToCallSleep.totalMicroseconds();
+    d_minTimeToCallSleep = static_cast<int>(minTimeToCallSleep.totalMicroseconds());
 
     BSLS_ASSERT_SAFE(0 < d_minTimeToCallSleep);
     BSLS_ASSERT_SAFE(    d_minTimeToCallSleep <= d_interval);
