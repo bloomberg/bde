@@ -160,7 +160,7 @@ class StackTraceResolver_DwarfReader {
     Offset                          d_endOffset;     // end of current section
 
     const char                     *d_readPtr;       // current place to read
-                                                     // from
+                                                     // from (in the buffer)
 
     const char                     *d_endPtr;        // end of what's in buffer
 
