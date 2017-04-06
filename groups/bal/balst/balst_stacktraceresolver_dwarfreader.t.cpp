@@ -330,6 +330,14 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // Remove any leftover temporary directories created by this test driver
+    // over 24 hours ago.  Note that we try to clean up the temporary directory
+    // at the end of this test driver, but about 10% of the time we can't, due
+    // to stubborn nfs 'gremlin' files that appear in the directory.
+
+    bsl::system("rm -rf `find . -mtime +0 -a"
+                        " -name 'tmp.stacktraceresolver_dwarfreader.case_*'`");
+
     bsl::string origWorkingDirectory;
     ASSERT(0 == FU::getWorkingDirectory(&origWorkingDirectory));
 
@@ -2278,6 +2286,9 @@ int main(int argc, char *argv[])
         (void) FU::seek(fd, k_GARBAGE_LENGTH, FU::e_SEEK_FROM_BEGINNING);
 
         u::writeByte(fd, static_cast<unsigned char>(sizeof(Uint64)));
+
+        rc = FU::close(fd);
+        ASSERT(0 == rc);
 
         rc = mX.init(&helper, buffer, sec, endPos + k_GARBAGE_LENGTH);
         ASSERT(0 == rc);
