@@ -631,7 +631,6 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #   define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 #   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #   define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #   define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
@@ -650,6 +649,10 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
     // CC 12.4 'constexpr' implementation almost satisfies our testing, but
     // the compiler crashes when for some rare-but-reasonable data structures.
+
+#   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+    // CC 12.4 fails in a very specific way, that unfortuntely breaks for
+    // 'shared_ptr' in a way that is widely used.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
