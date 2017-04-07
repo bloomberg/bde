@@ -540,7 +540,18 @@
 #  endif
 #endif
 
-// Then, define non-standard attributes for known platforms
+// Then, try to determine if a GCC-style deprecation attribute is supported,
+// using semi-standard feature detection facilities.
+
+#ifndef BSLS_DEPRECATE
+#  if defined(__has_attribute)
+#    if __has_attribute(deprecated)
+#      define BSLS_DEPRECATE __attribute__ ((deprecated))
+#    endif
+#  endif
+#endif
+
+// Next, define non-standard attributes for known platforms.
 
 #ifndef BSLS_DEPRECATE
 #  if defined(__GNUC__)

@@ -157,6 +157,162 @@
 //: 3 'EXPRESSION + 1'.  This will compare equal to '1' only if 'EXPRESSION'
 //:                      compares equal to '0'.
 //: 4 '0 + 1'.           This will compare equal to '1'.
+//
+///Support for Future Compilers
+///----------------------------
+// Future compilers should begin to support this facility as they begin to
+// implement either a GCC-style deprecation attribute or the C++14 attribute.
+// For example, Sun Studio 12.5 is known to provide deprecation of functions
+// (only) via the GCC-style attribute.  This support will be detected
+// automatically through the '__has_cpp_attribute' and '__has_attribute'
+// intrinsics.
+//
+// It may be desireable, though, to explicitly disable this facility for
+// compiler versions that are known to provide only partial support for
+// deprecating interfaces (such as Sun Studio 12.5).
+//
+///Use of Deprecated Interfaces in Inline Functions
+///------------------------------------------------
+// Sometimes, a family of related interfaces in a single component or package
+// will be deprecated as a unit, and some of those interfaces may depend on
+// other interfaces that are deprecated at the same time.  That dependency
+// would normally cause a warning, but must remain in the codebase until the
+// entire family of related interfaces are deleted.
+//
+// For example, consider the following interface:
+//..
+//  // grppkg_someutility.h
+//
+//  struct SomeUtility {
+//      ConstElementIterator cbegin(const SomeContainer& container);
+//          // Return an iterator pointing to the first element in the
+//          // specified 'c'.
+//
+//      // Legacy direct-access API is deprecated.  Use the iterator API
+//      // provided by 'cbegin' instead.
+//
+//      #if BSLS_DEPRECATE_IS_ACTIVE(GRP, 1, 2)
+//      BSLS_DEPRECATE
+//      #endif
+//      Element first(const SomeContainer& container);
+//          // Return the 'Element' object at the head of the specified
+//          // 'container'.  ...
+//
+//      #if BSLS_DEPRECATE_IS_ACTIVE(GRP, 1, 2)
+//      BSLS_DEPRECATE
+//      #endif
+//      Element nth(const SomeContainer& container, int index);
+//          // Return the 'Element' object in the specified 'index' position in
+//          // the specified 'container'. ...
+//  };
+//..
+// 'first' could easily have been implemented in terms of 'nth':
+//..
+//  // grppkg_someutility.cpp
+//  #include <grppkg_someutility.h>
+//
+//  Element SomeUtility::first(const SomeContainer& container)
+//  {
+//      return nth(container, 0);
+//  }
+//
+//  Element SomeUtility::nth(const SomeContainer& container, int index)
+//  {
+//      // Pure magic.
+//  }
+//..
+// The definition of 'nth' will emit a warning once the deprecation threshold
+// moves past 'grp' version 1.2.  However, 'grppkg' has a legitimate reason to
+// continue to use 'nth' until both it and 'first' are deleted from the
+// codebase.
+//
+// The 'BB_BUILDING_UOR_<u>' control is intended to make it easy to handle this
+// situation, by providing an auditable way for a UOR author to suppress
+// warnings for internal uses of the UOR's own deprecated interfaces:
+//..
+//  // grppkg_someutility.cpp
+//  #define BB_BUILDING_UOR_GRP
+//  #include <grppkg_someutility.h>
+//
+//  Element SomeUtility::first(const SomeContainer& container)
+//  {
+//      return nth(container, 0);  // Look Mom, no warning!
+//  }
+//
+//  ...
+//..
+// However, if 'first' were defined *inline* the problem would be much broader:
+// *every* client that even indirectly includes 'grppkg_someutility.h' would
+// end up getting a warning about the use of 'nth' in 'first'.
+//..
+//  // grppkg_someutility.h
+//
+//  struct SomeUtility {
+//      ...
+//
+//      #if BSLS_DEPRECATE_IS_ACTIVE(GRP, 1, 2)
+//      BSLS_DEPRECATE
+//      #endif
+//      Element nth(const SomeContainer& container, int index);
+//          // Return the 'Element' object in the specified 'index' position in
+//          // the specified 'container'. ...
+//
+//      ...
+//  };
+//
+//  ...
+//
+//  inline
+//  Element SomeUtility::first(const SomeContainer& container)
+//  {
+//      return nth(container, 0);  // This call will be seen during compilation
+//                                 // of all dependents!
+//  }
+//..
+//
+// In this case, defining 'BB_BUILDING_UOR_GRP' in the 'grppkg_someutility.h'
+// header would be inappropriate.  The author of 'grp' has a few options:
+//:  o Move the definition of 'first' out-of-line.
+//:  o Surround the call to 'nth' with compiler-specific warning-suppression
+//:    macros.
+//
+// Of these, moving the function out-of-line is preferable, if the performance
+// cost is not too high.  If the function must be kept inline, the needed
+// macros can be quite extensive, and have to deal with some compiler-specific
+// quirks:
+//..
+//  // Suppress warnings for use of deprecated function 'nth'.
+//  #if    defined(BSLS_PLATFORM_CMP_GNU)     \
+//      || defined(BSLS_PLATFORM_CMP_CLANG)   \
+//      || defined(BSLS_PLATFORM_CMP_XLCLANG)
+//  #pragma GCC diagnostic push
+//  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+//  #elif defined(BSLS_PLATFORM_CMP_MSVC)
+//  #pragma warning(push)
+//  #pragma warning(disable: 4996)
+//  #elif defined(BSLS_PLATFORM_CMP_SUN)
+//  #pragma error_messages (off, symdeprecated)
+//  #endif
+//
+//  inline
+//  Element SomeUtility::first(const SomeContainer& container)
+//  {
+//      return nth(container, 0);  // This call will be seen during compilation
+//                                 // of all dependents!
+//  }
+//
+//  // Undo warning suppression for use of deprecated function 'nth'.
+//  #if    defined(BSLS_PLATFORM_CMP_GNU)     \
+//      || defined(BSLS_PLATFORM_CMP_CLANG)   \
+//      || defined(BSLS_PLATFORM_CMP_XLCLANG)
+//  #pragma GCC diagnostic pop
+//  #elif defined(BSLS_PLATFORM_CMP_MSVC)
+//  #pragma warning(pop)
+//  #elif defined(BSLS_PLATFORM_CMP_SUN)
+//  namespace {} // dummy use of anonymous namespace to un-confuse SUN parser.
+//  #pragma error_messages (default, symdeprecated)
+//  #endif
+//..
 
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.
