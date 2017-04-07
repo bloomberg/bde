@@ -1,19 +1,12 @@
 // bslmt_turnstile.cpp                                                -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bslmt_turnstile.h>
 
-#include <bslmt_barrier.h>        // testing only
-#include <bslmt_mutex.h>          // testing only
 #include <bslmt_threadutil.h>
 
+#include <bsls_timeinterval.h>
 #include <bsls_systemtime.h>
+#include <bsls_assert.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_turnstile_cpp,"$Id$ $CSID$")
@@ -30,57 +23,61 @@ enum { k_MICROSECS_PER_SECOND = 1000 * 1000 };
                              // ---------------
 
 // CREATORS
-bslmt::Turnstile::Turnstile(double rate, const bsls::TimeInterval& startTime)
+bslmt::Turnstile::Turnstile(double                    rate,
+                            const bsls::TimeInterval& startTime,
+                            const bsls::TimeInterval& minTimeToCallSleep)
 {
-    reset(rate, startTime);
+    reset(rate, startTime, minTimeToCallSleep);
 }
 
 // MANIPULATORS
-void bslmt::Turnstile::reset(double rate, const bsls::TimeInterval& startTime)
+void bslmt::Turnstile::reset(double                    rate,
+                             const bsls::TimeInterval& startTime,
+                             const bsls::TimeInterval& minTimeToCallSleep)
 {
     d_interval  = static_cast<Int64>(k_MICROSECS_PER_SECOND / rate);
     d_timestamp = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
+
+    d_minTimeToCallSleep = static_cast<int>(minTimeToCallSleep.totalMicroseconds());
+
+    BSLS_ASSERT_SAFE(0 < d_minTimeToCallSleep);
+    BSLS_ASSERT_SAFE(    d_minTimeToCallSleep <= d_interval);
 }
 
-bsls::Types::Int64 bslmt::Turnstile::waitTurn()
+bsls::Types::Int64 bslmt::Turnstile::waitTurn(bool sleep)
 {
-    enum { k_MIN_TIMER_RESOLUTION = 10 * 1000 };
-        // Assume that minimum timer resolution applicable to "sleep" on all
-        // supported platforms is 10 milliseconds.
-
     Int64 timestamp = d_timestamp;
     Int64 interval  = d_interval;
     Int64 nextTurn  = d_nextTurn.add(interval) - interval;
     Int64 waitTime  = 0;
 
-    if (nextTurn > timestamp) {
-        Int64 nowUSec =
-                     bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
-        d_timestamp = nowUSec;
+    if (nextTurn <= timestamp) {
+        return 0;                                                     // RETURN
+    }
+    Int64 nowUSec = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
+    d_timestamp = nowUSec;
+    waitTime = nextTurn - nowUSec;
 
-        waitTime = nextTurn - nowUSec;
+    if (waitTime < d_minTimeToCallSleep) {
+        return 0;                                                     // RETURN
+    }
+    if (sleep == false) {
+        return waitTime;                                              // RETURN
+    }
 
-        if (waitTime >= k_MIN_TIMER_RESOLUTION) {
-            int waitInt = static_cast<int>(waitTime);
-            if (waitInt == waitTime) {
-                // This is only good up to 'waitTime == ~35 minutes'
-
-                ThreadUtil::microSleep(waitInt);
-            }
-            else {
-                // This will work so long as 'waitTime < ~68 years'
-
-                int waitSecs  = static_cast<int>((waitTime
-                                                  / k_MICROSECS_PER_SECOND));
-                int waitUSecs = static_cast<int>((waitTime
-                                                  % k_MICROSECS_PER_SECOND));
-                ThreadUtil::microSleep(waitUSecs, waitSecs);
-            }
-        }
-        else {
-            waitTime = 0;
-        }
+    // Wait for waitTime, but split the logic between microSeconds only, and
+    // seconds + microseconds.
+    int waitInt = static_cast<int>(waitTime);
+    if (waitInt == waitTime) {
+        // This is only good up to 'waitTime == ~35 minutes'
+        ThreadUtil::microSleep(waitInt);
+    }
+    else {
+        // This will work so long as 'waitTime < ~68 years'
+        int waitSecs  = static_cast<int>((waitTime / k_MICROSECS_PER_SECOND));
+        int waitUSecs = static_cast<int>((waitTime % k_MICROSECS_PER_SECOND));
+        ThreadUtil::microSleep(waitUSecs, waitSecs);
     }
 
     return waitTime;

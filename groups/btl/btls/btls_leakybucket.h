@@ -183,7 +183,7 @@ BSLS_IDENT("$Id: $")
 // to enforce on their outgoing connection.  Clients may choose to provide a
 // value related to the physical limitations of their network or any other
 // arbitrary limit.  The function of a leaky bucket's capacity is to limit the
-// time period over which the average actual transimission rate may exceed the
+// time period over which the average actual transmission rate may exceed the
 // configured drain rate of the leaky bucket (see 'Approximations' section and
 // 'Sliding Time-Window' section).
 //
@@ -208,7 +208,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Sliding Time-Window
 ///-------------------
-// One of the properties of the resource pattern created by using a lleaky
+// One of the properties of the resource pattern created by using a leaky
 // bucket is an approximation of a sliding time window over which the average
 // consumption rate is guaranteed to be less than the drain rate.  This time
 // period can be calculated using the leaky bucket's capacity and drain rate,
@@ -321,6 +321,73 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.
+//
+///Example 2: Simulate sending packets at a high rate
+/// -------------------------------------------------
+// The following usage example illustrates how to handle high drain rates
+// with a small capacity for packets, by compensating for
+// bslmt::ThreadUtil::microSleep lack of accuracy (sleeping longer than it is
+// instructed to).
+//
+// First, we create a 'btls::LeakyBucket' object with a drain rate of
+// 10,000 packets per second, a capacity of 5 packets, and a time origin
+// set to the current time (as an interval measured from the unix epoch).
+// Note that 'unit', the unit of measurement for leaky bucket,
+// corresponds to 'packet' in this example.
+//..
+// bsls::Types::Uint64 rate     = 10000;  // packets/second
+// bsls::Types::Uint64 capacity = 5;      // packets
+// bsls::TimeInterval  now      = bsls::SystemTime::nowMonotonicClock();
+// btls::LeakyBucket   bucket(rate, capacity, now);
+//..
+//
+// Then, we define the number of packets to transfer as 100,000, and
+// the variable 'diffMicroDueSleep' to keep track of the difference
+// between the allotted time (in microsecond) and the actual time.
+//..
+// bsls::Types::Int64 start = now.totalMicroseconds();
+// int packetNum = 100000;
+// int diffMicroDueSleep = 0;
+//..
+//
+// Next, we send the packets of data using a loop.
+//..
+// while (packetNum > 0) {
+//     while (bucket.wouldOverflow(now)) {
+//         bsls::TimeInterval timeToSubmit = bucket.calculateTimeToSubmit(now);
+//         bsls::Types::Int64 intervalStart = now.totalMicroseconds();
+//         // Round up the number of microseconds.
+//         // Note the correction by the previous microSleep inaccuracy.
+//         bsls::Types::Int64 uS = timeToSubmit.totalMicroseconds()
+//             + ((timeToSubmit.nanoseconds() % 1000) ? 1 : 0)
+//             - diffMicroDueSleep;
+//         // Skip sleeping if we overslept before
+//         if (uS <= 0) {
+//             break;
+//         }
+//         bslmt::ThreadUtil::microSleep(uS);
+//         now = bsls::SystemTime::nowMonotonicClock();
+//         bsls::Types::Int64 intervalEnd = now.totalMicroseconds();
+//         diffMicroDueSleep = intervalEnd - intervalStart - uS;
+//     }
+//     --packetNum;
+//     bucket.submit(1);
+// }
+// bsls::Types::Int64 end =
+//     bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
+// bsls::Types::Int64  timeSpan = end - start;
+//..
+//
+// Finally, assert that the expected time span (1e6 * packetNum / rate)
+// is close to the actual time span.
+//..
+// bsls::Types::Int64 expectedSpan = 1e6 * packetNum / rate;
+// bsls::Types::Int64 diffSpan = expectedSpan - timeSpan;
+// if (diffSpan < 0) {
+//     diffSpan -= diffSpan;
+// }
+// ASSERT(expectedSpan * 0.001 >= diffSpan);
+//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
