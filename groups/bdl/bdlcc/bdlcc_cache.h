@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // eviction policy.
 //
 // 'bdlcc::Cache' class uses similar template parameters to
-// 'bsl::unordered_map': the key type ('KEY'), value type ('VALUE'), the
+// 'bsl::unordered_map': the key type ('KEY'), the value type ('VALUE'), the
 // optional hash function ('HASH'), and the optional equal function ('EQUAL').
 // 'bdlcc::Cache' does not support the standard allocator template parameter
 // (although 'bslma::Allocator' is supported).
@@ -29,12 +29,11 @@ BSLS_IDENT("$Id: $")
 // fixed maximum size is obtained by setting the high and low watermarks to the
 // same value.
 //
-// Two eviction policies are supported because they work efficiently with the
-// cache class templates simple internal representation: LRU (Least Recently
-// Used) and FIFO (First In, First Out).  With LRU, the item that has *not*
-// been accessed for the longest period of time will be evicted first.  With
-// FIFO, the eviction order is based on the order of insertion, with the
-// earliest inserted item being evicted first.
+// Two eviction policies are supported: LRU (Least Recently Used) and FIFO
+// (First In, First Out).  With LRU, the item that has *not* been accessed for
+// the longest period of time will be evicted first.  With FIFO, the eviction
+// order is based on the order of insertion, with the earliest inserted item
+// being evicted first.
 //
 ///Thread Safety
 ///-------------
@@ -45,9 +44,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Contention
 ///-----------------
-// Threads accessing 'bdlcc::Cache' block until they get access required.
-// There is support for concurrent read.  Neither readers nor writers are
-// starved by the other group.
+// Threads accessing a 'bdlcc::Cache' may block while waiting for other threads
+// to complete their operations upon the cache.  Concurrent reading is
+// supported.  Neither readers or writers are starved by the other group.
 //
 // All of the modifier methods of the cache potentially requires a write lock.
 // Of particular note is the 'tryGetValue' method, which requires a writer lock
@@ -85,9 +84,13 @@ BSLS_IDENT("$Id: $")
 // +----------------------------------------------------+--------------------+
 // | Operation                                          | Complexity         |
 // +====================================================+====================+
-// | insert                                             | O[1]               |
+// | insert                                             | Average: O[1]      |
+// |                                                    | Worst:   O[n]      |
+// +----------------------------------------------------+--------------------+
 // | tryGetValue                                        | O[1]               |
+// +----------------------------------------------------+--------------------+
 // | popFront                                           | O[1]               |
+// +----------------------------------------------------+--------------------+
 // | erase                                              | O[1]               |
 // +----------------------------------------------------+--------------------+
 // | visit                                              | O[n]               |
@@ -111,8 +114,8 @@ BSLS_IDENT("$Id: $")
 // Then, we define a 'bdlcc::Cache' object, 'myCache', that maps 'int' to
 // 'bsl::string' and uses the LRU eviction policy:
 //..
-//  bdlcc::Cache<int, bsl::string> myCache(bdlcc::CacheEvictionPolicy::e_LRU,
-//                                        6, 7, &talloc);
+//  bdlcc::Cache<int, bsl::string>
+//      myCache(bdlcc::CacheEvictionPolicy::e_LRU, 6, 7, &talloc);
 //..
 // Next, we insert 3 items into the cache and verify that the size of the cache
 // has been updated correctly:
@@ -419,52 +422,53 @@ class Cache {
         // Type of function to call after an item has been evicted from the
         // cache.
 
-    typedef bsl::pair<KEY, ValuePtrType> KVType;
+    typedef bsl::pair<KEY, ValuePtrType>                          KVType;
         // Value type of a bulk insert entry.
 
   private:
     // PRIVATE TYPES
-    typedef bsl::list<KEY>                                    QueueType;
+    typedef bsl::list<KEY>                                        QueueType;
         // Eviction queue type.
 
     typedef bsl::pair<ValuePtrType, typename QueueType::iterator> MapValue;
         // Value type of the hash map.
 
-    typedef bsl::unordered_map<KEY, MapValue, HASH, EQUAL>    MapType;
+    typedef bsl::unordered_map<KEY, MapValue, HASH, EQUAL>        MapType;
         // Hash map type.
 
     typedef bslmt::ReaderWriterMutex                              LockType;
 
     // DATA
-    bslma::Allocator                *d_allocator_p;  // memory allocator (held,
-                                                     // not owned)
+    bslma::Allocator          *d_allocator_p;          // memory allocator
+                                                       // (held, not owned)
 
-    mutable LockType                 d_rwlock;
+    mutable LockType           d_rwlock;
 
-    MapType                          d_map;     // hash table storing key-value
-                                                // pairs
+    MapType                    d_map;                  // hash table storing
+                                                       // key-value pairs
 
-    QueueType                        d_queue;   // queue storing eviction order
-                                                // of keys, the key of the
-                                                // first item to be evicted is
-                                                // at the front of the queue
+    QueueType                  d_queue;                // queue storing
+                                                       // eviction order of
+                                                       // keys, the key of the
+                                                       // first item to be
+                                                       // evicted is at the
+                                                       // front of the queue
 
-    CacheEvictionPolicy::Enum        d_evictionPolicy;  // eviction policy
+    CacheEvictionPolicy::Enum  d_evictionPolicy;       // eviction policy
 
-    bsl::size_t                      d_lowWatermark;  // the size of this cache
-                                                      // when eviction stops
+    bsl::size_t                d_lowWatermark;         // the size of this
+                                                       // cache when eviction
+                                                       // stops
 
-    bsl::size_t                      d_highWatermark;  // the size of this
+    bsl::size_t                d_highWatermark;        // the size of this
                                                        // cache when eviction
                                                        // starts after an
                                                        // insert
 
-    PostEvictionCallback             d_postEvictionCallback;  // the function
-                                                              // to call after
-                                                              // a value has
-                                                              // been evicted
-                                                              // from the
-                                                              // cache
+    PostEvictionCallback       d_postEvictionCallback; // the function to call
+                                                       // after a value has
+                                                       // been evicted from the
+                                                       // cache
 
     // PRIVATE MANIPULATORS
     void enforceHighWatermark();
@@ -523,14 +527,14 @@ class Cache {
           const HASH&                hashFunction,
           const EQUAL&               equalFunction,
           bslma::Allocator          *basicAllocator = 0);
-        // Create an empty cache using the specified 'evictionPolicy' and the
-        // specified 'lowWatermark' and 'highWatermark'.  The specified
-        // 'hashFunction' is used to generate the hash values for a given key,
-        // and the specified 'equalFunction' is used to determine whether two
-        // keys have the same value.  Optionally specify the 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless 'lowWatermark <= highWatermark', '1 <= lowWatermark', and
+        // Create an empty cache using the specified 'evictionPolicy',
+        // 'lowWatermark', and 'highWatermark'.  The specified 'hashFunction'
+        // is used to generate the hash values for a given key, and the
+        // specified 'equalFunction' is used to determine whether two keys have
+        // the same value.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // 'lowWatermark <= highWatermark', '1 <= lowWatermark', and
         // '1 <= highWatermark'.
 
     // ~Cache() = default;
@@ -585,7 +589,7 @@ class Cache {
         // 'true' and the eviction policy is LRU, then move the cached item to
         // the back of the eviction queue.  Return 0 on success, and 1 if 'key'
         // does not exist in this cache.  Note that a write lock is acquired
-        // only if this eviction queue is modified.
+        // only if this queue is modified.
 
     // ACCESSORS
     EQUAL equalFunction() const;
