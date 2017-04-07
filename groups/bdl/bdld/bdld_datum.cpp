@@ -1077,7 +1077,7 @@ const char *Datum::dataTypeToAscii(DataType type)
     switch (type) {
         CASE(NIL);
         CASE(INTEGER);
-        CASE(REAL);
+        CASE(DOUBLE);
         CASE(STRING);
         CASE(BOOLEAN);
         CASE(ERROR);
@@ -1323,7 +1323,7 @@ bool bdld::operator==(const Datum& lhs, const Datum& rhs)
     }
 
     switch (type) {
-      case Datum::e_REAL:
+      case Datum::e_DOUBLE:
         return (lhs.theDouble() == rhs.theDouble());                  // RETURN
       case Datum::e_STRING: {
         bslstl::StringRef            lhsStr = lhs.theString();

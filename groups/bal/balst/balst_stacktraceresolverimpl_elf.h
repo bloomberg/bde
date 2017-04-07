@@ -50,6 +50,8 @@ BSLS_IDENT("$Id: $")
 #include <balst_objectfileformat.h>
 #endif
 
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
+
 #ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
 #endif
@@ -66,6 +68,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_heapbypassallocator.h>
 #endif
 
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#include <bdls_filesystemutil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -75,9 +81,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-
 namespace balst {
 
 template <class RESOLVER_POLICY>
@@ -98,9 +101,11 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
 
     // TYPES
     typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
-                                            // bit unsigned on 64 bit, usually
-                                            // used for absolute offsets into a
-                                            // file
+                                            // bit unsigned on 64 bit.
+
+    typedef bdls::FilesystemUtil::Offset
+                                 Offset;    // Usually used for relative
+                                            // offsets into a file.
 
     struct HiddenRec;                       // 'struct' defined locally in
                                             // in the imp file containing
@@ -228,11 +233,9 @@ void StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
 }
 
 }  // close package namespace
-
-#endif
-
 }  // close enterprise namespace
 
+#endif
 #endif
 
 // ----------------------------------------------------------------------------

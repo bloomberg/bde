@@ -185,7 +185,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  --------              ---------  ----------  -----------
 //  e_NIL                 no         no          null value
 //  e_INTEGER             no         no          integer value
-//  e_REAL                no         no          double value
+//  e_DOUBLE              no         no          double value
 //  e_STRING              maybe      maybe       string value
 //  e_BOOLEAN             no         no          boolean value
 //  e_ERROR               no         maybe       error value
@@ -664,7 +664,7 @@ class Datum {
         // exposed types of values that can be stored inside 'Datum'.
         e_NIL                    =  0  // null value
         , e_INTEGER              =  1  // integer value
-        , e_REAL                 =  2  // double value
+        , e_DOUBLE               =  2  // double value
         , e_STRING               =  3  // string value
         , e_BOOLEAN              =  4  // boolean value
         , e_ERROR                =  5  // error value
@@ -681,10 +681,11 @@ class Datum {
         , k_NUM_TYPES            = 16  // number of distinct enumerated types
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , e_REAL                 = e_DOUBLE // old spelling
         , e_ERROR_VALUE          = e_ERROR
         , DLCT_NIL               = e_NIL
         , DLCT_INTEGER           = e_INTEGER
-        , DLCT_REAL              = e_REAL
+        , DLCT_REAL              = e_DOUBLE
         , DLCT_STRING            = e_STRING
         , DLCT_BOOLEAN           = e_BOOLEAN
         , DLCT_ERROR_VALUE       = e_ERROR_VALUE
@@ -726,7 +727,7 @@ class Datum {
         , e_INTERNAL_STRING_REFERENCE    = 13  // unowned string
         , e_INTERNAL_ARRAY_REFERENCE     = 14  // unowned array of
         , e_INTERNAL_EXTENDED            = 15  // extended data types
-        , e_INTERNAL_REAL                = 16  // double value
+        , e_INTERNAL_DOUBLE              = 16  // double value
         , k_NUM_INTERNAL_TYPES           = 17  // number of internal types
     };
 
@@ -1109,7 +1110,7 @@ class Datum {
 
         e_INTERNAL_ARRAY_REFERENCE   = 15,  // not owned array
 
-        e_INTERNAL_REAL              = 16,  // double value
+        e_INTERNAL_DOUBLE            = 16,  // double value
 
         e_INTERNAL_MAP               = 17,  // map of datums keyed by string
                                             // values that are not owned
@@ -2554,7 +2555,7 @@ Datum::DataType Datum::typeFromExtendedInternalType() const
     static const DataType convert[] = {
         Datum::e_MAP            // e_EXTENDED_INTERNAL_MAP                 = 0
       , Datum::e_MAP            // e_EXTENDED_INTERNAL_OWNED_MAP           = 1
-      , Datum::e_REAL           // e_EXTENDED_INTERNAL_NAN2                = 2
+      , Datum::e_DOUBLE         // e_EXTENDED_INTERNAL_NAN2                = 2
       , Datum::e_ERROR          // e_EXTENDED_INTERNAL_ERROR               = 3
       , Datum::e_ERROR          // e_EXTENDED_INTERNAL_ERROR_ALLOC         = 4
       , Datum::e_STRING         // e_EXTENDED_INTERNAL_SREF_ALLOC          = 5
@@ -2682,7 +2683,7 @@ Datum::InternalDataType Datum::internalType() const
         0xf0 == (d_data[k_EXPONENT_LSB] & 0xf0)) {
         return static_cast<InternalDataType>(d_data[k_EXPONENT_LSB] & 0x0f);
     }
-    return e_INTERNAL_REAL;
+    return e_INTERNAL_DOUBLE;
 #else   // BSLS_PLATFORM_CPU_32_BIT
     return static_cast<InternalDataType>(d_as.d_type);
 #endif  // BSLS_PLATFORM_CPU_32_BIT
@@ -2915,7 +2916,7 @@ Datum Datum::createDouble(double value)
         result.d_double = value;
     }
 #else   // BSLS_PLATFORM_CPU_32_BIT
-    result.d_as.d_type   = e_INTERNAL_REAL;
+    result.d_as.d_type   = e_INTERNAL_DOUBLE;
     result.d_as.d_double = value;
 #endif  // BSLS_PLATFORM_CPU_32_BIT
     return result;
@@ -3217,7 +3218,7 @@ bool Datum::isDecimal64() const
 inline
 bool Datum::isDouble() const
 {
-    return (e_REAL == type());
+    return (e_DOUBLE == type());
 }
 
 inline
@@ -3594,7 +3595,7 @@ Datum::DataType Datum::type() const
 {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     static const DataType convert[] = {
-          e_REAL                        // e_INTERNAL_INF                = 0x00
+          e_DOUBLE                      // e_INTERNAL_INF                = 0x00
         , e_STRING                      // e_INTERNAL_LONGEST_SHORTSTR   = 0x01
         , e_BOOLEAN                     // e_INTERNAL_BOOLEAN            = 0x02
         , e_STRING                      // e_INTERNAL_SHORTSTRING        = 0x03
@@ -3610,7 +3611,7 @@ Datum::DataType Datum::type() const
         , e_STRING                      // e_INTERNAL_STRING_REFERENCE   = 0x0d
         , e_ARRAY                       // e_INTERNAL_ARRAY_REFERENCE    = 0x0e
         , k_NUM_TYPES                   // ----------------------------  = 0x0f
-        , e_REAL                        // e_INTERNAL_REAL               = 0x10
+        , e_DOUBLE                      // e_INTERNAL_DOUBLE             = 0x10
     };
 
     const InternalDataType type = internalType();
@@ -3621,7 +3622,7 @@ Datum::DataType Datum::type() const
 #else  // BSLS_PLATFORM_CPU_32_BIT
     static const DataType convert[] = {
         e_ERROR                            // e_INTERNAL_UNINITIALIZED; invalid
-      , e_REAL                             // e_INTERNAL_INF               = 1
+      , e_DOUBLE                           // e_INTERNAL_INF               = 1
       , e_NIL                              // e_INTERNAL_NIL               = 2
       , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 3
       , e_STRING                           // e_INTERNAL_SHORTSTRING       = 4
@@ -3636,7 +3637,7 @@ Datum::DataType Datum::type() const
       , e_ARRAY                            // e_INTERNAL_ARRAY             = 13
       , e_STRING                           // e_INTERNAL_STRING_REFERENCE  = 14
       , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE   = 15
-      , e_REAL                             // e_INTERNAL_REAL              = 16
+      , e_DOUBLE                           // e_INTERNAL_DOUBLE            = 16
       , e_MAP                              // e_INTERNAL_MAP               = 17
       , e_MAP                              // e_INTERNAL_OWNED_MAP         = 18
       , e_ERROR                            // e_INTERNAL_ERROR             = 19
@@ -3747,7 +3748,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
             BSLS_ASSERT_SAFE(!"UNKNOWN TYPE");
         }
         break;
-      case e_INTERNAL_REAL:
+      case e_INTERNAL_DOUBLE:
         visitor(d_double);
         break;
       default:
@@ -3814,7 +3815,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_ERROR_ALLOC:
         visitor(theError());
         break;
-      case e_INTERNAL_REAL:
+      case e_INTERNAL_DOUBLE:
         visitor(d_as.d_double);
         break;
       case e_INTERNAL_BINARY:       // fall through

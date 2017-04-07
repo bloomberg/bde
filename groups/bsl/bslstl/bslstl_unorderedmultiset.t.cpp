@@ -5951,13 +5951,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             const ptrdiff_t v = verifySpec(X, EXP);
             ASSERTV(LINE, v, EXP, X.size(), -1 == v);
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    0 <= da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
 
             ObjStlAlloc mY(X);  const ObjStlAlloc& Y = mY;
 
             ASSERTV(LINE, -1 == verifySpec(Y, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    0 == da.numBlocksInUse() - 2 * TYPE_ALLOC * LENGTH);
 
             ObjStlAlloc mZ; const ObjStlAlloc& Z = mZ;
 
@@ -5965,7 +5965,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
 
             ASSERTV(LINE, -1 == verifySpec(Z, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    0 <= da.numBlocksInUse() - 2 * TYPE_ALLOC * LENGTH);
         }
 
         VALUES.resetIterators();
@@ -5977,7 +5977,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
 
             ASSERTV(LINE, -1 == verifySpec(X, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+                    0 == da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
         }
 
         VALUES.resetIterators();
@@ -5992,7 +5992,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase22()
             }
             ASSERTV(LINE, -1 == verifySpec(X, EXP));
             ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
+                    0 <= da.numBlocksInUse() - TYPE_ALLOC * LENGTH);
         }
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
@@ -10049,7 +10049,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                 ASSERTV(LENGTH, CONFIG, BB == AA);
                 // 2x time due to inserting full set of duplicated values
                 ASSERTV(LENGTH, CONFIG, B, A,
-                        B - LENGTH * TYPE_ALLOC * 2 == A);
+                        0 == B - LENGTH * TYPE_ALLOC * 2 - A);
 
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
                     int  id = TstFacility::getIdentifier(VALUES[tj]);
@@ -11472,6 +11472,20 @@ int main(int argc, char *argv[])
         ASSERTV(X.bucket_count(), 2 * buckets, X.bucket_count() > 2 * buckets);
         ASSERTV(X.load_factor(), loadFactor, X.load_factor() < loadFactor);
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        if (verbose) printf("\nAdditional tests: initializer lists.\n");
+        {
+            ASSERT((0 == []() -> bsl::unordered_multiset<int> {
+                return {};
+            }().size()));
+            ASSERT((1 == []() -> bsl::unordered_multiset<int> {
+                return {1};
+            }().size()));
+            ASSERT((3 == []() -> bsl::unordered_multiset<int> {
+                return {3, 1, 3};
+            }().size()));
+        }
+#endif
         if (veryVerbose)
             printf("Final message to confim the end of the breathing test.\n");
       } break;

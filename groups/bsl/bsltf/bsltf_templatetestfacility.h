@@ -122,10 +122,14 @@ BSLS_IDENT("$Id: $")
 //  SimpleTestType                      class with no special traits defined
 //
 //  AllocTestType                       class that allocates memory, defines
-//                                      the
-//                                      'bslma::UsesBslmaAllocator'
+//                                      the 'bslma::UsesBslmaAllocator'
 //                                      trait, and ensures it is not bitwise
 //                                      moved
+//
+//  NonOptionalAllocTestType            class that allocates memory, defines
+//                                      the 'bslma::UsesBslmaAllocator'
+//                                      trait, ensures it is not bitwise
+//                                      moved, and does not have default ctor.
 //
 //  MovableTestType                     class that has both move and copy
 //                                      semantics, and ensures it is not
@@ -551,6 +555,10 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_nonequalcomparabletesttype.h>
 #endif
 
+#ifndef INCLUDED_BSLTF_NONOPTIONALALLOCTESTTYPE
+#include <bsltf_nonoptionalalloctesttype.h>
+#endif
+
 #ifndef INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
 #include <bsltf_nontypicaloverloadstesttype.h>
 #endif
@@ -805,6 +813,7 @@ void setMovedInto(TYPE *object, bsltf::MoveState::Enum value);
     // function.
 
 void debugprint(const AllocTestType& obj);
+void debugprint(const NonOptionalAllocTestType& obj);
 void debugprint(const AllocBitwiseMoveableTestType& obj);
 void debugprint(const AllocEmplacableTestType& obj);
 void debugprint(const BitwiseCopyableTestType& obj);
@@ -1069,6 +1078,9 @@ void debugprint(const UnionTestType& obj);
                                                         bsltf::AllocTestType) \
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
+                                             bsltf::NonOptionalAllocTestType) \
+                                                                              \
+        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
                                                  bsltf::MovableAllocTestType) \
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
@@ -1100,6 +1112,7 @@ void debugprint(const UnionTestType& obj);
                                                                               \
         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_DEFINE_DBG_PRINT(               \
                                       bsltf::NonDefaultConstructibleTestType)
+
     // Defines a list of 'dbg_print' overloads for use in the test driver.
     // FIXME: Change this to integrate with Alisdair's test driver print
     // facility once its ready.
@@ -1922,6 +1935,14 @@ int TemplateTestFacility::getIdentifier<bsltf::AllocTestType>(
 
 template <>
 inline
+int TemplateTestFacility::getIdentifier<bsltf::NonOptionalAllocTestType>(
+                                  const bsltf::NonOptionalAllocTestType& object)
+{
+    return object.data();
+}
+
+template <>
+inline
 int TemplateTestFacility::getIdentifier<bsltf::MovableAllocTestType>(
                                      const bsltf::MovableAllocTestType& object)
 {
@@ -2171,6 +2192,12 @@ void debugprint(const SimpleTestType& obj)
 
 inline
 void debugprint(const AllocTestType& obj)
+{
+    printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
+}
+
+inline
+void debugprint(const NonOptionalAllocTestType& obj)
 {
     printf("%d", bsltf::TemplateTestFacility::getIdentifier(obj));
 }

@@ -267,8 +267,16 @@ void aSsErT(int c, const char *s, int i)
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
 // ============================================================================
-//          GLOBAL HELPER TYPES, CLASSES, and CONSTANTS FOR TESTING
+//      GLOBAL HELPER MACROS, TYPES, CLASSES, and CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+// Windows has difficulty resolving statics
+
+# define u_STATIC
+#else
+# define u_STATIC static
+#endif
 
 namespace {
 
@@ -1007,7 +1015,7 @@ static
 bslma::Allocator *leakTwiceAllocator = 0;
 int leakTwiceCount;
 
-static
+u_STATIC
 void leakTwiceC()
 {
     for (int i = 0; i < 100; ++i) {
@@ -1017,7 +1025,7 @@ void leakTwiceC()
 
 // not static
 
-static
+u_STATIC
 void leakTwiceB()
 {
     if (++leakTwiceCount > 10) {
@@ -1029,7 +1037,7 @@ void leakTwiceB()
     --leakTwiceCount;                 // force routine call instead of chaining
 }
 
-static
+u_STATIC
 void leakTwiceA()
 {
     if (++leakTwiceCount > 10) {
@@ -1691,10 +1699,6 @@ int main(int argc, char *argv[])
             // always on Windows
 
             demangleExpected = true;
-#elif defined(BSLS_PLATFORM_OS_SOLARIS)                                       \
- && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
-
-            demangleExpected = false;
 #endif
 
             bsl::stringstream ss;
@@ -3290,6 +3294,19 @@ int main(int argc, char *argv[])
         enum { NUM_MAX_DEPTHS = sizeof maxDepths / sizeof *maxDepths };
 
         for (int d = 0; d < NUM_MAX_DEPTHS; ++d) {
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+            if (maxDepths[d] < 5) {
+                // This test requires us to see the top 4 frames to work.
+
+                // On some, but not all, versions of the Windows compiler,
+                // 'StackAddressUtil::k_IGNORE_FRAMES' is one too low so we
+                // waste a frame on 'StackAddressUtil::getStackAddresses', so
+                // we need at least 5 frames to work.
+
+                break;
+            }
+#endif
+
             if (verbose) {
                 cout << endl << endl;
                 P(maxDepths[d]);

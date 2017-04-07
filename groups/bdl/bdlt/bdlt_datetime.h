@@ -96,6 +96,12 @@ BSLS_IDENT("$Id: $")
 // where 'dayOfYear' tracks the value of 'year/month/day' (and *vice* *versa*),
 // and 'dayOfWeek' can be accessed but not explicitly set.
 //
+///ISO Standard Text Representation
+///--------------------------------
+// A common standard text representation of a date and time value is described
+// by ISO 8601.  BDE provides the 'bdlt_iso8601util' component for conversion
+// to and from the standard ISO8601 format.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

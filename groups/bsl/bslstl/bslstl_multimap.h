@@ -873,7 +873,8 @@ class multimap {
 
   public:
     // CREATORS
-    explicit multimap(const COMPARATOR& comparator     = COMPARATOR(),
+    multimap();
+    explicit multimap(const COMPARATOR& comparator,
                       const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Create an empty multimap.  Optionally specify a 'comparator' used to
         // order key-value pairs contained in this object.  If 'comparator' is
@@ -1687,6 +1688,14 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::nodeFactory() const
 }
 
 // CREATORS
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
+multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap()
+: d_compAndAlloc(COMPARATOR(), ALLOCATOR())
+, d_tree()
+{
+}
+
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(

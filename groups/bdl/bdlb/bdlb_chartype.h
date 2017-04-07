@@ -24,13 +24,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_string
 //
-//@DESCRIPTION: This component provides an efficient, local-independent
-// alternative for the standard functionality found in '<ctype.h>'.  The
-// following character categories are supported (note that, 'IDENT', 'ALUND',
-// 'ALL', and 'NONE' are new):
+//@DESCRIPTION: This component defines a utility class 'bdlb::CharType' that
+// provides an efficient, local-independent alternative for the standard
+// functionality found in '<ctype.h>'.  The following character categories are
+// supported (note that 'ODIGIT', 'IDENT', 'ALUND', 'ALL', and 'NONE' are new):
 //..
 //    ============================================================
-//                          Category   Description
+//    Category   Description
 //    --------   -------------------------------------------------
 //    UPPER      [A-Z]
 //    LOWER      [a-z]
@@ -216,8 +216,8 @@ BSLS_IDENT("$Id: $")
 //     53    35    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        5
 //     54    36    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        6
 //     55    37    _  _  _  O  D  X  A  _  P  G  _  _  A  I  _  A  _        7
-//     56    38    _  _  _  -  D  X  A  _  P  G  _  _  A  I  _  A  _        8
-//     57    39    _  _  _  -  D  X  A  _  P  G  _  _  A  I  _  A  _        9
+//     56    38    _  _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        8
+//     57    39    _  _  _  _  D  X  A  _  P  G  _  _  A  I  _  A  _        9
 //     58    3A    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        :
 //     59    3B    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        ;
 //     60    3C    _  _  _  _  _  _  _  _  P  G  P  _  A  _  _  A  _        <
@@ -331,6 +331,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
+
 namespace BloombergLP {
 
 namespace bdlb {
@@ -345,7 +348,6 @@ struct CharType {
         e_UPPER,          // [A-Z]
         e_LOWER,          // [a-z]
         e_ALPHA,          // [A-Za-z]
-        e_ODIGIT,         // [0-7]
         e_DIGIT,          // [0-9]
         e_XDIGIT,         // [0-9A-Fa-f]
         e_ALNUM,          // [0-9A-Za-z]
@@ -358,7 +360,8 @@ struct CharType {
         e_IDENT,          // [ALNUM|_]
         e_ALUND,          // [ALPHA|_]
         e_ALL,            // [\0-\377]
-        e_NONE            // []
+        e_NONE,           // []
+        e_ODIGIT          // [0-7]
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEU_UPPER  = e_UPPER
@@ -398,7 +401,7 @@ struct CharType {
     };
 
     enum {
-        k_NUM_CATEGORIES = e_NONE + 1
+        k_NUM_CATEGORIES = e_ODIGIT + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -1116,6 +1119,8 @@ char CharType::toUpper(char input)
 
 }  // close package namespace
 }  // close enterprise namespace
+
+// BDE_VERIFY pragma: pop
 
 #endif
 

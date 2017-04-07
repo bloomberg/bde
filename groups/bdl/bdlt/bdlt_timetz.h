@@ -59,6 +59,12 @@ BSLS_IDENT("$Id: $")
 // any validation relating to time zones or offsets.  The user must take care
 // to honor the "local time" contract of this component.
 //
+///ISO Standard Text Representation
+///--------------------------------
+// A common standard text representation of a date and time value is described
+// by ISO 8601.  BDE provides the 'bdlt_iso8601util' component for conversion
+// to and from the standard ISO8601 format.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

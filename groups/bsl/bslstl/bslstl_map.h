@@ -829,7 +829,8 @@ class map {
 
   public:
     // CREATORS
-    explicit map(const COMPARATOR& comparator     = COMPARATOR(),
+    map();
+    explicit map(const COMPARATOR& comparator,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Create an empty map.  Optionally specify a 'comparator' used to
         // order key-value pairs contained in this object.  If 'comparator' is
@@ -2013,6 +2014,14 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 // CREATORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map()
+: d_compAndAlloc(COMPARATOR(), ALLOCATOR())
+, d_tree()
+{
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& basicAllocator)
 : d_compAndAlloc(COMPARATOR(), basicAllocator)
 , d_tree()
@@ -2241,8 +2250,15 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
     BloombergLP::bslalg::RbTreeNode *node =
         BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
     if (d_tree.sentinel() == node) {
-        return insert(iterator(node), value_type(key, VALUE()))->second;
-                                                                      // RETURN
+        BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                        temp.address(),
+                                        nodeFactory().allocator().mechanism());
+        BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
+
+        return emplace_hint(iterator(node),
+                            key,
+                            MoveUtil::move(temp.object()))->second;   // RETURN
     }
     return toNode(node)->value().second;
 }
@@ -2259,8 +2275,8 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
     if (d_tree.sentinel() == node) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
         BloombergLP::bslma::ConstructionUtil::construct(
-                                     temp.address(),
-                                     BloombergLP::bslma::Default::allocator());
+                                        temp.address(),
+                                        nodeFactory().allocator().mechanism());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
         return emplace_hint(iterator(node),

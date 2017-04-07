@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
 
         typedef bsls::Types::UintPtr UintPtr;
 
-        for (bool demangle = false; true; demangle = true) {
+        for (int demangle = 0; demangle < 2; ++demangle) {
             balst::StackTrace stackTrace;
             stackTrace.resize(5);
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
@@ -418,8 +418,7 @@ int main(int argc, char *argv[])
 #undef IS_UNKNOWN
             }
 
-            Obj::resolve(&stackTrace,
-                         demangle);
+            Obj::resolve(&stackTrace, demangle);
 
             if (veryVerbose) {
                 cout << "Pass " << (int) demangle << endl;
@@ -506,9 +505,17 @@ int main(int argc, char *argv[])
             SM(3, "resolve");
 #undef  SM
 
+            // Note that we skip after the first space in 'name', if any is
+            // found, because on Solaris CC 'name' begins with the return type
+            // declaration.  No other spaces are expected.
+
             if (demangle) {
 #define SM(ii, match) {                                                       \
                     const char *name = stackTrace[ii].symbolName().c_str();   \
+                    const char *sp = bsl::strchr(name, ' ');                  \
+                    if (sp) {                                                 \
+                        name = sp + 1;                                        \
+                    }                                                         \
                     LOOP_ASSERT(name, safeCmp(name, match));                  \
                 }
 
@@ -521,23 +528,25 @@ int main(int argc, char *argv[])
                     SM(2, "funcStaticInlineOne(int)");
                 }
 #undef  SM
-                const char *resName = "BloombergLP::"
-                                      "balst::StackTraceResolverImpl"
-                                      "<BloombergLP::"
-                                      "balst::ObjectFileFormat::Elf>::"
-                                      "resolve(";
-                int resNameLen = (int) bsl::strlen(resName);
+                const char resName[] = { "BloombergLP::"
+                                         "balst::StackTraceResolverImpl"
+                                         "<BloombergLP::"
+                                         "balst::ObjectFileFormat::Elf>::"
+                                         "resolve("
+                                         "BloombergLP::balst::StackTrace" };
+                enum { k_RES_NAME_LEN = sizeof(resName) - 1 };
+                ASSERT(!bsl::strchr(resName, ' '));
                 const char *name3 = stackTrace[3].symbolName().c_str();
-                LOOP2_ASSERT(name3, resName,
-                                          safeCmp(name3, resName, resNameLen));
-                break;
-            }
+                {
+                    const char *pc = bsl::strchr(name3, ' ');
+                    if (pc && pc - name3 < k_RES_NAME_LEN) {
+                        name3 = pc + 1;
+                    }
+                }
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
- && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
-            // Sun CC, won't demangle
-            break;
-#endif
+                LOOP2_ASSERT(name3, resName,
+                                      safeCmp(name3, resName, k_RES_NAME_LEN));
+            }
         }
 
         ASSERT(0 == defaultAllocator.numAllocations());
