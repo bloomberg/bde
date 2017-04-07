@@ -1241,7 +1241,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 {
     PDH_STATUS rc;
 
-    for (unsigned int index = 0; true; ++instanceIndex)
+    for (unsigned int index = 0; true; ++index)
     {
         PDH_COUNTER_PATH_ELEMENTS cpe = {
             0,

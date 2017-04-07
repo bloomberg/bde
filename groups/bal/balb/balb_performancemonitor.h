@@ -136,14 +136,14 @@ BSLS_IDENT("$Id: $")
 //  assert(1 == perfmon.numRegisteredPids());
 //..
 // Next, we print a formatted report of the performance statistics collected
-// for each pid every 10 seconds for one minute.  Note, that 'Statistics'
+// for each pid every 5 seconds for half a minute.  Note, that 'Statistics'
 // object can be simultaneously modified by scheduler callback and accessed via
 // a 'ConstIterator'.  To ensure that the call to 'Statistics::print' outputs
 // consistent data from a single update of the statistics for this process, we
 // create a local copy (copy construction is guaranteed to be thread-safe).
 //..
 //  for (int i = 0; i < 6; ++i) {
-//      bslmt::ThreadUtil::microSleep(0, 10);
+//      bslmt::ThreadUtil::microSleep(0, 5);
 //
 //      balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
 //      const balb::PerformanceMonitor::Statistics stats = *it;
