@@ -150,8 +150,9 @@ class Turnstile {
     mutable bsls::AtomicInt64 d_timestamp;  // time of last call to 'now' in
                                             // microseconds
 
-    int d_minTimeToCallSleep; // shortest period of time, in microseconds, that
-                              // the 'waitTurn' function will go to sleep
+    int                       d_minTimeToCallSleep;
+        // shortest period of time, in microseconds, that the 'waitTurn'
+        // function will go to sleep
 
     // PRIVATE TYPES
     typedef bsls::Types::Int64 Int64;
