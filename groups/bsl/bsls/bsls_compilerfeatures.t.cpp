@@ -231,11 +231,43 @@ template class ExternTemplateClass<char>;
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 
 #include_next<cstdio>
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+
+namespace initializer_feature_test {
+// The following code demonstrates a bug with Oracle CC 12.4, where the
+// 'initializer_list' method dominates another single-argument method in
+// overload resolution, despite not having a suitable conversion to the
+// required 'initalizer_list' instantiation, and so rejecting a valid call.
+// The 'use' function is invoked directly from the test case in 'main'.
+
+struct object {
+    object() {}
+};
+
+template <class T, class U>
+struct couple {
+    couple(const T&, const U&) {}
+};
+
+template <class T, class U>
+struct coupling {
+    typedef couple<T, U> value_type;
+
+    void use(const value_type&) {}
+    void use(std::initializer_list<value_type>) {}
+};
+
+}  // close unnamed namespace
+#endif
+
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 
@@ -778,6 +810,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing generalized initializers\n"
                             "================================\n");
         std::initializer_list<int> il = {10,20,30,40,50};
+
+        using namespace initializer_feature_test;
+        coupling<object, couple<object, object> > mX;
+        mX.use( {object{}, { object{}, object{} } });
 #endif
       } break;
       case 7: {

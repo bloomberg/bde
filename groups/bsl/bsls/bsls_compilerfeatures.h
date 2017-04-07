@@ -636,7 +636,6 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #   define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #   define BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#   define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #   define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #   define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -653,6 +652,12 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
     // CC 12.4 fails in a very specific way, that unfortuntely breaks for
     // 'shared_ptr' in a way that is widely used.
+
+#   define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+    // CC 12.4 will overly aggressively match an initializer list when it sees
+    // brace initalization, leading to rejection of valid code when there is no
+    // valid initializer list conversion, but another method creating a
+    // temporary object from the braced arguments should have been chosen.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
