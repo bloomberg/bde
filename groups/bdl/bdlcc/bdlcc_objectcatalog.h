@@ -313,6 +313,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -411,14 +415,14 @@ class ObjectCatalog {
     };
 
     struct Node {
+        // PUBLIC DATA
         union {
-            char                                d_value[sizeof(TYPE)];
+            // PUBLIC DATA
+            bsls::ObjectBuffer<TYPE>            d_value;
 
             Node                               *d_next_p; // when free, pointer
                                                           // to next free node
-
-            bsls::AlignmentUtil::MaxAlignedType d_filler;
-        };
+        }    d_payload;
         int  d_handle;
     };
 
@@ -437,8 +441,8 @@ class ObjectCatalog {
     // PRIVATE CLASS METHODS
     static TYPE *getNodeValue(Node *node);
         // Return a pointer to the 'd_value' field of the specified 'node'.
-        // The behavior is undefined unless '0 != node' and 'node->d_value' is
-        // initialized to a 'TYPE' object.
+        // The behavior is undefined unless '0 != node' and
+        // 'node->d_payload.d_value' is initialized to a 'TYPE' object.
 
     // PRIVATE MANIPULATORS
     void freeNode(Node *node);
@@ -636,7 +640,7 @@ TYPE *ObjectCatalog<TYPE>::getNodeValue(
 {
     BSLS_ASSERT_SAFE(node);
 
-    return reinterpret_cast<TYPE *>(node->d_value);
+    return node->d_payload.d_value.address();
 }
 
 // PRIVATE MANIPULATORS
@@ -647,7 +651,7 @@ void ObjectCatalog<TYPE>::freeNode(typename ObjectCatalog<TYPE>::Node *node)
     node->d_handle += k_GENERATION_INC;
     node->d_handle &= ~k_BUSY_INDICATOR;
 
-    node->d_next_p   = d_nextFreeNode_p;
+    node->d_payload.d_next_p   = d_nextFreeNode_p;
     d_nextFreeNode_p = node;
 }
 
@@ -700,7 +704,7 @@ int ObjectCatalog<TYPE>::add(const TYPE& object)
 
     if (d_nextFreeNode_p) {
         node = d_nextFreeNode_p;
-        d_nextFreeNode_p = node->d_next_p;
+        d_nextFreeNode_p = node->d_payload.d_next_p;
 
         proctor.manageNode(node, false);
         // Destruction of this proctor will put node back onto the free list.
@@ -852,7 +856,7 @@ void ObjectCatalog<TYPE>::verifyState() const
     BSLS_ASSERT_SAFE(d_length == nBusy);
 
     int nFree = 0;
-    for (Node *p = d_nextFreeNode_p; p; p = p->d_next_p) {
+    for (Node *p = d_nextFreeNode_p; p; p = p->d_payload.d_next_p) {
         nFree++;
     }
 

@@ -960,9 +960,8 @@ int main(int argc, char *argv[]) {
         }
 
         bslmt::ThreadAttributes   defaultAttrs;
-        
+
         Obj mX(defaultAttrs, 1, 1, INT_MAX);
-        const Obj& X = mX;
         int rc = mX.start();
         ASSERT(0 == rc);
 

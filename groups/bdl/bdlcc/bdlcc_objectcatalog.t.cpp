@@ -510,7 +510,7 @@ const int CALLBACK_PROCESSING_TIME = 10;  // in microseconds
 
 class QueryResult;
 
-void queryCallBack(const QueryResult& result)
+void queryCallBack(const QueryResult& /* result */)
     // For testing only, we simulate a callback that takes a given time to
     // process a query.
 {
