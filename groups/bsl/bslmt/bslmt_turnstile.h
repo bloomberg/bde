@@ -151,8 +151,10 @@ class Turnstile {
                                             // microseconds
 
     int                       d_minTimeToCallSleep;
-        // shortest period of time, in microseconds, that the 'waitTurn'
-        // function will go to sleep
+                                            // shortest period of time, in
+                                            // microseconds, that the
+                                            // 'waitTurn' function will go to
+                                            // sleep
 
     // PRIVATE TYPES
     typedef bsls::Types::Int64 Int64;
@@ -175,10 +177,7 @@ class Turnstile {
         // 'startTime' is not specified, the first turn may be taken
         // immediately.  Optionally specify 'minTimeToCallSleep', the shortest
         // period of time in seconds that the 'waitTurn' function will go to
-        // sleep.  The behavior is undefined unless '0 < rate'.  Note that if
-        // '1 / rate >= minTimeToCallSleep', it is impossible to get evenly
-        // spaced intervals since the sleep period is less than
-        // 'minTimeToCallSleep'.
+        // sleep.  The behavior is undefined unless '0 < rate'.
 
     // ~Turnstile();
         // Destroy this object.  Note that this trivial destructor is generated
@@ -195,11 +194,8 @@ class Turnstile {
         // specified, the first turn may be taken immediately.  Optionally
         // specify 'minTimeToCallSleep', the shortest period of time in
         // seconds that the 'waitTurn' function will go to sleep.  The behavior
-        // is undefined unless '0 < rate'.  Note that if
-        // '1 / rate >= minTimeToCallSleep', it is impossible to get evenly
-        // spaced intervals since the sleep period is less than
-        // 'minTimeToCallSleep'.  Also note that threads blocked on 'waitTurn'
-        // are not interrupted.
+        // is undefined unless '0 < rate'.  Note that threads blocked on
+        // 'waitTurn' are not interrupted.
 
     bsls::Types::Int64 waitTurn(bool sleep = true);
         // Sleep until the next turn may be taken or return immediately if the
