@@ -80,47 +80,89 @@ BSLS_IDENT("$Id: $")
 ///Iterator Invalidation
 ///---------------------
 // Registration of new pids does not invalidate existing iterators.
-// Unregistration of pid only invalidates iterators pointing to the statistics
-// for the pid being unregistered, all other iterators remain valid.
+// Unregistration of a pid invalidates only iterators pointing to the
+// statistics for the pid being unregistered.  Additionally, unregistering a
+// pid with a 'balb::PerformanceMonitor' object invalidates all references to
+// 'Statistics' objects retrieved from those iterators.  All other iterators
+// remain valid.
 //
 ///Thread Safety
 ///-------------
-// This class is completely thread safe.
+// The classes 'balb::PerformanceMonitor' and
+// 'balb::PerformanceMonitory::Statistics', provided by this component, are
+// both independently fully *thread-safe* (see 'bsldoc_glossary').  However,
+// 'balb::PerformanceMonitor::ConstIterator' is only *const* *thread-safe*,
+// meaning it is not safe to access or modify a 'ConstIterator' in one thread
+// while another thread modifies the same object.  As unregistering a pid with
+// a 'balb::PerformanceMonitor' object invalidates iterators (see {Iterator
+// Invalidation}), external synchronization is needed if 'unregisterPid' is
+// called concurrently to iterating over statistics.  Also, in a multi-threaded
+// context, a 'Statistics' object accessed via a reference (or pointer) from
+// a 'ConstIterator' object may have its statistics updated at any time by a
+// call to 'collect' or 'resetStatistics' in another thread.   If consistent
+// access is needed to multiple items in a set of statistics, then the user
+// should copy the statistics object, and then inspect the copy at their
+// leisure.
+//
+// Notice that this component was implemented with particular usage patterns in
+// mind, which are captured in the usage examples.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'balb::PerformanceMonitor'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
 // interval.
+//
+// First, we instantiate a scheduler used by the performance monitor to
+// schedule collection events.
 //..
-//  // Instantiate a scheduler used by the performance monitor to schedule
-//  // collection events.
 //  bdlmt::TimerEventScheduler scheduler;
 //  scheduler.start();
-//
-//  // Create the performance monitor, monitoring the current process and
-//  // auto-collecting statistics every second.
+//..
+// Then, we create the performance monitor, monitoring the current process and
+// auto-collecting statistics every second.
+//..
 //  balb::PerformanceMonitor perfmon(&scheduler, 1.0);
+//  int                      rc  = perfmon.registerPid(0, "perfmon");
+//  const int                pid = bdls::ProcessUtil::getProcessId();
 //
-//  // Assume the existence of three pids, 1000, 1001, and 1002, running on
-//  // the local machine.
-//  perfmon.registerPid(1000, "task1");
-//  perfmon.registerPid(1001, "task2");
-//  perfmon.registerPid(1003, "task3");
-//
-//  // Print a formatted report of the performance statistics collected for
-//  // each pid every 10 seconds for one minute.
+//  assert(0 == rc);
+//  assert(1 == perfmon.numRegisteredPids());
+//..
+// Next, we print a formatted report of the performance statistics collected
+// for each pid every 5 seconds for half a minute.  Note, that 'Statistics'
+// object can be simultaneously modified by scheduler callback and accessed via
+// a 'ConstIterator'.  To ensure that the call to 'Statistics::print' outputs
+// consistent data from a single update of the statistics for this process, we
+// create a local copy (copy construction is guaranteed to be thread-safe).
+//..
 //  for (int i = 0; i < 6; ++i) {
-//      bslmt::ThreadUtil::microSleep(0, 10);
+//      bslmt::ThreadUtil::microSleep(0, 5);
 //
-//      for (balb::PerformanceMonitor::ConstIterator it  = perfmon.begin();
-//                                                  it != perfmon.end();
-//                                                ++it) {
-//          const balb::PerformanceMonitor::Statistics& stats = *it;
-//          bsl::cout << "Pid = " << stats.pid() << ":\n";
-//          stats.print(bsl::cout);
-//      }
+//      balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
+//      const balb::PerformanceMonitor::Statistics stats = *it;
+//
+//      assert(pid == stats.pid());
+//
+//      bsl::cout << "PID = " << stats.pid() << ":\n";
+//      stats.print(bsl::cout);
 //  }
+//..
+// Finally, we unregister the process and stop the scheduler to cease
+// collecting statistics for this process.  It is safe to call 'unregisterPid'
+// here, because we don't have any 'ConstIterators' objects or references to
+// 'Statistics' objects.
+//..
+//  rc  = perfmon.unregisterPid(pid);
+//
+//  assert(0 == rc);
+//  assert(0 == perfmon.numRegisteredPids());
+//
+//  scheduler.stop();
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -315,42 +357,59 @@ typedef bsls::Platform::OsHpUx OsType;
             // for the current platform.
 
         // DATA
-        int                d_pid;                      // process identifier
-        bsl::string        d_description;              // process description
+        int                    d_pid;
+                                 // process identifier
 
-        bdlt::Datetime     d_startTimeUtc;             // process start time,
-                                                       // in UTC time
+        bsl::string            d_description;
+                                 // process description
 
-        bsls::TimeInterval d_startTime;                // process start time,
-                                                       // since the system
-                                                       // epoch
+        bdlt::Datetime         d_startTimeUtc;
+                                 // process start time, in UTC time
 
-        double             d_elapsedTime;              // time elapsed since
-                                                       // process startup
+        bsls::TimeInterval     d_startTime;
+                                 // process start time, since the system
+                                 // epoch
 
-        bsls::AtomicInt    d_numSamples;               // num samples taken
+        double                 d_elapsedTime;
+                                 // time elapsed since process startup
 
-        double             d_lstData[e_NUM_MEASURES];  // latest collected data
-        double             d_minData[e_NUM_MEASURES];  // min
-        double             d_maxData[e_NUM_MEASURES];  // max
-        double             d_totData[e_NUM_MEASURES];  // cumulative
+        bsls::AtomicInt        d_numSamples;
+                                 // num samples taken
 
-        mutable bslmt::RWMutex d_guard;  // serialize write access
+        double                 d_lstData[e_NUM_MEASURES];
+                                 // latest collected data
 
-    private:
+        double                 d_minData[e_NUM_MEASURES];
+                                 // min
+
+        double                 d_maxData[e_NUM_MEASURES];
+                                 // max
+
+        double                 d_totData[e_NUM_MEASURES];
+                                 // cumulative
+
+        mutable bslmt::RWMutex d_guard;
+                                 // serialize write access
+
+      private:
         // NOT IMPLEMENTED
-        Statistics(const Statistics&);
         Statistics& operator=(const Statistics&);
 
-    public:
+      public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(Statistics,
                                        bslma::UsesBslmaAllocator);
 
-
         // CREATORS
         explicit Statistics(bslma::Allocator *basicAllocator = 0);
             // Create an instance of this class.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+
+        Statistics(const Statistics&  original,
+                   bslma::Allocator  *basicAllocator = 0);
+            // Create a 'Statistics' object aggregating the same statistics
+            // values as the specified 'original' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
@@ -406,12 +465,10 @@ typedef bsls::Platform::OsHpUx OsType;
         // a collection of non-modifiable performance statistics.
 
         // FRIENDS
-
         friend class PerformanceMonitor;  // grant access to the private
                                           // constructor
 
-        // INSTANCE DATA
-
+        // DATA
         PidMap::const_iterator  d_it;          // wrapped iterator
         bslmt::RWMutex         *d_mapGuard_p;  // serialize access to the map
 
@@ -451,14 +508,18 @@ typedef bsls::Platform::OsHpUx OsType;
         ConstIterator& operator++();
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return a reference to the
-            // modifiable value type of this iterator.  The behavior of this
-            // function is undefined unless this iterator is dereferenceable.
+            // modifiable value type of this iterator.  If there is no next
+            // collection of statistics, this iterator will be set equal to
+            // 'end()'.  The behavior of this function is undefined unless this
+            // iterator is dereferenceable.
 
         ConstIterator operator++(int);
             // Advance this iterator to refer to the next collection of
             // statistics for a monitored pid and return the iterator pointing
-            // to the previous modifiable value type.  The behavior of this
-            // function is undefined unless this iterator is dereferenceable.
+            // to the previous modifiable value type.  If there is no next
+            // collection of statistics, this iterator will be set equal to
+            // 'end()'.  The behavior of this function is undefined unless this
+            // iterator is dereferenceable.
 
         // ACCESSORS
         reference operator*() const;
@@ -593,6 +654,7 @@ inline
 balb::PerformanceMonitor::ConstIterator::reference
 balb::PerformanceMonitor::ConstIterator::operator*() const
 {
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
     return *d_it->second.first;
 }
 
@@ -600,6 +662,7 @@ inline
 balb::PerformanceMonitor::ConstIterator::pointer
 balb::PerformanceMonitor::ConstIterator::operator->() const
 {
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
     return d_it->second.first.get();
 }
 
@@ -693,6 +756,7 @@ const bsl::string& balb::PerformanceMonitor::Statistics::description() const
 inline
 double balb::PerformanceMonitor::Statistics::elapsedTime() const
 {
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_elapsedTime;
 }
 

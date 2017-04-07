@@ -1085,7 +1085,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     if (stats->d_lstData[e_CPU_UTIL] > numThreads * 100.0)
     {
         BSLS_LOG_DEBUG("Calculated impossible CPU utilization = %f, "
-                       "num threads = %d", 
+                       "num threads = %d",
                        stats->d_lstData[e_CPU_UTIL],
                        numThreads);
 
@@ -1241,7 +1241,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 {
     PDH_STATUS rc;
 
-    for (unsigned int index = 0; true; ++instanceIndex)
+    for (unsigned int index = 0; true; ++index)
     {
         PDH_COUNTER_PATH_ELEMENTS cpe = {
             0,
@@ -1542,6 +1542,29 @@ balb::PerformanceMonitor::Statistics::Statistics(
     reset();
 }
 
+balb::PerformanceMonitor::Statistics::Statistics(
+                                             const Statistics&  original,
+                                             bslma::Allocator  *basicAllocator)
+: d_description(original.d_description, basicAllocator)
+, d_guard()
+{
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&original.d_guard);
+
+    d_pid = original.d_pid;
+    d_startTimeUtc = original.d_startTimeUtc;
+    d_startTime = original.d_startTime;
+    d_elapsedTime = original.d_elapsedTime;
+    d_numSamples = static_cast<int>(original.d_numSamples);
+
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
+        d_lstData[i] = original.d_lstData[i];
+        d_minData[i] = original.d_minData[i];
+        d_maxData[i] = original.d_maxData[i];
+        d_totData[i] = original.d_totData[i];
+    }
+}
+
+// MANIPULATORS
 void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const
 {
     for (int measure = 0; measure < e_NUM_MEASURES; ++measure) {
@@ -1720,8 +1743,6 @@ int PerformanceMonitor::unregisterPid(int pid)
 void PerformanceMonitor::setCollectionInterval(double interval)
 {
     BSLS_ASSERT(d_scheduler_p);
-
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
 
     if ((interval <= 0.0) && (d_clock != INVALID_TIMER_HANDLE)) {
         d_scheduler_p->cancelClock(d_clock, false);
