@@ -29,6 +29,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_systemtime.h>
 #include <bsls_platform.h>
+#include <bsls_timeutil.h>  // For CachePerformance
+#include <bsls_types.h>  // For for 'BloombergLP::bsls::Types::Int64'
 
 #include <bdlf_bind.h>
 #include <bsl_algorithm.h>
@@ -36,6 +38,7 @@
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_iomanip.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_map.h>
@@ -44,7 +47,7 @@
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-
+#include <bsl_cmath.h>   // 'sqrt'
 #include <bsl_cstdlib.h>
 
 using bsl::cout;
@@ -107,6 +110,7 @@ using namespace BloombergLP;
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [14] USAGE EXAMPLE 1
+// [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -236,9 +240,9 @@ void incrementCounter(bsls::AtomicInt *counter)
     ++*counter;
 }
 
-static void waitTwiceAndIncrement(bslmt::Barrier  *barrier, 
+static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
                                   bsls::AtomicInt *counter,
-                                  int              incrementBy) 
+                                  int              incrementBy)
 {
     // Wait two times on the specified 'barrier' and increment the specified
     // 'counter' by the specified 'incrementBy' value.
@@ -257,13 +261,13 @@ static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
     }
 }
 
-static void waitPauseAndIncrement(bslmt::Barrier  *barrier, 
-                                  Obj             *pool, 
-                                  int              queueId, 
-                                  bsls::AtomicInt  *counter) 
+static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
+                                  Obj             *pool,
+                                  int              queueId,
+                                  bsls::AtomicInt  *counter)
 {
-    // Wait on the specified 'barrier', pause the queue with the specified 
-    // 'queueId' in the specified 'pool' and then increment the specified 
+    // Wait on the specified 'barrier', pause the queue with the specified
+    // 'queueId' in the specified 'pool' and then increment the specified
     // 'counter'.  Finally, wait on the barrier again.
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
@@ -539,10 +543,16 @@ static
 void fastSearch(const bsl::vector<bsl::string>&  wordList,
                 const bsl::vector<bsl::string>&  fileList,
                 bsl::set<bsl::string>&           resultSet,
+                int                              repetitions = 1,
                 bslma::Allocator                *basicAllocator = 0)
 {
     // Return the set of files, specified by 'fileList', containing every word
-    // in the specified 'wordList', in the specified 'resultSet'.
+    // in the specified 'wordList', in the specified 'resultSet'. Optionally
+    // specify 'repetitions', the number of repetitions to run the search jobs.
+    // It is used to increase the load for performance testing.  Optionally
+    // specify a 'basicAllocator' used to supply memory.  If 'basicAllocator'
+    // is 0, the default memory allocator is used.
+
 
     typedef bsl::vector<bsl::string> ListType;
         // This type is defined for notational convenience when iterating over
@@ -607,7 +617,7 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
          it != fileList.end();
          ++it)
     {
-        for (ListType::const_iterator jt = wordList.begin();
+         for (ListType::const_iterator jt = wordList.begin();
              jt != wordList.end(); ++jt)
         {
             const bsl::string& file = *it;
@@ -615,8 +625,10 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
             RegistryValue&     rv   = profileRegistry[word];
             Func               job;
             makeFunc(&job, my_SearchCb, rv.second, file.c_str());
-            int rc = pool.enqueueJob(rv.first, job);
-            LOOP_ASSERT(word, 0 == rc);
+            for(int i = 0; i < repetitions; ++i) {
+                int rc = pool.enqueueJob(rv.first, job);
+                LOOP_ASSERT(word, 0 == rc);
+            }
         }
     }
 
@@ -664,6 +676,352 @@ struct StressJob {
     }
 };
 int StressJob::s_count = 0;
+
+namespace mqpoolperf {
+class MQPoolPerformance {
+    // This class performs the various performance tests
+
+  public:
+    typedef bsls::Types::Int64              TimeType;
+    typedef bsl::vector<bsls::Types::Int64> VecTimeType;
+    typedef bsl::vector<int> VecIntType;
+    typedef int (*InitFunc)(MQPoolPerformance*, VecIntType&);
+        // Initialization function takes a vector of ints, and returns 0 for
+        // success, <0 for failure.
+    typedef int (*RunFunc)(MQPoolPerformance*, VecIntType&);
+        // Run function takes a pointer to MQPoolPerformance, and a vector of
+        // ints.  It returns a return code of 0 for success, <0 for failure.
+        // The last entry in the vector of ints is the thread number.  Writer
+        // threads are first, writers after.
+
+    typedef struct WorkData {
+        RunFunc           d_func;
+        MQPoolPerformance *d_poolperf_p;
+        VecIntType        d_data;
+    } WorkData;
+
+  private:
+    // DATA
+    bslma::Allocator *d_allocator_p;  // memory allocator
+
+    bsl::string d_title;  // Title for printing purposes
+
+    int d_numRThreads;    // # of reader threads
+    int d_numWThreads;    // # of writer threads
+    int d_numThreads;     // d_numRThreads + d_numWThreads
+    int d_numCalcs;       // # of calculations, say 1,000,000
+    int d_numRepeats;     // # of repetitions of the calculation, say 10.
+                          // Repetitions are used to find variance
+
+    VecTimeType d_vecWTime;
+    VecTimeType d_vecUTime;
+    VecTimeType d_vecSTime;
+        // Wall time, User time and system time in nanos, collected from the
+        // various threads, and the various repeats.  If we have 6 threads, and
+        // 100 repeats, we will have 60 entries.
+
+    TimeType d_avgWTime;
+    TimeType d_avgUTime;
+    TimeType d_avgSTime;
+        // Averages of Wall time, User time and system time in nanos,
+        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
+    TimeType d_seWTime;
+    TimeType d_seUTime;
+    TimeType d_seSTime;
+        // Standard errors of Wall time, User time and system time in nanos,
+        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
+        // It is set to 0 if d_numRepeat = 1.
+    VecTimeType runTest(VecIntType& args, RunFunc func);
+        // run a single repetition of the calculation.  The calculation is
+        // defined in the specified 'func' function, and takes as input the
+        // specified 'args' vector.  Return for each thread a triad of elapsed
+        // wall time, user time, system time.
+
+    static void* workFunc(void*);
+        // The thread main function.
+
+    // NOT IMPLEMENTED
+    MQPoolPerformance(const MQPoolPerformance&);
+    MQPoolPerformance& operator=(const MQPoolPerformance&);
+
+  public:
+    MQPoolPerformance(
+                         const char                       *title,
+                         int                               numRThreads,
+                         int                               numWThreads,
+                         int                               numCalcs,
+                         int                               numRepeats,
+                         bslma::Allocator                 *basicAllocator = 0);
+
+    int initialize(VecIntType& args, InitFunc func);
+        // run the initialization function. The initialization is defined in
+        // the specified 'func' function, and takes as input the specified
+        // 'args' vector.  Returns the return code from 'func'.
+    VecTimeType runTests(VecIntType& args, RunFunc func);
+        // run the tests by running 'runTest' numRepeats times.  The test being
+        // run is the defined in the specified 'func' function, and takes as
+        // input the specified 'args' vector.  Return a triad of elapsed wall
+        // time, user time, and system time.
+    void printResult();
+        // print the output from the calculation
+
+    // ACCESSORS
+    int numCalcs() const;
+        // Return the number of calculations
+
+    int numRepeats() const;
+        // Return the number of test repetitions
+
+    int numRThreads() const;
+        // Return the number of reader threads
+
+    int numWThreads() const;
+        // Return the number of writer threads
+
+    int numThreads() const;
+        // Return the total number of threads.  It is equal to numRThreads() +
+        // numWThreads().
+
+    const char* title() const;
+        // Return the test title.
+
+    // TEST FUNCTIONS
+    static int testFastSearch(MQPoolPerformance *poolperf_p, VecIntType& args);
+        // Run the fastSearch test functionInsert with the specified
+        // 'poolperf_p'.  The specified 'args' vector is empty.
+
+};  // END class MQPoolPerformance
+
+MQPoolPerformance::MQPoolPerformance(
+                              const char                       *title,
+                              int                               numRThreads,
+                              int                               numWThreads,
+                              int                               numCalcs,
+                              int                               numRepeats,
+                              bslma::Allocator                 *basicAllocator)
+: d_allocator_p(basicAllocator)
+, d_title(title, basicAllocator)
+, d_numRThreads(numRThreads)
+, d_numWThreads(numWThreads)
+, d_numThreads(numRThreads + numWThreads)
+, d_numCalcs(numCalcs)
+, d_numRepeats(numRepeats)
+, d_vecWTime(basicAllocator)
+, d_vecUTime(basicAllocator)
+, d_vecSTime(basicAllocator)
+{
+}
+
+int MQPoolPerformance::initialize(VecIntType&                args,
+                                 MQPoolPerformance::InitFunc func)
+{
+    // Call initializing function
+    int rc = func(this, args);
+    return rc;
+}
+
+MQPoolPerformance::VecTimeType MQPoolPerformance::runTests(VecIntType&      args,
+                                                MQPoolPerformance::RunFunc func)
+{
+    d_seWTime = d_seUTime = d_seSTime = 0;
+    d_avgWTime = d_avgUTime = d_avgSTime = 0;
+//bsl::cout << "NR=" << d_numRepeats << ",NC=" << d_numCalcs << "\n";
+    for(int j = 0; j < d_numRepeats; ++j) {
+        VecTimeType times(d_allocator_p);
+        times = runTest(args, func);
+        TimeType curWTime = 0, curUTime = 0, curSTime = 0;
+        for(int i = 0; i < d_numThreads; ++i) {
+            d_vecWTime.push_back(times[i * 3    ]);
+            d_vecUTime.push_back(times[i * 3 + 1]);
+            d_vecSTime.push_back(times[i * 3 + 2]);
+            curWTime += times[i * 3    ];
+            curUTime += times[i * 3 + 1];
+            curSTime += times[i * 3 + 2];
+        }
+        d_avgWTime += curWTime;
+        d_avgUTime += curUTime;
+        d_avgSTime += curSTime;
+        d_seWTime += curWTime * curWTime;
+        d_seUTime += curUTime * curUTime;
+        d_seSTime += curSTime * curSTime;
+    }
+    d_avgWTime /= d_numRepeats;
+    d_avgUTime /= d_numRepeats;
+    d_avgSTime /= d_numRepeats;
+    if (d_numRepeats == 1) {
+        d_seWTime = d_seUTime = d_seSTime = 0;
+    }
+    else {
+        // SD = SQRT(E(X^2) - E(X)^2)
+        d_seWTime = bsl::sqrt(static_cast<double>(d_seWTime / d_numRepeats
+            - d_avgWTime * d_avgWTime));
+        d_seUTime = bsl::sqrt(static_cast<double>(d_seUTime / d_numRepeats
+            - d_avgUTime * d_avgUTime));
+        d_seSTime = bsl::sqrt(static_cast<double>(d_seSTime / d_numRepeats
+            - d_avgSTime * d_avgSTime));
+    }
+    VecTimeType ret(d_allocator_p);
+    ret.push_back(d_avgWTime);
+    ret.push_back(d_avgUTime);
+    ret.push_back(d_avgSTime);
+    return ret;
+} // END runTests
+
+MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(VecIntType&       args,
+                                                MQPoolPerformance::RunFunc func)
+{
+    if (d_numThreads == 1) {
+        // For a single thread, run calculation on the caller
+        TimeType startWTime = bsls::TimeUtil::getTimer();
+        TimeType startUTime, startSTime;
+        bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
+        args.push_back(-1);
+        int      rc = func(this, args);
+        TimeType endWTime = bsls::TimeUtil::getTimer();
+        TimeType endUTime, endSTime;
+        bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
+        VecTimeType times(d_allocator_p);
+        times.push_back((endWTime - startWTime) / 1000);
+        times.push_back((endUTime - startUTime) / 1000);
+        times.push_back((endSTime - startSTime) / 1000);
+        return times;                                                 // RETURN
+    }
+
+    bsl::vector<bslmt::ThreadUtil::Handle> handles(d_numThreads);
+    bsl::vector<WorkData>                  todos(d_numThreads);
+
+    // Spawn work threads
+    for(int i = 0; i < d_numThreads; ++i) {
+        todos[i].d_func = func;
+        todos[i].d_poolperf_p = this;
+        todos[i].d_data = args;
+        todos[i].d_data.push_back(i);
+
+        bslmt::ThreadUtil::create(&handles[i], workFunc, &todos[i]);
+    }
+    // Collect results
+    VecTimeType        times(d_allocator_p);
+    bsl::vector<void*> results(d_numThreads);
+    for(int i = 0; i < d_numThreads; ++i) {
+        bslmt::ThreadUtil::join(handles[i], &results[i]);
+        VecTimeType *pRes = reinterpret_cast<VecTimeType*>(results[i]);
+        for(size_t j = 0; j < pRes->size(); ++j) times.push_back((*pRes)[j]);
+        delete pRes;
+    }
+
+    return times;
+} // END runTest
+
+void MQPoolPerformance::printResult()
+{
+    // print the output from the calculation
+    bsl::cout << "Title=" << d_title << "\n";
+    bsl::cout << bsl::fixed << bsl::setprecision(1);
+    bsl::cout << "Threads="   << d_numThreads
+              << ",RThreads=" << d_numRThreads
+              << ",WThreads=" << d_numWThreads << "\n";
+    // Time is printed in milliseconds
+    bsl::cout << "Wall Time="   << d_avgWTime / 1000 << "+/-"
+            << d_seWTime / static_cast<double>(d_avgWTime) * 100.0 << "%\n";
+    bsl::cout << "User Time="   << d_avgUTime / 1000 << "+/-"
+            << d_seUTime / static_cast<double>(d_avgUTime) * 100.0 << "%\n";
+    bsl::cout << "System Time="   << d_avgSTime / 1000 << "+/-"
+            << d_seSTime / static_cast<double>(d_avgSTime) * 100.0 << "%\n";
+}
+
+void* MQPoolPerformance::workFunc(void* arg)
+{
+    WorkData    *wdp = reinterpret_cast<WorkData*>(arg);
+    VecTimeType *pTimes = new VecTimeType(wdp->d_poolperf_p->d_allocator_p);
+
+    TimeType startWTime = bsls::TimeUtil::getTimer();
+    TimeType startUTime, startSTime;
+    bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
+    int      rc = wdp->d_func(wdp->d_poolperf_p, wdp->d_data);
+    TimeType endWTime = bsls::TimeUtil::getTimer();
+    TimeType endUTime, endSTime;
+    bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
+    pTimes->push_back((endWTime - startWTime) / 1000);
+    pTimes->push_back((endUTime - startUTime) / 1000);
+    pTimes->push_back((endSTime - startSTime) / 1000);
+    return pTimes;
+}
+
+// ACCESSORS
+inline
+int MQPoolPerformance::numCalcs() const
+{
+    return d_numCalcs;
+}
+
+inline
+int MQPoolPerformance::numRThreads() const
+{
+    return d_numRThreads;
+}
+
+inline
+int MQPoolPerformance::numRepeats() const
+{
+    return d_numRepeats;
+}
+
+inline
+int MQPoolPerformance::numThreads() const
+{
+    return d_numThreads;
+}
+
+inline
+int MQPoolPerformance::numWThreads() const
+{
+    return d_numWThreads;
+}
+
+inline
+const char* MQPoolPerformance::title() const
+{
+    return d_title.c_str();
+}
+
+
+// TEST FUNCTIONS
+int MQPoolPerformance::testFastSearch(MQPoolPerformance *poolperf_p,
+                                 VecIntType&       args)
+{
+    // Run the fastSearch test functionInsert with the specified
+    // 'poolperf_p'.  The specified 'args' vector is empty.
+    bslma::TestAllocator ta(false);
+
+    bsl::string WORDS[] = {
+        "a", "b", "c", "d", "e", "f", "g", "h",
+        "i", "j", "k", "l", "m", "n", "o", "p",
+        "q", "r", "s", "t", "u", "v", "w", "x",
+        "y", "z", "A", "B", "C", "D", "E", "F",
+        "G", "H", "I", "J", "K", "L", "M", "N",
+        "O", "P", "Q", "R", "S", "T", "U", "V",
+        "W", "X", "Y", "Z", "1", "2", "3", "4",
+        "5", "6", "7", "8", "9", "0",
+    };
+    const bsl::string PATH("/usr/include/");
+    bsl::string FILES[] = {
+        PATH + "err.h", PATH + "errno.h", PATH + "error.h",
+        PATH + "zlib.h", PATH + "elf.h", PATH + "argp.h"
+    };
+    enum {
+        NUM_WORDS = sizeof WORDS / sizeof *WORDS,
+        NUM_FILES = sizeof FILES / sizeof *FILES
+    };
+
+    bsl::vector<bsl::string> wordList(WORDS, WORDS + NUM_WORDS, &ta);
+    bsl::vector<bsl::string> fileList(FILES, FILES + NUM_FILES, &ta);
+    bsl::set<bsl::string>    resultSet;
+    int numCalcs = poolperf_p->numCalcs();
+    fastSearch(wordList, fileList, resultSet, numCalcs);
+    return 0;
+}
+
+}  // close namespace mqpoolperf
 
 // ============================================================================
 //                         For test cases 14 and 15
@@ -899,12 +1257,13 @@ int main(int argc, char *argv[]) {
                 "5", "6", "7", "8", "9", "0",
             };
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            const bsl::string PATH("/bb/infrastructure/groups/bde/include/");
+            const bsl::string PATH("/usr/include/");
 #else
-            const bsl::string PATH("/bbsrc/bde/releases/latest/include/bde/");
+            const bsl::string PATH("/usr/include/");
 #endif
             bsl::string FILES[] = {
-                PATH + "bdlmxxx_aggregate.h",
+                PATH + "err.h", PATH + "errno.h", PATH + "error.h",
+                PATH + "zlib.h", PATH + "elf.h", PATH + "argp.h"
             };
             enum {
                 NUM_WORDS = sizeof WORDS / sizeof *WORDS,
@@ -922,8 +1281,10 @@ int main(int argc, char *argv[]) {
 //            ASSERT(3 == resultSet.size())
 
             if (verbose) {
-              cout << "DIRECTORY = /bbsrc/bde/releases/latest/include/bde/*.h"
-                   << endl;
+              cout << "DIRECTORY = [ ";
+              bsl::copy(fileList.begin(), fileList.end(),
+                        bsl::ostream_iterator<bsl::string>(cout, " "));
+              cout << ']' << endl;
               cout << "WORD_LIST = [ ";
               bsl::copy(wordList.begin(), wordList.end(),
                         bsl::ostream_iterator<bsl::string>(cout, " "));
@@ -941,7 +1302,7 @@ int main(int argc, char *argv[]) {
       case 19: {
         // --------------------------------------------------------------------
         // FRONT
-        // 
+        //
         // Concerns:
         //   * 'addAtFront' positions a job at the front of the queue.
         //   * 'addAtFront' fails if the queue is disabled.
@@ -977,7 +1338,7 @@ int main(int argc, char *argv[]) {
             id1 = mX.createQueue();
             // The first job we enqueue may or may not be dequeued before
             // 'addJobAtFront' executes.  Thus, the two possible values of
-            // 'value' are "abc" and "bac".  
+            // 'value' are "abc" and "bac".
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'b'));
@@ -1021,7 +1382,7 @@ int main(int argc, char *argv[]) {
 
             bsl::string value;
             mX.pauseQueue(id1);
-            
+
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'c'));
@@ -1047,7 +1408,7 @@ int main(int argc, char *argv[]) {
 
             bsl::string value;
             bslmt::Semaphore sema;
-            
+
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'a'));
@@ -1064,12 +1425,12 @@ int main(int argc, char *argv[]) {
 
             LOOP_ASSERT(value, "abc" == value);
         }
-      } break;            
+      } break;
 
       case 18: {
         // --------------------------------------------------------------------
         // PAUSE/RESUME
-        // 
+        //
         // Concerns:
         //   * Pausing a queue with jobs executing blocks until the current
         //     job finishes.
@@ -1084,14 +1445,14 @@ int main(int argc, char *argv[]) {
         //   * A pool having a paused queue may be stopped/shutdown.
         //
         // Plan:
-        //   Using an underlying threadpool with N threads, exercise the 
-        //   scenarios listed above.  Conditions that refer to a "paused 
+        //   Using an underlying threadpool with N threads, exercise the
+        //   scenarios listed above.  Conditions that refer to a "paused
         //   queue" should always have a job on the queue during the
         //   test.
         //
         //   Run the tests with N=1, to verify that no deadlocks exist that
         //   involve waiting for another threadpool thread, and N=2, to verify
-        //   no problems arise from putting two processing jobs into the 
+        //   no problems arise from putting two processing jobs into the
         //   threadpool for the same queue.
         // --------------------------------------------------------------------
         if (verbose) {
@@ -1103,9 +1464,9 @@ int main(int argc, char *argv[]) {
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadAttributes   detached;
         detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
-        
+
         enum { SHORT_SLEEP = 20 * 1000 }; // 20 ms
- 
+
        const struct Params {
             int d_numThreads;
             int d_numResumers;
@@ -1127,12 +1488,12 @@ int main(int argc, char *argv[]) {
                     " thread"  <<
                     (NUM_THREADS > 1 ? "s" : "") << endl;
             }
-            
+
             Obj mX(defaultAttrs, NUM_THREADS, NUM_THREADS, INT_MAX);
             const Obj& X = mX;
             int rc = mX.start();
             ASSERT(0 == rc);
-            
+
             bslmt::Barrier controlBarrier(2);
             bsls::AtomicInt count(0);
             int id1;
@@ -1151,17 +1512,17 @@ int main(int argc, char *argv[]) {
                         mX.resumeQueue(id);
                     }
                 }
-                
+
                 if (veryVerbose) {
                     cout << "\tPause blocks until job finishes" << endl;
                 }
-                Func job = bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
-                                                &controlBarrier, 
+                Func job = bdlf::BindUtil::bind(&waitTwiceAndIncrement,
+                                                &controlBarrier,
                                                 &count, 1);
                 id1 = mX.createQueue();
                 mX.enqueueJob(id1, job);
                 mX.enqueueJob(id1, job);
-                
+
                 // ensure the first job is running
                 controlBarrier.wait();
 
@@ -1170,7 +1531,7 @@ int main(int argc, char *argv[]) {
                 bslmt::ThreadUtil::create(
                                    &handle, detached,
                                    bdlf::BindUtil::bind(&waitPauseAndIncrement,
-                                                        &pauseBarrier, 
+                                                        &pauseBarrier,
                                                         &mX, id1, &pauseCount));
                 pauseBarrier.wait();
                 // Now the thread will invoke pauseQueue. Wait a little bit
@@ -1179,8 +1540,8 @@ int main(int argc, char *argv[]) {
                 bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
                 ASSERT(0 == pauseCount);
                 controlBarrier.wait();
-                
-                // Having unblocked the threadpool job, pause() should now be 
+
+                // Having unblocked the threadpool job, pause() should now be
                 // able to complete
                 pauseBarrier.wait();
                 ASSERT(1 == pauseCount);
@@ -1188,14 +1549,14 @@ int main(int argc, char *argv[]) {
 
                 // Pausing waited till the first job completed
                 ASSERT(1 == count);
-                
+
                 // At this point there's still one blocked job sitting on
                 // the queue. Try to wait for it for a short time -- this
                 // will fail, as the queue is paused.
                 ASSERT(0 != controlBarrier.timedWait(
                                       bsls::SystemTime::nowRealtimeClock()
                                       .addMicroseconds(SHORT_SLEEP)));
-                       
+
             }
             {
                 if (veryVerbose) {
@@ -1204,7 +1565,7 @@ int main(int argc, char *argv[]) {
                 }
                 int id2 = mX.createQueue();
                 bsls::AtomicInt count2(0);
-                Func job = 
+                Func job =
                     bdlf::BindUtil::bind(&incrementCounter, &count2);
 
                 mX.enqueueJob(id2, job);
@@ -1218,9 +1579,9 @@ int main(int argc, char *argv[]) {
                          << endl;
                 }
                 // Queue id1 is still paused
-                Func job = 
-                    bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
-                                         &controlBarrier, 
+                Func job =
+                    bdlf::BindUtil::bind(&waitTwiceAndIncrement,
+                                         &controlBarrier,
                                          &count, 2);
                 mX.enqueueJob(id1, job);
                 // Try a timedWait; adding a job should not cause anything to
@@ -1250,7 +1611,7 @@ int main(int argc, char *argv[]) {
                                                    &mX, id1, &numSuccesses),
                               NUM_RESUMERS);
                 tg.joinAll();
-                                                   
+
                 ASSERT(!X.isPaused(id1));
                 ASSERT(1 == numSuccesses);
                 controlBarrier.wait();
@@ -1269,12 +1630,12 @@ int main(int argc, char *argv[]) {
                 }
                 // Reset the count
                 count = 0;
-                
+
                 // Pause the queue again and submit another job
                 mX.pauseQueue(id1);
                 Func job = bdlf::BindUtil::bind(&incrementCounter, &count);
                 mX.enqueueJob(id1, job);
-                
+
                 // Drain; should return with no effect
                 mX.drain();
                 ASSERT(0 == count);
@@ -1301,13 +1662,13 @@ int main(int argc, char *argv[]) {
                 // though paused)
                 Func job = bdlf::BindUtil::bind(&incrementCounter, &count);
                 ASSERT(0 == mX.enqueueJob(id1, job));
-                
+
                 mX.shutdown();
                 ASSERT(0 == count);
             }
         }
       } break;
-          
+
       case 17: {
         // --------------------------------------------------------------------
         // TESTING UNDER STRESS
@@ -2865,7 +3226,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == X.numElements(id));
                 mX.stop();
                 ASSERT(1 == X.numElements(id));
-                
+
                 ASSERT(0 == mX.start());
                 mX.resumeQueue(id);
                 ASSERT(!X.isPaused(id));
@@ -2874,7 +3235,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == counter);
                 mX.stop();
             }
-                
+
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Re-start the pool.  Enqueue a job to the queue.  Then, delete
             // the queue.
@@ -3166,6 +3527,43 @@ int main(int argc, char *argv[]) {
 
         ASSERT(0 != mX.start());
 #endif
+      }  break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // TESTING PERFORMANCE OF USAGE EXAMPLE
+        //   Tests performance of the usage example.  To provide control over
+        //   the test, command line parameters are used.
+        //   2nd parameter: multiply the number of jobs sumitted by this
+        //   number.
+        //   3rd parameter: number of repetitions to peform.
+        //
+        // Concerns:
+        //: 1 Calculates wall time, user time, and system time for inserting
+        //:   the given rows in bulk.
+        //
+        // Plan:
+        //: 1 Create a MQPerformance object, and use testFastSearch.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE PERFORMANCE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing Performance of usage example\n"
+                             "====================================\n";
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        int numCalcs   = argc > 2 ? atoi(argv[2]) : 1;
+        int numRepeats = argc > 3 ? atoi(argv[3]) : 10;
+        int numThreads = argc > 4 ? atoi(argv[4]) : 1;
+
+        mqpoolperf::MQPoolPerformance cp("testFS1",
+                0, numThreads, numCalcs, numRepeats, &ta);
+        // Empty args vector
+        mqpoolperf::MQPoolPerformance::VecIntType  args(&ta);
+        mqpoolperf::MQPoolPerformance::VecTimeType times(&ta);
+        times = cp.runTests(args, mqpoolperf::MQPoolPerformance::testFastSearch);
+        cp.printResult();
       }  break;
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

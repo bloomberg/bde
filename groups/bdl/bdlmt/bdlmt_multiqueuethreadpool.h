@@ -350,16 +350,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_qlock.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
-#include <bslmt_rwmutex.h>
+#ifndef INCLUDED_BSLMT_READERWRITERMUTEX
+#include <bslmt_readerwritermutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SPINLOCK
-#include <bsls_spinlock.h>
 #endif
 
 #ifndef INCLUDED_BSL_DEQUE
@@ -514,17 +510,17 @@ class MultiQueueThreadPool_QueueContext {
     MultiQueueThreadPool_Queue d_queue;
     mutable bslmt::QLock       d_lock;         // protect queue and
                                                // informational members
-                                                
+
     bool                       d_isChanging;   // set when pauseQueue or
                                                // resumeQueue is waiting for
-                                               // callback. 
-                                                
+                                               // callback.
+
     QueueProcessorCb           d_processingCb; // bound processing callback for
                                                // pool
-                                                
+
     bool                       d_destroyFlag;  // signals worker thread to
                                                // delete queue
-                                                
+
     bslmt::ThreadUtil::Handle  d_processor;    // current worker thread, or
                                                // ThreadUtil::invalidHandle()
 
@@ -603,7 +599,7 @@ class MultiQueueThreadPool {
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
                       d_queueRegistry;      // registry of queue contexts
 
-    mutable bslmt::RWMutex
+    mutable bslmt::ReaderWriterMutex
                       d_registryLock;       // synchronizes registry access
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
@@ -649,7 +645,7 @@ class MultiQueueThreadPool {
         // nonzero value if the queue does not have the opposite state or is
         // changing state.  If 'paused' is true, wait until any currently
         // executing job completes.
-    
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MultiQueueThreadPool,
@@ -882,7 +878,7 @@ int MultiQueueThreadPool::resumeQueue(int id)
 {
     return changePauseState(id, false);
 }
-    
+
 // ACCESSORS
 inline
 void MultiQueueThreadPool::numProcessed(int *numDequeued,

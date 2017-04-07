@@ -44,7 +44,7 @@ void setIntAndPost(bsls::AtomicInt  *intValue,
     *intValue = value;
     semaphore->post();
 }
-    
+
 
 }  // close unnamed namespace
 
@@ -317,17 +317,17 @@ void MultiQueueThreadPool::processQueueCb(
 
         // If the queue is pausing, mark it paused now. We will not resubmit
         // the processing callback.
-        
+
         if (MultiQueueThreadPool_Queue::e_PAUSING == pauseState) {
             pauseState =               MultiQueueThreadPool_Queue::e_PAUSED;
             context->d_queue.d_pauseState =
                                        MultiQueueThreadPool_Queue::e_PAUSED;
         }
-            
+
         // If there are now 0 pending jobs, or the queue was paused during the
         // execution of the user callback, mark the queue deactivated.
         // Otherwise, re-enqueue the processing callback.
-        
+
         if (0 == numPending ||
             MultiQueueThreadPool_Queue::e_PAUSED == pauseState) {
             --d_numActiveQueues;
@@ -347,7 +347,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
 {
     MultiQueueThreadPool_QueueContext *context;
     int                                     rc = 1;
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (STATE_RUNNING == d_state.loadRelaxed() &&
         0             == d_queueRegistry.find(id, &context)) {
         bslmt::QLockGuard guard(&context->mutex());
@@ -381,14 +381,14 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
                 ++context->d_queue.d_numPendingJobs;
             } else {
                 guard.unlock();
-            
+
                 if (1 == ++context->d_queue.d_numPendingJobs) {
                     ++d_numActiveQueues;
-                    
+
                     BSLS_ASSERT(context->d_processingCb);
-                    
+
                     // Enqueue the processing callback for this queue.
-                    status = 
+                    status =
                         d_threadPool_p->enqueueJob(context->d_processingCb);
                     BSLS_ASSERT(0 == status);
                 }
@@ -491,7 +491,7 @@ int MultiQueueThreadPool::enableQueue(int id)
 {
     MultiQueueThreadPool_QueueContext *context;
     int                                rc = 1;
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (STATE_RUNNING == d_state.loadRelaxed() &&
         0 == d_queueRegistry.find(id, &context)) {
         context->d_queue.enable();
@@ -504,7 +504,7 @@ int MultiQueueThreadPool::disableQueue(int id)
 {
     MultiQueueThreadPool_QueueContext *context;
     int                                     rc = 1;
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (STATE_RUNNING == d_state.loadRelaxed() &&
         0 == d_queueRegistry.find(id, &context)) {
         context->d_queue.disable();
@@ -516,7 +516,7 @@ int MultiQueueThreadPool::disableQueue(int id)
 bool MultiQueueThreadPool::isEnabled(int id) const
 {
     MultiQueueThreadPool_QueueContext *context = 0;
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     return (STATE_RUNNING == d_state.loadRelaxed() &&
                                     0 == d_queueRegistry.find(id, &context) &&
                                                 context->d_queue.isEnabled());
@@ -526,7 +526,7 @@ int MultiQueueThreadPool::drainQueue(int id)
 {
     MultiQueueThreadPool_QueueContext *context;
 
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     int rc = d_queueRegistry.find(id, &context);
     regGuard.release()->unlock();
     if (0 == rc) {
@@ -567,7 +567,7 @@ void MultiQueueThreadPool::drain()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_stateLock);
     if (STATE_STOPPED == d_state.loadRelaxed()) {
-        return;
+        return;                                                       // RETURN
     }
 
     BSLS_ASSERT(STATE_RUNNING == d_state.loadRelaxed());
@@ -588,12 +588,12 @@ void MultiQueueThreadPool::drain()
 int MultiQueueThreadPool::changePauseState(int id, bool paused)
 {
     MultiQueueThreadPool_QueueContext *context;
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (STATE_RUNNING != d_state.loadRelaxed() ||
         0 != d_queueRegistry.find(id, &context)) {
-        return 1;
+        return 1;                                                     // RETURN
     }
-    
+
     bslmt::QLockGuard guard(&context->mutex());
 
     bool isPaused = MultiQueueThreadPool_Queue::e_RUNNING !=
@@ -602,19 +602,19 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
         // Already in the intended state, or another thread is in the process
         // of changing state. Either represents a failure under the
         // contract.
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (bslmt::ThreadUtil::areEqual(bslmt::ThreadUtil::self(),
                                     context->d_processor)) {
-        // Invoked from a job within the queue. We can simply set 
+        // Invoked from a job within the queue. We can simply set
         // the paused flag and it will be observed by the processing
         // function after this job completes.
         context->d_queue.d_pauseState = paused
             ? MultiQueueThreadPool_Queue::e_PAUSED
             : MultiQueueThreadPool_Queue::e_RUNNING;
-        return 0;
-    } 
+        return 0;                                                     // RETURN
+    }
 
     // The state change needs to happen in the queue processing thread.
     // In the case of pausing, it needs to happen there because the contract
@@ -622,24 +622,24 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
     // racing with pausing.  Set a flag to indicating we are waiting for a state
     // change.
     context->d_isChanging = true;
-    
+
     bslmt::Semaphore semaphore;
     int newState = paused
         ? MultiQueueThreadPool_Queue::e_PAUSING
         : MultiQueueThreadPool_Queue::e_RUNNING;
-    Job job = bdlf::BindUtil::bind(&setIntAndPost, 
+    Job job = bdlf::BindUtil::bind(&setIntAndPost,
                                    &context->d_queue.d_pauseState,
-                                   newState, 
+                                   newState,
                                    &semaphore);
     if (paused) {
         // enqueueJobImpl locks the registry and context locks, so invoke while
         // both are unlocked
         guard.unlock();
-        bslmt::ReadLockGuardUnlock<bslmt::RWMutex> regUnlock(&d_registryLock);
+        bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(&d_registryLock);
         if (0 != enqueueJobImpl(id, job, e_FRONT_FORCE)) {
             // queue was deleted (no need to reset d_isChanging flag, this queue
             // is in a terminal state)
-            return 1;
+            return 1;                                                 // RETURN
         }
 
         semaphore.wait();
@@ -651,24 +651,24 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
         context->d_queue.forceFront(job);
         ++context->d_queue.d_numPendingJobs;
         ++d_numActiveQueues;
-        
-        int status = 
+
+        int status =
             d_threadPool_p->enqueueJob(context->d_processingCb);
         BSLS_ASSERT(0 == status);
 
         // now unlock the registry and context locks to wait on the semaphore.
         guard.unlock();
-        bslmt::ReadLockGuardUnlock<bslmt::RWMutex> regUnlock(&d_registryLock);
+        bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(&d_registryLock);
         semaphore.wait();
-    }        
+    }
 
     // We have released the lock protecting 'd_queueRegistry' so the queue may
     // have been deleted and 'context' must be re-found.  Note we hold a read
     // lock on d_registryLock here.
-    
+
     if (0 != d_queueRegistry.find(id, &context)) {
         // queue was deleted from under us
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     bslmt::QLockGuard stateChangeGuard(&context->mutex());
@@ -681,7 +681,7 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
     // posting the semaphore and updating the pause state.
     while (paused && MultiQueueThreadPool_Queue::e_PAUSED !=
            context->d_queue.d_pauseState) ;
-    
+
     context->d_isChanging = false;
     return 0;
 }
@@ -756,7 +756,7 @@ bool MultiQueueThreadPool::isPaused(int id) const
 {
     MultiQueueThreadPool_QueueContext *context;
 
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (0 == d_queueRegistry.find(id, &context)) {
         bslmt::QLockGuard guard(&context->mutex());
         return context->d_queue.d_pauseState.loadRelaxed();          // RETURN
@@ -768,7 +768,7 @@ int MultiQueueThreadPool::numElements(int id) const
 {
     MultiQueueThreadPool_QueueContext *context;
 
-    bslmt::ReadLockGuard<bslmt::RWMutex> regGuard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (0 == d_queueRegistry.find(id, &context)) {
         return context->d_queue.length();                            // RETURN
     }
