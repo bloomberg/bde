@@ -168,6 +168,37 @@ struct ClassWithDefaultOps {
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
+
+// This test case is distilled from 'shared_ptr' use of the feature that has
+// been shown to crash on at least one buggy compiler.
+
+namespace {
+typedef decltype(nullptr) nullptr_t;  // avoids dependencies
+
+template <class Element>
+struct Meta {
+    typedef Element type;
+};
+
+template <class Element>
+struct SmartPtrWithSfinaeConstructor {
+    // CREATORS
+    template <class AnyType, typename Meta<AnyType>::type * = nullptr>
+    SmartPtrWithSfinaeConstructor(AnyType *ptr);
+
+    SmartPtrWithSfinaeConstructor(nullptr_t) {}
+};
+
+void test_default_template_args() {
+    SmartPtrWithSfinaeConstructor<int> x = 0;  // Oracle CC 12.4 asserts
+}
+
+}
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
 struct ClassWithDeletedOps {
     ClassWithDeletedOps() = delete;
