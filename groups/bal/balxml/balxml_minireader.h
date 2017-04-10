@@ -340,8 +340,7 @@ class MiniReader :  public Reader {
 
     struct Node;
     friend struct Node;
-    struct Node
-    {
+    struct Node {
         enum {
             k_NODE_NO_FLAGS = 0x0000,
             k_NODE_EMPTY    = 0x0001
@@ -373,8 +372,7 @@ class MiniReader :  public Reader {
 
     typedef bsl::vector<Element> ElementVector;
 
-    enum State
-    {
+    enum State {
         ST_INITIAL,   // Initial state after successful open
         ST_TAG_BEGIN, // Current position - next symbol after '<'
         ST_TAG_END,   // Current position - next symbol after '>'
@@ -383,10 +381,20 @@ class MiniReader :  public Reader {
         ST_CLOSED     // close method has been called
     };
 
-    enum Flags
-    {
+    enum Flags {
         FLG_READ_EOF    = 0x0001,  // End of input data
         FLG_ROOT_CLOSED = 0x0002   // Root closed
+    };
+
+    enum StringType {
+        // The return value of 'searchCommentCDataOrElementName', says what
+        // node the function has found.
+
+        e_STRINGTYPE_NONE,
+        e_STRINGTYPE_COMMENT,
+        e_STRINGTYPE_CDATA,
+        e_STRINGTYPE_START_ELEMENT,
+        e_STRINGTYPE_END_ELEMENT
     };
 
   private:
@@ -457,6 +465,8 @@ class MiniReader :  public Reader {
     const bsl::string& findNamespace(const bsl::string &prefix) const;
     int   checkPrefixes();
 
+    void pushElementName();
+
     int   scanNode();
         // Scan the node at the current position.
     int   scanOpenTag();
@@ -464,11 +474,19 @@ class MiniReader :  public Reader {
     int   scanExclaimConstruct();
     int   scanText();
     int   scanStartElement();
+    int   scanEndElementRaw();
     int   scanEndElement();
     int   scanAttributes();
     int   addAttribute();
     int   updateElementInfo();
     int   updateAttributes();
+
+    StringType searchCommentCDataOrElementName(const char *name);
+        // Scan the input for a comment, a CDATA section, the specified element
+        // 'name', or the end tag corresponding to 'name'.  Stop at the first
+        // instance of either one of those string and update the internal read
+        // pointer (d_scanPtr) to point to the next character after the string
+        // read.  Return the string type found.
 
     // LOW LEVEL PARSING PRIMITIVES
     const char *rebasePointer(const char *ptr, const char *newBase);
@@ -543,7 +561,6 @@ class MiniReader :  public Reader {
         // 'bufSize' is a hint, which may be modified or ignored if it is not
         // within a "sane" range.
 
-    // CLASS METHODS
     //------------------------------------------------
     // INTERFACE Reader
     //------------------------------------------------
@@ -631,6 +648,37 @@ class MiniReader :  public Reader {
         // structures obtained via 'Reader' accessors.  E.g., the pointer
         // returned from 'nodeName' for this node will not be valid once
         // 'close' is called.
+
+    virtual int advanceToEndNode();
+        // Skip to the end node of the current node in the data steam created
+        // by 'open' thus allowing the end node's properties to be queried via
+        // the 'Reader' accessors.  Return 0 on successful skip, and a negative
+        // number otherwise (error).  The function will return an error unless
+        // the current node is an element.  Note that each call to
+        // 'advanceToEndNode' invalidates strings and data structures returned
+        // when 'Reader' accessors where call for the "prior node".  E.g., the
+        // pointer returned from 'nodeName' for this node won't be valid once
+        // 'advanceToEndNode' is called.  Note that the reader will not
+        // advance by a subsequent call to 'advanceToEndNodeRaw' or
+        // 'advanceToEndNode' since the reader is already on an end node.  You
+        // should call 'advanceToNextNode' to skip the current end element and
+        // find the next element start.
+
+    virtual int advanceToEndNodeRaw();
+        // Skip to the end node of the current node in the data steam created
+        // by 'open' thus allowing the end node's properties to be queried via
+        // the 'Reader' accessors.  Return 0 on successful skip, and a negative
+        // number otherwise (error).  The function will return an error unless
+        // the current node is an element.  This function does not validate its
+        // XML input.  Note that each call to 'advanceToEndNodeRaw' invalidates
+        // strings and data structures returned when 'Reader' accessors where
+        // call for the "prior node".  E.g., the pointer returned from
+        // 'nodeName' for this node will not be valid once
+        // 'advanceToEndNodeRaw' is called.  Note that the reader will not
+        // advance by a subsequent call to 'advanceToEndNodeRaw' or
+        // 'advanceToEndNode' since the reader is on an end node.  You should
+        // call 'advanceToNextNode' to skip the current end element and find
+        // the next element start.
 
     virtual int advanceToNextNode();
         // Move to the next node in the data steam created by 'open' thus

@@ -16,9 +16,10 @@ BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bsl_algorithm.h>  // for swap
+#include <bsl_algorithm.h>  // for 'swap'
 #include <bsl_cctype.h>
 #include <bsl_climits.h>
+#include <bsl_cstring.h>    // for 'strlen', 'strcspn', 'memcmp'
 
 // IMPLEMENTATION NOTES
 // --------------------
@@ -852,6 +853,177 @@ int MiniReader::lookupAttribute(ElementAttribute *attribute,
     return 1; //not found
 }
 
+int MiniReader::advanceToEndNode()
+{
+    if (d_state == ST_EOF ||    // Is the reader operational?
+        d_state == ST_ERROR ||
+        d_state == ST_CLOSED) {
+        return -1;                                                    // RETURN
+    }
+
+    const Node& node = currentNode();
+
+    if (node.d_type != e_NODE_TYPE_ELEMENT) {
+
+        // For this method to be called we must currently be at an element
+        // whose body we want to skip
+
+        return -2;                                                    // RETURN
+    }
+
+    if (isEmptyElement()) {  // Empty element so we already skipped the body
+        return 0;                                                     // RETURN
+    }
+
+    size_t level = d_activeNodesCount + 1;
+    while (1) {
+        int rc;
+        if ((rc = advanceToNextNode()) != 0) {
+            return rc;                                                // RETURN
+        }
+        if (currentNode().d_type == e_NODE_TYPE_END_ELEMENT &&
+            level == d_activeNodesCount) {
+            return 0;                                                 // RETURN
+        }
+    }
+}
+
+MiniReader::StringType
+MiniReader::searchCommentCDataOrElementName(const char *name)
+{
+    BSLS_ASSERT(name && name[0]);
+
+    // I think this can be simplified...
+
+    const size_t nameLen = bsl::strlen(name);
+    char strSet[] = { '<', '/', name[0] };
+
+    while (1) {
+        StringType type = e_STRINGTYPE_NONE;
+
+        size_t len = bsl::strcspn(d_scanPtr, strSet);
+        d_scanPtr += len;
+
+        switch (*d_scanPtr) {
+          case '<': {
+            ++d_scanPtr;
+            if (d_scanPtr < d_endPtr && '!' == *d_scanPtr) {
+                ++d_scanPtr;
+                if (d_endPtr - d_scanPtr > 2
+                    && '-' == d_scanPtr[0]
+                    && '-' == d_scanPtr[1]) {
+                    d_scanPtr += 2;
+                    return e_STRINGTYPE_COMMENT;                      // RETURN
+                }
+                else if (d_endPtr - d_scanPtr > 7
+                         && '[' == d_scanPtr[0]
+                         && 'C' == d_scanPtr[1]
+                         && 'D' == d_scanPtr[2]
+                         && 'A' == d_scanPtr[3]
+                         && 'T' == d_scanPtr[4]
+                         && 'A' == d_scanPtr[5]
+                         && '[' == d_scanPtr[6]) {
+                    d_scanPtr += 7;
+                    return e_STRINGTYPE_CDATA;                        // RETURN
+                }
+            }
+          } break;
+
+          case '/': {
+            type = e_STRINGTYPE_END_ELEMENT;
+            ++d_scanPtr;
+          }
+
+          default: {
+            while ((d_endPtr - d_scanPtr) < (int)len) {
+                if (readInput() == 0) {
+                    d_scanPtr = d_endPtr;
+                    return e_STRINGTYPE_NONE;                         // RETURN
+                }
+            }
+            if (0 == bsl::memcmp(d_scanPtr, name, nameLen)) {
+                if (e_STRINGTYPE_NONE == type) {
+                    type = e_STRINGTYPE_START_ELEMENT;
+                }
+                d_scanPtr += len;
+                return type;                                          // RETURN
+            }
+          }
+          ++d_scanPtr;
+        }
+    }
+}
+
+int MiniReader::advanceToEndNodeRaw()
+{
+    if (d_state == ST_EOF   ||    // Is the reader operational?
+        d_state == ST_ERROR ||
+        d_state == ST_CLOSED) {
+        return -1;                                                    // RETURN
+    }
+
+    const Node& node = currentNode();
+
+    if (node.d_type != e_NODE_TYPE_ELEMENT) {
+
+        // For this method to be called we must currently be at an element
+        // whose body we want to skip
+
+        return -2;                                                    // RETURN
+    }
+
+    if (isEmptyElement()) {  // Empty element so we already skipped the body
+        return 0;                                                     // RETURN
+    }
+
+    int level = 1;
+    while (1) {
+        StringType stringType =
+                         searchCommentCDataOrElementName(node.d_qualifiedName);
+        switch (stringType) {
+          case e_STRINGTYPE_COMMENT: {
+            if (scanForString("-->") == 0) { // not found
+                return setParseError("Unclosed comment.", 0, 0);      // RETURN
+            }
+            getCharAndSet(0);   // consume '-'
+            getChar();          // consume '-'
+            getChar();          // consume '>'
+          } break;
+
+          case e_STRINGTYPE_CDATA: {
+            if (scanForString("]]>") == 0) { // not found
+                return setParseError("Unclosed CDATA.", 0, 0);        // RETURN
+            }
+            getCharAndSet(0);   // consume ']'
+            getChar();          // consume ']'
+            getChar();          // consume '>'
+          } break;
+
+          case e_STRINGTYPE_END_ELEMENT: {
+            --level;
+            if (0 == level) {
+                scanEndElementRaw();
+
+                // Leaving the END node decreases 'd_activeNodesCount' so we
+                // need to increase it and add a name.
+                //
+                pushElementName();
+
+                return 0;  // we are done                             // RETURN
+            }
+          } break;
+
+          case e_STRINGTYPE_START_ELEMENT: {
+            ++level;
+          } break;
+
+          case e_STRINGTYPE_NONE:
+          break;
+        }
+        ++d_scanPtr;
+    }
+}
+
 int
 MiniReader::advanceToNextNode()
 {
@@ -1059,6 +1231,18 @@ MiniReader::skipIfMatch(const char *str)
 }
 
 void
+MiniReader::pushElementName()
+{
+    if (d_activeNodes.size() == d_activeNodesCount) {
+        d_activeNodes.resize(d_activeNodesCount + 2);
+    }
+    Element& elem = d_activeNodes[d_activeNodesCount];
+    elem.first = currentNode().d_qualifiedName;
+    elem.second = static_cast<int>(currentNode().d_namespaceCount);
+    ++d_activeNodesCount;
+}
+
+void
 MiniReader::preAdvance()
 {
     switch (currentNode().d_type) {
@@ -1081,13 +1265,7 @@ MiniReader::preAdvance()
             }
         }
         else {
-            if (d_activeNodes.size() == d_activeNodesCount) {
-                d_activeNodes.resize(d_activeNodesCount+2);
-            }
-            Element& elem = d_activeNodes[d_activeNodesCount];
-            elem.first = currentNode().d_qualifiedName;
-            elem.second = static_cast<int>(currentNode().d_namespaceCount);
-            ++d_activeNodesCount;
+            pushElementName();
         }
       } break;
       case e_NODE_TYPE_CDATA:
@@ -1362,7 +1540,7 @@ MiniReader::scanProcessingInstruction()
 }
 
 int
-MiniReader::scanEndElement()
+MiniReader::scanEndElementRaw()
 {
     // At this moment the current position is set to the character following
     // "</".
@@ -1395,6 +1573,19 @@ MiniReader::scanEndElement()
     node.d_endPos = getCurrentPosition();
     d_state = ST_TAG_END;
 
+    return 0;
+}
+
+int
+MiniReader::scanEndElement()
+{
+    int rc = scanEndElementRaw();
+    if (rc < 0) {
+        return rc;                                                    // RETURN
+    }
+
+    const Node& node = currentNode();
+
     if (d_activeNodesCount == 0) {
 
         return setParseError("no opening tag for closing tag",
@@ -1409,7 +1600,7 @@ MiniReader::scanEndElement()
     }
 
     return setParseError("Opening and closing tag mismatch'",
-                          node.d_qualifiedName,
+                         node.d_qualifiedName,
                          0);
 }
 
