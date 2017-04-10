@@ -2830,9 +2830,15 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
                                 D == X.find(ZK)->second);
                     }
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                     ASSERTV(LINE, mStateKey,
                             MoveState::e_UNKNOWN == mStateKey
                          || MoveState::e_MOVED   == mStateKey);
+#else
+                    ASSERTV(LINE, mStateKey,
+                            MoveState::e_UNKNOWN   == mStateKey
+                         || MoveState::e_NOT_MOVED == mStateKey);
+#endif  // BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
                 }
 #endif
                 ASSERTV(LINE, 0 == da.numBlocksInUse());
