@@ -54,20 +54,19 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // the remaining 4 bits in the fraction part to distinguish between the 16
 // different encoding types.  Due to alignment issues, only 4 of the available
 // 6 bytes are used to store data in most cases.  Values of 4-byte-aligned
-// types like 'int', 'bool', 'bdlt::Date' and 'bdlt::Time' are stored inline.
-// Error code values that do not have an associated error message are also
-// stored inline.  Values of larger fixed length types like 'Int64',
-// 'bdlt::Datetime', 'bdlt::DatetimeInterval' and 'Decimal64' are allocated
-// externally and held by pointer.  Values of variable length types like
-// strings, binary data, error values (having both code and message), arrays of
-// 'Datum' objects, and maps of 'Datum' objects (keyed by strings) are
-// allocated externally and held by pointer.  User-defined objects are also
-// held by pointer.  Commonly used short length strings (6 or fewer characters
-// in length), short DatetimeInterval ([-2^47 microseconds, +2^47
-// microseconds[, approximately +/- 1628 days), near Datetime (now +/-
-// approximately 89 years), small 'Int64' ([-2^47, +2^47[) and small binary
-// values are stored directly in the 6 bytes of storage available in the
-// fraction part.
+// types like 'int', 'bool', and 'bdlt::Date' are stored inline.  Error code
+// values that do not have an associated error message are also stored inline.
+// Values of larger fixed length types like 'Int64', 'bdlt::Datetime',
+// 'bdlt::DatetimeInterval' and 'Decimal64' are allocated externally and held
+// by pointer.  Values of variable length types like strings, binary data,
+// error values (having both code and message), arrays of 'Datum' objects, and
+// maps of 'Datum' objects (keyed by strings) are allocated externally and held
+// by pointer.  User-defined objects are also held by pointer.  Commonly used
+// short length strings (6 or fewer characters in length), short
+// 'DatetimeInterval' ([-2^47 microseconds, +2^47 microseconds], approximately
+// +/- 1628 days), near 'Datetime' (now +/- approximately 89 years), small
+// 'Int64' ([-2^47, +2^47]) and small binary values are stored directly in the
+// 6 bytes of storage available in the fraction part.
 //
 ///Implementation on 64-bit platforms
 ///----------------------------------
@@ -78,8 +77,8 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 ///- - - - - - - - - - -
 // 'Datum' stores data inside a 16 byte unsigned character array, two first
 // bytes of which are used to distinguish between the different types that can
-// be held.  Values of 4-byte-aligned types like 'int', 'bool', 'bdlt::Date'
-// and 'bdlt::Time' are stored inline.  Values of 8 byte aligned types like
+// be held.  Values of 4-byte-aligned types like 'int', 'bool', and
+// 'bdlt::Date' are stored inline.  Values of 8 byte aligned types like
 // 'Int64', 'bdlt::Datetime', 'bdlt::DatetimeInterval' and 'Decimal64' are also
 // stored inline.  Error code values that do not have an associated error
 // message are also stored inline.  Values of variable length types like
@@ -751,7 +750,7 @@ BSLMF_ASSERT(sizeof(bdlt::Datetime) <= sizeof(void*));
 
 // Platform independent sanity checks
 BSLMF_ASSERT(sizeof(bdlt::Date) <= sizeof(int));
-BSLMF_ASSERT(sizeof(bdlt::Time) <= sizeof(int));
+BSLMF_ASSERT(sizeof(bdlt::Time) <= sizeof(long long));
 BSLMF_ASSERT(sizeof(Datum_MapHeader) <= sizeof(DatumMapEntry));
 
 // CLASS METHODS

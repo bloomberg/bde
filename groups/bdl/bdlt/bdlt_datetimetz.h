@@ -487,8 +487,11 @@ bool DatetimeTz::isValid(const Datetime& localDatetime, int offset)
                                   // Aspects
 
 inline
-int DatetimeTz::maxSupportedBdexVersion(int /* versionSelector */)
+int DatetimeTz::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20170401) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 

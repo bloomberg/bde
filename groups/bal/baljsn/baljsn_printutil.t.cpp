@@ -448,27 +448,27 @@ int main(int argc, char *argv[])
         };
 
         const char *expectedTime[] = {
-            "\"00:00:00.000\"",
-            "\"00:00:00.000\"",
-            "\"13:40:59.000\"",
-            "\"23:00:01.000\"",
-            "\"23:00:01.000\"",
-            "\"23:00:01.456\"",
-            "\"23:00:01.456\"",
-            "\"23:00:01.999\"",
-            "\"23:59:59.999\""
+            "\"00:00:00.000000\"",
+            "\"00:00:00.000000\"",
+            "\"13:40:59.000000\"",
+            "\"23:00:01.000000\"",
+            "\"23:00:01.000000\"",
+            "\"23:00:01.456000\"",
+            "\"23:00:01.456000\"",
+            "\"23:00:01.999000\"",
+            "\"23:59:59.999000\""
         };
 
         const char *expectedTimeTz[] = {
-            "\"00:00:00.000+00:00\"",
-            "\"00:00:00.000-01:30\"",
-            "\"13:40:59.000-04:00\"",
-            "\"23:00:01.000-12:00\"",
-            "\"23:00:01.000+01:30\"",
-            "\"23:00:01.456+04:00\"",
-            "\"23:00:01.456+04:00\"",
-            "\"23:00:01.999+12:00\"",
-            "\"23:59:59.999+12:00\""
+            "\"00:00:00.000000+00:00\"",
+            "\"00:00:00.000000-01:30\"",
+            "\"13:40:59.000000-04:00\"",
+            "\"23:00:01.000000-12:00\"",
+            "\"23:00:01.000000+01:30\"",
+            "\"23:00:01.456000+04:00\"",
+            "\"23:00:01.456000+04:00\"",
+            "\"23:00:01.999000+12:00\"",
+            "\"23:59:59.999000+12:00\""
         };
 
         const char *expectedDatetime[] = {
@@ -1308,7 +1308,8 @@ int main(int argc, char *argv[])
             const int OFFSET      = -720;
 
             bdlt::Date theDate(YEAR, MONTH, DAY);
-            bdlt::Time theTime(HOUR, MINUTE, SECOND, MILLISECOND);
+            bdlt::Time theTime(HOUR, MINUTE, SECOND, MILLISECOND,
+                               MICROSECOND);
             bdlt::Datetime theDatetime(YEAR, MONTH, DAY,
                                        HOUR, MINUTE, SECOND,
                                        MILLISECOND, MICROSECOND);
@@ -1335,7 +1336,8 @@ int main(int argc, char *argv[])
 
             {
                 Obj::printValue(oss, theDatetime);
-                ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999\"" == oss.str());
+                ASSERTV(oss.str(),
+                        "\"9999-12-31T23:59:59.999\"" == oss.str());
                 oss.str("");
             }
             {
@@ -1352,6 +1354,20 @@ int main(int argc, char *argv[])
                 Obj::printValue(oss, theDatetimeTz, &opt);
                 ASSERTV(oss.str(),
                         "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
+                oss.str("");
+            }
+            {
+                baljsn::EncoderOptions opt;
+                opt.setDatetimeFractionalSecondPrecision(6);
+                Obj::printValue(oss, theTime, &opt);
+                ASSERTV(oss.str(),"\"23:59:59.999999\"" == oss.str());
+                oss.str("");
+            }
+            {
+                baljsn::EncoderOptions opt;
+                opt.setDatetimeFractionalSecondPrecision(6);
+                Obj::printValue(oss, theTimeTz, &opt);
+                ASSERTV(oss.str(),"\"23:59:59.999999-12:00\"" == oss.str());
                 oss.str("");
             }
             {

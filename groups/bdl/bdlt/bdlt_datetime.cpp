@@ -8,13 +8,22 @@ BSLS_IDENT_RCSID(bdlt_datetime_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
-#include <bsl_c_stdio.h>          // 'snprintf'
+#include <bsl_cstdio.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+///IMPLEMENTATION NOTES
+///--------------------
+// This component implements a datetime type by storing the number of
+// microseconds since the epoch.  The previous implementation stored a 'Date'
+// and a 'Time'.  To discover and correct inappropriate usage elsewhere (e.g.,
+// using 'memcpy' to assign a value), a versioning bit is used ('k_REP_MASK')
+// for the in-core representation.  When a value in the old format is detected,
+// logging and asserting occur and the value is converted from the old 'Date'
+// and 'Time' representation to the new microsecond representation.
+
 namespace BloombergLP {
 namespace bdlt {
-
 namespace {
 
 int printToBufferFormatted(char       *result,
@@ -261,7 +270,7 @@ bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const Datetime& object)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

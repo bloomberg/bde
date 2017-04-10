@@ -118,11 +118,11 @@ int parseDate(const char **nextPos,
 }
 
 static
-int parseFractionalSecond(const char **nextPos,
-                          int         *microsecond,
-                          const char  *begin,
-                          const char  *end,
-                          int          roundMicroseconds)
+int parseFractionalSecond(const char         **nextPos,
+                          bsls::Types::Int64  *microsecond,
+                          const char          *begin,
+                          const char          *end,
+                          int                  roundMicroseconds)
     // Parse the fractional second starting at the specified 'begin' and ending
     // before the specified 'end', load into the specified 'microsecond' the
     // parsed value (in microseconds) rounded to the closest multiple of the
@@ -155,8 +155,9 @@ int parseFractionalSecond(const char **nextPos,
 
     const char *endSignificant = bsl::min(end, p + 7);
 
-    int tmp    = 0;
-    int factor = 10000000;  // Since the result is in microseconds, we have to
+    bsls::Types::Int64 tmp = 0;
+    int                factor = 10000000;
+                            // Since the result is in microseconds, we have to
                             // adjust it according to how many digits are
                             // present.
 
@@ -186,16 +187,16 @@ int parseFractionalSecond(const char **nextPos,
 }
 
 static
-int parseTime(const char **nextPos,
-              int         *hour,
-              int         *minute,
-              int         *second,
-              int         *millisecond,
-              int         *microsecond,
-              bool        *hasLeapSecond,
-              const char  *begin,
-              const char  *end,
-              int          roundMicroseconds)
+int parseTime(const char         **nextPos,
+              int                 *hour,
+              int                 *minute,
+              int                 *second,
+              int                 *millisecond,
+              bsls::Types::Int64  *microsecond,
+              bool                *hasLeapSecond,
+              const char          *begin,
+              const char          *end,
+              int                  roundMicroseconds)
     // Parse the time, represented in the "hh:mm:ss[.s+]" ISO 8601 extended
     // format, from the string starting at the specified 'begin' and ending
     // before the specified 'end', load into the specified 'hour', 'minute',
@@ -264,7 +265,7 @@ int parseTime(const char **nextPos,
                                        roundMicroseconds)) {
             return -1;                                                // RETURN
         }
-        *millisecond = *microsecond / 1000;
+        *millisecond = static_cast<int>(*microsecond / 1000);
         *microsecond %= 1000;
     }
     else {
@@ -546,11 +547,7 @@ int generatedLengthForTimeObject(int                             defaultLength,
 
     int precision = configuration.fractionalSecondPrecision();
 
-    if (precision > 3) {
-        precision = 3;
-    }
-
-    return defaultLength - (3 - precision) - (0 == precision ? 1 : 0);
+    return defaultLength - (6 - precision) - (0 == precision ? 1 : 0);
 }
 
 static
@@ -573,11 +570,7 @@ int generatedLengthForTimeTzObject(
 
     int precision = configuration.fractionalSecondPrecision();
 
-    if (precision > 3) {
-        precision = 3;
-    }
-
-    defaultLength = defaultLength - (3 - precision) - (0 == precision ? 1 : 0);
+    defaultLength = defaultLength - (6 - precision) - (0 == precision ? 1 : 0);
 
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
@@ -951,17 +944,11 @@ int Iso8601Util::generateRaw(char                            *buffer,
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        // 'bdlt::Time' only supports milliseconds; limit precision to 3.
-
-        if (precision > 3) {
-            precision = 3;
-        }
-
         p += generateInt(p, object.second(), 2, decimalSign);
 
-        int value = object.millisecond();
+        int value = object.millisecond() * 1000 + object.microsecond();
 
-        for (int i = 3; i > precision; --i) {
+        for (int i = 6; i > precision; --i) {
             value /= 10;
         }
 
@@ -1112,7 +1099,7 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample ISO 8601 time: "08:59:59.999-04:00"
+    // Sample ISO 8601 time: "08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
@@ -1127,12 +1114,14 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
 
     // 1. Parse and validate time.
 
-    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
-    // greater).  Thus, we have to add it after setting the time, else it might
-    // not validate.
+    // Milliseconds could be rounded to 1000 (if fractional second is .9999995
+    // or greater).  Thus, we have to add it after setting the time, else it
+    // might not validate.
 
-    int  hour, minute, second, millisecond, microsecond;
-    bool hasLeapSecond;
+    int                hour, minute, second, millisecond;
+    bsls::Types::Int64 microsecond;
+    bool               hasLeapSecond;
+
     Time localTime;
 
     if (0 != parseTime(&p,
@@ -1144,7 +1133,7 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
                        &hasLeapSecond,
                        p,
                        end,
-                       1000)
+                       1)
      || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
@@ -1155,6 +1144,10 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
 
     if (millisecond) {
         localTime.addMilliseconds(millisecond);
+    }
+
+    if (microsecond) {
+        localTime.addMicroseconds(microsecond);
     }
 
     // 2. Parse zone designator, if any.
@@ -1171,9 +1164,9 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
-    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
-    // (above).
+    // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
+    // The case where '0 != minute || 0 != second' is caught by
+    // 'setTimeIfValid' (above).
 
     if (24 == hour && (millisecond || microsecond || tzOffset)) {
         return -1;                                                    // RETURN
@@ -1190,7 +1183,7 @@ int Iso8601Util::parse(Datetime *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999-04:00"
+    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
@@ -1280,7 +1273,7 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample ISO 8601 time: "08:59:59.999-04:00"
+    // Sample ISO 8601 time: "08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
@@ -1295,12 +1288,14 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
 
     // 1. Parse and validate time.
 
-    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
-    // greater).  Thus, we have to add it after setting the time, else it might
-    // not validate.
+    // Milliseconds could be rounded to 1000 (if fractional second is .9999995
+    // or greater).  Thus, we have to add it after setting the time, else it
+    // might not validate.
 
-    int  hour, minute, second, millisecond, microsecond;
-    bool hasLeapSecond;
+    int                hour, minute, second, millisecond;
+    bsls::Types::Int64 microsecond;
+    bool               hasLeapSecond;
+
     Time localTime;
 
     if (0 != parseTime(&p,
@@ -1312,7 +1307,7 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
                        &hasLeapSecond,
                        p,
                        end,
-                       1000)
+                       1)
      || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
@@ -1325,6 +1320,10 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
         localTime.addMilliseconds(millisecond);
     }
 
+    if (microsecond) {
+        localTime.addMicroseconds(microsecond);
+    }
+
     // 2. Parse zone designator, if any.
 
     int tzOffset = 0;  // minutes from UTC
@@ -1335,11 +1334,11 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
-    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
-    // (above).
+    // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
+    // The case where '0 != minute || 0 != second' is caught by
+    // 'setTimeIfValid' (above).
 
-    if (24 == hour && (millisecond || tzOffset)) {
+    if (24 == hour && (millisecond || microsecond || tzOffset)) {
         return -1;                                                    // RETURN
     }
 
@@ -1354,7 +1353,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999-04:00"
+    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
@@ -1381,8 +1380,9 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 
     // 2. Parse time.
 
-    int  hour, minute, second, millisecond, microsecond;
-    bool hasLeapSecond;
+    int                hour, minute, second, millisecond;
+    bsls::Types::Int64 microsecond;
+    bool               hasLeapSecond;
 
     if (0 != parseTime(&p,
                        &hour,
@@ -1426,7 +1426,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     // '{Note Regarding the Time 24:00}' in the component-level documentation).
 
     if (24 == hour) {
-        // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.
+        // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
 
         if (minute || second || millisecond || microsecond || tzOffset) {
             return -1;                                                // RETURN
@@ -1449,8 +1449,14 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 
     Datetime localDatetime;
 
-    if (0 != localDatetime.setDatetimeIfValid(
-           year, month, day, hour, minute, second, millisecond, microsecond)) {
+    if (0 != localDatetime.setDatetimeIfValid(year,
+                                              month,
+                                              day,
+                                              hour,
+                                              minute,
+                                              second,
+                                              millisecond,
+                                              static_cast<int>(microsecond))) {
         return -1;                                                    // RETURN
     }
 

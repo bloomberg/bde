@@ -349,8 +349,11 @@ bool TimeTz::isValid(const Time& localTime, int offset)
                                   // Aspects
 
 inline
-int TimeTz::maxSupportedBdexVersion(int /* versionSelector */)
+int TimeTz::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20170401) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 
@@ -420,9 +423,10 @@ STREAM& TimeTz::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2:                                               // FALL THROUGH
           case 1: {
             Time time;
-            time.bdexStreamIn(stream, 1);
+            time.bdexStreamIn(stream, version);
 
             int offset;
             stream.getInt32(offset);
@@ -479,8 +483,9 @@ STREAM& TimeTz::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2:                                               // FALL THROUGH
           case 1: {
-            d_localTime.bdexStreamOut(stream, 1);
+            d_localTime.bdexStreamOut(stream, version);
             stream.putInt32(d_offset);
           } break;
           default: {
