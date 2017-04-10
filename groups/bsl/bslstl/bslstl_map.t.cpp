@@ -1026,21 +1026,21 @@ class AmbiguousTestType03 {
     // CREATORS
     AmbiguousTestType03()
         // Create a 'AmbiguousTestType03' object having the default value.
-    //: d_moveState(bsltf::MoveState::e_NOT_MOVED)
+    : d_data(0)
     {
     }
 
     AmbiguousTestType03(const AmbiguousTestType03& original)
-        // Create a 'AmbiguousTestType03' object having the same value as
-        // the specified 'original' object.
+        // Create a 'AmbiguousTestType03' object having the same value as the
+        // specified 'original' object.
     : d_data(original.d_data)
     {
     }
 
     template <class TYPE>
     AmbiguousTestType03(const TYPE& other)  // IMPLICIT
-        // Create a 'AmbiguousTestType03' object having the same value as
-        // the specified 'other' object of (template parameter) 'TYPE'.
+        // Create a 'AmbiguousTestType03' object having the same value as the
+        // specified 'other' object of (template parameter) 'TYPE'.
     : d_data(other.data())
     {
     }
