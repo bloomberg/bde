@@ -173,10 +173,19 @@ void Crc32::update(const void *data, int length)
     register const unsigned char *d = (const unsigned char *)data;
     register unsigned int tmp = d_crc;
 
+    // The "FALL THROUGH" comments here are necessary to avoid the
+    // implicit-fallthrough warnings that GCC 7 introduces.  We could
+    // instead use GNU C's __attribute__(fallthrough) vendor
+    // extension or C++17's [[fallthrough]] attribute but these would
+    // need to be hidden from the Oracle and IBM compilers.
+
     switch (length % 4) {
       case 3: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 2: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 1: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       default: ;
     }
 

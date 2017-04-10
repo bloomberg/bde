@@ -101,19 +101,25 @@ unsigned int reverse_hash1(const char *data, int length)
 
     c += length;
 
-    switch (len) {         // All of the case statements FALL THROUGH.
-      case 11: c += static_cast<Ub4>(k[-10] << 24);
-      case 10: c += static_cast<Ub4>(k[ -9] << 16);
-      case  9: c += static_cast<Ub4>(k[ -8] <<  8);
+    // The "FALL THROUGH" comments here are necessary to avoid the
+    // implicit-fallthrough warnings that GCC 7 introduces.  We could
+    // instead use GNU C's __attribute__(fallthrough) vendor
+    // extension or C++17's [[fallthrough]] attribute but these would
+    // need to be hidden from the Oracle and IBM compilers.
+
+    switch (len) {
+      case 11: c += static_cast<Ub4>(k[-10] << 24);  // FALL THROUGH
+      case 10: c += static_cast<Ub4>(k[ -9] << 16);  // FALL THROUGH
+      case  9: c += static_cast<Ub4>(k[ -8] <<  8);  // FALL THROUGH
                            // The first byte of 'c' is reserved for the length.
-      case  8: b += static_cast<Ub4>(k[ -7] << 24);
-      case  7: b += static_cast<Ub4>(k[ -6] << 16);
-      case  6: b += static_cast<Ub4>(k[ -5] <<  8);
-      case  5: b += k[-4];
-      case  4: a += static_cast<Ub4>(k[ -3] << 24);
-      case  3: a += static_cast<Ub4>(k[ -2] << 16);
-      case  2: a += static_cast<Ub4>(k[ -1] <<  8);
-      case  1: a += k[0];
+      case  8: b += static_cast<Ub4>(k[ -7] << 24);  // FALL THROUGH
+      case  7: b += static_cast<Ub4>(k[ -6] << 16);  // FALL THROUGH
+      case  6: b += static_cast<Ub4>(k[ -5] <<  8);  // FALL THROUGH
+      case  5: b += k[-4];                           // FALL THROUGH
+      case  4: a += static_cast<Ub4>(k[ -3] << 24);  // FALL THROUGH
+      case  3: a += static_cast<Ub4>(k[ -2] << 16);  // FALL THROUGH
+      case  2: a += static_cast<Ub4>(k[ -1] <<  8);  // FALL THROUGH
+      case  1: a += k[0];                            // FALL THROUGH
                            // case 0: nothing left to add
       default: break;
     }
@@ -195,19 +201,25 @@ unsigned int HashUtil::hash1(const char *data, int length)
 
     c += length;
 
-    switch (len) {         // All the case statements FALL THROUGH.
-      case 11: c += static_cast<Ub4>(k[10] << 24);
-      case 10: c += static_cast<Ub4>(k[ 9] << 16);
-      case  9: c += static_cast<Ub4>(k[ 8] <<  8);
+    // The "FALL THROUGH" comments here are necessary to avoid the
+    // implicit-fallthrough warnings that GCC 7 introduces.  We could
+    // instead use GNU C's __attribute__(fallthrough) vendor
+    // extension or C++17's [[fallthrough]] attribute but these would
+    // need to be hidden from the Oracle and IBM compilers.
+
+    switch (len) {
+      case 11: c += static_cast<Ub4>(k[10] << 24);  // FALL THROUGH
+      case 10: c += static_cast<Ub4>(k[ 9] << 16);  // FALL THROUGH
+      case  9: c += static_cast<Ub4>(k[ 8] <<  8);  // FALL THROUGH
                            // The first byte of 'c' is reserved for the length.
-      case  8: b += static_cast<Ub4>(k[ 7] << 24);
-      case  7: b += static_cast<Ub4>(k[ 6] << 16);
-      case  6: b += static_cast<Ub4>(k[ 5] <<  8);
-      case  5: b += k[4];
-      case  4: a += static_cast<Ub4>(k[ 3] << 24);
-      case  3: a += static_cast<Ub4>(k[ 2] << 16);
-      case  2: a += static_cast<Ub4>(k[ 1] <<  8);
-      case  1: a += k[0];
+      case  8: b += static_cast<Ub4>(k[ 7] << 24);  // FALL THROUGH
+      case  7: b += static_cast<Ub4>(k[ 6] << 16);  // FALL THROUGH
+      case  6: b += static_cast<Ub4>(k[ 5] <<  8);  // FALL THROUGH
+      case  5: b += k[4];                           // FALL THROUGH
+      case  4: a += static_cast<Ub4>(k[ 3] << 24);  // FALL THROUGH
+      case  3: a += static_cast<Ub4>(k[ 2] << 16);  // FALL THROUGH
+      case  2: a += static_cast<Ub4>(k[ 1] <<  8);  // FALL THROUGH
+      case  1: a += k[0];                           // FALL THROUGH
                            // case 0: nothing left to add
       default: break;
     }

@@ -7803,7 +7803,7 @@ template <class TYPE>
 inline
 TYPE& VariantImp<TYPES>::the()
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value));
+    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value) != 0);
     BSLS_ASSERT_SAFE((this->d_type == Variant_TypeIndex<TYPES, TYPE>::value));
 
     typedef bsls::ObjectBuffer<TYPE> BufferType;
@@ -7920,7 +7920,7 @@ template <class TYPE>
 inline
 const TYPE& VariantImp<TYPES>::the() const
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value));
+    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value) != 0);
     BSLS_ASSERT_SAFE((this->d_type == Variant_TypeIndex<TYPES, TYPE>::value));
 
     typedef bsls::ObjectBuffer<TYPE> BufferType;
