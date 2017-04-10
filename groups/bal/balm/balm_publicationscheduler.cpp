@@ -717,9 +717,6 @@ PublicationScheduler::print(bsl::ostream& stream,
                << "   default: " << clock->defaultClock()
                << "   handle: " << clock->handle() << SEP;
 
-        bsl::set<const Category *>::const_iterator ctIt =
-                                                  clock->categories().begin();
-
         bdlb::Print::indent(stream, level + 3, spacesPerLevel);
         stream << "categories: [";
         printCategorySet(stream, clock->categories());
