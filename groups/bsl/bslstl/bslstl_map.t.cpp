@@ -11797,8 +11797,10 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
                    BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase34();
+#endif
 
         TestDriver<TestKeyType, TestValueType>::testCase34();
       } break;
