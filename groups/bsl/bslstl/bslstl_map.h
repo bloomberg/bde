@@ -2256,9 +2256,15 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
                                         nodeFactory().allocator().mechanism());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         return emplace_hint(iterator(node),
                             key,
                             MoveUtil::move(temp.object()))->second;   // RETURN
+#else
+        return emplace_hint(iterator(node),
+                            key,
+                            temp.object())->second;                   // RETURN
+#endif
     }
     return toNode(node)->value().second;
 }
