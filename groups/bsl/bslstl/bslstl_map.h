@@ -2254,9 +2254,19 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
                                         nodeFactory().allocator().mechanism());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+        // Unfortunately, in C++03, there are user types where a MovableRef
+        // will not safely degrade to a lvalue reference when a move
+        // constructor is not available, so 'move' cannot be used directly on a
+        // user supplied type.  See internal bug report 99039150.
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         return emplace_hint(iterator(node),
                             key,
                             MoveUtil::move(temp.object()))->second;   // RETURN
+#else
+        return emplace_hint(iterator(node),
+                            key,
+                            temp.object())->second;                   // RETURN
+#endif
     }
     return toNode(node)->value().second;
 }
@@ -2277,9 +2287,19 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
                                         nodeFactory().allocator().mechanism());
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+        // Unfortunately, in C++03, there are user types where a MovableRef
+        // will not safely degrade to a lvalue reference when a move
+        // constructor is not available, so 'move' cannot be used directly on a
+        // user supplied type.  See internal bug report 99039150.
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         return emplace_hint(iterator(node),
                             MoveUtil::move(lvalue),
                             MoveUtil::move(temp.object()))->second;   // RETURN
+#else
+        return emplace_hint(iterator(node),
+                            lvalue,
+                            temp.object())->second;                   // RETURN
+#endif
     }
     return toNode(node)->value().second;
 }

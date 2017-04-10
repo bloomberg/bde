@@ -234,7 +234,7 @@ enum { PLAT_EXC = 0 };
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [36] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -246,7 +246,8 @@ enum { PLAT_EXC = 0 };
 // [26] CONCERN: The type provides the full interface defined by the standard.
 // [35] CONCERN: 'map' supports incomplete types.
 // [TBD] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
-// [37] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [37] CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -989,6 +990,70 @@ class DummyAllocator {
     size_type max_size() const { return 0; }
 };
 
+                          // =========================
+                          // class AmbiguousTestType03
+                          // =========================
+
+class AmbiguousTestType03 {
+    // This class is convertible from any type that has a 'data' method
+    // returning a 'int' value.  It is used to facilitate testing that the
+    // implementation of 'bslstl::map' does not pass a 'bslmf::MovableRef<T>'
+    // object to a class whose interface does not support it (in C++03 mode).
+    // For more details, see the test plan for case 37.
+
+    // DATA
+    int d_data;  // value not meaningful
+
+  public:
+    // CREATORS
+    AmbiguousTestType03()
+        // Create a 'AmbiguousTestType03' object having the default value.
+    : d_data(0)
+    {
+    }
+
+    AmbiguousTestType03(const AmbiguousTestType03& original)
+        // Create a 'AmbiguousTestType03' object having the same value as the
+        // specified 'original' object.
+    : d_data(original.d_data)
+    {
+    }
+
+    template <class TYPE>
+    AmbiguousTestType03(const TYPE& other)  // IMPLICIT
+        // Create a 'AmbiguousTestType03' object having the same value as the
+        // specified 'other' object of (template parameter) 'TYPE'.
+    : d_data(other.data())
+    {
+    }
+
+    // MANIPULATORS
+    AmbiguousTestType03& operator=(const AmbiguousTestType03& rhs)
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.
+    {
+        d_data = rhs.d_data;
+        return *this;
+    }
+
+    template <class TYPE>
+    AmbiguousTestType03& operator=(const TYPE& rhs)
+        // Assign to this object the value of the specified 'rhs' object of
+        // (template parameter) 'TYPE', and return a non-'const' reference to
+        // this object.
+    {
+        d_data = rhs.data();
+        return *this;
+    }
+
+    // ACCESSORS
+    int data() const
+        // Return the (meaningless) value held by this object.
+    {
+        return d_data;
+    }
+};
+
                        // ========================
                        // class IntToPairConverter
                        // ========================
@@ -1515,6 +1580,9 @@ class TestDriver {
     // TEST CASES
 
     static void testCase37();
+        // Test 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
+
+    static void testCase36();
         // Test 'noexcept' specifications
 
     static void testCase34();
@@ -2321,6 +2389,44 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
 {
     // ------------------------------------------------------------------------
+    // 'bslmf::MovableRef<T>' DOES NOT ESCAPE
+    //
+    // Concerns:
+    //: 1 That the implementation of 'bslstl::map' does not pass a
+    //:   'bslmf::MovableRef<T>' object to a class whose interface does not
+    //:   support it (in C++03 mode).
+    //
+    // Plan:
+    //: 1 In the absence of a trait, the 'bslstl::map' implementation cannot
+    //:   determine whether a 'T' type supports 'bslmf::MovableRef<T>' in its
+    //:   interface (important to C++03 mode only).  Consequently, the
+    //:   implementation cannot pass 'bslmf::MovableRef<T>' to any 'T' method
+    //:   or else a compilation error may result (for example, a converting
+    //:   constructor passed a 'bslmf::MovableRef<T>' may fail to compile).
+    //:   Using brute force and a specially tailored test type,
+    //:   'AmbiguousTestType03', we verify that such an argument is not passed
+    //:   to user-defined constructors.  Note that this is a compile-only test;
+    //:   runtime values are not checked.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("'bslmf::MovableRef<T>' DOES NOT ESCAPE\n"
+                        "======================================\n");
+
+    if (verbose) printf("\tTesting 'operator[]'\n");
+    {
+        Obj mX;
+        VALUE z = mX[15];
+        (void)z;
+    }
+}
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
+{
+    // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
     //
     // Concerns:
@@ -2706,9 +2812,15 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
                                 D == X.find(ZK)->second);
                     }
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                     ASSERTV(LINE, mStateKey,
                             MoveState::e_UNKNOWN == mStateKey
                          || MoveState::e_MOVED   == mStateKey);
+#else
+                    ASSERTV(LINE, mStateKey,
+                            MoveState::e_UNKNOWN   == mStateKey
+                         || MoveState::e_NOT_MOVED == mStateKey);
+#endif  // BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
                 }
 #endif
                 ASSERTV(LINE, 0 == da.numBlocksInUse());
@@ -11581,18 +11693,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 37: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        TestDriver<int>::testCase37();
-
-      } break;
-      case 36: {
+      case 38: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -11638,6 +11739,23 @@ int main(int argc, char *argv[])
             ASSERT(0 <  objectAllocator.numBytesInUse());
         }
       } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // 'bslmf::MovableRef<T>' does not escape (in C+++03 mode)
+        // --------------------------------------------------------------------
+        TestDriver<int, AmbiguousTestType03>::testCase37();
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase36();
+
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // TESTING SUPPORT FOR INCOMPLETE TYPES
@@ -11667,8 +11785,10 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
                    BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase34();
+#endif
 
         TestDriver<TestKeyType, TestValueType>::testCase34();
       } break;
