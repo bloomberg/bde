@@ -967,7 +967,7 @@ void setValue(AmbiguousConvertibleType *f, char ch)
 
 char getValue(const AmbiguousConvertibleType& f)
 {
-    return f.d_f();
+    return static_cast<char>(f.d_f());
 }
 
                          // ==========================
@@ -1004,7 +1004,7 @@ void setValue(FnPtrConvertibleType *f, char ch)
 
 char getValue(const FnPtrConvertibleType& f)
 {
-    return f.d_f();
+    return static_cast<char>(f.d_f());
 }
 
                                // ==============
