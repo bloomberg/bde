@@ -2,6 +2,8 @@
 
 #include <bdlt_time.h>
 
+#include <bdlt_timeunitratio.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
@@ -56,12 +58,12 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //
 // CLASS METHODS
-// [16] bool isValid(int hour, int minute, int second, int ms);
+// [16] bool isValid(int hour, int minute, int second, int ms, int us);
 // [10] static int maxSupportedBdexVersion(int versionSelector);
 //
 // CREATORS
 // [ 2] Time();
-// [11] Time(int hour, int minute, int second = 0, int millisecond = 0);
+// [11] Time(int hour, int minute, int sec = 0, int ms = 0, int us = 0);
 // [ 7] Time(const Time& original);
 // [ 2] ~Time();
 //
@@ -73,24 +75,29 @@ using namespace bsl;
 // [15] int addMinutes(int minutes);
 // [15] int addSeconds(int seconds);
 // [15] int addMilliseconds(int milliseconds);
+// [15] int addMicroseconds(int microseconds);
 // [15] int addInterval(const DatetimeInterval& interval);
-// [15] int addTime(int hours, int minutes, int seconds, int msec);
+// [15] int addTime(int hours, int minutes, int seconds, int ms, int us);
 // [12] void setHour(int hour);
 // [12] void setMinute(int minute);
 // [12] void setSecond(int second);
 // [12] void setMillisecond(int millisecond);
-// [ 2] void setTime(int hour, int min = 0, int sec = 0, int msec = 0);
-// [17] int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
+// [12] void setMicrosecond(int microsecond);
+// [ 2] void setTime(int h, int m = 0, int s = 0, int ms = 0, int us = 0);
+// [17] int setTimeIfValid(h, m = 0, s = 0, ms = 0, us = 0);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
-// [ 4] void getTime(int *hour, int *min, int *second, int *msec) const;
+// [ 4] void getTime(int *h, int *m, int *s, int *ms, int *us) const;
 // [ 4] int hour() const;
 // [ 4] int minute() const;
 // [ 4] int second() const;
 // [ 4] int millisecond() const;
-// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [ 4] int microsecond() const;
+// [ 5] int printToBuffer(char *result, int size, int precision) const;
+//
 // [ 5] ostream& print(ostream& os, int level = 0, int spl = 4) const;
+// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
 // FREE OPERATORS
 // [18] void hashAppend(HASHALG&, const Time&);
@@ -143,6 +150,25 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+
+static int s_countingLogMessageHandlerCount = 0;
+
+static void countingLogMessageHandler(bsls::LogSeverity::Enum,
+                                      const char              *,
+                                      const int,
+                                      const char              *)
+    // Increment 's_countingLogMessageHandlerCount'.
+{
+    ++s_countingLogMessageHandlerCount;
+}
+
+#endif
+
+// ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
@@ -183,7 +209,7 @@ typedef bdlt::Time          Obj;
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
-#define VERSION_SELECTOR 20140601
+#define VERSION_SELECTOR 99991231
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -197,9 +223,302 @@ int main(int argc, char *argv[])
     const bool     veryVeryVerbose = argc > 4;
     const bool veryVeryVeryVerbose = argc > 5;
 
+    // Create an object with an invalid internal representation.
+
+    Obj mInvalid;  const Obj& INVALID = mInvalid;
+    {
+        memset(reinterpret_cast<char *>(&mInvalid), 0, sizeof(Obj));
+    }
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      // --------------------------------------------------------------------
+      // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
+      // --------------------------------------------------------------------
+      case 47: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID >= Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 46: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID > Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 45: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID <= Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 44: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID < Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 43: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID != Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 42: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID == Obj();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 41: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMicrosecond(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 40: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMillisecond(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 39: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setSecond(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 38: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMinute(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 37: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setHour(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 36: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addTime(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 35: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addInterval(bdlt::DatetimeInterval(0));
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 34: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMicroseconds(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 33: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMilliseconds(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 32: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addSeconds(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 31: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMinutes(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 30: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addHours(0);
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 29: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid -= bdlt::DatetimeInterval();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 28: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid += bdlt::DatetimeInterval();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 27: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        const int PRECISION = 6;
+
+        char buffer[64];
+        INVALID.printToBuffer(buffer, sizeof buffer, PRECISION);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 26: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.microsecond();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 25: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.millisecond();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 24: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.second();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 23: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.minute();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 22: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+#endif
+      } break;
+      case 21: {
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        int exp = 0;
+        for (bsls::Types::Uint64 i = 1; i <= 4096; ++i) {
+            if (i == (1ULL << exp)) {
+                ++exp;
+            }
+            INVALID.hour();
+            ASSERT(exp == s_countingLogMessageHandlerCount);
+        }
+#endif
+      } break;
+      case 20: {
+        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+
+        // In SAFE build mode, verify all methods that should ASSERT do ASSERT.
+
+        {
+            int hour = 0;
+
+            ASSERT_SAFE_FAIL(INVALID.getTime(&hour));
+        }
+        ASSERT_SAFE_FAIL(INVALID.hour());
+        ASSERT_SAFE_FAIL(INVALID.minute());
+        ASSERT_SAFE_FAIL(INVALID.second());
+        ASSERT_SAFE_FAIL(INVALID.millisecond());
+        ASSERT_SAFE_FAIL(INVALID.microsecond());
+        {
+            const int PRECISION = 6;
+
+            char buffer[64];  (void)buffer;
+            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer,
+                                                   sizeof buffer,
+                                                   PRECISION));
+            (void)PRECISION;  // quash compiler warning in non-safe build modes
+        }
+
+        ASSERT_SAFE_FAIL(mInvalid += bdlt::DatetimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid -= bdlt::DatetimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid.addHours(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMinutes(0));
+        ASSERT_SAFE_FAIL(mInvalid.addSeconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMilliseconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMicroseconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addInterval(bdlt::DatetimeInterval(0)));
+        ASSERT_SAFE_FAIL(mInvalid.addTime(0));
+        ASSERT_SAFE_FAIL(mInvalid.setHour(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMinute(0));
+        ASSERT_SAFE_FAIL(mInvalid.setSecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMillisecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMicrosecond(0));
+
+        ASSERT_SAFE_FAIL(mInvalid == Obj());
+        ASSERT_SAFE_FAIL(mInvalid != Obj());
+        ASSERT_SAFE_FAIL(mInvalid <  Obj());
+        ASSERT_SAFE_FAIL(mInvalid <= Obj());
+        ASSERT_SAFE_FAIL(mInvalid >  Obj());
+        ASSERT_SAFE_FAIL(mInvalid >= Obj());
+
+        ASSERT_SAFE_FAIL(Obj() == mInvalid);
+        ASSERT_SAFE_FAIL(Obj() != mInvalid);
+        ASSERT_SAFE_FAIL(Obj() <  mInvalid);
+        ASSERT_SAFE_FAIL(Obj() <= mInvalid);
+        ASSERT_SAFE_FAIL(Obj() >  mInvalid);
+        ASSERT_SAFE_FAIL(Obj() >= mInvalid);
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -231,19 +550,21 @@ int main(int argc, char *argv[])
 // This example demonstrates how to create and use a 'bdlt::Time' object.
 //
 // First, create an object 't1' having the default value, and then verify that
-// it represents the value 24:00:00.000:
+// it represents the value 24:00:00.000000:
 //..
     bdlt::Time t1;               ASSERT(24 == t1.hour());
                                  ASSERT( 0 == t1.minute());
                                  ASSERT( 0 == t1.second());
                                  ASSERT( 0 == t1.millisecond());
+                                 ASSERT( 0 == t1.microsecond());
 //..
-// Then, set 't1' to the value 2:34pm (14:34:00.000):
+// Then, set 't1' to the value 2:34pm (14:34:00.000000):
 //..
     t1.setTime(14, 34);          ASSERT(14 == t1.hour());
                                  ASSERT(34 == t1.minute());
                                  ASSERT( 0 == t1.second());
                                  ASSERT( 0 == t1.millisecond());
+                                 ASSERT( 0 == t1.microsecond());
 //..
 // Next, use 'setTimeIfValid' to attempt to assign the invalid value 24:15 to
 // 't1', then verify the method returns an error status and the value of 't1'
@@ -257,6 +578,7 @@ int main(int argc, char *argv[])
                                  ASSERT(34 == t1.minute());  // on the
                                  ASSERT( 0 == t1.second());  // object
                                  ASSERT( 0 == t1.millisecond());
+                                 ASSERT( 0 == t1.microsecond());
 //..
 // Then, create 't2' as a copy of 't1':
 //..
@@ -271,6 +593,7 @@ int main(int argc, char *argv[])
                                  ASSERT(39 == t2.minute());
                                  ASSERT( 7 == t2.second());
                                  ASSERT( 0 == t2.millisecond());
+                                 ASSERT( 0 == t2.microsecond());
 //..
 // Then, subtract 't1' from 't2' to yield a 'bdlt::DatetimeInterval' 'dt'
 // representing the time-interval between those two times, and verify the value
@@ -286,9 +609,8 @@ if (veryVerbose)
 //..
 // The streaming operator produces the following output on 'stdout':
 //..
-//  14:39:07.000
+//  14:39:07.000000
 //..
-
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -400,7 +722,7 @@ if (veryVerbose)
         //:   to expected "valid" values.  (C-1..4)
         //
         // Testing:
-        //   int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
+        //   int setTimeIfValid(h, m = 0, s = 0, ms = 0, us = 0);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   int validateAndSetTime(h, m = 0, s = 0, ms = 0);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -418,34 +740,40 @@ if (veryVerbose)
                 int d_minute;       // specification minute
                 int d_second;       // specification second
                 int d_millisecond;  // specification millisecond
+                int d_microsecond;  // specification microsecond
                 int d_valid;        // expected return value
             } DATA[] = {
-                //LINE HOUR   MIN  SEC   MSEC   VALID
-                //---- ----   ---  ---   ----   ------
-                { L_,     0,    0,   0,     0,    1   },
+                //LINE HOUR   MIN  SEC   MSEC   USEC   VALID
+                //---- ----   ---  ---   ----   ----   ------
+                { L_,     0,    0,   0,     0,     0,       1 },
 
-                { L_,     0,    0,   0,    -1,    0   },
-                { L_,     0,    0,   0,   999,    1   },
-                { L_,     0,    0,   0,  1000,    0   },
+                { L_,     0,    0,   0,     0,    -1,       0 },
+                { L_,     0,    0,   0,     0,   999,       1 },
+                { L_,     0,    0,   0,     0,  1000,       0 },
 
-                { L_,     0,    0,  -1,     0,    0   },
-                { L_,     0,    0,  59,     0,    1   },
-                { L_,     0,    0,  60,     0,    0   },
+                { L_,     0,    0,   0,    -1,     0,       0 },
+                { L_,     0,    0,   0,   999,     0,       1 },
+                { L_,     0,    0,   0,  1000,     0,       0 },
 
-                { L_,     0,   -1,   0,     0,    0   },
-                { L_,     0,   59,   0,     0,    1   },
-                { L_,     0,   60,   0,     0,    0   },
+                { L_,     0,    0,  -1,     0,     0,       0 },
+                { L_,     0,    0,  59,     0,     0,       1 },
+                { L_,     0,    0,  60,     0,     0,       0 },
 
-                { L_,    -1,    0,   0,     0,    0   },
-                { L_,    23,    0,   0,     0,    1   },
-                { L_,    24,    0,   0,     0,    1   },
-                { L_,    25,    0,   0,     0,    0   },
+                { L_,     0,   -1,   0,     0,     0,       0 },
+                { L_,     0,   59,   0,     0,     0,       1 },
+                { L_,     0,   60,   0,     0,     0,       0 },
 
-                { L_,    24,    0,   0,     1,    0   },
-                { L_,    24,    0,   1,     0,    0   },
-                { L_,    24,    1,   0,     0,    0   },
+                { L_,    -1,    0,   0,     0,     0,       0 },
+                { L_,    23,    0,   0,     0,     0,       1 },
+                { L_,    24,    0,   0,     0,     0,       1 },
+                { L_,    25,    0,   0,     0,     0,       0 },
 
-                { L_,    23,   59,  59,   999,    1   },
+                { L_,    24,    0,   0,     0,     1,       0 },
+                { L_,    24,    0,   0,     1,     0,       0 },
+                { L_,    24,    0,   1,     0,     0,       0 },
+                { L_,    24,    1,   0,     0,     0,       0 },
+
+                { L_,    23,   59,  59,   999,   999,       1 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -456,20 +784,27 @@ if (veryVerbose)
                 const int MINUTE       = DATA[i].d_minute;
                 const int SECOND       = DATA[i].d_second;
                 const int MILLISECOND  = DATA[i].d_millisecond;
+                const int MICROSECOND  = DATA[i].d_microsecond;
                 const int VALID        = DATA[i].d_valid;
 
                 if (veryVerbose) { T_; P_(LINE);   P_(VALID);
                                        P_(HOUR);   P_(MINUTE);
-                                       P_(SECOND); P(MILLISECOND);
+                                       P_(SECOND); P_(MILLISECOND);
+                                       P(MICROSECOND);
                 }
                 Obj x;  const Obj& X = x;
                 if (1 == VALID) {
-                    const Obj R(HOUR, MINUTE, SECOND, MILLISECOND);
+                    const Obj R(HOUR,
+                                MINUTE,
+                                SECOND,
+                                MILLISECOND,
+                                MICROSECOND);
                     LOOP_ASSERT(LINE,
                                 0 == x.setTimeIfValid(HOUR,
-                                                          MINUTE,
-                                                          SECOND,
-                                                          MILLISECOND));
+                                                      MINUTE,
+                                                      SECOND,
+                                                      MILLISECOND,
+                                                      MICROSECOND));
                     LOOP_ASSERT(LINE, R == X);
 
                     if (veryVerbose) { P_(VALID);  P_(R);  P(X); }
@@ -478,9 +813,10 @@ if (veryVerbose)
                     const Obj R;
                     LOOP_ASSERT(LINE,
                                 -1 == x.setTimeIfValid(HOUR,
-                                                           MINUTE,
-                                                           SECOND,
-                                                           MILLISECOND));
+                                                       MINUTE,
+                                                       SECOND,
+                                                       MILLISECOND,
+                                                       MICROSECOND));
                     LOOP_ASSERT(LINE, R == X);
 
                     if (veryVerbose) { P_(VALID);  P_(R);  P(X); }
@@ -501,6 +837,7 @@ if (veryVerbose)
             ASSERT( 0 == X.minute());
             ASSERT( 0 == X.second());
             ASSERT( 0 == X.millisecond());
+            ASSERT( 0 == X.microsecond());
         }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
@@ -596,6 +933,7 @@ if (veryVerbose)
             ASSERT( 0 == X.minute());
             ASSERT( 0 == X.second());
             ASSERT( 0 == X.millisecond());
+            ASSERT( 0 == X.microsecond());
         }
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -616,7 +954,7 @@ if (veryVerbose)
         //:   to the expected values.  (C-1,2)
         //
         // Testing:
-        //   bool isValid(int hour, int minute, int second, int ms);
+        //   bool isValid(int hour, int minute, int second, int ms, int us);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -631,34 +969,40 @@ if (veryVerbose)
                 int d_minute;       // specification minute
                 int d_second;       // specification second
                 int d_millisecond;  // specification millisecond
+                int d_microsecond;  // specification microsecond
                 int d_valid;        // expected return value
             } DATA[] = {
-                //LINE HOUR   MIN  SEC   MSEC   VALID
-                //---- ----   ---  ---   ----   ------
-                { L_,     0,    0,   0,     0,    1   },
+                //LINE HOUR   MIN  SEC   MSEC   USEC   VALID
+                //---- ----   ---  ---   ----   ----   ------
+                { L_,     0,    0,   0,     0,     0,       1   },
 
-                { L_,     0,    0,   0,    -1,    0   },
-                { L_,     0,    0,   0,   999,    1   },
-                { L_,     0,    0,   0,  1000,    0   },
+                { L_,     0,    0,   0,     0,    -1,       0   },
+                { L_,     0,    0,   0,     0,   999,       1   },
+                { L_,     0,    0,   0,     0,  1000,       0   },
 
-                { L_,     0,    0,  -1,     0,    0   },
-                { L_,     0,    0,  59,     0,    1   },
-                { L_,     0,    0,  60,     0,    0   },
+                { L_,     0,    0,   0,    -1,     0,       0   },
+                { L_,     0,    0,   0,   999,     0,       1   },
+                { L_,     0,    0,   0,  1000,     0,       0   },
 
-                { L_,     0,   -1,   0,     0,    0   },
-                { L_,     0,   59,   0,     0,    1   },
-                { L_,     0,   60,   0,     0,    0   },
+                { L_,     0,    0,  -1,     0,     0,       0   },
+                { L_,     0,    0,  59,     0,     0,       1   },
+                { L_,     0,    0,  60,     0,     0,       0   },
 
-                { L_,    -1,    0,   0,     0,    0   },
-                { L_,    23,    0,   0,     0,    1   },
-                { L_,    24,    0,   0,     0,    1   },
-                { L_,    25,    0,   0,     0,    0   },
+                { L_,     0,   -1,   0,     0,     0,       0   },
+                { L_,     0,   59,   0,     0,     0,       1   },
+                { L_,     0,   60,   0,     0,     0,       0   },
 
-                { L_,    24,    0,   0,     1,    0   },
-                { L_,    24,    0,   1,     0,    0   },
-                { L_,    24,    1,   0,     0,    0   },
+                { L_,    -1,    0,   0,     0,     0,       0   },
+                { L_,    23,    0,   0,     0,     0,       1   },
+                { L_,    24,    0,   0,     0,     0,       1   },
+                { L_,    25,    0,   0,     0,     0,       0   },
 
-                { L_,    23,   59,  59,   999,    1   },
+                { L_,    24,    0,   0,     0,     1,       0   },
+                { L_,    24,    0,   0,     1,     0,       0   },
+                { L_,    24,    0,   1,     0,     0,       0   },
+                { L_,    24,    1,   0,     0,     0,       0   },
+
+                { L_,    23,   59,  59,   999,   999,       1   },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -669,15 +1013,20 @@ if (veryVerbose)
                 const int MINUTE       = DATA[i].d_minute;
                 const int SECOND       = DATA[i].d_second;
                 const int MILLISECOND  = DATA[i].d_millisecond;
+                const int MICROSECOND  = DATA[i].d_microsecond;
                 const int VALID        = DATA[i].d_valid;
 
                 if (veryVerbose) { T_; P_(LINE);   P_(VALID);
                                        P_(HOUR);   P_(MINUTE);
-                                       P_(SECOND); P(MILLISECOND);
+                                       P_(SECOND); P_(MILLISECOND);
+                                       P(MICROSECOND);
                 }
                 LOOP_ASSERT(LINE,
-                            VALID == bdlt::Time::isValid(HOUR,   MINUTE,
-                                                         SECOND, MILLISECOND));
+                            VALID == bdlt::Time::isValid(HOUR,
+                                                         MINUTE,
+                                                         SECOND,
+                                                         MILLISECOND,
+                                                         MICROSECOND));
             }
         }
 
@@ -694,12 +1043,12 @@ if (veryVerbose)
         //:
         //: 2 The correct result is obtained.
         //:
-        //: 3 The default value, 24:00:00.000, is correctly handled.
+        //: 3 The default value, 24:00:00.000000, is correctly handled.
         //
         // Plan:
         //: 1 Test 'addTime' explicitly using tabulated data.  Specifically,
         //:   specify an arbitrary (but convenient) non-default value as an
-        //:   initial value, and also use the default value 24:00:00.000.
+        //:   initial value, and also use the default value 24:00:00.000000.
         //:   Specify a set of (h, m, s, ms) tuples to be used as arguments to
         //:   'addTime' and verify that both the modified object value and the
         //:   return value are correct for each of the two initial values.
@@ -718,8 +1067,9 @@ if (veryVerbose)
         //   int addMinutes(int minutes);
         //   int addSeconds(int seconds);
         //   int addMilliseconds(int milliseconds);
+        //   int addMicroseconds(int microseconds);
         //   int addInterval(const DatetimeInterval& interval);
-        //   int addTime(int hours, int minutes, int seconds, int msec);
+        //   int addTime(int hours, int minutes, int seconds, int ms, int us);
         //   Time& operator+=(const DatetimeInterval& rhs);
         //   Time& operator-=(const DatetimeInterval& rhs);
         //   Time operator+(const Time&, const DatetimeInterval&);
@@ -742,52 +1092,63 @@ if (veryVerbose)
                 int d_minutes;       // minutes to add
                 int d_seconds;       // seconds to add
                 int d_msecs;         // milliseconds to add
+                int d_usecs;         // microseconds to add
                 int d_expDays;       // expected return value (days)
                 int d_expHour;       // expected hour value
                 int d_expMinute;     // expected minute value
                 int d_expSecond;     // expected second value
                 int d_expMsec;       // expected milliseconds value
+                int d_expUsec;       // expected microseconds value
             } DATA[] = {
-        //        - - - - - - time added - - - - - -   ---expected values---
-        //LINE     H       M         S           MS    DAYS  H   M   S   MS
-        //------   --      --        --          ---   ----  --  --  --  ---
-        { L_,       0,      0,        0,           0,     0,  0,  0,  0,   0 },
-        { L_,       0,      0,        0,           1,     0,  0,  0,  0,   1 },
-        { L_,       0,      0,        0,          -1,    -1, 23, 59, 59, 999 },
-        { L_,       0,      0,        0,        1000,     0,  0,  0,  1,   0 },
-        { L_,       0,      0,        0,       60000,     0,  0,  1,  0,   0 },
-        { L_,       0,      0,        0,     3600000,     0,  1,  0,  0,   0 },
-        { L_,       0,      0,        0,    86400000,     1,  0,  0,  0,   0 },
-        { L_,       0,      0,        0,   -86400000,    -1,  0,  0,  0,   0 },
-        { L_,       0,      0,        0,   864000000,    10,  0,  0,  0,   0 },
+//     - - - - - - - time added - - - - - - -    - - expected values - -
+//LI   H      M       S         MS        US    DAYS  H   M   S   MS   US
+//--   --     --      --        ---       ---   ----  --  --  --  ---  ---
+{ L_,   0,     0,      0,         0,        0,     0,  0,  0,  0,   0,   0 },
 
-        { L_,       0,      0,        1,           0,     0,  0,  0,  1,   0 },
-        { L_,       0,      0,       -1,           0,    -1, 23, 59, 59,   0 },
-        { L_,       0,      0,       60,           0,     0,  0,  1,  0,   0 },
-        { L_,       0,      0,     3600,           0,     0,  1,  0,  0,   0 },
-        { L_,       0,      0,    86400,           0,     1,  0,  0,  0,   0 },
-        { L_,       0,      0,   -86400,           0,    -1,  0,  0,  0,   0 },
-        { L_,       0,      0,   864000,           0,    10,  0,  0,  0,   0 },
+{ L_,   0,     0,      0,         0,        1,     0,  0,  0,  0,   0,   1 },
+{ L_,   0,     0,      0,         0,       -1,    -1, 23, 59, 59, 999, 999 },
+{ L_,   0,     0,      0,         0,     1000,     0,  0,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,         0,    -1000,    -1, 23, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,         0,  1000000,     0,  0,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,         0, -1000000,    -1, 23, 59, 59,   0,   0 },
+{ L_,   0,     0,      0,         0, 60000000,     0,  0,  1,  0,   0,   0 },
 
-        { L_,       0,      1,        0,           0,     0,  0,  1,  0,   0 },
-        { L_,       0,     -1,        0,           0,    -1, 23, 59,  0,   0 },
-        { L_,       0,     60,        0,           0,     0,  1,  0,  0,   0 },
-        { L_,       0,   1440,        0,           0,     1,  0,  0,  0,   0 },
-        { L_,       0,  -1440,        0,           0,    -1,  0,  0,  0,   0 },
-        { L_,       0,  14400,        0,           0,    10,  0,  0,  0,   0 },
+{ L_,   0,     0,      0,         1,        0,     0,  0,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,        -1,        0,    -1, 23, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,      1000,        0,     0,  0,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,     60000,        0,     0,  0,  1,  0,   0,   0 },
+{ L_,   0,     0,      0,   3600000,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,   0,     0,      0,  86400000,        0,     1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, -86400000,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, 864000000,        0,    10,  0,  0,  0,   0,   0 },
 
-        { L_,       1,      0,        0,           0,     0,  1,  0,  0,   0 },
-        { L_,      -1,      0,        0,           0,    -1, 23,  0,  0,   0 },
-        { L_,      24,      0,        0,           0,     1,  0,  0,  0,   0 },
-        { L_,     -24,      0,        0,           0,    -1,  0,  0,  0,   0 },
-        { L_,     240,      0,        0,           0,    10,  0,  0,  0,   0 },
+{ L_,   0,     0,      1,         0,        0,     0,  0,  0,  1,   0,   0 },
+{ L_,   0,     0,     -1,         0,        0,    -1, 23, 59, 59,   0,   0 },
+{ L_,   0,     0,     60,         0,        0,     0,  0,  1,  0,   0,   0 },
+{ L_,   0,     0,   3600,         0,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,   0,     0,  86400,         0,        0,     1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0, -86400,         0,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_,   0,     0, 864000,         0,        0,    10,  0,  0,  0,   0,   0 },
 
-        { L_,      24,   1440,    86400,    86400000,     4,  0,  0,  0,   0 },
-        { L_,      24,   1440,    86400,   -86400000,     2,  0,  0,  0,   0 },
-        { L_,      24,   1440,   -86400,   -86400000,     0,  0,  0,  0,   0 },
-        { L_,      24,  -1440,   -86400,   -86400000,    -2,  0,  0,  0,   0 },
-        { L_,     -24,  -1440,   -86400,   -86400000,    -4,  0,  0,  0,   0 },
-        { L_,      25,   1441,    86401,    86400001,     4,  1,  1,  1,   1 },
+{ L_,   0,     1,      0,         0,        0,     0,  0,  1,  0,   0,   0 },
+{ L_,   0,    -1,      0,         0,        0,    -1, 23, 59,  0,   0,   0 },
+{ L_,   0,    60,      0,         0,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,   0,  1440,      0,         0,        0,     1,  0,  0,  0,   0,   0 },
+{ L_,   0, -1440,      0,         0,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_,   0, 14400,      0,         0,        0,    10,  0,  0,  0,   0,   0 },
+
+{ L_,   1,     0,      0,         0,        0,     0,  1,  0,  0,   0,   0 },
+{ L_,  -1,     0,      0,         0,        0,    -1, 23,  0,  0,   0,   0 },
+{ L_,  24,     0,      0,         0,        0,     1,  0,  0,  0,   0,   0 },
+{ L_, -24,     0,      0,         0,        0,    -1,  0,  0,  0,   0,   0 },
+{ L_, 240,     0,      0,         0,        0,    10,  0,  0,  0,   0,   0 },
+
+{ L_,  24,  1440,  86400,  86400000,        0,     4,  0,  0,  0,   0,   0 },
+{ L_,  24,  1440,  86400, -86400000,        0,     2,  0,  0,  0,   0,   0 },
+{ L_,  24,  1440, -86400, -86400000,        0,     0,  0,  0,  0,   0,   0 },
+{ L_,  24, -1440, -86400, -86400000,        0,    -2,  0,  0,  0,   0,   0 },
+{ L_, -24, -1440, -86400, -86400000,        0,    -4,  0,  0,  0,   0,   0 },
+{ L_,  25,  1441,  86401,  86400001,        0,     4,  1,  1,  1,   1,   0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -798,20 +1159,26 @@ if (veryVerbose)
                 const int MINUTES  = DATA[i].d_minutes;
                 const int SECONDS  = DATA[i].d_seconds;
                 const int MSECS    = DATA[i].d_msecs;
+                const int USECS    = DATA[i].d_usecs;
 
                 const int EXP_DAYS = DATA[i].d_expDays;
                 const int EXP_HR   = DATA[i].d_expHour;
                 const int EXP_MIN  = DATA[i].d_expMinute;
                 const int EXP_SEC  = DATA[i].d_expSecond;
                 const int EXP_MSEC = DATA[i].d_expMsec;
+                const int EXP_USEC = DATA[i].d_expUsec;
 
                 Obj x;  const Obj& X = x;
 
                 if (veryVerbose) { T_;  P_(X); }
 
-                int RETURN_VALUE = x.addTime(HOURS, MINUTES, SECONDS, MSECS);
+                int RETURN_VALUE = x.addTime(HOURS,
+                                             MINUTES,
+                                             SECONDS,
+                                             MSECS,
+                                             USECS);
 
-                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC);
+                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC, EXP_USEC);
 
                 if (veryVerbose) { P_(X);  P_(EXP);  P(RETURN_VALUE); }
 
@@ -831,52 +1198,63 @@ if (veryVerbose)
                 int d_minutes;       // minutes to add
                 int d_seconds;       // seconds to add
                 int d_msecs;         // milliseconds to add
+                int d_usecs;         // microseconds to add
                 int d_expDays;       // expected return value (days)
                 int d_expHour;       // expected hour value
                 int d_expMinute;     // expected minute value
                 int d_expSecond;     // expected second value
                 int d_expMsec;       // expected milliseconds value
+                int d_expUsec;       // expected microseconds value
             } DATA[] = {
-        //        - - - - - - time added - - - - - -   ---expected values---
-        //LINE     H       M         S           MS    DAYS  H   M   S   MS
-        //------   --      --        --          ---   ----  --  --  --  ---
-        { L_,       0,      0,        0,           0,     0, 12,  0,  0,   0 },
-        { L_,       0,      0,        0,           1,     0, 12,  0,  0,   1 },
-        { L_,       0,      0,        0,          -1,     0, 11, 59, 59, 999 },
-        { L_,       0,      0,        0,        1000,     0, 12,  0,  1,   0 },
-        { L_,       0,      0,        0,       60000,     0, 12,  1,  0,   0 },
-        { L_,       0,      0,        0,     3600000,     0, 13,  0,  0,   0 },
-        { L_,       0,      0,        0,    86400000,     1, 12,  0,  0,   0 },
-        { L_,       0,      0,        0,   -86400000,    -1, 12,  0,  0,   0 },
-        { L_,       0,      0,        0,   864000000,    10, 12,  0,  0,   0 },
+//     - - - - - - - time added - - - - - - -    - - expected values - -
+//LI   H      M       S         MS        US    DAYS  H   M   S   MS   US
+//--   --     --      --        ---       ---   ----  --  --  --  ---  ---
+{ L_,   0,     0,      0,         0,        0,     0, 12,  0,  0,   0,   0 },
 
-        { L_,       0,      0,        1,           0,     0, 12,  0,  1,   0 },
-        { L_,       0,      0,       -1,           0,     0, 11, 59, 59,   0 },
-        { L_,       0,      0,       60,           0,     0, 12,  1,  0,   0 },
-        { L_,       0,      0,     3600,           0,     0, 13,  0,  0,   0 },
-        { L_,       0,      0,    86400,           0,     1, 12,  0,  0,   0 },
-        { L_,       0,      0,   -86400,           0,    -1, 12,  0,  0,   0 },
-        { L_,       0,      0,   864000,           0,    10, 12,  0,  0,   0 },
+{ L_,   0,     0,      0,         0,        1,     0, 12,  0,  0,   0,   1 },
+{ L_,   0,     0,      0,         0,       -1,     0, 11, 59, 59, 999, 999 },
+{ L_,   0,     0,      0,         0,     1000,     0, 12,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,         0,    -1000,     0, 11, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,         0,  1000000,     0, 12,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,         0, -1000000,     0, 11, 59, 59,   0,   0 },
+{ L_,   0,     0,      0,         0, 60000000,     0, 12,  1,  0,   0,   0 },
 
-        { L_,       0,      1,        0,           0,     0, 12,  1,  0,   0 },
-        { L_,       0,     -1,        0,           0,     0, 11, 59,  0,   0 },
-        { L_,       0,     60,        0,           0,     0, 13,  0,  0,   0 },
-        { L_,       0,   1440,        0,           0,     1, 12,  0,  0,   0 },
-        { L_,       0,  -1440,        0,           0,    -1, 12,  0,  0,   0 },
-        { L_,       0,  14400,        0,           0,    10, 12,  0,  0,   0 },
+{ L_,   0,     0,      0,         1,        0,     0, 12,  0,  0,   1,   0 },
+{ L_,   0,     0,      0,        -1,        0,     0, 11, 59, 59, 999,   0 },
+{ L_,   0,     0,      0,      1000,        0,     0, 12,  0,  1,   0,   0 },
+{ L_,   0,     0,      0,     60000,        0,     0, 12,  1,  0,   0,   0 },
+{ L_,   0,     0,      0,   3600000,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,   0,     0,      0,  86400000,        0,     1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, -86400000,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0,      0, 864000000,        0,    10, 12,  0,  0,   0,   0 },
 
-        { L_,       1,      0,        0,           0,     0, 13,  0,  0,   0 },
-        { L_,      -1,      0,        0,           0,     0, 11,  0,  0,   0 },
-        { L_,      24,      0,        0,           0,     1, 12,  0,  0,   0 },
-        { L_,     -24,      0,        0,           0,    -1, 12,  0,  0,   0 },
-        { L_,     240,      0,        0,           0,    10, 12,  0,  0,   0 },
+{ L_,   0,     0,      1,         0,        0,     0, 12,  0,  1,   0,   0 },
+{ L_,   0,     0,     -1,         0,        0,     0, 11, 59, 59,   0,   0 },
+{ L_,   0,     0,     60,         0,        0,     0, 12,  1,  0,   0,   0 },
+{ L_,   0,     0,   3600,         0,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,   0,     0,  86400,         0,        0,     1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0, -86400,         0,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_,   0,     0, 864000,         0,        0,    10, 12,  0,  0,   0,   0 },
 
-        { L_,      24,   1440,    86400,    86400000,     4, 12,  0,  0,   0 },
-        { L_,      24,   1440,    86400,   -86400000,     2, 12,  0,  0,   0 },
-        { L_,      24,   1440,   -86400,   -86400000,     0, 12,  0,  0,   0 },
-        { L_,      24,  -1440,   -86400,   -86400000,    -2, 12,  0,  0,   0 },
-        { L_,     -24,  -1440,   -86400,   -86400000,    -4, 12,  0,  0,   0 },
-        { L_,      25,   1441,    86401,    86400001,     4, 13,  1,  1,   1 },
+{ L_,   0,     1,      0,         0,        0,     0, 12,  1,  0,   0,   0 },
+{ L_,   0,    -1,      0,         0,        0,     0, 11, 59,  0,   0,   0 },
+{ L_,   0,    60,      0,         0,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,   0,  1440,      0,         0,        0,     1, 12,  0,  0,   0,   0 },
+{ L_,   0, -1440,      0,         0,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_,   0, 14400,      0,         0,        0,    10, 12,  0,  0,   0,   0 },
+
+{ L_,   1,     0,      0,         0,        0,     0, 13,  0,  0,   0,   0 },
+{ L_,  -1,     0,      0,         0,        0,     0, 11,  0,  0,   0,   0 },
+{ L_,  24,     0,      0,         0,        0,     1, 12,  0,  0,   0,   0 },
+{ L_, -24,     0,      0,         0,        0,    -1, 12,  0,  0,   0,   0 },
+{ L_, 240,     0,      0,         0,        0,    10, 12,  0,  0,   0,   0 },
+
+{ L_,  24,  1440,  86400,  86400000,        0,     4, 12,  0,  0,   0,   0 },
+{ L_,  24,  1440,  86400, -86400000,        0,     2, 12,  0,  0,   0,   0 },
+{ L_,  24,  1440, -86400, -86400000,        0,     0, 12,  0,  0,   0,   0 },
+{ L_,  24, -1440, -86400, -86400000,        0,    -2, 12,  0,  0,   0,   0 },
+{ L_, -24, -1440, -86400, -86400000,        0,    -4, 12,  0,  0,   0,   0 },
+{ L_,  25,  1441,  86401,  86400001,        0,     4, 13,  1,  1,   1,   0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -889,20 +1267,26 @@ if (veryVerbose)
                 const int MINUTES  = DATA[i].d_minutes;
                 const int SECONDS  = DATA[i].d_seconds;
                 const int MSECS    = DATA[i].d_msecs;
+                const int USECS    = DATA[i].d_usecs;
 
                 const int EXP_DAYS = DATA[i].d_expDays;
                 const int EXP_HR   = DATA[i].d_expHour;
                 const int EXP_MIN  = DATA[i].d_expMinute;
                 const int EXP_SEC  = DATA[i].d_expSecond;
                 const int EXP_MSEC = DATA[i].d_expMsec;
+                const int EXP_USEC = DATA[i].d_expUsec;
 
                 Obj x(INITIAL);  const Obj& X = x;
 
                 if (veryVerbose) { T_;  P_(X); }
 
-                int RETURN_VALUE = x.addTime(HOURS, MINUTES, SECONDS, MSECS);
+                int RETURN_VALUE = x.addTime(HOURS,
+                                             MINUTES,
+                                             SECONDS,
+                                             MSECS,
+                                             USECS);
 
-                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC);
+                const Obj EXP(EXP_HR, EXP_MIN, EXP_SEC, EXP_MSEC, EXP_USEC);
 
                 if (veryVerbose) { P_(X);  P_(EXP);  P(RETURN_VALUE); }
 
@@ -930,6 +1314,10 @@ if (veryVerbose)
             const int START_MSECS = -900000000;
             const int STOP_MSECS  =  900000000;
             const int STEP_MSECS  =   90000000;
+
+            const int START_USECS = -900000000;
+            const int STOP_USECS  =  900000000;
+            const int STEP_USECS  =   90000000;
 
             if (verbose) cout << "\nTesting 'addHours'." << endl;
             for (int hi = START_HOURS; hi <= STOP_HOURS; hi += STEP_HOURS) {
@@ -1023,6 +1411,29 @@ if (veryVerbose)
                 LOOP_ASSERT(msi, Y2 == X2);  LOOP_ASSERT(msi, RY2 == RX2);
             }
 
+            if (verbose) cout << "\nTesting 'addMicroseconds'." << endl;
+            for (int usi = START_USECS; usi <= STOP_USECS; usi += STEP_USECS) {
+                Obj x1(I1);  const Obj &X1 = x1;
+
+                Obj x2(I2);  const Obj &X2 = x2;
+
+                Obj y1(I1);  const Obj &Y1 = y1;
+
+                Obj y2(I2);  const Obj &Y2 = y2;
+
+                if (veryVerbose) { T_;  P_(X1);  P(X2); }
+
+                const int RX1 = x1.addMicroseconds(usi);
+                const int RX2 = x2.addMicroseconds(usi);
+                const int RY1 = y1.addTime(0, 0, 0, 0, usi);
+                const int RY2 = y2.addTime(0, 0, 0, 0, usi);
+
+                if (veryVerbose) { T_;  P_(X1);  P_(X2);  P_(RX1);  P(RX2); }
+
+                LOOP_ASSERT(usi, Y1 == X1);  LOOP_ASSERT(usi, RY1 == RX1);
+                LOOP_ASSERT(usi, Y2 == X2);  LOOP_ASSERT(usi, RY2 == RX2);
+            }
+
             if (verbose) cout << "\nTesting 'addInterval'." << endl;
             for (int msi = START_MSECS; msi <= STOP_MSECS; msi += STEP_MSECS) {
                 Obj x1(I1);  const Obj &X1 = x1;
@@ -1046,6 +1457,29 @@ if (veryVerbose)
 
                 LOOP_ASSERT(msi, Y1 == X1);  LOOP_ASSERT(msi, RY1 == RX1);
                 LOOP_ASSERT(msi, Y2 == X2);  LOOP_ASSERT(msi, RY2 == RX2);
+            }
+            for (int usi = START_USECS; usi <= STOP_USECS; usi += STEP_USECS) {
+                Obj x1(I1);  const Obj &X1 = x1;
+
+                Obj x2(I2);  const Obj &X2 = x2;
+
+                Obj y1(I1);  const Obj &Y1 = y1;
+
+                Obj y2(I2);  const Obj &Y2 = y2;
+
+                if (veryVerbose) { T_;  P_(X1);  P(X2); }
+
+                const bdlt::DatetimeInterval INTERVAL(0, 0, 0, 0, 0, usi);
+
+                const int RX1 = x1.addInterval(INTERVAL);
+                const int RX2 = x2.addInterval(INTERVAL);
+                const int RY1 = y1.addTime(0, 0, 0, 0, usi);
+                const int RY2 = y2.addTime(0, 0, 0, 0, usi);
+
+                if (veryVerbose) { T_;  P_(X1);  P_(X2);  P_(RX1);  P(RX2); }
+
+                LOOP_ASSERT(usi, Y1 == X1);  LOOP_ASSERT(usi, RY1 == RX1);
+                LOOP_ASSERT(usi, Y2 == X2);  LOOP_ASSERT(usi, RY2 == RX2);
             }
 
             if (verbose) {
@@ -1170,13 +1604,12 @@ if (veryVerbose)
                                                bsl::numeric_limits<int>::max(),
                                                23);
 
-            ASSERT_SAFE_PASS(mV.addInterval(INTERVAL_A));
-            ASSERT_SAFE_PASS(mW.addInterval(INTERVAL_B));
-            ASSERT_SAFE_PASS(mX.addInterval(INTERVAL_C));
-            ASSERT_SAFE_FAIL(mY.addInterval(INTERVAL_D));
-            ASSERT_SAFE_FAIL(mZ.addInterval(INTERVAL_E));
+            ASSERT_PASS(mV.addInterval(INTERVAL_A));
+            ASSERT_PASS(mW.addInterval(INTERVAL_B));
+            ASSERT_PASS(mX.addInterval(INTERVAL_C));
+            ASSERT_FAIL(mY.addInterval(INTERVAL_D));
+            ASSERT_FAIL(mZ.addInterval(INTERVAL_E));
         }
-
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -1188,7 +1621,7 @@ if (veryVerbose)
         //:   integer total-milliseconds representation and returns the
         //:   DatetimeInterval initialized with the result.
         //:
-        //: 2 The default value, 24:00:00.000, is correctly handled.
+        //: 2 The default value, 24:00:00.000000, is correctly handled.
         //
         // Plan:
         //: 1 Specify a set of object value pairs S.  For each (x1, x2) in S,
@@ -1206,72 +1639,81 @@ if (veryVerbose)
         if (verbose) cout << "\nTesting 'operator-'." << endl;
         {
             static const struct {
-                int d_lineNum;     // source line number
-                int d_hours2;      // lhs time hours
-                int d_minutes2;    // lhs time minutes
-                int d_seconds2;    // lhs time seconds
-                int d_msecs2;      // lhs time milliseconds
-                int d_hours1;      // rhs time hours
-                int d_minutes1;    // rhs time minutes
-                int d_seconds1;    // rhs time seconds
-                int d_msecs1;      // rhs time milliseconds
-                int d_expMsec;     // expected difference (msec)
+                int                d_lineNum;   // source line number
+                int                d_hours2;    // lhs time hours
+                int                d_minutes2;  // lhs time minutes
+                int                d_seconds2;  // lhs time seconds
+                int                d_msecs2;    // lhs time milliseconds
+                int                d_usecs2;    // lhs time microseconds
+                int                d_hours1;    // rhs time hours
+                int                d_minutes1;  // rhs time minutes
+                int                d_seconds1;  // rhs time seconds
+                int                d_msecs1;    // rhs time milliseconds
+                int                d_usecs1;    // rhs time microseconds
+                bsls::Types::Int64 d_expUsec;   // expected difference (usec)
             } DATA[] = {
-                //        -- lhs time --    -- rhs time --
-                //LINE    H   M   S   MS    H   M   S   MS     EXPECTED MSEC
-                //------  --  --  --  ---   --  --  --  ---    -------------
-                { L_,      0,  0,  0,   0,   0,  0,  0,   0,             0  },
-                { L_,     24,  0,  0,   0,   0,  0,  0,   0,             0  },
-                { L_,      0,  0,  0,   0,  24,  0,  0,   0,             0  },
-                { L_,     24,  0,  0,   0,  24,  0,  0,   0,             0  },
+            //    - - - lhs time - - -  - - - rhs time - - -
+            //LN  H   M   S   MS   US   H   M   S   MS   US     EXP. USEC
+            //--  --  --  --  ---  ---  --  --  --  ---  ---  -------------
+            { L_,  0,  0,  0,   0,   0,  0,  0,  0,   0,   0,           0LL },
+            { L_, 24,  0,  0,   0,   0,  0,  0,  0,   0,   0,           0LL },
+            { L_,  0,  0,  0,   0,   0, 24,  0,  0,   0,   0,           0LL },
+            { L_, 24,  0,  0,   0,   0, 24,  0,  0,   0,   0,           0LL },
 
-                { L_,      0,  0,  0,   1,   0,  0,  0,   0,             1  },
-                { L_,      0,  0,  0,   0,   0,  0,  0,   1,            -1  },
-                { L_,      0,  0,  0,   1,  24,  0,  0,   0,             1  },
-                { L_,     24,  0,  0,   0,   0,  0,  0,   1,            -1  },
+            { L_,  0,  0,  0,   0,   1,  0,  0,  0,   0,   0,           1LL },
+            { L_,  0,  0,  0,   0,   0,  0,  0,  0,   0,   1,          -1LL },
+            { L_,  0,  0,  0,   0,   1, 24,  0,  0,   0,   0,           1LL },
+            { L_, 24,  0,  0,   0,   0,  0,  0,  0,   0,   1,          -1LL },
 
-                { L_,      0,  0,  1,   0,   0,  0,  0,   0,          1000  },
-                { L_,      0,  0,  0,   0,   0,  0,  1,   0,         -1000  },
-                { L_,      0,  0,  1,   0,  24,  0,  0,   0,          1000  },
-                { L_,     24,  0,  0,   0,   0,  0,  1,   0,         -1000  },
+            { L_,  0,  0,  0,   1,   0,  0,  0,  0,   0,   0,        1000LL },
+            { L_,  0,  0,  0,   0,   0,  0,  0,  0,   1,   0,       -1000LL },
+            { L_,  0,  0,  0,   1,   0, 24,  0,  0,   0,   0,        1000LL },
+            { L_, 24,  0,  0,   0,   0,  0,  0,  0,   1,   0,       -1000LL },
 
-                { L_,      0,  1,  0,   0,   0,  0,  0,   0,         60000  },
-                { L_,      0,  0,  0,   0,   0,  1,  0,   0,        -60000  },
-                { L_,      0,  1,  0,   0,  24,  0,  0,   0,         60000  },
-                { L_,     24,  0,  0,   0,   0,  1,  0,   0,        -60000  },
+            { L_,  0,  0,  1,   0,   0,  0,  0,  0,   0,   0,     1000000LL },
+            { L_,  0,  0,  0,   0,   0,  0,  0,  1,   0,   0,    -1000000LL },
+            { L_,  0,  0,  1,   0,   0, 24,  0,  0,   0,   0,     1000000LL },
+            { L_, 24,  0,  0,   0,   0,  0,  0,  1,   0,   0,    -1000000LL },
 
-                { L_,      1,  0,  0,   0,   0,  0,  0,   0,       3600000  },
-                { L_,      0,  0,  0,   0,   1,  0,  0,   0,      -3600000  },
-                { L_,      1,  0,  0,   0,  24,  0,  0,   0,       3600000  },
-                { L_,     24,  0,  0,   0,   1,  0,  0,   0,      -3600000  },
+            { L_,  0,  1,  0,   0,   0,  0,  0,  0,   0,   0,    60000000LL },
+            { L_,  0,  0,  0,   0,   0,  0,  1,  0,   0,   0,   -60000000LL },
+            { L_,  0,  1,  0,   0,   0, 24,  0,  0,   0,   0,    60000000LL },
+            { L_, 24,  0,  0,   0,   0,  0,  1,  0,   0,   0,   -60000000LL },
+
+            { L_,  1,  0,  0,   0,   0,  0,  0,  0,   0,   0,  3600000000LL },
+            { L_,  0,  0,  0,   0,   0,  1,  0,  0,   0,   0, -3600000000LL },
+            { L_,  1,  0,  0,   0,   0, 24,  0,  0,   0,   0,  3600000000LL },
+            { L_, 24,  0,  0,   0,   0,  1,  0,  0,   0,   0, -3600000000LL },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int LINE     = DATA[i].d_lineNum;
-                const int HOURS2   = DATA[i].d_hours2;
-                const int MINUTES2 = DATA[i].d_minutes2;
-                const int SECONDS2 = DATA[i].d_seconds2;
-                const int MSECS2   = DATA[i].d_msecs2;
-                const int HOURS1   = DATA[i].d_hours1;
-                const int MINUTES1 = DATA[i].d_minutes1;
-                const int SECONDS1 = DATA[i].d_seconds1;
-                const int MSECS1   = DATA[i].d_msecs1;
-                const int EXP_MSEC = DATA[i].d_expMsec;
+                const int                LINE     = DATA[i].d_lineNum;
+                const int                HOURS2   = DATA[i].d_hours2;
+                const int                MINUTES2 = DATA[i].d_minutes2;
+                const int                SECONDS2 = DATA[i].d_seconds2;
+                const int                MSECS2   = DATA[i].d_msecs2;
+                const int                USECS2   = DATA[i].d_usecs2;
+                const int                HOURS1   = DATA[i].d_hours1;
+                const int                MINUTES1 = DATA[i].d_minutes1;
+                const int                SECONDS1 = DATA[i].d_seconds1;
+                const int                MSECS1   = DATA[i].d_msecs1;
+                const int                USECS1   = DATA[i].d_usecs1;
+                const bsls::Types::Int64 EXP_USEC = DATA[i].d_expUsec;
 
-                const Obj X2(HOURS2, MINUTES2, SECONDS2, MSECS2);
-                const Obj X1(HOURS1, MINUTES1, SECONDS1, MSECS1);
+                const Obj X2(HOURS2, MINUTES2, SECONDS2, MSECS2, USECS2);
+                const Obj X1(HOURS1, MINUTES1, SECONDS1, MSECS1, USECS1);
 
                 const bdlt::DatetimeInterval INTERVAL1(X2 - X1);
                 const bdlt::DatetimeInterval INTERVAL2(X1 - X2);
 
                 if (veryVerbose) {
-                    T_;  P_(X2);  P_(X1);  P(INTERVAL1.totalMilliseconds());
+                    T_;  P_(X2);  P_(X1);  P(INTERVAL1.totalMicroseconds());
                 }
 
-                LOOP_ASSERT(LINE,  EXP_MSEC == INTERVAL1.totalMilliseconds());
-                LOOP_ASSERT(LINE, -EXP_MSEC == INTERVAL2.totalMilliseconds());
+                LOOP_ASSERT(LINE,  EXP_USEC == INTERVAL1.totalMicroseconds());
+                LOOP_ASSERT(LINE, -EXP_USEC == INTERVAL2.totalMicroseconds());
             }
         }
 
@@ -1311,15 +1753,31 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0,   1  },
-                {  0,  0,  0, 999  },  {  0,  0,  1,   0  },
-                {  0,  0, 59, 999  },  {  0,  1,  0,   0  },
-                {  0,  1,  0,   1  },  {  0, 59, 59, 999  },
-                {  1,  0,  0,   0  },  {  1,  0,  0,   1  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 23, 59, 59, 999  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0,   1 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0,   1,   0 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0,  1,   0,   0 },
+                {  0,  0, 59, 999,   0 },
+                {  0,  1,  0,   0,   0 },
+                {  0,  1,  0,   1,   0 },
+                {  0, 59, 59, 999,   0 },
+                {  1,  0,  0,   0,   0 },
+                {  1,  0,  0,   1,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210,   1 },
+                { 23, 22, 21, 210, 102 },
+                { 23, 22, 21, 211,  17 },
+                { 23, 59, 59, 999, 999 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -1329,14 +1787,16 @@ if (veryVerbose)
                 Obj        v(VALUES[i].d_hour,
                              VALUES[i].d_minute,
                              VALUES[i].d_second,
-                             VALUES[i].d_msec);
+                             VALUES[i].d_msec,
+                             VALUES[i].d_usec);
                 const Obj& V = v;
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     Obj        u(VALUES[j].d_hour,
                                  VALUES[j].d_minute,
                                  VALUES[j].d_second,
-                                 VALUES[j].d_msec);
+                                 VALUES[j].d_msec,
+                                 VALUES[j].d_usec);
                     const Obj& U = u;
                     if (veryVerbose) { T_;  P_(i);  P_(j);  P_(V);  P(U); }
                     LOOP2_ASSERT(i, j, (j <  i) == (U <  V));
@@ -1398,12 +1858,12 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 For a set of independent test values not including the
-        //:   default value (24:00:00.000), use the default constructor to
+        //:   default value (24:00:00.000000), use the default constructor to
         //:   create an object and use the 'set' manipulators to set its value.
         //:   Verify the value using the basic accessors.  (C-1,2)
         //:
         //: 2 Confirm the correct behavior of the 'set' methods when
-        //:   setting from the value 24:00:00.000.  (C-3)
+        //:   setting from the value 24:00:00.000000.  (C-3)
         //:
         //: 3 Verify 'setHour(24)' results in the default value for the object.
         //:   (C-4)
@@ -1415,6 +1875,7 @@ if (veryVerbose)
         //   void setMinute(int minute);
         //   void setSecond(int second);
         //   void setMillisecond(int millisecond);
+        //   void setMillisecond(int microsecond);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1426,12 +1887,22 @@ if (veryVerbose)
         if (verbose) cout << "\tFor ordinary computational values." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  // 24:00:00.000 NOT tested here
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 117 },
+                // 24:00:00.000000 NOT tested here
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -1442,66 +1913,108 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 Obj x;  const Obj& X = x;
                 x.setHour(HOUR);
                 x.setMinute(MINUTE);
                 x.setSecond(SECOND);
                 x.setMillisecond(MSEC);
+                x.setMicrosecond(USEC);
                 if (veryVerbose) {
-                    T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P(X);
+                    T_;
+                    P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P_(USEC);
+                    P(X);
                 }
                 LOOP_ASSERT(i, HOUR   == X.hour());
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
             }
             if (veryVerbose) cout << endl;
         }
 
-        if (verbose) cout << "\tSetting from value 24:00:00.000." << endl;
+        if (verbose) cout << "\tSetting from value 24:00:00.000000." << endl;
         {
-            const Obj R24;             // Reference object (24:00:00.000)
+            const Obj R24;             // Reference object (24:00:00.000000)
 
             Obj x;  const Obj& X = x;  if (veryVerbose) { T_;  P_(X); }
             x.setMinute(0);            if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setMinute(59);           if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT( 59 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT( 59 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setSecond(0);            if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setSecond(59);           if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT(59 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT( 59 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setMillisecond(0);       if (veryVerbose) P(X);
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
 
             x = R24;                   if (veryVerbose) { T_;  P_(X); }
             x.setMillisecond(999);     if (veryVerbose) { P(X); cout << endl; }
-            ASSERT( 0 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(999 == x.millisecond());
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(999 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
+
+            x = R24;                   if (veryVerbose) { T_;  P_(X); }
+            x.setMicrosecond(0);       if (veryVerbose) P(X);
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(  0 == x.microsecond());
+
+            x = R24;                   if (veryVerbose) { T_;  P_(X); }
+            x.setMicrosecond(999);     if (veryVerbose) { P(X); cout << endl; }
+            ASSERT(  0 == x.hour());
+            ASSERT(  0 == x.minute());
+            ASSERT(  0 == x.second());
+            ASSERT(  0 == x.millisecond());
+            ASSERT(999 == x.microsecond());
         }
 
-        if (verbose) cout << "\tSetting to value 24:00:00.000." << endl;
+        if (verbose) cout << "\tSetting to value 24:00:00.000000." << endl;
         {
             const Obj R(23, 22, 21, 209); // Reference object (21:22:21.209)
 
             Obj x(R); const Obj& X = x;if (veryVerbose) { T_;  P_(X); }
             x.setHour(24);             if (veryVerbose) { P(X); cout << endl; }
-            ASSERT(24 == x.hour());    ASSERT(  0 == x.minute());
-            ASSERT( 0 == x.second());  ASSERT(  0 == x.millisecond());
+            ASSERT(24 == x.hour());
+            ASSERT( 0 == x.minute());
+            ASSERT( 0 == x.second());
+            ASSERT( 0 == x.millisecond());
+            ASSERT( 0 == x.microsecond());
 
         }
 
@@ -1532,8 +2045,12 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(mX.setMillisecond(   0));
             ASSERT_SAFE_PASS(mX.setMillisecond( 999));
             ASSERT_SAFE_FAIL(mX.setMillisecond(1000));
-        }
 
+            ASSERT_SAFE_FAIL(mX.setMicrosecond(  -1));
+            ASSERT_SAFE_PASS(mX.setMicrosecond(   0));
+            ASSERT_SAFE_PASS(mX.setMicrosecond( 999));
+            ASSERT_SAFE_FAIL(mX.setMicrosecond(1000));
+        }
 
       } break;
       case 11: {
@@ -1546,13 +2063,14 @@ if (veryVerbose)
         //:   multiplied by the appropriate factors when initializing the
         //:   internal total-milliseconds integer representation.
         //:
-        //: 2 The default value 24:00:00.000 must be constructible explicitly.
+        //: 2 The default value 24:00:00.000000 must be constructible
+        //:   explicitly.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set 'S' of times as '(h, m, s, ms)' tuples having
-        //:   widely varying values.  For each '(h, m, s, ms)' in 'S',
+        //: 1 Specify a set 'S' of times as '(h, m, s, ms, us)' tuples having
+        //:   widely varying values.  For each '(h, m, s, ms, us)' in 'S',
         //:   construct an object 'X' using all four arguments and an object
         //:   'Y' using the first three arguments, and verify that 'X' and 'Y'
         //:   have the expected values.  (C-1)
@@ -1563,7 +2081,7 @@ if (veryVerbose)
         //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
-        //   Time(int hour, int minute, int second = 0, int millisecond = 0);
+        //   Time(int hour, int minute, int sec = 0, int ms = 0, int us = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1573,12 +2091,22 @@ if (veryVerbose)
         if (verbose) cout << "\nFor ordinary computational values." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 23, 59, 59, 999  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 217 },
+                { 23, 59, 59, 999, 999 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -1589,6 +2117,10 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
+
+                Obj        w(HOUR, MINUTE, SECOND, MSEC, USEC);
+                const Obj& W = w;
 
                 Obj x(HOUR, MINUTE, SECOND, MSEC);  const Obj& X = x;
 
@@ -1597,36 +2129,51 @@ if (veryVerbose)
                 Obj z(HOUR, MINUTE);                const Obj& Z = z;
 
                 if (veryVerbose) {
-                    T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P_(X);
-                    P_(Y)  P(Z);
+                    T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC);
+                    P_(W);  P_(X);
+                    P_(Y);  P(Z);
                 }
+                LOOP_ASSERT(i, HOUR   == W.hour());
+                LOOP_ASSERT(i, MINUTE == W.minute());
+                LOOP_ASSERT(i, SECOND == W.second());
+                LOOP_ASSERT(i, MSEC   == W.millisecond());
+                LOOP_ASSERT(i, USEC   == W.microsecond());
+
                 LOOP_ASSERT(i, HOUR   == X.hour());
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
+
                 LOOP_ASSERT(i, HOUR   == Y.hour());
                 LOOP_ASSERT(i, MINUTE == Y.minute());
                 LOOP_ASSERT(i, SECOND == Y.second());
                 LOOP_ASSERT(i, 0      == Y.millisecond());
+                LOOP_ASSERT(i, 0      == Y.microsecond());
+
                 LOOP_ASSERT(i, HOUR   == Z.hour());
                 LOOP_ASSERT(i, MINUTE == Z.minute());
                 LOOP_ASSERT(i, 0      == Z.second());
                 LOOP_ASSERT(i, 0      == Z.millisecond());
+                LOOP_ASSERT(i, 0      == Z.microsecond());
             }
         }
 
         if (verbose) cout << "\nFor the default values." << endl;
         {
-            Obj d;               const Obj& D = d;
+            Obj d;                  const Obj& D = d;
 
-            Obj x(24, 0, 0, 0);  const Obj& X = x;
+            Obj w(24, 0, 0, 0, 0);  const Obj& W = w;
 
-            Obj y(24, 0, 0);     const Obj& Y = y;
+            Obj x(24, 0, 0, 0);     const Obj& X = x;
 
-            Obj z(24, 0);        const Obj& Z = z;
+            Obj y(24, 0, 0);        const Obj& Y = y;
 
-            if (veryVerbose) { T_;  P_(D);  P_(X);  P_(Y)  P(Z); }
+            Obj z(24, 0);           const Obj& Z = z;
 
+            if (veryVerbose) { T_;  P_(D);  P_(W);  P_(X);  P_(Y)  P(Z); }
+
+            ASSERT(D == W);
             ASSERT(D == X);
             ASSERT(D == Y);
             ASSERT(D == Z);
@@ -1638,10 +2185,11 @@ if (veryVerbose)
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_PASS(Obj mX(24, 0, 0, 0));
-            ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 1));
-            ASSERT_SAFE_FAIL(Obj mX(24, 0, 1, 0));
-            ASSERT_SAFE_FAIL(Obj mX(24, 1, 0, 0));
+            ASSERT_SAFE_PASS(Obj mX(24, 0, 0, 0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 0, 1));
+            ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 1, 0));
+            ASSERT_SAFE_FAIL(Obj mX(24, 0, 1, 0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(24, 1, 0, 0, 0));
 
             ASSERT_SAFE_FAIL(Obj mX(-1, 0, 0, 0));
             ASSERT_SAFE_PASS(Obj mX( 0, 0, 0, 0));
@@ -1662,6 +2210,11 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(Obj mX(0, 0, 0,    0));
             ASSERT_SAFE_PASS(Obj mX(0, 0, 0,  999));
             ASSERT_SAFE_FAIL(Obj mX(0, 0, 0, 1000));
+
+            ASSERT_SAFE_FAIL(Obj mX(0, 0, 0, 0,   -1));
+            ASSERT_SAFE_PASS(Obj mX(0, 0, 0, 0,    0));
+            ASSERT_SAFE_PASS(Obj mX(0, 0, 0, 0,  999));
+            ASSERT_SAFE_FAIL(Obj mX(0, 0, 0, 0, 1000));
         }
 
       } break;
@@ -1772,13 +2325,13 @@ if (veryVerbose)
                           << "======================" << endl;
 
         // Scalar object values used in various stream tests.
-        const Obj VA(  0,  0,  0,   0);
-        const Obj VB(  0,  0,  0, 999);
-        const Obj VC(  0,  0, 59,   0);
-        const Obj VD(  0, 59,  0,   0);
-        const Obj VE( 23,  0,  0,   0);
-        const Obj VF( 23, 22, 21, 209);
-        const Obj VG( 24,  0,  0,   0);
+        const Obj VA(  0,  0,  0,   0,   0);
+        const Obj VB(  0,  0,  0,   0, 999);
+        const Obj VC(  0,  0,  0, 999,   0);
+        const Obj VD(  0,  0, 59,   0,   0);
+        const Obj VE(  0, 59,  0,   0,   0);
+        const Obj VF( 23,  0,  0,   0,   0);
+        const Obj VG( 23, 22, 21, 209, 212);
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
@@ -1790,310 +2343,368 @@ if (veryVerbose)
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
-            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            ASSERT(2 == Obj::maxSupportedBdexVersion(20170401));
+            ASSERT(2 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
 
             using bslx::VersionFunctions::maxSupportedBdexVersion;
 
             ASSERT(1 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 0));
-            ASSERT(1 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
+            ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
+                                                20170401));
+            ASSERT(2 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 VERSION_SELECTOR));
         }
 
-        const int VERSION = Obj::maxSupportedBdexVersion(0);
+        const int VERSIONS[] = { 1, 2 };
+        const int NUM_VERSIONS = static_cast<int>(  sizeof VERSIONS
+                                                  / sizeof *VERSIONS);
 
-        if (verbose) {
-            cout << "\nDirect initial trial of 'bdexStreamOut' and (valid) "
-                 << "'bdexStreamIn' functionality." << endl;
-        }
-        {
-            const Obj X(VC);
-            Out       out(VERSION_SELECTOR, &allocator);
+        for (int versionIndex = 0;
+             versionIndex < NUM_VERSIONS;
+             ++versionIndex) {
+            const int VERSION = VERSIONS[versionIndex];
 
-            Out& rvOut = X.bdexStreamOut(out, VERSION);
-            ASSERT(&out == &rvOut);
+            if (verbose) {
+                cout << "\nTesting Version " << VERSION << "." << endl;
+            }
 
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+            if (verbose) {
+                cout << "\tDirect initial trial of 'bdexStreamOut' and "
+                     << "(valid) 'bdexStreamIn'." << endl;
+            }
+            {
+                const Obj X(VC);
+                Out       out(VERSION_SELECTOR, &allocator);
 
-            In in(OD, LOD);
-            ASSERT(in);
-            ASSERT(!in.isEmpty());
+                Out& rvOut = X.bdexStreamOut(out, VERSION);
+                ASSERT(&out == &rvOut);
 
-            Obj mT(VA);  const Obj& T = mT;
-            ASSERT(X != T);
-
-            In& rvIn = mT.bdexStreamIn(in, VERSION);
-            ASSERT(&in == &rvIn);
-            ASSERT(X == T);
-            ASSERT(in);
-            ASSERT(in.isEmpty());
-        }
-
-        // We will use the stream free functions provided by 'bslx', as opposed
-        // to the class member functions, since the 'bslx' implementation gives
-        // priority to the free function implementations; we want to test what
-        // will be used.  Furthermore, toward making this test case more
-        // reusable in other components, from here on we generally use the
-        // 'bdexStreamIn' and 'bdexStreamOut' free functions that are defined
-        // in the 'bslx' package rather than call the like-named member
-        // functions directly.
-
-        if (verbose) {
-            cout << "\nThorough test using stream free functions."
-                 << endl;
-        }
-        {
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const Obj X(VALUES[i]);
-
-                Out out(VERSION_SELECTOR, &allocator);
-
-                using bslx::OutStreamFunctions::bdexStreamOut;
-                using bslx::InStreamFunctions::bdexStreamIn;
-
-                Out& rvOut = bdexStreamOut(out, X, VERSION);
-                LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
-                // Verify that each new value overwrites every old value and
-                // that the input stream is emptied, but remains valid.
+                In in(OD, LOD);
+                ASSERT(in);
+                ASSERT(!in.isEmpty());
 
-                for (int j = 0; j < NUM_VALUES; ++j) {
+                Obj mT(VA);  const Obj& T = mT;
+                ASSERT(X != T);
+
+                In& rvIn = mT.bdexStreamIn(in, VERSION);
+                ASSERT(&in == &rvIn);
+                ASSERT(X == T);
+                ASSERT(in);
+                ASSERT(in.isEmpty());
+            }
+
+            // We will use the stream free functions provided by 'bslx', as
+            // opposed to the class member functions, since the 'bslx'
+            // implementation gives priority to the free function
+            // implementations; we want to test what will be used.
+            // Furthermore, toward making this test case more reusable in other
+            // components, from here on we generally use the 'bdexStreamIn' and
+            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // package rather than call the like-named member functions
+            // directly.
+
+            if (verbose) {
+                cout << "\tThorough test using stream free functions."
+                     << endl;
+            }
+            {
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    const Obj X(VALUES[i]);
+
+                    Out out(VERSION_SELECTOR, &allocator);
+
+                    using bslx::OutStreamFunctions::bdexStreamOut;
+                    using bslx::InStreamFunctions::bdexStreamIn;
+
+                    Out& rvOut = bdexStreamOut(out, X, VERSION);
+                    LOOP_ASSERT(i, &out == &rvOut);
+                    const char *const OD  = out.data();
+                    const int         LOD = static_cast<int>(out.length());
+
+                    // Verify that each new value overwrites every old value
+                    // and that the input stream is emptied, but remains valid.
+
+                    for (int j = 0; j < NUM_VALUES; ++j) {
+                        In in(OD, LOD);
+                        LOOP2_ASSERT(i, j, in);
+                        LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                        Obj mT(VALUES[j]);  const Obj& T = mT;
+                        LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                        BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                            in.reset();
+                            In& rvIn = bdexStreamIn(in, mT, VERSION);
+                            LOOP2_ASSERT(i, j, &in == &rvIn);
+                        } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+
+                        if (1 == VERSION) {
+                            // Version 1 loses microseconds; replace.
+
+                            if (24 != T.hour()) {
+                                mT.setMicrosecond(X.microsecond());
+                            }
+                        }
+
+                        LOOP2_ASSERT(i, j, X == T);
+                        LOOP2_ASSERT(i, j, in);
+                        LOOP2_ASSERT(i, j, in.isEmpty());
+                    }
+                }
+            }
+
+            if (verbose) {
+                cout << "\tOn empty streams and non-empty, invalid streams."
+                     << endl;
+            }
+
+            // Verify correct behavior for empty streams (valid and invalid).
+
+            {
+                Out               out(VERSION_SELECTOR, &allocator);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+                ASSERT(0 == LOD);
+
+                for (int i = 0; i < NUM_VALUES; ++i) {
                     In in(OD, LOD);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, !in.isEmpty());
+                    LOOP_ASSERT(i, in);
+                    LOOP_ASSERT(i, in.isEmpty());
 
-                    Obj mT(VALUES[j]);  const Obj& T = mT;
-                    LOOP2_ASSERT(i, j, (X == T) == (i == j));
+                    // Ensure that reading from an empty or invalid input
+                    // stream leaves the stream invalid and the target object
+                    // unchanged.
+
+                    using bslx::InStreamFunctions::bdexStreamIn;
+
+                    const Obj  X(VALUES[i]);
+                    Obj        mT(X);
+                    const Obj& T = mT;
+                    LOOP_ASSERT(i, X == T);
 
                     BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                         in.reset();
-                        In& rvIn = bdexStreamIn(in, mT, VERSION);
-                        LOOP2_ASSERT(i, j, &in == &rvIn);
-                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-                    LOOP2_ASSERT(i, j, X == T);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, in.isEmpty());
+                        // Stream is valid.
+                        In& rvIn1 = bdexStreamIn(in, mT, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn1);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, X == T);
+
+                        // Stream is invalid.
+                        In& rvIn2 = bdexStreamIn(in, mT, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn2);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, X == T);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                 }
             }
-        }
 
-        if (verbose) {
-            cout << "\tOn empty streams and non-empty, invalid streams."
-                 << endl;
-        }
+            // Verify correct behavior for non-empty, invalid streams.
 
-        // Verify correct behavior for empty streams (valid and invalid).
+            {
+                Out               out(VERSION_SELECTOR, &allocator);
 
-        {
-            Out               out(VERSION_SELECTOR, &allocator);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 == LOD);
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
+                ASSERT(&out == &rvOut);
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);
-                LOOP_ASSERT(i, in);
-                LOOP_ASSERT(i, in.isEmpty());
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+                ASSERT(0 < LOD);
 
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged.
-
-                using bslx::InStreamFunctions::bdexStreamIn;
-
-                const Obj  X(VALUES[i]);
-                Obj        mT(X);
-                const Obj& T = mT;
-                LOOP_ASSERT(i, X == T);
-
-                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                    in.reset();
-
-                    // Stream is valid.
-                    In& rvIn1 = bdexStreamIn(in, mT, VERSION);
-                    LOOP_ASSERT(i, &in == &rvIn1);
-                    LOOP_ASSERT(i, !in);
-                    LOOP_ASSERT(i, X == T);
-
-                    // Stream is invalid.
-                    In& rvIn2 = bdexStreamIn(in, mT, VERSION);
-                    LOOP_ASSERT(i, &in == &rvIn2);
-                    LOOP_ASSERT(i, !in);
-                    LOOP_ASSERT(i, X == T);
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
-            }
-        }
-
-        // Verify correct behavior for non-empty, invalid streams.
-
-        {
-            Out               out(VERSION_SELECTOR, &allocator);
-
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
-            ASSERT(&out == &rvOut);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 < LOD);
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);
-                in.invalidate();
-                LOOP_ASSERT(i, !in);
-                LOOP_ASSERT(i, !in.isEmpty());
-
-                // Ensure that reading from a non-empty, invalid input stream
-                // leaves the stream invalid and the target object unchanged.
-
-                using bslx::InStreamFunctions::bdexStreamIn;
-
-                const Obj  X(VALUES[i]);
-                Obj        mT(X);
-                const Obj& T = mT;
-                LOOP_ASSERT(i, X == T);
-
-                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                    in.reset();
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    In in(OD, LOD);
                     in.invalidate();
                     LOOP_ASSERT(i, !in);
                     LOOP_ASSERT(i, !in.isEmpty());
 
-                    In& rvIn = bdexStreamIn(in, mT, VERSION);
-                    LOOP_ASSERT(i, &in == &rvIn);
-                    LOOP_ASSERT(i, !in);
+                    // Ensure that reading from a non-empty, invalid input
+                    // stream leaves the stream invalid and the target object
+                    // unchanged.
+
+                    using bslx::InStreamFunctions::bdexStreamIn;
+
+                    const Obj  X(VALUES[i]);
+                    Obj        mT(X);
+                    const Obj& T = mT;
                     LOOP_ASSERT(i, X == T);
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        in.invalidate();
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, !in.isEmpty());
+
+                        In& rvIn = bdexStreamIn(in, mT, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, X == T);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                }
             }
-        }
 
-        if (verbose) {
-            cout << "\tOn incomplete (but otherwise valid) data."
-                 << endl;
-        }
-        {
-            const Obj W1 = VA, X1 = VB;
-            const Obj W2 = VB, X2 = VC;
-            const Obj W3 = VC, X3 = VD;
+            if (verbose) {
+                cout << "\tOn incomplete (but otherwise valid) data."
+                     << endl;
+            }
+            {
+                const Obj W1 = VA, X1 = VB;
+                const Obj W2 = VB, X2 = VC;
+                const Obj W3 = VC, X3 = VD;
 
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            using bslx::InStreamFunctions::bdexStreamIn;
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
 
-            Out out(VERSION_SELECTOR, &allocator);
+                Out out(VERSION_SELECTOR, &allocator);
 
-            Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
-            ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+                Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
+                ASSERT(&out == &rvOut1);
+                const int         LOD1 = static_cast<int>(out.length());
 
-            Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
-            ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+                Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
+                ASSERT(&out == &rvOut2);
+                const int         LOD2 = static_cast<int>(out.length());
 
-            Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
-            ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
-            const char *const OD3  = out.data();
+                Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
+                ASSERT(&out == &rvOut3);
+                const int         LOD3 = static_cast<int>(out.length());
+                const char *const OD3  = out.data();
 
-            for (int i = 0; i < LOD3; ++i) {
-                In in(OD3, i);
+                for (int i = 0; i < LOD3; ++i) {
+                    In in(OD3, i);
 
-                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                    in.reset();
-                    LOOP_ASSERT(i, in);
-                    LOOP_ASSERT(i, !i == in.isEmpty());
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        LOOP_ASSERT(i, in);
+                        LOOP_ASSERT(i, !i == in.isEmpty());
 
-                    Obj mT1(W1);  const Obj& T1 = mT1;
-                    Obj mT2(W2);  const Obj& T2 = mT2;
-                    Obj mT3(W3);  const Obj& T3 = mT3;
+                        Obj mT1(W1);  const Obj& T1 = mT1;
+                        Obj mT2(W2);  const Obj& T2 = mT2;
+                        Obj mT3(W3);  const Obj& T3 = mT3;
 
-                    if (i < LOD1) {
-                        In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn1);
-                        LOOP_ASSERT(i, !in);
-                        if (0 == i) LOOP_ASSERT(i, W1 == T1);
-                        In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn2);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, W2 == T2);
-                        In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn3);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, W3 == T3);
-                    }
-                    else if (i < LOD2) {
-                        In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn1);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, X1 == T1);
-                        In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn2);
-                        LOOP_ASSERT(i, !in);
-                        if (LOD1 <= i) LOOP_ASSERT(i, W2 == T2);
-                        In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn3);
-                        LOOP_ASSERT(i, !in);
-                        LOOP_ASSERT(i, W3 == T3);
-                    }
-                    else {  // 'LOD2 <= i < LOD3'
-                        In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn1);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, X1 == T1);
-                        In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn2);
-                        LOOP_ASSERT(i,  in);
-                        LOOP_ASSERT(i, X2 == T2);
-                        In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
-                        LOOP_ASSERT(i, &in == &rvIn3);
-                        LOOP_ASSERT(i, !in);
-                        if (LOD2 <= i) LOOP_ASSERT(i, W3 == T3);
-                    }
+                        if (i < LOD1) {
+                            In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn1);
+                            LOOP_ASSERT(i, !in);
+                            if (0 == i) LOOP_ASSERT(i, W1 == T1);
+                            In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn2);
+                            LOOP_ASSERT(i, !in);
+                            LOOP_ASSERT(i, W2 == T2);
+                            In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn3);
+                            LOOP_ASSERT(i, !in);
+                            LOOP_ASSERT(i, W3 == T3);
+                        }
+                        else if (i < LOD2) {
+                            In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
+                            if (1 == VERSION) {
+                                // Version 1 loses microseconds; replace.
 
-                    // Verify the objects are in a valid state.
+                                if (24 != T1.hour()) {
+                                    mT1.setMicrosecond(X1.microsecond());
+                                }
+                            }
+                            LOOP_ASSERT(i, &in == &rvIn1);
+                            LOOP_ASSERT(i,  in);
+                            LOOP_ASSERT(i, X1 == T1);
+                            In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn2);
+                            LOOP_ASSERT(i, !in);
+                            if (LOD1 <= i) LOOP_ASSERT(i, W2 == T2);
+                            In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn3);
+                            LOOP_ASSERT(i, !in);
+                            LOOP_ASSERT(i, W3 == T3);
+                        }
+                        else {  // 'LOD2 <= i < LOD3'
+                            In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
+                            if (1 == VERSION) {
+                                // Version 1 loses microseconds; replace.
 
-                    LOOP_ASSERT(i, (   (      0 <= T1.hour()
-                                        &&   24 >  T1.hour()
-                                        &&    0 <= T1.minute()
-                                        &&   60 >  T1.minute()
-                                        &&    0 <= T1.second()
-                                        &&   60 >  T1.second()
-                                        &&    0 <= T1.millisecond()
-                                        && 1000 >  T1.millisecond())
-                                    || (     24 == T1.hour()
-                                        &&    0 == T1.minute()
-                                        &&    0 == T1.second()
-                                        &&    0 == T1.millisecond())));
+                                if (24 != T1.hour()) {
+                                    mT1.setMicrosecond(X1.microsecond());
+                                }
+                            }
+                            LOOP_ASSERT(i, &in == &rvIn1);
+                            LOOP_ASSERT(i,  in);
+                            LOOP_ASSERT(i, X1 == T1);
+                            In& rvIn2 = bdexStreamIn(in, mT2, VERSION);
+                            if (1 == VERSION) {
+                                // Version 1 loses microseconds; replace.
 
-                    LOOP_ASSERT(i, (   (      0 <= T2.hour()
-                                        &&   24 >  T2.hour()
-                                        &&    0 <= T2.minute()
-                                        &&   60 >  T2.minute()
-                                        &&    0 <= T2.second()
-                                        &&   60 >  T2.second()
-                                        &&    0 <= T2.millisecond()
-                                        && 1000 >  T2.millisecond())
-                                    || (     24 == T2.hour()
-                                        &&    0 == T2.minute()
-                                        &&    0 == T2.second()
-                                        &&    0 == T2.millisecond())));
+                                if (24 != T2.hour()) {
+                                    mT2.setMicrosecond(X2.microsecond());
+                                }
+                            }
+                            LOOP_ASSERT(i, &in == &rvIn2);
+                            LOOP_ASSERT(i,  in);
+                            LOOP_ASSERT(i, X2 == T2);
+                            In& rvIn3 = bdexStreamIn(in, mT3, VERSION);
+                            LOOP_ASSERT(i, &in == &rvIn3);
+                            LOOP_ASSERT(i, !in);
+                            if (LOD2 <= i) LOOP_ASSERT(i, W3 == T3);
+                        }
 
-                    LOOP_ASSERT(i, (   (      0 <= T3.hour()
-                                        &&   24 >  T3.hour()
-                                        &&    0 <= T3.minute()
-                                        &&   60 >  T3.minute()
-                                        &&    0 <= T3.second()
-                                        &&   60 >  T3.second()
-                                        &&    0 <= T3.millisecond()
-                                        && 1000 >  T3.millisecond())
-                                    || (     24 == T3.hour()
-                                        &&    0 == T3.minute()
-                                        &&    0 == T3.second()
-                                        &&    0 == T3.millisecond())));
+                        // Verify the objects are in a valid state.
+                        LOOP_ASSERT(i,
+                                    (   (      0 <= T1.hour()
+                                         &&   24 >  T1.hour()
+                                         &&    0 <= T1.minute()
+                                         &&   60 >  T1.minute()
+                                         &&    0 <= T1.second()
+                                         &&   60 >  T1.second()
+                                         &&    0 <= T1.millisecond()
+                                         && 1000 >  T1.millisecond()
+                                         &&    0 <= T1.microsecond()
+                                         && 1000 >  T1.microsecond())
+                                     || (     24 == T1.hour()
+                                         &&    0 == T1.minute()
+                                         &&    0 == T1.second()
+                                         &&    0 == T1.millisecond()
+                                         &&    0 == T1.microsecond())));
 
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                        LOOP_ASSERT(i,
+                                    (   (      0 <= T2.hour()
+                                         &&   24 >  T2.hour()
+                                         &&    0 <= T2.minute()
+                                         &&   60 >  T2.minute()
+                                         &&    0 <= T2.second()
+                                         &&   60 >  T2.second()
+                                         &&    0 <= T2.millisecond()
+                                         && 1000 >  T2.millisecond()
+                                         &&    0 <= T2.microsecond()
+                                         && 1000 >  T2.microsecond())
+                                     || (     24 == T2.hour()
+                                         &&    0 == T2.minute()
+                                         &&    0 == T2.second()
+                                         &&    0 == T2.millisecond()
+                                         &&    0 == T2.microsecond())));
+
+                        LOOP_ASSERT(i,
+                                    (   (      0 <= T3.hour()
+                                         &&   24 >  T3.hour()
+                                         &&    0 <= T3.minute()
+                                         &&   60 >  T3.minute()
+                                         &&    0 <= T3.second()
+                                         &&   60 >  T3.second()
+                                         &&    0 <= T3.millisecond()
+                                         && 1000 >  T3.millisecond()
+                                         &&    0 <= T3.microsecond()
+                                         && 1000 >  T3.microsecond())
+                                     || (     24 == T3.hour()
+                                         &&    0 == T3.minute()
+                                         &&    0 == T3.second()
+                                         &&    0 == T3.millisecond()
+                                         &&    0 == T3.microsecond())));
+
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                }
             }
         }
 
@@ -2101,25 +2712,30 @@ if (veryVerbose)
             cout << "\tOn corrupted data." << endl;
         }
 
-        const Obj W;                   // default value
-        const Obj X(0, 1, 0, 0);       // original (control)
-        const Obj Y(0, 0, 0, 1);       // new (streamed-out)
+        const Obj W;              // default value
+        const Obj X(0, 1, 0, 0);  // original (control)
+        const Obj Y(0, 0, 0, 1);  // new (streamed-out)
 
         // Verify the three objects are distinct.
         ASSERT(W != X);
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 1;       // internal rep. of 'Y'
-
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
         }
         {
+            // Version 1.
+
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt32(SERIAL_Y);  // Stream out "new" value.
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt32(1);
+
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2129,7 +2745,33 @@ if (veryVerbose)
 
             using bslx::InStreamFunctions::bdexStreamIn;
 
-            In& rvIn = bdexStreamIn(in, mT, VERSION);
+            In& rvIn = bdexStreamIn(in, mT, 1);
+            ASSERT(&in == &rvIn);
+            ASSERT(in);
+            ASSERT(Y == T);
+        }
+        {
+            // Version 2.
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt64(bdlt::TimeUnitRatio::k_US_PER_MS);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 2);
             ASSERT(&in == &rvIn);
             ASSERT(in);
             ASSERT(Y == T);
@@ -2142,10 +2784,14 @@ if (veryVerbose)
             const char version = 0; // too small ('version' must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt32(SERIAL_Y);  // Stream out "new" value.
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt32(1);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2162,13 +2808,17 @@ if (veryVerbose)
             ASSERT(X == T);
         }
         {
-            const char version = 2 ; // too large (current version is 1)
+            const char version = 3 ; // too large (current version is 2)
 
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt32(SERIAL_Y);  // Stream out "new" value.
+
+            // Stream out "new" value.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+
+            out.putInt32(1);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2186,14 +2836,16 @@ if (veryVerbose)
         }
 
         if (verbose) {
-            cout << "\t\tValue too small." << endl;
+            cout << "\t\tBad value." << endl;
         }
         {
+            // Version 1.  Value too small.
+
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt32(-1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2204,21 +2856,19 @@ if (veryVerbose)
 
             using bslx::InStreamFunctions::bdexStreamIn;
 
-            In& rvIn = bdexStreamIn(in, mT, VERSION);
+            In& rvIn = bdexStreamIn(in, mT, 1);
             ASSERT(&in == &rvIn);
             ASSERT(!in);
             ASSERT(X == T);
         }
-
-        if (verbose) {
-            cout << "\t\tValue too large." << endl;
-        }
         {
+            // Version 1.  Value too large.
+
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt32(24*60*60*1000 + 1);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -2229,7 +2879,53 @@ if (veryVerbose)
 
             using bslx::InStreamFunctions::bdexStreamIn;
 
-            In& rvIn = bdexStreamIn(in, mT, VERSION);
+            In& rvIn = bdexStreamIn(in, mT, 1);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            // Version 2.  Value too small.
+
+            Out out(VERSION_SELECTOR, &allocator);
+            out.putInt64(-1LL);  // Stream out "new" value.
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 1);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            // Version 2.  Value too large.
+
+            Out out(VERSION_SELECTOR, &allocator);
+            out.putInt64(24LL*60*60*1000*1000 + 1);  // Stream out "new" value.
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+            in.setQuiet(!veryVerbose);
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            In& rvIn = bdexStreamIn(in, mT, 1);
             ASSERT(&in == &rvIn);
             ASSERT(!in);
             ASSERT(X == T);
@@ -2245,14 +2941,23 @@ if (veryVerbose)
                 int          d_minute;       // specification minute
                 int          d_second;       // specification second
                 int          d_millisecond;  // specification millisecond
+                int          d_microsecond;  // specification microsecond
                 int          d_version;      // version to stream with
                 bsl::size_t  d_length;       // expect output length
                 const char  *d_fmt_p;        // expected output format
             } DATA[] = {
-                //LINE  HOUR  MIN  SEC    MS   VER  LEN  FORMAT
-                //----  ----  ---  ---  -----  ---  ---  -------------------
-                { L_,     14,  10,   2,   117,  1,   4,  "\x03\x0a\x3b\x05"  },
-                { L_,     20,   8,  27,   983,  1,   4,  "\x04\x52\x62\x4f"  }
+                //LI  H   M   S   MS   US   V  L  FORMAT
+                //--  --  --  --  ---  ---  -  -  ------------------
+                { L_, 14, 10,  2, 117,   0, 1, 4, "\x03\x0a\x3b\x05" },
+                { L_, 20,  8, 27, 983,   0, 1, 4, "\x04\x52\x62\x4f" },
+                { L_, 14, 10,  2, 117,   0, 2, 8,
+                                  "\x00\x00\x00\x0b\xdf\xf6\x8b\x88" },
+                { L_, 20,  8, 27, 983,   0, 2, 8,
+                                  "\x00\x00\x00\x10\xe1\xd0\x04\x98" },
+                { L_, 14, 10,  2, 117, 212, 2, 8,
+                                  "\x00\x00\x00\x0b\xdf\xf6\x8c\x5c" },
+                { L_, 20,  8, 27, 983, 374, 2, 8,
+                                  "\x00\x00\x00\x10\xe1\xd0\x06\x0e" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2262,6 +2967,7 @@ if (veryVerbose)
                 const int         MINUTE      = DATA[i].d_minute;
                 const int         SECOND      = DATA[i].d_second;
                 const int         MILLISECOND = DATA[i].d_millisecond;
+                const int         MICROSECOND = DATA[i].d_microsecond;
                 const int         VERSION     = DATA[i].d_version;
                 const bsl::size_t LEN         = DATA[i].d_length;
                 const char *const FMT         = DATA[i].d_fmt_p;
@@ -2269,7 +2975,11 @@ if (veryVerbose)
                 // Test using class methods.
 
                 {
-                    Obj        mX(HOUR, MINUTE, SECOND, MILLISECOND);
+                    Obj        mX(HOUR,
+                                  MINUTE,
+                                  SECOND,
+                                  MILLISECOND,
+                                  MICROSECOND);
                     const Obj& X = mX;
 
                     bslx::ByteOutStream  out(VERSION_SELECTOR, &allocator);
@@ -2303,7 +3013,11 @@ if (veryVerbose)
                 // Test using free functions.
 
                 {
-                    Obj        mX(HOUR, MINUTE, SECOND, MILLISECOND);
+                    Obj        mX(HOUR,
+                                  MINUTE,
+                                  SECOND,
+                                  MILLISECOND,
+                                  MICROSECOND);
                     const Obj& X = mX;
 
                     using bslx::OutStreamFunctions::bdexStreamOut;
@@ -2525,7 +3239,7 @@ if (veryVerbose)
         //:   the underlying equality operator on a single pair of 'int's is
         //:   invoked.
         //:
-        //: 2 The default value (24:00:00.000) is handled by the methods
+        //: 2 The default value (24:00:00.000000) is handled by the methods
         //:   correctly.
         //
         // Plan:
@@ -2548,17 +3262,32 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },
-                {  0,  0,  0,   1  },  {  0,  0,  1,   0  },
-                {  0,  1,  0,   0  },  {  1,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0,   1 },
+                {  0,  0,  0,   1,   0 },
+                {  0,  0,  1,   0,   0 },
+                {  0,  1,  0,   0,   0 },
+                {  1,  0,  0,   0,   0 },
 
-                { 23, 22, 21, 209  },
-                { 23, 22, 21, 208  },  { 23, 22, 20, 209  },
-                { 23, 21, 21, 209  },  { 22, 22, 21, 209  },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 208,   0 },
+                { 23, 22, 20, 209,   0 },
+                { 23, 21, 21, 209,   0 },
+                { 22, 22, 21, 209,   0 },
+                { 23, 22, 21, 209, 102 },
+                { 23, 22, 21, 208,  17 },
+                { 23, 22, 20, 209, 102 },
+                { 23, 21, 21, 209,  17 },
+                { 22, 22, 21, 209, 102 },
 
-                { 24,  0,  0,   0  },  // 24:00:00.000 explicitly included
+                // 24:00:00.000.000000 explicitly included
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -2566,12 +3295,18 @@ if (veryVerbose)
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 Obj u;  const Obj& U = u;
-                u.setTime(VALUES[i].d_hour,    VALUES[i].d_minute,
-                          VALUES[i].d_second,  VALUES[i].d_msec);
+                u.setTime(VALUES[i].d_hour,
+                          VALUES[i].d_minute,
+                          VALUES[i].d_second,
+                          VALUES[i].d_msec,
+                          VALUES[i].d_usec);
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     Obj v;  const Obj& V = v;
-                    v.setTime(VALUES[j].d_hour,   VALUES[j].d_minute,
-                              VALUES[j].d_second, VALUES[j].d_msec);
+                    v.setTime(VALUES[j].d_hour,
+                              VALUES[j].d_minute,
+                              VALUES[j].d_second,
+                              VALUES[j].d_msec,
+                              VALUES[j].d_usec);
                     bool isSame = i == j;
                     if (veryVerbose) { T_;  P_(i);  P_(j);  P_(U);  P(V); }
                     LOOP2_ASSERT(i, j,  isSame == (U == V));
@@ -2585,169 +3320,414 @@ if (veryVerbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING PRINT
-        //   Verify the methods produce the expected output format.
+        // PRINT, OUTPUT OPERATOR, AND 'printToBuffer'
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 Methods produce expected output format.
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.  In
+        //:   particular:
+        //:
+        //:   1 The attributes always appear on a single line.
+        //:
+        //:   2 A negative value of 'level' always suppresses all indentation
+        //:     (since there is never a second line to indent).,
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
+        //:
+        //: 4 The 'print' method signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values.
+        //:
+        //: 7 The output 'operator<<' signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        //:
+        //: 9 The 'printToBuffer' method:
+        //:   1 Writes in the expected format.
+        //:   2 Never writes more than the specified limit.
+        //:   3 Writes in the specified buffer.
+        //:   4 QoI: Asserted precondition violations are detected when
+        //:     enabled.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostringstream' to write the
-        //:   object's value to a string buffer and then compare to expected
-        //:   output format.  (C-1)
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4, 7)
+        //:
+        //: 2 Using the table-driven technique: (C-1..3, 5..6, 8)
+        //:
+        //:   1 Define fourteen carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values for each
+        //:     corresponding salient attribute, and various values for the two
+        //:     formatting parameters, along with the expected output.
+        //:
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        //:     3 { B } x { 2 } x { 3 } --> 1 expected o/p
+        //:     4 { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        //:     5 { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        //:
+        //:   2 For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
+        //:       invoke the 'operator<<' instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 8)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3, 6)
+        //:
+        //:   3 Test 'printToBuffer' using a table-driven approach.  (C-9)
+        //:
+        //:     1 Define an assortment of different input values and limits on
+        //:       the number of bytes written.
+        //:
+        //:     2 For each input value, write the result into an over-sized
+        //:       buffer that is pre-filled with an "unset" character.  Data is
+        //:       written into the middle of the buffer.  After writing,
+        //:       confirm that all characters outside the targeted range have
+        //:       their initial value.
+        //:
+        //:     4 Verify that, in appropriate build modes, defensive checks are
+        //:       triggered for invalid attribute values, but not triggered for
+        //:       adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
-        //   ostream& operator<<(ostream& stream, const Time& time);
+        //   ostream& operator<<(ostream &stream, const Time &object);
+        //   int printToBuffer(char *result, int size, int precision) const;
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   ostream& streamOut(ostream& stream) const;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING PRINT" << endl
-                          << "=============" << endl;
+        if (verbose) cout
+                      << endl
+                      << "PRINT, OUTPUT OPERATOR, AND 'printToBuffer'" << endl
+                      << "===========================================" << endl;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
         {
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOp  = bdlt::operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOp;
+        }
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations." << endl;
+
+        const Obj TA( 0,  0,  0,   0);
+        const Obj TZ(23, 59, 59, 999);
+
+        static const struct {
+            int         d_line;           // source line number
+            int         d_level;
+            int         d_spacesPerLevel;
+            int         d_hour;
+            int         d_minute;
+            int         d_second;
+            int         d_millisecond;
+            int         d_microsecond;
+            const char *d_expected_p;
+        } DATA[] = {
+
 #define NL "\n"
-            static const struct {
-                int         d_lineNum;  // source line number
-                int         d_indent;   // indentation level
-                int         d_spaces;   // spaces per indentation level
-                const char *d_fmt_p;    // expected output format
-            } DATA[] = {
-                //LINE  INDENT +/-  SPACES  FORMAT                // ADJUST
-                //----  ----------  ------  --------------
-                { L_,    0,         -1,     "24:00:00.000"                   },
 
-                { L_,    0,          0,     "24:00:00.000"              NL   },
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
+        // ------------------------------------------------------------------
 
-                { L_,    0,          2,     "24:00:00.000"              NL   },
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_,  0,  0,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_,  0,  1,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_,  0, -1,  0,  0,  0,   0,   0, "00:00:00.000000"    },
 
-                { L_,    1,          1,     " 24:00:00.000"             NL   },
+        { L_,  0, -8,  0,  0,  0,   0,   0, "00:00:00.000000" NL }, // default
 
-                { L_,    1,          2,     "  24:00:00.000"            NL   },
+        // ------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        // ------------------------------------------------------------------
 
-                { L_,   -1,          2,     "24:00:00.000"              NL   },
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_,  3,  0,  0,  0,  0,   0,   0, "00:00:00.000000"             NL },
+        { L_,  3,  2,  0,  0,  0,   0,   0, "      00:00:00.000000"       NL },
+        { L_,  3, -2,  0,  0,  0,   0,   0, "      00:00:00.000000"          },
 
-                { L_,   -2,          1,     "24:00:00.000"              NL   },
+        { L_,  3, -8,  0,  0,  0,   0,   0, "            00:00:00.000000" NL },
+                                                                 // default
 
-                { L_,    2,          1,     "  24:00:00.000"            NL   },
+        { L_, -3,  0,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_, -3,  2,  0,  0,  0,   0,   0, "00:00:00.000000" NL },
+        { L_, -3, -2,  0,  0,  0,   0,   0, "00:00:00.000000"    },
 
-                { L_,    1,          3,     "   24:00:00.000"           NL   },
-            };
+        { L_, -3, -8,  0,  0,  0,   0,   0, "00:00:00.000000" NL }, // default
+
+        // -----------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_,  2,  3, 23, 59, 59, 999, 999, "      23:59:59.999999" NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_, -8, -8,  0,  0,  0,   0,   0, "00:00:00.000000" NL }, // default
+        { L_, -8, -8, 23, 59, 59, 999, 999, "23:59:59.999999" NL }, // default
+
+        // -----------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL  H   M   S   MS   US   EXPECTED
+        //---- - ---  --  --  --  ---  ---  --------
+        { L_, -9, -9,  0,  0,  0,   0,   0, "00:00:00.000000" },
+        { L_, -9, -9, 23, 59, 59, 999, 999, "23:59:59.999999" }
+
 #undef NL
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            const int SIZE = 128;  // Must be big enough to hold output string.
-
-            const char Z1 = static_cast<char>(0xFF);  // Value 1 used for an
-                                                      // unset 'char'.
-
-            const char Z2 = static_cast<char>(0x00);  // Value 2 used for an
-                                                      // unset 'char'.
-
-            char mCtrlBuf1[SIZE];  memset(mCtrlBuf1, Z1, SIZE);
-            char mCtrlBuf2[SIZE];  memset(mCtrlBuf2, Z2, SIZE);
-
-            const char *CTRL_BUF1 = mCtrlBuf1;
-            const char *CTRL_BUF2 = mCtrlBuf2;
-
-            Obj mX;  const Obj& X = mX;  // 24:00:00.000
-
-            for (int ti = 0; ti < NUM_DATA;  ++ti) {
-//              const int         LINE = DATA[ti].d_lineNum; // unused
-                const int         IND  = DATA[ti].d_indent;
-                const int         SPL  = DATA[ti].d_spaces;
-                const char *const FMT  = DATA[ti].d_fmt_p;
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const int         L      = DATA[ti].d_level;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const int         HOUR   = DATA[ti].d_hour;
+                const int         MINUTE = DATA[ti].d_minute;
+                const int         SECOND = DATA[ti].d_second;
+                const int         MSEC   = DATA[ti].d_millisecond;
+                const int         USEC   = DATA[ti].d_microsecond;
+                const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) {
-                    cout << "EXPECTED FORMAT:" << endl << FMT << endl;
-                }
-                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
-                X.print(out1, IND, SPL) << ends;
-                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
-                X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) {
-                    cout << "ACTUAL FORMAT:" << endl << out1.str() << endl;
+                    T_ P_(L) P_(SPL) P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC)
+                                                                       P(USEC);
                 }
 
-                const int SZ = static_cast<int>(strlen(FMT)) + 1;
-                const int REST = SIZE - SZ;
-                LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti,
-                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti,
-                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(out1.str().c_str(), FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(out2.str().c_str(), FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(out1.str().c_str() + SZ,
-                                            CTRL_BUF1 + SZ,
-                                            REST));
-                LOOP_ASSERT(ti, 0 == memcmp(out2.str().c_str() + SZ,
-                                            CTRL_BUF2 + SZ,
-                                            REST));
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                Obj x;  const Obj& X = x;
+
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+
+                bslma::TestAllocator oa("scratch",  veryVeryVeryVerbose);
+                stringstream ss(&oa);
+
+                if (-9 == L && -9 == SPL) {
+
+                    // Verify supplied stream is returned by reference.
+
+                    LOOP_ASSERT(LINE, &ss == &(ss << X));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
+
+                    if (-8 != SPL) {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss, L));
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, &ss == &X.print(ss));
+                    }
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                // Verify output is formatted as expected.
+
+                // Avoid invoking 'ss.str()' which returns a string by value
+                // and may introduce use of the default allocator.
+
+                bsl::string result(bsl::istreambuf_iterator<char>(ss),
+                                   bsl::istreambuf_iterator<char>(),
+                                   &oa);
+
+                if (veryVeryVerbose) { P(result) }
+
+                LOOP3_ASSERT(LINE, EXP, result, EXP == result);
             }
         }
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting 'printToBuffer'." << endl;
         {
             static const struct {
-                int         d_lineNum;  // source line number
-                int         d_hour;     // hour field value
-                int         d_minute;   // minute field value
-                int         d_second;   // second field value
-                int         d_msec;     // millisecond field value
-                const char *d_fmt_p;    // expected output format
+                int         d_line;
+                int         d_hour;
+                int         d_minute;
+                int         d_second;
+                int         d_msec;
+                int         d_usec;
+                int         d_precision;
+                int         d_numBytes;
+                const char *d_expected_p;
             } DATA[] = {
-                //LINE  HOUR   MIN    SEC    MSEC     OUTPUT FORMAT
-                //----  -----  ----   ----   -----    --------------
-                { L_,      0,    0,     0,      0,    "00:00:00.000"     },
-                { L_,      0,    0,     0,    999,    "00:00:00.999"     },
-                { L_,      0,    0,    59,      0,    "00:00:59.000"     },
-                { L_,      0,   59,     0,      0,    "00:59:00.000"     },
-                { L_,     23,    0,     0,      0,    "23:00:00.000"     },
-                { L_,     23,   22,    21,    209,    "23:22:21.209"     },
-                { L_,     23,   22,    21,    210,    "23:22:21.210"     },
-                { L_,     24,    0,     0,      0,    "24:00:00.000"     },
+        //------^
+        //LN  HR  M   S   MS   US   PREC  LIMIT  EXPECTED
+        //--  --  --  --  ---  ---  ----  -----  -----------------
+        { L_,  0,  0,  0,   0,   0,    0,   100, "00:00:00"        },
+        { L_,  0,  0,  0,   0,   0,    1,   100, "00:00:00.0"      },
+        { L_,  0,  0,  0,   0,   0,    3,   100, "00:00:00.000"    },
+        { L_,  0,  0,  0,   0,   0,    6,   100, "00:00:00.000000" },
+        { L_,  0,  0,  0,   0,   7,    0,   100, "00:00:00"        },
+        { L_,  0,  0,  0,   0,   7,    1,   100, "00:00:00.0"      },
+        { L_,  0,  0,  0,   0,   7,    3,   100, "00:00:00.000"    },
+        { L_,  0,  0,  0,   0,   7,    5,   100, "00:00:00.00000"  },
+        { L_,  0,  0,  0,   0,   7,    6,   100, "00:00:00.000007" },
+        { L_,  0,  0,  0,   0,  17,    6,   100, "00:00:00.000017" },
+        { L_,  0,  0,  0,   0, 317,    3,   100, "00:00:00.000"    },
+        { L_,  0,  0,  0,   0, 317,    4,   100, "00:00:00.0003"   },
+        { L_,  0,  0,  0,   0, 317,    5,   100, "00:00:00.00031"  },
+        { L_,  0,  0,  0,   0, 317,    6,   100, "00:00:00.000317" },
+        { L_, 23, 22, 21, 209,   0,    6,   100, "23:22:21.209000" },
+        { L_, 23, 22, 21, 210,   0,    6,   100, "23:22:21.210000" },
+        { L_, 23, 22, 21, 211,   0,    6,   100, "23:22:21.211000" },
+        { L_, 24,  0,  0,   0,   0,    6,   100, "24:00:00.000000" },
+        { L_, 23, 59, 59, 999,   0,    6,   100, "23:59:59.999000" },
+        { L_, 23, 59, 59, 999,   5,    6,   100, "23:59:59.999005" },
+        { L_, 23, 59, 59, 999,  65,    6,   100, "23:59:59.999065" },
+        { L_, 23, 59, 59, 999, 765,    0,   100, "23:59:59"        },
+        { L_, 23, 59, 59, 999, 765,    1,   100, "23:59:59.9"      },
+        { L_, 23, 59, 59, 999, 765,    2,   100, "23:59:59.99"     },
+        { L_, 23, 59, 59, 999, 765,    3,   100, "23:59:59.999"    },
+        { L_, 23, 59, 59, 999, 765,    4,   100, "23:59:59.9997"   },
+        { L_, 23, 59, 59, 999, 765,    5,   100, "23:59:59.99976"  },
+        { L_, 23, 59, 59, 999, 765,    6,   100, "23:59:59.999765" },
+        { L_, 23, 59, 59, 999,   0,    6,     0, ""                },
+        { L_, 23, 59, 59, 999,   0,    6,     1, ""                },
+        { L_, 23, 59, 59, 999,   0,    6,     2, "2"               },
+        { L_, 23, 59, 59, 999,   0,    6,    12, "23:59:59.99"     },
+        { L_, 23, 59, 59, 999,   0,    6,    13, "23:59:59.999"    },
+        { L_, 23, 59, 59, 999,   0,    6,    14, "23:59:59.9990"   },
+        { L_, 23, 59, 59, 999,   0,    6,    15, "23:59:59.99900"  },
+        { L_, 23, 59, 59, 999,   0,    6,    16, "23:59:59.999000" },
+        //------v
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            const int SIZE = 1000;     // Must be able to hold output string.
+            const int  BUF_SIZE = 1000;               // Over-sized for output.
+            const char XX       = static_cast<char>(0xFF);
+                                                      // Used as "unset"
+                                                      // character.
+            char       mCtrlBuf[BUF_SIZE];
+            memset(mCtrlBuf, XX, sizeof(mCtrlBuf));
+            const char *const CTRL_BUF = mCtrlBuf;    // Referenced in overrun
+                                                      // checks.
 
-            const char XX = static_cast<char>(0xFF);  // Value used for an
-                                                      // unset 'char'.
+            for (int ti = 0; ti < NUM_DATA;  ++ti) {
+                const int         LINE     = DATA[ti].d_line;
+                const int         HOUR     = DATA[ti].d_hour;
+                const int         MINUTE   = DATA[ti].d_minute;
+                const int         SECOND   = DATA[ti].d_second;
+                const int         MSEC     = DATA[ti].d_msec;
+                const int         USEC     = DATA[ti].d_usec;
+                const int         PREC     = DATA[ti].d_precision;
+                const int         LIMIT    = DATA[ti].d_numBytes;
+                const char *const EXPECTED = DATA[ti].d_expected_p;
+                const int         EXP_LEN  = 0 == PREC ? 8 : 9 + PREC;
 
-            char        mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
-            const char *CTRL_BUF = mCtrlBuf; // Used for extra character check.
-
-            for (int di = 0; di < NUM_DATA;  ++di) {
-                const int         LINE   = DATA[di].d_lineNum;
-                const int         HOUR   = DATA[di].d_hour;
-                const int         MINUTE = DATA[di].d_minute;
-                const int         SECOND = DATA[di].d_second;
-                const int         MSEC   = DATA[di].d_msec;
-                const char *const FMT    = DATA[di].d_fmt_p;
-
-                Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-
-                if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
-                ostringstream out(std::string(CTRL_BUF, SIZE));
-                out << X << ends;
                 if (veryVerbose) {
-                    cout << "\tACTUAL FORMAT:   " << out.str() << endl;
+                    T_  P_(HOUR)
+                        P_(MINUTE)
+                        P_(SECOND)
+                        P_(MSEC)
+                        P(USEC)
+                    T_  P_(PREC)
+                    T_  P_(LIMIT)
+                    T_  P(EXPECTED)
                 }
 
-                const int SZ = static_cast<int>(strlen(FMT)) + 1;
-                LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE,
-                            XX == out.str()[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str(), FMT, SZ));
-                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str() + SZ,
-                                              CTRL_BUF + SZ,
-                                              SIZE - SZ));
+                char buf[BUF_SIZE];
+
+                // Preset 'buf' to "unset" values.
+                memset(buf, XX, sizeof(buf));
+
+                Obj x;  const Obj& X = x;
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+
+                char      *p = buf + sizeof(buf)/2;
+                const int  RC = X.printToBuffer(p, LIMIT, PREC);
+
+                LOOP2_ASSERT(LINE, RC, EXP_LEN == RC);
+
+                const int LENGTH = 0 == LIMIT
+                                   ? 0
+                                   : static_cast<int>(strlen(p) + 1);
+                LOOP_ASSERT(LINE, LENGTH <= LIMIT);
+
+                if (veryVerbose) cout
+                                   << "\tACTUAL FORMAT: "
+                                   << (0 < LENGTH ? p : "<all-unset-expected>")
+                                   << endl;
+                LOOP_ASSERT(LINE, 0 == memcmp(buf, CTRL_BUF, p - buf));
+                if (0 < LENGTH) {
+                    LOOP3_ASSERT(LINE, p, EXPECTED,
+                                 0 == memcmp(p, EXPECTED, LENGTH));
+                }
+                LOOP_ASSERT(LINE, 0 == memcmp(p + LENGTH,
+                                              CTRL_BUF,
+                                              (buf + sizeof(buf)) -
+                                              (p   + LENGTH)));
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
+            {
+                const int SIZE = 128;
+                char      buf[SIZE];
+
+                const Obj X;
+
+                const int PRECISION = 6;
+
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, 0));
+
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , -1));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
             }
         }
 
@@ -2761,18 +3741,23 @@ if (veryVerbose)
                 int         d_minute;   // minute field value
                 int         d_second;   // second field value
                 int         d_msec;     // millisecond field value
+                int         d_usec;     // microsecond field value
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
-                //LINE  HOUR   MIN    SEC    MSEC     OUTPUT FORMAT
-                //----  -----  ----   ----   -----    --------------
-                { L_,      0,    0,     0,      0,    "00:00:00.000"     },
-                { L_,      0,    0,     0,    999,    "00:00:00.999"     },
-                { L_,      0,    0,    59,      0,    "00:00:59.000"     },
-                { L_,      0,   59,     0,      0,    "00:59:00.000"     },
-                { L_,     23,    0,     0,      0,    "23:00:00.000"     },
-                { L_,     23,   22,    21,    209,    "23:22:21.209"     },
-                { L_,     23,   22,    21,    210,    "23:22:21.210"     },
-                { L_,     24,    0,     0,      0,    "24:00:00.000"     },
+            //LINE  HOUR   MIN    SEC    MSEC    USEC     OUTPUT FORMAT
+            //----  -----  ----   ----   -----   -----    --------------
+            { L_,      0,    0,     0,      0,      0,    "00:00:00.000000"  },
+            { L_,      0,    0,     0,      0,    999,    "00:00:00.000999"  },
+            { L_,      0,    0,     0,    999,      0,    "00:00:00.999000"  },
+            { L_,      0,    0,    59,      0,      0,    "00:00:59.000000"  },
+            { L_,      0,   59,     0,      0,      0,    "00:59:00.000000"  },
+            { L_,     23,    0,     0,      0,      0,    "23:00:00.000000"  },
+            { L_,     23,   22,    21,    209,      0,    "23:22:21.209000"  },
+            { L_,     23,   22,    21,    210,      0,    "23:22:21.210000"  },
+            { L_,     23,   22,    21,    210,      1,    "23:22:21.210001"  },
+            { L_,     23,   22,    21,    210,     17,    "23:22:21.210017"  },
+            { L_,     23,   22,    21,    210,    412,    "23:22:21.210412"  },
+            { L_,     24,    0,     0,      0,      0,    "24:00:00.000000"  },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2790,10 +3775,11 @@ if (veryVerbose)
                 const int         MINUTE = DATA[di].d_minute;
                 const int         SECOND = DATA[di].d_second;
                 const int         MSEC   = DATA[di].d_msec;
+                const int         USEC   = DATA[di].d_usec;
                 const char *const FMT    = DATA[di].d_fmt_p;
 
                 Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
                 ostringstream out(bsl::string(CTRL_BUF, SIZE));
@@ -2840,11 +3826,12 @@ if (veryVerbose)
         //:   expected behavior.  (C-2)
         //
         // Testing:
-        //   void getTime(int *hour, int *min, int *second, int *msec) const;
+        //   void getTime(int *h, int *m, int *s, int *ms, int *us) const;
         //   int hour() const;
         //   int minute() const;
         //   int second() const;
         //   int millisecond() const;
+        //   int microsecond() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2857,12 +3844,22 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 117 },
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -2873,15 +3870,17 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
-                int       h, m, s, ms;
+                const int USEC   = VALUES[i].d_usec;
+                int       h, m, s, ms, us;
 
                 Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(&h, &m, &s, &ms);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(&h, &m, &s, &ms, &us);
 
                 if (veryVerbose) {
                     T_;  P_(HOUR);    P_(h);  P_(MINUTE);  P_(m);
-                         P_(SECOND);  P_(s);  P_(MSEC);    P(ms);
+                         P_(SECOND);  P_(s);  P_(MSEC);    P_(ms);
+                         P_(USEC);    P(us);
                     T_;  P(X);
                 }
 
@@ -2889,23 +3888,35 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
 
                 LOOP_ASSERT(i, HOUR   == h);
                 LOOP_ASSERT(i, MINUTE == m);
                 LOOP_ASSERT(i, SECOND == s);
                 LOOP_ASSERT(i, MSEC   == ms);
+                LOOP_ASSERT(i, USEC   == us);
             }
         }
 
         if (verbose) cout << "\nTesting 'getTime' with null args." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 117 },
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -2916,47 +3927,53 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
-                int h, m, s, ms;
+                int h, m, s, ms, us;
 
                 Obj x;  const Obj& X = x;
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(&h, 0, 0, 0, 0);
+                if (veryVerbose) { T_;  P_(HOUR);  P_(h);  P(X); }
+                LOOP_ASSERT(i, HOUR   == h);
+
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(&h, 0, 0, 0);
                 if (veryVerbose) { T_;  P_(HOUR);  P_(h);  P(X); }
                 LOOP_ASSERT(i, HOUR   == h);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(&h, 0, 0);
-                if (veryVerbose) { T_;  P_(HOUR);  P_(h);  P(X); }
-                LOOP_ASSERT(i, HOUR   == h);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(0, &m, 0, 0, 0);
+                if (veryVerbose) { T_;  P_(MINUTE);  P_(m);  P(X); }
+                LOOP_ASSERT(i, MINUTE == m);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, &m, 0, 0);
                 if (veryVerbose) { T_;  P_(MINUTE);  P_(m);  P(X); }
                 LOOP_ASSERT(i, MINUTE == m);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(0, &m, 0);
-                if (veryVerbose) { T_;  P_(MINUTE);  P_(m);  P(X); }
-                LOOP_ASSERT(i, MINUTE == m);
-
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
-                X.getTime(0, 0, &s, 0);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(0, 0, &s, 0, 0);
                 if (veryVerbose) { T_;  P_(SECOND);  P_(s);  P(X); }
                 LOOP_ASSERT(i, SECOND == s);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, 0, &s);
                 if (veryVerbose) { T_;  P_(SECOND);  P_(s);  P(X); }
                 LOOP_ASSERT(i, SECOND == s);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, 0, 0, &ms);
                 if (veryVerbose) { T_;  P_(MSEC);  P_(ms);  P(X); }
                 LOOP_ASSERT(i, MSEC   == ms);
 
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                X.getTime(0, 0, 0, 0, &us);
+                if (veryVerbose) { T_;  P_(USEC);  P_(us);  P(X); }
+                LOOP_ASSERT(i, USEC   == us);
+
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
                 X.getTime(0, 0, 0);
                 if (veryVerbose) { T_;  P_(0);  P(X);  cout << endl; }
             }
@@ -3006,7 +4023,7 @@ if (veryVerbose)
         // Testing:
         //   Time();
         //   ~Time();
-        //   void setTime(int hour, int min = 0, int sec = 0, int msec = 0);
+        //   void setTime(int h, int m = 0, int s = 0, int ms = 0, int us = 0);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3021,16 +4038,27 @@ if (veryVerbose)
 
         ASSERT(24 == X.hour());          ASSERT(0 == X.minute());
         ASSERT( 0 == X.second());        ASSERT(0 == X.millisecond());
+        ASSERT( 0 == X.microsecond());
 
         if (verbose) cout << "\nTesting 'setTime'." << endl;
         {
             static const struct {
-                int d_hour;  int d_minute;  int d_second;  int d_msec;
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },  {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },  {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },  { 23, 22, 21, 209  },
-                { 23, 22, 21, 210  },  { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0 },
+                {  0,  0,  0,   0, 999 },
+                {  0,  0,  0, 999,   0 },
+                {  0,  0, 59,   0,   0 },
+                {  0, 59,  0,   0,   0 },
+                { 23,  0,  0,   0,   0 },
+                { 23, 22, 21, 209,   0 },
+                { 23, 22, 21, 210,   0 },
+                { 23, 22, 21, 210, 217 },
+                { 24,  0,  0,   0,   0 },
             };
 
             const int NUM_VALUES = static_cast<int>(sizeof VALUES
@@ -3041,8 +4069,25 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 Obj x;  const Obj& X = x;
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
+                if (veryVerbose) {
+                    T_;
+                    P_(HOUR);
+                    P_(MINUTE);
+                    P_(SECOND);
+                    P_(MSEC);
+                    P_(USEC);
+                    P(X);
+                }
+                LOOP_ASSERT(i, HOUR   == X.hour());
+                LOOP_ASSERT(i, MINUTE == X.minute());
+                LOOP_ASSERT(i, SECOND == X.second());
+                LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
+
                 x.setTime(HOUR, MINUTE, SECOND, MSEC);
                 if (veryVerbose) {
                     T_; P_(HOUR); P_(MINUTE); P_(SECOND); P_(MSEC); P(X);
@@ -3051,6 +4096,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, MSEC   == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
 
                 x.setTime(HOUR, MINUTE, SECOND);
                 if (veryVerbose) {
@@ -3060,6 +4106,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, SECOND == X.second());
                 LOOP_ASSERT(i, 0      == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
 
                 x.setTime(HOUR, MINUTE);
                 if (veryVerbose) { T_;  P_(HOUR);  P_(MINUTE);  P(X); }
@@ -3067,6 +4114,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, MINUTE == X.minute());
                 LOOP_ASSERT(i, 0      == X.second());
                 LOOP_ASSERT(i, 0      == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
 
                 x.setTime(HOUR);
                 if (veryVerbose) { T_;  P_(HOUR);  P(X); }
@@ -3074,6 +4122,7 @@ if (veryVerbose)
                 LOOP_ASSERT(i, 0      == X.minute());
                 LOOP_ASSERT(i, 0      == X.second());
                 LOOP_ASSERT(i, 0      == X.millisecond());
+                LOOP_ASSERT(i, 0      == X.microsecond());
             }
         }
 
@@ -3085,10 +4134,11 @@ if (veryVerbose)
 
             Obj mX;
 
-            ASSERT_SAFE_PASS(mX.setTime(24, 0, 0, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 1));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 1, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 1, 0, 0));
+            ASSERT_SAFE_PASS(mX.setTime(24, 0, 0, 0, 0));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 0, 1));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 1, 0));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 1, 0, 0));
+            ASSERT_SAFE_FAIL(mX.setTime(24, 1, 0, 0, 0));
 
             ASSERT_SAFE_FAIL(mX.setTime(-1, 0, 0, 0));
             ASSERT_SAFE_PASS(mX.setTime( 0, 0, 0, 0));
@@ -3109,6 +4159,11 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0,    0));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0,  999));
             ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 1000));
+
+            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 0,   -1));
+            ASSERT_SAFE_PASS(mX.setTime(0, 0, 0, 0,    0));
+            ASSERT_SAFE_PASS(mX.setTime(0, 0, 0, 0,  999));
+            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 0, 1000));
         }
 
       } break;
@@ -3330,7 +4385,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
