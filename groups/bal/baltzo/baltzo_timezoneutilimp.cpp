@@ -372,14 +372,11 @@ void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
     BSLS_ASSERT(transition != timeZone.endTransitions());
     BSLS_ASSERT_SAFE(ZoneinfoUtil::isWellFormed(timeZone));
 
-    result->setDescriptor(transition->descriptor());
-
     // The transition times in 'timeZone' are guaranteed to be in the range
     // representable by 'bdlt::Datetime'.
 
     bdlt::Datetime utcStartTime(1, 1, 1, 0, 0, 0);
-    bdlt::EpochUtil::convertFromTimeT64(
-                              &utcStartTime, transition->utcTime());
+    bdlt::EpochUtil::convertFromTimeT64(&utcStartTime, transition->utcTime());
 
     Zoneinfo::TransitionConstIterator next = transition;
     ++next;
@@ -387,12 +384,10 @@ void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
     // 'utcEndTime' must account for the special case that the time falls
     // after the last transition.
 
-    bdlt::Datetime nextUtcTime;
-    bdlt::EpochUtil::convertFromTimeT64(&nextUtcTime, next->utcTime());
-
-    bdlt::Datetime utcEndTime = (next == timeZone.endTransitions())
-       ? bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999)
-       : nextUtcTime;
+    bdlt::Datetime utcEndTime(9999, 12, 31, 23, 59, 59, 999);
+    if (next != timeZone.endTransitions()) {
+        bdlt::EpochUtil::convertFromTimeT64(&utcEndTime, next->utcTime());
+    }
 
     result->setDescriptor(transition->descriptor());
     result->setUtcStartAndEndTime(utcStartTime, utcEndTime);
