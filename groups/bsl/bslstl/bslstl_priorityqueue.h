@@ -58,6 +58,7 @@ BSLS_IDENT("$Id: $")
 // methods of 'priority_queue' class that are effectively implemented as
 // calling the corresponding operations in the held container (referenced as
 // 'c').
+//..
 //  +--------------------------------------+--------------------------+
 //  | Public methods in 'priority_queue'   | Operation in 'CONTAINER' |
 //  +======================================+==========================+
@@ -69,6 +70,7 @@ BSLS_IDENT("$Id: $")
 //  | size_type size() const;              | c.size();                |
 //  | const_reference top() const;         | c.front();               |
 //  +--------------------------------------+--------------------------+
+//..
 //
 ///Usage
 ///-----
