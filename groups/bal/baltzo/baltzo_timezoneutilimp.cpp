@@ -384,7 +384,7 @@ void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
     // 'utcEndTime' must account for the special case that the time falls
     // after the last transition.
 
-    bdlt::Datetime utcEndTime(9999, 12, 31, 23, 59, 59, 999);
+    bdlt::Datetime utcEndTime(9999, 12, 31, 23, 59, 59, 999, 999);
     if (next != timeZone.endTransitions()) {
         bdlt::EpochUtil::convertFromTimeT64(&utcEndTime, next->utcTime());
     }
