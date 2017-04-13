@@ -650,35 +650,37 @@ class MiniReader :  public Reader {
         // 'close' is called.
 
     virtual int advanceToEndNode();
-        // Skip to the end node of the current node in the data steam created
-        // by 'open' thus allowing the end node's properties to be queried via
-        // the 'Reader' accessors.  Return 0 on successful skip, and a negative
-        // number otherwise (error).  The function will return an error unless
-        // the current node is an element.  Note that each call to
-        // 'advanceToEndNode' invalidates strings and data structures returned
-        // when 'Reader' accessors where call for the "prior node".  E.g., the
-        // pointer returned from 'nodeName' for this node won't be valid once
-        // 'advanceToEndNode' is called.  Note that the reader will not
-        // advance by a subsequent call to 'advanceToEndNodeRaw' or
-        // 'advanceToEndNode' since the reader is already on an end node.  You
-        // should call 'advanceToNextNode' to skip the current end element and
-        // find the next element start.
+        // Skip all the sub elements of the current node and position the
+        // reader on its corresponding end node. While skipping ensure that the
+        // elements being skipped are well-formed and do not contain any
+        // parsing errors. Return 0 on successful skip, and a negative number
+        // otherwise (error).  The behavior is undefined unless
+        // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
+        // each call to 'advanceToEndNode' invalidates strings and data
+        // structures returned when 'Reader' accessors were called for the
+        // "prior node".  E.g., the pointer returned from 'nodeName' for this
+        // node won't be valid once 'advanceToEndNode' is called.  Note that
+        // the reader will not advance by a subsequent call to
+        // 'advanceToEndNodeRaw' or 'advanceToEndNode' since the reader is
+        // on an end node.  You should call 'advanceToNextNode' to skip the
+        // current end element and find the start of the next element.
 
     virtual int advanceToEndNodeRaw();
-        // Skip to the end node of the current node in the data steam created
-        // by 'open' thus allowing the end node's properties to be queried via
-        // the 'Reader' accessors.  Return 0 on successful skip, and a negative
-        // number otherwise (error).  The function will return an error unless
-        // the current node is an element.  This function does not validate its
-        // XML input.  Note that each call to 'advanceToEndNodeRaw' invalidates
-        // strings and data structures returned when 'Reader' accessors where
-        // call for the "prior node".  E.g., the pointer returned from
-        // 'nodeName' for this node will not be valid once
-        // 'advanceToEndNodeRaw' is called.  Note that the reader will not
-        // advance by a subsequent call to 'advanceToEndNodeRaw' or
-        // 'advanceToEndNode' since the reader is on an end node.  You should
-        // call 'advanceToNextNode' to skip the current end element and find
-        // the next element start.
+        // Skip all the sub elements of the current node and position the
+        // reader on its corresponding end node, and (unlike
+        // 'advanceToNextNode') perform no checks to ensure that the elements
+        // being skipped are well - formed and that they do not contain any
+        // parsing errors.  Return 0 on successful skip, and a negative number
+        // otherwise (error).  The behavior is undefined unless
+        // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
+        // each call to 'advanceToEndNodeRaw' invalidates strings and data
+        // structures returned when 'Reader' accessors were called for the
+        // "prior node".  E.g., the pointer returned from 'nodeName' for this
+        // node will not be valid once 'advanceToEndNodeRaw' is called.  Note
+        // that the reader will not advance by a subsequent call to
+        // 'advanceToEndNodeRaw' or 'advanceToEndNode' since the reader is on
+        // an end node.  You should call 'advanceToNextNode' to skip the
+        // current end element and find the start of the next element.
 
     virtual int advanceToNextNode();
         // Move to the next node in the data steam created by 'open' thus
@@ -686,7 +688,7 @@ class MiniReader :  public Reader {
         // accessors.  Return 0 on successful read, 1 if there are no more
         // nodes to read, and a negative number otherwise.  Note that each call
         // to 'advanceToNextNode' invalidates strings and data structures
-        // returned when 'Reader' accessors where call for the "prior node".
+        // returned when 'Reader' accessors were called for the "prior node".
         // E.g., the pointer returned from 'nodeName' for this node will not be
         // valid once 'advanceToNextNode' is called.  Note that the reader will
         // not be on a valid node until the first call to 'advanceToNextNode'
@@ -891,7 +893,7 @@ inline
 int MiniReader::peekChar()
 {
     if (d_scanPtr >= d_endPtr) {
-        if (readInput() == 0){
+        if (readInput() == 0) {
             return 0;                                                 // RETURN
         }
     }
@@ -903,7 +905,7 @@ inline
 int MiniReader::getChar()
 {
     if (d_scanPtr >= d_endPtr) {
-        if (readInput() == 0){
+        if (readInput() == 0) {
             return 0;                                                 // RETURN
         }
     }
@@ -953,13 +955,13 @@ int MiniReader::getCurrentPosition() const
 inline
 int MiniReader::nodeStartPosition() const
 {
-    return  currentNode().d_startPos;
+    return currentNode().d_startPos;
 }
 
 inline
 int MiniReader::nodeEndPosition() const
 {
-    return  currentNode().d_endPos;
+    return currentNode().d_endPos;
 }
 
 }  // close package namespace

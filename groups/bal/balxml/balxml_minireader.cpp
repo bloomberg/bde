@@ -863,13 +863,7 @@ int MiniReader::advanceToEndNode()
 
     const Node& node = currentNode();
 
-    if (node.d_type != e_NODE_TYPE_ELEMENT) {
-
-        // For this method to be called we must currently be at an element
-        // whose body we want to skip
-
-        return -2;                                                    // RETURN
-    }
+    BSLS_ASSERT(node.d_type == e_NODE_TYPE_ELEMENT);
 
     if (isEmptyElement()) {  // Empty element so we already skipped the body
         return 0;                                                     // RETURN
@@ -893,8 +887,6 @@ MiniReader::searchCommentCDataOrElementName(const char *name)
 {
     BSLS_ASSERT(name && name[0]);
 
-    // I think this can be simplified...
-
     const size_t nameLen = bsl::strlen(name);
     char strSet[] = { '<', '/', name[0] };
 
@@ -904,10 +896,9 @@ MiniReader::searchCommentCDataOrElementName(const char *name)
         size_t len = bsl::strcspn(d_scanPtr, strSet);
         d_scanPtr += len;
 
-        switch (*d_scanPtr) {
+        switch (getChar()) {
           case '<': {
-            ++d_scanPtr;
-            if (d_scanPtr < d_endPtr && '!' == *d_scanPtr) {
+            if ('!' == peekChar()) {
                 ++d_scanPtr;
                 if (d_endPtr - d_scanPtr > 2
                     && '-' == d_scanPtr[0]
@@ -931,8 +922,7 @@ MiniReader::searchCommentCDataOrElementName(const char *name)
 
           case '/': {
             type = e_STRINGTYPE_END_ELEMENT;
-            ++d_scanPtr;
-          }
+          }                                                     // FALL THROUGH
 
           default: {
             while ((d_endPtr - d_scanPtr) < (int)len) {
@@ -949,7 +939,6 @@ MiniReader::searchCommentCDataOrElementName(const char *name)
                 return type;                                          // RETURN
             }
           }
-          ++d_scanPtr;
         }
     }
 }
@@ -964,13 +953,7 @@ int MiniReader::advanceToEndNodeRaw()
 
     const Node& node = currentNode();
 
-    if (node.d_type != e_NODE_TYPE_ELEMENT) {
-
-        // For this method to be called we must currently be at an element
-        // whose body we want to skip
-
-        return -2;                                                    // RETURN
-    }
+    BSLS_ASSERT(node.d_type == e_NODE_TYPE_ELEMENT);
 
     if (isEmptyElement()) {  // Empty element so we already skipped the body
         return 0;                                                     // RETURN
