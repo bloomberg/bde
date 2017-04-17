@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bblscm_version
 //
 //@DESCRIPTION: This component provides versioning information for the 'bbl'
-// package group.  The 'BBL_VERSION' and 'BBL_MAKE_VERSION' macros that are
-// supplied can be used for conditional-compilation based on 'bbl' version
-// information.  The following usage example illustrates this basic capability.
+// package group.  The 'BBL_VERSION' macro that is supplied can be used for
+// conditional-compilation based on 'bbl' version information.  The following
+// usage example illustrates this basic capability.
 //
 ///Usage
 ///-----
