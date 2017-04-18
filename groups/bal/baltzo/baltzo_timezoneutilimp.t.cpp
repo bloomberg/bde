@@ -135,7 +135,7 @@ const char *GMT      = "Etc/GMT";
 const char *GP1      = "Etc/GMT+1";
 const char *GP2      = "Etc/GMT+2";
 const char *GM1      = "Etc/GMT-1";
-const char *RM       =  "Europe/Rome";
+const char *RM       = "Europe/Rome";
 
 // Synthetic Identifiers
 const char *ALLDST   = "ALLDST";
@@ -1212,69 +1212,69 @@ int main(int argc, char *argv[])
         } VALUES[] = {
 // test well-defined values
  { __LINE__,  NY, "2010-01-01T12:00:00", "2009-11-01T06:00:00",
-                           "2010-03-14T07:00:00",    -18000, false, "EST"    },
+                         "2010-03-14T07:00:00",       -18000, false, "EST"   },
 
  { __LINE__,  NY, "2010-01-01T00:00:00", "2009-11-01T06:00:00",
-                           "2010-03-14T07:00:00",    -18000, false, "EST"    },
+                         "2010-03-14T07:00:00",       -18000, false, "EST"   },
 
 // test around a fall (DST->STD) transition
  { __LINE__,  NY, "2009-11-01T05:59:59.999",  "2009-03-08T07:00:00",
-                           "2009-11-01T06:00:00",    -14400,  true, "EDT"    },
+                         "2009-11-01T06:00:00",       -14400,  true, "EDT"   },
 
  { __LINE__,  NY, "2009-11-01T06:00:00.000", "2009-11-01T06:00:00",
-                           "2010-03-14T07:00:00",    -18000, false, "EST"    },
+                         "2010-03-14T07:00:00",       -18000, false, "EST"   },
 
  { __LINE__,  NY, "2009-11-01T06:00:00.001", "2009-11-01T06:00:00",
-                           "2010-03-14T07:00:00",    -18000, false, "EST"    },
+                         "2010-03-14T07:00:00",       -18000, false, "EST"   },
 
 // test around a spring (STD->DST) transition
- { __LINE__,  NY, "2010-03-14T06:59:59.999","2009-11-01T06:00:00",
-                           "2010-03-14T07:00:00",    -18000, false, "EST"    },
+ { __LINE__,  NY, "2010-03-14T06:59:59.999", "2009-11-01T06:00:00",
+                         "2010-03-14T07:00:00",       -18000, false, "EST"   },
 
  { __LINE__,  NY, "2010-03-14T07:00:00.000", "2010-03-14T07:00:00",
-                           "2010-11-07T06:00:00",    -14400,  true, "EDT"    },
+                         "2010-11-07T06:00:00",       -14400,  true, "EDT"   },
 
  { __LINE__,  NY, "2010-03-14T07:00:00.001", "2010-03-14T07:00:00",
-                           "2010-11-07T06:00:00",    -14400,  true, "EDT"    },
+                         "2010-11-07T06:00:00",       -14400,  true, "EDT"   },
 
 // Trivial time zones (GMT, GMT+1, GMT-1)
  { __LINE__,  GMT, "2010-01-01T12:00:00", "0001-01-01T00:00:00",
-                           "9999-12-31T23:59:59.999",     0, false, "GMT"    },
+                         "9999-12-31T23:59:59.999999",     0, false, "GMT"   },
 
  { __LINE__,  GMT, "2010-01-01T00:00:00", "0001-01-01T00:00:00",
-                           "9999-12-31T23:59:59.999",     0, false, "GMT"    },
+                         "9999-12-31T23:59:59.999999",     0, false, "GMT"   },
 
  { __LINE__,  GP1, "2010-01-01T12:00:00", "0001-01-01T00:00:00",
-                           "9999-12-31T23:59:59.999", -3600, false, "GMT+1"  },
+                         "9999-12-31T23:59:59.999999", -3600, false, "GMT+1" },
 
  { __LINE__,  GP1, "2010-01-01T00:00:00", "0001-01-01T00:00:00",
-                           "9999-12-31T23:59:59.999", -3600, false, "GMT+1"  },
+                         "9999-12-31T23:59:59.999999", -3600, false, "GMT+1" },
 
  { __LINE__,  GM1, "2010-01-01T12:00:00", "0001-01-01T00:00:00",
-                           "9999-12-31T23:59:59.999",  3600, false, "GMT-1"  },
+                         "9999-12-31T23:59:59.999999",  3600, false, "GMT-1" },
 
  { __LINE__,  GM1, "2010-01-01T00:00:00", "0001-01-01T00:00:00",
-                           "9999-12-31T23:59:59.999",  3600, false, "GMT-1"  },
+                         "9999-12-31T23:59:59.999999",  3600, false, "GMT-1" },
 
 
 // Time zone with 1 transition (2 descriptors) (Riyadh)
  { __LINE__,  RY, "1949-12-31T20:53:07.999", "0001-01-01T00:00:00",
-                           "1949-12-31T20:53:08",     11212, false, "LMT"    },
+                         "1949-12-31T20:53:08",        11212, false, "LMT"   },
 
  { __LINE__,  RY, "1949-12-31T20:53:08.000", "1949-12-31T20:53:08",
-                           "9999-12-31T23:59:59.999", 10800, false, "AST"    },
+                         "9999-12-31T23:59:59.999999", 10800, false, "AST"   },
 
  { __LINE__,  RY, "1949-12-31T20:53:09.000", "1949-12-31T20:53:08",
-                           "9999-12-31T23:59:59.999", 10800, false, "AST"    },
+                         "9999-12-31T23:59:59.999999", 10800, false, "AST"   },
 
  { __LINE__,  RY, "1950-12-31T20:53:07.999","1949-12-31T20:53:08",
-                           "9999-12-31T23:59:59.999", 10800, false, "AST"    },
+                         "9999-12-31T23:59:59.999999", 10800, false, "AST"   },
 
  { __LINE__,  RY, "1950-12-31T20:53:08.000", "1949-12-31T20:53:08",
-                           "9999-12-31T23:59:59.999", 10800, false, "AST"    },
+                         "9999-12-31T23:59:59.999999", 10800, false, "AST"   },
 
  { __LINE__,  RY, "1950-12-31T20:53:09.000", "1949-12-31T20:53:08",
-                           "9999-12-31T23:59:59.999", 10800, false, "AST"    },
+                         "9999-12-31T23:59:59.999999", 10800, false, "AST"   },
         };
 
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -1364,10 +1364,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 If the input iterator refers to a transition is the last
         //:   transition in 'timeZone', the end date-time of 'result' is
-        //:   'Dec 31, 9999 23:59:59.999'.
+        //:   'Dec 31, 9999 23:59:59.999.999'.
         //:
         //: 5 If the input iterator refers to a transition is the first
-        //:   transition in 'timeZone', the :   start date-time of 'result' is
+        //:   transition in 'timeZone', the start date-time of 'result' is
         //:   'Jan 1, 1 00:00:00.000'.
         //
         // Plan:
@@ -1410,18 +1410,18 @@ int main(int argc, char *argv[])
             ASSERT(currentTimeZone);
 
             const bdlt::Datetime FIRST(1, 1, 1);
-            const bdlt::Datetime LAST(9999, 12, 31, 23, 59, 59, 999);
+            const bdlt::Datetime LAST(9999, 12, 31, 23, 59, 59, 999, 999);
 
             for (Iterator it = currentTimeZone->beginTransitions();
                           it != currentTimeZone->endTransitions();
-                        ++it) {
-
+                 ++it)
+            {
                 baltzo::LocalTimePeriod result;
                 Obj::createLocalTimePeriod(&result, it, *currentTimeZone);
 
                 const bdlt::Datetime& START = result.utcStartTime();
                 const bdlt::Datetime& END   = result.utcEndTime();
-                const Descriptor&    DESC  = result.descriptor();
+                const Descriptor&     DESC  = result.descriptor();
 
                 // Test the start date of the local-time period looking at the
                 // transition time to the current local time.
@@ -2893,7 +2893,7 @@ int main(int argc, char *argv[])
                     "GMT",
                     "2010-03-14T07:00:00",
                     "0001-01-01T00:00:00",
-                    "9999-12-31T23:59:59.999",
+                    "9999-12-31T23:59:59.999999",
                     "GMT",
                     0,
                     false,
@@ -2913,7 +2913,7 @@ int main(int argc, char *argv[])
                     "Asia/Riyadh",
                     "1990-01-01T00:00:00",
                     "1949-12-31T20:53:08",
-                    "9999-12-31T23:59:59.999",
+                    "9999-12-31T23:59:59.999999",
                     "AST",
                     10800,
                     false,
