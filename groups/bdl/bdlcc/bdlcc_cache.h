@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 // no time-sensitive write operation is done at the same time as a call to the
 // 'visit' method.  A 'visit' method call is inexpensive if the visitor returns
 // quickly, or if the visitor returns false after only a subset of the cache
-// items was processed.
+// items were processed.
 //
 ///Post-eviction Callback and Potential Deadlocks
 ///---------------------------------------------
@@ -442,7 +442,7 @@ class Cache {
     bslma::Allocator          *d_allocator_p;          // memory allocator
                                                        // (held, not owned)
 
-    mutable LockType           d_rwlock;
+    mutable LockType           d_rwlock;               // reader-writer lock
 
     MapType                    d_map;                  // hash table storing
                                                        // key-value pairs
@@ -584,12 +584,12 @@ class Cache {
     int tryGetValue(bsl::shared_ptr<VALUE> *value,
                     const KEY&              key,
                     bool                    modifyEvictionQueue = true);
-        // Load, into the specified 'value', the value of the specified 'key'
-        // in this cache.  If the optionally specified 'modifyEvictionQueue' is
-        // 'true' and the eviction policy is LRU, then move the cached item to
-        // the back of the eviction queue.  Return 0 on success, and 1 if 'key'
-        // does not exist in this cache.  Note that a write lock is acquired
-        // only if this queue is modified.
+        // Load, into the specified 'value', the value associated with the
+        // specified 'key' in this cache.  If the optionally specified
+        // 'modifyEvictionQueue' is 'true' and the eviction policy is LRU, then
+        // move the cached item to the back of the eviction queue.  Return 0 on
+        // success, and 1 if 'key' does not exist in this cache.  Note that a
+        // write lock is acquired only if this queue is modified.
 
     // ACCESSORS
     EQUAL equalFunction() const;
@@ -922,8 +922,9 @@ int Cache<KEY, VALUE, HASH, EQUAL>::tryGetValue(
         d_rwlock.lockRead();
     }
 
-    // As the guard is constructed pre-locked, it handles either read or write,
-    // as at destruction, unlock is common for read and write.
+    // Since the guard is constructed with a locked synchronization object, the
+    // guard's call to 'unlock' correctly handles both read and write
+    // scenarios.
     bslmt::ReadLockGuard<LockType> guard(&d_rwlock, true);
 
     typename MapType::iterator mapIt = d_map.find(key);

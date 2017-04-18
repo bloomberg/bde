@@ -43,34 +43,42 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a mechanism, 'bdlcc::Cache', that provides
-// a in-memory key-value cache with a configurable eviction policy.  Because of
-// the need to provide a thread-safe interface, 'bdlcc::Cache' is not a
+// an in-memory key-value cache with a configurable eviction policy.  Because
+// of the need to provide a thread-safe interface, 'bdlcc::Cache' is not a
 // value-semantic type; therefore, it does not provide a copy constructor, the
 // copy assignment operator, nor the equality comparison operators.
 //
-// Due to the similarity of 'bdlcc::Cache' compared with other standard
-// containers, we will utilize the some of the test cases strategy for VST to
-// which 'bdlcc::Cache' applies.  Specifically, we will define the primary
-// manipulators and the basic accessors, and we will substitute the
-// equality-comparison operator with a custom function defined in this test
-// driver.
+// Due to the similarity of 'bdlcc::Cache' with other standard containers, we
+// will utilize some of the test cases strategy for VST to which 'bdlcc::Cache'
+// applies.  Specifically, we will define the primary manipulators and the
+// basic accessors, and we will substitute the equality-comparison operator
+// with a custom function defined in this test driver.
 //
 // Two relatively unique aspects of this test driver are the need to ensure
-// template types and thread safety.  Since almost all of the template
-// functionality of 'bdlcc::Cache' is delegated to 'bsl::unordered_map' and
-// 'bsl::list' used in its implementation, will not bother to test the template
-// a full range of template parameter types.  Instead, we will just test the
-// template with a few common types, including a type that allocates memory,
-// for the sake of simplicity.  Since the thread-safety is achieved using a
-// simple reader-writer lock, the risk of subtle threading related errors is
-// relatively low.  Thus, we will verify thread-safety using a multithreaded
-// stress test.
+// template type correctness and thread safety.  Since almost all of the template
+// functionality of 'bdlcc::Cache' is delegated to implementation types, only
+// the "pass-through" of this functionality needs to be tested.  As such, we
+// will test the template with a few common types, including a type that
+// allocates memory.  Thread-safety is achieved using a synchronization object
+// and, as such, only verification that the lock is accessed correctly is
+// needed.
 //
 // Primary Manipulators:
-//: o Cache(evictionPolicy, lowWat, highWat, hashFunction, equal, alloc);
 //: o 'insert'
+//: o 'insertBulk'
+//: o 'popFront'
+//: o 'erase'
+//: o 'eraseBulk'
+//: o 'clear'
+//: o 'tryGetValue'
+//: o 'setPostEvictionCallback'
 //
 // Basic Accessors:
+//: o 'equalFunction'
+//: o 'evictionPolicy'
+//: o 'hashFunction'
+//: o 'highWatermark'
+//: o 'lowWatermark'
 //: o 'size'
 //: o 'visit'
 //
@@ -419,8 +427,8 @@ class PrintVisitor
 
     bool operator() (const KEYTYPE& key, const VALUETYPE& value)
     {
-        *d_stream_p << TstFacility::getIdentifier(key) << " => "
-                  << TstFacility::getIdentifier(value) << ", ";
+        *d_stream_p << TstFacility::getIdentifier(key)   << " => "
+                    << TstFacility::getIdentifier(value) << ", ";
         return true;
     }
 };
@@ -447,7 +455,7 @@ static bsl::ostream& printCache(
 template <class VALUE>
 struct InplaceUtil {
     // The class is a wrapper to create a shared pointer in place, with and
-    // without allocator.  implements 'SpCreateInplace'.
+    // without an allocator.  This struct implements 'SpCreateInplace'.
   private:
     // PRIVATE MANIPULATORS
     static void SpCreateInplaceImp(bsl::shared_ptr<VALUE> *ptr,
@@ -462,8 +470,8 @@ struct InplaceUtil {
         // 'v' value, using the specified 'allocator'.  The last parameter
         // should be 'true_type' if 'VALUE' uses a 'bslma::Allocator', and
         // 'false_type' if it does not.  Note that both functions are just a
-        // way to decide at compile time without an if statement if an
-        // allocator is to be passed to the function.
+        // way to decide, at compile time, if an allocator is to be passed to
+        // the function.
   public:
     // MANIPULATORS
     static void SpCreateInplace(bsl::shared_ptr<VALUE> *ptr,
@@ -505,7 +513,7 @@ void InplaceUtil<VALUE>::SpCreateInplace(bsl::shared_ptr<VALUE> *ptr,
 
 namespace cacheperf {
 class CachePerformance {
-    // This class performs the various performance tests
+    // This class performs the various performance tests.
 
   public:
     typedef bdlcc::Cache<int, bsl::string>  CacheType;
@@ -531,41 +539,39 @@ class CachePerformance {
 
   private:
     // DATA
-    bslma::Allocator *d_allocator_p;  // memory allocator
-
-    bsl::string d_title;  // Title for printing purposes
-
-    int d_numRThreads;    // # of reader threads
-    int d_numWThreads;    // # of writer threads
-    int d_numThreads;     // d_numRThreads + d_numWThreads
-    int d_numCalcs;       // # of calculations, say 1,000,000
-    int d_numRepeats;     // # of repetitions of the calculation, say 10.
-                          // Repetitions are used to find variance
+    bslma::Allocator *d_allocator_p; // memory allocator
+    bsl::string       d_title;       // Title for printing purposes
+    int               d_numRThreads; // # of reader threads
+    int               d_numWThreads; // # of writer threads
+    int               d_numThreads;  // d_numRThreads + d_numWThreads
+    int               d_numCalcs;    // # of calculations, say 1,000,000
+    int               d_numRepeats;  // # of repetitions of the calculation
+                                     // (used to calculate variance), say 10.
 
     VecTimeType d_vecWTime;
     VecTimeType d_vecUTime;
     VecTimeType d_vecSTime;
-        // Wall time, User time and system time in nanos, collected from the
-        // various threads, and the various repeats.  If we have 6 threads, and
-        // 100 repeats, we will have 60 entries.
+        // Wall time, user time and system time in nanos, collected from the
+        // various threads, and the various repetitions.  If we have 6
+        // threads, and 10 repetitions, we will have 60 entries.
 
     TimeType d_avgWTime;
     TimeType d_avgUTime;
     TimeType d_avgSTime;
-        // Averages of Wall time, User time and system time in nanos,
+        // Averages of wall time, user time and system time in nanos,
         // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
     TimeType d_seWTime;
     TimeType d_seUTime;
     TimeType d_seSTime;
-        // Standard errors of Wall time, User time and system time in nanos,
+        // Standard errors of wall time, user time and system time in nanos,
         // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
-        // It is set to 0 if d_numRepeat = 1.
+        // They are set to 0 if d_numRepeat = 1.
     CacheType d_cache;
     VecTimeType runTest(VecIntType& args, RunFunc func);
-        // run a single repetition of the calculation.  The calculation is
+        // Run a single repetition of the calculation.  The calculation is
         // defined in the specified 'func' function, and takes as input the
         // specified 'args' vector.  Return for each thread a triad of elapsed
-        // wall time, user time, system time.
+        // wall time, user time, and system time.
 
     static void* workFunc(void*);
         // The thread main function.
@@ -587,16 +593,16 @@ class CachePerformance {
                          bslma::Allocator                 *basicAllocator = 0);
 
     int initialize(VecIntType& args, InitFunc func);
-        // run the initialization function. The initialization is defined in
+        // Run the initialization function.  The initialization is defined in
         // the specified 'func' function, and takes as input the specified
         // 'args' vector.  Returns the return code from 'func'.
     VecTimeType runTests(VecIntType& args, RunFunc func);
-        // run the tests by running 'runTest' numRepeats times.  The test being
+        // Run the tests by running 'runTest' numRepeats times.  The test being
         // run is the defined in the specified 'func' function, and takes as
         // input the specified 'args' vector.  Return a triad of elapsed wall
         // time, user time, and system time.
     void printResult();
-        // print the output from the calculation
+        // Print a standard time values output from the calculation.
 
     // ACCESSORS
     CacheType& cache();
@@ -612,16 +618,16 @@ class CachePerformance {
         // eviction of existing items ends.
 
     int numCalcs() const;
-        // Return the number of calculations
+        // Return the number of calculations.
 
     int numRepeats() const;
-        // Return the number of test repetitions
+        // Return the number of test repetitions.
 
     int numRThreads() const;
-        // Return the number of reader threads
+        // Return the number of reader threads.
     
     int numWThreads() const;
-        // Return the number of writer threads
+        // Return the number of writer threads.
 
     int numThreads() const;
         // Return the total number of threads.  It is equal to numRThreads() +
@@ -635,12 +641,12 @@ class CachePerformance {
 
     // TEST FUNCTIONS
     static int testInsert(CachePerformance *cacheperf_p, VecIntType& args);
-        // Insert rows one at a time into the specified 'cacheperf_p' using
+        // Insert rows, one at a time, into the specified 'cacheperf_p' using
         // the specified 'args' vector.  Only value in 'args' is the current
         // thread index, 0 to numThreads - 1.
 
     static int testInsertBulk(CachePerformance *cacheperf_p, VecIntType& args);
-        // Insert rows in bulk into the specified 'cacheperf_p' using the
+        // Insert rows, in bulk, into the specified 'cacheperf_p' using the
         // specified 'args' vector.  'args[0]' is the number of batches to use.
         // 'args[1]' (last parameter) is the current thread index, 0 to
         // numThreads - 1.
@@ -659,8 +665,8 @@ class CachePerformance {
         // seed for the random number generating the key values.
 
     static int testReadWrite(CachePerformance *cacheperf_p, VecIntType& args);
-        // Run either insert or tryGetValue multiple times against the
-        // specified 'cacheperf_p' cache, with the specified'args' vector.
+        // Run either 'insert' or 'tryGetValue' multiple times against the
+        // specified 'cacheperf_p' cache, with the specified 'args' vector.
         // 'args[0]' is the number of values to load.  'arg[1]' is the
         // sparsity: 1 - 0, 1, 2, ...; 2 - 0, 2, 4, ..., etc.
         // '0 to arg[2] - 1' is the range to read from.  The first numWThreads
@@ -798,10 +804,10 @@ void CachePerformance::printResult()
     // print the output from the calculation
     bsl::cout << "Title=" << d_title << "\n";
     bsl::cout << bsl::fixed << bsl::setprecision(1);
-    //bsl::cout.imbue(bsl::locale::classic());
     bsl::cout << "Threads="   << d_numThreads
               << ",RThreads=" << d_numRThreads
               << ",WThreads=" << d_numWThreads << "\n";
+
     // Time is printed in milliseconds
     bsl::cout << "Wall Time="   << d_avgWTime / 1000 << "+/-"
             << static_cast<double>(d_seWTime) / static_cast<double>(d_avgWTime)
@@ -814,19 +820,24 @@ void CachePerformance::printResult()
 			   * 100.0 << "%\n";
 }
 
-void* CachePerformance::workFunc(void* arg)
+void *CachePerformance::workFunc(void *arg)
 {
-    WorkData    *wdp = reinterpret_cast<WorkData*>(arg);
+    WorkData    *wdp = reinterpret_cast<WorkData *>(arg);
     VecTimeType *pTimes = new VecTimeType(wdp->d_cacheperf_p->d_allocator_p);
 
     TimeType startWTime = bsls::TimeUtil::getTimer();
+
     TimeType startUTime, startSTime;
     bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
+
     int      rc = wdp->d_func(wdp->d_cacheperf_p, wdp->d_data);
     (void) rc;
+
     TimeType endWTime = bsls::TimeUtil::getTimer();
+
     TimeType endUTime, endSTime;
     bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
+
     pTimes->push_back((endWTime - startWTime) / 1000);
     pTimes->push_back((endUTime - startUTime) / 1000);
     pTimes->push_back((endSTime - startSTime) / 1000);
@@ -908,19 +919,24 @@ int CachePerformance::testInsert(CachePerformance *cacheperf_p,
 {
     // Insert rows one at a time into the specified 'cacheperf_p' using the
     // specified 'args' vector.  Only value in 'args' is the current thread
-    // index, 0 to numThreads - 1.
-    int numThreads = cacheperf_p->numThreads();
+    // index, 0 to 'numThreads - 1'.
+
+	int numThreads = cacheperf_p->numThreads();
     int size = cacheperf_p->numCalcs() / numThreads;
+
     // Current thread number is the last (and only) argument
+
     int  threadIdx = args[0];
     int  offset = size * threadIdx;
     char buf[12];
+
     for(int i = 0; i < size; ++i) {
         int key = offset++;
         bsl::sprintf(buf, "V%d", key);
         string val(buf);
         cacheperf_p->cache().insert(key, val);
     }
+
     return 0;
 }
 
@@ -930,8 +946,9 @@ int CachePerformance::testInsertBulk(CachePerformance *cacheperf_p,
     // Insert rows in bulk into the specified 'cacheperf_p' using the
     // specified 'args' vector.  'args[0]' is the number of batches to use.
     // 'args[1]' (last parameter) is the current thread index,
-    // '0 to numThreads - 1'.
-    int  numThreads = cacheperf_p->numThreads();
+    // 0 to 'numThreads - 1'.
+
+	int  numThreads = cacheperf_p->numThreads();
     int  numBatches = args[0];
     int  threadIdx = args[1];
     int  size = cacheperf_p->numCalcs() / numThreads / numBatches;
@@ -960,7 +977,8 @@ int CachePerformance::initRead(CachePerformance *cacheperf_p, VecIntType& args)
     // 'arg[1]' is the sparsity of the data, that is, the distance between
     // consecutive values.  I.e: sparsity of 1 will preload 0, 1, 2, ...
     // Sparsity of 2 will preload 0, 2, 4, ..., etc.
-    int  size = args[0];
+
+	int  size = args[0];
     int  sparsity = args[1];
     int  key = 0;
     char buf[12];
@@ -984,7 +1002,8 @@ int CachePerformance::testRead(CachePerformance *cacheperf_p, VecIntType& args)
     // using the specified 'args' vector.  '0 to arg[0] - 1' is the range to
     // read from.  'args[1]' is the thread index, and is used as the seed for
     // the random number generating the key values.
-    int numThreads = cacheperf_p->numThreads();
+
+	int numThreads = cacheperf_p->numThreads();
     int numCalcs = cacheperf_p->numCalcs();
     int numCalls = numCalcs / numThreads;
     int range = args[0];
@@ -1012,7 +1031,8 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
     // number of values to load.  'arg[1]' is the sparsity: 1 - 0, 1, 2, ...;
     // 2 - 0, 2, 4, ..., etc.  '0 to arg[2] - 1' is the range to read from.
     // The first numWThreads are write threads.  The rest are read threads.
-    int countErr = 0;
+
+	int countErr = 0;
     int numWThreads = cacheperf_p->numWThreads();
     int numCalcs = cacheperf_p->numCalcs();
     int range = args[0];
@@ -1587,15 +1607,15 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
             Obj        mX(policy, 100, 100, &oa);
             const Obj& X = mX;
 
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                bsl::vector<typename Obj::KVType> insertVec(&oa);
-                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                    typename Obj::ValuePtrType value;
-                    InplaceUtil<VALUETYPE>::SpCreateInplace(&value,
+            bsl::vector<typename Obj::KVType> insertVec(&oa);
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                typename Obj::ValuePtrType value;
+                InplaceUtil<VALUETYPE>::SpCreateInplace(&value,
                                                        VALUES[tj].second, &oa);
-                    typename Obj::KVType item(VALUES[tj].first, value, &oa);
-                    insertVec.push_back(item);
-                }
+                typename Obj::KVType item(VALUES[tj].first, value, &oa);
+                insertVec.push_back(item);
+            }
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                 mX.insertBulk(insertVec);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -1649,14 +1669,14 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
             Obj        mX(policy, 100, 100, &oa);
             const Obj& X = mX;
 
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                    typename Obj::ValuePtrType value;
-                    InplaceUtil<VALUETYPE>::SpCreateInplace(&value,
+            for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+                typename Obj::ValuePtrType value;
+                InplaceUtil<VALUETYPE>::SpCreateInplace(&value,
                                                        VALUES[tj].second, &oa);
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     mX.insert(VALUES[tj].first, value);
-                }
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+            }
 
             TestVisitor visitor(&VALUES, LENGTH);
             X.visit(visitor);
@@ -2541,8 +2561,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase4()
             const Obj& X = mX;
 
             ASSERTV(policy == X.evictionPolicy());
-            ASSERTV( 90 == X.lowWatermark());
-            ASSERTV(100 == X.highWatermark());
+            ASSERTV(    90 == X.lowWatermark());
+            ASSERTV(   100 == X.highWatermark());
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
                 mX.insert(VALUES[tj].first, VALUES[tj].second);
@@ -2570,8 +2590,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase4()
         ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
         ASSERTV(123 == X.lowWatermark());
         ASSERTV(456 == X.highWatermark());
-        ASSERTV(0 == X.hashFunction().id());
-        ASSERTV(0 == X.equalFunction().id());
+        ASSERTV(0   == X.hashFunction().id());
+        ASSERTV(0   == X.equalFunction().id());
     }
     {
         Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO, 123, 456,
@@ -3001,8 +3021,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
 
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
-            ASSERTV(1 == X.lowWatermark());
-            ASSERTV(1 == X.highWatermark());
+            ASSERTV(1   == X.lowWatermark());
+            ASSERTV(1   == X.highWatermark());
             ASSERTV(100 == X.hashFunction().id());
             ASSERTV(200 == X.equalFunction().id());
         }
@@ -3014,8 +3034,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
 
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_LRU == X.evictionPolicy());
-            ASSERTV(2 == X.lowWatermark());
-            ASSERTV(3 == X.highWatermark());
+            ASSERTV(2   == X.lowWatermark());
+            ASSERTV(3   == X.highWatermark());
             ASSERTV(300 == X.hashFunction().id());
             ASSERTV(400 == X.equalFunction().id());
         }
@@ -3027,8 +3047,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
 
             const Obj& X = mX;
             ASSERTV(bdlcc::CacheEvictionPolicy::e_FIFO == X.evictionPolicy());
-            ASSERTV(2 == X.lowWatermark());
-            ASSERTV(3 == X.highWatermark());
+            ASSERTV(2   == X.lowWatermark());
+            ASSERTV(3   == X.highWatermark());
             ASSERTV(500 == X.hashFunction().id());
             ASSERTV(600 == X.equalFunction().id());
         }
