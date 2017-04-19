@@ -883,11 +883,10 @@ int MiniReader::advanceToEndNode()
 }
 
 MiniReader::StringType
-MiniReader::searchCommentCDataOrElementName(const char *name)
+MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
 {
-    BSLS_ASSERT(name && name[0]);
+    BSLS_ASSERT(!name.empty());
 
-    const size_t nameLen = bsl::strlen(name);
     char strSet[] = { '<', '/', name[0] };
 
     while (1) {
@@ -895,18 +894,38 @@ MiniReader::searchCommentCDataOrElementName(const char *name)
 
         size_t len = bsl::strcspn(d_scanPtr, strSet);
         d_scanPtr += len;
+        if (d_scanPtr == d_endPtr) { // No chars from 'strSet' found.
+            if (readInput() == 0) {
+                d_scanPtr = d_endPtr;
+                return e_STRINGTYPE_NONE;                             // RETURN
+            }
+            continue;                                               // CONTINUE
+        }
 
         switch (getChar()) {
           case '<': {
             if ('!' == peekChar()) {
                 ++d_scanPtr;
+                while ((d_endPtr - d_scanPtr) < 2) {
+                    if (readInput() == 0) {
+                        d_scanPtr = d_endPtr;
+                        return e_STRINGTYPE_NONE;                     // RETURN
+                    }
+                }
                 if (d_endPtr - d_scanPtr > 2
                     && '-' == d_scanPtr[0]
                     && '-' == d_scanPtr[1]) {
                     d_scanPtr += 2;
                     return e_STRINGTYPE_COMMENT;                      // RETURN
                 }
-                else if (d_endPtr - d_scanPtr > 7
+
+                while ((d_endPtr - d_scanPtr) < 7) {
+                    if (readInput() == 0) {
+                        d_scanPtr = d_endPtr;
+                        return e_STRINGTYPE_NONE;                     // RETURN
+                    }
+                }
+                if (d_endPtr - d_scanPtr > 7
                          && '[' == d_scanPtr[0]
                          && 'C' == d_scanPtr[1]
                          && 'D' == d_scanPtr[2]
@@ -931,7 +950,7 @@ MiniReader::searchCommentCDataOrElementName(const char *name)
                     return e_STRINGTYPE_NONE;                         // RETURN
                 }
             }
-            if (0 == bsl::memcmp(d_scanPtr, name, nameLen)) {
+            if (0 == bsl::memcmp(d_scanPtr, name.data(), name.length())) {
                 if (e_STRINGTYPE_NONE == type) {
                     type = e_STRINGTYPE_START_ELEMENT;
                 }
@@ -1001,7 +1020,7 @@ int MiniReader::advanceToEndNodeRaw()
           } break;
 
           case e_STRINGTYPE_NONE:
-          break;
+          return -2;                                                  // RETURN
         }
         ++d_scanPtr;
     }

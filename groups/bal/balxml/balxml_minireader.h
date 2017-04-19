@@ -481,7 +481,7 @@ class MiniReader :  public Reader {
     int   updateElementInfo();
     int   updateAttributes();
 
-    StringType searchCommentCDataOrElementName(const char *name);
+    StringType searchCommentCDataOrElementName(const bsl::string& name);
         // Scan the input for a comment, a CDATA section, the specified element
         // 'name', or the end tag corresponding to 'name'.  Stop at the first
         // instance of either one of those string and update the internal read
