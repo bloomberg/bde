@@ -366,6 +366,19 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>            // 'bsl::size_t'
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEUTIL
+#include <bsls_timeutil.h>  // For CachePerformance
+#endif
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>  // For for 'BloombergLP::bsls::Types::Int64'
+#endif
+#ifndef INCLUDED_BSL_IOSTREAM
+#include <bsl_iostream.h>
+#endif
+//#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+//#include <bslmt_readerwriterlock.h>
+//#endif
+
 namespace BloombergLP {
 namespace bdlcc {
 
@@ -384,7 +397,7 @@ template <class KEY>
 class Cache_QueueProctor {
     // This class implements a proctor that, on destruction, removes the last
     // element of a 'QueueType' object.  This proctor is intended to work with
-    // 'bdlcc::Cache' to provide the basic exception safety guarantee.
+    // 'bdlcc::Cache' to provide basic exception safety guarantee.
 
     // DATA
     bsl::list<KEY> *d_queue_p;  // queue (held, not owned)
@@ -404,6 +417,12 @@ class Cache_QueueProctor {
         // Release the queue specified on construction, so that it will not be
         // modified on the destruction of this proctor.
 };
+
+template <class KEY,
+          class VALUE,
+          class HASH  = bsl::hash<KEY>,
+          class EQUAL = bsl::equal_to<KEY> >
+class Cache_TestUtil;
 
 template <class KEY,
           class VALUE,
@@ -437,6 +456,7 @@ class Cache {
         // Hash map type.
 
     typedef bslmt::ReaderWriterMutex                              LockType;
+    //typedef bslmt::ReaderWriterLock                               LockType;
 
     // DATA
     bslma::Allocator          *d_allocator_p;          // memory allocator
@@ -469,6 +489,9 @@ class Cache {
                                                        // after a value has
                                                        // been evicted from the
                                                        // cache
+
+    // FRIENDS
+    friend class Cache_TestUtil<KEY, VALUE, HASH, EQUAL>;
 
     // PRIVATE MANIPULATORS
     void enforceHighWatermark();
@@ -624,7 +647,38 @@ class Cache {
 
 };
 
-// FREE OPERATORS
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL>
+class Cache_TestUtil {
+    // This class implements a test utility that gives the test driver access
+    // to the lock / unlock method of the RW mutex.  Its purpose is to allow
+    // testing that the locking actually happens as planned.
+
+    // DATA
+    Cache<KEY, VALUE, HASH, EQUAL>& d_cache;
+
+  public:
+    // CREATORS
+    explicit Cache_TestUtil(Cache<KEY, VALUE, HASH, EQUAL>& cache);
+        // Create a 'Cache_TestUtil' object to test locking in the specified
+        // 'cache'.
+
+    // ~Cache_TestUtil() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    void lockRead();
+        // Call the 'lockRead' method of 'bdlcc::Cache' 'd_rwlock' lock.
+
+    void lockWrite();
+        // Call the 'lockWrite' method of 'bdlcc::Cache' 'd_rwlock' lock.
+
+    void unlock();
+        // Call the 'unlock' method of 'bdlcc::Cache' 'd_rwlock' lock.
+
+};
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1009,6 +1063,51 @@ void Cache<KEY, VALUE, HASH, EQUAL>::visit(VISITOR& visitor) const
             break;
         }
     }
+}
+
+                            // --------------------
+                            // class Cache_TestUtil
+                            // --------------------
+
+// CREATORS
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::Cache_TestUtil(
+                                         Cache<KEY, VALUE, HASH, EQUAL>& cache)
+: d_cache(cache)
+{
+}
+
+// MANIPULATORS
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::lockRead()
+{
+    d_cache.d_rwlock.lockRead();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::lockWrite()
+{
+//	typedef bsls::Types::Int64                      TimeType;
+//    TimeType startTime = bsls::TimeUtil::getTimer();
+    d_cache.d_rwlock.lockWrite();
+//    TimeType endTime = bsls::TimeUtil::getTimer();
+//    int duration = static_cast<int>((endTime - startTime) / 1);
+//    bsl::cout << "LW=" << endTime << "," << startTime << "," << duration << "," << (void*)&(d_cache.d_rwlock) << "\n";
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::unlock()
+{
+//	typedef bsls::Types::Int64                      TimeType;
+//    TimeType startTime = bsls::TimeUtil::getTimer();
+    d_cache.d_rwlock.unlock();
+//    TimeType endTime = bsls::TimeUtil::getTimer();
+//    int duration = static_cast<int>((endTime - startTime) / 1);
+//    bsl::cout << "UL=" << endTime << "," << startTime << "," << duration << "," << (void*)&(d_cache.d_rwlock) << "\n";
 }
 
 }  // close package namespace
