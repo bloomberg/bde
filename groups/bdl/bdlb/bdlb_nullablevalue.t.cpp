@@ -3942,6 +3942,24 @@ namespace ParamUtil {
     extern const char L_EQD_CONTRACTS[];
 }
 
+void dummyFunction()
+{
+    typedef bdlb::NullableValue<bsl::string> Obj;
+
+    {
+        Obj mX;  const Obj& X = mX;
+
+        ASSERT( X.isNull());
+        mX.makeValue(ParamUtil::L_EQD_CONTRACTS);
+        ASSERT(!X.isNull());
+        ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
+    }
+}
+
+namespace ParamUtil {
+    const char L_EQD_CONTRACTS[] = "L_EQD_CONTRACTS";
+}
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -5395,8 +5413,12 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == da.numBlocksTotal());
 
+// TBD xlC
         if (verbose) cout << "\nReproduce DRQS 98587609" << endl;
         {
+            dummyFunction();
+
+#if 0
             typedef bdlb::NullableValue<bsl::string> Obj;
 
             {
@@ -5407,6 +5429,7 @@ int main(int argc, char *argv[])
                 ASSERT(!X.isNull());
                 ASSERT(ParamUtil::L_EQD_CONTRACTS == X.value());
             }
+#endif
         }
 
 //#define SOMETHING_ELSE_THAT_SHOULD_NOT_WORK

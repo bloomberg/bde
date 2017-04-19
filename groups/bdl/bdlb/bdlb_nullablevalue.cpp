@@ -9,6 +9,8 @@
 
 #include <bdlb_nullablevalue.h>
 
+// TBD xlC
+#if 0
 // TBD temporary!! (to reproduce compilation failure w/xlC)
 namespace ParamUtil {
     extern const char L_EQD_CONTRACTS[];
@@ -17,6 +19,7 @@ namespace ParamUtil {
 namespace ParamUtil {
     const char L_EQD_CONTRACTS[] = "L_EQD_CONTRACTS";
 }
+#endif
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_nullablevalue_cpp,"$Id$ $CSID$")
