@@ -5471,8 +5471,10 @@ int main(int argc, char *argv[])
                 ObjType mY;  const ObjType& Y = mY;
                 ASSERT( Y.isNull());
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
                 mY.makeValue(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
+#endif
             }
         }
 
@@ -5670,8 +5672,10 @@ int main(int argc, char *argv[])
                 const ObjType X(&dummyFunction);  // explicitly take address
                 ASSERT(!X.isNull());
 
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
                 const ObjType Y(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
+#endif
             }
         }
 
