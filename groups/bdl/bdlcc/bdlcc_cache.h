@@ -1090,7 +1090,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::lockWrite()
 {
-//	typedef bsls::Types::Int64                      TimeType;
+//    typedef bsls::Types::Int64                      TimeType;
 //    TimeType startTime = bsls::TimeUtil::getTimer();
     d_cache.d_rwlock.lockWrite();
 //    TimeType endTime = bsls::TimeUtil::getTimer();
@@ -1102,7 +1102,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::unlock()
 {
-//	typedef bsls::Types::Int64                      TimeType;
+//    typedef bsls::Types::Int64                      TimeType;
 //    TimeType startTime = bsls::TimeUtil::getTimer();
     d_cache.d_rwlock.unlock();
 //    TimeType endTime = bsls::TimeUtil::getTimer();
