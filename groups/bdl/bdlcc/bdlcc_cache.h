@@ -366,19 +366,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>            // 'bsl::size_t'
 #endif
 
-#ifndef INCLUDED_BSLS_TIMEUTIL
-#include <bsls_timeutil.h>  // For CachePerformance
-#endif
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>  // For for 'BloombergLP::bsls::Types::Int64'
-#endif
-#ifndef INCLUDED_BSL_IOSTREAM
-#include <bsl_iostream.h>
-#endif
-//#ifndef INCLUDED_BSLMT_READERWRITERLOCK
-//#include <bslmt_readerwriterlock.h>
-//#endif
-
 namespace BloombergLP {
 namespace bdlcc {
 
@@ -456,7 +443,6 @@ class Cache {
         // Hash map type.
 
     typedef bslmt::ReaderWriterMutex                              LockType;
-    //typedef bslmt::ReaderWriterLock                               LockType;
 
     // DATA
     bslma::Allocator          *d_allocator_p;          // memory allocator
@@ -1090,24 +1076,14 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::lockWrite()
 {
-//    typedef bsls::Types::Int64                      TimeType;
-//    TimeType startTime = bsls::TimeUtil::getTimer();
     d_cache.d_rwlock.lockWrite();
-//    TimeType endTime = bsls::TimeUtil::getTimer();
-//    int duration = static_cast<int>((endTime - startTime) / 1);
-//    bsl::cout << "LW=" << endTime << "," << startTime << "," << duration << "," << (void*)&(d_cache.d_rwlock) << "\n";
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 void Cache_TestUtil<KEY, VALUE, HASH, EQUAL>::unlock()
 {
-//    typedef bsls::Types::Int64                      TimeType;
-//    TimeType startTime = bsls::TimeUtil::getTimer();
     d_cache.d_rwlock.unlock();
-//    TimeType endTime = bsls::TimeUtil::getTimer();
-//    int duration = static_cast<int>((endTime - startTime) / 1);
-//    bsl::cout << "UL=" << endTime << "," << startTime << "," << duration << "," << (void*)&(d_cache.d_rwlock) << "\n";
 }
 
 }  // close package namespace
