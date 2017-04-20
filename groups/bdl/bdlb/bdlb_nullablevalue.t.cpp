@@ -184,6 +184,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
+//=============================================================================
+//                  COMPONENT-SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+# define BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION 1
+#endif
+
 // ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
@@ -5471,7 +5479,7 @@ int main(int argc, char *argv[])
                 ObjType mY;  const ObjType& Y = mY;
                 ASSERT( Y.isNull());
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION)
                 mY.makeValue(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
 #endif
@@ -5672,7 +5680,7 @@ int main(int argc, char *argv[])
                 const ObjType X(&dummyFunction);  // explicitly take address
                 ASSERT(!X.isNull());
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
+#if !defined(BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION)
                 const ObjType Y(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
 #endif
