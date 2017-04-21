@@ -578,8 +578,6 @@ class CachePerformance {
         // specified 'args' vector.  Return for each thread a triad of elapsed
         // wall time, user time, and system time.
 
-        // The thread main function.
-
     // NOT IMPLEMENTED
     CachePerformance(const CachePerformance&);
     CachePerformance& operator=(const CachePerformance&);
@@ -681,7 +679,8 @@ class CachePerformance {
 };  // END class CachePerformance
 
 // FREE FUNCTIONS
-extern "C" void* workFunc(void*);
+extern "C" void *workFunc(void *arg);
+    // The thread main function.
 
 CachePerformance::CachePerformance(
                               const char                       *title,
