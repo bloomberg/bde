@@ -74,7 +74,7 @@ struct SelectTrait {
                      HasTrait<TYPE, TRAIT5>::VALUE ? 5 :
                      0)
             // Integral value indicating which trait was selected: 1 for
-            // 'TRAIT1', 2 for 'TRAIT2', etc. and 0 if none were selected.
+            // 'TRAIT1', 2 for 'TRAIT2', etc., and 0 if none were selected.
     };
 
     typedef bslmf::MetaInt<SELECTION> MetaSelection;

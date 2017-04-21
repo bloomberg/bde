@@ -827,7 +827,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'gg' FUNCTION
+        // TESTING 'gg' FUNCTION
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -859,8 +859,8 @@ int main(int argc, char *argv[])
         //   Obj& gg(Obj *r, Obj *l, Obj *r)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVALUE CTOR"
-                            "\n==========\n");
+        if (verbose) printf("\nTESTING 'gg' FUNCTION"
+                            "\n=====================\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
 
@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
+        // DEFAULT CONSTRUCTOR, PRIMARY MANIPULATORS, & DESTRUCTOR
         //   Ensure that we can use the default constructor to create an
         //   object (having the default-constructed value), use the primary
         //   manipulators to put that object into any state relevant for
@@ -939,8 +939,9 @@ int main(int argc, char *argv[])
         //   void setNextLink(BidirectionalLink *address)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
-                            "\n==========================================\n");
+        if (verbose) printf(
+                "\nDEFAULT CONSTRUCTOR, PRIMARY MANIPULATORS, & DESTRUCTOR"
+                "\n=======================================================\n");
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 

@@ -2201,7 +2201,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING insertAndMoveToFront(p, f, l)
+        // TESTING 'insertAndMoveToFront' ITERATOR RANGE
         //
         // Concerns:
         //   1. 'insertAndMoveToFront' properly moves the original
@@ -2229,8 +2229,9 @@ int main(int argc, char *argv[])
         //                             size_type          numElements,
         //                             bslma::Allocator  *allocator);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'testInsertAndMoveToFrontRange'"
-                            "\n=======================================\n");
+        if (verbose) printf(
+                          "\nTESTING 'insertAndMoveToFront' ITERATOR RANGE"
+                          "\n=============================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testInsertAndMoveToFrontRange<TNA,1>(false);
@@ -2270,7 +2271,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING insertAndMoveToBack(p, f, l)
+        // TESTING 'insertAndMoveToBack' ITERATOR RANGE
         //
         // Concerns:
         //   1. 'insertAndMoveToBack' properly moves the original
@@ -2298,8 +2299,9 @@ int main(int argc, char *argv[])
         //                            size_type         numElements,
         //                            bslma::Allocator *allocator);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'testInsertAndMoveToBack(p,f,l)'"
-                            "\n========================================\n");
+        if (verbose) printf(
+                           "\nTESTING 'insertAndMoveToBack' ITERATOR RANGE"
+                           "\n============================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testInsertAndMoveToBackRange<TNA,1>(false);
@@ -2339,7 +2341,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING insertAndMoveToFront(p, n, v)
+        // TESTING 'insertAndMoveToFront(p, n, v)'
         //
         // Concerns:
         //   1. 'insertAndMoveToFront' properly moves the original
@@ -2365,8 +2367,8 @@ int main(int argc, char *argv[])
         //                             const VALUE_TYPE&   value,
         //                             bslma::Allocator   *allocator);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'insertAndMoveToFront(n,p)'"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING 'insertAndMoveToFront(p, n, v)'"
+                            "\n=======================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testInsertAndMoveToFrontRaw<TNA,1>(false);
@@ -2406,7 +2408,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING insertAndMoveToBack(p, n, v)
+        // TESTING 'insertAndMoveToBack(p, n, v)'
         //
         // Concerns:
         //   1. 'insertAndMoveToBack' properly moves the original
@@ -2432,8 +2434,8 @@ int main(int argc, char *argv[])
         //                            const VALUE_TYPE&   value,
         //                            bslma::Allocator   *allocator);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'insertAndMoveToBack(p,n,v)'"
-                            "\n====================================\n");
+        if (verbose) printf("\nTESTING 'insertAndMoveToBack(p, n, v)'"
+                            "\n======================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testInsertAndMoveToBackRaw<TNA,1>(false);
@@ -2473,7 +2475,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING uninitializedFillNFront
+        // TESTING 'uninitializedFillNFront'
         //
         // Concerns:
         //   1. 'uninitializedFillNFront' properly fills
@@ -2499,7 +2501,7 @@ int main(int argc, char *argv[])
         //                                const VALUE_TYPE&   value,
         //                                bslma::Allocator   *allocator)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'uninitializedFillNFront'"
+        if (verbose) printf("\nTESTING 'uninitializedFillNFront'"
                             "\n=================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2540,7 +2542,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING uninitializedFillNBack
+        // TESTING 'uninitializedFillNBack'
         //
         // Concerns:
         //   1. 'uninitializedFillNBack' properly fills
@@ -2565,7 +2567,7 @@ int main(int argc, char *argv[])
         //                               const VALUE_TYPE&   value,
         //                               bslma::Allocator   *allocator)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'uninitializedFillNBack'"
+        if (verbose) printf("\nTESTING 'uninitializedFillNBack'"
                             "\n================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2606,7 +2608,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING erase
+        // TESTING 'erase'
         //
         // Concerns:
         //   1. 'erase' properly destroys objects in the range
@@ -2632,7 +2634,7 @@ int main(int argc, char *argv[])
         //              Iterator          fromEnd,
         //              bslma::Allocator *allocator)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'erase'"
+        if (verbose) printf("\nTESTING 'erase'"
                             "\n===============\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2673,7 +2675,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING destruct
+        // TESTING 'destruct'
         //
         // Concerns:
         //   1. 'destruct' properly destroys objects in range [begin, end).
@@ -2690,8 +2692,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   void destruct(Iterator begin, Iterator end)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'destruct'"
-                            "\n=================\n");
+        if (verbose) printf("\nTESTING 'destruct'"
+                            "\n==================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testDestruct<TNA,1>();

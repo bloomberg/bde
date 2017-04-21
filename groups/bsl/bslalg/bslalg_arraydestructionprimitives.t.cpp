@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Usage Example"
+        if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n=====================\n");
         using namespace UsageExample;
 
@@ -737,7 +737,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING [deprecated] destroy
+        // TESTING [deprecated] 'destroy'
         //
         // Concerns:
         //: 1. The 'destroy' acts as a uniform interface to destroy arrays of
@@ -752,7 +752,7 @@ int main(int argc, char *argv[])
         //   void destroy(T *b, T *e, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'destroy'\n");
+        if (verbose) printf("\nTESTING [deprecated] 'destroy'\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testDestroy<TNA>(false);
@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING destroy
+        // TESTING 'destroy'
         //
         // Concerns:
         //: 1. The 'destroy' acts as a uniform interface to destroy arrays of
@@ -805,7 +805,8 @@ int main(int argc, char *argv[])
         //   void destroy(T *b, T *e, A *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'destroy'\n");
+        if (verbose) printf("\nTESTING 'destroy'"
+                            "\n=================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testDestroy<TNA>(false);

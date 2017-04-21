@@ -184,7 +184,9 @@ namespace BloombergLP {
 
 namespace {
         // Workaround for windows.  The windows compiler refuses to recognize
-        // enum declarations within a templated class.
+        // enum declarations within a class template.  TBD: verify this is
+        // still a concern with recent Windows compilers, as unnamed namespaces
+        // in header files are not a great workaround.
 
     enum {
         // These constants are used in the overloads below, when the last
@@ -223,9 +225,9 @@ struct DequePrimitives {
     // This 'struct' provides a namespace for a suite of utility functions that
     // operate on deques parameterized by the 'VALUE_TYPE' and 'BLOCK_LENGTH'.
     // Depending on the traits of 'VALUE_TYPE', the default and copy
-    // constructors, destructor, assignment operators, etc. may not be invoked,
-    // and instead the operation can be optimized using a no-op, bitwise move
-    // or copy.
+    // constructors, destructor, assignment operators, etcetera may not be
+    // invoked, and instead the operation can be optimized using a no-op,
+    // bitwise move, or bitwise copy.
 
     // PUBLIC TYPES
     typedef std::size_t                             size_type;
@@ -2773,8 +2775,8 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
     // ConstructorProxy<VALUE_TYPE>
     //                           tempValue(value, bslma::Default::allocator());
 
-    // No guard needed since all the operations won't throw due to
-    // bitwisecopyable trait
+    // No guard needed since all the operations won't throw due to the
+    // bitwise-copyable trait
     moveBack(&dest, &end, backSize);
     uninitializedFillNFront(&dest, dest, numElements, space.object(),
                             allocator);
@@ -3182,8 +3184,8 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
     // ConstructorProxy<VALUE_TYPE>
     //                           tempValue(value, bslma::Default::allocator());
 
-    // No guard needed since all the operations won't throw due to
-    // bitwisecopyable trait
+    // No guard needed since all the operations won't throw due to the
+    // bitwise-copyable trait
     moveFront(&dest, &begin, frontSize);
     uninitializedFillNBack(&dest, dest, numElements, space.object(),
                            allocator);

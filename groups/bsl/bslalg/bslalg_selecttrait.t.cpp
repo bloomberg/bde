@@ -201,7 +201,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<my_NilTraitClass> : bsl::false_type { };
 
-}  // close bslmf namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 //=============================================================================

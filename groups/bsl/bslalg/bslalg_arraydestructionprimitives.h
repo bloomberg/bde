@@ -114,12 +114,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_CSTDDEF
-#include <cstddef>  // size_t
+#include <cstddef>  // 'size_t'
 #define INCLUDED_CSTDDEF
 #endif
 
 #ifndef INCLUDED_CSTRING
-#include <cstring>  // memset, memcpy, memmove
+#include <cstring>  // 'memset', 'memcpy', and 'memmove'
 #define INCLUDED_CSTRING
 #endif
 

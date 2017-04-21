@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 5: {
         // --------------------------------------------------------------------
-        // USAGE
+        // USAGE EXAMPLE
         //
         // Concern:
         //   Demonstrate the usefulness of the 'BidirectionalNode' type.
@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // BASE CLASS MANIPULATORS AND ACCESSORS
+        // TESTING BASE CLASS MANIPULATORS AND ACCESSORS
         //
         // Concerns:
         //: 1 That the base class manipulators and accessors are accessible
@@ -437,8 +437,9 @@ int main(int argc, char *argv[])
         //:   it via the accessors using the const object.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING BASE CLASS MANIPULATORS & ACCESSORS\n"
-                            "===========================================\n");
+        if (verbose) printf(
+                          "\nTESTING BASE CLASS MANIPULATORS AND ACCESSORS"
+                          "\n=============================================\n");
 
 
         bslma::TestAllocator da("default");
@@ -498,7 +499,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS
+        // TESTING BASIC ACCESSORS
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
@@ -512,8 +513,8 @@ int main(int argc, char *argv[])
         //:   and observe the state from the 'const' accessors.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING ACCESSORS\n"
-                            "=================\n");
+        if (verbose) printf("\nTESTING BASIC ACCESSORS"
+                            "\n=======================\n");
 
         bslma::TestAllocator da("default");
         bslma::TestAllocator oa("object");
@@ -553,12 +554,12 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS
+        // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
         //: 1 Manipulators can set value.
         //:
-        //: 2 Accessor return value set by maninpulator.
+        //: 2 Accessor return value set by manipulator.
         //:
         //: 3 Accessor is declared const.
         //
@@ -576,6 +577,9 @@ int main(int argc, char *argv[])
         //   VALUE_TYPE& value();
         //   const VALUE_TYPE& value() const;
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING PRIMARY MANIPULATORS"
+                            "\n============================\n");
 
         bslma::TestAllocator da("default");
         bslma::TestAllocator oa("object");

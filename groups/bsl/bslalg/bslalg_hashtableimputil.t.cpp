@@ -431,12 +431,12 @@ class HashSet : public bslalg::HashTableAnchor {
 
     // MANIPULATORS
     bool insert(const KEY& key);
-        // If the specfied 'key' is not in this hash table, add it, returning
+        // If the specified 'key' is not in this hash table, add it, returning
         // 'true'.  If it is already in the table, return 'false' with no
         // action taken.
 
     bool erase(const KEY& key);
-        // If the specfied 'key' is in this hash table, remove it, returning
+        // If the specified 'key' is in this hash table, remove it, returning
         // 'true'.  If it is not found in the table, return 'false' with no
         // action taken.
 
@@ -688,8 +688,8 @@ int main(int argc, char *argv[])
         //   'HashTableAnchor'.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING USAGE EXAMPLE\n"
-                            "=====================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 //..
 // Then, we declare a test allocator and make it the default allocator to use
 // during our example, to observe if we leak any memory:
@@ -759,7 +759,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // ATTEMPTED USAGE EXAMPLE
+        // TESTING ATTEMPTED USAGE EXAMPLE
         //
         // This is a failed attempt at a usage example.  After I wrote it I
         // realized it would never pass review.  As long as the code is done
@@ -772,8 +772,8 @@ int main(int argc, char *argv[])
         // in this component a lot better than that one does.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING ATTEMPTED USAGE EXAMPLE\n"
-                            "===============================\n");
+        if (verbose) printf("\nTESTING ATTEMPTED USAGE EXAMPLE"
+                            "\n===============================\n");
 
 // Then, in 'main', we set up some typedefs to refer to frequently used
 // types:
@@ -2463,7 +2463,7 @@ int main(int argc, char *argv[])
             Bucket goodArray[DATA_SIZE];
             memset(goodArray, 0, sizeof(goodArray));
 
-            // Emtpy Hash Table
+            // Empty Hash Table
             //..
             //              Root
             // [0F]->x       ~
@@ -2747,7 +2747,7 @@ int main(int argc, char *argv[])
             Bucket goodArray[1];
             memset(goodArray, 0, sizeof(goodArray));
 
-            // Emtpy Hash Table
+            // Empty Hash Table
             //..
             //              Root
             // [0F]->x       ~
