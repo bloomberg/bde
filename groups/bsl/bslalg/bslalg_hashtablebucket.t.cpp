@@ -109,8 +109,8 @@ typedef bslalg::BidirectionalLink Link;
 
 template <class PAYLOAD>
 class MyList_Iterator {
-    // 'Iterator' type for class 'MyList'.  This class will be typedef'ed to be
-    // a nested class within 'MyList'.
+    // 'Iterator' type for class 'MyList'.  This class will be 'typedef'ed to
+    // be a nested class within 'MyList'.
 
     // PRIVATE TYPES
     typedef bslalg::BidirectionalNode<PAYLOAD> Node;
@@ -143,7 +143,7 @@ class MyList_Iterator {
 // Then, we define our 'MyList' class, which will inherit from
 // 'bslalg::HashTableBucket'.  'MyList::Iterator' will be a public typedef of
 // 'MyList_Iterator'.  For brevity, we will omit a lot of functionality that a
-// full, general-purpose list class would have, implmenting only what we will
+// full, general-purpose list class would have, implementing only what we will
 // need for this example.
 
                                 // ======
@@ -183,7 +183,7 @@ class MyList : public bslalg::HashTableBucket {
     void popBack();
 };
 
-// Next, we implment the functions for the iterator type.
+// Next, we implement the functions for the iterator type.
 
                             // ---------------
                             // MyList_Iterator
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE C'TOR AND BASIC ACCESSORS
+        // VALUE CONSTRUCTOR AND BASIC ACCESSORS
         //
         // Concern:
         //   That the value c'tor properly initializes the object.  Note this
@@ -459,8 +459,8 @@ int main(int argc, char *argv[])
         //   empty list, and initializing to a list with 3 elements.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("VALUE C'TOR\n"
-                            "===========\n");
+        if (verbose) printf("\nVALUE CONSTRUCTOR AND BASIC ACCESSORS"
+                            "\n=====================================\n");
 
         {
             Obj bucket = { 0, 0 };
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT C'TOR, PRIMARY MANIPULATORS, AND D'TOR
+        // DEFAULT CONSTRUCTOR, PRIMARY MANIPULATORS, AND DESTRUCTOR
         //
         // Concerns:
         //   That the default c'tor and primary manipulators function properly.
@@ -524,8 +524,9 @@ int main(int argc, char *argv[])
         //   after all manipulator calls.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("DEFAULT C'TOR, PRIMARY MANIPULATORS, & D'TOR\n"
-                            "============================================\n");
+        if (verbose) printf(
+              "\nDEFAULT CONSTRUCTOR, PRIMARY MANIPULATORS, AND DESTRUCTOR"
+              "\n=========================================================\n");
 
         Obj bucket = { 0, 0 };
         myCheckInvariants(bucket);

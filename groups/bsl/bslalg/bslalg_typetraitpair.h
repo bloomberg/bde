@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_typetraits
 //
-//@DESCRIPTION: This component provides a single traits class, 
+//@DESCRIPTION: This component provides a single traits class,
 // 'bslalg::TypeTraitPair', which allows the trait 'bslmf::IsPair' to be
 // declared using the (deprecated) 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See
 // the 'bslmf_ispair' component for details of this trait.

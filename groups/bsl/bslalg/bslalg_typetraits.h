@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitBitwiseMoveable: bitwise-moveable trait
 //  bslalg::TypeTraitBitwiseCopyable: bitwise-copyable trait
 //  bslalg::TypeTraitBitwiseEqualityComparable: bitwise-eq.-comparable trait
+//  bslalg::TypeTraitHasPointerSemantics: dereferences like a pointer
 //  bslalg::TypeTraitHasStlIterators: has STL-like iterators
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
@@ -85,7 +86,7 @@ BSLS_IDENT("$Id: $")
 // construct a value; but if it does not, then passing this extra argument is
 // going to generate a compile-time error.  It thus appears we need two
 // implementations of our container.  This can be done more succinctly by
-// encapsulating into the constructor some utilities which will, through a
+// encapsulating into the constructor some utilities that will, through a
 // single interface, determine whether 'TYPE' has the trait
 // 'bslalg::TypeTraitUsesBslmaAllocator' and copy-construct it accordingly.
 //
@@ -94,7 +95,7 @@ BSLS_IDENT("$Id: $")
 // it to be automatically constructed by the compiler.  For this reason, we
 // encapsulate it in a 'bsls::ObjectBuffer'.
 //..
-//  // my_genericcontainer.hpp          -*-C++-*-
+//  // my_genericcontainer.hpp                                        -*-C++-*-
 //
 //  template <class TYPE>
 //  class MyGenericContainer {
@@ -119,7 +120,8 @@ BSLS_IDENT("$Id: $")
 // require that an element always be initialized.
 //..
 //  // CREATORS
-//  MyGenericContainer(const TYPE& object, bslma::Allocator *allocator = 0);
+//  explicit MyGenericContainer(const TYPE& object,
+//                              bslma::Allocator *allocator = 0);
 //      // Create a container containing the specified 'object', using the
 //      // optionally specified 'allocator' to supply memory.  If 'allocator'
 //      // is 0, the currently installed allocator is used.
@@ -158,7 +160,7 @@ BSLS_IDENT("$Id: $")
 // breaking the flow of this example, we have embedded the function definition
 // into the class.
 //..
-//  // my_genericcontainer.cpp          -*-C++-*-
+//  // my_genericcontainer.cpp  i                                     -*-C++-*-
 //
 //  struct my_GenericContainerUtil {
 //      // This 'struct' provides a namespace for utilities implementing the
@@ -175,7 +177,7 @@ BSLS_IDENT("$Id: $")
 //          new (location) TYPE(value, allocator);
 //      }
 //..
-// For types that don't use an allocator, we offer the following overload which
+// For types that don't use an allocator, we offer the following overload that
 // will be selected if the type trait of 'TYPE' cannot be converted to
 // 'bslalg::TypeTraitUsesBslmaAllocator'.  In that case, note that the type
 // traits always inherit from 'bslalg::TypeTraitNil'.
@@ -267,7 +269,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - -
 // We can check that our container actually forwards the correct allocator to
 // its contained objects with a very simple test apparatus, consisting of two
-// classes which have exactly the same signature and implementation except that
+// classes that have exactly the same signature and implementation except that
 // one has the 'bslalg::TypeTraitUsesBslmaAllocator' trait and the other does
 // not:
 //..

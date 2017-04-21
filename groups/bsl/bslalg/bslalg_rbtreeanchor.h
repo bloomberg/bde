@@ -27,7 +27,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Sentinel Node
 ///-------------
-// The sentinel node is an 'RbTreeNode' object which does not have a value, and
+// The sentinel node is an 'RbTreeNode' object that does not have a value, and
 // provides a fixed end-point for navigation over the tree.  However, a
 // sentinel node's attributes have different interpretations than those of
 // other 'RbTreeNode' objects.  Specifically, a sentinel node's 'leftChild'

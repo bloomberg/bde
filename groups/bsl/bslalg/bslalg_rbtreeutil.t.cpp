@@ -2073,7 +2073,7 @@ if (verbose) {
                                                // nodes
 //
         IntSet_NodeValueComparator
-                               d_comparator;   // comparison functor for ints
+                               d_comparator;   // comparison functor for 'int's
 //
         IntSet_NodeFactory     d_nodeFactory;  // factory for creating and
                                                // destroying nodes
@@ -6896,7 +6896,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'gg':
+        // TESTING GENERATOR FUNCTION 'gg'
         //
         // Concerns:
         //
@@ -7283,7 +7283,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Perform and ad-hoc test of the primary modifiers and accessors.
-        //   In this instence, create a breathing test for each individual
+        //   In this instance, create a breathing test for each individual
         //   function.
         //
         // Testing:

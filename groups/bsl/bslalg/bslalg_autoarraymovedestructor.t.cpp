@@ -257,9 +257,9 @@ void insertItems(TestType         *start,
     // '[ divider, finish )' is of equal length and contains uninitialized
     // memory.  We want to insert 'divider - start' copies of the specified
     // 'value' at the front half of the range '[ start, finish )', moving
-    // the exising elements back to make room for them.  Note that the copy
-    // c'tor of 'TestType' allocates memory and may throw, so we have to
-    // leave the array in a somewhat predicatable state if we do throw.
+    // the existing elements back to make room for them.  Note that the copy
+    // constructor of 'TestType' allocates memory and may throw, so we have
+    // to leave the array in a somewhat predictable state if we do throw.
     // What the bslalg::AutoArrayMoveDestructor will do is guarantee that,
     // if it is destroyed before the insertion is complete, the range
     // '[ start, divider )' will contain valid elements, and that no other
@@ -280,7 +280,7 @@ void insertItems(TestType         *start,
     Obj guard(start, divider, divider, finish, allocator);
     //
     while (guard.middle() < guard.end()) {
-        // Call the copy c'tor, which may throw.
+        // Call the copy constructor, which may throw.
 //
         new (guard.destination()) TestType(value, allocator);
 //
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
         // Concerns: That the usage example compiles and runs as expected.
         //
@@ -328,8 +328,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING USAGE EXAMPLE\n"
-                            "=====================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         // Next, within the 'main' function of our task, we create our 'value'
         // object, whose value with be 'v', to be inserted into the front of
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 
         const bsls::Types::Int64 N = ta.numBlocksInUse();
 
-        // Next, we enter an 'exception test' block, which will repetetively
+        // Next, we enter an 'exception test' block, which will repetitively
         // enter a block of code, catching exceptions throw by the test
         // allocator 'ta' on each iteration:
 
@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'class AutoArrayDestructor'
+        // TESTING 'class AutoArrayMoveDestructor'
         //
         // Concerns:  That the guard frees guarded memory properly upon
         //   exceptions.
@@ -444,8 +444,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING class bslalg::AutoArrayMoveDestructor"
-                   "\n=============================================\n");
+            printf("\nTESTING 'class AutoArrayMoveDestructor'"
+                   "\n=======================================\n");
 
         const int GUARD_SIZE = 8;
         const int MAX_SIZE   = 2 * GUARD_SIZE;  // do not change

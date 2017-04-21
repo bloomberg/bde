@@ -1865,7 +1865,7 @@ void testGG(bool verbose, bool veryVerbose)
 
             TEST_TYPE array[MAX_LENGTH];
             const TEST_TYPE& X = gg(array, SPEC);
-            (void) X; // Supress variable unused warnings
+            (void) X; // Suppress variable unused warnings
                 // first element
 
             if (LENGTH != oldLen) {
@@ -2300,7 +2300,7 @@ int main(int argc, char *argv[])
         //   We make sure that the correct implementation is selected for the
         //   trait by not providing an 'operator==' when 'memcmp' should be
         //   used, and by stuffing some random bytes into the footprint of the
-        //   class when memcmp should not be used.
+        //   class when 'memcmp' should not be used.
         //
         // Testing:
         //   bool equal(start1, end1, start2);
@@ -2374,7 +2374,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
+        // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg'
         //
         // Concerns:
         //: o That valid generator syntax produces expected results
@@ -2401,8 +2401,10 @@ int main(int argc, char *argv[])
         //   TYPE& gg(TYPE *array, const char *spec);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING PRIMITIVE GENERATOR FUNCTIONS"
-                            "\n=====================================");
+        if (verbose) printf(
+                   "\nTESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg'"
+                   "\n====================================================\n");
+
         if (veryVerbose) printf("\n\t...with 'NonBitwiseWithOpEqual'...");
         testGGG<NonBitwiseWithOpEqual>(verbose, veryVerbose);
         testGG<NonBitwiseWithOpEqual>(verbose, veryVerbose);
@@ -2521,8 +2523,8 @@ int main(int argc, char *argv[])
         //   The implementation of the component takes pains to use 'memcmp'
         //   whenever possible.  This is based on an assumption that 'memcmp'
         //   will be faster than comparing each of the elements in a range in a
-        //   single loop.  This assumption should be tested for builtin and for
-        //   user types to confirm that the use of 'memcmp' is worthwhile.
+        //   single loop.  This assumption should be tested for built-in and
+        //   for user types to confirm that the use of 'memcmp' is worthwhile.
         //
         // Plan:
         //   Time both implementations (single loop and 'memcmp') for various

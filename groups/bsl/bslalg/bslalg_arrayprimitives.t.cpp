@@ -1147,7 +1147,7 @@ class TestTypeNoAlloc {
     }
 
 #if 0
-    // Killed char c'tor
+    // Killed char constructor
 
     TestTypeNoAlloc(char c)
     {
@@ -1225,7 +1225,7 @@ class BitwiseMoveableTestType : public TestType {
     }
 
 #if 0
-    // Killed char c'tor
+    // Killed char constructor
 
     BitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)
@@ -1280,7 +1280,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     }
 
 #if 0
-    // Killed char c'tor
+    // Killed char constructor
 
     BitwiseCopyableTestType(char c)
     : TestTypeNoAlloc(c)
@@ -1336,7 +1336,7 @@ class LargeBitwiseMoveableTestType : public TestType {
     }
 
 #if 0
-    // Killed char c'tor
+    // Killed char constructor
 
     LargeBitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)

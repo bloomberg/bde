@@ -163,7 +163,7 @@ void SwapUtil::swap(T *a, T *b)
 
     using std::swap;
 
-// A workaround for GCC which before version 4.0 had some problems with ADL.
+// A workaround for GCC, which had some problems with ADL before version 4.0.
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
     using BloombergLP::swap;
 #endif

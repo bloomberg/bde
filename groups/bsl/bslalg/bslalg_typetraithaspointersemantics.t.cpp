@@ -19,6 +19,10 @@ using namespace BloombergLP;
 // The type under testing is a primitive trait class, which is used as a tag
 // type and therefore is empty.  There is nothing to test except that the name
 // of the class is as expected, and the usage example.
+//
+// For historical reasons, all 'bslalg' traits defer testing for the specifics
+// of their trait to the 'bslalg_hastrait' component, which is how 'bslalg'
+// traits are idiomatically queried.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -112,37 +116,22 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //    USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============");
-
-      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING TRAIT CLASS
         //
-        // Concerns:  That the name of the trait class does not change over
-        //   time.
+        // Concerns:
+        //: 1 The name of the trait class does not change over time.
         //
-        // Plan:  Create an instance of the trait class.
+        // Plan:
+        //: 1 Create an instance of the trait class.
         //
         // Testing:
         //   class bslalg::TypeTraitHasPointerSemantic;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+        if (verbose) printf("\nTESTING TRAIT CLASS"
+                            "\n===================\n");
 
         Obj mX;
 

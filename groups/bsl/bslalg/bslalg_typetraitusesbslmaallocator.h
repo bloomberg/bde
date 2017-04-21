@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark types that use 'bslma' allocators.
 //
-//@DEPRECATED: Uee 'bslma_usesbslmaallocator' instead.
+//@DEPRECATED: Use 'bslma_usesbslmaallocator' instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitUsesBslmaAllocator: uses 'bslma' allocators

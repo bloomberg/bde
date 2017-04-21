@@ -15,13 +15,13 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
-// for macros used to assign traits to user-defined class.  Traits are used
-// to enable certain optimizations or discriminations at compile-time.  For
+// for macros used to assign traits to user-defined class.  Traits are used to
+// enable certain optimizations or discriminations at compile-time.  For
 // instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead
 // of invoking a copy-constructor on every object.  The usage example shows how
-// to use the 'bslma::UsesBslmaAllocator' to propagate allocators to
-// nested instances that may require them.
+// to use the 'bslma::UsesBslmaAllocator' to propagate allocators to nested
+// instances that may require them.
 //
 // This component should be used in conjunction with other components from the
 // package 'bslalg'.  See the package-level documentation for an overview.  The
@@ -48,9 +48,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 

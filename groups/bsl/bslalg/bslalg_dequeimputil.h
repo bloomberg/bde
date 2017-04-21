@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // implementing a deque knowing only its value type and the number of objects
 // in a block.  Conceptually, a deque is an array of blocks pointers, each
 // block capable of containing a fixed number of objects.  An element in the
-// deque is identified by an iterator which consists of a pointer to the block
+// deque is identified by an iterator that consists of a pointer to the block
 // pointer array, and a pointer to a value.  A deque implementation is
 // parameterized by the 'VALUE_TYPE' and a 'BLOCK_LENGTH' (fixed number of
 // objects in a block).  'bslalg::DequeImpUtil' provides a namespace for the

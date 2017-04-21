@@ -415,8 +415,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Then, we iterate, deleting all elements from the table for which
-// 'ptr - pc == 3 * N' is true.  We keep a count of the number of elements
-// which were in the table which we delete in the variable 'killed':
+// 'ptr - pc == 3 * N' is true.  We keep a count of the number of elements that
+// were deleted from the table in the variable 'killed':
 //..
 //  unsigned killed = 0;
 //  for (int i = 0; i < SEGMENT_LENGTH; i += 3) {

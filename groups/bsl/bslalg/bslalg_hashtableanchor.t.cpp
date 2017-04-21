@@ -231,8 +231,8 @@ void initializeGlobalData()
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implmenting a primitive hash table
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing a primitive hash table
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to create a hash table that keeps track of pointers.
 // Pointers can be added ('insert'ed) or removed ('erase'd) from the table, and
 // the table will keep track, at any time, of whether a pointer is currently
@@ -294,12 +294,12 @@ class PtrHashSet : public bslalg::HashTableAnchor {
 
     // MANIPULATORS
     bool insert(void *ptr);
-        // If the specfied 'ptr' is not in this hash table, add it, returning
+        // If the specified 'ptr' is not in this hash table, add it, returning
         // 'true'.  If it is already in the table, return 'false' with no
         // action taken.
 
     bool erase(void *ptr);
-        // If the specfied 'ptr' is in this hash table, remove it, returning
+        // If the specified 'ptr' is in this hash table, remove it, returning
         // 'true'.  If it is not found in the table, return 'false' with no
         // action taken.
 
@@ -499,7 +499,7 @@ bool PtrHashSet::insert(void *ptr)
                                                               d_numNodes + 1) {
         grow();
         bool found = find(&insertionPoint, &bucket, ptr);
-        (void) found; // Supress unused variable warnings in non-safe builds.
+        (void) found; // Suppress unused variable warnings in non-safe builds.
         BSLS_ASSERT_SAFE(!found);
     }
 
@@ -630,8 +630,7 @@ int main(int argc, char *argv[])
 
         // Then, we iterate, deleting all elements from the table for which
         // 'ptr - pc == 3 * N' is true.  We keep a count of the number of
-        // elements which were in the table which we delete in the variable
-        // 'killed':
+        // elements that were deleted from the table in the variable 'killed':
 
         unsigned killed = 0;
         for (int i = 0; i < SEGMENT_LENGTH; i += 3) {
@@ -1081,7 +1080,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE CTOR
+        // VALUE CONSTRUCTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -1105,8 +1104,8 @@ int main(int argc, char *argv[])
         //   SimpleTestType(int data);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVALUE CTOR"
-                            "\n==========\n");
+        if (verbose) printf("\nVALUE CONSTRUCTOR"
+                            "\n=================\n");
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
         const DefaultValueRow (&VALUES)[NUM_VALUES] = DEFAULT_VALUES;
@@ -1130,7 +1129,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // VALUE CTOR & PRIMARY MANIPULATORS
+        // VALUE CONSTRUCTOR & PRIMARY MANIPULATORS
         //   Ensure that we can use the default constructor to create an object
         //   (having the default constructed value).  Also ensure that we can
         //   use the primary manipulators to put that object into any state
@@ -1144,7 +1143,7 @@ int main(int argc, char *argv[])
         //:   violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' atrribute 'D', 'A',
+        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
         //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
         //:   the boundary values.
         //:
@@ -1153,7 +1152,7 @@ int main(int argc, char *argv[])
         //:   default-constructed value.  (C-1)
         //:
         //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attriubte
+        //:   state of object using the (as yet unproven) salient attribute
         //:   accessors.  (C-2)
         //
         // Testing:
@@ -1162,8 +1161,8 @@ int main(int argc, char *argv[])
         //   void setArraySize(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVALUE CTOR & PRIMARY MANIPULATORS"
-                            "\n=================================\n");
+        if (verbose) printf("\nVALUE CONSTRUCTOR & PRIMARY MANIPULATORS"
+                            "\n========================================\n");
 
         bslalg::HashTableBucket ARRAY_D[1] = {};
         bslalg::HashTableBucket ARRAY_A[2] = {};

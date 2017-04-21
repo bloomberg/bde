@@ -1,14 +1,14 @@
 // bslalg_hastrait.t.cpp                                              -*-C++-*-
 #include <bslalg_hastrait.h>
 
-#include <bslalg_typetraitbitwisecopyable.h>               // for testing only
-#include <bslalg_typetraitbitwiseequalitycomparable.h>     // for testing only
-#include <bslalg_typetraitbitwisemoveable.h>               // for testing only
-#include <bslalg_typetraithaspointersemantics.h>           // for testing only
-#include <bslalg_typetraithasstliterators.h>               // for testing only
-#include <bslalg_typetraithastrivialdefaultconstructor.h>  // for testing only
-#include <bslalg_typetraitpair.h>                          // for testing only
-#include <bslalg_typetraitusesbslmaallocator.h>            // for testing only
+#include <bslalg_typetraitbitwisecopyable.h>
+#include <bslalg_typetraitbitwiseequalitycomparable.h>
+#include <bslalg_typetraitbitwisemoveable.h>
+#include <bslalg_typetraithaspointersemantics.h>
+#include <bslalg_typetraithasstliterators.h>
+#include <bslalg_typetraithastrivialdefaultconstructor.h>
+#include <bslalg_typetraitpair.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
 
 #include <bslma_testallocator.h>
 
@@ -32,10 +32,10 @@ using namespace BloombergLP;
 //                             Overview
 //                             --------
 // 'bslalg_hastrait' is tested in a similar fashion to 'bslalg_typetraits'.
-// In fact, 'bslalg_typetraits' has a replicate of 'bslalg::HasTrait' within
-// its test driver.  This is because the effects of applying a trait to a class
-// can only be tested by an observer that attempts to use or look at the
-// traits, which is precisely what 'bslalg::HasTrait' does.
+// In fact, 'bslalg_typetraits' has a replica of 'bslalg::HasTrait' within its
+// test driver.  This is because the effects of applying a trait to a class can
+// only be tested by an observer that attempts to use or look at the traits,
+// which is precisely what 'bslalg::HasTrait' does.
 //
 // Therefore, this component will have the exact same test driver as
 // 'bslalg_typetraits', but with the private 'HasTrait' class within
@@ -143,7 +143,6 @@ unsigned traitBits()
     result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-
     result |= bslalg::HasTrait<TYPE,
                                bslalg::TypeTraitHasPointerSemantics>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
@@ -156,8 +155,10 @@ template <class TYPE>
 struct Identity
 {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
-    // into a named type (e.g., 'void (*Type)(int)').
-    // Example: 'Identity<void (*)(int)>::Type'.
+    // into a named type (e.g., 'void (*Type)(int)').  For example:
+    //..
+    //  typedef Identity<void (*)(int)>::Type Type;
+    //..
 
     typedef TYPE Type;
 };
@@ -204,7 +205,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<my_Class1> : bsl::false_type { };
 
-}  // close bslmf namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -226,9 +227,11 @@ struct my_Class2
 
 struct my_Class4 : my_Class0
 {
-    // Class with no special traits but has conversion from 'void *'.
-    // Used to check against false positives for 'bslma::Allocator *' traits.
-    my_Class4(void*);  // IMPLICIT
+    // This 'class' has no special traits, but supports (implicit) conversion
+    // from 'void *'.  It will be used to check against false positives for
+    // 'bslma::Allocator *' traits.
+
+    my_Class4(void*);                                               // IMPLICIT
         // Construct a 'my_Class4' object from any pointer, including a pointer
         // to 'bslma::Allocator', as an implicit conversion.
 };
@@ -291,7 +294,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // BREATHING TEST
         //
         // Concerns:
         //
@@ -302,7 +305,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n==============");
+                            "\n==============\n");
 
         // Nil traits
         TRAIT_TEST(my_Class0, TRAIT_NIL);
