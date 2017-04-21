@@ -1056,12 +1056,204 @@ int main(int argc, char *argv[])
           }
 
       } break;
-      case 18: {
+      case 118: {
         // --------------------------------------------------------------------
         // rawOutputStream
         //
         // leave empty for now
         // --------------------------------------------------------------------
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'addValidComment'
+        //
+        // Concerns:
+        //: 1 That 'addValidComment' appends a '>' for an opened element if
+        //:   it's not closed with a '>'.  It correctly precedes the comment
+        //:   with newline and indent when it's called with 'forceNewline'
+        //:   true, and adds only a space when 'forceNewline' false.  It
+        //:   adds another newline after comment if 'forceNewline' is true.
+        //:
+        //: 2 That 'addValidComment' omits padding white spaces in open '<!--'
+        //:   and '-->' close comment tags if 'omitPaddingWhitespace' is true,
+        //:   and uses '<!-- ' and ' -->' tags otherwise.
+        //:
+        //: 3 That 'addValidComment' returns non-zero value if the 'comment'
+        //:   argument contains '--' (double-hyphen) sub-string.
+        //:
+        //: 4 That 'addValidComment' returns non-zero value if the 'comment'
+        //:   argument ending in '-'.
+        //
+        // Plans:
+        //:
+        //: 1 Open an element with various initial indentations, with or
+        //:   without flush() afterwards.  Then add comment with 'forceNewline'
+        //:   true or false and 'omitPaddingWhitespace' true or false.  Check
+        //:   for resulting string and 'd_column' value.  (C-1..2)
+        //:
+        //: 2 Create a test table with a list of valid or invalid comments.
+        //:   Call 'addValidComment' to add the comment to 'Formatter' object.
+        //:   Test the resultant output for a valid comment, or test the error
+        //:   code for an invalid comment.  (C-3..4)
+        //
+        // Testing:
+        //   int addValidComment(const bslstl::StringRef&, bool, bool);
+        // --------------------------------------------------------------------
+
+          if (verbose) {
+              bsl::cout << "\nTESTING addValidComment\n" << bsl::endl;
+          }
+          {
+              static struct {
+                  const int   d_line;
+                  const int   d_initIndent;
+                  const bool  d_doFlush;
+                  const bool  d_forceNewline;
+                  const bool  d_omitPaddingSpaces;
+                  const char *d_expectedOutput;
+              } DATA[] = {
+              //----+-----+-------+-------+-------+---------------------------
+              // Ln | Ind | Do    | Force | Omit  | Expected
+              //    |     | Flush | New   | White | Output
+              //    |     |       | Line  | Space |
+              //----+-----+-------+-------+-------+---------------------------
+              { L_,      0,  false,  false,   true, "> <!--comment-->"       },
+              { L_,      0,  false,   true,   true, ">\n"
+                                                    "    <!--comment-->\n"   },
+              { L_,      0,   true,  false,   true, " <!--comment-->"        },
+              { L_,      0,   true,   true,   true, "\n"
+                                                    "    <!--comment-->\n"   },
+              { L_,      0,  false,  false,  false, "> <!-- comment -->"     },
+              { L_,      0,  false,   true,  false, ">\n"
+                                                    "    <!-- comment -->\n" },
+              { L_,      0,   true,  false,  false, " <!-- comment -->"      },
+              { L_,      0,   true,   true,  false, "\n"
+                                                    "    <!-- comment -->\n" },
+              { L_,      2,  false,  false,   true, "> <!--comment-->"       },
+              { L_,      2,  false,   true,   true, ">\n"
+                                                    "            "
+                                                    "<!--comment-->\n"       },
+              { L_,      2,   true,  false,   true, " <!--comment-->"        },
+              { L_,      2,   true,   true,   true, "\n"
+                                                    "            "
+                                                    "<!--comment-->\n"       },
+              { L_,      2,  false,  false,  false, "> <!-- comment -->"     },
+              { L_,      2,  false,   true,  false, ">\n"
+                                                    "            "
+                                                    "<!-- comment -->\n"     },
+              { L_,      2,   true,  false,  false, " <!-- comment -->"      },
+              { L_,      2,   true,   true,  false, "\n"
+                                                    "            "
+                                                    "<!-- comment -->\n"     },
+               };
+              enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+
+              for (int i = 0; i < DATA_SIZE; ++i) {
+                  const int   LINE =            DATA[i].d_line;
+                  const int   INIT_INDENT =     DATA[i].d_initIndent;
+                  const bool  DOFLUSH =         DATA[i].d_doFlush;
+                  const bool  FORCENEWLINE =    DATA[i].d_forceNewline;
+                  const bool  WHITESPACES =     DATA[i].d_omitPaddingSpaces;
+                  const char *EXP_OUTPUT =      DATA[i].d_expectedOutput;
+                  const int   SPACES_PERLEVEL = 4;
+                  const char *COMMENT =         "comment";
+                  const char *ELEMENT =         "root";
+                  const char *OPEN_TAG =        "<";
+                  const char *CLOSE_TAG =       ">";
+
+                  const int  EXP_COLUMN = static_cast<int>(
+                                          FORCENEWLINE
+                                          ? 0
+                                          : INIT_INDENT * SPACES_PERLEVEL
+                                            + bsl::strlen(OPEN_TAG)
+                                            + bsl::strlen(ELEMENT)
+                                            + (DOFLUSH
+                                               ? bsl::strlen(CLOSE_TAG)
+                                               : 0)
+                                            + bsl::strlen(EXP_OUTPUT));
+
+                  if (veryVeryVerbose) {
+                      T_ P_(LINE) P_(INIT_INDENT) P_(DOFLUSH) P_(FORCENEWLINE)
+                      P_(WHITESPACES) P(EXP_COLUMN);
+                      T_ P(EXP_OUTPUT);
+                  }
+
+                  bsl::ostringstream ss;
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, INT_MAX);
+                                                             // big wrap column
+
+                  formatter.openElement(ELEMENT);
+
+                  if (DOFLUSH) {
+                      formatter.flush();
+                  }
+
+                  ss.str(bsl::string());
+                  LOOP_ASSERT(LINE,
+                              0 == formatter.addValidComment(COMMENT,
+                                                             FORCENEWLINE,
+                                                             WHITESPACES));
+
+                  LOOP3_ASSERT(LINE, ss.str(), EXP_OUTPUT,
+                               ss.str() == EXP_OUTPUT);
+
+                  LOOP3_ASSERT(LINE, formatter.outputColumn(), EXP_COLUMN,
+                               formatter.outputColumn() == EXP_COLUMN);
+              }
+          }
+          if (verbose) {
+              bsl::cout << "\nTESTING addValidComment invalid comments\n"
+                        << bsl::endl;
+          }
+          {
+              static struct {
+                  const int   d_line;
+                  const int   d_result;
+                  const char *d_comment;
+                  const char *d_expectedOutput;
+              } DATA[] = {
+                  //----+--------+------------+---------------------
+                  // Ln | Result | Comment    | Expected
+                  //    |        |            | Output
+                  //----+--------+------------+---------------------
+                  { L_,        0,  "comment",   " <!--comment-->"  },
+                  { L_,        0,  "-comment",  " <!---comment-->" },
+                  { L_,        1,  "--comment", ""                 },
+                  { L_,        1,  "com--ment", ""                 },
+                  { L_,        1,  "comment--", ""                 },
+                  { L_,        1,  "comment-",  ""                 },
+              };
+              enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
+
+              for (int i = 0; i < DATA_SIZE; ++i) {
+                  const int   LINE =            DATA[i].d_line;
+                  const int   EXP_RESULT =      DATA[i].d_result;
+                  const char *COMMENT =         DATA[i].d_comment;
+                  const char *EXP_OUTPUT =      DATA[i].d_expectedOutput;
+                  const int   INIT_INDENT =     0;
+                  const int   SPACES_PERLEVEL = 4;
+                  const char *ELEMENT =         "root";
+
+                  if (veryVeryVerbose) {
+                      T_ P_(LINE) P_(COMMENT) P(EXP_OUTPUT);
+                  }
+
+                  bsl::ostringstream ss;
+                  Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, INT_MAX);
+                                                             // big wrap column
+
+                  formatter.openElement(ELEMENT);
+                  formatter.flush();
+
+                  ss.str(bsl::string());
+                  LOOP_ASSERT(LINE,
+                              EXP_RESULT == formatter.addValidComment(COMMENT,
+                                                                      false));
+
+                  LOOP3_ASSERT(LINE, ss.str(), EXP_OUTPUT,
+                               ss.str() == EXP_OUTPUT);
+              }
+          }
       } break;
       case 17: {
         // --------------------------------------------------------------------

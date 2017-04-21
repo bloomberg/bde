@@ -477,11 +477,29 @@ class Formatter {
 
     void addComment(const bslstl::StringRef& comment,
                     bool                     forceNewline = true);
+        // [!DEPRECATED!] Use 'addValidComment' instead.
+        //
         // Write the specified 'comment' into the stream.  The specified
         // 'forceNewLine', if true, forces to start a new line solely for the
         // comment if it's not on a new line already.  Otherwise, comments
         // continue on current line.  If an element-opening tag is not
         // completed with a '>', 'addComment' will add '>'.
+
+    int addValidComment(const bslstl::StringRef& comment,
+                        bool                     forceNewline = true,
+                        bool                     omitPaddingWhitespace = true);
+        // Write the specified 'comment' into the stream.  Optionally specify a
+        // 'forceNewLine' which forces to start a new line solely for the
+        // comment if it's not on a new line already.  Otherwise, comments
+        // continue on current line.  Also optionally specify a
+        // 'omitPaddingWhitespace' which omits padding white spaces in open
+        // '<!-- ' and close ' -->' comment tags replacing them with '<!--' and
+        // '-->' correspondingly.  Return 0 on success, and non-zero value
+        // otherwise.  The non-zero return value *may* indicate that the
+        // 'comment' contains '--' (double-hyphen) sub-string which must not
+        // occur in comments, or that the 'comment' ending in '-'.  Note that
+        // if an element-opening tag is not completed with a '>',
+        // 'addValidComment' will add '>'.
 
     template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
