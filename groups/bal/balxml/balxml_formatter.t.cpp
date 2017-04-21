@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0
-      case 24: {
+      case 25: {
   bsl::ostringstream os;
   balxml::Formatter f(os, 0, 4, 5);
 //..
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
 //</Apples>
 //..
       } break;
-      case 23: {
+      case 24: {
         bsl::cout << "Wrap Column 0" << bsl::endl;
         balxml::Formatter mX(bsl::cout.rdbuf(), 0, 4, 0);
         mX.openElement("Oranges");
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
 
       } break;
 #endif
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -710,7 +710,7 @@ int main(int argc, char *argv[])
 //..
       } break;
 
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING that add* functions invalidate the stream on failure
         //
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
         }
 #endif // !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // reset
         //
@@ -1003,7 +1003,7 @@ int main(int argc, char *argv[])
         }
       } break;
 
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // addNewline, addBlankLine
         //
@@ -1056,7 +1056,7 @@ int main(int argc, char *argv[])
           }
 
       } break;
-      case 118: {
+      case 19: {
         // --------------------------------------------------------------------
         // rawOutputStream
         //
