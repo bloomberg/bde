@@ -2,7 +2,8 @@
 
 #include <bslalg_typetraitpair.h>
 
-#include <bslalg_hastrait.h>
+#include <bslmf_metaint.h>
+#include <bslmf_removecv.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -86,6 +87,32 @@ struct IsPair<PairLike> : bsl::true_type {};
 }  // close namespace bslmf
 }  // close enterprise namespace
 
+namespace BloombergLP {
+namespace bslalg {
+
+                       // ===============
+                       // struct HasTrait
+                       // ===============
+
+template <class TYPE, class TRAIT>
+struct HasTrait {
+    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
+    // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
+    // 'bslmf::MetaInt<0>' otherwise.  Note that this meta-function was copied
+    // from 'bslalg_hastrait' to avoid a direct cycle between that component
+    // and this one.
+
+  public:
+    enum {
+        VALUE = TRAIT::template
+                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
+    };
+
+    typedef bslmf::MetaInt<VALUE> Type;
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                              USAGE EXAMPLE

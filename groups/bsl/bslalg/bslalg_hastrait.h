@@ -72,9 +72,9 @@ namespace bslalg {
 
 template <class TYPE, class TRAIT>
 struct HasTrait {
-    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the parameterized
-    // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf::MetaInt<0>'
-    // otherwise.
+    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
+    // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
+    // 'bslmf::MetaInt<0>' otherwise.
 
   public:
     enum {

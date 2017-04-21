@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslalg_hastrait.h>    // for testing only
-
 namespace BloombergLP {
 
 }  // close enterprise namespace
