@@ -1,4 +1,5 @@
 bdlcc_deque
+bdlcc_cache
 bdlcc_fixedqueue
 bdlcc_fixedqueueindexmanager
 bdlcc_multipriorityqueue
