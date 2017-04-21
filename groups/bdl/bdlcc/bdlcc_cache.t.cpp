@@ -57,13 +57,13 @@ using namespace bsl;
 // with a custom function defined in this test driver.
 //
 // Two relatively unique aspects of this test driver are the need to ensure
-// template type correctness and thread safety.  Since almost all of the template
-// functionality of 'bdlcc::Cache' is delegated to implementation types, only
-// the "pass-through" of this functionality needs to be tested.  As such, we
-// will test the template with a few common types, including a type that
-// allocates memory.  Thread-safety is achieved using a synchronization object
-// and, as such, only verification that the lock is accessed correctly is
-// needed.
+// template type correctness and thread safety.  Since almost all of the
+// template functionality of 'bdlcc::Cache' is delegated to implementation
+// types, only the "pass-through" of this functionality needs to be tested.  As
+// such, we will test the template with a few common types, including a type
+// that allocates memory.  Thread-safety is achieved using a synchronization
+// object and, as such, only verification that the lock is accessed correctly
+// is needed.
 //
 // Primary Manipulators:
 //: o 'insert'
@@ -531,10 +531,10 @@ class CachePerformance {
         // Initialization function takes a vector of 'int', and returns 0 on
         // success, and negative value on failure.
     typedef int (*RunFunc)(CachePerformance*, VecIntType&);
-        // A run function takes a pointer to 'CachePerformance', and a vector of
-        // 'int'.  Returns a return code of 0 on success, and negative value on failure.
-        // The last entry in the vector of 'int' is the thread number.  Writer
-        // threads are first, readers after.
+        // A run function takes a pointer to 'CachePerformance', and a vector
+        // of 'int'.  Returns a return code of 0 on success, and negative value
+        // on failure.  The last entry in the vector of 'int' is the thread
+        // number.  Writer threads are first, readers after.
 
     typedef struct WorkData {
         RunFunc           d_func;
@@ -578,7 +578,6 @@ class CachePerformance {
         // specified 'args' vector.  Return for each thread a triad of elapsed
         // wall time, user time, and system time.
 
-    static void* workFunc(void*);
         // The thread main function.
 
     // NOT IMPLEMENTED
@@ -609,6 +608,9 @@ class CachePerformance {
         // Print a standard time values output from the calculation.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the memory allocator
+
     CacheType& cache();
     bdlcc::CacheEvictionPolicy::Enum evictionPolicy() const;
         // Return the eviction policy used by this cache.
@@ -677,6 +679,9 @@ class CachePerformance {
         // are write threads.  The rest are read threads.
 
 };  // END class CachePerformance
+
+// FREE FUNCTIONS
+extern "C" void* workFunc(void*);
 
 CachePerformance::CachePerformance(
                               const char                       *title,
@@ -824,31 +829,13 @@ void CachePerformance::printResult()
                * 100.0 << "%\n";
 }
 
-void *CachePerformance::workFunc(void *arg)
+// ACCESSORS
+inline
+bslma::Allocator* CachePerformance::allocator() const
 {
-    WorkData    *wdp = reinterpret_cast<WorkData *>(arg);
-    VecTimeType *pTimes = new VecTimeType(wdp->d_cacheperf_p->d_allocator_p);
-
-    TimeType startWTime = bsls::TimeUtil::getTimer();
-
-    TimeType startUTime, startSTime;
-    bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
-
-    int rc = wdp->d_func(wdp->d_cacheperf_p, wdp->d_data);
-    (void) rc;
-
-    TimeType endWTime = bsls::TimeUtil::getTimer();
-
-    TimeType endUTime, endSTime;
-    bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
-
-    pTimes->push_back((endWTime - startWTime) / 1000);
-    pTimes->push_back((endUTime - startUTime) / 1000);
-    pTimes->push_back((endSTime - startSTime) / 1000);
-    return pTimes;
+    return d_allocator_p;
 }
 
-// ACCESSORS
 inline
 CachePerformance::CacheType& CachePerformance::cache()
 {
@@ -1065,6 +1052,34 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
         bsl::cout << "countErr=" << countErr << "\n";
     return 0;
 }
+
+// FREE FUNCTIONS
+extern "C" void *workFunc(void *arg)
+{
+    CachePerformance::WorkData    *wdp =
+                           reinterpret_cast<CachePerformance::WorkData *>(arg);
+    CachePerformance::VecTimeType *pTimes =
+          new CachePerformance::VecTimeType(wdp->d_cacheperf_p->allocator());
+
+    CachePerformance::TimeType startWTime = bsls::TimeUtil::getTimer();
+
+    CachePerformance::TimeType startUTime, startSTime;
+    bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
+
+    int rc = wdp->d_func(wdp->d_cacheperf_p, wdp->d_data);
+    (void) rc;
+
+    CachePerformance::TimeType endWTime = bsls::TimeUtil::getTimer();
+
+    CachePerformance::TimeType endUTime, endSTime;
+    bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
+
+    pTimes->push_back((endWTime - startWTime) / 1000);
+    pTimes->push_back((endUTime - startUTime) / 1000);
+    pTimes->push_back((endSTime - startSTime) / 1000);
+    return pTimes;
+}
+
 }  // close namespace cacheperf
 
 namespace testLock {
@@ -1096,7 +1111,8 @@ const unsigned short k_SLEEP_PERIOD = 100; // Sleep period of 100 millisec.
 
 extern "C" void *workThread(void *arg)
 {
-    // Work function for the spawned thread: lockRead or LockWrite, sleep, unlock.
+    // Work function for the spawned thread: lockRead or LockWrite, sleep,
+    // unlock.
     ThreadData *tdp = reinterpret_cast<ThreadData *>(arg);
     if (tdp->d_lockType == 'R') {
         tdp->d_cacheTestUtil_p->lockRead();
