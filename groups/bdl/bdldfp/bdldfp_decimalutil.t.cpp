@@ -699,7 +699,7 @@ int main(int argc, char* argv[])
         Type NAN_S_N = -bsl::numeric_limits<Type>::signaling_NaN();
         Type MAX     =  bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
-        Type MIN     = DEC(1e-383);
+        Type MIN     =  bdldfp::DecimalImpUtil::parse64("1e-383");
 
         // the most left 4 bits of the significand are in the range 8 to 9.
         Type SPE_8_P = DEC( 8.999999999999999e+0);
@@ -1167,7 +1167,7 @@ int main(int argc, char* argv[])
           Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
           Type MAX   =  bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
-          Type MIN   =  DEC(1e-383);
+          Type MIN   =  bdldfp::DecimalImpUtil::parse64("1e-383");
 
           static const struct {
               int         d_line;
@@ -1242,7 +1242,7 @@ int main(int argc, char* argv[])
           Type NAN_S =  bsl::numeric_limits<Type>::signaling_NaN();
           Type MAX   =  bdldfp::DecimalImpUtil::parse128(
                                                      "9.999999999999999e+500");
-          Type MIN   =  DEC(-1e-500);
+          Type MIN   =  bdldfp::DecimalImpUtil::parse128("-1e-500");
 
           static const struct {
               int         d_line;
@@ -1392,7 +1392,7 @@ int main(int argc, char* argv[])
             Type snan = bsl::numeric_limits<Type>::signaling_NaN();
             Type max  = bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
-            Type min  = BDLDFP_DECIMAL_DD(1e-383);
+            Type min  = bdldfp::DecimalImpUtil::parse64("1e-383");
 
             static const struct {
                 int         d_line;    // line number
@@ -1480,7 +1480,8 @@ int main(int argc, char* argv[])
                 {  L_,   "9.999999999999999e+500",
                    bdldfp::DecimalImpUtil::parse128(
                                          "9.999999999999999e+500"),  true },
-                {  L_,       "-1e-500", BDLDFP_DECIMAL_DL(-1e-500),  true },
+                {  L_,       "-1e-500",
+                       bdldfp::DecimalImpUtil::parse128("-1e-500"),  true },
 
                 {  L_,           "NaN",                       qnan,  true },
                 {  L_,          "sNaN",                       snan,  true },
@@ -2909,9 +2910,9 @@ int main(int argc, char* argv[])
         // ignored.
 
         ASSERT(Util::makeDecimal64(-1234567890123456ll, -382-16+1) ==
-               BDLDFP_DECIMAL_DD(-1.234567890123456e-382));
+               bdldfp::DecimalImpUtil::parse64("-1.234567890123456e-382"));
         ASSERT(Util::makeDecimal64(1234567890123456ull, -382-16+1) ==
-               BDLDFP_DECIMAL_DD(1.234567890123456e-382));
+               bdldfp::DecimalImpUtil::parse64("1.234567890123456e-382"));
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
@@ -2994,10 +2995,12 @@ int main(int argc, char* argv[])
         // gcc.  Unfortunately, the pragma to disable that warning (above), is
         // ignored.
 
-        ASSERT(Util::fabs(BDLDFP_DECIMAL_DD(-1.234567890123456e-382))
-               == BDLDFP_DECIMAL_DD(1.234567890123456e-382));
-        ASSERT(Util::fabs(BDLDFP_DECIMAL_DL(-1.234567890123456e-382))
-               == BDLDFP_DECIMAL_DL(1.234567890123456e-382));
+        ASSERT(Util::fabs(
+                    bdldfp::DecimalImpUtil::parse64("-1.234567890123456e-382"))
+               == bdldfp::DecimalImpUtil::parse64("1.234567890123456e-382"));
+        ASSERT(Util::fabs(
+                   bdldfp::DecimalImpUtil::parse128("-1.234567890123456e-382"))
+               == bdldfp::DecimalImpUtil::parse128("1.234567890123456e-382"));
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop

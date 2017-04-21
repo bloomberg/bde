@@ -600,7 +600,7 @@ int main(int argc, char *argv[])
 
             bslma::BufferAllocator::AlignmentStrategy strategy =
                                      bslma::BufferAllocator::NATURAL_ALIGNMENT;
-            char *cBuffer;
+            char *cBuffer = 0;
             (void) cBuffer; // suppress set but not used compiler warning
 
             const int NA = 32, NB = 1, NC = 0, ND = -1, NE = -32, NF = -128;

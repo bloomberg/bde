@@ -268,9 +268,9 @@ void stretchRemoveAll(Obj *object, int numElements)
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-#pragma bde_verify push
-#pragma bde_verify -FD01  // Function doc. implied by expository text
-#pragma bde_verify -TY02  // Single letter type parameters
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01  // Function doc. implied by expository text
+// BDE_VERIFY pragma: -TY02  // Single letter type parameters
 
 ///Usage
 ///-----
@@ -520,7 +520,7 @@ ostream& operator<<(ostream& stream, const my_DoubleArray2& array)
     return stream << ']' << flush;
 }
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 //=============================================================================
 //                CONCRETE OBJECTS FOR TESTING 'deleteObject'

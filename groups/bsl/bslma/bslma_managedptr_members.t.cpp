@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
                     const bslma::ManagedPtr_Members empty(0, 0, 0);
                     ASSERT_SAFE_FAIL(empty.deleter());
 
-                    int x;  (void)x;    // not used unless a SAFE build
+                    int x = 0;  (void)x;    // not used unless a SAFE build
                     ASSERT_SAFE_FAIL(bslma::ManagedPtr_Members b(&x, &del, 0));
                     ASSERT_SAFE_PASS(bslma::ManagedPtr_Members g( 0, &del, 0));
                 }
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
                 {
                     bsls::AssertTestHandlerGuard guard;
 
-                    int x;  (void)x;    // not used unless a SAFE build
+                    int x = 0;  (void)x;    // not used unless a SAFE build
                     ASSERT_SAFE_FAIL(members.set(&x, &del, 0));
                     ASSERT_SAFE_PASS(members.set( 0, &del, 0));
                 }

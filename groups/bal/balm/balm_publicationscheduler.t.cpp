@@ -1195,7 +1195,7 @@ void gg(bsl::vector<Action>   *actions,
                      << metricValues.numRecords() << " Records" << bsl::endl;
 
             balm::MetricSample::const_iterator sIt = metricValues.begin();
-            balm::MetricSample::const_iterator prev;
+            balm::MetricSample::const_iterator prev = sIt;
             for (; sIt != metricValues.end(); ++sIt) {
                 if (sIt == metricValues.begin() ||
                     sIt->elapsedTime() != prev->elapsedTime()) {
