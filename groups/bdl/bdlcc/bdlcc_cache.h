@@ -865,7 +865,7 @@ Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEY>& keys)
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     int count = 0;
-    for(int i = 0; i < keys.size(); ++i) {
+    for(bsl::size_t i = 0; i < keys.size(); ++i) {
         const typename MapType::iterator mapIt = d_map.find(keys[i]);
         if (mapIt == d_map.end()) {
             continue;
@@ -898,7 +898,7 @@ Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(const bsl::vector<KVType>& data)
     int                             count = 0;
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
-    for(int i = 0; i < data.size(); ++i) {
+    for(bsl::size_t i = 0; i < data.size(); ++i) {
         enforceHighWatermark();
 
         typename MapType::iterator mapIt = d_map.find(data[i].first);

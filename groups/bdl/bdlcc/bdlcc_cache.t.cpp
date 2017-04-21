@@ -1094,11 +1094,10 @@ typedef struct ThreadData {
 
 const unsigned short k_SLEEP_PERIOD = 100; // Sleep period of 100 millisec.
 
-void *workThread(void *arg)
+extern "C" void *workThread(void *arg)
 {
     // Work function for the spawned thread: lockRead or LockWrite, sleep, unlock.
     ThreadData *tdp = reinterpret_cast<ThreadData *>(arg);
-    TimeType    startTime = bsls::TimeUtil::getTimer();
     if (tdp->d_lockType == 'R') {
         tdp->d_cacheTestUtil_p->lockRead();
     }
@@ -1107,8 +1106,6 @@ void *workThread(void *arg)
     }
     smp.post();
     bslmt::ThreadUtil::microSleep(tdp->d_sleep * 1000, 0);
-    TimeType endTime = bsls::TimeUtil::getTimer();
-    int      duration = static_cast<int>((endTime - startTime) / 1000);
     tdp->d_cacheTestUtil_p->unlock();
     return 0;
 }
@@ -2467,7 +2464,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
                 for (bsl::size_t v = 0; v < tj; ++v) {
                     eraseKeys.push_back(VALUES[v].first);
                 }
-                int count = mX.eraseBulk(eraseKeys);
+                bsl::size_t count = mX.eraseBulk(eraseKeys);
                 ASSERTV(tj == count);
                 ASSERTV(LENGTH - count == X.size());
                 callback.assertEnd();
