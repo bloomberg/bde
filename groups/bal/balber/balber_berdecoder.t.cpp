@@ -13388,14 +13388,14 @@ int main(int argc, char *argv[])
             const double XK1 = -1.4E-45;             double  XK2;
             const double XL1 = 3.402823466E+38;      double  XL2;
             const double XM1 = 1.175494351E-38;      double  XM2;
-            const double XN1 = 1e-324;               double  XN2;
+            const double XN1 = 1e-307;               double  XN2;
 
             const float  XO1 = 0;                     float XO2;
             const double XP1 = 0;                     double XP2;
 
-            const double XQ1 = -1E-324;                     double XQ2;
-            const double XR1 = -1.98347E-325;               double XR2;
-            const double XS1 = 78979.23E-330;               double XS2;
+            const double XQ1 = -1E-307;                     double XQ2;
+            const double XR1 = -1.98347E-296;               double XR2;
+            const double XS1 = 78979.23E-304;               double XS2;
             const double XT1 = 79879879249686698E-100;      double XT2;
             const double XU1 = -9999999999999999E+25;       double XU2;
 

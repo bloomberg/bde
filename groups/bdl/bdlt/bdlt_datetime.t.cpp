@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(INVALID.dayOfYear());
         ASSERT_SAFE_FAIL(INVALID.dayOfWeek());
         {
-            int hour;  (void)hour;
+            int hour = 0;  (void)hour;
             ASSERT_SAFE_FAIL(INVALID.getTime(&hour));
         }
         ASSERT_SAFE_FAIL(INVALID.hour());
