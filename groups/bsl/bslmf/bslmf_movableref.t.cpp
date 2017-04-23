@@ -26,7 +26,7 @@ using namespace BloombergLP;
 //                                   Overview
 //                                   --------
 // ----------------------------------------------------------------------------
-// [ 4] MovableRef<TYPE>::operator TYPE&();
+// [ 4] MovableRef<TYPE>::operator TYPE&() const;
 // [ 5] TYPE& access(TYPE& lvalue);
 // [ 5] TYPE& access(MovableRef<TYPE>& lvalue);
 // [ 3] MovableRef<TYPE> move(TYPE& lvalue);
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
         //:   check that the addresses are identical.
         //
         // Testing:
-        //   MovableRef<TYPE>::operator TYPE&();
+        //   MovableRef<TYPE>::operator TYPE&() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'MovableRef<TYPE>::operator TYPE&'"

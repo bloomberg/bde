@@ -34,17 +34,14 @@ using namespace BloombergLP;
 // the supported type categories.  We also need to verify that the
 // meta-function can be correctly extended to support other types through
 // either of the two supported mechanisms; however, extension testing must be
-// done in the 'bslmf_movableref' test driver to avoid a cyclic dependency
-// (to expose extensions to C++03 environments, 'bslmf::MovableRef' must be
-// used).  Finally, we need to test correct support for cv-qualified and array
-// types, where the underlying type may have a 'nothrow' move constructor.
-//
+// done in the 'bslmf_movableref' test driver to avoid a cyclic dependency (to
+// expose extensions to C++03 environments, 'bslmf::MovableRef' must be used).
+// Finally, we need to test correct support for cv-qualified and array types,
+// where the underlying type may have a 'nothrow' move constructor.
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_nothrow_move_constructible::value
-//
 // ----------------------------------------------------------------------------
-// [  ] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -185,6 +182,7 @@ struct UserDefinedTestType {
 
     // CREATORS
     UserDefinedTestType()
+        // Create a default 'UserDefinedTestType' object.
     {
     }
 };
