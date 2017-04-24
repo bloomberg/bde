@@ -20,16 +20,15 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Log: namespace for a suite of logging utilities
 //
-//@SEE_ALSO: ball_loggermanager, ball_categorymanager, ball_severity,
-//           ball_record
+//@SEE_ALSO: ball_loggermanager, ball_category, ball_severity, ball_record
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
-//@DESCRIPTION: This component provides pre-processor macros and utility
+//@DESCRIPTION: This component provides preprocessor macros and utility
 // functions to facilitate use of the 'ball_loggermanager' component.  In
 // particular, the macros defined herein greatly simplify the mechanics of
-// generating log records.  The utility functions are only intended for use by
-// the macros and should *not* be called directly.
+// generating log records.  The utility functions provided in 'ball::Log' are
+// intended only for use by the macros and should *not* be called directly.
 //
 ///Thread Safety
 ///-------------
@@ -38,46 +37,82 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-// This section documents the pre-processor macros defined in this component.
+// This section documents the preprocessor macros defined in this component.
 //
-// The following two macros establish the logging context required by the other
-// macros.  A use of one of these two macros must be visible from within the
-// lexical scope where the C++ stream-based and 'printf'-style macros are used:
+// The first three macros described below are used to define categories, at
+// either block scope or class scope, to which records are logged by the C++
+// stream-based and 'printf'-style logging macros (described further below).
+//
+///Macros for Defining Categories at Block Scope
+///- - - - - - - - - - - - - - - - - - - - - - -
+// The following two macros are used to establish logging categories that have
+// block scope:
 //
 //: 'BALL_LOG_SET_CATEGORY(CATEGORY)':
-//:     Set the category for logging to the specified 'CATEGORY' (assumed to be
+//:     Set a category for logging to the specified 'CATEGORY' (assumed to be
 //:     of type convertible to 'const char *').  On the *first* invocation of
 //:     this macro in a code block, the 'ball::Log::setCategory' method is
 //:     invoked to retrieve the address of an appropriate category structure
 //:     for its scope; subsequent invocations will use a cached address of the
 //:     category.  (See the function-level documentation of
-//:     'ball::Log::setCategory' for more information.)  Note that this macro
-//:     must be used at block scope, and can be used at most once in any given
-//:     block (or else a compiler diagnostic will result).
+//:     'ball::Log::setCategory' for more information.)  This macro must be
+//:     used at block scope, and can be used at most once in any given block
+//:     (or else a compiler diagnostic will result).
 //:
 //: 'BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)':
-//:      Set, *on EACH invocation*, the category for logging to the specified
+//:     Set, *on* *EACH* *invocation*, a category for logging to the specified
 //:     'CATEGORY' (assumed to be of type convertible to 'const char *').  On
 //:     *EVERY* invocation of this macro in a code block, the
 //:     'ball::Log::setCategory' method is invoked to retrieve the address of
 //:     an appropriate category structure for its scope; the address returned
 //:     from 'ball::Log::setCategory' is *NOT* cached for subsequent calls.
 //:     (See the function-level documentation of 'ball::Log::setCategory' for
-//:     more information.)  Note that this macro should be used to create
-//:     categories that depend on *RUN-TIME* values only (e.g., LUW or UUID).
-//:     Also note that this macro must be used at block scope and can be used
-//:     at most once in any given block (or else a compiler diagnostic will
-//:     result).
+//:     more information.)  This macro must be used at block scope and can be
+//:     used at most once in any given block (or else a compiler diagnostic
+//:     will result).  Note that this macro should be used to create categories
+//:     that depend on *RUN-TIME* values only (e.g., LUW or UUID).
 //
-// Note that there can be at most one use of either 'BALL_LOG_SET_CATEGORY' or
+// There can be at most one use of either 'BALL_LOG_SET_CATEGORY' or
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY' in any given block (or else a compiler
-// diagnostic will result).  Also note that categories that are set, including
-// dynamic categories, are not destroyed until process termination.
+// diagnostic will result).  Note that categories that are set using these
+// macros, including dynamic categories, are not destroyed until the logger
+// manager is destroyed.
 //
-// The seven macros based on C++ streams that are most commonly used,
-// 'BALL_LOG_TRACE', 'BALL_LOG_DEBUG', 'BALL_LOG_INFO', 'BALL_LOG_WARN',
-// 'BALL_LOG_ERROR', 'BALL_LOG_FATAL', and 'BALL_LOG_END', have the following
-// usage pattern:
+///Macro for Defining Categories at Class Scope
+/// - - - - - - - - - - - - - - - - - - - - - -
+// The following macro is used to establish logging categories that have class
+// scope:
+//
+//: 'BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)':
+//:     Set a category for logging to the specified 'CATEGORY' (assumed to be
+//:     of type convertible to 'const char *') in the scope of the class within
+//:     which this macro is used.  Similar to 'BALL_LOG_SET_CATEGORY', the
+//:     category is set *once* only, the first time that it is accessed (i.e.,
+//:     it is not a dynamic category).  This macro must be used, at most once,
+//:     within the definition of a class or class template (or else a compiler
+//:     diagnostic will result).  Uses of this macro must not be terminated by
+//:     a ';'.  Note that use of this macro may occur in either a 'public',
+//:     'private', or 'protected' section of a class's interface, although
+//:     'private' should be preferred.
+//
+// Note that similar to block-scope categories (see 'BALL_LOG_SET_CATEGORY' and
+// 'BALL_LOG_SET_DYNAMIC_CATEGORY'), class-scope categories are not destroyed
+// until the logger manager is destroyed.
+//
+///Macros for Logging Records
+/// - - - - - - - - - - - - -
+// The macros defined in this subsection are the ones that are actually used to
+// produce log records.  A use of any one of the logging macros requires that a
+// logging category (as established by the macros defined above) be in scope at
+// the point where the macro is used.  Note that the formatted string that is
+// generated for the message attribute of each log record includes the category
+// that is in scope and the filename as established by the standard '__FILE__'
+// macro.
+//
+// A set of macros based on C++ streams, 'BALL_LOG_TRACE', 'BALL_LOG_DEBUG',
+// 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', 'BALL_LOG_FATAL', and
+// 'BALL_LOG_END', are the ones most commonly used for logging.  They have the
+// following usage pattern:
 //..
 //  BALL_LOG_TRACE << X << Y ... << BALL_LOG_END
 //  BALL_LOG_DEBUG << X << Y ... << BALL_LOG_END
@@ -89,14 +124,11 @@ BSLS_IDENT("$Id: $")
 //      'operator<<' is defined.  The resulting formatted message string is
 //      logged with the severity indicated by the name of the initial macro
 //      (e.g., 'BALL_LOG_TRACE' ... 'BALL_LOG_END' logs with severity
-//      'ball::Severity::e_TRACE').  Note that the formatted string includes
-//      the category and filename as established by the
-//      'BALL_LOG_SET_CATEGORY' (or 'BALL_LOG_SET_DYNAMIC_CATEGORY') and
-//      '__FILE__' macros, respectively.
+//      'ball::Severity::e_TRACE').
 //..
-// Two closely-related macros that are also based on C++ streams,
-// 'BALL_LOG_STREAM' and 'BALL_LOG_STREAM_UNLIKELY', require that the severity
-// be explicitly indicated.  They have the following usage pattern:
+// Two closely-related macros also based on C++ streams, 'BALL_LOG_STREAM' and
+// 'BALL_LOG_STREAM_UNLIKELY', require that the severity be explicitly supplied
+// as an argument:
 //..
 //  BALL_LOG_STREAM(severity)          << X << Y ... << BALL_LOG_END
 //  BALL_LOG_STREAM_UNLIKELY(severity) << X << Y ... << BALL_LOG_END
@@ -104,15 +136,12 @@ BSLS_IDENT("$Id: $")
 //      'operator<<' is defined.  The resulting formatted message string is
 //      logged with the specified 'severity'.  'BALL_LOG_STREAM_UNLIKELY'
 //      differs from 'BALL_LOG_STREAM' in that the former provides a hint to
-//      the compiler that it is "unlikely" to be executed; it is intended for
+//      the compiler that it is "unlikely" to be executed, and is intended for
 //      special-purpose use only.  Note that 'BALL_LOG_TRACE', for example, is
-//      equivalent to 'BALL_LOG_STREAM(ball::Severity::e_TRACE)'.  Also note
-//      that the formatted string includes the category and filename as
-//      established by the 'BALL_LOG_SET_CATEGORY' (or
-//      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
+//      equivalent to 'BALL_LOG_STREAM_UNLIKELY(ball::Severity::e_TRACE)'.
 //..
-// Seven other macros based on C++ streams, similar to 'BALL_LOG_TRACE', etc.,
-// allow the caller to specify a "callback" function that is passed the
+// Another set of macros based on C++ streams, similar to 'BALL_LOG_TRACE',
+// etc., allow the caller to specify a "callback" function that is passed the
 // 'ball::UserFields *' used to represent the user fields of a log record.
 // 'BALL_LOGCB_TRACE', 'BALL_LOGCB_DEBUG', 'BALL_LOGCB_INFO',
 // 'BALL_LOGCB_WARN', 'BALL_LOGCB_ERROR', 'BALL_LOGCB_FATAL', and
@@ -129,13 +158,10 @@ BSLS_IDENT("$Id: $")
 //      'ball::UserFields *' as an argument.  The resulting formatted message
 //      string is logged with the severity indicated by the name of the
 //      initial macro (e.g., 'BALL_LOGCB_ERROR' ... 'BALL_LOGCB_END' logs with
-//      severity 'ball::Severity::e_ERROR').  The log record will contain the
-//      'ball::UserFields' representing user fields as populated by 'CB'.
-//      Note that the formatted string includes the category and filename as
-//      established by the 'BALL_LOG_SET_CATEGORY' (or
-//      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-//      Note the callback supplied to the logging macro must match the
-//      prototype 'void (*)(ball::UserFields *)'.
+//      severity 'ball::Severity::e_ERROR').  The generated log record will
+//      contain the 'ball::UserFields' representing user fields as populated by
+//      'CB'.  Note that the callback supplied to the logging macro must match
+//      the prototype 'void (*)(ball::UserFields *)'.
 //..
 // The remaining macros are based on 'printf'-style format specifications:
 //..
@@ -152,16 +178,21 @@ BSLS_IDENT("$Id: $")
 //      macro (e.g., 'BALL_LOGVA_INFO' logs with severity
 //      'ball::Severity::e_INFO').  The behavior is undefined unless the number
 //      and types of optional arguments are compatible with the format
-//      specification in 'MSG'.  Note that the formatted string includes the
-//      category and filename as established by the 'BALL_LOG_SET_CATEGORY' (or
-//      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-//      Also note that each use of these macros must be terminated by a ';'.
+//      specification in 'MSG'.  Note that each use of these macros must be
+//      terminated by a ';'.
+//..
 //
+///Utility Macros
+/// - - - - - - -
+// The following utility macro is intended for special-purpose use for
+// fine-tuning logging behavior.  A use of this macro requires that a logging
+// category (as established by the macros defined above) be in scope at the
+// point where the macro is used.
+//..
 //  BALL_LOG_IS_ENABLED(BALL_SEVERITY)
-//      Return 'true' if the specified 'BALL_SEVERITY' is more severe than any
-//      of the threshold levels of the current context's logging category
-//      (which must be established using 'BALL_LOG_SET_CATEGORY'), and 'false'
-//      otherwise.
+//      Return 'true' if the specified 'BALL_SEVERITY' is at least as severe as
+//      any of the threshold levels of the logging category that is in scope,
+//      and 'false' otherwise.
 //..
 //
 ///Usage
@@ -189,11 +220,11 @@ BSLS_IDENT("$Id: $")
 //..
 //      BALL_LOG_FATAL << "Write this message to the log if the log threshold "
 //                     << "is above 'ball::Severity::FATAL' (i.e., 32)."
-//                     << BALL_LOG_END;
+//                     << BALL_LOG_END
 //
 //      BALL_LOG_TRACE << "Write this message to the log if the log threshold "
 //                     << "is above 'ball::Severity::FATAL' (i.e., 192)."
-//                     << BALL_LOG_END;
+//                     << BALL_LOG_END
 //  }
 //..
 // Note that failing to match the start of a logged message with an
@@ -205,7 +236,7 @@ BSLS_IDENT("$Id: $")
 // current lexical scope.  The following macro instantiation sets the category
 // for logging to be "EQUITY.NASD" in the enclosing lexical scope:
 //..
-//      BALL_LOG_SET_CATEGORY("EQUITY.NASD")
+//  BALL_LOG_SET_CATEGORY("EQUITY.NASD")
 //..
 // Note that this macro must not be used at file scope and it can be used
 // at most once in any given block (or else a compiler diagnostic will result).
@@ -216,33 +247,33 @@ BSLS_IDENT("$Id: $")
 // code shows how to set a different category in a nested inner block that
 // hides a category set in an enclosing block:
 //..
-//      void logIt()
+//  void logIt()
+//  {
+//      BALL_LOG_SET_CATEGORY("EQUITY.NASD")
+//
+//      // Logging to category "EQUITY.NASD" unless overridden in a nested
+//      // block.
+//      // [*] ...
+//
 //      {
-//          BALL_LOG_SET_CATEGORY("EQUITY.NASD")
-//
-//          // Logging to category "EQUITY.NASD" unless overridden in a
-//          // nested block.
 //          // [*] ...
+//          // Still logging to category "EQUITY.NASD".
 //
-//          {
-//              // [*] ...
-//              // Still logging to category "EQUITY.NASD".
+//          BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 //
-//              BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
-//
-//              // Now logging to category "EQUITY.NASD.SUNW".
-//              // [*] ...
-//          }
-//          // Again logging to category "EQUITY.NASD".
+//          // Now logging to category "EQUITY.NASD.SUNW".
 //          // [*] ...
 //      }
+//      // Again logging to category "EQUITY.NASD".
+//      // [*] ...
+//  }
 //..
-// Within 'logIt', the required logging context is in place at each of the
-// locations marked by [*].
+// Within 'logIt', a requisite logging category is visible at each of the
+// locations marked by '[*]'.
 //
 ///Example 3: C++ I/O Streams-Style Logging Macros
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The preferred logging method we use, the iostreams-style macros such as
+// The preferred logging method we use, the 'iostream'-style macros such as
 // 'BALL_LOG_INFO', allow streaming via the 'bsl::ostream' 'class' and the C++
 // stream operator '<<'.  An advantage the C++ streaming style has over the
 // 'printf' style output (shown below in example 4) is that complex types often
@@ -342,7 +373,8 @@ BSLS_IDENT("$Id: $")
 // Because we can't easily 'printf' complex types like 'bdlt::Date' or
 // 'bsl::string', we have to convert 'settleDate' to a 'const char *'
 // ourselves.  Note that all this additional work was unnecessary in Example 3
-// when we used the C++ iostream-style, rather than the 'printf'-style, macros.
+// when we used the C++ 'iostream'-style, rather than the 'printf'-style,
+// macros.
 //..
 //  bsl::ostringstream  settleOss;
 //  settleOss << settleDate;
@@ -420,7 +452,7 @@ BSLS_IDENT("$Id: $")
 //
 //      BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName.c_str());
 //
-//      BALL_LOG_TRACE << "processing: " << security << BALL_LOG_END;
+//      BALL_LOG_TRACE << "processing: " << security << BALL_LOG_END
 //
 //      // ...
 //  }
@@ -474,7 +506,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //
-//      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END;
+//      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END
 //..
 // Because 'attributes' is defined on this thread's stack, it must be removed
 // from this thread's attribute context before exiting the function (the
@@ -503,7 +535,7 @@ BSLS_IDENT("$Id: $")
 //
 //  bsl::vector<char> message;
 //
-//  BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END;
+//  BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END
 //  processData(3938908, 2, 9001, message);
 //..
 // Now we add a logging rule, setting the pass-through threshold to be
@@ -516,14 +548,14 @@ BSLS_IDENT("$Id: $")
 //  rule.addPredicate(ball::Predicate("uuid", 3938908));
 //  ball::LoggerManager::singleton().addRule(rule);
 //
-//  BALL_LOG_ERROR << "Processing the second message." << BALL_LOG_END;
+//  BALL_LOG_ERROR << "Processing the second message." << BALL_LOG_END
 //  processData(3938908, 2, 9001, message);
 //..
 // The final call to the 'processData' function below, passes a "uuid" of
 // '2171395' (not '3938908') so the logging rule we defined will *not* apply
 // and no message will be logged.
 //..
-//  BALL_LOG_ERROR << "Processing the third message." << BALL_LOG_END;
+//  BALL_LOG_ERROR << "Processing the third message." << BALL_LOG_END
 //  processData(2171395, 2, 9001, message);
 //..
 // The resulting logged output for this example looks like the following:
@@ -587,9 +619,103 @@ BSLS_IDENT("$Id: $")
 //      return numErrors;
 //  }
 //..
+//
+///Example 8: Class-Scope Logging
+/// - - - - - - - - - - - - - - -
+// The following example demonstrates how to define and use logging categories
+// that have class scope.
+//
+// First, we define a class, 'Thing', for which we want to do class-scope
+// logging.  The use of the 'BALL_LOG_SET_CLASS_CATEGORY' macro generates the
+// requisite declarations within the definition of the class.  We have used the
+// macro in a 'private' section of the interface, which should be preferred,
+// but 'public' (or 'protected') is fine, too:
+//..
+//  // pckg_thing.h
+//  namespace pckg {
+//
+//  class Thing {
+//      // ...
+//
+//    private:
+//      // CLASS-SCOPE CATEGORY
+//      BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING")
+//
+//    public:
+//      // ...
+//
+//      // MANIPULATORS
+//      void outOfLineMethodThatLogs(bool useClassCategory);
+//          // Log to the class-scope category "PCKG.THING" if the specified
+//          // 'useClassCategory' flag is 'true', and to the block-scope
+//          // category "X.Y.Z" otherwise.
+//
+//      // ...
+//
+//      // ACCESSORS
+//      void inlineMethodThatLogs() const;
+//          // Log a record to the class-scope category "PCKG.THING".
+//  };
+//..
+// Next, we define the 'inlineMethodThatLogs' method 'inline' within the header
+// file and log to the class-scope category using 'BALL_LOG_TRACE'.  Since
+// there is no other category in scope, the record is necessarily logged to the
+// "PCKG.THING" category that is within the scope of the 'Thing' class:
+//..
+//  // ...
+//
+//  // ACCESSORS
+//  inline
+//  void Thing::inlineMethodThatLogs() const
+//  {
+//      BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END
+//  }
+//
+//  }  // close namespace pckg
+//..
+// Now, we define the 'outOfLineMethodThatLogs' method within the '.cpp' file.
+// On each invocation, this method logs one record using 'BALL_LOG_TRACE'.  It
+// logs to the "PCKG.THING" class-scope category if 'useClassCategory' is
+// 'true', and logs to the "X.Y.Z" block-scope category otherwise:
+//..
+//  // pckg_thing.cpp
+//  namespace pckg {
+//
+//  // ...
+//
+//  // MANIPULATORS
+//  void Thing::outOfLineMethodThatLogs(bool useClassCategory)
+//  {
+//      if (useClassCategory) {
+//          BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END;
+//      }
+//      else {
+//          BALL_LOG_SET_CATEGORY("X.Y.Z");
+//          BALL_LOG_TRACE << "log to X.Y.Z" << BALL_LOG_END
+//      }
+//  }
+//
+//  }  // close namespace pckg
+//..
+// Finally, note that both block-scope and class-scope categories can be logged
+// to within the same block.  For example, the following block within a 'Thing'
+// method would first log to "PCKG.THING" then log to "X.Y.Z":
+//..
+//      {
+//          BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END
+//
+//          BALL_LOG_SET_CATEGORY("X.Y.Z");
+//
+//          BALL_LOG_TRACE << "log to X.Y.Z" << BALL_LOG_END
+//      }
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
+#endif
+
+#ifndef INCLUDED_BALL_CATEGORY
+#include <ball_category.h>
 #endif
 
 #ifndef INCLUDED_BALL_CATEGORYMANAGER
@@ -616,17 +742,49 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #endif
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AQQ01
+// BDE_VERIFY pragma: -AQS01
+// BDE_VERIFY pragma: -FB01
+// BDE_VERIFY pragma: -KS00
+// BDE_VERIFY pragma: -TR04
+// BDE_VERIFY pragma: -TR17
+
+                       // =======================
+                       // CategoryHolder Accessor
+                       // =======================
+
+// HELPER FUNCTIONS
+inline
+BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
+                             BloombergLP::ball::CategoryHolder& categoryHolder)
+    // Return the address of the specified 'categoryHolder'.  Note that this
+    // function facilitates consistent lookup of block-scope and class-scope
+    // category holders (see "Logging Macro Reuse" in the "IMPLEMENTATION
+    // NOTES" of the component implementation file for details).
+{
+    return &categoryHolder;
+}
+
+// BDE_VERIFY pragma: pop
+
                        // =========================
                        // Logging Macro Definitions
                        // =========================
 
-#define BALL_LOG_CATEGORY (BALL_LOG_CATEGORYHOLDER.category())
+#define BALL_LOG_CATEGORY                                                     \
+    (ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER)->category())
 
-#define BALL_LOG_THRESHOLD (BALL_LOG_CATEGORYHOLDER.threshold())
+#define BALL_LOG_THRESHOLD                                                    \
+    (ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER)->threshold())
 
 #define BALL_RECORD (ball_lOcAl_StReAm.record())
 
 #define BALL_STREAM (ball_lOcAl_StReAm.stream())
+
+                       // ===========================
+                       // Block-Scope Category Macros
+                       // ===========================
 
 #define BALL_LOG_SET_CATEGORY(CATEGORY)                                       \
     static BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {      \
@@ -647,6 +805,30 @@ BSLS_IDENT("$Id: $")
         0                                                                     \
     };
 
+                       // ==========================
+                       // Class-Scope Category Macro
+                       // ==========================
+
+#define BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)                                 \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 };                                     \
+    static BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(        \
+                           BloombergLP::ball::CategoryHolder& categoryHolder) \
+    {                                                                         \
+        return &categoryHolder;                                               \
+    }                                                                         \
+    static BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(        \
+                                                                  const int&) \
+    {                                                                         \
+        static BloombergLP::ball::CategoryHolder holder = {                   \
+            BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY, 0, 0 \
+        };                                                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::ball::Log::setCategory(&holder, CATEGORY);           \
+        }                                                                     \
+        return &holder;                                                       \
+    }
+
                        // =======================
                        // C++ stream-based macros
                        // =======================
@@ -654,8 +836,9 @@ BSLS_IDENT("$Id: $")
 #define BALL_LOG_STREAM(BALL_SEVERITY) {                                      \
     using namespace BloombergLP;                                              \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
-        if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,            \
-                                         BALL_SEVERITY)) {                    \
+        if (ball::Log::isCategoryEnabled(                                     \
+                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
+                            BALL_SEVERITY)) {                                 \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
                                                __LINE__, BALL_SEVERITY);      \
             BALL_STREAM
@@ -665,8 +848,9 @@ BSLS_IDENT("$Id: $")
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \
                                  BALL_LOG_THRESHOLD >= (BALL_SEVERITY))) {    \
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
-        if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,            \
-                                         BALL_SEVERITY)) {                    \
+        if (ball::Log::isCategoryEnabled(                                     \
+                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
+                            BALL_SEVERITY)) {                                 \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
                                                __LINE__, BALL_SEVERITY);      \
             BALL_STREAM
@@ -704,8 +888,9 @@ BSLS_IDENT("$Id: $")
 #define BALL_LOGCB_STREAM(BALL_SEVERITY, CB) {                                \
     using namespace BloombergLP;                                              \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
-        if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,            \
-                                         BALL_SEVERITY)) {                    \
+        if (ball::Log::isCategoryEnabled(                                     \
+                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
+                            BALL_SEVERITY)) {                                 \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
                                                __LINE__, BALL_SEVERITY);      \
             CB(&ball_lOcAl_StReAm.record()->customFields());                  \
@@ -750,8 +935,8 @@ BSLS_IDENT("$Id: $")
 do {                                                                          \
     if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
         if (BloombergLP::ball::Log::isCategoryEnabled(                        \
-                                         &BALL_LOG_CATEGORYHOLDER,            \
-                                         BALL_SEVERITY)) {                    \
+                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
+                            BALL_SEVERITY)) {                                 \
             BloombergLP::ball::Log_Formatter ball_lOcAl_FoRmAtTeR(            \
                                                      BALL_LOG_CATEGORY,       \
                                                      __FILE__, __LINE__,      \
@@ -794,8 +979,10 @@ do {                                                                          \
                        // ==============
 
 #define BALL_LOG_IS_ENABLED(BALL_SEVERITY)                                    \
-    ((BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) &&                               \
-    ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER, BALL_SEVERITY))
+    ((BALL_LOG_THRESHOLD >= (BALL_SEVERITY))                                  \
+     && BloombergLP::ball::Log::isCategoryEnabled(                            \
+                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
+                            BALL_SEVERITY))
 
 namespace BloombergLP {
 
@@ -1189,7 +1376,7 @@ int Log_Formatter::severity() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

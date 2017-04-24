@@ -10,25 +10,19 @@
 #include <ball_log.h>
 
 #include <ball_administration.h>
-#include <ball_attribute.h>           // for testing
-#include <ball_attributecontainer.h>  // for testing
+#include <ball_attribute.h>
+#include <ball_attributecontainer.h>
 #include <ball_attributecontainerlist.h>
 #include <ball_attributecontext.h>
 #include <ball_defaultattributecontainer.h>
 #include <ball_defaultobserver.h>
-#include <ball_categorymanager.h>
 #include <ball_loggermanagerconfiguration.h>
+#include <ball_predicate.h>
 #include <ball_record.h>
 #include <ball_rule.h>
-#include <ball_predicate.h>
 #include <ball_testobserver.h>
 #include <ball_thresholdaggregate.h>
 #include <ball_userfields.h>
-
-#include <bslma_testallocator.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_threadutil.h>
-#include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -39,24 +33,28 @@
 #include <bdlt_datetime.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
-#include <bsls_platform.h>
+#include <bsls_atomic.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>    // atoi()
-#include <bsl_cstdio.h>
-#include <bsl_cstring.h>    // strlen(), strcmp(), memset(), memcpy(), memcmp()
 #include <bsl_cstddef.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>    // atoi()
+#include <bsl_cstring.h>    // strlen(), strcmp(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>
-#include <bsl_iostream.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
+#include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -86,9 +84,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test consists of a large number of preprocessor macros
@@ -103,14 +101,14 @@ using bsl::flush;
 // functions.  Each macro is individually tested to ensure that the macro's
 // arguments are correctly forwarded and that the side-effects of the macro
 // match the expected behavior.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] static char *s_cachedMessageBuffer;
 // [ 1] static int s_cachedMessageBufferSize;
 // [ 1] static char *messageBuffer();
 // [ 1] static int messageBufferSize();
 // [ 1] static void logMessage(*category, severity, *file, line, *msg);
 // [ 1] static const ball::Category *setCategory(const char *categoryName);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] BALL_LOG_SET_CATEGORY
 // [ 2] BALL_LOG_CATEGORY
 // [ 2] BALL_LOG_THRESHOLD
@@ -130,20 +128,20 @@ using bsl::flush;
 // [16] TESTING OSTRSTREAM MACROS WITH CALLBACK
 // [17] TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
 // [18] BALL_LOG_SET_DYNAMIC_CATEGORY
-// [19] BALL_LOG_STREAM
+// [19] ball::Log_Stream
 // [20] bool isCategoryEnabled(Holder *holder, int severity);
 // [21] BALL_LOG_SET_CATEGORY and BALL_LOG_TRACE WITH MULTIPLE THREADS
 // [22] BALL_LOG_SET_DYNAMIC_CATEGORY and BALL_LOG_TRACE WITH MULTIPLE THREADS
 // [23] BALL_LOG_SET_CATEGORY and BALL_LOGVA WITH MULTIPLE THREADS
 // [24] BALL_LOG_SET_DYNAMIC_CATEGORY and BALL_LOGVA WITH MULTIPLE THREADS
-// [25] RULE BASED LOGGING: bool isCategoryEnabled(Holder *, int);
-// [26] RULE BASED LOGGING: void logMessage(const ball::Category *,
-//                                          int,
-//                                          ball::Record *);
+// [25] RULE-BASED LOGGING: bool isCategoryEnabled(Holder *, int);
+// [26] RULE-BASED LOGGING: logMessage(const Category *, int, Record *);
 // [27] BALL_LOG_IS_ENABLED(SEVERITY)
-//-----------------------------------------------------------------------------
-// [28] USAGE EXAMPLE
-// [29] RULE-BASED LOGGING USAGE EXAMPLE
+// [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
+// ----------------------------------------------------------------------------
+// [29] USAGE EXAMPLE
+// [30] RULE-BASED LOGGING USAGE EXAMPLE
+// [31] CLASS-SCOPE LOGGING USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -200,9 +198,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef BloombergLP::ball::Log                Obj;
 typedef BloombergLP::ball::Severity           Sev;
@@ -223,9 +221,13 @@ const int ERROR = Sev::e_ERROR;
 const int FATAL = Sev::e_FATAL;
 const int OFF   = Sev::e_OFF;
 
-//=============================================================================
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
+
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 void executeInParallel(
                      int                                            numThreads,
@@ -234,7 +236,8 @@ void executeInParallel(
     // Number each thread (sequentially from 0 to 'numThreads-1') by passing
     // 'i' to i'th thread.  Finally join all the threads.
 {
-    using namespace BloombergLP;
+    using namespace BloombergLP;  // okay here
+
     bslmt::ThreadUtil::Handle *threads =
                                      new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
@@ -353,12 +356,109 @@ class CerrBufferGuard {
     ~CerrBufferGuard() { bsl::cerr.rdbuf(d_cerrBuf); }
         // Restore the 'streambuf' being used by 'cerr' to that which was
         // being used on this objects construction.
-
 };
 
-//=============================================================================
-//                             USAGE EXAMPLE 6
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             USAGE EXAMPLE 8
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+
+///Example 8: Class-Scope Logging
+/// - - - - - - - - - - - - - - -
+// The following example demonstrates how to define and use logging categories
+// that have class scope.
+//
+// First, we define a class, 'Thing', for which we want to do class-scope
+// logging.  The use of the 'BALL_LOG_SET_CLASS_CATEGORY' macro generates the
+// requisite declarations within the definition of the class.  We have used the
+// macro in a 'private' section of the interface, which should be preferred,
+// but 'public' (or 'protected') is fine, too:
+//..
+    // pckg_thing.h
+    namespace pckg {
+
+    class Thing {
+        // ...
+
+      private:
+        // CLASS-SCOPE CATEGORY
+        BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING")
+
+      public:
+        // ...
+
+        // MANIPULATORS
+        void outOfLineMethodThatLogs(bool useClassCategory);
+            // Log to the class-scope category "PCKG.THING" if the specified
+            // 'useClassCategory' flag is 'true', and to the block-scope
+            // category "X.Y.Z" otherwise.
+
+        // ...
+
+        // ACCESSORS
+        void inlineMethodThatLogs() const;
+            // Log a record to the class-scope category "PCKG.THING".
+    };
+//..
+// Next, we define the 'inlineMethodThatLogs' method 'inline' within the header
+// file and log to the class-scope category using 'BALL_LOG_TRACE'.  Since
+// there is no other category in scope, the record is necessarily logged to the
+// "PCKG.THING" category that is within the scope of the 'Thing' class:
+//..
+    // ...
+
+    // ACCESSORS
+    inline
+    void Thing::inlineMethodThatLogs() const
+    {
+        BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END
+    }
+
+    }  // close namespace pckg
+//..
+// Now, we define the 'outOfLineMethodThatLogs' method within the '.cpp' file.
+// On each invocation, this method logs one record using 'BALL_LOG_TRACE'.  It
+// logs to the "PCKG.THING" class-scope category if 'useClassCategory' is
+// 'true', and logs to the "X.Y.Z" block-scope category otherwise:
+//..
+    // pckg_thing.cpp
+    namespace pckg {
+
+    // ...
+
+    // MANIPULATORS
+    void Thing::outOfLineMethodThatLogs(bool useClassCategory)
+    {
+        if (useClassCategory) {
+            BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END;
+        }
+        else {
+            BALL_LOG_SET_CATEGORY("X.Y.Z");
+            BALL_LOG_TRACE << "log to X.Y.Z" << BALL_LOG_END
+        }
+    }
+
+    }  // close namespace pckg
+//..
+// Finally, note that both block-scope and class-scope categories can be logged
+// to within the same block.  For example, the following block within a 'Thing'
+// method would first log to "PCKG.THING" then log to "X.Y.Z":
+//..
+//      {
+//          BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END
+//
+//          BALL_LOG_SET_CATEGORY("X.Y.Z");
+//
+//          BALL_LOG_TRACE << "log to X.Y.Z" << BALL_LOG_END
+//      }
+//..
+
+}  // close enterprise namespace
+
+// ============================================================================
+//                             USAGE EXAMPLE 7
+// ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 
@@ -429,17 +529,13 @@ class Point {
 
 }  // close enterprise namespace
 
-//=============================================================================
-//                             USAGE EXAMPLE 5
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                             USAGE EXAMPLE 6
+// ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
-
-///Example 5: Rule Based Logging
+///Example 6: Rule-Based Logging
 ///- - - - - - - - - - - - - - -
 // The following example demonstrates using rules and attributes to
 // conditionally enable logging particular messages.
@@ -481,7 +577,7 @@ int veryVeryVerbose;
 //..
       BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 
-      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END;
+      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END
 //..
 // Because 'attributes' is defined on this thread's stack, it must be removed
 // from this thread's attribute context before exiting the function.
@@ -492,10 +588,181 @@ int veryVeryVerbose;
 
 }  // close enterprise namespace
 
+// ============================================================================
+//                         CASE 28 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+namespace BALL_LOG_TEST_CASE_28 {
+
+void globalFunctionThatLogsToLocalCategory()
+    // Log a record to the block-scope category "GLOBAL CATEGORY".
+{
+    BALL_LOG_SET_CATEGORY("GLOBAL CATEGORY")
+
+    BALL_LOG_INFO << "log to local category" << BALL_LOG_END
+}
+
+                         // =======================
+                         // class ClassScopeLoggerA
+                         // =======================
+
+class ClassScopeLoggerA {
+
+  private:
+    BALL_LOG_SET_CLASS_CATEGORY("CLASS CATEGORY A")
+
+  public:
+    // CLASS METHODS
+    static void classMethodThatLogsToClassCategory();
+        // Log a record to the class-scope category "CLASS CATEGORY A".
+
+    // MANIPULATORS
+    void outoflineMethodThatLogsToLocalCategory();
+        // Log a record to the class-scope category "CLASS CATEGORY A", then
+        // log a record to the block-scope "STATIC LOCAL CATEGORY".
+
+    // ACCESSORS
+    void inlineMethodThatLogsToClassCategory() const;
+        // Log a record to the class-scope category "CLASS CATEGORY A".
+};
+
+// ACCESSORS
+inline
+void ClassScopeLoggerA::inlineMethodThatLogsToClassCategory() const
+{
+    BALL_LOG_TRACE << "TRACE log to class-scope category" << BALL_LOG_END
+}
+
+                         // -----------------------
+                         // class ClassScopeLoggerA
+                         // -----------------------
+
+// CLASS METHODS
+void ClassScopeLoggerA::classMethodThatLogsToClassCategory()
+{
+    bsl::function<void(BloombergLP::ball::UserFields *)> callback =
+                                                                  &incCallback;
+
+    BALL_LOGCB_DEBUG(callback) << "callback DEBUG log to class-scope category"
+                               << BALL_LOG_END
+}
+
+// MANIPULATORS
+void ClassScopeLoggerA::outoflineMethodThatLogsToLocalCategory()
+{
+    BALL_LOG_INFO << "INFO log to class-scope category" << BALL_LOG_END
+
+    BALL_LOG_SET_CATEGORY("STATIC LOCAL CATEGORY")
+
+    BALL_LOG_INFO << "INFO log to static local category" << BALL_LOG_END
+}
+
+                         // =======================
+                         // class ClassScopeLoggerB
+                         // =======================
+
+class ClassScopeLoggerB {
+
+  public:
+    // CLASS METHODS
+    static void classMethodThatLogsToClassCategory();
+        // Log a record to the class-scope category "CLASS CATEGORY B".
+
+    // MANIPULATORS
+    void outoflineMethodThatLogsToLocalCategory();
+        // Log a record to the class-scope category "CLASS CATEGORY B", then
+        // log a record to the block-scope "DYNAMIC LOCAL CATEGORY".
+
+    // ACCESSORS
+    void inlineMethodThatLogsToClassCategory() const
+        // Log a record to the class-scope category "CLASS CATEGORY B".
+    {
+        BALL_LOG_WARN << "WARN log to class-scope category" << BALL_LOG_END
+    }
+
+  public:
+    BALL_LOG_SET_CLASS_CATEGORY("CLASS CATEGORY B")
+};
+
+                         // -----------------------
+                         // class ClassScopeLoggerB
+                         // -----------------------
+
+// CLASS METHODS
+void ClassScopeLoggerB::classMethodThatLogsToClassCategory()
+{
+    BALL_LOGVA_ERROR("variadic ERROR log to class-scope category: %d", 77);
+}
+
+// MANIPULATORS
+void ClassScopeLoggerB::outoflineMethodThatLogsToLocalCategory()
+{
+    BALL_LOG_FATAL << "FATAL log to class-scope category" << BALL_LOG_END
+
+    BALL_LOG_SET_DYNAMIC_CATEGORY("DYNAMIC LOCAL CATEGORY")
+
+    BALL_LOG_INFO << "DEBUG log to dynamic local category" << BALL_LOG_END
+}
+
+                         // ===============================
+                         // class template ClassScopeLogger
+                         // ===============================
+
+template <class TYPE>
+class ClassScopeLogger {
+
+  private:
+    // DATA
+    TYPE *d_dummy_p;  // dummy
+
+    BALL_LOG_SET_CLASS_CATEGORY("CLASS TEMPLATE CATEGORY")
+
+  public:
+    // CLASS METHODS
+    static void classMethodThatLogsToClassCategory();
+        // Log a record to the class-scope category "CLASS TEMPLATE CATEGORY".
+
+    // MANIPULATORS
+    void outoflineMethodThatLogsToLocalCategory();
+        // Log a record to the class-scope category "CLASS TEMPLATE CATEGORY",
+        // then log a record to the block-scope "STATIC LOCAL CATEGORY".
+
+    // ACCESSORS
+    void inlineMethodThatLogsToClassCategory() const
+        // Log a record to the class-scope category "CLASS TEMPLATE CATEGORY".
+    {
+        BALL_LOG_TRACE << "TRACE log to class-scope category" << BALL_LOG_END
+    }
+};
+
+                         // -------------------------------
+                         // class template ClassScopeLogger
+                         // -------------------------------
+
+// CLASS METHODS
+template <class TYPE>
+void ClassScopeLogger<TYPE>::classMethodThatLogsToClassCategory()
+{
+    BALL_LOGVA_ERROR("variadic ERROR log to class-scope category: %d", 77);
+}
+
+// MANIPULATORS
+template <class TYPE>
+void ClassScopeLogger<TYPE>::outoflineMethodThatLogsToLocalCategory()
+{
+    BALL_LOG_INFO << "INFO log to class-scope category" << BALL_LOG_END
+
+    BALL_LOG_SET_CATEGORY("STATIC LOCAL CATEGORY")
+
+    BALL_LOG_INFO << "INFO log to static local category" << BALL_LOG_END
+}
+
+}  // close namespace BALL_LOG_TEST_CASE_28
+
+// ============================================================================
 //                         CASE 24 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_24 {
 
 enum {
@@ -527,9 +794,10 @@ void *workerThread24(void *)
 
 }  // close namespace BALL_LOG_TEST_CASE_24
 
-//=============================================================================
+// ============================================================================
 //                         CASE 23 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_23 {
 
 enum {
@@ -561,9 +829,10 @@ void *workerThread23(void *)
 
 }  // close namespace BALL_LOG_TEST_CASE_23
 
-//=============================================================================
+// ============================================================================
 //                         CASE 22 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_22 {
 
 enum {
@@ -591,9 +860,10 @@ void *workerThread22(void *)
 
 }  // close namespace BALL_LOG_TEST_CASE_22
 
-//=============================================================================
+// ============================================================================
 //                         CASE 21 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_21 {
 
 enum {
@@ -621,9 +891,10 @@ void *workerThread21(void *)
 
 }  // close namespace BALL_LOG_TEST_CASE_21
 
-//=============================================================================
+// ============================================================================
 //                         CASE 18 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_18 {
 
 enum {
@@ -654,9 +925,11 @@ void *workerThread18(void *)
 }  // extern "C"
 
 }  // close namespace BALL_LOG_TEST_CASE_18
-//=============================================================================
+
+// ============================================================================
 //                         CASE 15 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_15 {
 
 class my_PublishCountingObserver : public BloombergLP::ball::Observer {
@@ -664,36 +937,46 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     // the number of messages published to it and gives access to that count
     // through 'publishCount'.
 
-    int d_publishCount;
+    // DATA
+    int d_publishCount;  // count of calls made to the 'publish' method
 
   public:
     // CREATORS
-    my_PublishCountingObserver() : d_publishCount(0)
+    my_PublishCountingObserver()
+    : d_publishCount(0)
+        // Create a 'publish'-counting observer having an initial count of 0.
     {
     }
 
     ~my_PublishCountingObserver()
+        // Destroy this object.
     {
     }
 
-    //MANIPULATORS
+    // MANIPULATORS
     void publish(const BloombergLP::ball::Record&,
                  const BloombergLP::ball::Context&)
+        // Increment the count maintained by this observer by 1, and ignore any
+        // arguments that were supplied.
     {
         ++d_publishCount;
     }
 
     // ACCESSORS
     int publishCount() const
+        // Return the number of times that the 'publish' method of this
+        // observer has been called since construction.
     {
         return d_publishCount;
     }
 };
 
 }  // close namespace BALL_LOG_TEST_CASE_15
-//=============================================================================
+
+// ============================================================================
 //                         CASE 13 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_13 {
 
 enum {
@@ -709,7 +992,6 @@ BloombergLP::bslmt::Mutex categoryMutex;
 extern "C" {
 void *workerThread13(void *)
 {
-    using namespace BloombergLP;
     categoryMutex.lock();
     BALL_LOG_SET_CATEGORY("main category");
     categoryMutex.unlock();
@@ -723,9 +1005,11 @@ void *workerThread13(void *)
 }  // extern "C"
 
 }  // close namespace BALL_LOG_TEST_CASE_13
-//=============================================================================
+
+// ============================================================================
 //                         CASE 12 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_12 {
 
 enum {
@@ -753,9 +1037,11 @@ void *workerThread12(void *)
 }  // extern "C"
 
 }  // close namespace BALL_LOG_TEST_CASE_12
-//=============================================================================
+
+// ============================================================================
 //                         CASE 11 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_11 {
 
 enum {
@@ -783,9 +1069,11 @@ void *workerThread11(void *)
 }  // extern "C"
 
 }  // close namespace BALL_LOG_TEST_CASE_11
-//=============================================================================
+
+// ============================================================================
 //                         CASE 10 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_10 {
 
 enum {
@@ -814,9 +1102,11 @@ void *workerThread10(void *)
 }  // extern "C"
 
 }  // close namespace BALL_LOG_TEST_CASE_10
-//=============================================================================
+
+// ============================================================================
 //                         CASE 9 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_9 {
 
 enum {
@@ -918,8 +1208,8 @@ void *workerThread9(void *arg)
     // - thread id
     // - the event it will cause
 
-    using namespace BloombergLP;
-    int id = (int)(bsls::Types::IntPtr)arg;
+    const int id = static_cast<int>(
+                      reinterpret_cast<BloombergLP::bsls::Types::IntPtr>(arg));
 
     categoryMutex.lock();
     BALL_LOG_SET_CATEGORY("main category");
@@ -945,6 +1235,7 @@ void *workerThread9(void *arg)
                            << BALL_LOG_END;
         }
     }
+
     return NULL;
 }
 
@@ -952,9 +1243,10 @@ void *workerThread9(void *arg)
 
 }  // close namespace BALL_LOG_TEST_CASE_9
 
-//=============================================================================
+// ============================================================================
 //                         CASE 6 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 namespace BALL_LOG_TEST_CASE_6 {
 
 const char *message1 = "MESSAGE-1";
@@ -969,24 +1261,22 @@ const char *f()
 
 }  // close namespace BALL_LOG_TEST_CASE_6
 
-//=============================================================================
+// ============================================================================
 //                         CASE -1 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BALL_LOG_TEST_CASE_MINUS_1 {
-
-using namespace BloombergLP;
 
 struct ThreadFunctor {
     void operator()()
     {
-        BALL_LOG_SET_CATEGORY( "CATEGORY_5" );
+        BALL_LOG_SET_CATEGORY("CATEGORY_5");
 
-        bsls::Types::Int64 id =
-                              (bsls::Types::Int64) bslmt::ThreadUtil::selfId();
+        typedef BloombergLP::bsls::Types::Uint64 Uint64;
 
-        while ( true )
-        {
+        const Uint64 id = BloombergLP::bslmt::ThreadUtil::selfIdAsUint64();
+
+        while (true) {
             BALL_LOG_ERROR << "ERROR " << id << BALL_LOG_END;
         }
     }
@@ -994,11 +1284,9 @@ struct ThreadFunctor {
 
 }  // close namespace BALL_LOG_TEST_CASE_MINUS_1
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
-
-using namespace BloombergLP;
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1015,26 +1303,87 @@ int main(int argc, char *argv[])
     TestAllocator ta(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 29: {
-        //---------------------------------------------------------------------
-        // TESTING RULE BASED LOGGING USAGE EXAMPLE
+      case 31: {
+        // --------------------------------------------------------------------
+        // CLASS-SCOPE LOGGING USAGE EXAMPLE
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
-        //---------------------------------------------------------------------
-        using namespace BloombergLP;
+        //   CLASS-SCOPE LOGGING USAGE EXAMPLE
+        // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing Rule-Based Logging Usage Example\n"
-                               << "========================================\n";
+                               << "CLASS-SCOPE LOGGING USAGE EXAMPLE\n"
+                               << "=================================\n";
+
+        using namespace BloombergLP;  // okay here
+
+        {
+            bslma::TestAllocator ta(veryVeryVerbose);
+            ball::LoggerManagerConfiguration lmc;
+            lmc.setDefaultThresholdLevelsIfValid(
+                  ball::Severity::e_TRACE,  // record level
+                  ball::Severity::e_TRACE,  // passthrough level
+                  ball::Severity::e_ERROR,  // trigger level
+                  ball::Severity::e_FATAL); // triggerAll level
+            ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
+
+            ASSERT(1 == ball::TestObserver::numInstances());
+            ASSERT(0 == TO->numPublishedRecords());
+
+            pckg::Thing mX;  const pckg::Thing& X = mX;
+
+            mX.outOfLineMethodThatLogs(true);
+
+            ASSERT(1 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "PCKG.THING",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            mX.outOfLineMethodThatLogs(false);
+
+            ASSERT(2 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "X.Y.Z",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            X.inlineMethodThatLogs();
+
+            ASSERT(3 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "PCKG.THING",
+                          TO->lastPublishedRecord().fixedFields().category()));
+        }
+
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // RULE-BASED LOGGING USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        //
+        // Testing:
+        //   RULE-BASED LOGGING USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "RULE-BASED LOGGING USAGE EXAMPLE\n"
+                               << "================================\n";
+
+        using namespace BloombergLP;  // okay here
 
 //..
 // Next we demonstrate how to create a logging rule that sets the passthrough
@@ -1057,7 +1406,7 @@ int main(int argc, char *argv[])
 
     bsl::vector<char> message;
 
-    BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END;
+    BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END
     processData(3938908, 2, 9001, message);
 //..
 // Now we add a logging rule to set the passthrough threshold to be
@@ -1070,10 +1419,10 @@ int main(int argc, char *argv[])
     rule.addPredicate(ball::Predicate("uuid", 3938908));
     ball::LoggerManager::singleton().addRule(rule);
 
-    BALL_LOG_ERROR << "Processing the second message." << BALL_LOG_END;
+    BALL_LOG_ERROR << "Processing the second message." << BALL_LOG_END
     processData(3938908, 2, 9001, message);
 
-    BALL_LOG_ERROR << "Processing the third message." << BALL_LOG_END;
+    BALL_LOG_ERROR << "Processing the third message." << BALL_LOG_END
     processData(2171395, 2, 9001, message);
 //..
 // The final call to the 'processData' function above, passes a "uuid" of
@@ -1088,55 +1437,57 @@ int main(int argc, char *argv[])
 // ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 //..
       } break;
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl << "Testing Usage Example"
-                               << bsl::endl << "====================="
+        if (verbose) bsl::cout << bsl::endl << "USAGE EXAMPLE"
+                               << bsl::endl << "============="
                                << bsl::endl;
+
+        using namespace BloombergLP;  // okay here
 
         if (verbose) bsl::cout << "Initialize logger manager" << bsl::endl;
 
-        BloombergLP::ball::DefaultObserver localObserver(&cout);
-        BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(&localObserver, lmc);
+        ball::DefaultObserver localObserver(&cout);
+        ball::LoggerManagerConfiguration lmc;
+        ball::LoggerManagerScopedGuard lmg(&localObserver, lmc);
 
-        BloombergLP::ball::Administration::addCategory(
+        ball::Administration::addCategory(
                                       "EQUITY.NASD",
-                                      BloombergLP::ball::Severity::e_TRACE,
+                                      ball::Severity::e_TRACE,
                                       veryVerbose
-                                      ? BloombergLP::ball::Severity::e_INFO
-                                      : BloombergLP::ball::Severity::e_ERROR,
-                                      BloombergLP::ball::Severity::e_ERROR,
-                                      BloombergLP::ball::Severity::e_FATAL);
+                                      ? ball::Severity::e_INFO
+                                      : ball::Severity::e_ERROR,
+                                      ball::Severity::e_ERROR,
+                                      ball::Severity::e_FATAL);
 
-        BloombergLP::ball::Administration::addCategory(
+        ball::Administration::addCategory(
                                       "EQUITY.NASD.SUNW",
-                                      BloombergLP::ball::Severity::e_TRACE,
+                                      ball::Severity::e_TRACE,
                                       veryVerbose
-                                      ? BloombergLP::ball::Severity::e_INFO
-                                      : BloombergLP::ball::Severity::e_ERROR,
-                                      BloombergLP::ball::Severity::e_ERROR,
-                                      BloombergLP::ball::Severity::e_FATAL);
+                                      ? ball::Severity::e_INFO
+                                      : ball::Severity::e_ERROR,
+                                      ball::Severity::e_ERROR,
+                                      ball::Severity::e_FATAL);
 
 if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
 {
 ///Example 3: C++ I/O Streams-Style Logging Macros
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The preferred logging method we use, the iostreams-style macros such as
+// The preferred logging method we use, the 'iostream'-style macros such as
 // 'BALL_LOG_INFO', allow streaming via the 'bsl::ostream' 'class' and the C++
 // stream operator '<<'.  An advantage the C++ streaming style has over the
 // 'printf' style output (shown below in example 4) is that complex types often
@@ -1239,7 +1590,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 // Because we can't easily 'printf' complex types like 'bdlt::Date' or
 // 'bsl::string', we have to convert 'settleDate' to a 'const char *'
 // ourselves.  Note that all this additional work was unnecessary in Example 3
-// when we used the C++ iostream-style, rather than the 'printf'-style, macros.
+// when we used the C++ 'iostream'-style, rather than the 'printf'-style,
+// macros.
 //..
     bsl::ostringstream  settleOss;
     settleOss << settleDate;
@@ -1330,10 +1682,201 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         if (verbose) bsl::cout << "callback macro usage (example 6)"
                                << bsl::endl;
         {
-            using namespace BloombergLP;
-
             const Point point;
             validatePoint(point);
+        }
+
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING CLASS-SCOPE LOGGING
+        //
+        // Concerns:
+        //: 1 That a class-scope category can be declared in the 'public',
+        //:   'private', or 'protected' interface of a class.
+        //:
+        //: 2 That more than one class-scope category can be defined in a
+        //:   translation unit.
+        //:
+        //: 3 That all manner of logging macros (stream-based, callback-based,
+        //:   variadic) work with class-scope categories.
+        //:
+        //: 4 That all methods of a class can log to a class-scope category, in
+        //:   particular, 'inline' methods regardless of where they are defined
+        //:   (within the class definition or outside; before or after the use
+        //:   of the 'BALL_LOG_SET_CLASS_CATEGORY' macro).
+        //:
+        //: 5 That static and dynamic categories hide class-scope categories.
+        //:
+        //: 6 That class-scope categories can be used in class templates.
+        //
+        // Plan:
+        //: 1 Using brute-force, define two classes for which class-scope
+        //:   categories are defined that together exercise all of the
+        //:   concerns.  (C-1..5)
+        //
+        // Testing:
+        //   BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "TESTING CLASS-SCOPE LOGGING\n"
+                               << "===========================\n";
+
+        using namespace BALL_LOG_TEST_CASE_28;
+        using namespace BloombergLP;  // okay here
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_OFF,    // record level
+                                 ball::Severity::e_TRACE,  // passthrough level
+                                 ball::Severity::e_OFF,    // trigger level
+                                 ball::Severity::e_OFF);   // triggerAll level
+        ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
+
+        ASSERT(1 == ball::TestObserver::numInstances());
+
+        // Exercise 'ClassScopeLoggerA'
+        {
+            numIncCallback = 0;
+            ClassScopeLoggerA::classMethodThatLogsToClassCategory();
+
+            ASSERT(1 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "CLASS CATEGORY A",
+                          TO->lastPublishedRecord().fixedFields().category()));
+            ASSERT(1 == numIncCallback);
+
+            ClassScopeLoggerA mX;  const ClassScopeLoggerA& X = mX;
+
+            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // first to the class-scope category and the second to a static
+            // category defined at block scope.
+
+            mX.outoflineMethodThatLogsToLocalCategory();
+
+            ASSERT(3 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "STATIC LOCAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            X.inlineMethodThatLogsToClassCategory();
+
+            ASSERT(4 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "CLASS CATEGORY A",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            globalFunctionThatLogsToLocalCategory();
+
+            ASSERT(5 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "GLOBAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+        }
+
+        // Exercise 'ClassScopeLoggerB'
+        {
+            numIncCallback = 0;
+            ClassScopeLoggerB::classMethodThatLogsToClassCategory();
+
+            ASSERT(6 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "CLASS CATEGORY B",
+                          TO->lastPublishedRecord().fixedFields().category()));
+            ASSERT(0 == numIncCallback);  // callback not relevant here
+
+            ClassScopeLoggerB mX;  const ClassScopeLoggerB& X = mX;
+
+            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // first to the class-scope category and the second to a dynamic
+            // category defined at block scope.
+
+            mX.outoflineMethodThatLogsToLocalCategory();
+
+            ASSERT(8 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "DYNAMIC LOCAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            X.inlineMethodThatLogsToClassCategory();
+
+            ASSERT(9 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "CLASS CATEGORY B",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            globalFunctionThatLogsToLocalCategory();
+
+            ASSERT(10 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "GLOBAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+        }
+
+        // Exercise 'ClassScopeLogger<int>'
+        {
+            typedef ClassScopeLogger<int> ClassInt;
+
+            ClassInt::classMethodThatLogsToClassCategory();
+
+            ASSERT(11 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "CLASS TEMPLATE CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            ClassInt mX;  const ClassInt& X = mX;
+
+            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // first to the class-scope category and the second to a static
+            // category defined at block scope.
+
+            mX.outoflineMethodThatLogsToLocalCategory();
+
+            ASSERT(13 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "STATIC LOCAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            X.inlineMethodThatLogsToClassCategory();
+
+            ASSERT(14 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "CLASS TEMPLATE CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+        }
+
+        // Exercise 'ClassScopeLogger<double>'
+        {
+            typedef ClassScopeLogger<double> ClassDouble;
+
+            ClassDouble::classMethodThatLogsToClassCategory();
+
+            ASSERT(15 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "CLASS TEMPLATE CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            ClassDouble mX;  const ClassDouble& X = mX;
+
+            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // first to the class-scope category and the second to a static
+            // category defined at block scope.
+
+            mX.outoflineMethodThatLogsToLocalCategory();
+
+            ASSERT(17 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "STATIC LOCAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            X.inlineMethodThatLogsToClassCategory();
+
+            ASSERT(18 == TO->numPublishedRecords());
+            ASSERT( 0 == bsl::strcmp(
+                          "CLASS TEMPLATE CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
         }
 
       } break;
@@ -1351,7 +1894,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:     current category are higher than the severity.
         //:
         //:  3. 'BALL_LOG_IS_ENABLED' tests the thresholds configured for the
-        //:     current category by rule based logging.
+        //:     current category by rule-based logging.
         //
         // Plan:
         //   1. Do not initialize a logger manager, and test calling
@@ -1394,9 +1937,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         configuration.setDefaultThresholdLevelsIfValid(OFF, OFF, OFF, OFF);
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
-                                                         configuration,
-                                                         &ta);
-        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+                                                          configuration,
+                                                          &ta);
+        BloombergLP::ball::LoggerManager& manager =
+                                 BloombergLP::ball::LoggerManager::singleton();
 
         if (verbose) bsl::cout << "\tExhaustively test w/o logging rules.\n";
         {
@@ -1429,7 +1973,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             BALL_LOG_SET_CATEGORY("TEST.CATEGORY3");
             for (int i = 0; i < NUM_DATA; ++i) {
-                ball::Rule rule("TEST.CATEGORY3", OFF, DATA[i], OFF, OFF);
+                BloombergLP::ball::Rule rule("TEST.CATEGORY3",
+                                             OFF, DATA[i], OFF, OFF);
                 manager.addRule(rule);
                 for (int j = 1;  j < NUM_DATA; ++j) {
                     bool EXP = DATA[j] <= DATA[i];
@@ -1442,7 +1987,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING RULE BASED LOGGING: 'logMessage'
+        // TESTING RULE-BASED LOGGING: 'logMessage'
         //
         // Concerns:
         //   That the 'logMessages' method uses the current installed rules
@@ -1463,16 +2008,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   of published records.
         //
         // Testing:
-        //   bool logMessage(const ball::Category *category,
-        //                   int                  severity,
-        //                   ball::Record         *record);
+        //   RULE-BASED LOGGING: logMessage(const Category *, int, Record *);
         // --------------------------------------------------------------------
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "Testing Rule Based Logging: logMessage\n"
-                      << "======================================\n";
-        using namespace BloombergLP;
+                      << "TESTING RULE-BASED LOGGING: 'logMessage'\n"
+                      << "========================================\n";
+
+        using namespace BloombergLP;  // okay here
 
         int VALUES[] = { 1,
                          Sev::e_FATAL - 1,
@@ -1616,7 +2160,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING RULE BASED LOGGING: 'isCategoryEnabled'
+        // TESTING RULE-BASED LOGGING: 'isCategoryEnabled'
         //
         // Concerns:
         //   That the 'isCategoryEnabled' method is using the current installed
@@ -1637,14 +2181,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   supplied severity.
         //
         // Testing:
-        //   bool isCategoryEnabled(Holder *holder, int severity)
+        //   RULE-BASED LOGGING: bool isCategoryEnabled(Holder *, int);
         // --------------------------------------------------------------------
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "Testing Rule Based Logging: isCategoryEnabled\n"
-                      << "=============================================\n";
-        using namespace BloombergLP;
+                      << "TESTING RULE-BASED LOGGING: 'isCategoryEnabled'\n"
+                      << "===============================================\n";
+
+        using namespace BloombergLP;  // okay here
 
         int VALUES[] = { 1,
                          Sev::e_FATAL - 1,
@@ -1681,7 +2226,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
         for (int i = 0; i < NUM_VALUES; ++i) {
             bool enabled = VALUES[i] <= Sev::e_WARN;
-            Holder holder = { 0, 0, 0};
+            Holder holder = { 0, 0, 0 };
             ASSERT(enabled == Obj::isCategoryEnabled(&holder, VALUES[i]));
         }
 
@@ -1707,7 +2252,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bool enabled =
                         VALUES[j] <= Thresholds::maxLevel(thresholds[i]);
-                Holder holder = { 0, category, 0};
+                Holder holder = { 0, category, 0 };
                 LOOP2_ASSERT(i, j,
                              enabled ==
                              Obj::isCategoryEnabled(&holder, VALUES[j]));
@@ -1718,7 +2263,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bool enabled =
                         VALUES[j] <= Thresholds::maxLevel(thresholds[i]);
-                Holder holder = { 0, category, 0};
+                Holder holder = { 0, category, 0 };
                 LOOP2_ASSERT(i, j,
                              enabled ==
                              Obj::isCategoryEnabled(&holder, VALUES[j]));
@@ -1738,7 +2283,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                         bsl::max(Thresholds::maxLevel(thresholds[i]),
                                  Thresholds::maxLevel(thresholds[j]));
                     bool enabled = VALUES[k] <= maxLevel;
-                    Holder holder = { 0, category, 0};
+                    Holder holder = { 0, category, 0 };
                     LOOP3_ASSERT(i, j, k,
                                  enabled ==
                                  Obj::isCategoryEnabled(&holder, VALUES[k]));
@@ -2052,6 +2597,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "Testing static functions\n"
                       << "========================\n";
 
+        using namespace BloombergLP;  // okay here
+
         const int UC = Holder::e_UNINITIALIZED_CATEGORY;
         const int DC = Holder::e_DYNAMIC_CATEGORY;
 
@@ -2175,12 +2722,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   Again use the accessor functions to confirm the state of X.
         //
         // Testing:
-        //  TBD
+        //   ball::Log_Stream
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
                                << "Test ball::Log_Stream" << bsl::endl
-                               << "====================" << bsl::endl;
+                               << "=====================" << bsl::endl;
+
+        using namespace BloombergLP;  // okay here
 
         static const struct {
             int         d_line;            // line number
@@ -2381,7 +2930,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             numPublishedRecords = TO->numPublishedRecords();
 
-            ball::LoggerManager::singleton().setCategory(
+            BloombergLP::ball::LoggerManager::singleton().setCategory(
                                          "sieve",
                                          0,
                                          BloombergLP::ball::Severity::e_WARN,
@@ -2494,7 +3043,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
                 bsl::cerr.rdbuf(os.rdbuf());
 
-                ASSERT(false == ball::LoggerManager::isInitialized());
+                ASSERT(false ==
+                            BloombergLP::ball::LoggerManager::isInitialized());
                 bsl::function<void(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
                 numIncCallback = 0;
@@ -2902,13 +3452,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   level is published.
         //
         // Testing:
+        //   STRESS TEST
         // --------------------------------------------------------------------
-
-        using namespace BALL_LOG_TEST_CASE_15;
 
         if (verbose)
             bsl::cout << bsl::endl << "STRESS TEST"
                       << bsl::endl << "===========" << bsl::endl;
+
+        using namespace BALL_LOG_TEST_CASE_15;
 
         my_PublishCountingObserver observer;
         BloombergLP::ball::LoggerManagerConfiguration configuration;
@@ -3279,8 +3830,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // CONCURRENT LOGGING TEST:
-        //   Verify the concurrent logging.
+        // CONCURRENT LOGGING TEST
+        //   Verify concurrent logging.
         //
         // Concerns:
         //   That multiple threads can concurrently log messages (with
@@ -3298,8 +3849,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "CONCURRENT LOGGING TEST:" << bsl::endl
-                      << "========================" << bsl::endl;
+                      << "CONCURRENT LOGGING TEST" << bsl::endl
+                      << "=======================" << bsl::endl;
 
         using namespace BALL_LOG_TEST_CASE_9;
 
@@ -3537,7 +4088,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(msg2 != NULL);
 
         ASSERT(msg1 < msg2);
-      }break;
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
@@ -3592,7 +4143,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                        << bsl::endl;
 #endif
 
-                ASSERT(false == ball::LoggerManager::isInitialized());
+                ASSERT(false ==
+                            BloombergLP::ball::LoggerManager::isInitialized());
                 BALL_LOG_SET_CATEGORY("LoggerManagerDestroyed");
                 if (verbose)
                     bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro"
@@ -3652,6 +4204,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // so it will be destroyed AFTER the singleton is destroyed, so the
         // macro calls in the d'tor will be called after the singleton is
         // destroyed.
+
         static LogOnDestruction logOnDestruction;
 
         BALL_LOG_SET_CATEGORY("ThereIsNoLoggerManager");
@@ -4010,8 +4563,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "Testing 'printf-style' Macros" << bsl::endl
                                << "=============================" << bsl::endl;
 
-        static bslma::TestAllocator testAllocator(veryVerbose);
-        static bslma::DefaultAllocatorGuard taGuard(&testAllocator);
+        BloombergLP::bslma::TestAllocator         testAllocator(veryVerbose);
+        BloombergLP::bslma::DefaultAllocatorGuard taGuard(&testAllocator);
 
         const int MAX_ARGS = 9;
 
@@ -6111,53 +6664,71 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << bsl::endl << "========================="
                                << bsl::endl;
 
-        using namespace BloombergLP;
+        using namespace BloombergLP;  // okay here
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
         BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc);
         BloombergLP::ball::LoggerManager& lm =
-            BloombergLP::ball::LoggerManager::singleton();
+                                 BloombergLP::ball::LoggerManager::singleton();
 
         if (veryVerbose) {
             bsl::cout << "\tTesting 'messageBuffer' and 'messageBufferSize'"
                       << bsl::endl;
         }
 
+        const ball::Category& defaultCategory       = lm.defaultCategory();
+        const int             DEFAULT_CAT_MAX_LEVEL =
+                                                    defaultCategory.maxLevel();
+
+        lm.setDefaultThresholdLevels(192, 96, 64, 32);
+        ASSERT(DEFAULT_CAT_MAX_LEVEL != 192);
+
         if (veryVerbose) bsl::cout << "\tTesting 'setCategory'" << bsl::endl;
         {
-            lm.setDefaultThresholdLevels(192, 96, 64, 32);
             const ball::Category *category;
-            category = ball::Log::setCategory("EQUITY.NASD"); // creates new
-                                                              // category
-            ASSERT(0 == bsl::strcmp("EQUITY.NASD", category->categoryName()));
+            category = ball::Log::setCategory("EQUITY.NASD");  // creates new
+                                                               // category
+            ASSERT(0   == bsl::strcmp("EQUITY.NASD",
+                                      category->categoryName()));
+            ASSERT(192 == category->maxLevel());
 
             ball::Administration::setMaxNumCategories(2);
             ASSERT(2 == ball::Administration::maxNumCategories());
+
             category = ball::Log::setCategory("EQUITY.NYSE"); // gets *Default*
                                                               // *Category*
-            ASSERT(0 != bsl::strcmp("EQUITY.NYSE", category->categoryName()));
-            ASSERT(0 != bsl::strcmp("EQUITY.NASD", category->categoryName()));
+            ASSERT(0 == bsl::strcmp(defaultCategory.categoryName(),
+                                    category->categoryName()));
+            ASSERT(DEFAULT_CAT_MAX_LEVEL == category->maxLevel());
         }
 
-#if 0 // TBD setCategory taking a holder
         if (veryVerbose) bsl::cout << "\tTesting 'setCategory' taking a holder"
                                    << bsl::endl;
         {
-            lm.setDefaultThresholdLevels(192, 96, 64, 32);
-            Holder mH;
-            const ball::Category *category;
-            category = ball::Log::setCategory(&mH, "EQUITY.NASD");
-                                                        // creates new category
-            ASSERT(0 == bsl::strcmp("EQUITY.NASD", category->categoryName()));
+            ball::Administration::setMaxNumCategories(3);
+            ASSERT(3 == ball::Administration::maxNumCategories());
 
-            ball::Administration::setMaxNumCategories(2);
-            ASSERT(2 == ball::Administration::maxNumCategories());
-            category = ball::Log::setCategory("EQUITY.NYSE"); // gets *Default*
-                                                              // *Category*
-            ASSERT(0 != bsl::strcmp("EQUITY.NYSE", category->categoryName()));
-            ASSERT(0 != bsl::strcmp("EQUITY.NASD", category->categoryName()));
+            // Holders must be declared 'static' so that their lifetimes exceed
+            // that of the logger manager singleton.
+
+            static Holder mH = { Holder::e_UNINITIALIZED_CATEGORY, 0, 0 };
+            const Holder& H = mH;
+
+            ball::Log::setCategory(&mH, "EQUITY.NYSE"); // creates new category
+            ASSERT(  0 == bsl::strcmp("EQUITY.NYSE",
+                                      H.category()->categoryName()));
+            ASSERT(192 == H.threshold());
+
+            static Holder mH2 = { Holder::e_UNINITIALIZED_CATEGORY, 0, 0 };
+            const Holder& H2 = mH2;
+
+            ball::Log::setCategory(&mH2, "EQUITY.IEX");  // gets *Default*
+                                                         // *Category*
+            ASSERT(0 == bsl::strcmp(defaultCategory.categoryName(),
+                                    H2.category()->categoryName()));
+            ASSERT(DEFAULT_CAT_MAX_LEVEL == H2.threshold());
         }
-#endif
+
          if (veryVerbose) bsl::cout << "\tTesting 'logMessage'" << bsl::endl;
          {
              const Cat  *CAT  = ball::Log::setCategory("EQUITY.NASD");
@@ -6196,9 +6767,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         using namespace BALL_LOG_TEST_CASE_MINUS_1;
+        using namespace BloombergLP;  // okay here
 
         ball::DefaultObserver observer(&bsl::cout);
-        ball::LoggerManager::initSingleton( &observer, 0 );
+        ball::LoggerManager::initSingleton(&observer, 0);
 
         bslmt::ThreadAttributes attributes;
         bslmt::ThreadUtil::Handle handles[10];
@@ -6210,12 +6782,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         char buffer[256];
         bsl::string input;
-        do
-        {
+        do {
             bsl::cout << "Enter something: ";
             bsl::cin.getline(buffer, 256);
             input = buffer;
-        } while ( input != "exit" );
+        } while (input != "exit");
 
         // just exit the program, which will kill the threads
       } break;
@@ -6233,7 +6804,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
