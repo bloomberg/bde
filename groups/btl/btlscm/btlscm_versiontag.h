@@ -55,10 +55,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h>
 #endif
 
-#define BTL_VERSION_MAJOR BSL_VERSION_MAJOR
+// For the 3.1.x release series, 'btl' is being versioned independently of
+// 'bsl'.
+#define BTL_VERSION_MAJOR 3
     // BTL release major version
 
-#define BTL_VERSION_MINOR BSL_VERSION_MINOR
+#define BTL_VERSION_MINOR 1
     // BTL release minor version
 
 #define BTL_VERSION BSL_MAKE_VERSION(BTL_VERSION_MAJOR, \
