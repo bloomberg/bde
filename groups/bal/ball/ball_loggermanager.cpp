@@ -6,12 +6,12 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 
 #include <ball_attributecontext.h>
 #include <ball_context.h>
-#include <ball_defaultobserver.h>             // for testing only
+#include <ball_defaultobserver.h>           // for testing only
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerdefaults.h>
-#include <ball_recordattributes.h>            // for testing only
+#include <ball_recordattributes.h>
 #include <ball_severity.h>
-#include <ball_testobserver.h>                // for testing only
+#include <ball_testobserver.h>              // for testing only
 
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
@@ -29,7 +29,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bslmt_once.h>
 #include <bslmt_qlock.h>
 #include <bslmt_readlockguard.h>
-#include <bslmt_rwmutex.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_writelockguard.h>
 
@@ -42,7 +41,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
-#include <bsl_iostream.h>       // for warning print only
 #include <bsl_memory.h>
 #include <bsl_new.h>            // placement 'new' syntax
 #include <bsl_sstream.h>
@@ -121,7 +119,8 @@ const char *filterName(
         nameFilter(filteredNameBuffer, originalName);
         filteredNameBuffer->push_back(0);  // append the null 'char'
         name = filteredNameBuffer->c_str();
-    } else {
+    }
+    else {
         name = originalName;
     }
     return name;
@@ -152,12 +151,12 @@ ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
     // 'severity'.
 {
     switch (severity) {
-        case bsls::LogSeverity::e_FATAL: return ball::Severity::e_FATAL;
-        case bsls::LogSeverity::e_ERROR: return ball::Severity::e_ERROR;
-        case bsls::LogSeverity::e_WARN:  return ball::Severity::e_WARN;
-        case bsls::LogSeverity::e_INFO:  return ball::Severity::e_INFO;
-        case bsls::LogSeverity::e_DEBUG: return ball::Severity::e_DEBUG;
-        case bsls::LogSeverity::e_TRACE: return ball::Severity::e_TRACE;
+      case bsls::LogSeverity::e_FATAL: return ball::Severity::e_FATAL;
+      case bsls::LogSeverity::e_ERROR: return ball::Severity::e_ERROR;
+      case bsls::LogSeverity::e_WARN:  return ball::Severity::e_WARN;
+      case bsls::LogSeverity::e_INFO:  return ball::Severity::e_INFO;
+      case bsls::LogSeverity::e_DEBUG: return ball::Severity::e_DEBUG;
+      case bsls::LogSeverity::e_TRACE: return ball::Severity::e_TRACE;
     }
     BSLS_ASSERT_OPT(false && "Unreachable by design");
     return ball::Severity::e_ERROR;
@@ -178,7 +177,7 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     // 'bsls::Log' message handler.
 {
     static ball::Category *category               = 0;
-    static const char    *BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
+    static const char     *BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
 
     bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
 
@@ -231,6 +230,8 @@ void copyAttributesWithoutMessage(ball::Record                  *record,
     record->fixedFields().setSeverity(srcAttribute.severity());
 }
 
+const char *const INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
+
 }  // close unnamed namespace
 
                            // ------------
@@ -238,17 +239,16 @@ void copyAttributesWithoutMessage(ball::Record                  *record,
                            // ------------
 
 // PRIVATE CREATORS
-Logger::Logger(
-           Observer                                   *observer,
-           RecordBuffer                               *recordBuffer,
-           const Logger::UserFieldsPopulatorCallback&  populator,
-           const PublishAllTriggerCallback&            publishAllCallback,
-           int                                         scratchBufferSize,
-           LoggerManagerConfiguration::LogOrder        logOrder,
-           LoggerManagerConfiguration::TriggerMarkers  triggerMarkers,
-           bslma::Allocator                           *globalAllocator)
+Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
+               RecordBuffer                               *recordBuffer,
+               const Logger::UserFieldsPopulatorCallback&  populator,
+               const PublishAllTriggerCallback&            publishAllCallback,
+               int                                         scratchBufferSize,
+               LoggerManagerConfiguration::LogOrder        logOrder,
+               LoggerManagerConfiguration::TriggerMarkers  triggerMarkers,
+               bslma::Allocator                           *globalAllocator)
 : d_recordPool(-1, globalAllocator)
-, d_observer_p(observer)
+, d_observer(observer)
 , d_recordBuffer_p(recordBuffer)
 , d_populator(populator)
 , d_publishAll(publishAllCallback)
@@ -257,7 +257,7 @@ Logger::Logger(
 , d_triggerMarkers(triggerMarkers)
 , d_allocator_p(globalAllocator)
 {
-    BSLS_ASSERT(d_observer_p);
+    BSLS_ASSERT(d_observer);
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_allocator_p);
 
@@ -267,12 +267,13 @@ Logger::Logger(
 
 Logger::~Logger()
 {
-    BSLS_ASSERT(d_observer_p);
+    BSLS_ASSERT(d_observer);
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_publishAll);
     BSLS_ASSERT(d_scratchBuffer_p);
     BSLS_ASSERT(d_allocator_p);
 
+    d_observer->releaseRecords();
     d_recordBuffer_p->removeAll();
     d_allocator_p->deallocate(d_scratchBuffer_p);
 }
@@ -281,26 +282,27 @@ Logger::~Logger()
 void Logger::publish(Transmission::Cause cause)
 {
     d_recordBuffer_p->beginSequence();
+
     const int len = d_recordBuffer_p->length();
-    Context context(cause, 0, len);
+    Context   context(cause, 0, len);
 
     if (1 == len) {  // for len == 1, order does not matter, so optimize it
         context.setRecordIndexRaw(0);
-        d_observer_p->publish(d_recordBuffer_p->back(), context);
+        d_observer->publish(d_recordBuffer_p->back(), context);
         d_recordBuffer_p->popBack();
     }
     else {
         if (LoggerManagerConfiguration::e_LIFO == d_logOrder) {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                d_observer_p->publish(d_recordBuffer_p->back(), context);
+                d_observer->publish(d_recordBuffer_p->back(), context);
                 d_recordBuffer_p->popBack();
             }
         }
         else {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                d_observer_p->publish(d_recordBuffer_p->front(), context);
+                d_observer->publish(d_recordBuffer_p->front(), context);
                 d_recordBuffer_p->popFront();
             }
         }
@@ -337,10 +339,10 @@ void Logger::logMessage(const Category&            category,
 
         // Publish this record.
 
-        d_observer_p->publish(handle,
-                              Context(Transmission::e_PASSTHROUGH,
-                                      0,                 // recordIndex
-                                      1));               // sequenceLength
+        d_observer->publish(handle,
+                            Context(Transmission::e_PASSTHROUGH,
+                                    0,                 // recordIndex
+                                    1));               // sequenceLength
 
     }
 
@@ -363,7 +365,7 @@ void Logger::logMessage(const Category&            category,
 
             handle->fixedFields().setMessage(TRIGGER_BEGIN);
 
-            d_observer_p->publish(handle, triggerContext);
+            d_observer->publish(handle, triggerContext);
 
             // Publish all records archived by *this* logger.
 
@@ -371,7 +373,7 @@ void Logger::logMessage(const Category&            category,
 
             handle->fixedFields().setMessage(TRIGGER_END);
 
-            d_observer_p->publish(handle, triggerContext);
+            d_observer->publish(handle, triggerContext);
         }
         else {
             // Publish all records archived by *this* logger.
@@ -397,7 +399,7 @@ void Logger::logMessage(const Category&            category,
 
             handle->fixedFields().setMessage(TRIGGER_ALL_BEGIN);
 
-            d_observer_p->publish(handle, triggerContext);
+            d_observer->publish(handle, triggerContext);
 
             // Publish all records archived by *all* loggers.
 
@@ -405,7 +407,7 @@ void Logger::logMessage(const Category&            category,
 
             handle->fixedFields().setMessage(TRIGGER_ALL_END);
 
-            d_observer_p->publish(handle, triggerContext);
+            d_observer->publish(handle, triggerContext);
         }
         else {
             // Publish all records archived by *all* loggers.
@@ -503,12 +505,9 @@ LoggerManager *LoggerManager::s_singleton_p = 0;
 
 // PRIVATE CLASS METHODS
 void LoggerManager::initSingletonImpl(
-                            Observer                          *observer,
                             const LoggerManagerConfiguration&  configuration,
                             bslma::Allocator                  *globalAllocator)
 {
-    BSLS_ASSERT(observer);
-
     static bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;
     bslmt::OnceGuard doOnceGuard(&doOnceObj);
     if (doOnceGuard.enter() && 0 == s_singleton_p) {
@@ -517,7 +516,6 @@ void LoggerManager::initSingletonImpl(
 
         LoggerManager *singleton =  new (*allocator) LoggerManager(
                                                                  configuration,
-                                                                 observer,
                                                                  allocator);
         AttributeContext::initialize(&singleton->d_categoryManager,
                                      bslma::Default::globalAllocator(0));
@@ -541,6 +539,7 @@ void LoggerManager::initSingletonImpl(
 }
 
 // CLASS METHODS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 void
 LoggerManager::createLoggerManager(
                              bslma::ManagedPtr<LoggerManager>  *manager,
@@ -555,7 +554,21 @@ LoggerManager::createLoggerManager(
                                                 allocator),
                   allocator);
 }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
+void
+LoggerManager::createLoggerManager(
+                             bslma::ManagedPtr<LoggerManager>  *manager,
+                             const LoggerManagerConfiguration&  configuration,
+                             bslma::Allocator                  *basicAllocator)
+{
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
+
+    manager->load(new(*allocator) LoggerManager(configuration, allocator),
+                  allocator);
+}
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 LoggerManager& LoggerManager::initSingleton(Observer         *observer,
                                             bslma::Allocator *globalAllocator)
 {
@@ -564,11 +577,41 @@ LoggerManager& LoggerManager::initSingleton(Observer         *observer,
 }
 
 LoggerManager& LoggerManager::initSingleton(
-                             Observer                          *observer,
-                             const LoggerManagerConfiguration&  configuration,
-                             bslma::Allocator                  *basicAllocator)
+                            Observer                          *observer,
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
 {
-    initSingletonImpl(observer, configuration, basicAllocator);
+    BSLS_ASSERT(observer);
+
+    // Make shared pointer with nil deleter.
+    bsl::shared_ptr<Observer> observerWrapper(
+                             observer,
+                             bslstl::SharedPtrNilDeleter(),
+                             bslma::Default::globalAllocator(globalAllocator));
+
+    initSingletonImpl(configuration, globalAllocator);
+
+    // Note that this call can fail if we call 'initSingleton' more than once.
+    s_singleton_p->registerObserver(observerWrapper, INTERNAL_OBSERVER_NAME);
+
+    // But we check that there is an observer registered under internal name.
+    BSLS_ASSERT(s_singleton_p->findObserver(INTERNAL_OBSERVER_NAME));
+
+    return *s_singleton_p;
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+LoggerManager& LoggerManager::initSingleton(bslma::Allocator *globalAllocator)
+{
+    LoggerManagerConfiguration configuration;
+    return initSingleton(configuration, globalAllocator);
+}
+
+LoggerManager& LoggerManager::initSingleton(
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
+{
+    initSingletonImpl(configuration, globalAllocator);
     return *s_singleton_p;
 }
 
@@ -610,7 +653,8 @@ Record *LoggerManager::getRecord(const char *file, int line)
     // currently installed default allocator.
 
     bslma::Allocator *allocator = bslma::Default::defaultAllocator();
-    Record *record = new(*allocator) Record(allocator);
+    Record           *record    = new(*allocator) Record(allocator);
+
     record->fixedFields().setFileName(file);
     record->fixedFields().setLineNumber(line);
     return record;
@@ -651,7 +695,7 @@ void LoggerManager::logMessage(int severity, Record *record)
 char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
                                          int           *bufferSize)
 {
-    const int DEFAULT_LOGGER_BUFFER_SIZE = 8192;
+    const int   DEFAULT_LOGGER_BUFFER_SIZE = 8192;
     static char buffer[DEFAULT_LOGGER_BUFFER_SIZE];
 
     static bsls::ObjectBuffer<bslmt::Mutex> staticMutex;
@@ -674,7 +718,8 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
 // PRIVATE MANIPULATORS
 void LoggerManager::publishAllImp(Transmission::Cause cause)
 {
-    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
+
     bsl::set<Logger *>::iterator itr;
     for (itr = d_loggers.begin(); itr != d_loggers.end(); ++itr) {
         (*itr)->publish(cause);
@@ -698,7 +743,7 @@ void LoggerManager::constructObject(
                                                               recordBufferSize,
                                                               d_allocator_p);
 
-    d_logger_p = new(*d_allocator_p) Logger(d_observer_p,
+    d_logger_p = new(*d_allocator_p) Logger(d_observer,
                                             d_recordBuffer_p,
                                             d_populator,
                                             d_publishAllCallback,
@@ -716,11 +761,15 @@ void LoggerManager::constructObject(
 }
 
 // CREATORS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 LoggerManager::LoggerManager(
                             const LoggerManagerConfiguration&  configuration,
                             Observer                          *observer,
                             bslma::Allocator                  *globalAllocator)
-: d_observer_p(observer)
+: d_observer(new(*bslma::Default::globalAllocator(globalAllocator))
+             BroadcastObserver(bslma::Default::globalAllocator(
+                                                             globalAllocator)),
+             bslma::Default::globalAllocator(globalAllocator))
 , d_nameFilter(configuration.categoryNameFilterCallback())
 , d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
 , d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
@@ -744,7 +793,52 @@ LoggerManager::LoggerManager(
 , d_triggerMarkers(configuration.triggerMarkers())
 , d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
 {
+    BSLS_ASSERT(d_observer);
+
     BSLS_ASSERT(observer);
+    bsl::shared_ptr<Observer> observerWrapper(observer,
+                                              bslstl::SharedPtrNilDeleter(),
+                                              d_allocator_p);
+
+    constructObject(configuration);
+
+    int rc = registerObserver(observerWrapper, INTERNAL_OBSERVER_NAME);
+    BSLS_ASSERT(0 == rc);
+    (void)rc;
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+LoggerManager::LoggerManager(
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
+: d_observer(new(*bslma::Default::globalAllocator(globalAllocator))
+             BroadcastObserver(bslma::Default::globalAllocator(
+                                                             globalAllocator)),
+             bslma::Default::globalAllocator(globalAllocator))
+, d_nameFilter(configuration.categoryNameFilterCallback())
+, d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
+, d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
+                           configuration.defaults().defaultPassLevel(),
+                           configuration.defaults().defaultTriggerLevel(),
+                           configuration.defaults().defaultTriggerAllLevel())
+, d_factoryThresholdLevels(configuration.defaults().defaultRecordLevel(),
+                           configuration.defaults().defaultPassLevel(),
+                           configuration.defaults().defaultTriggerLevel(),
+                           configuration.defaults().defaultTriggerAllLevel())
+, d_populator(configuration.userFieldsPopulatorCallback())
+, d_logger_p(0)
+, d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
+, d_maxNumCategoriesMinusOne((unsigned int)-1)
+, d_loggers(bslma::Default::globalAllocator(globalAllocator))
+, d_recordBuffer_p(0)
+, d_defaultCategory_p(0)
+, d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
+, d_defaultLoggers(bslma::Default::globalAllocator(globalAllocator))
+, d_logOrder(configuration.logOrder())
+, d_triggerMarkers(configuration.triggerMarkers())
+, d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
+{
+    BSLS_ASSERT(d_observer);
 
     constructObject(configuration);
 }
@@ -762,16 +856,7 @@ LoggerManager::~LoggerManager()
     // while another is still accessing the data members, immediately reset
     // all category holders to their default value.
 
-    // TBD: Remove this test once the observer changes in BDE 2.12 have
-    // stabilized.
-    if (0xdeadbeef == *((unsigned int*)(d_observer_p))){
-        bsl::cerr << "ERROR: LoggerManager: "
-                  << "Observer is destroyed but still being used."
-                  << bsl::endl;
-    }
-    else {
-        d_observer_p->releaseRecords();
-    }
+    d_observer->deregisterAllObservers();
 
     d_categoryManager.resetCategoryHolders();  // do this first!
 
@@ -787,9 +872,9 @@ LoggerManager::~LoggerManager()
 // MANIPULATORS
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 {
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
 
-    Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
+    Logger *logger = new(*d_allocator_p) Logger(d_observer,
                                                 buffer,
                                                 d_populator,
                                                 d_publishAllCallback,
@@ -805,9 +890,9 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
                                       int           scratchBufferSize)
 {
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
 
-    Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
+    Logger *logger = new(*d_allocator_p) Logger(d_observer,
                                                 buffer,
                                                 d_populator,
                                                 d_publishAllCallback,
@@ -820,12 +905,17 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
     return logger;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
                                       Observer     *observer)
 {
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
 
-    Logger *logger = new(*d_allocator_p) Logger(observer,
+    bsl::shared_ptr<Observer> observerWrapper(observer,
+                                              bslstl::SharedPtrNilDeleter(),
+                                              d_allocator_p);
+
+    Logger *logger = new(*d_allocator_p) Logger(observerWrapper,
                                                 buffer,
                                                 d_populator,
                                                 d_publishAllCallback,
@@ -842,7 +932,52 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
                                       int           scratchBufferSize,
                                       Observer     *observer)
 {
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_loggersLock);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
+
+    bsl::shared_ptr<Observer> observerWrapper(observer,
+                                              bslstl::SharedPtrNilDeleter(),
+                                              d_allocator_p);
+
+    Logger *logger = new(*d_allocator_p) Logger(observerWrapper,
+                                                buffer,
+                                                d_populator,
+                                                d_publishAllCallback,
+                                                scratchBufferSize,
+                                                d_logOrder,
+                                                d_triggerMarkers,
+                                                d_allocator_p);
+
+    d_loggers.insert(logger);
+
+    return logger;
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+Logger *LoggerManager::allocateLogger(
+                                    RecordBuffer                     *buffer,
+                                    const bsl::shared_ptr<Observer>&  observer)
+{
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
+
+    Logger *logger = new(*d_allocator_p) Logger(observer,
+                                                buffer,
+                                                d_populator,
+                                                d_publishAllCallback,
+                                                d_scratchBufferSize,
+                                                d_logOrder,
+                                                d_triggerMarkers,
+                                                d_allocator_p);
+    d_loggers.insert(logger);
+
+    return logger;
+}
+
+Logger *LoggerManager::allocateLogger(
+                           RecordBuffer                     *buffer,
+                           int                               scratchBufferSize,
+                           const bsl::shared_ptr<Observer>&  observer)
+{
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
@@ -895,7 +1030,8 @@ void LoggerManager::setLogger(Logger *logger)
 {
     void *id = (void *)bslmt::ThreadUtil::selfIdAsUint64();
 
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_defaultLoggersLock);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(
+                                                        &d_defaultLoggersLock);
     if (0 == logger) {
         d_defaultLoggers.erase(id);
     }
@@ -977,7 +1113,7 @@ const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
                                    (unsigned int) d_categoryManager.length()) {
         int recordLevel, passLevel, triggerLevel, triggerAllLevel;
         {
-            bslmt::ReadLockGuard<bslmt::RWMutex> guard(
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
                                                      &d_defaultThresholdsLock);
             if (d_defaultThresholds) {
                 d_defaultThresholds(&recordLevel,
@@ -1112,10 +1248,12 @@ void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
 void LoggerManager::setDefaultThresholdLevelsCallback(
                                       DefaultThresholdLevelsCallback *callback)
 {
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_defaultThresholdsLock);
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(
+                                                     &d_defaultThresholdsLock);
     if (callback) {
         d_defaultThresholds = *callback;
-    } else {
+    }
+    else {
         DefaultThresholdLevelsCallback nullCallback;
         d_defaultThresholds = nullCallback;
     }
@@ -1126,9 +1264,36 @@ void LoggerManager::setMaxNumCategories(int length)
     d_maxNumCategoriesMinusOne = length - 1;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 Observer *LoggerManager::observer()
 {
-    return d_observer_p;
+    return findObserver(INTERNAL_OBSERVER_NAME).get();
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+int
+LoggerManager::registerObserver(const bsl::shared_ptr<Observer>& observer,
+                                const bslstl::StringRef&         observerName)
+{
+    return d_observer->registerObserver(observer, observerName);
+}
+
+int
+LoggerManager::deregisterObserver(const bslstl::StringRef& observerName)
+{
+    return d_observer->deregisterObserver(observerName);
+}
+
+void
+LoggerManager::deregisterAllObservers()
+{
+    d_observer->deregisterAllObservers();
+}
+
+bsl::shared_ptr<Observer>
+LoggerManager::findObserver(const bslstl::StringRef& observerName)
+{
+    return d_observer->findObserver(observerName);
 }
 
 void LoggerManager::publishAll()
@@ -1183,9 +1348,17 @@ const Category& LoggerManager::defaultCategory() const
     return *d_defaultCategory_p;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const Observer *LoggerManager::observer() const
 {
-    return d_observer_p;
+    return findObserver(INTERNAL_OBSERVER_NAME).get();
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+bsl::shared_ptr<const Observer>
+LoggerManager::findObserver(const bslstl::StringRef& observerName) const
+{
+    return d_observer->findObserver(observerName);
 }
 
 const Logger::UserFieldsPopulatorCallback *

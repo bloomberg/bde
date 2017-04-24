@@ -30,9 +30,11 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides the core of the 'ball' logging toolkit:
 // the logger class itself, 'ball::Logger', which manages log record storage
-// and publication control, and the logger manager class,
-// 'ball::LoggerManager', which is a singleton that is both a factory for
-// loggers and a category manager.
+// and publication control, the logger manager class, 'ball::LoggerManager',
+// which is a singleton that is both a factory for loggers and a category
+// manager, and the logger manager scoped guard,
+// 'ball::LoggerManagerScopedGuard', which provides a convenient way to
+// initialize and manage lifetime of the logger manager singleton object.
 //
 ///General Features and Behavior
 ///-----------------------------
@@ -56,10 +58,9 @@ BSLS_IDENT("$Id: $")
 // directed to the active logger in that thread.  Each logger both stores and
 // publishes appropriate log records.
 //
-// All loggers share a single registered observer to which log records are
-// transmitted when they are published (see the component-level documentation
-// of 'ball_observer' for more information on observers).  The shared observer
-// must be supplied when the logger manager singleton is initialized.
+// All loggers share a single internal broadcast observer to which log records
+// are transmitted when they are published (see the component-level
+// documentation of 'ball_observer' for more information on observers).
 //
 // A logger can achieve high performance through the use of an in-memory record
 // buffer for storing the records logged by a program.  Each logger is
@@ -82,12 +83,12 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------
 // The recommended way to initialize the logger manager singleton is to create
 // a 'ball::LoggerManagerScopedGuard' object in 'main' (*before* creating any
-// threads).  The logger manager scoped guard constructor takes an observer, a
-// configuration object (an instance of 'ball::LoggerManagerConfiguration'),
-// and an optional allocator.  The logger manager singleton is created as a
-// side-effect of creating the scoped guard object.  When the guard object goes
-// out of scope (i.e., on program exit), the logger manager singleton is
-// automatically destroyed.
+// threads).  The logger manager scoped guard constructor takes a configuration
+// object (an instance of 'ball::LoggerManagerConfiguration'), and an optional
+// allocator.  The logger manager singleton is created as a side-effect of
+// creating the scoped guard object.  When the guard object goes out of scope
+// (i.e., on program exit), the logger manager singleton is automatically
+// destroyed.
 //
 // The 'ball::LoggerManagerConfiguration' object is used to supply a set of
 // user-defined "default" values and other options.  However, to obtain the
@@ -108,10 +109,14 @@ BSLS_IDENT("$Id: $")
 // logger manager singleton is *deprecated*.  The constructor will be declared
 // 'private' in a future release.
 //
-// Direct use of any of the 8 'initSingleton' methods that do *not* take an
+// Direct use of any of the 'initSingleton' methods that do *not* take an
 // instance of 'ball::LoggerManagerConfiguration' to initialize the logger
 // manager singleton is *deprecated*.  These methods will be eliminated in a
 // future release.
+//
+// Direct use of any of the 'ball::LoggerManager' or
+// 'ball::LoggerManagerScopedGuard' methods that take raw pointers to observers
+// is *deprecated*.  These methods will be eliminated in a future release.
 //
 ///Categories, Severities, and Threshold Levels
 ///--------------------------------------------
@@ -352,41 +357,46 @@ BSLS_IDENT("$Id: $")
 // Clients that perform logging must first instantiate the singleton logger
 // manager using the 'ball::LoggerManagerScopedGuard' class.  This example
 // shows how to create a logger manager with the most basic "default behavior".
-// Subsequent examples will show more customized behavior.  Note that a
-// 'ball::Observer' (which will receive the records that are published) is a
-// required argument; we will use a 'ball::DefaultObserver' here.
+// Subsequent examples will show more customized behavior.
 //
 // The following snippets of code illustrate the initialization sequence
 // (typically performed near the top of 'main').
 //
-// First, we create a 'ball::DefaultObserver' object 'observer' that will
-// publish records to 'stdout':
-//..
-//    // myApp.cpp
-//
-//    int main()
-//    {
-//
-//        // ...
-//
-//        static ball::DefaultObserver observer(&bsl::cout);
-//..
-// Next, we create a 'ball::LoggerManagerConfiguration' object,
+// First, we create a 'ball::LoggerManagerConfiguration' object,
 // 'configuration', and set the logging "pass-through" level -- the level at
 // which log records are published to registered observers -- to 'WARN' (see
-// {Categories, Severities, and Threshold Levels}):
+// {'Categories, Severities, and Threshold Levels'}):
 //..
-//        ball::LoggerManagerConfiguration configuration;
-//        configuration.setDefaultThresholdLevelsIfValid(
-//                                                   ball::Severity::e_WARN);
+//  // myApp.cpp
+//
+//  int main()
+//  {
+//      ball::LoggerManagerConfiguration configuration;
+//      configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_WARN);
 //..
-// We next create a 'ball::LoggerManagerScopedGuard' object whose constructor
-// takes the observer and configuration object just created.  The guard will
-// initialize the logger manager singleton on creation and destroy the
-// singleton upon destruction.  This guarantees that any resources used by the
-// logger manager will be properly released when they are not needed:
+// Next, create a 'ball::LoggerManagerScopedGuard' object whose constructor
+// takes the configuration object just created.  The guard will initialize the
+// logger manager singleton on creation and destroy the singleton upon
+// destruction.  This guarantees that any resources used by the logger manager
+// will be properly released when they are not needed:
 //..
-//        ball::LoggerManagerScopedGuard guard(&observer, configuration);
+//      ball::LoggerManagerScopedGuard guard(configuration);
+//..
+// Note that the application is now prepared to log messages using the 'ball'
+// logging subsystem, but until the application registers an observer, all log
+// messages will be discarded.
+//
+// Finally, we create a 'ball::DefaultObserver' object 'observer' that will
+// publish records to 'stdout' and register it with the logger manager
+// singleton.  Note that observers must be registered by name; this example
+// simply uses "default" for a name:
+//..
+//      bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
+//
+//      bsl::shared_ptr<ball::DefaultObserver> observer(
+//                               new(*alloc) ball::DefaultObserver(&bsl::cout),
+//                               alloc);
+//      ball::LoggerManager::singleton().registerObserver(observer, "default");
 //..
 // The application is now prepared to log messages using the 'ball' logging
 // subsystem:
@@ -405,23 +415,23 @@ BSLS_IDENT("$Id: $")
 // 'DefaultThresholdLevelsCallback' functor, and user-chosen values for the
 // "factory default" threshold levels.
 //
-// First we define three 'static' functions that are employed by the two
+// First, we define three 'static' functions that are employed by the two
 // functors.  The 'toLower' function implements our category name filter.  It
 // is wrapped within a functor object and maps category names to lower-case:
 //..
-//    static
-//    void toLower(bsl::string *buffer, const char *s)
-//    {
-//        assert(buffer);
-//        assert(s);
+//  static
+//  void toLower(bsl::string *buffer, const char *s)
+//  {
+//      assert(buffer);
+//      assert(s);
 //
-//        buffer->clear();
-//        while (*s) {
-//            buffer->push_back(static_cast<char>(bsl::tolower(*s)));
-//            ++s;
-//        }
-//        buffer->push_back(0);
-//    }
+//      buffer->clear();
+//      while (*s) {
+//          buffer->push_back(static_cast<char>(bsl::tolower(*s)));
+//          ++s;
+//      }
+//      buffer->push_back(0);
+//  }
 //..
 // The following two functions provide the implementation for our
 // 'DefaultThresholdLevelsCallback' functor.  The 'inheritThresholdLevels'
@@ -439,113 +449,102 @@ BSLS_IDENT("$Id: $")
 // that a category named "xx.y" (for example) is not related to either of "x",
 // "x.y", or "x.y.z":
 //..
-//    static
-//    int getDefaultThresholdLevels(
-//                                 int                        *recordLevel,
-//                                 int                        *passLevel,
-//                                 int                        *triggerLevel,
-//                                 int                        *triggerAllLevel,
-//                                 char                        delimiter,
-//                                 const ball::LoggerManager&  loggerManager,
-//                                 const char                 *categoryName)
-//        // Obtain appropriate threshold levels for the category having the
-//        // specified 'categoryName' by searching the registry of the
-//        // specified 'loggerManager', and store the resulting values at the
-//        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-//        // 'triggerAllLevel' addresses.  A hierarchical category naming
-//        // scheme is assumed that employs the specified 'delimiter' to
-//        // separate the components of category names.  Return 0 on success,
-//        // and a non-zero value otherwise.  The behavior is undefined unless
-//        // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-//        // are non-null, and 'categoryName' is null-terminated.
-//    {
-//        assert(recordLevel);
-//        assert(passLevel);
-//        assert(triggerLevel);
-//        assert(triggerAllLevel);
-//        assert(categoryName);
+//  static
+//  int getDefaultThresholdLevels(int                        *recordLevel,
+//                                int                        *passLevel,
+//                                int                        *triggerLevel,
+//                                int                        *triggerAllLevel,
+//                                char                        delimiter,
+//                                const ball::LoggerManager&  loggerManager,
+//                                const char                 *categoryName)
+//      // Obtain appropriate threshold levels for the category having the
+//      // specified 'categoryName' by searching the registry of the specified
+//      // 'loggerManager', and store the resulting values at the specified
+//      // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
+//      // addresses.  A hierarchical category naming scheme is assumed that
+//      // employs the specified 'delimiter' to separate the components of
+//      // category names.  Return 0 on success, and a non-zero value
+//      // otherwise.  The behavior is undefined unless 'recordLevel',
+//      // 'passLevel', 'triggerLevel', and 'triggerAllLevel' are non-null, and
+//      // 'categoryName' is null-terminated.
+//  {
+//      assert(recordLevel);
+//      assert(passLevel);
+//      assert(triggerLevel);
+//      assert(triggerAllLevel);
+//      assert(categoryName);
 //
-//        enum { SUCCESS = 0, FAILURE = -1 };
+//      enum { SUCCESS = 0, FAILURE = -1 };
 //
-//        bsl::string buffer(categoryName);
-//        while (1) {
-//            const ball::Category *category =
-//                                loggerManager.lookupCategory(buffer.c_str());
-//            if (0 != category) {
-//                *recordLevel     = category->recordLevel();
-//                *passLevel       = category->passLevel();
-//                *triggerLevel    = category->triggerLevel();
-//                *triggerAllLevel = category->triggerAllLevel();
-//                return SUCCESS;                                     // RETURN
-//            }
+//      bsl::string buffer(categoryName);
+//      while (1) {
+//          const ball::Category *category =
+//              loggerManager.lookupCategory(buffer.c_str());
+//          if (0 != category) {
+//              *recordLevel     = category->recordLevel();
+//              *passLevel       = category->passLevel();
+//              *triggerLevel    = category->triggerLevel();
+//              *triggerAllLevel = category->triggerAllLevel();
+//              return SUCCESS;                                     // RETURN
+//          }
 //
-//            const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
-//            if (0 == newEnd) {
-//                return FAILURE;                                     // RETURN
-//            }
-//            buffer.resize(newEnd - buffer.data());
-//        }
-//    }
+//          const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
+//          if (0 == newEnd) {
+//              return FAILURE;                                     // RETURN
+//          }
+//          buffer.resize(newEnd - buffer.data());
+//      }
+//  }
 //
-//    static
-//    void inheritThresholdLevels(int        *recordLevel,
-//                                int        *passLevel,
-//                                int        *triggerLevel,
-//                                int        *triggerAllLevel,
-//                                const char *categoryName)
-//        // Obtain appropriate threshold levels for the category having the
-//        // specified 'categoryName', and store the resulting values at the
-//        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-//        // 'triggerAllLevel' addresses.  The behavior is undefined unless
-//        // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
-//        // are non-null, and 'categoryName' is null-terminated.
-//    {
-//        assert(recordLevel);
-//        assert(passLevel);
-//        assert(triggerLevel);
-//        assert(triggerAllLevel);
-//        assert(categoryName);
+//  static
+//  void inheritThresholdLevels(int        *recordLevel,
+//                              int        *passLevel,
+//                              int        *triggerLevel,
+//                              int        *triggerAllLevel,
+//                              const char *categoryName)
+//      // Obtain appropriate threshold levels for the category having the
+//      // specified 'categoryName', and store the resulting values at the
+//      // specified 'recordLevel', 'passLevel', 'triggerLevel', and
+//      // 'triggerAllLevel' addresses.  The behavior is undefined unless
+//      // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'
+//      // are non-null, and 'categoryName' is null-terminated.
+//  {
+//      assert(recordLevel);
+//      assert(passLevel);
+//      assert(triggerLevel);
+//      assert(triggerAllLevel);
+//      assert(categoryName);
 //
-//        const ball::LoggerManager& manager =
-//                                            ball::LoggerManager::singleton();
-//        if (0 != getDefaultThresholdLevels(recordLevel,
-//                                           passLevel,
-//                                           triggerLevel,
-//                                           triggerAllLevel,
-//                                           '.',
-//                                           manager,
-//                                           categoryName)) {
-//            *recordLevel     = manager.defaultRecordThresholdLevel();
-//            *passLevel       = manager.defaultPassThresholdLevel();
-//            *triggerLevel    = manager.defaultTriggerThresholdLevel();
-//            *triggerAllLevel = manager.defaultTriggerAllThresholdLevel();
-//        }
-//    }
+//      const ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//      if (0 != getDefaultThresholdLevels(recordLevel,
+//                                         passLevel,
+//                                         triggerLevel,
+//                                         triggerAllLevel,
+//                                         '.',
+//                                         manager,
+//                                         categoryName)) {
+//          *recordLevel     = manager.defaultRecordThresholdLevel();
+//          *passLevel       = manager.defaultPassThresholdLevel();
+//          *triggerLevel    = manager.defaultTriggerThresholdLevel();
+//          *triggerAllLevel = manager.defaultTriggerAllThresholdLevel();
+//      }
+//  }
 //..
-// As in {Example 1} above, we assume that the initialization sequence occurs
-// somewhere near the top of 'main', and again we use a 'ball::DefaultObserver'
-// to publish to 'stdout':
+// Then, we create the callback functors that will be supplied to the logger
+// manager singleton initialization (as in "Example 1" above, we assume that
+// the initialization sequence occurs somewhere near the top of 'main'):
 //..
-//    // myApp2.cpp
+//  // myApp2.cpp
 //
-//    int main() {
+//  int main() {
+//      // ...
 //
-//        // ...
+//      ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
 //
-//        static ball::DefaultObserver observer(&bsl::cout);
-//..
-// The following wraps the 'toLower' category name filter within a
-// 'bsl::function' functor:
-//..
-//        ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
-//..
-// and the following wraps the 'inheritThresholdLevels' function within a
-// 'bsl::function' functor:
-//..
-//        ball::LoggerManager::DefaultThresholdLevelsCallback
+//      ball::LoggerManager::DefaultThresholdLevelsCallback
 //                                 thresholdsCallback(&inheritThresholdLevels);
 //..
-// Next we define four values for our custom "factory default" thresholds.
+// Next, we define four values for our custom "factory default" thresholds.
 // These values will be stored within the logger manager and will be available
 // to all users whenever the "factory defaults" are needed, for the life of the
 // logger manager.  In this example, however, we will also be installing the
@@ -554,109 +553,118 @@ BSLS_IDENT("$Id: $")
 // defaults" will have no practical effect, since the callback mechanism "steps
 // in front of" the default values:
 //..
-//        int recordLevel     = 125;
-//        int passLevel       = 100;
-//        int triggerLevel    =  75;
-//        int triggerAllLevel =  50;
+//      int recordLevel     = 125;
+//      int passLevel       = 100;
+//      int triggerLevel    =  75;
+//      int triggerAllLevel =  50;
 //..
-// Now we can configure a 'ball::LoggerManagerDefaults' object, 'defaults',
+// Then, we can configure a 'ball::LoggerManagerDefaults' object, 'defaults',
 // with these four threshold values.  'defaults' can then be used to configure
 // the 'ball::LoggerManagerConfiguration' object that will be passed to the
 // 'ball::LoggerManagerScopedGuard' constructor (below):
 //..
-//        ball::LoggerManagerDefaults defaults;
-//        defaults.setDefaultThresholdLevelsIfValid(recordLevel,
-//                                                  passLevel,
-//                                                  triggerLevel,
-//                                                  triggerAllLevel);
+//      ball::LoggerManagerDefaults defaults;
+//      defaults.setDefaultThresholdLevelsIfValid(recordLevel,
+//                                                passLevel,
+//                                                triggerLevel,
+//                                                triggerAllLevel);
 //..
-// With 'defaults' and the callback functors defined above, we can now create
-// and set the 'ball::LoggerManagerConfiguration' object, 'configuration', that
-// will describe our desired configuration:
+// Next, we create and set the 'ball::LoggerManagerConfiguration' object,
+// 'configuration', that will describe our desired configuration:
 //..
-//        ball::LoggerManagerConfiguration configuration;
-//        configuration.setDefaultValues(defaults);
-//        configuration.setCategoryNameFilterCallback(nameFilter);
-//        configuration.setDefaultThresholdLevelsCallback(thresholdsCallback);
+//      ball::LoggerManagerConfiguration configuration;
+//      configuration.setDefaultValues(defaults);
+//      configuration.setCategoryNameFilterCallback(nameFilter);
+//      configuration.setDefaultThresholdLevelsCallback(thresholdsCallback);
 //..
-// Finally, we can instantiate the singleton logger manager, passing in the
-// 'observer' and 'configuration' that we have just created:
+// Then, we instantiate the singleton logger manager, passing in the
+// 'configuration' that we have just created:
 //..
-//        ball::LoggerManagerScopedGuard guard(&observer, configuration);
-//        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//      ball::LoggerManagerScopedGuard guard(configuration);
 //..
-// The application is now prepared to log messages using the 'ball' logging
-// subsystem, but first we will demonstrate the functors and client-supplied
-// default threshold overrides.
+// Note that the application is now prepared to log messages using the 'ball'
+// logging subsystem, but until the application registers an observer, all log
+// messages will be discarded.
 //
-// First, assume that we are not in the same lexical scope, and so we cannot
-// see 'manager' above.  We must therefore obtain a reference to the singleton
-// logger manager:
+// Now, we will demonstrate the functors and client-supplied default threshold
+// overrides.
+//
+// First, we obtain a reference to the singleton logger manager:
 //..
-//        ball::LoggerManager& loggerManager =
-//                                            ball::LoggerManager::singleton();
+//      ball::LoggerManager& manager = ball::LoggerManager::singleton();
 //..
-// Next obtain a reference to the *Default* *Category* and 'assert' that its
-// threshold levels match the client-supplied values that overrode the
+// Then, we obtain a reference to the *Default* *Category* and 'assert' that
+// its threshold levels match the client-supplied values that override the
 // "factory-supplied" default values:
 //..
-//        const ball::Category& defaultCategory =
-//                                             loggerManager.defaultCategory();
-//        assert(125 == defaultCategory.recordLevel());
-//        assert(100 == defaultCategory.passLevel());
-//        assert( 75 == defaultCategory.triggerLevel());
-//        assert( 50 == defaultCategory.triggerAllLevel());
+//      const ball::Category& defaultCategory = manager.defaultCategory();
+//      assert(125 == defaultCategory.recordLevel());
+//      assert(100 == defaultCategory.passLevel());
+//      assert( 75 == defaultCategory.triggerLevel());
+//      assert( 50 == defaultCategory.triggerAllLevel());
 //..
-// Next add a category named "BloombergLP" (by calling 'addCategory').  Note
-// that the logger manager invokes the supplied category name filter to map
-// the category name to lower-case before the new category is added to the
-// category registry.  The name filter is also invoked by 'lookupCategory'
-// whenever a category is searched for (i.e., by name) in the registry:
+// Next, we add a category named "BloombergLP" (by calling 'addCategory').
+// Note that threshold levels supplied with the category override all defaults
+// (including thresholds set by the supplied callback).  Also note that the
+// logger manager invokes the supplied category name filter to map the category
+// name to lower-case before the new category is added to the category
+// registry.  The name filter is also invoked by 'lookupCategory' whenever a
+// category is searched for (i.e., by name) in the registry:
 //..
-//        const ball::Category *blpCategory =
-//                   loggerManager.addCategory("BloombergLP", 128, 96, 64, 32);
-//        assert(blpCategory == loggerManager.lookupCategory("BLOOMBERGLP"));
-//        assert(  0 == bsl::strcmp("bloomberglp",
-//                                  blpCategory->categoryName()));
-//        assert(128 == blpCategory->recordLevel());
-//        assert( 96 == blpCategory->passLevel());
-//        assert( 64 == blpCategory->triggerLevel());
-//        assert( 32 == blpCategory->triggerAllLevel());
+//      const ball::Category *blpCategory =
+//                         manager.addCategory("BloombergLP", 128, 96, 64, 32);
+//      assert(blpCategory == manager.lookupCategory("BLOOMBERGLP"));
+//      assert(  0 == bsl::strcmp("bloomberglp", blpCategory->categoryName()));
+//      assert(128 == blpCategory->recordLevel());
+//      assert( 96 == blpCategory->passLevel());
+//      assert( 64 == blpCategory->triggerLevel());
+//      assert( 32 == blpCategory->triggerAllLevel());
 //..
-// Next add a second category named "BloombergLP.bal.ball" (by calling
+// Then, we add a second category named "BloombergLP.bal.ball" (by calling
 // 'setCategory') and 'assert' that the threshold levels are "inherited" from
 // category "BloombergLP":
 //..
-//        const ball::Category *ballCategory =
-//                           loggerManager.setCategory("BloombergLP.bal.ball");
-//        assert(ballCategory ==
-//                       loggerManager.lookupCategory("bloomberglp.bal.ball"));
-//        assert(  0 == bsl::strcmp("bloomberglp.bal.ball",
-//                                  ballCategory->categoryName()));
-//        assert(128 == ballCategory->recordLevel());
-//        assert( 96 == ballCategory->passLevel());
-//        assert( 64 == ballCategory->triggerLevel());
-//        assert( 32 == ballCategory->triggerAllLevel());
+//      const ball::Category *ballCategory =
+//                                 manager.setCategory("BLOOMbergLP.bal.ball");
+//
+//      assert(ballCategory == manager.lookupCategory("bloomberglp.bal.ball"));
+//      assert(  0 == bsl::strcmp("bloomberglp.bal.ball",
+//                                ballCategory->categoryName()));
+//      assert(128 == ballCategory->recordLevel());
+//      assert( 96 == ballCategory->passLevel());
+//      assert( 64 == ballCategory->triggerLevel());
+//      assert( 32 == ballCategory->triggerAllLevel());
 //..
-// Finally add a third category named "Other.equities", again by calling
+// Now, we add a third category named "Other.equities", again by calling
 // 'setCategory'.  This category has no ancestor currently in the registry, so
 // its threshold levels match those of the *Default* *Category*:
 //..
-//        const ball::Category *equitiesCategory =
-//                           loggerManager.setCategory("Other.equities");
-//        assert(equitiesCategory ==
-//                       loggerManager.lookupCategory("OTHER.EQUITIES"));
-//        assert(  0 == bsl::strcmp("other.equities",
-//                                  equitiesCategory->categoryName()));
-//        assert(125 == equitiesCategory->recordLevel());
-//        assert(100 == equitiesCategory->passLevel());
-//        assert( 75 == equitiesCategory->triggerLevel());
-//        assert( 50 == equitiesCategory->triggerAllLevel());
+//      const ball::Category *equitiesCategory =
+//                                       manager.setCategory("Other.equities");
+//      assert(equitiesCategory == manager.lookupCategory("OTHER.EQUITIES"));
+//      assert(  0 == bsl::strcmp("other.equities",
+//                                equitiesCategory->categoryName()));
+//      assert(125 == equitiesCategory->recordLevel());
+//      assert(100 == equitiesCategory->passLevel());
+//      assert( 75 == equitiesCategory->triggerLevel());
+//      assert( 50 == equitiesCategory->triggerAllLevel());
 //
-//        // ...
+// Finally, we create a 'ball::DefaultObserver' object 'observer' that will
+// publish records to 'stdout' and register it with the logger manager
+// singleton.  Note that observers must be registered by name; this example
+// simply uses "default" for a name:
+//..
+//      bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
 //
-//        return 0;
-//    }
+//      bsl::shared_ptr<ball::DefaultObserver> observer(
+//                               new(*alloc) ball::DefaultObserver(&bsl::cout),
+//                               alloc);
+//
+//      manager.registerObserver(observer, "default");
+//      // ...
+//
+//      return 0;
+//  }
 //..
 //
 ///Example 3: Efficient Logging of 'ostream'-able Objects
@@ -667,74 +675,74 @@ BSLS_IDENT("$Id: $")
 // logger.  Suppose we want to *efficiently* log instances of the following
 // class:
 //..
-//    class Information {
-//        // This (incomplete) class is a simple aggregate of a "heading" and
-//        // "contents" pertaining to that heading.  It serves to illustrate
-//        // how to log the string representation of an object.
+//  class Information {
+//      // This (incomplete) class is a simple aggregate of a "heading" and
+//      // "contents" pertaining to that heading.  It serves to illustrate
+//      // how to log the string representation of an object.
 //
-//        bsl::string d_heading;
-//        bsl::string d_contents;
+//      bsl::string d_heading;
+//      bsl::string d_contents;
 //
-//      public:
-//        Information(const char *heading, const char *contents);
-//        ~Information();
-//        const bsl::string& heading() const;
-//        const bsl::string& contents() const;
-//    };
+//    public:
+//      Information(const char *heading, const char *contents);
+//      ~Information();
+//      const bsl::string& heading() const;
+//      const bsl::string& contents() const;
+//  };
 //..
 // In addition, we define the following free operator for streaming instances
 // of 'Information' to an 'bsl::ostream':
 //..
-//    bsl::ostream& operator<<(bsl::ostream&      stream,
-//                             const Information& information)
-//    {
-//        stream << information.heading()  << bsl::endl;
-//        stream << ": ";
-//        stream << information.contents() << bsl::endl;
-//        return stream;
-//    }
+//  bsl::ostream& operator<<(bsl::ostream&      stream,
+//                           const Information& information)
+//  {
+//      stream << information.heading();
+//      stream << ": ";
+//      stream << information.contents() << bsl::endl;
+//      return stream;
+//  }
 //..
 // The following function logs an 'Information' object to the specified
 // 'logger':
 //..
-//    void logInformation(ball::Logger          *logger,
-//                        const Information&     information,
-//                        ball::Severity::Level  severity,
-//                        const ball::Category&  category,
-//                        const char            *fileName,
-//                        int                    lineNumber)
-//    {
+//  void logInformation(ball::Logger          *logger,
+//                      const Information&     information,
+//                      ball::Severity::Level  severity,
+//                      const ball::Category&  category,
+//                      const char            *fileName,
+//                      int                    lineNumber)
+//  {
 //..
 // First, obtain a record that has its 'fileName' and 'lineNumber' attributes
 // set:
 //..
-//        ball::Record *record = logger->getRecord(fileName, lineNumber);
+//      ball::Record *record = logger->getRecord(fileName, lineNumber);
 //..
-// Next, get a modifiable reference to the fixed fields of 'record':
+// Then, we get a modifiable reference to the fixed fields of 'record':
 //..
-//        ball::RecordAttributes& attributes = record->fixedFields();
+//      ball::RecordAttributes& attributes = record->fixedFields();
 //..
-// Create a 'bsl::ostream' to which the string representation 'information' can
-// be output.  Note that 'stream' is supplied with the stream buffer of
-// 'record':
+// Next, we create a 'bsl::ostream' to which the string representation
+// 'information' can be output.  Note that 'stream' is supplied with the stream
+// buffer of 'attributes':
 //..
-//        bsl::ostream stream(&attributes.messageStreamBuf());
+//      bsl::ostream stream(&attributes.messageStreamBuf());
 //..
-// Now stream 'information' into our output 'stream'.  This will set the
+// Then, we stream 'information' into our output 'stream'.  This will set the
 // message attribute of 'record' to the streamed data:
 //..
-//        stream << information;
+//      stream << information;
 //..
-// Finally, log 'record' using 'logger':
+// Finally, we log 'record' using 'logger':
 //..
-//        logger->logMessage(category, severity, record);
-//    }
+//      logger->logMessage(category, severity, record);
+//  }
 //..
 // Notice that we did not need to allocate a scratch buffer to stream the
 // object contents into.  That would have required an extra copy and the cost
 // of allocation and deallocation, and thus would have been more inefficient.
 //
-///Example 4: Logging Using a 'ball::Logger'
+///Example 4: Logging using a 'ball::Logger'
 ///- - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using the a 'ball::Logger' directly to log
 // messages.  In practice, clients are encouraged to use the logging macros
@@ -751,15 +759,15 @@ BSLS_IDENT("$Id: $")
 // For this example, it is sufficient to use the severity levels defined in the
 // 'ball::Severity::Level' enumeration:
 //..
-//    enum Level {
-//        OFF   =   0,  // disable generation of corresponding message
-//        FATAL =  32,  // a condition that will (likely) cause a *crash*
-//        ERROR =  64,  // a condition that *will* cause incorrect behavior
-//        WARN  =  96,  // a *potentially* problematic condition
-//        INFO  = 128,  // data about the running process
-//        DEBUG = 160,  // information useful while debugging
-//        TRACE = 192   // execution trace data
-//    };
+//  enum Level {
+//      OFF   =   0,  // disable generation of corresponding message
+//      FATAL =  32,  // a condition that will (likely) cause a *crash*
+//      ERROR =  64,  // a condition that *will* cause incorrect behavior
+//      WARN  =  96,  // a *potentially* problematic condition
+//      INFO  = 128,  // data about the running process
+//      DEBUG = 160,  // information useful while debugging
+//      TRACE = 192   // execution trace data
+//  };
 //..
 // Note that the intervals left between enumerator values allow applications
 // to define additional values in case there is a desire to log with more
@@ -784,16 +792,20 @@ BSLS_IDENT("$Id: $")
 // used by the administration methods to "induce" a hierarchical behavior on
 // our category, should that be useful.  See, e.g., the callback functor
 // 'ball::LoggerManager::DefaultThresholdLevelsCallback' and its documentation,
-// and {Example 2} above for information on how to use category names to
+// and Usage Example 2 above for information on how to use category names to
 // customize logger behavior:
 //..
-//   int factorial(int n)
-//       // Return the factorial of the specified value 'n' if the factorial
-//       // can be represented as an 'int', and a negative value otherwise.
-//   {
-//       static const ball::Category *factorialCategory =
-//           ball::LoggerManager::singleton().setCategory(
-//                                         "equities.graphics.math.factorial");
+//  int factorial(int n)
+//      // Return the factorial of the specified value 'n' if the factorial
+//      // can be represented as an 'int', and a negative value otherwise.
+//  {
+//      static const ball::Category *factorialCategory =
+//          ball::LoggerManager::singleton().setCategory(
+//                                          "equities.graphics.math.factorial",
+//                                          ball::Severity::e_INFO,
+//                                          ball::Severity::e_TRACE,
+//                                          ball::Severity::e_ERROR,
+//                                          ball::Severity::e_FATAL);
 //..
 // We must also obtain a reference to a logger by calling the logger manager
 // 'getLogger' method.  Note that this logger may not safely be cached as a
@@ -802,7 +814,7 @@ BSLS_IDENT("$Id: $")
 // owner of 'main' is free to install new loggers at any point, so a
 // statically-cached logger would be a problem:
 //..
-//       ball::Logger& logger = ball::LoggerManager::singleton().getLogger();
+//      ball::Logger& logger = ball::LoggerManager::singleton().getLogger();
 //..
 // Now we validate the input value 'n'.  If 'n' is either negative or too
 // large, we will log a warning message (at severity level
@@ -811,49 +823,53 @@ BSLS_IDENT("$Id: $")
 // 'if' test) unless 'ball::Severity::e_WARN' is at least as severe as one of
 // the threshold levels of 'factorialCategory':
 //..
-//       if (0 > n) {
-//           logger.logMessage(*factorialCategory,
-//                             ball::Severity::e_WARN,
-//                             __FILE__,
-//                             __LINE__,
-//                             "Attempt to take factorial of negative value.");
-//           return n;
-//       }
+//      if (0 > n) {
+//          logger.logMessage(*factorialCategory,
+//                            ball::Severity::e_WARN,
+//                            __FILE__,
+//                            __LINE__,
+//                            "Attempt to take factorial of negative value.");
+//          return n;
+//      }
 //
-//       enum { MAX_ARGUMENT = 13 };  // maximum value accepted by 'factorial'
+//      enum { MAX_ARGUMENT = 13 };  // maximum value accepted by 'factorial'
 //
-//       if (MAX_ARGUMENT < n) {
-//           logger.logMessage(*factorialCategory,
-//                             ball::Severity::e_WARN,
-//                             __FILE__,
-//                             __LINE__,
-//                             "Result too large for 'int'.");
-//           return -n;
-//       }
+//      if (MAX_ARGUMENT < n) {
+//          logger.logMessage(*factorialCategory,
+//                            ball::Severity::e_WARN,
+//                            __FILE__,
+//                            __LINE__,
+//                            "Result too large for 'int'.");
+//          return -n;
+//      }
 //..
 // The remaining code proceeds mostly as expected, but adds one last message
 // that tracks control flow when 'ball::Severity::e_TRACE' is at least as
 // severe as one of the threshold levels of 'factorialCategory' (e.g., as
 // might be the case during debugging):
 //..
-//       int product = 1;
-//       while (1 < n) {
-//           product *= n;
-//           --n;
-//       }
+//      int product = 1;
+//      while (1 < n) {
+//          product *= n;
+//          --n;
+//      }
 //
-//       logger.logMessage(*factorialCategory,
-//                         ball::Severity::e_TRACE,
-//                         __FILE__,
-//                         __LINE__,
-//                         "Exiting 'factorial' successfully.");
+//      logger.logMessage(*factorialCategory,
+//                        ball::Severity::e_TRACE,
+//                        __FILE__,
+//                        __LINE__,
+//                        "Exiting 'factorial' successfully.");
 //
-//       return product;
-//   }
+//      return product;
+//  }
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
+#endif
+
+#ifndef INCLUDED_BALL_BROADCASTOBSERVER
+#include <ball_broadcastobserver.h>
 #endif
 
 #ifndef INCLUDED_BALL_CATEGORYMANAGER
@@ -892,8 +908,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
-#include <bslmt_rwmutex.h>
+#ifndef INCLUDED_BSLMT_READERWRITERMUTEX
+#include <bslmt_readerwritermutex.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -902,6 +918,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
 #endif
 
 #ifndef INCLUDED_BSL_SET
@@ -943,7 +963,8 @@ class Logger {
     bdlcc::ObjectPool<Record>
                           d_recordPool;         // pool of records
 
-    Observer             *d_observer_p;         // holds observer (not owned)
+    const bsl::shared_ptr<Observer>
+                          d_observer;           // holds observer
 
     RecordBuffer         *d_recordBuffer_p;     // holds log record buffer
                                                 // (not owned)
@@ -979,7 +1000,7 @@ class Logger {
     Logger& operator=(const Logger&);
 
     // PRIVATE CREATORS
-    Logger(Observer                                   *observer,
+    Logger(const bsl::shared_ptr<Observer>&            observer,
            RecordBuffer                               *recordBuffer,
            const UserFieldsPopulatorCallback&          populator,
            const PublishAllTriggerCallback&            publishAllCallback,
@@ -1014,28 +1035,28 @@ class Logger {
                     int                        severity,
                     Record                    *record,
                     const ThresholdAggregate&  levels);
-        // Log the specified '*record' after setting its category log field to
+        // Log the specified 'record' after setting its category log field to
         // the specified 'category', severity log field to the specified
         // 'severity' and the rest of the log fields (except 'fileName',
         // 'lineNumber' and 'message', which are assumed to be already set in
-        // the specified 'record'), based on the threshold levels of the
-        // specified 'levels'.  (See the component-level documentation of
-        // 'ball_record' for more information on the fields that are logged).
-        // Store the record in the buffer held by this logger if 'severity' is
-        // at least as severe as the current "Record" threshold level of
-        // 'levels'.  Pass the record directly to the observer registered with
-        // this logger if 'severity' is at least as severe as the current
-        // "Pass" threshold level of 'levels'.  Publish the entire contents of
-        // the buffer of this logger if 'severity' is at least as severe as the
-        // current "Trigger" threshold level of 'levels'.  Publish the entire
-        // contents of all buffers of all active loggers if 'severity' is at
-        // least as severe as the current "Trigger-All" threshold level of
-        // 'levels' (i.e., via the callback supplied at construction).  Note
-        // that this method will have no effect if 'severity' is less severe
-        // than all of the threshold levels of 'levels'.  The behavior is
-        // undefined unless 'severity' is in the range [1 .. 255], 'record' is
-        // previously obtained by a call to 'getRecord', and 'record' is not
-        // reused after invoking this method.
+        // 'record'), based on the threshold levels of the specified 'levels'.
+        // (See the component-level documentation of 'ball_record' for more
+        // information on the fields that are logged).  Store the record in the
+        // buffer held by this logger if 'severity' is at least as severe as
+        // the current "Record" threshold level of 'levels'.  Pass the record
+        // directly to the observer registered with this logger if 'severity'
+        // is at least as severe as the current "Pass" threshold level of
+        // 'levels'.  Publish the entire contents of the buffer of this logger
+        // if 'severity' is at least as severe as the current "Trigger"
+        // threshold level of 'levels'.  Publish the entire contents of all
+        // buffers of all active loggers if 'severity' is at least as severe as
+        // the current "Trigger-All" threshold level of 'levels' (i.e., via the
+        // callback supplied at construction).  Note that this method will have
+        // no effect if 'severity' is less severe than all of the threshold
+        // levels of 'levels'.  The behavior is undefined unless 'severity' is
+        // in the range [1 .. 255], 'record' is previously obtained by a call
+        // to 'getRecord', and 'record' is not reused after invoking this
+        // method.
 
   public:
     // MANIPULATORS
@@ -1120,7 +1141,7 @@ class Logger {
         // logger.  Note that the returned buffer is intended to be used *only*
         // for formatting log messages immediately before calling 'logMessage'.
         //
-        // DEPRECATED: Use 'obtainMessageBuffer' instead.  Do *not* use this
+        // !DEPRECATED!: Use 'obtainMessageBuffer' instead.  Do *not* use this
         // method in multi-threaded code.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -1173,7 +1194,8 @@ class LoggerManager {
     static LoggerManager  *s_singleton_p;        // singleton-enforcement
 
     // DATA
-    Observer              *d_observer_p;         // holds (but does not own)
+    const bsl::shared_ptr<BroadcastObserver>
+                           d_observer;           // internal broadcasting
                                                  // observer
 
     CategoryNameFilterCallback
@@ -1185,7 +1207,8 @@ class LoggerManager {
                                                  // default threshold levels of
                                                  // "set" categories
 
-    bslmt::RWMutex         d_defaultThresholdsLock;
+    bslmt::ReaderWriterMutex
+                           d_defaultThresholdsLock;
                                                  // 'd_defaultThresholdsLock'
                                                  // protector
 
@@ -1211,7 +1234,8 @@ class LoggerManager {
 
     bsl::set<Logger *>     d_loggers;            // set of *allocated* loggers
 
-    bslmt::RWMutex         d_loggersLock;        // 'd_loggers' protector
+    bslmt::ReaderWriterMutex
+                           d_loggersLock;        // 'd_loggers' protector
 
     RecordBuffer          *d_recordBuffer_p;     // holds record buffer (owned)
 
@@ -1230,7 +1254,8 @@ class LoggerManager {
     bsl::map<void *, Logger *>
                            d_defaultLoggers;     // *registered* loggers
 
-    bslmt::RWMutex         d_defaultLoggersLock; // registry lock
+    bslmt::ReaderWriterMutex
+                           d_defaultLoggersLock; // registry lock
 
     LoggerManagerConfiguration::LogOrder
                            d_logOrder;           // logging order
@@ -1243,17 +1268,14 @@ class LoggerManager {
 
     // PRIVATE CLASS METHODS
     static void initSingletonImpl(
-                           Observer                          *observer,
                            const LoggerManagerConfiguration&  configuration,
                            bslma::Allocator                  *globalAllocator);
         // Initialize (once!) the logger manager singleton having the specified
-        // 'observer' that receives published log records, the specified
         // 'configuration' of defaults and attributes, and the specified
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
-        // the currently installed global allocator is used.  The behavior is
-        // undefined if 'observer' is 0, goes out of scope, or is otherwise
-        // destroyed.  Note that this method has no effect if the logger
-        // manager singleton has already been initialized.
+        // the currently installed global allocator is used.  Note that this
+        // method has no effect if the logger manager singleton has already
+        // been initialized.
 
     // PRIVATE MANIPULATORS
     void publishAllImp(Transmission::Cause cause);
@@ -1263,13 +1285,14 @@ class LoggerManager {
         // publication 'cause'.
 
     void constructObject(const LoggerManagerConfiguration& configuration);
-        // Construct the default category, default logger members, and
-        // record buffer members of this logger manager based on the specified
+        // Construct the default category, default logger members, and record
+        // buffer members of this logger manager based on the specified
         // 'configuration'.  The behavior is undefined if this method is
         // invoked again on this logger manager.
 
   public:
     // CREATORS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     LoggerManager(const LoggerManagerConfiguration&  configuration,
                   Observer                          *observer,
                   bslma::Allocator                  *globalAllocator = 0);
@@ -1281,28 +1304,62 @@ class LoggerManager {
         // 'observer' is 0, goes out of scope, or is otherwise destroyed.  Note
         // that the new logger manager is *not* the singleton logger manager
         // used by macros of the BALL logging framework.
+        //
+        // !DEPRECATED!: Use the 'LoggerManager' constructor that does *not*
+        // take an 'observer' instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    explicit LoggerManager(
+                       const LoggerManagerConfiguration&  configuration,
+                       bslma::Allocator                  *globalAllocator = 0);
+        // Create a logger manager having the specified 'configuration' of
+        // defaults and attributes.  Optionally specify a 'globalAllocator'
+        // used to supply memory.  If 'globalAllocator' is 0, the currently
+        // installed global allocator is used.  Note that the new logger
+        // manager is *not* the singleton logger manager used by macros of the
+        // BALL logging framework.
 
     ~LoggerManager();
         // Destroy this logger manager.
 
     // CLASS METHODS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static LoggerManager& initSingleton(
                        Observer                          *observer,
                        bslma::Allocator                  *globalAllocator = 0);
     static LoggerManager& initSingleton(
                        Observer                          *observer,
                        const LoggerManagerConfiguration&  configuration,
-                       bslma::Allocator                  *basicAllocator = 0);
-        // Initialize (once!) the logger manager singleton.  Optionally specify
+                       bslma::Allocator                  *globalAllocator = 0);
+        // Initialize (once!) the logger manager singleton having the specified
+        // 'observer' that receives published log records.  Optionally specify
         // a 'configuration' describing how the singleton should be configured.
         // If 'configuration' is not specified, a default constructed
         // 'LoggerManagerConfiguration' object is used.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Return a
+        // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
+        // the currently installed global allocator is used.  Return a
         // reference to the modifiable logger manager singleton.  The behavior
         // is undefined if 'observer' is 0, goes out of scope, or is otherwise
         // destroyed.  Note that this method has no effect if the logger
         // manager singleton has already been initialized.
+        //
+        // !DEPRECATED!: Use the 'initSingleton' method that does *not* take an
+        // 'observer' instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    static LoggerManager& initSingleton(bslma::Allocator *globalAllocator = 0);
+    static LoggerManager& initSingleton(
+                       const LoggerManagerConfiguration&  configuration,
+                       bslma::Allocator                  *globalAllocator = 0);
+        // Initialize (once!) the logger manager singleton.  Optionally specify
+        // a 'configuration' describing how the singleton should be configured.
+        // If 'configuration' is not specified, a default constructed
+        // 'LoggerManagerConfiguration' object is used.  Optionally specify a
+        // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
+        // the currently installed global allocator is used.  Return a
+        // reference to the modifiable logger manager singleton.  Note that
+        // this method has no effect if the logger manager singleton has
+        // already been initialized.
 
     static void shutDownSingleton();
         // Destroy the logger manager singleton and release all resources used
@@ -1312,6 +1369,7 @@ class LoggerManager {
         // another thread is accessing the logger manager singleton (i.e., this
         // method is *not* thread-safe).
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static void createLoggerManager(
                         bslma::ManagedPtr<LoggerManager>  *manager,
                         Observer                          *observer,
@@ -1321,6 +1379,24 @@ class LoggerManager {
         // having the specified 'observer' that receives published log records
         // and the specified 'configuration' of defaults and attributes; load
         // the newly-created logger manager into the specified 'manager'
+        // managed pointer.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined if 'observer'
+        // is 0, goes out of scope, or is otherwise destroyed.  Note that this
+        // method does *not* create the singleton logger manager used by the
+        // macros of the BALL logging framework.
+        //
+        // !DEPRECATED!: Use the 'createLoggerManager' method that does *not*
+        // take an 'observer' instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    static void createLoggerManager(
+                        bslma::ManagedPtr<LoggerManager>  *manager,
+                        const LoggerManagerConfiguration&  configuration,
+                        bslma::Allocator                  *basicAllocator = 0);
+        // Create a logger manager that is *not* the singleton logger manager
+        // having the specified 'configuration' of defaults and attributes;
+        // load the newly-created logger manager into the specified 'manager'
         // managed pointer.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Note that this method does *not* create
@@ -1365,21 +1441,55 @@ class LoggerManager {
     Logger *allocateLogger(RecordBuffer *buffer);
     Logger *allocateLogger(RecordBuffer *buffer,
                            int           scratchBufferSize);
+        // Return the address of a modifiable logger managed by this logger
+        // manager configured with the specified record 'buffer'.  Optionally
+        // specify a 'scratchBufferSize' for the logger's user-accessible
+        // message buffer.  If 'scratchBufferSize' is not specified, the value
+        // configured at construction is used.  Note that this method is
+        // primarily intended for use in multi-threaded applications, but can
+        // be used to partition logging streams even within a single thread.
+        // Also note that ownership of 'buffer' is *not* transferred, and
+        // hence, will *not* be destroyed (or otherwise affected) after the
+        // logger is deallocated.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     Logger *allocateLogger(RecordBuffer *buffer,
                            Observer     *observer);
     Logger *allocateLogger(RecordBuffer *buffer,
                            int           scratchBufferSize,
                            Observer     *observer);
         // Return the address of a modifiable logger managed by this logger
-        // manager configured with the specified record 'buffer'.  Optionally
-        // specify a 'scratchBufferSize' for the logger's user-accessible
-        // message buffer.  Optionally specify an 'observer' that receives
-        // published log records.  Note that this method is primarily intended
-        // for use in multi-threaded applications, but can be used to partition
-        // logging streams even within a single thread.  Also note that
-        // ownership of 'buffer' and 'observer' is *not* transferred, and
-        // hence, will *not* be destroyed (or otherwise affected) after the
-        // logger is deallocated.
+        // manager having the specified 'observer' that receives published log
+        // records and configured with the specified record 'buffer'.
+        // Optionally specify a 'scratchBufferSize' for the logger's
+        // user-accessible message buffer.  If 'scratchBufferSize' is not
+        // specified, the value configured at construction is used.  Note that
+        // this method is primarily intended for use in multi-threaded
+        // applications, but can be used to partition logging streams even
+        // within a single thread.  Also note that ownership of 'buffer' and
+        // 'observer' is *not* transferred, and hence, will *not* be destroyed
+        // (or otherwise affected) after the logger is deallocated.
+        //
+        // !DEPRECATED!: Use the 'allocateLogger' method that does *not* take a
+        // raw pointer to an 'observer' instead.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+    Logger *allocateLogger(RecordBuffer                     *buffer,
+                           const bsl::shared_ptr<Observer>&  observer);
+    Logger *allocateLogger(RecordBuffer                     *buffer,
+                           int                               scratchBufferSize,
+                           const bsl::shared_ptr<Observer>&  observer);
+        // Return the address of a modifiable logger managed by this logger
+        // manager having the specified 'observer' that receives published log
+        // records and configured with the specified record 'buffer'.
+        // Optionally specify a 'scratchBufferSize' for the logger's
+        // user-accessible message buffer.  If 'scratchBufferSize' is not
+        // specified, the value configured at construction is used.  Note that
+        // this method is primarily intended for use in multi-threaded
+        // applications, but can be used to partition logging streams even
+        // within a single thread.  Also note that ownership of 'buffer' and
+        // 'observer' is *not* transferred, and hence, will *not* be destroyed
+        // (or otherwise affected) after the logger is deallocated.
 
     void deallocateLogger(Logger *logger);
         // Deallocate the specified 'logger' and release 'logger' from
@@ -1427,7 +1537,7 @@ class LoggerManager {
         // having the specified 'categoryName' and default threshold levels if
         // 'categoryName' is not present in the registry and the number of
         // categories in the registry is less than the registry capacity.
-        // Return the address of the (possibly newly-created) modifiable
+        // Return the address of the (possibly newly-created) non-modifiable
         // category having 'categoryName', if such a category exists, and the
         // address of the non-modifiable *default* *category* otherwise.  The
         // behavior is undefined unless 'categoryName' is null-terminated.
@@ -1439,7 +1549,7 @@ class LoggerManager {
         // having the specified 'categoryName' and default threshold levels if
         // 'categoryName' is not present in the registry and the number of
         // categories in the registry is less than the registry capacity.
-        // Return the address of the (possibly newly-created) modifiable
+        // Return the address of the (possibly newly-created) non-modifiable
         // category having 'categoryName', if such a category exists, and the
         // address of the non-modifiable *default* *category* otherwise.  If
         // the specified 'categoryHolder' is non-null, then also load into
@@ -1514,9 +1624,55 @@ class LoggerManager {
         // categories to the registry will fail.  The behavior is undefined
         // unless '0 <= length'.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     Observer *observer();
-        // Return the address of the modifiable observer registered with this
-        // logger manager.
+        // Return the address of the modifiable legacy observer registered with
+        // this logger manager.
+        //
+        // !DEPRECATED!: Use the 'findObserver' method instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    int registerObserver(const bsl::shared_ptr<Observer>& observer,
+                         const bslstl::StringRef&         observerName);
+        // Add the specified 'observer' with the specified 'observerName' to
+        // the registry of observers maintained by this logger manager.  Return
+        // 0 if 'observer' was successfully registered with this logger
+        // manager, and a non-zero value (with no effect) otherwise.
+        // Henceforth, all log records published by this logger manager are
+        // published to this observer, until 'observer' is deregistered.  The
+        // behavior is undefined if a cyclic reference is created among
+        // registered observers.  Note that this method will fail if an
+        // observer having 'observerName' is already registered.
+
+    int deregisterObserver(const bslstl::StringRef& observerName);
+        // Remove the observer having the specified 'observerName' from the
+        // registry of observers maintained by this logger manager.  Return 0
+        // if the observer having 'observerName' was successfully deregistered
+        // from this logger manager, and a non-zero value (with no effect)
+        // otherwise.  Henceforth, the observer that had 'observerName' will no
+        // longer receive log records published by this logger manager.
+
+    void deregisterAllObservers();
+        // Remove all observers from the registry of observers maintained by
+        // this logger manager.
+
+    bsl::shared_ptr<Observer> findObserver(
+                                        const bslstl::StringRef& observerName);
+        // Return a shared pointer to the observer having the specified
+        // 'observerName' in the registry of this logger manager, and an empty
+        // shared pointer if there is no such observer otherwise.
+
+    template <class OBSERVER>
+    int findObserver(bsl::shared_ptr<OBSERVER> *result,
+                     const bslstl::StringRef&   observerName);
+        // Load into the specified 'result' a shared pointer to the observer of
+        // (template parameter) 'OBSERVER' type having the specified
+        // 'observerName' in the registry of this logger manager, and an empty
+        // shared pointer if there is no such observer otherwise.  Return 0 if
+        // a non-empty shared pointer was loaded, and a non-zero value
+        // otherwise.  Note that an empty shared pointer will be loaded if
+        // either no observer having 'observerName' is in the registry or the
+        // observer registered with that name is not of 'OBSERVER' type.
 
     void publishAll();
         // Transmit to the observer registered with this logger manager all log
@@ -1574,9 +1730,31 @@ class LoggerManager {
         // Return a reference to the non-modifiable *default* *category* in the
         // category registry of this logger manager.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     const Observer *observer() const;
         // Return the address of the non-modifiable observer registered with
         // this logger manager.
+        //
+        // !DEPRECATED!: Use the 'findObserver' method instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    bsl::shared_ptr<const Observer> findObserver(
+                                  const bslstl::StringRef& observerName) const;
+        // Return a shared pointer to the observer having the specified
+        // 'observerName' in the registry of this logger manager, and an empty
+        // shared pointer if there is no such observer otherwise.
+
+    template <class OBSERVER>
+    int findObserver(bsl::shared_ptr<const OBSERVER> *result,
+                     const bslstl::StringRef&         observerName) const;
+        // Load into the specified 'result' a shared pointer to the observer of
+        // (template parameter) 'OBSERVER' type having the specified
+        // 'observerName' in the registry of this logger manager, and an empty
+        // shared pointer if there is no such observer otherwise.  Return 0 if
+        // a non-empty shared pointer was loaded, and a non-zero value
+        // otherwise.  Note that an empty shared pointer will be loaded if
+        // either no observer having 'observerName' is in the registry or the
+        // observer registered with that name is not of 'OBSERVER' type.
 
     const Logger::UserFieldsPopulatorCallback *userFieldsPopulatorCallback()
                                                                          const;
@@ -1654,6 +1832,7 @@ class LoggerManagerScopedGuard {
 
   public:
     // CREATORS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     LoggerManagerScopedGuard(
                        Observer                          *observer,
                        const LoggerManagerConfiguration&  configuration,
@@ -1667,6 +1846,21 @@ class LoggerManagerScopedGuard {
         // goes out of scope, or is otherwise destroyed.  Note that on
         // destruction, this scoped guard will destroy the logger manager
         // singleton, if the singleton exists at that time.
+        //
+        // !DEPRECATED!: Use the 'LoggerManagerScopedGuard' constructor that
+        // does *not* take an 'observer' instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+    explicit LoggerManagerScopedGuard(
+                       const LoggerManagerConfiguration&  configuration,
+                       bslma::Allocator                  *globalAllocator = 0);
+        // Create a scoped guard that will create (once!) the logger manager
+        // singleton having the specified 'configuration' of defaults and
+        // attributes.  Optionally specify a 'globalAllocator' used to supply
+        // memory.  If 'globalAllocator' is 0, the currently installed global
+        // allocator is used.  Note that on destruction, this scoped guard will
+        // destroy the logger manager singleton, if the singleton exists at
+        // that time.
 
     ~LoggerManagerScopedGuard();
         // Destroy the logger manager singleton, if the singleton exists, and
@@ -1689,6 +1883,13 @@ bool LoggerManager::isInitialized()
 }
 
 // MANIPULATORS
+template <class OBSERVER>
+int LoggerManager::findObserver(bsl::shared_ptr<OBSERVER> *result,
+                                const bslstl::StringRef&   observerName)
+{
+    return d_observer->findObserver(result, observerName);
+}
+
 template <class CATEGORY_VISITOR>
 inline
 void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor)
@@ -1697,6 +1898,14 @@ void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor)
 }
 
 // ACCESSORS
+template <class OBSERVER>
+int LoggerManager::findObserver(
+                           bsl::shared_ptr<const OBSERVER> *result,
+                           const bslstl::StringRef&         observerName) const
+{
+    return d_observer->findObserver(result, observerName);
+}
+
 template <class CATEGORY_VISITOR>
 inline
 void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
@@ -1709,6 +1918,7 @@ void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
                         // ------------------------------
 
 // CREATORS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 LoggerManagerScopedGuard::LoggerManagerScopedGuard(
                             Observer                          *observer,
@@ -1718,6 +1928,15 @@ LoggerManagerScopedGuard::LoggerManagerScopedGuard(
     LoggerManager::initSingleton(observer,
                                  configuration,
                                  globalAllocator);
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+inline
+LoggerManagerScopedGuard::LoggerManagerScopedGuard(
+                            const LoggerManagerConfiguration&  configuration,
+                            bslma::Allocator                  *globalAllocator)
+{
+    LoggerManager::initSingleton(configuration, globalAllocator);
 }
 
 inline
@@ -1732,7 +1951,7 @@ LoggerManagerScopedGuard::~LoggerManagerScopedGuard()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

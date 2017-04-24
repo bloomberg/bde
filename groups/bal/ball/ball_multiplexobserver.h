@@ -17,6 +17,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multiplexing observer that forwards to other observers.
 //
+//@DEPRECATED: Use 'ball_broadcastobserver' instead.
+//
 //@CLASSES:
 //    ball::MultiplexObserver: multiplexing observer that forwards log records
 //

@@ -2900,23 +2900,23 @@ int main(int argc, char *argv[])
         // us.
         unsetenv("TZ");
 #endif
+        ball::LoggerManagerConfiguration configuration;
+
+        // Publish synchronously all messages regardless of their severity.
+        // This configuration also guarantees that the observer will only
+        // see each message only once.
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::MultiplexObserver multiplexObserver;
+        ball::LoggerManager::initSingleton(&multiplexObserver,
+                                           configuration);
+
         {
-            ball::LoggerManagerConfiguration configuration;
-
-            // Publish synchronously all messages regardless of their severity.
-            // This configuration also guarantees that the observer will only
-            // see each message only once.
-
-            ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
-
-            ball::MultiplexObserver multiplexObserver;
-            ball::LoggerManager::initSingleton(&multiplexObserver,
-                                              configuration);
-
             if (verbose) cout << "Testing default output format." << endl;
             {
                 Obj mX;  const Obj& X = mX;

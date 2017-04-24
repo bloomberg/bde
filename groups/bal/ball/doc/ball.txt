@@ -46,7 +46,8 @@
    8. ball_categorymanager
 
    7. ball_category
-      ball_multiplexobserver
+      ball_multiplexobserver                             !DEPRECATED!
+      ball_broadcastobserver
 
    6. ball_defaultobserver
       ball_observeradapter
@@ -103,6 +104,9 @@
 :
 : 'ball_attributecontext':
 :      Provide a container for storing attributes and caching results.
+:
+: 'ball_broadcastobserver':
+:      Provide a broadcast observer that forwards to other observers.
 :
 : 'ball_category':
 :      Provide a container for a name and associated thresholds.
@@ -291,10 +295,10 @@
  information removed and/or added), process the message (complete with Category
  and Severity information) and take specific responsive actions, or any
  combination of these or other behaviors.  In particular, 'ball' provides a
- "multiplexing observer", so that the one observer registered with the logger
- can forward messages to any number of observers that are separately registered
- with the multiplexing observer (and are therefore unknown to the logger
- proper).
+ "broadcast observer", 'ball::BroadcastObserver', that forwards log records to
+ any number of observers registered with the broadcast observer.  Note that
+ 'ball::LoggerManager' contains an integrated broadcast observer and all
+ observers registered with the logger manager will receive log records.
 
 /Severity Levels and Categories: a Brief Overview
 /------------------------------------------------
@@ -446,16 +450,22 @@
 
 /'ball::LoggerManager'
 /- - - - - - - - - - -
- 'ball::LoggerManager' is a singleton that must be constructed with an observer
- (see below), a configuration object (see below), and an optional 'bslma'
- allocator before any true logging operations can be performed.  The logger
- manager's main tasks are to administer categories and to "allocate" loggers.
- If the user has *not* allocated and installed any logger instances, then the
- 'getLogger' method will return the "default logger", which is a specific
- instance of 'ball::Logger' that is owned and managed by the logger manager.
- This default logger is suitable for single-threaded and multi-threaded use,
- and is used "transparently" by users willing to accept default-logger
- behavior.  See {Usage} below.
+ 'ball::LoggerManager' is a singleton that must be constructed with a
+ configuration object (see below) and an optional 'bslma' allocator before any
+ true logging operations can be performed.  The logger manager's main tasks are
+ to administer categories and to "allocate" loggers.  If the user has *not*
+ allocated and installed any logger instances, then the 'getLogger' method will
+ return the "default logger", which is a specific instance of 'ball::Logger'
+ that is owned and managed by the logger manager.  This default logger is
+ suitable for single-threaded and multi-threaded use, and is used
+ "transparently" by users willing to accept default-logger behavior.  See
+ {Usage} below.
+
+ The logger manager maintains an internal broadcast observer (see below) and
+ provides the 'registerObserver', 'deregisterObserver', and 'findObserver'
+ methods, which register, deregister, and find observers registered with the
+ internal broadcast observer.  The internal broadcast observer forwards log
+ records to all registered observers.
 
  The logger manager provides the 'allocateLogger' and 'setLogger' methods,
  which allocate arbitrarily many loggers and install (at most) one logger per
@@ -578,10 +588,9 @@
  user must supply a concrete implementation (separately written or chosen from
  existing 'ball' observers).  The observer provides a 'publish' method that
  defines the behavior of the logical concept of "publication" of a message used
- throughout this document.  Note that, although only one observer may be
- registered with the logger manager, 'ball' provides a multiplexing observer
- ('ball::MultiplexObserver'), which in turn accepts registry of multiple
- observers.
+ throughout this document.  Note that multiple observers may be registered with
+ the logger manager and each registered observer will receive "published" log
+ messages.
 
 /Logging Macros
 /- - - - - - -
@@ -703,12 +712,12 @@
 /--------------------------------------------
  The recommended way to initialize the logger manager singleton is to create a
  'ball::LoggerManagerScopedGuard' object in 'main' (*before* creating any
- threads).  The logger manager scoped guard constructor takes an observer, a
- configuration object (an instance of 'ball::LoggerManagerConfiguration'), and
- an optional allocator.  The logger manager singleton is created as a
- side-effect of creating the scoped guard object.  When the guard object goes
- out of scope (i.e., on program exit), the logger manager singleton is
- automatically destroyed.
+ threads).  The logger manager scoped guard constructor takes a configuration
+ object (an instance of 'ball::LoggerManagerConfiguration') and an optional
+ allocator.  The logger manager singleton is created as a side-effect of
+ creating the scoped guard object.  When the guard object goes out of scope
+ (i.e., on program exit), the logger manager singleton is automatically
+ destroyed.
 
  As an alternative to using the logger manager scoped guard, the 'static'
  'ball::LoggerManager::initSingleton' method that takes the same arguments as
@@ -746,11 +755,11 @@
  single translation unit containing a 'main' function and essentially nothing
  else.  Among the points of usage that we illustrate are:
 
-: o Instantiating a 'ball::DefaultObserver' and passing it to the logger
-:    manager scoped guard constructor.
-:
 : o Instantiating a 'ball::LoggerManagerConfiguration' and passing it to the
 :   logger manager scoped guard constructor.
+:
+: o Instantiating a 'ball::DefaultObserver' and registering it with the logger
+:   manager singleton.
 :
 : o Invoking the 'BALL_LOG_SET_CATEGORY' macro to set a category (named "main
 :   category" in this example); records logged from a scope where the effects
@@ -781,7 +790,11 @@
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
 
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
+
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -790,16 +803,26 @@
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
 
-      ball::DefaultObserver observer(bsl::cout);
-          // Simplest observer; writes to 'stdout'.
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_WARN);
           // Configure the minimum threshold at which records are published to
           // the observer to 'e_WARN'.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
+                               alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
@@ -901,7 +924,11 @@
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
 
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
+
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -910,8 +937,8 @@
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
 
-      ball::DefaultObserver observer(bsl::cout);
-          // simplest observer; writes to 'stdout'
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
           // Instantiate the default configuration.
@@ -924,8 +951,18 @@
           // Set the four severity threshold levels; note that this method can
           // fail, and therefore returns a status.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
+                               alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
@@ -1008,17 +1045,21 @@
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
 
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
+
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
   int main()
   {
-      ball::DefaultObserver observer(bsl::cout);
-          // Simplest observer; writes to 'stdout'.
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
-          // default configuration
+          // Create default configuration.
 
       configuration.setDefaultThresholdLevelsIfValid(
                                ball::Severity::e_TRACE,   // record level
@@ -1028,8 +1069,18 @@
           // Set the four severity threshold levels; note that this method can
           // fail, and therefore returns a status.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
+                               alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
@@ -1041,7 +1092,6 @@
       bsl::cout << "We're almost ready to exit."     " "
                    "Let's publish the buffer first:" "\n";
 
-      ball::LoggerManager& manager = ball::LoggerManager::singleton();
       manager.getLogger().publish();
           // This chain of calls insures that all messages that are still held
           // in the logger's in-memory buffer are published before the program
@@ -1154,7 +1204,11 @@
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
 
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
+
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   #include <f_log.h>
 
@@ -1165,21 +1219,30 @@
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
 
-      ball::DefaultObserver observer(bsl::cout);
-          // simplest observer; writes to 'stdout'
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
           // Instantiate the default configuration.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
       manager.setDefaultThresholdLevels(
                     ball::Severity::e_TRACE,   // sets "Record" threshold
                     ball::Severity::e_INFO,    // sets "Pass-Through" threshold
                     ball::Severity::e_ERROR,   // sets "Trigger" threshold
                     ball::Severity::e_FATAL);  // sets "Trigger-All" threshold
+
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
+                               alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- note that this will *not* affect the category
@@ -1279,11 +1342,15 @@
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
 
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
+
   #include <bslmt_threadutil.h>
 
   #include <bsls_timeinterval.h>
 
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -1338,7 +1405,9 @@
       int verbose = argc > 1;  // allows user to control output from command
                                // line
 
-      ball::DefaultObserver observer(bsl::cout);        // writes to 'stdout'
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
+
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(
                                     ball::Severity::e_TRACE,  // "Record"
@@ -1346,8 +1415,18 @@
                                     ball::Severity::e_ERROR,  // "Trigger"
                                     ball::Severity::e_FATAL); // "Trigger-All"
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
+                               alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main");
 
@@ -1459,12 +1538,12 @@
  needs a (concrete) 'ball::RecordBuffer', and the preferred record buffer,
  'ball::FixedSizeRecordBuffer', in turn needs a size for the record buffer
  ('LOGBUF_SIZE').  We also provide an explicit 'bslma::Allocator' to supply
- memory; the default allocator returned by 'bslma::Default::defaultAllocator()'
+ memory; the global allocator returned by 'bslma::Default::globalAllocator()'
  is sufficient here.  Assuming that 32k bytes is a good size for the buffer,
  the following eight lines will appear in 'main'.
 ..
   enum { LOGBUF_SIZE = 32 * 1024 };
-  bslma::Allocator            *alloc_p = bslma::Default::defaultAllocator();
+  bslma::Allocator            *alloc_p = bslma::Default::globalAllocator();
   ball::FixedSizeRecordBuffer  rb(LOGBUF_SIZE, alloc_p);
   ball::LoggerManager&         manager = ball::LoggerManager::singleton();
   ball::Logger                *logger  = manager.allocateLogger(&rb);
@@ -1506,11 +1585,19 @@
  that an instance can write to a file as easily as to 'stdout'.  The three
  lines in 'main':
 ..
+  ball::LoggerManagerScopedGuard scopedGuard(configuration);
+      // Instantiate the logger manager singleton.
+
   bsl::ofstream outFile("outFile");
-  ball::DefaultObserver observer(outFile);  // writes to "outFile"
-  // ...
-  ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
-                                           // instantiate
+  bsl::shared_ptr<ball::DefaultObserver> observer(
+                                 new(*alloc_p) ball::DefaultObserver(&outFile),
+                                 alloc_p);
+      // Create simple observer; writes to 'outFile".
+
+  ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+  manager.registerObserver(observer, "default");
+      // Register the observer under (arbitrary) name "default".
 ..
  install a "file observer" that will write to "outFile", creating the file if
  it doesn't exist and overwriting it if it does.  Clearly, this is just taking
@@ -1528,11 +1615,15 @@
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
 
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
+
   #include <bslmt_threadutil.h>
 
   #include <bsls_timeinterval.h>
 
   #include <bsl_fstream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -1590,8 +1681,9 @@
       int verbose = argc > 1; // allows user to control output from command
                               // line
 
-      bsl::ofstream outFile("outFile");
-      ball::DefaultObserver observer(outFile);          // writes to "outFile"
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
+
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(
                                    ball::Severity::e_TRACE,   // "Record"
@@ -1599,8 +1691,19 @@
                                    ball::Severity::e_ERROR,   // "Trigger"
                                    ball::Severity::e_FATAL);  // "Trigger-All"
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::ofstream outFile("outFile");
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                                 new(*alloc_p) ball::DefaultObserver(&outFile),
+                                 alloc_p);
+          // Create simple observer; writes to 'outFile".
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main");
 
@@ -1609,10 +1712,7 @@
       // lifetimes.
 
       enum { LOGBUF_SIZE = 32 * 1024 };
-      bslma::Allocator            *alloc_p =
-                                            bslma::Default::defaultAllocator();
       ball::FixedSizeRecordBuffer  rb(LOGBUF_SIZE, alloc_p);
-      ball::LoggerManager&         manager = ball::LoggerManager::singleton();
       ball::Logger                *logger  = manager.allocateLogger(&rb);
 
       bslmt::ThreadAttributes   attributes;
@@ -1704,13 +1804,12 @@
       // lifetimes.
 
       enum { LOGBUF_SIZE = 32 * 1024 };
-      bslma::Allocator            *alloc_p =
-                                            bslma::Default::defaultAllocator();
+      bslma::Allocator            *alloc_p = bslma::Default::globalAllocator();
       ball::FixedSizeRecordBuffer  rb(LOGBUF_SIZE, alloc_p);
       ball::LoggerManager&         manager = ball::LoggerManager::singleton();
       ball::Logger                *logger  = manager.allocateLogger(&rb);
 
-      ball::LoggerManager::singleton().setLogger((ball::Logger*)logger);
+      manager.setLogger((ball::Logger*)logger);
           // Install a local logger for this thread.
 
       char               buf[10] = "Message n";
@@ -1733,8 +1832,9 @@
       int verbose = argc > 1; // allows user to control output from command
                               // line
 
-      bsl::ofstream outFile("outFile");
-      ball::DefaultObserver observer(outFile);         // writes to "outFile"
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
+
       ball::LoggerManagerConfiguration configuration;  // default configuration
       configuration.setDefaultThresholdLevelsIfValid(
                                    ball::Severity::e_TRACE,   // "Record"
@@ -1742,8 +1842,19 @@
                                    ball::Severity::e_ERROR,   // "Trigger"
                                    ball::Severity::e_FATAL);  // "Trigger-All"
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::ofstream outFile("outFile");
+      bsl::shared_ptr<ball::DefaultObserver> observer(
+                                 new(*alloc_p) ball::DefaultObserver(&outFile),
+                                 alloc_p);
+          // Create simple observer; writes to 'outFile".
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main");
 
