@@ -1109,12 +1109,12 @@ int main(int argc, char *argv[])
                   const int   d_initIndent;
                   const bool  d_doFlush;
                   const bool  d_forceNewline;
-                  const bool  d_omitPaddingSpaces;
+                  const bool  d_omitEnclosingSpace;
                   const char *d_expectedOutput;
               } DATA[] = {
               //----+-----+-------+-------+-------+---------------------------
               // Ln | Ind | Do    | Force | Omit  | Expected
-              //    |     | Flush | New   | White | Output
+              //    |     | Flush | New   | Encl  | Output
               //    |     |       | Line  | Space |
               //----+-----+-------+-------+-------+---------------------------
               { L_,      0,  false,  false,   true, "> <!--comment-->"       },
@@ -1153,7 +1153,7 @@ int main(int argc, char *argv[])
                   const int   INIT_INDENT =     DATA[i].d_initIndent;
                   const bool  DOFLUSH =         DATA[i].d_doFlush;
                   const bool  FORCENEWLINE =    DATA[i].d_forceNewline;
-                  const bool  WHITESPACES =     DATA[i].d_omitPaddingSpaces;
+                  const bool  ENCLOSINGSPACE =  DATA[i].d_omitEnclosingSpace;
                   const char *EXP_OUTPUT =      DATA[i].d_expectedOutput;
                   const int   SPACES_PERLEVEL = 4;
                   const char *COMMENT =         "comment";
@@ -1174,7 +1174,7 @@ int main(int argc, char *argv[])
 
                   if (veryVeryVerbose) {
                       T_ P_(LINE) P_(INIT_INDENT) P_(DOFLUSH) P_(FORCENEWLINE)
-                      P_(WHITESPACES) P(EXP_COLUMN);
+                      P_(ENCLOSINGSPACE) P(EXP_COLUMN);
                       T_ P(EXP_OUTPUT);
                   }
 
@@ -1192,7 +1192,7 @@ int main(int argc, char *argv[])
                   LOOP_ASSERT(LINE,
                               0 == formatter.addValidComment(COMMENT,
                                                              FORCENEWLINE,
-                                                             WHITESPACES));
+                                                             ENCLOSINGSPACE));
 
                   LOOP3_ASSERT(LINE, ss.str(), EXP_OUTPUT,
                                ss.str() == EXP_OUTPUT);
@@ -1209,25 +1209,43 @@ int main(int argc, char *argv[])
               static struct {
                   const int   d_line;
                   const int   d_result;
+                  const bool  d_omitEnclosingSpace;
                   const char *d_comment;
                   const char *d_expectedOutput;
               } DATA[] = {
-                  //----+--------+------------+---------------------
-                  // Ln | Result | Comment    | Expected
-                  //    |        |            | Output
-                  //----+--------+------------+---------------------
-                  { L_,        0,  "comment",   " <!--comment-->"  },
-                  { L_,        0,  "-comment",  " <!---comment-->" },
-                  { L_,        1,  "--comment", ""                 },
-                  { L_,        1,  "com--ment", ""                 },
-                  { L_,        1,  "comment--", ""                 },
-                  { L_,        1,  "comment-",  ""                 },
+              //----+--------+-----------+------------+-----------------------
+              // Ln | Result | Omit      | Comment    | Expected
+              //    |        | Enclosing |            | Output
+              //    |        | Space     |            |
+              //----+--------+-----------+------------+-----------------------
+
+              //------------------- Test single hyphen -----------------------
+              { L_,        0,        true,  "comment",  " <!--comment-->"    },
+              { L_,        0,       false,  "comment",  " <!-- comment -->"  },
+
+              { L_,        0,        true,  "-comment", " <!---comment-->"   },
+              { L_,        0,       false,  "-comment", " <!-- -comment -->" },
+
+              { L_,        0,        true,  "com-ment", " <!--com-ment-->"   },
+              { L_,        0,       false,  "com-ment", " <!-- com-ment -->" },
+
+              { L_,        1,        true,  "comment-", ""                   },
+              { L_,        0,       false,  "comment-", " <!-- comment- -->" },
+
+              //------------------- Test double hyphen -----------------------
+              { L_,        1,       false, "--comment", ""                   },
+              { L_,        1,       false, "com--ment", ""                   },
+              { L_,        1,       false, "comment--", ""                   },
+              { L_,        1,        true, "--comment", ""                   },
+              { L_,        1,        true, "com--ment", ""                   },
+              { L_,        1,        true, "comment--", ""                   },
               };
               enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
 
               for (int i = 0; i < DATA_SIZE; ++i) {
                   const int   LINE =            DATA[i].d_line;
                   const int   EXP_RESULT =      DATA[i].d_result;
+                  const bool  ENCLOSINGSPACE =  DATA[i].d_omitEnclosingSpace;
                   const char *COMMENT =         DATA[i].d_comment;
                   const char *EXP_OUTPUT =      DATA[i].d_expectedOutput;
                   const int   INIT_INDENT =     0;
@@ -1247,8 +1265,10 @@ int main(int argc, char *argv[])
 
                   ss.str(bsl::string());
                   LOOP_ASSERT(LINE,
-                              EXP_RESULT == formatter.addValidComment(COMMENT,
-                                                                      false));
+                              EXP_RESULT == formatter.addValidComment(
+                                                              COMMENT,
+                                                              false,
+                                                              ENCLOSINGSPACE));
 
                   LOOP3_ASSERT(LINE, ss.str(), EXP_OUTPUT,
                                ss.str() == EXP_OUTPUT);

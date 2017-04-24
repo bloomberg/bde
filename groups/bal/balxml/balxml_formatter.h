@@ -384,6 +384,18 @@ class Formatter {
 
   private:
     // PRIVATE MANIPULATORS
+    void addValidCommentImpl(
+                     const bslstl::StringRef& comment,
+                     bool                     forceNewline,
+                     bool                     omitEnclosingWhitespace);
+        // Write the specified 'comment' into the stream.  The specified
+        // 'forceNewLine' option forces to start a new line solely for the
+        // comment if it's not on a new line already.  Otherwise, comments
+        // continue on current line.  The specified 'omitEnclosingWhitespace'
+        // option omits adding a space character before and after 'comment'.
+        // Note that if an element-opening tag is not completed with a '>',
+        // 'addValidCommentImpl' will add '>'.
+
     void doAddAttribute(const bslstl::StringRef& name,
                         const bslstl::StringRef& value);
         // Add an attribute of the specified 'name' that with the specified
@@ -485,21 +497,21 @@ class Formatter {
         // continue on current line.  If an element-opening tag is not
         // completed with a '>', 'addComment' will add '>'.
 
-    int addValidComment(const bslstl::StringRef& comment,
-                        bool                     forceNewline = true,
-                        bool                     omitPaddingWhitespace = true);
+    int addValidComment(
+                     const bslstl::StringRef& comment,
+                     bool                     forceNewline = true,
+                     bool                     omitEnclosingWhitespace = false);
         // Write the specified 'comment' into the stream.  Optionally specify a
         // 'forceNewLine' which forces to start a new line solely for the
         // comment if it's not on a new line already.  Otherwise, comments
-        // continue on current line.  Also optionally specify a
-        // 'omitPaddingWhitespace' which omits padding white spaces in open
-        // '<!-- ' and close ' -->' comment tags replacing them with '<!--' and
-        // '-->' correspondingly.  Return 0 on success, and non-zero value
-        // otherwise.  The non-zero return value *may* indicate that the
-        // 'comment' contains '--' (double-hyphen) sub-string which must not
-        // occur in comments, or that the 'comment' ending in '-'.  Note that
-        // if an element-opening tag is not completed with a '>',
-        // 'addValidComment' will add '>'.
+        // continue on current line.  Also optionally specify an
+        // 'omitEnclosingWhitespace' option that if true would omit adding a
+        // space character before and after 'comment'.  Return 0 on success,
+        // and non-zero value otherwise.  Note that a non-zero return value is
+        // returned if either `comment` contains '--' or if
+        // 'omitEnclosingWhitespace' is 'true' and 'comment' ends with '-'.
+        // Also note that if an element-opening tag is not completed with a
+        // '>', 'addValidComment' will add '>'.
 
     template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
