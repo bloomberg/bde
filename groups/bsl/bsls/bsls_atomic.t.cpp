@@ -349,8 +349,13 @@ void testAtomicLocking(LOCK& lock, int iterations)
     }
 }
 
+struct AtomicLockingThreadParamBase
+{
+    virtual void test() = 0;
+};
+
 template <class LOCK>
-struct AtomicLockingThreadParam
+struct AtomicLockingThreadParam : public AtomicLockingThreadParamBase
 {
     AtomicLockingThreadParam(LOCK& lock, int iterations)
         : d_lock(lock)
@@ -359,15 +364,16 @@ struct AtomicLockingThreadParam
 
     LOCK&   d_lock;
     int     d_iterations;
+
+    virtual void test()
+    {
+        testAtomicLocking(d_lock, d_iterations);
+    }
 };
 
-template <class LOCK>
-void *testAtomicLockingThreadFunc(void *arg)
+extern "C" void *testAtomicLockingThreadFunc(void *arg)
 {
-    AtomicLockingThreadParam<LOCK> *param
-        = reinterpret_cast<AtomicLockingThreadParam<LOCK> *>(arg);
-
-    testAtomicLocking(param->d_lock, param->d_iterations);
+    reinterpret_cast<AtomicLockingThreadParamBase *>(arg)->test();
 
     return 0;
 }
@@ -491,10 +497,8 @@ void testCaseMemOrder(int iterations)
     AtomicLockingThreadParam<LOCK<INT> > param0(lock0, iterations);
     AtomicLockingThreadParam<LOCK<INT> > param1(lock1, iterations);
 
-    thread_t thr0 =
-               createThread(&testAtomicLockingThreadFunc<LOCK<INT> >, &param0);
-    thread_t thr1 =
-               createThread(&testAtomicLockingThreadFunc<LOCK<INT> >, &param1);
+    thread_t thr0 = createThread(&testAtomicLockingThreadFunc, &param0);
+    thread_t thr1 = createThread(&testAtomicLockingThreadFunc, &param1);
 
     joinThread(thr0);
     joinThread(thr1);
