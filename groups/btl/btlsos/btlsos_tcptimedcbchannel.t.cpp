@@ -254,7 +254,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
-static void sigPipeHandler(int sig)
+extern "C" static void sigPipeHandler(int sig)
 {
     if (sig == SIGPIPE && veryVerbose) {
         write(2, "GOT A SIGPIPE signal.\n", sizeof("GOT A SIGPIPE signal.\n"));
@@ -263,7 +263,11 @@ static void sigPipeHandler(int sig)
     return;
 }
 
-static void mySignal(int signo, void (*handler)(int) )
+extern "C" {
+    typedef void (*RegisterSignalHandler)(int);
+}
+
+static void mySignal(int signo, RegisterSignalHandler handler)
 {
     struct sigaction act, oact;
 

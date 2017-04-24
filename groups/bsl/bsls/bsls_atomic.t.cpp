@@ -372,8 +372,9 @@ void *testAtomicLockingThreadFunc(void *arg)
     return 0;
 }
 
-
-typedef void *(*thread_func)(void *arg);
+extern "C" {
+    typedef void *(*thread_func)(void *arg);
+}
 
 thread_t createThread(thread_func func, void *arg)
 {
@@ -438,7 +439,7 @@ void sharedCountLoopTest(TestLoopParameters *params)
     }
 }
 
-void *runTestingLoop(void *arg)
+extern "C" void *runTestingLoop(void *arg)
     // Run a simulation of the memory ordering test case to determine the
     // number of iterations for the real test.
 {
@@ -448,7 +449,7 @@ void *runTestingLoop(void *arg)
     return 0;
 }
 
-void *runObserverLoop(void *arg)
+extern "C" void *runObserverLoop(void *arg)
     // Observe changes in shared state for more accurate memory ordering test
     // simulation.
 {
@@ -571,7 +572,7 @@ struct SharedCountThreadParam
     int              d_iterations;
 };
 
-void *testSharedCountThreadFunc(void *arg)
+extern "C" void *testSharedCountThreadFunc(void *arg)
 {
     SharedCountThreadParam *param
         = reinterpret_cast<SharedCountThreadParam *>(arg);

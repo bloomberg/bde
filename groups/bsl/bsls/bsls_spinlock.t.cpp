@@ -37,7 +37,9 @@ static int rand_r(unsigned *seed) {
 typedef pthread_t ThreadId;
 #endif
 
-typedef void *(*ThreadFunction)(void *arg);
+extern "C" {
+    typedef void *(*ThreadFunction)(void *arg);
+}
 
 static
 ThreadId createThread(ThreadFunction func, void *arg)
@@ -320,7 +322,7 @@ struct ThreadParam {
    int                                       d_threadId;
 };
 
-void *addToRandomQueues(void *paramAddr) {
+extern "C" void *addToRandomQueues(void *paramAddr) {
    ThreadParam *param = (ThreadParam*)paramAddr;
    LightweightThreadsafeQueue<QueueElement> *queues = param->d_queues_p;
    int threadId = param->d_threadId;

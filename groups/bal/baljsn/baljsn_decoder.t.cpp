@@ -35606,7 +35606,7 @@ struct ThreadData {
     bool                                         d_veryVerbose;
 };
 
-void *threadFunction(void *data)
+extern "C" void *threadFunction(void *data)
 {
     ThreadData& threadData = *(ThreadData *) data;
     const bsl::vector<balb::FeatureTestMessage>& testObjects =

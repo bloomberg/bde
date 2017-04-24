@@ -220,7 +220,8 @@ bslma::TestAllocator testAllocator;
 // signal stuff
 #ifdef BSLS_PLATFORM_OS_UNIX
 volatile sig_atomic_t syncWithSigHandler = 0;
-static void signalHandler(int sig)
+
+extern "C" static void signalHandler(int sig)
     // The signal handler does nothing.
 {
     (void)sig;
@@ -235,7 +236,11 @@ static void signalHandler(int sig)
     return;
 }
 
-static void registerSignal(int signo, void (*handler)(int) )
+extern "C" {
+    typedef void (*RegisterSignalHandler)(int);
+}
+
+static void registerSignal(int signo, RegisterSignalHandler handler)
     // Register the specified signal 'handler' for the specified signal 'signo'
     // to be generated.
 {
@@ -272,7 +277,7 @@ extern "C"
     // 8 compiler.
 #endif
 
-void* threadAsClient(void *arg)
+extern "C" void *threadAsClient(void *arg)
     // Taking information passed from the specified 'arg', submit the expected
     // number of connection requests and/or generate signal 'SIGSYS' and
     // deliver it to a thread specified in 'arg'.  Note the test can only work
@@ -363,7 +368,7 @@ void* threadAsClient(void *arg)
     return 0;
 }
 
-static void* threadToCloseServer(void *arg)
+extern "C" static void *threadToCloseServer(void *arg)
 {
     StreamSocket *serverSocket = (StreamSocket*) arg;
 
