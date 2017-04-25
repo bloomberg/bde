@@ -1,3 +1,10 @@
+bsl-internal (3.1.0.0) unstable; urgency=low
+
+  * ad77f1680 Merge pull request #1096 from mgiroux/review/set-all-non-bsl-versions-to-3.1.0
+  * 84e85bb45 bump version to 3.1.0
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 25 Apr 2017 14:15:38 -0400
+
 bsl-internal (3.0.15.2) unstable; urgency=low
 
   * 6e47c08 Merge pull request #1022 from afeher/fix-bdld_datummaker
