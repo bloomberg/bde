@@ -50,10 +50,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-#define BDL_VERSION_MAJOR     BSL_VERSION_MAJOR
+// For the 3.1.x release series, 'bdl' is being versioned independently of
+// 'bsl'.
+#define BDL_VERSION_MAJOR     3
     // Provide the major version number of the current (latest) BDL release.
 
-#define BDL_VERSION_MINOR     BSL_VERSION_MINOR
+#define BDL_VERSION_MINOR     1
     // Provide the minor version number of the current (latest) BDL release.
 
 #define BDL_VERSION BSL_MAKE_VERSION(BDL_VERSION_MAJOR, \
