@@ -730,7 +730,7 @@ struct ConnectData {
     btlso::IPv4Address d_serverAddress;
 };
 
-void *connectFunction(void *args)
+extern "C" void *connectFunction(void *args)
 {
     ConnectData              data      = *(const ConnectData *) args;
     const int                INDEX     = data.d_index;
@@ -755,7 +755,7 @@ struct ListenData {
     int d_index;
 };
 
-void *listenFunction(void *args)
+extern "C" void *listenFunction(void *args)
 {
     ListenData data  = *(const ListenData *) args;
     const int  INDEX = data.d_index;

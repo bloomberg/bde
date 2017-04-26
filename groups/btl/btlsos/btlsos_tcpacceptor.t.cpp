@@ -239,7 +239,11 @@ static void signalHandler(int sig)
     return;
 }
 
-static void registerSignal(int signo, void (*handler)(int) )
+extern "C" {
+    typedef void (*RegisterSignalHandler)(int);
+}
+
+static void registerSignal(int signo, RegisterSignalHandler handler)
     // Register the specified signal 'handler' for the specified signal 'signo'
     // to be generated.
 {

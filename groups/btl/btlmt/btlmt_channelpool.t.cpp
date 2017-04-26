@@ -1002,7 +1002,7 @@ struct ReadData {
     int                                      d_numBytes;
 };
 
-void *readData(void *data)
+extern "C" void *readDataCtor(void *data)
 {
     ReadData& td = *static_cast<ReadData *>(data);
 
@@ -1327,7 +1327,7 @@ struct ConnectData {
     btlso::IPv4Address d_serverAddress;
 };
 
-void *connectFunction(void *args)
+extern "C" void *connectFunction(void *args)
 {
     ConnectData              data      = *(const ConnectData *) args;
     const int                INDEX     = data.d_index;
@@ -1347,7 +1347,7 @@ struct ListenData {
     int d_index;
 };
 
-void *listenFunction(void *args)
+extern "C" void *listenFunction(void *args)
 {
     ListenData data  = *(const ListenData *) args;
     const int  INDEX = data.d_index;
@@ -1368,7 +1368,7 @@ void *listenFunction(void *args)
     return 0;
 }
 
-void *dataFunction(void *args)
+extern "C" void *dataFunction(void *args)
 {
     btlso::StreamSocket<btlso::IPv4Address> *socket =
                               (btlso::StreamSocket<btlso::IPv4Address> *) args;
@@ -1460,7 +1460,7 @@ struct ReadData {
     int                                      d_numBytes;
 };
 
-void *readData(void *data)
+extern "C" void *readDataLowWater(void *data)
 {
     ReadData& td = *static_cast<ReadData *>(data);
 
@@ -1550,7 +1550,7 @@ struct ReadData {
     int                                     *d_stopReading_p;
 };
 
-void *readData(void *data)
+extern "C" void *readDataStats(void *data)
 {
     ReadData& td = *static_cast<ReadData *>(data);
 
@@ -1582,7 +1582,7 @@ struct WriteData {
     btlb::Blob                              *d_blob_p;
 };
 
-void *writeData(void *data)
+extern "C" void *writeData(void *data)
 {
     WriteData& td = *static_cast<WriteData *>(data);
 
@@ -9030,7 +9030,7 @@ void TestDriver::testCase34()
         rd.d_numBytes      = SIZE;
 
         bslmt::ThreadUtil::Handle  handle;
-        bslmt::ThreadUtil::create(&handle, &readData, &rd);
+        bslmt::ThreadUtil::create(&handle, &readDataLowWater, &rd);
 
         channelCbBarrier.wait();
 
@@ -9043,7 +9043,7 @@ void TestDriver::testCase34()
         rc = pool.write(channelId, b, 100);
         ASSERT(rc == btlmt::ChannelStatus::e_ENQUEUE_HIGHWATER);
 
-        bslmt::ThreadUtil::create(&handle, &readData, &rd);
+        bslmt::ThreadUtil::create(&handle, &readDataLowWater, &rd);
 
         channelCbBarrier.wait();
 
@@ -9064,7 +9064,7 @@ void TestDriver::testCase34()
         ASSERT(!rc);
 
         rd.d_numBytes = 2 * SIZE;
-        bslmt::ThreadUtil::create(&handle, &readData, &rd);
+        bslmt::ThreadUtil::create(&handle, &readDataLowWater, &rd);
 
         channelCbBarrier.wait();
 
@@ -9171,7 +9171,7 @@ void TestDriver::testCase33()
         rd.d_mutex_p       = &mutex;
         rd.d_stopReading_p = &stopReading;
 
-        bslmt::ThreadUtil::create(&handles[NUM_THREADS], &readData, &rd);
+        bslmt::ThreadUtil::create(&handles[NUM_THREADS], &readDataStats, &rd);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));

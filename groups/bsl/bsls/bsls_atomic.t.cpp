@@ -349,8 +349,13 @@ void testAtomicLocking(LOCK& lock, int iterations)
     }
 }
 
+struct AtomicLockingThreadParamBase
+{
+    virtual void test() = 0;
+};
+
 template <class LOCK>
-struct AtomicLockingThreadParam
+struct AtomicLockingThreadParam : public AtomicLockingThreadParamBase
 {
     AtomicLockingThreadParam(LOCK& lock, int iterations)
         : d_lock(lock)
@@ -359,21 +364,23 @@ struct AtomicLockingThreadParam
 
     LOCK&   d_lock;
     int     d_iterations;
+
+    virtual void test()
+    {
+        testAtomicLocking(d_lock, d_iterations);
+    }
 };
 
-template <class LOCK>
-void *testAtomicLockingThreadFunc(void *arg)
+extern "C" void *testAtomicLockingThreadFunc(void *arg)
 {
-    AtomicLockingThreadParam<LOCK> *param
-        = reinterpret_cast<AtomicLockingThreadParam<LOCK> *>(arg);
-
-    testAtomicLocking(param->d_lock, param->d_iterations);
+    reinterpret_cast<AtomicLockingThreadParamBase *>(arg)->test();
 
     return 0;
 }
 
-
-typedef void *(*thread_func)(void *arg);
+extern "C" {
+    typedef void *(*thread_func)(void *arg);
+}
 
 thread_t createThread(thread_func func, void *arg)
 {
@@ -438,7 +445,7 @@ void sharedCountLoopTest(TestLoopParameters *params)
     }
 }
 
-void *runTestingLoop(void *arg)
+extern "C" void *runTestingLoop(void *arg)
     // Run a simulation of the memory ordering test case to determine the
     // number of iterations for the real test.
 {
@@ -448,7 +455,7 @@ void *runTestingLoop(void *arg)
     return 0;
 }
 
-void *runObserverLoop(void *arg)
+extern "C" void *runObserverLoop(void *arg)
     // Observe changes in shared state for more accurate memory ordering test
     // simulation.
 {
@@ -490,10 +497,8 @@ void testCaseMemOrder(int iterations)
     AtomicLockingThreadParam<LOCK<INT> > param0(lock0, iterations);
     AtomicLockingThreadParam<LOCK<INT> > param1(lock1, iterations);
 
-    thread_t thr0 =
-               createThread(&testAtomicLockingThreadFunc<LOCK<INT> >, &param0);
-    thread_t thr1 =
-               createThread(&testAtomicLockingThreadFunc<LOCK<INT> >, &param1);
+    thread_t thr0 = createThread(&testAtomicLockingThreadFunc, &param0);
+    thread_t thr1 = createThread(&testAtomicLockingThreadFunc, &param1);
 
     joinThread(thr0);
     joinThread(thr1);
@@ -571,7 +576,7 @@ struct SharedCountThreadParam
     int              d_iterations;
 };
 
-void *testSharedCountThreadFunc(void *arg)
+extern "C" void *testSharedCountThreadFunc(void *arg)
 {
     SharedCountThreadParam *param
         = reinterpret_cast<SharedCountThreadParam *>(arg);

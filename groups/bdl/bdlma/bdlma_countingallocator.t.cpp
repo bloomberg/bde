@@ -134,7 +134,9 @@ typedef HANDLE    ThreadId;
 typedef pthread_t ThreadId;
 #endif
 
-typedef void *(*ThreadFunction)(void *arg);
+extern "C" {
+    typedef void *(*ThreadFunction)(void *arg);
+}
 
 // ============================================================================
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING

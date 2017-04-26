@@ -120,7 +120,9 @@ typedef HANDLE    ThreadId;
 typedef pthread_t ThreadId;
 #endif
 
-typedef void *(*ThreadFunction)(void *arg);
+extern "C" {
+    typedef void *(*ThreadFunction)(void *arg);
+}
 
 // ============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
@@ -615,7 +617,7 @@ extern "C" void *threadFunction3(void *arg)
 static JumpBuffer usageJumpBuffer;
 static bool       invokedUsageSignalHandlerFlag = false;
 
-void usageSignalHandler(int /* signal */)
+extern "C" void usageSignalHandler(int /* signal */)
     // Handle the specified 'signal'.  Note that this signal handler is for use
     // within the USAGE EXAMPLE only.
 {
