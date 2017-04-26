@@ -229,12 +229,12 @@ struct my_Class2 {
                                 bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
-template <class T>
+template <class TYPE>
 struct my_Class3 {
     // Class template that has a different set of nested type traits.
 
-    T *d_first_p;
-    T *d_second_p;
+    TYPE *d_first_p;
+    TYPE *d_second_p;
 
     BSLALG_DECLARE_NESTED_TRAITS5(my_Class3,
                                   bslalg::TypeTraitBitwiseEqualityComparable,

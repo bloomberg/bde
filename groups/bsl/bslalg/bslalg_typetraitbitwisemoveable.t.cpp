@@ -77,23 +77,23 @@ struct AlmostTrivial {
 
 class NotTrivial {
   private:
-    void *d_this;
+    void *d_this_p;
 
   public:
-    NotTrivial() : d_this(this) {}
-    NotTrivial(const NotTrivial&) : d_this(this) {}
+    NotTrivial() : d_this_p(this) {}
+    NotTrivial(const NotTrivial&) : d_this_p(this) {}
 };
 
 class AnotherNotTrivial {
   private:
-    void *d_this;
+    void *d_this_p;
 
   public:
     BSLMF_NESTED_TRAIT_DECLARATION(AnotherNotTrivial,
                                    bslmf::IsBitwiseMoveable);
 
-    AnotherNotTrivial() : d_this(this) {}
-    AnotherNotTrivial(const AnotherNotTrivial&) : d_this(this) {}
+    AnotherNotTrivial() : d_this_p(this) {}
+    AnotherNotTrivial(const AnotherNotTrivial&) : d_this_p(this) {}
 };
 
 namespace BloombergLP {

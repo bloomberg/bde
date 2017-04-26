@@ -89,7 +89,7 @@ struct ColorGreen : bslmf::DetectNestedTrait<TYPE, ColorGreen>
 {
 };
 
-}  // close package namespace
+}  // close namespace bslabc
 
 // Define "shim" test traits that are compatible with 'bslalg::HasTrait'.
 
@@ -123,7 +123,7 @@ struct TypeTraitIsGreen {
     };
 };
 
-}  // close package namespace
+}  // close namespace bslxyz
 
 // Numeric values corresponding to trait types; can be ANDed together to
 // represent multiple traits.
@@ -268,7 +268,7 @@ struct ColorBlue<ConvertibleToAnyWithTraits> : bsl::true_type {
     // work.
 };
 
-}  // close package namespace
+}  // close namespace bslabc
 
 //=============================================================================
 //                              MAIN PROGRAM

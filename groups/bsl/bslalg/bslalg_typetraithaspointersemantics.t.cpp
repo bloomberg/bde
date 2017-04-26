@@ -71,15 +71,15 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bslalg::TypeTraitHasPointerSemantics  Obj;
 
 struct PointerLike {
-    int *d_data;
+    int *d_data_p;
 
-    int & operator*() const { return *d_data; }
+    int & operator*() const { return *d_data_p; }
 };
 
 struct AnotherPointerLike {
-    int *d_data;
+    int *d_data_p;
 
-    int & operator*() const { return *d_data; }
+    int & operator*() const { return *d_data_p; }
 
     BSLMF_NESTED_TRAIT_DECLARATION(AnotherPointerLike,
                                    bslmf::HasPointerSemantics);
