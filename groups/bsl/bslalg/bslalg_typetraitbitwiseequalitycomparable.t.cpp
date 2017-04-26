@@ -2,8 +2,7 @@
 
 #include <bslalg_typetraitbitwiseequalitycomparable.h>
 
-#include <bslmf_metaint.h>
-#include <bslmf_removecv.h>
+#include <bslalg_hastrait.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -85,38 +84,23 @@ class NotTrivial {
     NotTrivial(const NotTrivial&) : d_this(this) {}
 };
 
+class AnotherNotTrivial {
+  private:
+    void *d_this;
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherNotTrivial,
+                                   bslmf::IsBitwiseEqualityComparable);
+
+    AnotherNotTrivial() : d_this(this) {}
+    AnotherNotTrivial(const AnotherNotTrivial&) : d_this(this) {}
+};
+
 namespace BloombergLP {
 namespace bslmf {
 template <>
 struct IsBitwiseEqualityComparable<AlmostTrivial> : bsl::true_type {};
 }  // close namespace bslmf
-}  // close enterprise namespace
-
-namespace BloombergLP {
-namespace bslalg {
-
-                       // ===============
-                       // struct HasTrait
-                       // ===============
-
-template <class TYPE, class TRAIT>
-struct HasTrait {
-    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
-    // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-    // 'bslmf::MetaInt<0>' otherwise.  Note that this meta-function was copied
-    // from 'bslalg_hastrait' to avoid a direct cycle between that component
-    // and this one.
-
-  public:
-    enum {
-        VALUE = TRAIT::template
-                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-}  // close package namespace
 }  // close enterprise namespace
 
 //=============================================================================
@@ -165,8 +149,9 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<AlmostTrivial, Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotTrivial,    Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AlmostTrivial,     Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotTrivial,        Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AnotherNotTrivial, Obj>::VALUE));
 
       } break;
 

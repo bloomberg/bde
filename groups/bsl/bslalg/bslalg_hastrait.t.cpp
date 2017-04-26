@@ -1,25 +1,11 @@
 // bslalg_hastrait.t.cpp                                              -*-C++-*-
 #include <bslalg_hastrait.h>
 
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwiseequalitycomparable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraithaspointersemantics.h>
-#include <bslalg_typetraithasstliterators.h>
-#include <bslalg_typetraithastrivialdefaultconstructor.h>
-#include <bslalg_typetraitpair.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
-
-#include <bslma_testallocator.h>
-
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_detectnestedtrait.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -31,16 +17,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// 'bslalg_hastrait' is tested in a similar fashion to 'bslalg_typetraits'.
-// In fact, 'bslalg_typetraits' has a replica of 'bslalg::HasTrait' within its
-// test driver.  This is because the effects of applying a trait to a class can
-// only be tested by an observer that attempts to use or look at the traits,
-// which is precisely what 'bslalg::HasTrait' does.
-//
-// Therefore, this component will have the exact same test driver as
-// 'bslalg_typetraits', but with the private 'HasTrait' class within
-// 'bslalg_typetraits's test driver removed to test the true implementation of
-// 'bslalg::HasTrait'.
+// Define some test traits and verify that they can be detected using
+// 'bslalg::HasTrait' whether the trait is ascribed to a type using the C++11
+// idiom for defining traits or using the 'BSLMF_NESTED_TRAIT_DECLARATION'
+// macro.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 
@@ -92,68 +72,86 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//              GLOBAL TRAITS AND HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Numeric values corresponding to trait types.
-// Can be ANDed together to represent multiple traits.
-const unsigned TRAIT_NIL                          = 0x0000;
-const unsigned TRAIT_BITWISEMOVEABLE              = 0x0001;
-const unsigned TRAIT_BITWISECOPYABLE              = 0x0002;
-const unsigned TRAIT_BITWISEEQUALITYCOMPARABLE    = 0x0004;
-const unsigned TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR = 0x0008;
-const unsigned TRAIT_PAIR                         = 0x0010;
-const unsigned TRAIT_USESBSLMAALLOCATOR           = 0x0020;
-const unsigned TRAIT_HASSTLITERATORS              = 0x0040;
-const unsigned TRAIT_HASPOINTERSEMANTICS          = 0x0080;
+// Define "base" test traits patterned after 'bslalg::HasStlIterators'.
 
-// Traits group
-const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
-                            TRAIT_BITWISECOPYABLE |
-                            TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR);
-const unsigned TRAIT_EQPOD = (TRAIT_POD |
-                              TRAIT_BITWISEEQUALITYCOMPARABLE);
+namespace bslabc {
+
+template <class TYPE>
+struct ColorBlue : bslmf::DetectNestedTrait<TYPE, ColorBlue>
+{
+};
+
+template <class TYPE>
+struct ColorGreen : bslmf::DetectNestedTrait<TYPE, ColorGreen>
+{
+};
+
+}  // close package namespace
+
+// Define "shim" test traits that are compatible with 'bslalg::HasTrait'.
+
+namespace bslxyz {
+
+struct TypeTraitIsBlue {
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslabc::ColorBlue>
+    {
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslabc::ColorBlue<TYPE>::type
+    {
+    };
+};
+
+struct TypeTraitIsGreen {
+
+    template <class TYPE>
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration<TYPE, bslabc::ColorGreen>
+    {
+    };
+
+    template <class TYPE>
+    struct Metafunction : bslabc::ColorGreen<TYPE>::type
+    {
+    };
+};
+
+}  // close package namespace
+
+// Numeric values corresponding to trait types; can be ANDed together to
+// represent multiple traits.
+
+const unsigned TRAIT_NIL   = 0x0000;
+const unsigned TRAIT_BLUE  = 0x0001;
+const unsigned TRAIT_GREEN = 0x0002;
+
+const unsigned TRAIT_BOTH = TRAIT_BLUE | TRAIT_GREEN;
 
 template <class TYPE>
 unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
-            ? TRAIT_BITWISEMOVEABLE
-            : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
-            ? TRAIT_BITWISECOPYABLE
-            : 0;
-    result |= bslalg::HasTrait<TYPE,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-            ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
-            : 0;
-    result |= bslalg::HasTrait<TYPE,
-                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
-            ? TRAIT_BITWISEEQUALITYCOMPARABLE
-            : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
-            ? TRAIT_PAIR
-            : 0;
-    result |= bslalg::HasTrait<TYPE,
-                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE
-            ? TRAIT_USESBSLMAALLOCATOR
-            : 0;
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
-            ? TRAIT_HASSTLITERATORS
-            : 0;
-    result |= bslalg::HasTrait<TYPE,
-                               bslalg::TypeTraitHasPointerSemantics>::VALUE
-            ? TRAIT_HASPOINTERSEMANTICS
-            : 0;
+    result |= bslalg::HasTrait<TYPE, bslxyz::TypeTraitIsBlue>::VALUE
+              ? TRAIT_BLUE
+              : 0;
+
+    result |= bslalg::HasTrait<TYPE, bslxyz::TypeTraitIsGreen>::VALUE
+              ? TRAIT_GREEN
+              : 0;
 
     return result;
 }
 
 template <class TYPE>
-struct Identity
-{
+struct Identity {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
     // into a named type (e.g., 'void (*Type)(int)').  For example:
     //..
@@ -166,7 +164,7 @@ struct Identity
 // Test that 'traitBits<TYPE>()' returns the value 'TRAIT_BITS' for every
 // combination of cv-qualified 'TYPE' and reference to 'TYPE'.
 #define TRAIT_TEST(TYPE, TRAIT_BITS) {                                   \
-    typedef Identity<TYPE >::Type Type;                                  \
+    typedef Identity<TYPE>::Type Type;                                   \
     typedef Type const          cType;                                   \
     typedef Type volatile       vType;                                   \
     typedef Type const volatile cvType;                                  \
@@ -182,94 +180,95 @@ struct Identity
 //                          HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct my_Class0 {
-    // Class with no defined traits.
-    int d_nonEmptyData;
+enum my_Enum {
+    MY_ENUM_0
+};
 
-    my_Class0(){}
-    my_Class0(const my_Class0&){}
+struct my_ClassNoTraits {
+    // Class with no defined traits.
+
+    int d_dummy;
+
+    my_ClassNoTraits(){}
+    my_ClassNoTraits(const my_ClassNoTraits&){}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
         // implementation.
 };
 
-struct my_Class1 : my_Class0 {
-    // Class that uses explicitly-specialized type traits.
+struct my_DerivedNoTraits : my_ClassNoTraits {
+    // Derived class with no defined traits.
 };
 
-namespace BloombergLP {
-namespace bslmf {
+// In the names of the next several test classes:
+//: o "NB" means "has Nested Blue trait"
+//: o "XG" means "has eXternally defined Green trait" (via C++11 idiom)
 
-// Being empty, 'my_Class1' would normally be implicitly bitwise moveable.
-// Override, making it explicitly NOT bitwise moveable.
-template <>
-struct IsBitwiseMoveable<my_Class1> : bsl::false_type { };
-
-}  // close namespace bslmf
-
-namespace bslma {
-
-template <>
-struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
-
-}  // close namespace bslma
-}  // close enterprise namespace
+struct my_ClassNB {
+    BSLMF_NESTED_TRAIT_DECLARATION(my_ClassNB, bslabc::ColorBlue);
+};
 
 template <class T>
-struct my_Class2
-{
-    // Class template that has nested type traits.
-    BSLMF_NESTED_TRAIT_DECLARATION(my_Class2, bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(my_Class2, bslmf::IsBitwiseMoveable);
-    BSLMF_NESTED_TRAIT_DECLARATION(my_Class2,
-                                   bsl::is_trivially_default_constructible);
+struct my_ClassNBNG {
+    BSLMF_NESTED_TRAIT_DECLARATION(my_ClassNBNG, bslabc::ColorBlue);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_ClassNBNG, bslabc::ColorGreen);
 };
 
-struct my_Class4 : my_Class0
-{
-    // This 'class' has no special traits, but supports (implicit) conversion
-    // from 'void *'.  It will be used to check against false positives for
-    // 'bslma::Allocator *' traits.
-
-    my_Class4(void*);                                               // IMPLICIT
-        // Construct a 'my_Class4' object from any pointer, including a pointer
-        // to 'bslma::Allocator', as an implicit conversion.
+struct my_ClassXG {
 };
 
-enum my_Enum
-{
-    // Enumeration type (is automatically bitwise copyable)
-    MY_ENUM_0
+struct my_ClassXBXG {
 };
 
-struct ConvertibleToAnyNoTraits : my_Class0
+struct my_ClassNBXG {
+    BSLMF_NESTED_TRAIT_DECLARATION(my_ClassNBXG, bslabc::ColorBlue);
+};
+
+struct my_DerivedNBXG : my_ClassNBXG {
+};
+
+struct ConvertibleToAnyNoTraits : my_ClassNoTraits {
     // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
     // assign it any traits.  The concern is that since
     // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
     // the "convert to anything" operator shouldn't interfere with the nested
     // trait logic.
-{
+
     template <class T>
     operator T() const { return T(); }
 };
 
-struct ConvertibleToAnyWithTraits : my_Class0 {
+struct ConvertibleToAnyWithTraits : my_ClassNoTraits {
     template <class T>
     operator T() const { return T(); }
 };
 
-namespace BloombergLP {
-namespace bslma {
+namespace bslabc {
 
 template <>
-struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
+struct ColorGreen<my_ClassXG> : bsl::true_type {
+};
+
+template <>
+struct ColorBlue<my_ClassXBXG> : bsl::true_type {
+};
+
+template <>
+struct ColorGreen<my_ClassXBXG> : bsl::true_type {
+};
+
+template <>
+struct ColorGreen<my_ClassNBXG> : bsl::true_type {
+};
+
+template <>
+struct ColorBlue<ConvertibleToAnyWithTraits> : bsl::true_type {
     // Even though the nested trait logic is disabled by the template
     // conversion operator, the out-of-class trait specialization should still
     // work.
 };
 
-}  // close namespace bslma
-}  // close enterprise namespace
+}  // close package namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -307,54 +306,56 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        // Nil traits
-        TRAIT_TEST(my_Class0, TRAIT_NIL);
-        TRAIT_TEST(my_Class4, TRAIT_NIL);
+        // Nil traits.
+        TRAIT_TEST(my_Enum,            TRAIT_NIL);
+        TRAIT_TEST(my_ClassNoTraits,   TRAIT_NIL);
+        TRAIT_TEST(my_DerivedNoTraits, TRAIT_NIL);
 
         // Reference traits.  (Cannot use TRAIT_TEST for references.)
-        ASSERT(traitBits<int&>() == TRAIT_NIL);
-        ASSERT(traitBits<const int&>() == TRAIT_NIL);
-        ASSERT(traitBits<volatile int&>() == TRAIT_NIL);
+        ASSERT(traitBits<int&>()                == TRAIT_NIL);
+        ASSERT(traitBits<const int&>()          == TRAIT_NIL);
+        ASSERT(traitBits<volatile int&>()       == TRAIT_NIL);
         ASSERT(traitBits<const volatile int&>() == TRAIT_NIL);
-        ASSERT(traitBits<char*&>() == TRAIT_NIL);
-        ASSERT(traitBits<char* const&>() == TRAIT_NIL);
-        ASSERT(traitBits<const char*&>() == TRAIT_NIL);
-        ASSERT(traitBits<const char* const&>() == TRAIT_NIL);
-        ASSERT(traitBits<my_Enum&>() == TRAIT_NIL);
-        ASSERT(traitBits<my_Class1&>() == TRAIT_NIL);
-        ASSERT(traitBits<my_Class2<int>&>() == TRAIT_NIL);
+        ASSERT(traitBits<char *&>()             == TRAIT_NIL);
+        ASSERT(traitBits<char *const&>()        == TRAIT_NIL);
+        ASSERT(traitBits<const char *&>()       == TRAIT_NIL);
+        ASSERT(traitBits<const char *const&>()  == TRAIT_NIL);
+        ASSERT(traitBits<my_Enum&>()            == TRAIT_NIL);
+        ASSERT(traitBits<my_ClassNBNG<int>&>()  == TRAIT_NIL);
 
-        // Autodetected fundamental traits
-        TRAIT_TEST(char, TRAIT_EQPOD);
-        TRAIT_TEST(unsigned char, TRAIT_EQPOD);
-        TRAIT_TEST(signed char, TRAIT_EQPOD);
-        TRAIT_TEST(short, TRAIT_EQPOD);
-        TRAIT_TEST(unsigned short, TRAIT_EQPOD);
-        TRAIT_TEST(int, TRAIT_EQPOD);
-        TRAIT_TEST(unsigned int, TRAIT_EQPOD);
-        TRAIT_TEST(bsls::Types::Int64, TRAIT_EQPOD);
-        TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
-        TRAIT_TEST(float, TRAIT_EQPOD);
-        TRAIT_TEST(double, TRAIT_EQPOD);
-        TRAIT_TEST(char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
-        TRAIT_TEST(const char*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
-        TRAIT_TEST(void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
-        TRAIT_TEST(const void*, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
-        TRAIT_TEST(void* const, TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
-        TRAIT_TEST(my_Enum, TRAIT_EQPOD);
-        TRAIT_TEST(int (*)(int), TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
-        TRAIT_TEST(int (my_Class1::*)(int), TRAIT_EQPOD);
+        // Fundamental traits.
+        TRAIT_TEST(char,                TRAIT_NIL);
+        TRAIT_TEST(unsigned char,       TRAIT_NIL);
+        TRAIT_TEST(signed char,         TRAIT_NIL);
+        TRAIT_TEST(short,               TRAIT_NIL);
+        TRAIT_TEST(unsigned short,      TRAIT_NIL);
+        TRAIT_TEST(int,                 TRAIT_NIL);
+        TRAIT_TEST(unsigned int,        TRAIT_NIL);
+        TRAIT_TEST(bsls::Types::Int64,  TRAIT_NIL);
+        TRAIT_TEST(bsls::Types::Uint64, TRAIT_NIL);
+        TRAIT_TEST(float,               TRAIT_NIL);
+        TRAIT_TEST(double,              TRAIT_NIL);
+        TRAIT_TEST(char *,              TRAIT_NIL);
+        TRAIT_TEST(const char *,        TRAIT_NIL);
+        TRAIT_TEST(void *,              TRAIT_NIL);
+        TRAIT_TEST(const void *,        TRAIT_NIL);
+        TRAIT_TEST(void *const,         TRAIT_NIL);
+        TRAIT_TEST(my_Enum,             TRAIT_NIL);
+        TRAIT_TEST(int (*)(int),        TRAIT_NIL);
 
-        // Explicit traits
-        TRAIT_TEST(my_Class1, TRAIT_USESBSLMAALLOCATOR);
-        TRAIT_TEST(my_Class2<int>, TRAIT_POD);
+        // Explicit traits.
+        TRAIT_TEST(my_ClassNB,        TRAIT_BLUE);
+        TRAIT_TEST(my_ClassNBNG<int>, TRAIT_BOTH);
+        TRAIT_TEST(my_ClassXG,        TRAIT_GREEN);
+        TRAIT_TEST(my_ClassXBXG,      TRAIT_BOTH);
+        TRAIT_TEST(my_ClassNBXG,      TRAIT_BOTH);
+        TRAIT_TEST(my_DerivedNBXG,    TRAIT_NIL);
 
-        // Trait tests for type convertible to anything
-        TRAIT_TEST(ConvertibleToAnyNoTraits, TRAIT_NIL);
-        TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_USESBSLMAALLOCATOR);
+        // Trait tests for type convertible to anything.
+        TRAIT_TEST(ConvertibleToAnyNoTraits,   TRAIT_NIL);
+        TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_BLUE);
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

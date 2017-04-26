@@ -2,8 +2,7 @@
 
 #include <bslalg_typetraitbitwisecopyable.h>
 
-#include <bslmf_metaint.h>
-#include <bslmf_removecv.h>
+#include <bslalg_hastrait.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -17,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under testing is a primitive trait class, which is used as a tag
-// type and therefore is empty.  There is nothing to test except that the name
-// of the class is as expected, and the usage example.
+// Verify that the trait under test can be detected using 'bslalg::HasTrait'
+// whether the trait is ascribed using 'BSLMF_NESTED_TRAIT_DECLARATION' or
+// using the (preferred) C++11 idiom for defining traits.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -85,37 +84,22 @@ class NotTrivial {
     NotTrivial(const NotTrivial&) : d_this(this) {}
 };
 
+class AnotherNotTrivial {
+  private:
+    void *d_this;
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherNotTrivial,
+                                   bsl::is_trivially_copyable);
+
+    AnotherNotTrivial() : d_this(this) {}
+    AnotherNotTrivial(const AnotherNotTrivial&) : d_this(this) {}
+};
+
 namespace bsl {
 template <>
 struct is_trivially_copyable<AlmostTrivial> : true_type {};
 }  // close namespace bsl
-
-namespace BloombergLP {
-namespace bslalg {
-
-                       // ===============
-                       // struct HasTrait
-                       // ===============
-
-template <class TYPE, class TRAIT>
-struct HasTrait {
-    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
-    // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-    // 'bslmf::MetaInt<0>' otherwise.  Note that this meta-function was copied
-    // from 'bslalg_hastrait' to avoid a direct cycle between that component
-    // and this one.
-
-  public:
-    enum {
-        VALUE = TRAIT::template
-                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-}  // close package namespace
-}  // close enterprise namespace
 
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -163,11 +147,11 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<AlmostTrivial, Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotTrivial,    Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AlmostTrivial,     Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotTrivial,        Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AnotherNotTrivial, Obj>::VALUE));
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

@@ -16,9 +16,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under testing is a primitive trait class, which is used as a tag
-// type and therefore is empty.  There is nothing to test except that the name
-// of the class is as expected, and the usage example.
+// Verify that the trait under test is detected using 'bslalg::HasTrait' on
+// every type.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -70,6 +69,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslalg::TypeTraitNil  Obj;
 
+class Empty {
+};
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -118,8 +120,9 @@ int main(int argc, char *argv[])
         ASSERT((bslalg::HasTrait<void,           Obj>::VALUE));
         ASSERT((bslalg::HasTrait<volatile int&,  Obj>::VALUE));
         ASSERT((bslalg::HasTrait<double(int...), Obj>::VALUE));
-      } break;
+        ASSERT((bslalg::HasTrait<Empty,          Obj>::VALUE));
 
+      } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

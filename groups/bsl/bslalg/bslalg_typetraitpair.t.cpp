@@ -2,8 +2,7 @@
 
 #include <bslalg_typetraitpair.h>
 
-#include <bslmf_metaint.h>
-#include <bslmf_removecv.h>
+#include <bslalg_hastrait.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -17,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under testing is a primitive trait class, which is used as a tag
-// type and therefore is empty.  There is nothing to test except that the name
-// of the class is as expected, and the usage example.
+// Verify that the trait under test can be detected using 'bslalg::HasTrait'
+// whether the trait is ascribed using 'BSLMF_NESTED_TRAIT_DECLARATION' or
+// using the (preferred) C++11 idiom for defining traits.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -76,8 +75,14 @@ struct PairLike {
     double second;
 };
 
-class NotAPair {
+struct AnotherPairLike {
+    int    first;
+    double second;
 
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherPairLike, bslmf::IsPair);
+};
+
+class NotAPair {
 };
 
 namespace BloombergLP {
@@ -85,33 +90,6 @@ namespace bslmf {
 template <>
 struct IsPair<PairLike> : bsl::true_type {};
 }  // close namespace bslmf
-}  // close enterprise namespace
-
-namespace BloombergLP {
-namespace bslalg {
-
-                       // ===============
-                       // struct HasTrait
-                       // ===============
-
-template <class TYPE, class TRAIT>
-struct HasTrait {
-    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the (template
-    // parameter) 'TYPE' has the (template parameter) 'TRAIT', and to
-    // 'bslmf::MetaInt<0>' otherwise.  Note that this meta-function was copied
-    // from 'bslalg_hastrait' to avoid a direct cycle between that component
-    // and this one.
-
-  public:
-    enum {
-        VALUE = TRAIT::template
-                       Metafunction<typename bsl::remove_cv<TYPE>::type>::value
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-}  // close package namespace
 }  // close enterprise namespace
 
 //=============================================================================
@@ -159,11 +137,19 @@ int main(int argc, char *argv[])
         Obj mX;
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<PairLike,  Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotAPair,  Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<PairLike,        Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotAPair,        Obj>::VALUE));
+
+        // As written, 'bslmf::IsPair' cannot be detected by 'bslalg::HasTrait'
+        // if it is ascribed to a type using 'BSLMF_NESTED_TRAIT_DECLARATION'.
+        // To "fix" 'bslmf::IsPair' for this, 'bslmf_ispair' would have to
+        // depend on 'bslmf_detectnestedtrait', which is not desirable.  See
+        // the implementation of 'bslalg::HasStlIterators' for an example of
+        // the "fix".
+
+        ASSERT((!bslalg::HasTrait<AnotherPairLike, Obj>::VALUE));
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

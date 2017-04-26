@@ -44,11 +44,11 @@
      bslalg_constructorproxy
      bslalg_dequeiterator
      bslalg_hashtableanchor
-     bslalg_selecttrait
+     bslalg_selecttrait                                  !DEPRECATED!
      bslalg_typetraits                                   !DEPRECATED!
 
   3. bslalg_hashtablebucket
-     bslalg_hastrait
+     bslalg_hastrait                                     !DEPRECATED!
      bslalg_scalarprimitives
 
   2. bslalg_autoscalardestructor
@@ -136,8 +136,8 @@
 : 'bslalg_hasstliterators':
 :      Provide a tag type used to detect STL-like iterators traits.
 :
-: 'bslalg_hastrait':
-:      Provide a meta function to identify if a type has a given trait.
+: 'bslalg_hastrait':                                     !DEPRECATED!
+:      Provide a meta-function to detect if a type has a given trait.
 :
 : 'bslalg_rangecompare':
 :      Provide algorithms to compare iterator-ranges of elements.
@@ -157,7 +157,7 @@
 : 'bslalg_scalarprimitives':
 :      Provide primitive algorithms that operate on single elements.
 :
-: 'bslalg_selecttrait':
+: 'bslalg_selecttrait':                                  !DEPRECATED!
 :      Provide a meta-function to select a suitable trait on a type.
 :
 : 'bslalg_swaputil':

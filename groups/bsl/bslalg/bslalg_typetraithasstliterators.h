@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // 'bslalg::HasStlIterators' to be declared using the (deprecated)
 // 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslalg_hasstliterators'
 // component for details of this trait.
+//
+///Usage
+///-----
+// No Usage example is provided since this component is deprecated.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
