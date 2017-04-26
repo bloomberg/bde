@@ -221,7 +221,7 @@ bslma::TestAllocator testAllocator;
 #ifdef BSLS_PLATFORM_OS_UNIX
 volatile sig_atomic_t syncWithSigHandler = 0;
 
-extern "C" static void signalHandler(int sig)
+extern "C" void signalHandler(int sig)
     // The signal handler does nothing.
 {
     (void)sig;
@@ -368,7 +368,7 @@ extern "C" void *threadAsClient(void *arg)
     return 0;
 }
 
-extern "C" static void *threadToCloseServer(void *arg)
+extern "C" void *threadToCloseServer(void *arg)
 {
     StreamSocket *serverSocket = (StreamSocket*) arg;
 

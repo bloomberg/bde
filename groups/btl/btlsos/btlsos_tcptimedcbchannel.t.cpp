@@ -254,7 +254,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
-extern "C" static void sigPipeHandler(int sig)
+extern "C" void sigPipeHandler(int sig)
 {
     if (sig == SIGPIPE && veryVerbose) {
         write(2, "GOT A SIGPIPE signal.\n", sizeof("GOT A SIGPIPE signal.\n"));

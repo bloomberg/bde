@@ -870,7 +870,7 @@ static void acceptCb(btlsc::CbChannel           *channel,
     }
 }
 
-extern "C" static void *threadToConnect(void *arg)
+extern "C" void *threadToConnect(void *arg)
     // Create the specified number of client sockets, connect each client
     // socket with the server created with a 'btlsos::TcpTimedCbAcceptor'
     // object.  The following information will be pass in through the specified

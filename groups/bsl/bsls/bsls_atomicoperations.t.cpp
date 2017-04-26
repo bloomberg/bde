@@ -420,7 +420,7 @@ struct Case9_64
     int            d_m;
 };
 
-extern "C" static void *case9Thread(void *ptr)
+extern "C" void *case9Thread(void *ptr)
 {
     Case9 *args = (Case9*) ptr;
 
@@ -433,7 +433,7 @@ extern "C" static void *case9Thread(void *ptr)
     return ptr;
 }
 
-extern "C" static void *case9Thread64(void *ptr)
+extern "C" void *case9Thread64(void *ptr)
 {
     Case9_64 *args = (Case9_64*) ptr;
 

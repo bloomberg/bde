@@ -295,7 +295,7 @@ void* threadAsServer(void *arg)
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
-extern "C" static void signalHandler(int sig)
+extern "C" void signalHandler(int sig)
     // The signal handler does nothing.
 {
     (void)sig;
