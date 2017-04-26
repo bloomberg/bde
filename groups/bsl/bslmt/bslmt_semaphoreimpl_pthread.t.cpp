@@ -511,7 +511,7 @@ static const char* fmt(int n)
     return buf;
 }
 
-void *createSemaphoresWorker(void *)
+extern "C" void *createSemaphoresWorker(void *)
 {
     bsl::vector<bsls::ObjectBuffer<Obj> > semaphores(10);
 
