@@ -89,6 +89,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 #endif
 
+#ifndef INCLUDED_BSLIM_PRINTER
+#include <bslim_printer.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -1477,17 +1481,14 @@ bsl::ostream& NullableValue<TYPE>::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
 {
+    bslim::Printer printer(&stream, level, spacesPerLevel);
     if (d_imp.isNull()) {
-        return bdlb::PrintMethods::print(stream,
-                                         "NULL",
-                                         level,
-                                         spacesPerLevel);             // RETURN
+        printer.printValue("NULL");
+    } else {
+        printer.printValue(d_imp.value());
     }
 
-    return bdlb::PrintMethods::print(stream,
-                                     d_imp.value(),
-                                     level,
-                                     spacesPerLevel);
+    return stream;
 }
 
 template <class TYPE>
