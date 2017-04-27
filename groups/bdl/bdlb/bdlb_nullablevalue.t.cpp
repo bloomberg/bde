@@ -7144,9 +7144,9 @@ int main(int argc, char *argv[])
         const bsl::string INT_RESULT_0_4   = "    123\n";
         const bsl::string STR_RESULT_0_4   = "    \"123\"\n";
 
-        const bsl::string NULL_RESULT_0_M1 = " \"NULL\"";
-        const bsl::string NULL_RESULT_2_3  = "         \"NULL\"\n";
-        const bsl::string NULL_RESULT_0_4  = "    \"NULL\"\n";
+        const bsl::string NULL_RESULT_0_M1 = " NULL";
+        const bsl::string NULL_RESULT_2_3  = "         NULL\n";
+        const bsl::string NULL_RESULT_0_4  = "    NULL\n";
 
 #define NL "\n"
         static const struct {
