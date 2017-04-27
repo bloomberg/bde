@@ -180,7 +180,9 @@ static void putAxis(unsigned width)
     cout << P3 << endl;
 }
 
-typedef void *(*ThreadFunction)(void *);  // type of a thread function
+extern "C" {
+    typedef void *(*ThreadFunction)(void *);  // type of a thread function
+}
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
