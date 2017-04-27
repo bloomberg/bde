@@ -662,7 +662,7 @@ class Datum {
     enum DataType {
         // Enumeration used to discriminate among the different externally-
         // exposed types of values that can be stored inside 'Datum'.
-        e_NIL                    =  0  // null value
+          e_NIL                  =  0  // null value
         , e_INTEGER              =  1  // integer value
         , e_DOUBLE               =  2  // double value
         , e_STRING               =  3  // string value
@@ -678,7 +678,6 @@ class Datum {
         , e_MAP                  = 13  // map reference
         , e_BINARY               = 14  // pointer to the binary data
         , e_DECIMAL64            = 15  // Decimal64
-        , k_NUM_TYPES            = 16  // number of distinct enumerated types
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         , e_REAL                 = e_DOUBLE // old spelling
@@ -699,7 +698,16 @@ class Datum {
         , DLCT_MAP               = e_MAP
         , DLCT_BINARY            = e_BINARY
         , DLCT_DECIMAL64         = e_DECIMAL64
-        , DLCT_NUM_TYPES         = k_NUM_TYPES
+#endif
+    };
+
+    enum {
+        // Define 'k_NUM_TYPES' to be the number of consecutively valued
+        // enumerators in the range '[ e_NIL .. e_DECIMAL64 ]'.
+
+          k_NUM_TYPES    = 16           // number of distinct enumerated types
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , DLCT_NUM_TYPES = k_NUM_TYPES
 #endif
     };
 
@@ -728,7 +736,13 @@ class Datum {
         , e_INTERNAL_ARRAY_REFERENCE     = 14  // unowned array of
         , e_INTERNAL_EXTENDED            = 15  // extended data types
         , e_INTERNAL_DOUBLE              = 16  // double value
-        , k_NUM_INTERNAL_TYPES           = 17  // number of internal types
+    };
+    enum {
+        // Define 'k_NUM_INTERNAL_TYPES' to be the number of consecutively
+        // valued enumerators in the range
+        // '[ e_INTERNAL_INF .. e_INTERNAL_DOUBLE ]'.
+
+        k_NUM_INTERNAL_TYPES             = 17  // number of internal types
     };
 
     enum ExtendedInternalDataType {
@@ -772,10 +786,15 @@ class Datum {
         , e_EXTENDED_INTERNAL_DECIMAL64_ALLOC   = 13 // allocated Decimal64
 
         , e_EXTENDED_INTERNAL_NIL               = 14 // null value
+    };
 
-        , k_NUM_EXTENDED_INTERNAL_TYPES         = 15 // number of distinct
-                                                     // enumerated extended
-                                                     // types
+    enum {
+        // Define 'k_NUM_EXTENDED_INTERNAL_TYPES' to be the number of
+        // consecutively valued enumerators in the range
+        // '[ e_EXTENDED_INTERNAL_MAP .. e_EXTENDED_INTERNAL_NIL ]'.
+
+        k_NUM_EXTENDED_INTERNAL_TYPES = 15  // number of distinct enumerated
+                                            // extended types
     };
 
     // PRIVATE CLASS DATA
@@ -1126,9 +1145,15 @@ class Datum {
 
         e_INTERNAL_BINARY_ALLOC      = 22,  // binary data, allocated storage
 
-        e_INTERNAL_DECIMAL64         = 23,  // Decimal64
+        e_INTERNAL_DECIMAL64         = 23   // Decimal64
+    };
 
-        k_NUM_INTERNAL_TYPES         = 24   // number of enumerated types
+    enum {
+        // Define 'k_NUM_INTERNAL_TYPES' to be the number of consecutively
+        // valued enumerators in the range
+        // '[ e_INTERNAL_UNINITIALIZED .. e_INTERNAL_DECIMAL64 ]'.
+
+        k_NUM_INTERNAL_TYPES         = 24  // number of internal types
     };
 
     // CLASS DATA
@@ -3610,7 +3635,7 @@ Datum::DataType Datum::type() const
         , e_ARRAY                       // e_INTERNAL_ARRAY              = 0x0c
         , e_STRING                      // e_INTERNAL_STRING_REFERENCE   = 0x0d
         , e_ARRAY                       // e_INTERNAL_ARRAY_REFERENCE    = 0x0e
-        , k_NUM_TYPES                   // ----------------------------  = 0x0f
+        , e_NIL                         // e_INTERNAL_EXTENDED           = 0x0f
         , e_DOUBLE                      // e_INTERNAL_DOUBLE             = 0x10
     };
 
