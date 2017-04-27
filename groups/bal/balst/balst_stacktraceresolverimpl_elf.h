@@ -149,7 +149,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // fields.  Specify 'demangle', which indicates whether demangling of
         // symbols is to occur.
 
-    ~StackTraceResolverImpl();
+    // ~StackTraceResolverImpl() = default;
         // Destroy this object.
 
     // PRIVATE MANIPULATORS
