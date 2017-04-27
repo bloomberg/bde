@@ -149,6 +149,10 @@ using bdldfp::Decimal64;
 //                              // -----------
 //                              // class Datum
 //                              // -----------
+// TYPES
+// [26] enum DataType { ... };
+// [26] enum { k_NUM_TYPES = ... };
+//
 // CREATORS
 // [ 3] Datum() = default;
 // [ 3] ~Datum() = default;
@@ -597,7 +601,8 @@ class TestVisitor {
 
   private:
     // DATA
-    Datum::DataType d_type;  // type of the invoking 'Datum' object
+    Datum::DataType d_type;         // type of the invoking 'Datum' object
+    bool            d_visitedFlag;  // whether 'Datum' object has been visited
 
   public:
     // CREATORS
@@ -659,6 +664,10 @@ class TestVisitor {
     Datum::DataType type() const;
         // Return the type of 'Datum' object with which this visitor was
         // called.
+
+    bool objectVisited() const;
+        // Return 'true' if this visitor has been called for some 'Datum'
+        // object and 'false' otherwise.
 };
 
                            // -----------
@@ -666,109 +675,129 @@ class TestVisitor {
                            // -----------
 
 TestVisitor::TestVisitor()
-{
-    d_type = Datum::k_NUM_TYPES;
-}
+: d_visitedFlag(false)
+{}
 
 void TestVisitor::operator()(bslmf::Nil v)
 {
     (void) v;
-    d_type = Datum::e_NIL;
+    d_type        = Datum::e_NIL;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::Date& v)
 {
     (void) v;
     d_type = Datum::e_DATE;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::Datetime& v)
 {
     (void) v;
     d_type = Datum::e_DATETIME;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::DatetimeInterval& v)
 {
     (void) v;
     d_type = Datum::e_DATETIME_INTERVAL;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(const bdlt::Time& v)
 {
     (void) v;
     d_type = Datum::e_TIME;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(bslstl::StringRef v)
 {
     (void) v;
     d_type = Datum::e_STRING;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(bool v)
 {
     (void) v;
     d_type = Datum::e_BOOLEAN;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(bsls::Types::Int64 v)
 {
     (void) v;
     d_type = Datum::e_INTEGER64;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(double v)
 {
     (void) v;
     d_type = Datum::e_DOUBLE;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumError v)
 {
     (void) v;
     d_type = Datum::e_ERROR;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(int v)
 {
     (void) v;
     d_type = Datum::e_INTEGER;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumUdt v)
 {
     (void) v;
     d_type = Datum::e_USERDEFINED;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumArrayRef v)
 {
     (void) v;
     d_type = Datum::e_ARRAY;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumMapRef v)
 {
     (void) v;
     d_type = Datum::e_MAP;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(DatumBinaryRef v)
 {
     (void) v;
     d_type = Datum::e_BINARY;
+    d_visitedFlag = true;
 }
 
 void TestVisitor::operator()(Decimal64 v)
 {
     (void) v;
     d_type = Datum::e_DECIMAL64;;
+    d_visitedFlag = true;
 }
 
 Datum::DataType TestVisitor::type() const
 {
     return d_type;
+}
+
+bool TestVisitor::objectVisited() const
+{
+    return d_visitedFlag;
 }
 
                               // ===============
@@ -2113,7 +2142,6 @@ int main(int argc, char *argv[])
             {  L_,   Datum::e_MAP,                "MAP"               },
             {  L_,   Datum::e_BINARY,             "BINARY"            },
             {  L_,   Datum::e_DECIMAL64,          "DECIMAL64"         },
-            {  L_,   Datum::k_NUM_TYPES,          UNKNOWN_FORMAT      },
         };
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2172,7 +2200,7 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // -------------------------------------------------------------------
-        // TESTING 'DataType' enum AND 'dataTypeToAscii'
+        // TESTING ENUMERATIONS AND 'dataTypeToAscii'
         //
         // Concerns:
         //: 1 The enumerator values are sequential, starting from 0.
@@ -2186,31 +2214,39 @@ int main(int argc, char *argv[])
         //: 4 The string returned by 'dataTypeToAscii' is non-modifiable.
         //:
         //: 5 The 'dataTypeToAscii' method has the expected signature.
+        //:
+        //: 6 The 'k_NUM_TYPES' enumerator's value equals the number of types
+        //:   of values that can be stored inside 'Datum'.
         //
         // Plan:
-        //: 1 Verify that the enumerator values are sequential, starting from
+        //: 1 Confirm that the 'k_NUM_TYPES' enumerator's value equals the
+        //:   number of types of values that can be stored inside 'Datum'.
+        //:   (C-6)
+        //:
+        //: 2 Verify that the enumerator values are sequential, starting from
         //:   1.  (C-1)
         //:
-        //: 2 Verify that the 'dataTypeToAscii' method returns the expected
+        //: 3 Verify that the 'dataTypeToAscii' method returns the expected
         //:   string representation for each enumerator.  (C-2)
         //:
-        //: 3 Verify that the 'dataTypeToAascii' method returns a distinguished
+        //: 4 Verify that the 'dataTypeToAascii' method returns a distinguished
         //:   string when passed an out-of-band value.  (C-3)
         //:
-        //: 4 Take the address of the 'dataTypeToAscii' (class) method and use
+        //: 5 Take the address of the 'dataTypeToAscii' (class) method and use
         //:   the result to initialize a variable of the appropriate type.
         //:   (C-4..5)
         //:
         //
         // Testing:
         //   enum DataType { ... };
+        //   enum { k_NUM_TYPES = ... };
         //   const char *dataTypeToAscii(Datum::DataType val);
         // -------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "TESTING 'DataType' enum AND 'dataTypeToAscii'" << endl
-                 << "=============================================" << endl;
+                 << "TESTING ENUMERATIONS AND 'dataTypeToAscii'" << endl
+                 << "==========================================" << endl;
 
         static const struct {
             int              d_lineNum;  // source line number
@@ -2235,15 +2271,23 @@ int main(int argc, char *argv[])
             {  L_,   Datum::e_MAP,                "MAP"               },
             {  L_,   Datum::e_BINARY,             "BINARY"            },
             {  L_,   Datum::e_DECIMAL64,          "DECIMAL64"         },
-            {  L_,   Datum::k_NUM_TYPES,          UNKNOWN_FORMAT      },
         };
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        if (verbose) cout << "\nVerify 'k_NUM_TYPES' enumerator's value."
+                          << endl;
+        {
+            const int NUM_TYPES = 16;  // expected number of types
+
+            ASSERT(NUM_TYPES          == Datum::k_NUM_TYPES);
+            ASSERT(Datum::k_NUM_TYPES == NUM_DATA);
+        }
+
         if (verbose) cout << "\nVerify enumerator values are sequential."
                           << endl;
 
-        for (int i = 0; i <= Datum::k_NUM_TYPES; ++i) {
+        for (int i = 0; i < Datum::k_NUM_TYPES; ++i) {
             const Datum::DataType VALUE = DATA[i].d_value;
 
             if (veryVerbose) { T_; P_(i); P(VALUE); }
@@ -4101,6 +4145,7 @@ int main(int argc, char *argv[])
                 TestVisitor visitor;
                 VALUE.apply(visitor);
 
+                ASSERT(visitor.objectVisited());
                 ASSERT(TYPE == visitor.type());
 
                 Datum::destroy(VALUE, &oa);
@@ -4125,6 +4170,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_ARRAY == visitor.type());
 
             Datum::destroy(D, &oa);
@@ -4142,6 +4188,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_ARRAY == visitor.type());
 
             Datum::destroy(D, &oa);
@@ -4161,6 +4208,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_ARRAY == visitor.type());
 
             Datum::destroy(D, &oa);
@@ -4178,6 +4226,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_MAP == visitor.type());
 
             Datum::destroy(D, &oa);
@@ -4197,6 +4246,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_MAP == visitor.type());
 
             Datum::destroy(D, &oa);
@@ -4217,6 +4267,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_MAP == visitor.type());
 
             Datum::destroy(D, &oa);
@@ -4240,6 +4291,7 @@ int main(int argc, char *argv[])
             TestVisitor visitor;
             D.apply(visitor);
 
+            ASSERT(visitor.objectVisited());
             ASSERT(Datum::e_MAP == visitor.type());
 
             Datum::destroy(D, &oa);
