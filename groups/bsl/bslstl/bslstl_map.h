@@ -2249,9 +2249,11 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
         BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
     if (d_tree.sentinel() == node) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
-        BloombergLP::bslma::ConstructionUtil::construct(
-                                        temp.address(),
-                                        nodeFactory().allocator().mechanism());
+
+        ALLOCATOR alloc = nodeFactory().allocator();
+
+        AllocatorTraits::construct(alloc, temp.address());
+
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
         // Unfortunately, in C++03, there are user types where a MovableRef
@@ -2282,9 +2284,11 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
      BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), lvalue);
     if (d_tree.sentinel() == node) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
-        BloombergLP::bslma::ConstructionUtil::construct(
-                                        temp.address(),
-                                        nodeFactory().allocator().mechanism());
+
+        ALLOCATOR alloc = nodeFactory().allocator();
+
+        AllocatorTraits::construct(alloc, temp.address());
+
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
         // Unfortunately, in C++03, there are user types where a MovableRef
