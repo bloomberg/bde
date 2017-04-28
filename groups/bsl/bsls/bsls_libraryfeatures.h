@@ -602,11 +602,15 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
         #endif
 
-        #if BSLS_PLATFORM_CMP_VERSION >= 70000
+        #if BSLS_PLATFORM_CMP_VERSION >= 50400 && \
+            defined(_GLIBCXX_HAVE_AT_QUICK_EXIT) && \
+            defined(_GLIBCXX_HAVE_QUICK_EXIT)
             // Have not confirmed these features are in gcc 5.4+, but they are
             // not available in gcc 5.3 (the most recent gcc installed on unix
             // development hosts).  Setting this to be enabled beyond 5.3 to
             // re-test this when it is appropriate.  (hversche 2017-03-06)
+            // The features also depend on the underlying GLIBC implementation
+            // (distributed separately from the library.  (hrosen4 2017-04-28)
 
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
         #endif
