@@ -405,7 +405,9 @@ extern "C" void * caseStressTestEntryPoint(void *arg)
 }
 
 // ----------------------------------------------------------------------------
-static  void disableCb(Obj *mX)
+static  void disableCb(Obj                         *mX,
+                       btlso::SocketHandle::Handle  handle,
+                       bslmt::Barrier              *barrier)
     // Disable dispatching for the specified 'mX' event manager.
 {
     if (veryVerbose) {
@@ -415,6 +417,8 @@ static  void disableCb(Obj *mX)
     ASSERT(mX->isEnabled());
     ASSERT(0 != mX->disable());
     ASSERT(mX->isEnabled());
+    mX->deregisterSocket(handle);
+    barrier->wait();
 }
 
 // ----------------------------------------------------------------------------
@@ -534,6 +538,11 @@ void *registerThread(void *arg)
         mX->deregisterSocket(ofd);
         cfd = testPairs[i].controlFd();
         mX->deregisterSocket(cfd);
+
+        LOOP_ASSERT(i, !mX->isRegistered(ofd,
+                                         btlso::EventType::e_READ));
+        LOOP_ASSERT(i, !mX->isRegistered(cfd,
+                                         btlso::EventType::e_READ));
     }
 
     // 'testPairs' cannot be destroyed until ALL threads are done.
@@ -1768,15 +1777,17 @@ int main(int argc, char *argv[])
                 mX.enable();
                 LOOP_ASSERT(i, mX.isEnabled());
 
+                bslmt::Barrier barrier(2);
                 btlso::EventManagerTestPair testPair;
                 bsl::function<void()> callback(
-                       bdlf::BindUtil::bind(&disableCb, &mX));
+                       bdlf::BindUtil::bind(&disableCb, &mX,
+                                            testPair.observedFd(), &barrier));
 
                 mX.registerSocketEvent(testPair.observedFd(),
                                        btlso::EventType::e_WRITE,
                                        callback);
 
-                bslmt::ThreadUtil::microSleep(10000); // 10 ms
+                barrier.wait();
             }
         }
       } break;

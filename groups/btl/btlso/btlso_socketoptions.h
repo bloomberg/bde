@@ -335,7 +335,7 @@ class SocketOptions {
         // Return a reference to the non-modifiable 'debugFlag' attribute.
 
     const bdlb::NullableValue<bool>& allowBroadcasting() const;
-        // Return a reference to the non-modifiable 'allowBroadcasting
+        // Return a reference to the non-modifiable 'allowBroadcasting'
         // attribute.
 
     const bdlb::NullableValue<bool>& reuseAddress() const;

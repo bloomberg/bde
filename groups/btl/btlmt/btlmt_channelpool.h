@@ -74,29 +74,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Half-Open Connections
 ///---------------------
-// It is already possible to import a half-duplex connection into a channel
-// pool, but should any half of any channel be closed, the channel pool would
-// always close the channel (both halves).  A new feature, introduced in BCE
-// 1.5.0, allows to keep half-open channels, i.e., single-duplex connections.
-// In particular, it is possible at the creation of the channel to specify what
-// the channel pool should do if only half of the channel is closed.  Passing
-// in the following optional parameter (of enumeration type
-// 'btlmt::ChannelPool::KeepHalfOpenMode') to 'close', 'import', or 'listen'
-// has the following behavior.
-//..
-//  e_KEEP_HALF_OPEN    If a peer closes its write part of the channel,
-//                      but keeps its receive part open, then the channel pool
-//                      will keep sending messages to the peer, but will
-//                      disable reading on the channel.  If a peer closes its
-//                      receive part of the channel, but keeps its write part
-//                      open, then the channel pool will keep reading enable
-//                      on this channel, but further calls to writeMessage on
-//                      this channel will fail.
-//
-//  e_CLOSE_BOTH        If a peer closes either its write or receive part of
-//                      the channel, the channel pool will simply down the
-//                      channel.  This is the default behavior.
-//..
+// When a connection is closed, ChannelPool, by default, closes both its read
+// and write ends thereby disallowing the connection from any further reading
+// or writing.  However, ChannelPool allows closing only one end (read/write)
+// of a connection while the other continues operating.  To allow closing only
+// one end and making the connection "half-open", a connection should have been
+// created by setting the 'allowHalfOpenConnections' attribute in either the
+// 'btlmt::ListenOptions' argument passed to 'listen' or the
+// 'btlmt::ConnectOptions' argument passed to 'connect'.
 //
 ///Resource Limits
 ///---------------
@@ -561,6 +546,18 @@ BSLS_IDENT("$Id: $")
 #include <btlmt_channeltype.h>
 #endif
 
+#ifndef INCLUDED_BTLMT_CONNECTOPTIONS
+#include <btlmt_connectoptions.h>
+#endif
+
+#ifndef INCLUDED_BTLMT_LISTENOPTIONS
+#include <btlmt_listenoptions.h>
+#endif
+
+#ifndef INCLUDED_BTLMT_RESOLUTIONMODE
+#include <btlmt_resolutionmode.h>
+#endif
+
 #ifndef INCLUDED_BTLMT_TCPTIMEREVENTMANAGER
 #include <btlmt_tcptimereventmanager.h>
 #endif
@@ -595,14 +592,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTLB_POOLEDBLOBBUFFERFACTORY
 #include <btlb_pooledblobbufferfactory.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMT_MUTEX
@@ -676,7 +665,7 @@ namespace BloombergLP {
 namespace btlso {
 
 class IPv4Address;
-//class SocketOptions;
+class SocketOptions;
 
 }
 
@@ -685,115 +674,6 @@ namespace btlmt {
 class Channel;
 class Connector;
 class ServerState;
-
-                    // =====================
-                    // local class Connector
-                    // =====================
-
-// IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support 'map's
-// holding types that are incomplete at the point of declaration of a data
-// member.  Other compilers allow us to complete 'Connector' at a later point
-// in the code, but before any operation (such as 'insert') that would require
-// the type to be complete.  If we did not have to support this compiler, this
-// whole class could be defined in the .cpp file; as it stands, it *must* be
-// defined before class 'ChannelPool'.
-
-class Connector {
-  public:
-    // This small object is stored in channel pool 'd_connectors' and holds all
-    // (but does not own any of) the information needed while an asynchronous
-    // call to 'ChannelPool::connect' is in progress.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(Connector,
-                                   bslma::UsesBslmaAllocator);
-
-    // DATA MEMBERS
-    bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >
-                                   d_socket;           // connecting socket
-
-    TcpTimerEventManager          *d_manager_p;        // event manager in
-                                                       // which the timeout is
-                                                       // registered (not
-                                                       // necessarily the one
-                                                       // used for creating the
-                                                       // connection channel)
-
-    bsl::string                    d_serverName;       // server name to
-                                                       // resolve, unused
-                                                       // unless the resolution
-                                                       // flag is set
-
-    btlso::IPv4Address             d_serverAddress;    // server to connect to
-
-    bsls::TimeInterval             d_creationTime;     // time at which
-                                                       // connection was
-                                                       // initiated
-
-    bsls::TimeInterval             d_period;           // timeout period
-                                                       // between connection
-                                                       //  attempts
-
-    bsls::TimeInterval             d_start;            // last absolute
-                                                       // timeout
-
-    void                          *d_timeoutTimerId;   // timer registered by
-                                                       // event manager
-
-    int                            d_numAttempts;      // remaining number of
-                                                       // attempts
-
-    bool                           d_inProgress;       // last call to connect
-                                                       // returned WOULD_BLOCK,
-                                                       // socket event is still
-                                                       // registered
-
-    bool                           d_resolutionFlag;   // whether to perform
-                                                       // name resolution,
-                                                       // inside
-                                                       // connectInitiateCb
-
-    bool                           d_readEnabledFlag;  // flag set to initiate
-                                                       // read command upon
-                                                       // e_CHANNEL_UP
-
-    bool                           d_keepHalfOpenMode; // mode with which
-                                                       // connections must
-                                                       // create channels
-
-    bdlb::NullableValue<btlso::SocketOptions>
-                                   d_socketOptions;    // socket options
-                                                       // provided for connect
-
-    bdlb::NullableValue<btlso::IPv4Address>
-                                   d_localAddress;     // client address to
-                                                       // bind while connecting
-
-    // CREATORS
-    Connector(const bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >&
-                                          socket,
-              TcpTimerEventManager       *manager,
-              int                         numAttempts,
-              const bsls::TimeInterval&   interval,
-              bool                        readEnabledFlag,
-              bool                        keepHalfOpenMode,
-              const btlso::SocketOptions *socketOptions = 0,
-              const btlso::IPv4Address   *localAddress = 0,
-              bslma::Allocator           *basicAllocator = 0);
-        // Create an connector initialized with the specified 'manager',
-        // 'numAttempts', and 'interval' period parameters and the specified
-        // 'readEnabledFlag' and 'keepHalfOpenMode' flags.  If the specified
-        // 'socketOptions' and 'localAddress' are not 0, use those parameters.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, use the currently installed default
-        // allocator.
-
-    Connector(const Connector& original, bslma::Allocator *basicAllocator = 0);
-        // Create a copy of the specified 'original' connector.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, use the currently installed default
-        // allocator.
-};
 
                        //==================
                        // struct TimerState
@@ -897,10 +777,10 @@ class ChannelPool {
         // particular protocol, 0 must be stored into the first argument.  The
         // prototype for a data callback might look like:
         //..
-        //  void blobDataCallback(int          *numNeeded,
+        //  void blobDataCallback(int        *numNeeded,
         //                        btlb::Blob *message,
-        //                        int           channelId,
-        //                        void         *context);
+        //                        int         channelId,
+        //                        void       *context);
         //..
 
     typedef bsl::function<void(int, int, int)> PoolStateChangeCallback;
@@ -926,17 +806,17 @@ class ChannelPool {
         // the third argument to 'ChannelCallback' to discriminate between
         // various changes in the state of a channel.
 
-        e_CHANNEL_DOWN         = 0,
-        e_CHANNEL_UP           = 1,
-        e_READ_TIMEOUT         = 2,
-        e_WRITE_BUFFER_FULL    = 3,
-        e_MESSAGE_DISCARDED    = 4,
-        e_AUTO_READ_ENABLED    = 5,
-        e_AUTO_READ_DISABLED   = 6,
-        e_WRITE_QUEUE_LOWWATER   = 7,
-        e_WRITE_QUEUE_HIGHWATER  = e_WRITE_BUFFER_FULL,
-        e_CHANNEL_DOWN_READ    = 8,
-        e_CHANNEL_DOWN_WRITE   = 9
+        e_CHANNEL_DOWN          = 0,
+        e_CHANNEL_UP            = 1,
+        e_READ_TIMEOUT          = 2,
+        e_WRITE_BUFFER_FULL     = 3,
+        e_MESSAGE_DISCARDED     = 4,
+        e_AUTO_READ_ENABLED     = 5,
+        e_AUTO_READ_DISABLED    = 6,
+        e_WRITE_QUEUE_LOWWATER  = 7,
+        e_WRITE_QUEUE_HIGHWATER = e_WRITE_BUFFER_FULL,
+        e_CHANNEL_DOWN_READ     = 8,
+        e_CHANNEL_DOWN_WRITE    = 9
 
 
     };
@@ -953,30 +833,6 @@ class ChannelPool {
 
     };
 
-    enum ConnectResolutionMode {
-        // Mode indicating whether to perform name resolution at each connect
-        // attempt in 'connect'.
-
-        e_RESOLVE_ONCE                = 0,  // perform resolution once prior
-                                            // to the first connect attempt
-
-        e_RESOLVE_AT_EACH_ATTEMPT     = 1   // perform resolution prior to each
-                                            // connect attempt
-    };
-
-    enum KeepHalfOpenMode {
-        // Mode affecting how half-open connections are handled by a server or
-        // a client channel, passed to 'connect', 'import' or 'listen'.
-
-        e_CLOSE_BOTH         = 0,  // close whole channel if half-open
-                                   // connection
-
-        e_KEEP_HALF_OPEN     = 1   // keep either part alive, if the other
-                                   // half senses a closed connection by
-                                   // the peer
-
-
-    };
 
     enum ShutdownMode {
         // Mode affecting how channel is terminated, passed to 'shutdown'.
@@ -1163,35 +1019,22 @@ class ChannelPool {
         // server state since the last server connection or last timeout
         // callback.
 
-    int listen(const btlso::IPv4Address&   endpoint,
-               int                         backlog,
-               int                         serverId,
-               int                         reuseAddress,
-               bool                        readEnabledFlag,
-               KeepHalfOpenMode            mode,
-               bool                        isTimedFlag,
-               const bsls::TimeInterval&   timeout = bsls::TimeInterval(),
-               const btlso::SocketOptions *socketOptions = 0,
-               int                        *platformErrorCode = 0);
-        // Establish a listening socket having the specified 'backlog' maximum
-        // number of pending connections on the specified 'endpoint' and the
-        // specified 'reuseAddress' used in setting 'e_REUSEADDRESS' socket
-        // option, and associate this newly established socket with the
-        // specified 'serverId'.  If the specified 'readEnabledFlag' is
-        // non-zero, any channel created by 'acceptCb' will be enabled for read
-        // upon creation, and otherwise it will not.  If the specified
-        // 'isTimedFlag' is non-zero, register a timer which will execute
-        // 'acceptTimeoutCb' in the dispatcher thread of the event manager for
-        // this server, if no connection attempt is received for the optionally
-        // specified 'timeout' period since the last connection or the last
-        // timeout.  Optionally specify 'socketOptions' that will be used to
-        // specify what options should be set on the listening socket.
-        // Optionally specify 'platformErrorCode' that will be loaded with the
-        // platform-specific error code if this method fails.  Return 0 on
-        // success, a positive value if there is a listening socket associated
-        // with 'serverId' (i.e., 'serverId' is not unique) and a negative
-        // value if an error occurred.  The behavior is undefined unless
-        // 0 < 'backlog'.
+    int listenImp(int                          serverId,
+                  const btlmt::ListenOptions&  options,
+                  int                         *platformErrorCode = 0);
+        // Establish a listening socket using the specified 'options' and
+        // associate this newly established socket with the specified
+        // 'serverId'.  Optionally, specify 'platformErrorCode' into which a
+        // platform-specific error code will be loaded if a synchronous
+        // failure occurs during the 'listen' operation.  Return 0 on success,
+        // a positive value if there is a listening socket associated with
+        // 'serverId' (i.e., 'serverId' is not unique) and a negative value if
+        // an error occurred.  Every time a connection is accepted by this pool
+        // on this (newly established) listening socket, 'serverId' is passed
+        // to the callback provided in the configuration at construction.  Note
+        // that on synchronous failure, the value loaded into the
+        // optionally-specified 'platformErrorCode' is the error code returned
+        // by the underlying OS or '0' if the error was not a system error.
 
                                   // *** Client part ***
 
@@ -1232,121 +1075,57 @@ class ChannelPool {
         // 'connectInitiateCb' or through a 'connectEventCb' after the last
         // 'connectInitiateCb'.
 
-    int connectImp(const btlso::IPv4Address&   serverAddress,
-                   int                         numAttempts,
-                   const bsls::TimeInterval&   interval,
-                   int                         sourceId,
-                   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                              *socket,
-                   bool                        readEnabledFlag,
-                   KeepHalfOpenMode            mode,
-                   const btlso::SocketOptions *socketOptions,
-                   const btlso::IPv4Address   *localAddress,
-                   int                        *platformErrorCode = 0);
-        // Asynchronously issue up to the specified 'numAttempts' connection
-        // requests to a server at the specified 'serverAddress', with at least
-        // the specified (relative) time 'interval' after each attempt before
-        // either a new connection is retried (if 'numAttempts' is not reached)
-        // or the connection attempts are abandoned (if 'numAttempts' is
-        // reached).  When the connection is established, an internal channel
-        // is created and a channel state callback, with the event
-        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
-        // 'sourceId' is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'e_ERROR_CONNECTING',
-        // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
-        // invoked with the event type, 'sourceId' and a platform-specific
-        // error code if available.  Use the specified 'readEnabledFlag' to
-        // indicate whether automatic reading should be enabled on this channel
-        // immediately after creation and the specified half-close 'mode' in
-        // case the channel created for this connection is half-closed.
-        // Specify either 'socketOptions' that will be used to provide the
-        // options that should be set on the connecting socket and the
-        // specified 'localAddress' to be used as the source address, or
-        // specify 'socket' to use as the connecting socket (with any desired
-        // options and source address already set).  If 'socket' is specified,
-        // this pool will assume its ownership if this function returns
-        // successfully, and will be left unchanged if an error is returned.
-        // Optionally specify 'platformErrorCode' that will be loaded with the
-        // platform-specific error code if this method fails.  Return 0 on
-        // successful initiation, a positive value if there is an active
-        // connection attempt with the same 'sourceId' (in which case this
-        // connection attempt may be retried after that other connection either
-        // succeeds, fails, or times out), or a negative value if an error
-        // occurred, with the value of -1 indicating that the channel pool is
-        // not running.  The behavior is undefined unless '0 < numAttempts',
-        // '0 < interval || 1 == numAttempts', and
-        // '0 == socketOptions || (0 == socket && 0 == localAddress)'.
-
-    int connectImp(const char                 *hostname,
-                   int                         portNumber,
-                   int                         numAttempts,
-                   const bsls::TimeInterval&   interval,
-                   int                         sourceId,
-                   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                              *socket,
-                   ConnectResolutionMode       resolutionMode,
-                   bool                        readEnabledFlag,
-                   KeepHalfOpenMode            halfCloseMode,
-                   const btlso::SocketOptions *socketOptions,
-                   const btlso::IPv4Address   *localAddress,
-                   int                        *platformErrorCode = 0);
-        // Asynchronously issue up to the specified 'numAttempts' connection
-        // requests to a server at the address resolved from the specified
-        // 'hostname' on the specified 'portNumber', with at least the
-        // specified (relative) time 'interval' after each attempt before
-        // either a new connection is retried (if 'numAttempts' is not reached)
-        // or the connection attempts are abandoned (if 'numAttempts' is
-        // reached).  When the connection is established, an internal channel
-        // is created and a channel state callback, with the event
-        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
-        // 'sourceId', is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'e_ERROR_CONNECTING',
-        // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
-        // invoked with the event type, 'sourceId' and a platform-specific
-        // error code if available.  Use the specified 'resolutionMode' to
-        // indicate whether the name resolution is performed once (if
-        // 'resolutionMode' is 'e_RESOLVE_ONCE'), or performed anew prior to
-        // each attempt (if 'resolutionMode' is 'e_RESOLVE_AT_EACH_ATTEMPT'),
-        // the specified 'readEnabledFlag' to indicate whether automatic
-        // reading should be enabled on this channel immediately after
-        // creation, and the specified 'halfCloseMode' in case the channel
-        // created for this connection is half-closed.  Specify either
-        // 'socketOptions' that will be used to provide the options that should
-        // be set on the connecting socket and the specified 'localAddress' to
-        // be used as the source address, or specify 'socket' to use as the
-        // connecting socket (with any desired options and source address
-        // already set).  If 'socket' is specified, this pool will assume
-        // ownership its ownership if this function returns successfully, and
-        // will be left unchanged if an error is returned.  Optionally specify
-        // 'platformErrorCode' that will be loaded with the platform-specific
-        // error code if this method fails.  Return 0 on successful initiation,
-        // a positive value if there is an active connection attempt with the
-        // same 'sourceId' (in which case this connection attempt may be
-        // retried after that other connection either succeeds, fails, or times
-        // out), or a negative value if an error occurred, with the value of -1
-        // indicating that the channel pool is not running.  The behavior is
-        // undefined unless '0 < numAttempts',
-        // '0 < interval || 1 == numAttempts', and
-        // '0 == socketOptions || (0 == socket && 0 == localAddress)'
+    int connectImp(int                    clientId,
+                   const ConnectOptions&  connectOptions,
+                   int                   *platformErrorCode = 0);
+        // Asynchronously try to establish a connection using the specified
+        // 'connectOptions' and associate the specified 'clientId' with that
+        // connection.  Optionally, specify 'platformErrorCode' into which a
+        // platform-specific error code will be loaded on a synchronous failure
+        // during the 'connect' operation.  After the connection is
+        // established, an internal channel is created and a channel state
+        // callback is called supplying the 'e_CHANNEL_UP' event, the newly
+        // created channel ID, and the 'clientId' in an internal thread.
+        // Return 0 on successful initiation, a positive value if there is an
+        // active connection attempt with the same 'clientId' (in which case
+        // this connection attempt may be retried after that other connection
+        // either succeeds, fails, or times out), or a negative value if an
+        // error occurred, with the value of -1 indicating that the channel
+        // pool is not running.  Note that on synchronous failure, the value
+        // loaded into the optionally-specified 'platformErrorCode' is the
+        // error code returned by the underlying OS or '0' if the error was not
+        // a system error.
 
                                   // *** Channel management part ***
-    void importCb(btlso::StreamSocket<btlso::IPv4Address> *socket,
-                  const bslma::ManagedPtrDeleter&          deleter,
-                  TcpTimerEventManager                    *manager,
-                  TcpTimerEventManager                    *srcManager,
-                  int                                      sourceId,
-                  bool                                     readEnabledFlag,
-                  bool                                     mode,
-                  bool                                     imported);
-        // Add a newly allocated channel to the set of channels managed by this
-        // channel pool and invoke the channel pool callback in the specified
-        // 'manager'.  Upon destruction, 'socket' will be destroyed via the
-        // specified 'factory'.  Note that this method is executed whenever a
-        // connection is imported on the 'socket' corresponding to 'sourceId'.
-        // In addition, it is invoked by 'connectCb' to create a newly
-        // allocated channel once the socket connection is established.  This
-        // function should be executed in the dispatcher thread of the
-        // specified 'srcManager'.
+    void importCb(
+             btlso::StreamSocket<btlso::IPv4Address> *streamSocket,
+             const bslma::ManagedPtrDeleter&          deleter,
+             TcpTimerEventManager                    *manager,
+             TcpTimerEventManager                    *srcManager,
+             int                                      sourceId,
+             bool                                     readEnabledFlag,
+             bool                                     allowHalfOpenConnections,
+             bool                                     imported);
+        // Add the specified 'streamSocket' to this channel pool using the
+        // specified 'sourceId' to identify the new connection, the specified
+        // 'readEnabledFlag' to specify whether automatic reading should be
+        // enabled on this channel immediately after importing, the
+        // specified 'allowHalfOpenConnections' to specify if half-open
+        // connections are allowed on this connection, and the specified
+        // 'imported' flag to specify if 'streamSocket' is an imported channel.
+        // Use the dispatcher thread of the specified 'srcManager' to execute
+        // this method.  After successfully importing 'streamSocket' assign a
+        // channel ID and invoke all subsequent callbacks for that channel in
+        // the dispatcher thread of the specified 'manager'.  Assume ownership
+        // from 'streamSocket', leaving it null, if this function returns
+        // successfully, and leave it unchanged if an error is returned.  Use
+        // the specified 'deleter' to destroy 'streamSocket'.  Return 0 on
+        // success and a non-zero value, with no effect on the channel pool,
+        // otherwise.  Note that the same 'sourceId' can be used in several
+        // calls to 'connect' or 'import' as long as two calls to connect with
+        // the same 'sourceId' do not overlap.  Also note that a half-closed
+        // 'streamSocket' can be imported into this channel pool, irrespective
+        // of the value of 'allowHalfOpenConnections'.
 
                                   // *** Clock management ***
 
@@ -1425,207 +1204,45 @@ class ChannelPool {
         // Note that closing a listening socket has no effect on any channels
         // managed by this pool.
 
-    int listen(int                         portNumber,
-               int                         backlog,
-               int                         serverId,
-               int                         reuseAddress = 1,
-               bool                        readEnabledFlag = true,
-               const btlso::SocketOptions *socketOptions = 0,
-               int                        *platformErrorCode = 0);
-    int listen(int                         portNumber,
-               int                         backlog,
-               int                         serverId,
-               const bsls::TimeInterval&   timeout,
-               int                         reuseAddress = 1,
-               bool                        readEnabledFlag = true,
-               const btlso::SocketOptions *socketOptions = 0,
-               int                        *platformErrorCode = 0);
-    int listen(const btlso::IPv4Address&   endpoint,
-               int                         backlog,
-               int                         serverId,
-               int                         reuseAddress = 1,
-               bool                        readEnabledFlag = true,
-               const btlso::SocketOptions *socketOptions = 0,
-               int                        *platformErrorCode = 0);
-    int listen(const btlso::IPv4Address&   endpoint,
-               int                         backlog,
-               int                         serverId,
-               const bsls::TimeInterval&   timeout,
-               int                         reuseAddress = 1,
-               bool                        readEnabledFlag = true,
-               KeepHalfOpenMode            mode = e_CLOSE_BOTH,
-               const btlso::SocketOptions *socketOptions = 0,
-               int                        *platformErrorCode = 0);
-        // Establish a listening socket having the specified 'backlog' maximum
-        // number of pending connections on the specified 'portNumber' on all
-        // local interfaces or the specified 'endpoint', depending on which
-        // overload of 'listen' is used, and associate this newly established
-        // socket with the specified 'serverId'.  Optionally, specify a
-        // 'timeout' *duration* for accepting a connection.  If no connection
-        // attempt is received for a period of 'timeout' since the last
-        // connection or the last timeout, a pool state callback is invoked
-        // with event equal to 'e_ACCEPT_TIMEOUT'.  Optionally specify a
-        // 'reuseAddress' value to be used in setting 'e_REUSEADDRESS' socket
-        // option; if 'reuseAddress' is not specified, 1 is used (i.e.,
-        // 'e_REUSEADDRESS' is enabled).  Optionally specify via a
-        // 'readEnabledFlag' whether automatic reading should be enabled on
-        // this channel immediately after creation; if 'readEnabledFlag' is not
-        // specified, then 'true' is used (i.e., reading on new channels is
-        // automatically enabled).  If 'endpoint', 'timeout', 'reuseAddress'
-        // and 'readEnabledFlag' are all specified, also optionally specify a
-        // 'mode' to keep channel half-open in case a channel established by
-        // the server with this 'serverId' is half-closed; if 'mode' is not
-        // specified, then 'e_CLOSE_BOTH' is used (i.e., half-open connections
-        // lead to closing the channel completely).  Optionally specify
-        // 'socketOptions' that will be used to indicate what options should be
-        // set on the listening socket.  Optionally specify 'platformErrorCode'
-        // that will be loaded with the platform-specific error code if this
-        // method fails.  Return 0 on success, a positive value if there is a
-        // listening socket associated with 'serverId' (i.e., 'serverId' is not
-        // unique) and a negative value if an error occurred.  Every time a
-        // connection is accepted by this pool on this (newly established)
-        // listening socket, 'serverId' is passed to the callback provided in
-        // the configuration at construction.  The behavior is undefined unless
-        // '0 < backlog'.
+    int listen(int                          serverId,
+               const btlmt::ListenOptions&  options,
+               int                         *platformErrorCode = 0);
+        // Establish a listening socket using the specified 'options' and
+        // associate this newly established socket with the specified
+        // 'serverId'.  Optionally, specify 'platformErrorCode' into which a
+        // platform-specific error code will be loaded if a synchronous
+        // failure occurs during the 'listen' operation.  Return 0 on success,
+        // a positive value if there is a listening socket associated with
+        // 'serverId' (i.e., 'serverId' is not unique) and a negative value if
+        // an error occurred.  Every time a connection is accepted by this pool
+        // on this (newly established) listening socket, 'serverId' is passed
+        // to the callback provided in the configuration at construction.  Note
+        // that on synchronous failure, the value loaded into the
+        // optionally-specified 'platformErrorCode' is the error code returned
+        // by the underlying OS or '0' if the error was not a system error.
 
                                   // *** Client part ***
 
-    int connect(const char                 *hostname,
-                int                         portNumber,
-                int                         numAttempts,
-                const bsls::TimeInterval&   interval,
-                int                         sourceId,
-                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                           *socket,
-                ConnectResolutionMode       resolutionMode = e_RESOLVE_ONCE,
-                bool                        readEnabledFlag = true,
-                KeepHalfOpenMode            halfCloseMode = e_CLOSE_BOTH,
-                int                        *platformErrorCode = 0);
-    int connect(const char                 *hostname,
-                int                         portNumber,
-                int                         numAttempts,
-                const bsls::TimeInterval&   interval,
-                int                         sourceId,
-                ConnectResolutionMode       resolutionMode = e_RESOLVE_ONCE,
-                bool                        readEnabledFlag = true,
-                KeepHalfOpenMode            halfCloseMode = e_CLOSE_BOTH,
-                const btlso::SocketOptions *socketOptions = 0,
-                const btlso::IPv4Address   *localAddress = 0,
-                int                        *platformErrorCode = 0);
-        // Asynchronously issue up to the specified 'numAttempts' connection
-        // requests to a server at the address resolved from the specified
-        // 'hostname' on the specified 'portNumber', with at least the
-        // specified (relative) time 'interval' after each attempt before
-        // either a new connection is retried (if 'numAttempts' is not reached)
-        // or the connection attempts are abandoned (if 'numAttempts' is
-        // reached).  When the connection is established, an internal channel
-        // is created and a channel state callback, with the event
-        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
-        // 'sourceId' is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'ERROR_CONNECTING',
-        // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
-        // invoked with the event type, 'sourceId' and a platform-specific
-        // error code if available.  Optionally specify a 'resolutionMode' to
-        // indicate whether the name resolution is performed once (if
-        // 'resolutionMode' is 'e_RESOLVE_ONCE'), or performed anew prior
-        // to each attempt (if 'resolutionMode' is
-        // 'e_RESOLVE_AT_EACH_ATTEMPT'); if 'resolutionMode' is not
-        // specified, 'e_RESOLVE_ONCE' is used.  Optionally specify via a
-        // 'readEnabledFlag' whether automatic reading should be enabled on
-        // this channel immediately after creation; if 'readEnabledFlag' is not
-        // specified, then 'true' is used (i.e., reading on new channels is
-        // automatically enabled).  Optionally specify a 'halfCloseMode' in
-        // case the channel created for this connection is half-closed; if
-        // 'mode' is not specified, then 'e_CLOSE_BOTH' is used (i.e.,
-        // so-called half-open connections, that is, anything less than full
-        // duplex, lead to close the channel).  Optionally specify either
-        // 'socketOptions' that will be used to specify what options should be
-        // set on the connecting socket and/or the specified 'localAddress' to
-        // be used as the source address, or specify 'socket' to use as the
-        // connecting socket (with any desired options and/or source address
-        // already set).  If 'socket' is specified, this pool will assume its
-        // ownership if this function returns successfully, and will be left
-        // unchanged if an error is returned.  Optionally specify
-        // 'platformErrorCode' that will be loaded with the platform-specific
-        // error code if this method fails.  Return 0 on successful initiation,
-        // a positive value if there is an active connection attempt with the
-        // same 'sourceId' (in which case this connection attempt may be
-        // retried after that other connection either succeeds, fails, or times
-        // out), or a negative value if an error occurred, with the value of -1
-        // indicating that the channel pool is not running.  The behavior is
-        // undefined unless '0 < numAttempts', and either '0 < interval' or
-        // '1 == numAttempts' or both.  Note that if the connection cannot be
-        // established, up to 'numAttempts' pool state callbacks with
-        // 'ERROR_CONNECTING' may be generated, one for each 'interval'.  Also
-        // note that this function will fail if this channel pool is not
-        // running, and that no callbacks will be invoked if the return value
-        // is non-zero.  Also note that the same 'sourceId' can be used in
-        // several calls to 'connect' or 'import' as long as two calls to
-        // connect with the same 'sourceId' do not overlap.  Finally, note that
-        // the lifetime of the 'hostname' need not extend past the return of
-        // this function call, that is, 'hostname' need not remain valid until
-        // the last connection attempt but can be deleted upon return.
-
-    int connect(const btlso::IPv4Address&   serverAddress,
-                int                         numAttempts,
-                const bsls::TimeInterval&   interval,
-                int                         sourceId,
-                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                           *socket,
-                bool                        readEnabledFlag = true,
-                KeepHalfOpenMode            mode = e_CLOSE_BOTH,
-                int                        *platformErrorCode = 0);
-    int connect(const btlso::IPv4Address&   serverAddress,
-                int                         numAttempts,
-                const bsls::TimeInterval&   interval,
-                int                         sourceId,
-                bool                        readEnabledFlag = true,
-                KeepHalfOpenMode            mode = e_CLOSE_BOTH,
-                const btlso::SocketOptions *socketOptions = 0,
-                const btlso::IPv4Address   *localAddress = 0,
-                int                        *platformErrorCode = 0);
-        // Asynchronously issue up to the specified 'numAttempts' connection
-        // requests to a server at the specified 'serverAddress', with at least
-        // the specified (relative) time 'interval' after each attempt before
-        // either a new connection is retried (if 'numAttempts' is not reached)
-        // or the connection attempts are abandoned (if 'numAttempts' is
-        // reached).  When the connection is established, an internal channel
-        // is created and a channel state callback, with the event
-        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
-        // 'sourceId' is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'ERROR_CONNECTING',
-        // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
-        // invoked with the event type, 'sourceId' and a platform-specific
-        // error code if available.  Optionally specify via a 'readEnabledFlag'
-        // whether automatic reading should be enabled on this channel
-        // immediately after creation; if 'readEnabledFlag' is not specified,
-        // then 'true' is used (i.e., reading on new channels is automatically
-        // enabled).  Optionally specify a half-close 'mode' in case the
-        // channel created for this connection is half-closed; if 'mode' is not
-        // specified, then 'e_CLOSE_BOTH' is used (i.e., half-open
-        // connections lead to close the channel).  Optionally specify either
-        // 'socketOptions' that will be used to specify what options should be
-        // set on the connecting socket and/or the specified 'localAddress' to
-        // be used as the source address, or specify 'socket' to use as the
-        // connecting socket (with any desired options and/or source address
-        // already set).  If 'socket' is specified, this pool will assume its
-        // ownership.  Optionally specify 'platformErrorCode' that will be
-        // loaded with the platform-specific error code if this method fails.
+    int connect(int                    clientId,
+                const ConnectOptions&  connectOptions,
+                int                   *platformErrorCode = 0);
+        // Asynchronously try to establish a connection using the specified
+        // 'connectOptions' and associate the specified 'clientId' with that
+        // connection.  Optionally, specify 'platformErrorCode' into which a
+        // platform-specific error code will be loaded on a synchronous failure
+        // during the 'connect' operation.  After the connection is
+        // established, an internal channel is created and a channel state
+        // callback is called supplying the 'e_CHANNEL_UP' event, the newly
+        // created channel ID, and the 'clientId' in an internal thread.
         // Return 0 on successful initiation, a positive value if there is an
-        // active connection attempt with the same 'sourceId' (in which case
+        // active connection attempt with the same 'clientId' (in which case
         // this connection attempt may be retried after that other connection
         // either succeeds, fails, or times out), or a negative value if an
         // error occurred, with the value of -1 indicating that the channel
-        // pool is not running.  The behavior is undefined unless
-        // '0 < numAttempts', and either '0 < interval' or '1 == numAttempts'
-        // or both.  Note that if the connection cannot be established, up to
-        // 'numAttempts' pool state callbacks with 'ERROR_CONNECTING' may be
-        // generated, one for each 'interval'.  Also note that this function
-        // will fail if this channel pool is not running, and that no callbacks
-        // will be invoked if the return value is non-zero.  Also note that the
-        // same 'sourceId' can be used in several calls to 'connect' or
-        // 'import' as long as two calls to connect with the same 'sourceId' do
-        // not overlap.
+        // pool is not running.  Note that on synchronous failure, the value
+        // loaded into the optionally-specified 'platformErrorCode' is the
+        // error code returned by the underlying OS or '0' if the error was not
+        // a system error.
 
                                   // *** Channel management ***
 
@@ -1666,28 +1283,27 @@ class ChannelPool {
         //   callbacks.
 
     int import(bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                      *streamSocket,
-               int                                     sourceId,
-               bool                                    readEnabledFlag = true,
-               KeepHalfOpenMode                        mode = e_CLOSE_BOTH);
-        // Add the specified 'streamSocket' to this channel pool.  Assign a
-        // channel ID and invoke a channel state callback, passing
-        // 'e_CHANNEL_UP' and the specified 'sourceId', in an internal thread.
-        // Assume ownership from 'streamSocket', leaving it null, if this
-        // function returns successfully, and leave it unchanged if an error is
-        // returned.  Optionally specify via 'readEnabledFlag' whether
-        // automatic reading should be enabled on this channel immediately
-        // after creation; if 'readEnabledFlag' is not specified, then 'true'
-        // is used (i.e., reading on new channels is automatically enabled).
-        // Optionally specify a half-close 'mode' in case the channel created
-        // for this connection is half-closed; if 'mode' is not specified, then
-        // 'e_CLOSE_BOTH' is used (i.e., half-open connections lead to close
-        // the channel).  Return 0 on success and a non-zero value, with no
-        // effect on the channel pool, otherwise.  Note that the same
-        // 'sourceId' can be used in several calls to 'connect' or 'import' as
-        // long as two calls to connect with the same 'sourceId' do not
-        // overlap.  Also note that a half-closed 'streamSocket' can be
-        // imported into this channel pool, irrespective of 'mode'.
+                                                    *streamSocket,
+               int                                   sourceId,
+               bool                                  readEnabledFlag,
+               bool                                  allowHalfOpenConnections);
+        // Add the specified 'streamSocket' to this channel pool using the
+        // specified 'sourceId' to identify the new connection, the specified
+        // 'readEnabledFlag' to specify whether automatic reading should be
+        // enabled on this channel immediately after importing and the
+        // specified 'allowHalfOpenConnections' to specify if half-open
+        // connections are allowed on this connection.  After successfully
+        // importing 'streamSocket' assign a channel ID and invoke in an
+        // internal thread the channel state callback specifying the
+        // 'e_CHANNEL_UP' event and 'sourceId' as arguments.  Assume ownership
+        // from 'streamSocket', leaving it null, if this function returns
+        // successfully, and leave it unchanged if an error is returned.
+        // Return 0 on success and a non-zero value, with no effect on the
+        // channel pool, otherwise.  Note that the same 'sourceId' can be used
+        // in several calls to 'connect' or 'import' as long as two calls to
+        // connect with the same 'sourceId' do not overlap.  Also note that a
+        // half-closed 'streamSocket' can be imported into this channel pool,
+        // irrespective of the value of 'allowHalfOpenConnections'.
 
     void setChannelContext(int channelId, void *context);
         // Associate the specified (opaque) 'context' with the channel having
@@ -1703,21 +1319,21 @@ class ChannelPool {
         // in the optionally specified 'mode' and return 0 on success, and a
         // non-zero value otherwise.  Optionally specify a shutdown 'type' to
         // close only the reading or the writing part; by default,
-        // 'e_CLOSE_BOTH' is used (i.e., both halves of the channel are
+        // 'e_SHUTDOWN_BOTH' is used (i.e., both halves of the channel are
         // closed).  Note that shutting down a channel will deallocate all
-        // system resources associated with 'channel' and subsequent references
+        // system resources associated with channel and subsequent references
         // to channel will result in undefined behavior.  Also note that, if
-        // the channel does not support half-open connections (i.e., the 'mode'
-        // passed to 'connect', 'listen', or 'import' was set to
-        // 'e_CLOSE_BOTH'), then shutting down the channel leads to a complete
-        // shutdown, irrespective of the shutdown 'type'.  If the channel does
-        // support half-open connections, but is already half-closed, and the
-        // 'type' (set to 'e_SHUTDOWN_BOTH', 'e_SHUTDOWN_RECEIVE' or
-        // 'e_SHUTDOWN_SEND') closes the other half, then the channel is shut
-        // down completely; otherwise, only one half of the channel is closed
-        // but the channel itself is not, and subsequent calls to write (if
-        // 'type' is 'e_SHUTDOWN_SEND'), or to 'enableRead' (if 'type' is
-        // 'e_SHUTDOWN_RECEIVE'), will fail.
+        // the channel does not support half-open connections (i.e., the
+        // 'allowHalfOpenConnections' flag passed to 'connect', 'listen', or
+        // 'import' was set to 'false'), then shutting down the channel leads
+        // to a complete shutdown, irrespective of the shutdown 'type'.  If the
+        // channel does support half-open connections, but is already
+        // half-closed, and the 'type' (set to 'e_SHUTDOWN_BOTH',
+        // 'e_SHUTDOWN_RECEIVE' or 'e_SHUTDOWN_SEND') closes the other half,
+        // then the channel is shut down completely; otherwise, only one half
+        // of the channel is closed but the channel itself is not, and
+        // subsequent calls to write (if 'type' is 'e_SHUTDOWN_SEND'), or to
+        // 'enableRead' (if 'type' is 'e_SHUTDOWN_RECEIVE'), will fail.
 
     int stopAndRemoveAllChannels();
         // Terminate all threads managed by this channel pool, close all
@@ -1752,7 +1368,7 @@ class ChannelPool {
         // if either 'channelId' does not exist.  An 'e_WRITE_QUEUE_LOWWATER'
         // alert is provided (via the channel state callback) if 'numBytes' is
         // greater than or equal to the current size state of the write queue.
-        // (See // the "Invocation of High- and Low-Water Mark Callbacks"
+        // (See the "Invocation of High- and Low-Water Mark Callbacks"
         // section under @DESCRIPTION in the component-level documentation for
         // details on 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER'
         // alerts.) The behavior is undefined unless '0 <= numBytes'.  Note
@@ -2303,53 +1919,19 @@ int ChannelPool::write(int channelId, const btlb::Blob& message)
 }
 
 inline
-int ChannelPool::connect(const btlso::IPv4Address&   serverAddress,
-                         int                         numAttempts,
-                         const bsls::TimeInterval&   interval,
-                         int                         sourceId,
-                         bool                        readEnabledFlag,
-                         KeepHalfOpenMode            mode,
-                         const btlso::SocketOptions *socketOptions,
-                         const btlso::IPv4Address   *localAddress,
-                         int                        *platformErrorCode)
+int ChannelPool::listen(int                          serverId,
+                        const btlmt::ListenOptions&  listenOptions,
+                        int                         *platformErrorCode)
 {
-    return connectImp(serverAddress,
-                      numAttempts,
-                      interval,
-                      sourceId,
-                      0,
-                      readEnabledFlag,
-                      mode,
-                      socketOptions,
-                      localAddress,
-                      platformErrorCode);
+    return listenImp(serverId, listenOptions, platformErrorCode);
 }
 
 inline
-int ChannelPool::connect(const char                 *hostname,
-                         int                         portNumber,
-                         int                         numAttempts,
-                         const bsls::TimeInterval&   interval,
-                         int                         sourceId,
-                         ConnectResolutionMode       resolutionMode,
-                         bool                        readEnabledFlag,
-                         KeepHalfOpenMode            halfCloseMode,
-                         const btlso::SocketOptions *socketOptions,
-                         const btlso::IPv4Address   *localAddress,
-                         int                        *platformErrorCode)
+int ChannelPool::connect(int                           clientId,
+                         const btlmt::ConnectOptions&  connectOptions,
+                         int                          *platformErrorCode)
 {
-    return connectImp(hostname,
-                      portNumber,
-                      numAttempts,
-                      interval,
-                      sourceId,
-                      0,
-                      resolutionMode,
-                      readEnabledFlag,
-                      halfCloseMode,
-                      socketOptions,
-                      localAddress,
-                      platformErrorCode);
+    return connectImp(clientId, connectOptions, platformErrorCode);
 }
 
 inline
