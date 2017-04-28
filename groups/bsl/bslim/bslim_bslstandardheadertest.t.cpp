@@ -160,6 +160,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 3] string vector resize
 // [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
 // [ 1] CONCERN: Support references as 'mapped_type' in map-like containers.
 
@@ -397,6 +398,29 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        // CONCERN: RESIZE OF EMPTY VECTOR OF STRINGS
+        //
+        // Concerns:
+        //: 1 {DRQS 99966534} reports an assertion failure on resizing an empty
+        //:   vector of strings in opt/safe mode with gcc >= 5.
+        //
+        // Plan:
+        //: 1 Do such an operation.
+        //
+        // Testing:
+        //   string vector resize
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "CONCERN: RESIZE OF EMPTY VECTOR OF STRINGS\n"
+                      << "==========================================\n";
+        }
+        {
+            bsl::vector<bsl::string>().resize(10);
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // CONCERN: REGRESSION TEST FOR C99 FEATURES
@@ -416,8 +440,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "CONCERN: REGRESSION TEST FOR C99 FEATURES'\n"
-                      << "==========================================\n";
+            bsl::cout << "CONCERN: REGRESSION TEST FOR C99 FEATURES\n"
+                      << "=========================================\n";
         }
         {
               if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }

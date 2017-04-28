@@ -602,7 +602,7 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
         #endif
 
-        #if BSLS_PLATFORM_CMP_VERSION >= 50400
+        #if BSLS_PLATFORM_CMP_VERSION >= 70000
             // Have not confirmed these features are in gcc 5.4+, but they are
             // not available in gcc 5.3 (the most recent gcc installed on unix
             // development hosts).  Setting this to be enabled beyond 5.3 to
