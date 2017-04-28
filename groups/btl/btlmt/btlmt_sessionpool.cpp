@@ -14,9 +14,12 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 
 #include <btlmt_channelpool.h>
 #include <btlmt_channelpoolchannel.h>
+#include <btlmt_connectoptions.h>
+#include <btlmt_listenoptions.h>
 #include <btlmt_session.h>
 #include <btlmt_sessionfactory.h>
 
+#include <btlso_endpoint.h>
 #include <btlso_socketoptions.h>
 
 #include <btlb_pooledblobbufferfactory.h>
@@ -155,7 +158,7 @@ void SessionPool::channelStateCb(int   channelId,
 {
     using namespace bdlf::PlaceHolders;
 
-    switch(state) {
+    switch (state) {
       case ChannelPool::e_CHANNEL_DOWN: {
         if (0 == userData) {
             break;
@@ -513,7 +516,7 @@ void SessionPool::init()
 }
 
 int SessionPool::makeConnectHandle(
-                         const SessionPool::SessionStateCallback&  cb,
+                         const SessionPool::SessionStateCallback&  callback,
                          int                                       numAttempts,
                          void                                     *userData,
                          SessionFactory                           *factory)
@@ -523,7 +526,7 @@ int SessionPool::makeConnectHandle(
                      d_allocator_p);
 
     handle->d_type                 = SessionPool_Handle::e_CONNECT_SESSION;
-    handle->d_sessionStateCB       = cb;
+    handle->d_sessionStateCB       = callback;
     handle->d_session_p            = 0;
     handle->d_channel_p            = 0;
     handle->d_numAttemptsRemaining = numAttempts;
@@ -859,16 +862,10 @@ int SessionPool::closeHandle(int handleId)
 
 int SessionPool::connect(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   const char                               *hostname,
-                   int                                       port,
-                   int                                       numAttempts,
-                   const bsls::TimeInterval&                 interval,
+                   const SessionPool::SessionStateCallback&  callback,
                    SessionFactory                           *factory,
+                   const btlmt::ConnectOptions&              options,
                    void                                     *userData,
-                   ConnectResolutionMode                     resolutionMode,
-                   const btlso::SocketOptions               *socketOptions,
-                   const btlso::IPv4Address                 *localAddress,
                    int                                      *platformErrorCode)
 {
     BSLS_ASSERT(d_channelPool_p);
@@ -879,147 +876,16 @@ int SessionPool::connect(
         return -1;                                                    // RETURN
     }
 
-    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
+    int handleId = makeConnectHandle(callback,
+                                     options.numAttempts(),
+                                     userData,
+                                     factory);
     *handleBuffer = handleId;
 
-    int ret = d_channelPool_p->connect(hostname,
-                                       port,
-                                       numAttempts,
-                                       interval,
-                                       handleId,
-                                       mapResolutionMode(resolutionMode),
-                                       false,
-                                       ChannelPool::e_CLOSE_BOTH,
-                                       socketOptions,
-                                       localAddress,
-                                       platformErrorCode);
-    if (ret) {
-        HandlePtr handle;
-        int rc = d_handles.remove(handleId, &handle);
-        (void)rc; BSLS_ASSERT(0 == rc);
-        handle->d_handleId = 0; // Do not call back anybody
-        return ret;                                                   // RETURN
-    }
-    return 0;
-}
+    const int ret = d_channelPool_p->connect(handleId,
+                                             options,
+                                             platformErrorCode);
 
-int SessionPool::connect(
-                   int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   btlso::IPv4Address const&                 endpoint,
-                   int                                       numAttempts,
-                   const bsls::TimeInterval&                 interval,
-                   SessionFactory                           *factory,
-                   void                                     *userData,
-                   const btlso::SocketOptions               *socketOptions,
-                   const btlso::IPv4Address                 *localAddress,
-                   int                                      *platformErrorCode)
-{
-    BSLS_ASSERT(d_channelPool_p);
-
-    if (0 == d_channelPool_p->numThreads()) {
-        // Going down.
-
-        return -1;                                                    // RETURN
-    }
-
-    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
-    *handleBuffer = handleId;
-
-    int ret = d_channelPool_p->connect(endpoint,
-                                       numAttempts,
-                                       interval,
-                                       handleId,
-                                       false,
-                                       ChannelPool::e_CLOSE_BOTH,
-                                       socketOptions,
-                                       localAddress,
-                                       platformErrorCode);
-    if (ret) {
-        HandlePtr handle;
-        d_handles.remove(handleId, &handle);
-        handle->d_handleId = 0; // Do not call back anybody
-        return ret;                                                   // RETURN
-    }
-    return 0;
-}
-
-int SessionPool::connect(
-                   int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   const char                               *hostname,
-                   int                                       port,
-                   int                                       numAttempts,
-                   const bsls::TimeInterval&                 interval,
-                   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                            *socket,
-                   SessionFactory                           *factory,
-                   void                                     *userData,
-                   ConnectResolutionMode                     resolutionMode,
-                   int                                      *platformErrorCode)
-{
-    BSLS_ASSERT(d_channelPool_p);
-
-    if (0 == d_channelPool_p->numThreads()) {
-        // Going down.
-
-        return -1;                                                    // RETURN
-    }
-
-    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
-    *handleBuffer = handleId;
-
-    int ret = d_channelPool_p->connect(hostname,
-                                       port,
-                                       numAttempts,
-                                       interval,
-                                       handleId,
-                                       socket,
-                                       mapResolutionMode(resolutionMode),
-                                       false,
-                                       ChannelPool::e_CLOSE_BOTH,
-                                       platformErrorCode);
-    if (ret) {
-        HandlePtr handle;
-        int rc = d_handles.remove(handleId, &handle);
-        (void)rc; BSLS_ASSERT(0 == rc);
-        handle->d_handleId = 0; // Do not call back anybody
-        return ret;                                                   // RETURN
-    }
-    return 0;
-}
-
-int SessionPool::connect(
-     int                                                    *handleBuffer,
-     const SessionPool::SessionStateCallback&                cb,
-     btlso::IPv4Address const&                               endpoint,
-     int                                                     numAttempts,
-     const bsls::TimeInterval&                               interval,
-     bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                            *socket,
-     SessionFactory                                         *factory,
-     void                                                   *userData,
-     int                                                    *platformErrorCode)
-{
-    BSLS_ASSERT(d_channelPool_p);
-
-    if (0 == d_channelPool_p->numThreads()) {
-        // Going down.
-
-        return -1;                                                    // RETURN
-    }
-
-    int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
-    *handleBuffer = handleId;
-
-    int ret = d_channelPool_p->connect(endpoint,
-                                       numAttempts,
-                                       interval,
-                                       handleId,
-                                       socket,
-                                       false,
-                                       ChannelPool::e_CLOSE_BOTH,
-                                       platformErrorCode);
     if (ret) {
         HandlePtr handle;
         d_handles.remove(handleId, &handle);
@@ -1030,11 +896,13 @@ int SessionPool::connect(
 }
 
 int SessionPool::import(
-   int                                                         *handleBuffer,
-   const SessionPool::SessionStateCallback&                     cb,
-   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > *streamSocket,
-   SessionFactory                                              *sessionFactory,
-   void                                                        *userData)
+   int                                               *handleBuffer,
+   const SessionPool::SessionStateCallback&           callback,
+   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                     *streamSocket,
+   bool                                               allowHalfOpenConnections,
+   SessionFactory                                    *sessionFactory,
+   void                                              *userData)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -1043,7 +911,7 @@ int SessionPool::import(
                      d_allocator_p);
 
     handle->d_type             = SessionPool_Handle::e_IMPORTED_SESSION;
-    handle->d_sessionStateCB   = cb;
+    handle->d_sessionStateCB   = callback;
     handle->d_session_p        = 0;
     handle->d_channel_p        = 0;
     handle->d_userData_p       = userData;
@@ -1053,10 +921,12 @@ int SessionPool::import(
 
     int ret = d_channelPool_p->import(streamSocket,
                                       handle->d_handleId,
-                                      false);
+                                      false,
+                                      allowHalfOpenConnections);
 
     if (ret) {
         d_handles.remove(handle->d_handleId);
+        handle->d_handleId = 0;
         return ret;                                                   // RETURN
     }
     return 0;
@@ -1064,83 +934,10 @@ int SessionPool::import(
 
 int SessionPool::listen(
                    int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   int                                       portNumber,
-                   int                                       backlog,
+                   const SessionPool::SessionStateCallback&  callback,
                    SessionFactory                           *factory,
+                   const btlmt::ListenOptions&               options,
                    void                                     *userData,
-                   const btlso::SocketOptions               *socketOptions,
-                   int                                      *platformErrorCode)
-{
-    btlso::IPv4Address endpoint;
-    endpoint.setPortNumber(portNumber);
-
-    return listen(handleBuffer,
-                  cb,
-                  endpoint,
-                  backlog,
-                  1,
-                  factory,
-                  userData,
-                  socketOptions,
-                  platformErrorCode);
-}
-
-int SessionPool::listen(
-                   int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   int                                       portNumber,
-                   int                                       backlog,
-                   int                                       reuseAddress,
-                   SessionFactory                           *factory,
-                   void                                     *userData,
-                   const btlso::SocketOptions               *socketOptions,
-                   int                                      *platformErrorCode)
-{
-    btlso::IPv4Address endpoint;
-    endpoint.setPortNumber(portNumber);
-
-    return listen(handleBuffer,
-                  cb,
-                  endpoint,
-                  backlog,
-                  reuseAddress,
-                  factory,
-                  userData,
-                  socketOptions,
-                  platformErrorCode);
-}
-
-int SessionPool::listen(
-                   int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   const btlso::IPv4Address&                 endpoint,
-                   int                                       backlog,
-                   SessionFactory                           *factory,
-                   void                                     *userData,
-                   const btlso::SocketOptions               *socketOptions,
-                   int                                      *platformErrorCode)
-{
-    return listen(handleBuffer,
-                  cb,
-                  endpoint,
-                  backlog,
-                  1,
-                  factory,
-                  userData,
-                  socketOptions,
-                  platformErrorCode);
-}
-
-int SessionPool::listen(
-                   int                                      *handleBuffer,
-                   const SessionPool::SessionStateCallback&  cb,
-                   const btlso::IPv4Address&                 endpoint,
-                   int                                       backlog,
-                   int                                       reuseAddress,
-                   SessionFactory                           *factory,
-                   void                                     *userData,
-                   const btlso::SocketOptions               *socketOptions,
                    int                                      *platformErrorCode)
 {
     BSLS_ASSERT(d_channelPool_p);
@@ -1150,24 +947,22 @@ int SessionPool::listen(
                      d_allocator_p);
 
     handle->d_type             = SessionPool_Handle::e_LISTENER;
-    handle->d_sessionStateCB   = cb;
+    handle->d_sessionStateCB   = callback;
     handle->d_session_p        = 0;
     handle->d_channel_p        = 0;
     handle->d_userData_p       = userData;
     handle->d_sessionFactory_p = factory;
+    handle->d_userData_p       = userData;
     handle->d_handleId         = d_handles.add(handle);
     *handleBuffer              = handle->d_handleId;
 
-    int ret = d_channelPool_p->listen(endpoint,
-                                      backlog,
-                                      handle->d_handleId,
-                                      reuseAddress,
-                                      false,
-                                      socketOptions,
+    int ret = d_channelPool_p->listen(handle->d_handleId,
+                                      options,
                                       platformErrorCode);
 
     if (ret) {
         d_handles.remove(handle->d_handleId);
+        handle->d_handleId = 0; // Do not call back anybody
         return ret;                                                   // RETURN
     }
     return 0;
@@ -1204,6 +999,181 @@ int SessionPool::portNumber(int handle) const
     }
     return -1;
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+int SessionPool::listen(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  callback,
+                   const btlso::IPv4Address&                 endpoint,
+                   int                                       backlog,
+                   int                                       reuseAddress,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   const btlso::SocketOptions               *socketOptions,
+                   int                                      *platformErrorCode)
+{
+    enum {
+        e_AMBIGUOUS_REUSE_ADDRESS = -11
+    };
+
+    if (socketOptions
+     && !socketOptions->reuseAddress().isNull()
+     && (bool) reuseAddress != socketOptions->reuseAddress().value()) {
+        return e_AMBIGUOUS_REUSE_ADDRESS;                             // RETURN
+    }
+
+    btlmt::ListenOptions listenOptions;
+
+    listenOptions.setServerAddress(endpoint);
+    listenOptions.setBacklog(backlog);
+
+    btlso::SocketOptions updatedSocketOptions;
+    if (socketOptions) {
+        updatedSocketOptions = *socketOptions;
+        updatedSocketOptions.setReuseAddress(reuseAddress);
+    }
+    listenOptions.setSocketOptions(updatedSocketOptions);
+
+    return listen(handleBuffer,
+                  callback,
+                  factory,
+                  listenOptions,
+                  userData,
+                  platformErrorCode);
+}
+
+int SessionPool::connect(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  callback,
+                   const char                               *hostname,
+                   int                                       port,
+                   int                                       numAttempts,
+                   const bsls::TimeInterval&                 interval,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   ConnectResolutionMode                     mode,
+                   const btlso::SocketOptions               *socketOptions,
+                   const btlso::IPv4Address                 *localAddress,
+                   int                                      *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    connectOptions.setServerEndpoint(btlso::Endpoint(hostname, port));
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    connectOptions.setResolutionMode(
+                               static_cast<btlmt::ResolutionMode::Enum>(mode));
+    if (socketOptions) {
+        connectOptions.setSocketOptions(*socketOptions);
+    }
+    if (localAddress) {
+        connectOptions.setLocalAddress(*localAddress);
+    }
+
+    return connect(handleBuffer,
+                   callback,
+                   factory,
+                   connectOptions,
+                   userData,
+                   platformErrorCode);
+}
+
+int SessionPool::connect(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  callback,
+                   btlso::IPv4Address const&                 endpoint,
+                   int                                       numAttempts,
+                   const bsls::TimeInterval&                 interval,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   const btlso::SocketOptions               *socketOptions,
+                   const btlso::IPv4Address                 *localAddress,
+                   int                                      *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    connectOptions.setServerEndpoint(endpoint);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    if (socketOptions) {
+        connectOptions.setSocketOptions(*socketOptions);
+    }
+    if (localAddress) {
+        connectOptions.setLocalAddress(*localAddress);
+    }
+
+    return connect(handleBuffer,
+                   callback,
+                   factory,
+                   connectOptions,
+                   userData,
+                   platformErrorCode);
+}
+
+int SessionPool::connect(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  callback,
+                   const char                               *hostname,
+                   int                                       port,
+                   int                                       numAttempts,
+                   const bsls::TimeInterval&                 interval,
+                   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                            *socket,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   ConnectResolutionMode                     mode,
+                   int                                      *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    connectOptions.setServerEndpoint(btlso::Endpoint(hostname, port));
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    if (socket) {
+        connectOptions.setSocketPtr(socket);
+    }
+    connectOptions.setResolutionMode(
+                               static_cast<btlmt::ResolutionMode::Enum>(mode));
+
+    return connect(handleBuffer,
+                   callback,
+                   factory,
+                   connectOptions,
+                   userData,
+                   platformErrorCode);
+}
+
+int SessionPool::connect(
+     int                                                    *handleBuffer,
+     const SessionPool::SessionStateCallback&                callback,
+     btlso::IPv4Address const&                               endpoint,
+     int                                                     numAttempts,
+     const bsls::TimeInterval&                               interval,
+     bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                            *socket,
+     SessionFactory                                         *factory,
+     void                                                   *userData,
+     int                                                    *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    connectOptions.setServerEndpoint(endpoint);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    if (socket) {
+        connectOptions.setSocketPtr(socket);
+    }
+
+    return connect(handleBuffer,
+                   callback,
+                   factory,
+                   connectOptions,
+                   userData,
+                   platformErrorCode);
+}
+
+#endif
 
 }  // close package namespace
 

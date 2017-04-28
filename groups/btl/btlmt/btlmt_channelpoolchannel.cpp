@@ -307,7 +307,8 @@ void ChannelPoolChannel::close()
 
     if (!d_closed) {
         d_closed = true;
-        d_channelPool_p->shutdown(d_channelId, ChannelPool::e_IMMEDIATE);
+        d_channelPool_p->shutdown(d_channelId,
+                                  btlso::Flag::e_SHUTDOWN_GRACEFUL);
 
         if (!d_readQueue.size()) {
             return;                                                   // RETURN

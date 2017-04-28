@@ -12,6 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_ipv4address_cpp,"$Id$ $CSID$")
 
+#include <bslim_printer.h>
 #include <bsls_assert.h>
 
 #include <bsl_cctype.h>
@@ -171,6 +172,22 @@ int IPv4Address::formatIpAddress(char *result) const
                         (int) ip[2],
                         (int) ip[3],
                         d_portNumber) + 1; // +1 for null terminated char.
+}
+
+bsl::ostream& IPv4Address::print(bsl::ostream& stream,
+                                 int           level,
+                                 int           spacesPerLevel) const
+{
+    char ipAddressBuffer[32];
+
+    formatIpAddress(ipAddressBuffer);
+
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start(true);  // 'true' -> suppress '['
+    stream << ipAddressBuffer;
+    printer.end(true);    // 'true' -> suppress ']'
+
+    return stream;
 }
 
 bsl::ostream& IPv4Address::streamOut(bsl::ostream& stream) const

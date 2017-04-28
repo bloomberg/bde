@@ -7,15 +7,16 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <btlmt_channelpool.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <btlmt_channelstatus.h>
+#include <btlmt_listenoptions.h>
 
 #include <btls_iovecutil.h>
+#include <btlso_endpoint.h>
 #include <btlso_resolveutil.h>
 #include <btlso_socketimputil.h>
 #include <btlso_lingeroptions.h>
@@ -68,6 +69,10 @@ namespace BloombergLP {
 namespace btlmt {
 
 typedef btlso::StreamSocket<btlso::IPv4Address>        StreamSocket;
+typedef bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                       StreamSocketSharedPtr;
+typedef bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                       StreamSocketManagedPtr;
 typedef btlso::StreamSocketFactory<btlso::IPv4Address> StreamSocketFactory;
 
 typedef btlso::StreamSocketFactoryAutoDeallocateGuard<btlso::IPv4Address>
@@ -411,7 +416,7 @@ class Channel {
 
     // Channel parameters section
 
-    bool                             d_keepHalfOpenMode;
+    bool                             d_allowHalfOpenConnections;
 
     const bool                       d_useReadTimeout;   // 'true' if read
                                                          // timeouts should be
@@ -430,7 +435,12 @@ class Channel {
 
     bsls::AtomicInt                  d_channelDownFlag;  // are we down?
 
-    volatile int                     d_channelUpFlag;    // are we running?
+    bsls::AtomicInt                  d_channelUpFlag;    // are we running?
+
+    bsls::AtomicInt                  d_shutdownSendWhenQueueDrained;
+                                         // flag specifying if the send end of
+                                         // the channel should be closed after
+                                         // write queue is drained.
 
     // Channel managers section
     ChannelPool                     *d_channelPool_p;    // (held)
@@ -663,12 +673,12 @@ class Channel {
 
   public:
     // CREATORS
-    Channel(bslma::ManagedPtr<StreamSocket> *socket,
+    Channel(StreamSocketManagedPtr          *socket,
             int                              channelId,
             int                              sourceId,
             const ChannelPoolConfiguration&  configuration,
             ChannelType::Value               channelType,
-            bool                             mode,
+            bool                             allowHalfOpenConnections,
             ChannelStateChangeCallback       channelCb,
             BlobBasedReadCallback            blobBasedReadCb,
             btlb::BlobBufferFactory         *writeBlobBufferPool,
@@ -817,6 +827,10 @@ class Channel {
 
     void *userData() const;
         // Return the opaque user data associated to this channel.
+
+    ChannelDownMask getChannelDownMask(btlso::Flag::ShutdownType type);
+        // Return the 'ChannelDownMask' corresponding to the specified
+        // shutdown 'type' for this channel.
 };
 
 // PRIVATE MANIPULATORS
@@ -930,65 +944,128 @@ void *Channel::userData() const
     return d_userData;
 }
 
+ChannelDownMask Channel::getChannelDownMask(btlso::Flag::ShutdownType type)
+{
+    ChannelDownMask channelDownMask;
+
+    switch (type) {
+      case btlso::Flag::e_SHUTDOWN_RECEIVE: {
+        channelDownMask = e_CLOSED_RECEIVE_MASK;
+      } break;
+      case btlso::Flag::e_SHUTDOWN_SEND: {
+        channelDownMask = e_CLOSED_SEND_MASK;
+      } break;
+      case btlso::Flag::e_SHUTDOWN_GRACEFUL: {
+        channelDownMask = 0 != currentWriteQueueSize()
+                          ? e_CLOSED_RECEIVE_MASK
+                          : e_CLOSED_BOTH_MASK;
+      } break;
+      default: {
+        channelDownMask = e_CLOSED_BOTH_MASK;
+      }
+    }
+    return channelDownMask;
+}
+
                     // =====================
                     // local class Connector
                     // =====================
 
+class Connector {
+  public:
+    // This object is stored in channel pool 'd_connectors' and holds all (but
+    // does not own any of) the information needed while an asynchronous call
+    // to 'ChannelPool::connect' is in progress.
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(Connector,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // DATA MEMBERS
+    StreamSocketSharedPtr          d_socket;           // connecting socket
+
+    TcpTimerEventManager          *d_manager_p;        // event manager in
+                                                       // which the timeout is
+                                                       // registered (not
+                                                       // necessarily the one
+                                                       // used for creating the
+                                                       // connection channel)
+
+    bsls::TimeInterval             d_creationTime;     // time at which
+                                                       // connection was
+                                                       // initiated
+
+    bsls::TimeInterval             d_start;            // last absolute
+                                                       // timeout
+
+    void                          *d_timeoutTimerId;   // timer registered by
+                                                       // event manager
+
+    bool                           d_inProgress;       // last call to connect
+                                                       // returned WOULD_BLOCK,
+                                                       // socket event is still
+                                                       // registered
+
+    bool                           d_resolutionFlag;   // whether to perform
+                                                       // name resolution,
+                                                       // inside
+                                                       // connectInitiateCb
+
+    int                            d_numAttempts;      // num attempts
+
+    btlso::IPv4Address             d_serverAddress;    // server address
+
+    btlmt::ConnectOptions          d_connectOptions;   // connect options
+
+    // CREATORS
+    Connector(const StreamSocketSharedPtr&  socket,
+              TcpTimerEventManager         *manager,
+              const btlmt::ConnectOptions&  connectOptions,
+              bslma::Allocator             *basicAllocator = 0);
+        // Create an connector initialized with the specified 'manager',
+        // 'socket', and 'connectOptions'.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // use the currently installed default allocator.
+
+    Connector(const Connector& original, bslma::Allocator *basicAllocator = 0);
+        // Create a copy of the specified 'original' connector.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, use the currently installed default
+        // allocator.
+};
+
 // CREATORS
 inline
-Connector::Connector(
-               const bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >&
-                                           socket,
-               TcpTimerEventManager       *manager,
-               int                         numAttempts,
-               const bsls::TimeInterval&   interval,
-               bool                        readEnabledFlag,
-               bool                        keepHalfOpenMode,
-               const btlso::SocketOptions *socketOptions,
-               const btlso::IPv4Address   *localAddress,
-               bslma::Allocator           *basicAllocator)
+Connector::Connector(const StreamSocketSharedPtr&  socket,
+                     TcpTimerEventManager         *manager,
+                     const btlmt::ConnectOptions&  connectOptions,
+                     bslma::Allocator             *basicAllocator)
 : d_socket(socket)
 , d_manager_p(manager)
-, d_serverName(basicAllocator)
 , d_creationTime(bdlt::CurrentTime::now())
-, d_period(interval)
 , d_start(d_creationTime)
 , d_timeoutTimerId(0)
-, d_numAttempts(numAttempts)
 , d_inProgress(false)
 , d_resolutionFlag(false)
-, d_readEnabledFlag(readEnabledFlag)
-, d_keepHalfOpenMode(keepHalfOpenMode)
+, d_numAttempts(connectOptions.numAttempts())
+, d_connectOptions(connectOptions, basicAllocator)
 {
-    BSLS_ASSERT(0 < numAttempts);
-    BSLS_ASSERT(0 < interval || 1 == numAttempts);
-
-    if (socketOptions) {
-        d_socketOptions = *socketOptions;
-    }
-
-    if (localAddress) {
-        d_localAddress = *localAddress;
-    }
+    BSLS_ASSERT(0 < connectOptions.numAttempts());
+    BSLS_ASSERT(0 < connectOptions.timeout()
+             || 1 == connectOptions.numAttempts());
 }
 
 Connector::Connector(const Connector&  original,
                      bslma::Allocator *basicAllocator)
 : d_socket(original.d_socket)
-, d_manager_p (original.d_manager_p)
-, d_serverName(original.d_serverName, basicAllocator)
-, d_serverAddress(original.d_serverAddress)
+, d_manager_p(original.d_manager_p)
 , d_creationTime(original.d_creationTime)
-, d_period(original.d_period)
 , d_start(original.d_start)
 , d_timeoutTimerId(original.d_timeoutTimerId)
-, d_numAttempts(original.d_numAttempts)
 , d_inProgress(original.d_inProgress)
 , d_resolutionFlag(original.d_resolutionFlag)
-, d_readEnabledFlag(original.d_readEnabledFlag)
-, d_keepHalfOpenMode(original.d_keepHalfOpenMode)
-, d_socketOptions(original.d_socketOptions)
-, d_localAddress(original.d_localAddress)
+, d_numAttempts(original.d_numAttempts)
+, d_connectOptions(original.d_connectOptions, basicAllocator)
 {
 }
 
@@ -1052,9 +1129,10 @@ class ServerState {
                                                       // channels with
                                                       // readEnabledFlag?
 
-    bool                        d_keepHalfOpenMode;   // mode with which
-                                                      // server connections
-                                                      // must create channels
+    bool                        d_allowHalfOpenConnections;
+                                                      // whether half-open
+                                                      // connections are
+                                                      // allowed
 
     // CREATORS
     ~ServerState();
@@ -1313,7 +1391,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
 {
     // Always executed in the event manager's dispatcher thread, *except* if
     // called from ChannelPool::shutdown (for e_IMMEDIATE), or from
-    // registerWriteCb.
+    // 'writeMessage'.
 
     // Note: It is *not* OK to compute serializedFlag as follows:
     // bool serializedFlag = bslmt::ThreadUtil::isEqual(
@@ -1321,24 +1399,20 @@ void Channel::notifyChannelDown(ChannelHandle             self,
     //                             d_eventManager_p->dispatcherThreadHandle());
     // See the "Note that" in this function-level documentation as to why.
 
-    if (!d_keepHalfOpenMode) {
+    if (!d_allowHalfOpenConnections) {
         // No support for half-open connections, simply shut down, irrespective
         // of 'type'.
 
         type = btlso::Flag::e_SHUTDOWN_BOTH;
     }
 
+    if (btlso::Flag::e_SHUTDOWN_GRACEFUL == type) {
+        d_shutdownSendWhenQueueDrained = 1;
+    }
+
     // Determine mask to apply to channel down flag.
 
-    int channelDownMask = e_CLOSED_BOTH_MASK;
-
-    if (btlso::Flag::e_SHUTDOWN_RECEIVE == type) {
-        channelDownMask = e_CLOSED_RECEIVE_MASK;
-    }
-
-    if (btlso::Flag::e_SHUTDOWN_SEND == type) {
-        channelDownMask = e_CLOSED_SEND_MASK;
-    }
+    int channelDownMask = static_cast<int>(getChannelDownMask(type));
 
     // Atomically apply the mask to d_channelDownFlag and determine which
     // callbacks we are responsible for.
@@ -1357,7 +1431,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
     // two, or all three callbacks in half-open mode, but only the last one if
     // half-open mode is not enabled.
 
-    if (d_keepHalfOpenMode
+    if (d_allowHalfOpenConnections
      && (channelDownFlag & e_CLOSED_RECEIVE_MASK)
                              != (newChannelDownFlag & e_CLOSED_RECEIVE_MASK)) {
         if (serializedFlag) {
@@ -1373,7 +1447,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         }
     }
 
-    if (d_keepHalfOpenMode
+    if (d_allowHalfOpenConnections
      && (channelDownFlag & e_CLOSED_SEND_MASK)
                                 != (newChannelDownFlag & e_CLOSED_SEND_MASK)) {
         if (serializedFlag) {
@@ -1908,6 +1982,20 @@ void Channel::writeCb(ChannelHandle self)
                 // There isn't any pending data, our work here is done.
 
                 deregisterSocketWrite(self);
+
+                if (isChannelDown(e_CLOSED_RECEIVE_MASK)
+                 && d_shutdownSendWhenQueueDrained) {
+                    // The receive end has already been closed.  The socket is
+                    // just waiting to write the enqueued bytes.  Invoke
+                    // channel down to close the connection completely and
+                    // remove associated state.
+
+                    d_shutdownSendWhenQueueDrained = 0;
+
+                    notifyChannelDown(self,
+                                      btlso::Flag::e_SHUTDOWN_SEND);
+                }
+
                 return;                                               // RETURN
             }
 
@@ -1933,7 +2021,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
                  int                              sourceId,
                  const ChannelPoolConfiguration&  config,
                  ChannelType::Value               channelType,
-                 bool                             mode,
+                 bool                             allowHalfOpenConnections,
                  ChannelStateChangeCallback       channelCb,
                  BlobBasedReadCallback            blobBasedReadCb,
                  btlb::BlobBufferFactory         *writeBlobBufferPool,
@@ -1953,7 +2041,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_highWatermarkAlertState(e_HIGH_WATERMARK_ALERT_NOT_ACTIVE)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
-, d_keepHalfOpenMode(mode)
+, d_allowHalfOpenConnections(allowHalfOpenConnections)
 , d_useReadTimeout(config.readTimeout() > 0.0)
 , d_readTimeout(config.readTimeout())
 , d_writeQueueLowWater(config.writeQueueLowWatermark())
@@ -1961,6 +2049,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_minIncomingMessageSize(config.minIncomingMessageSize())
 , d_channelDownFlag(0)
 , d_channelUpFlag(0)
+, d_shutdownSendWhenQueueDrained(0)
 , d_channelPool_p(channelPool)
 , d_eventManager_p(eventManager)
 , d_readTimeoutTimerId(0)
@@ -2628,20 +2717,21 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
     ++numChannels;
     BSLS_ASSERT(newId);
 
-    Channel *channelPtr = new (d_pool) Channel(&socket,
-                                               newId,
-                                               serverId,
-                                               d_config,
-                                               ChannelType::e_ACCEPTED_CHANNEL,
-                                               server->d_keepHalfOpenMode,
-                                               d_channelStateCb,
-                                               d_blobBasedReadCb,
-                                               d_writeBlobFactory.ptr(),
-                                               d_readBlobFactory.ptr(),
-                                               manager,
-                                               this,
-                                               &d_sharedPtrRepAllocator,
-                                               d_allocator_p);
+    Channel *channelPtr = new (d_pool)
+                                    Channel(&socket,
+                                            newId,
+                                            serverId,
+                                            d_config,
+                                            ChannelType::e_ACCEPTED_CHANNEL,
+                                            server->d_allowHalfOpenConnections,
+                                            d_channelStateCb,
+                                            d_blobBasedReadCb,
+                                            d_writeBlobFactory.ptr(),
+                                            d_readBlobFactory.ptr(),
+                                            manager,
+                                            this,
+                                            &d_sharedPtrRepAllocator,
+                                            d_allocator_p);
 
     channelHandle.reset(channelPtr, &d_pool, d_allocator_p);
     BSLS_ASSERT(channelHandle);
@@ -2749,19 +2839,11 @@ void ChannelPool::acceptTimeoutCb(int                          serverId,
     d_poolStateCb(e_ACCEPT_TIMEOUT, serverId, 0);
 }
 
-int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
-                        int                         backlog,
-                        int                         serverId,
-                        int                         reuseAddress,
-                        bool                        readEnabledFlag,
-                        KeepHalfOpenMode            mode,
-                        bool                        isTimedFlag,
-                        const bsls::TimeInterval&   timeout,
-                        const btlso::SocketOptions *socketOptions,
-                        int                        *platformErrorCode)
+int ChannelPool::listenImp(int                   serverId,
+                           const ListenOptions&  listenOptions,
+                           int                  *platformErrorCode)
 {
     enum {
-        e_AMBIGUOUS_REUSE_ADDRESS     = -11,
         e_SET_SOCKET_OPTION_FAILED    = -10,
         e_SET_CLOEXEC_FAILED          = -9,
         e_REGISTER_FAILED             = -8,
@@ -2775,15 +2857,6 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         e_SUCCESS                     =  0,
         e_DUPLICATE_ID                =  1
     };
-
-    if (socketOptions
-     && !socketOptions->reuseAddress().isNull()
-     && (bool) reuseAddress != socketOptions->reuseAddress().value()) {
-        if (platformErrorCode) {
-            *platformErrorCode = 0;
-        }
-        return e_AMBIGUOUS_REUSE_ADDRESS;                             // RETURN
-    }
 
     bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
@@ -2809,13 +2882,20 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     ss->d_timeoutTimerId     = 0;
     ss->d_creationTime       = bdlt::CurrentTime::now();
     ss->d_start              = ss->d_creationTime;
-    ss->d_timeout            = timeout;
     ss->d_acceptAgainId      = 0;
     ss->d_exponentialBackoff = false;
     ss->d_isClosedFlag       = false;
-    ss->d_isTimedFlag        = isTimedFlag;
-    ss->d_readEnabledFlag    = readEnabledFlag;
-    ss->d_keepHalfOpenMode   = mode;
+    ss->d_readEnabledFlag    = listenOptions.enableRead();
+    ss->d_allowHalfOpenConnections = listenOptions.allowHalfOpenConnections();
+
+    if (listenOptions.timeout().isNull()) {
+        ss->d_timeout       = bsls::TimeInterval();
+        ss->d_isTimedFlag = false;
+    }
+    else {
+        ss->d_timeout       = listenOptions.timeout().value();
+        ss->d_isTimedFlag = true;
+    }
 
     // Open the server socket: from btlsos_tcptimedcbacceptor.  Upon early
     // return, destroying the shared ptr 'server' destroys 'ss'.  (In
@@ -2834,35 +2914,24 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     // From now on, destroying the shared ptr 'server' deallocates
     // 'serverSocket' (in dtor of 'ss') and also deallocates 'ss'.
 
-    btlso::IPv4Address serverAddress;
-    if (0 != serverSocket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
-                                     btlso::SocketOptUtil::k_REUSEADDRESS,
-                                     !!reuseAddress)) {
+    const int rc = btlso::SocketOptUtil::setSocketOptions(
+                                                serverSocket->handle(),
+                                                listenOptions.socketOptions());
+    if (rc) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }
-        return e_SET_OPTION_FAILED;                                   // RETURN
+        return e_SET_SOCKET_OPTION_FAILED;                            // RETURN
     }
 
-    if (socketOptions) {
-        const int rc = btlso::SocketOptUtil::setSocketOptions(
-                                                        serverSocket->handle(),
-                                                       *socketOptions);
-        if (rc) {
-            if (platformErrorCode) {
-                *platformErrorCode = getPlatformErrorCode();
-            }
-            return e_SET_SOCKET_OPTION_FAILED;                        // RETURN
-        }
-    }
-
-    if (0 != serverSocket->bind(endpoint)) {
+    if (0 != serverSocket->bind(listenOptions.serverAddress())) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }
         return e_BIND_FAILED;                                         // RETURN
     }
 
+    btlso::IPv4Address serverAddress;
     if (0 != serverSocket->localAddress(&serverAddress)) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
@@ -2873,7 +2942,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     BSLS_ASSERT(serverAddress.portNumber());
     ss->d_endpoint = serverAddress;
 
-    if (0 != serverSocket->listen(backlog)) {
+    if (0 != serverSocket->listen(listenOptions.backlog())) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }
@@ -2945,7 +3014,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         return e_REGISTER_FAILED;                                     // RETURN
     }
 
-    if (isTimedFlag) {
+    if (ss->d_isTimedFlag) {
         bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bind(
                                                  &ChannelPool::acceptTimeoutCb,
                                                  this,
@@ -2953,8 +3022,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                                                  server));
 
         ss->d_timeoutTimerId = manager->registerTimer(
-                                            bdlt::CurrentTime::now() + timeout,
-                                            acceptTimeoutFunctor);
+                                      bdlt::CurrentTime::now() + ss->d_timeout,
+                                      acceptTimeoutFunctor);
         BSLS_ASSERT(ss->d_timeoutTimerId);
     }
 
@@ -2973,8 +3042,8 @@ void ChannelPool::connectCb(ConnectorMap::iterator idx)
     bslmt::LockGuard<bslmt::Mutex>  cGuard(&d_connectorsLock);
     bslma::ManagedPtr<StreamSocket> socket(cs.d_socket.managedPtr());
 
-    bool readEnabledFlag = cs.d_readEnabledFlag;
-    bool halfOpenMode    = cs.d_keepHalfOpenMode;
+    bool readEnabledFlag = cs.d_connectOptions.enableRead();
+    bool halfOpenMode    = cs.d_connectOptions.allowHalfOpenConnections();
 
     // The rest is identical to 'importCb', except that we must erase 'idx'
     // from the map of active connectors, and choose a manager for handling the
@@ -3034,7 +3103,6 @@ void ChannelPool::connectEventCb(ConnectorMap::iterator idx)
                 manager->deregisterTimer(cs.d_timeoutTimerId);
                 connectTimeoutCb(idx);
             }
-
         }
         else {
             // Disable timeout callback and connect.
@@ -3086,8 +3154,10 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
     if (cs.d_resolutionFlag) {
         int errorCode;
+        const char *hostname = cs.d_connectOptions.serverEndpoint().
+                                     the<btlso::Endpoint>().hostname().c_str();
         int retCode = btlso::ResolveUtil::getAddress(&cs.d_serverAddress,
-                                                     cs.d_serverName.c_str(),
+                                                     hostname,
                                                      &errorCode);
         if (retCode) {
             d_poolStateCb(e_ERROR_CONNECTING, clientId, errorCode);
@@ -3130,10 +3200,10 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         // At this point, the serverAddress and socket are set and valid, and
         // socket is in non-blocking mode.
 
-        if (!cs.d_socketOptions.isNull()) {
+        if (!cs.d_connectOptions.socketOptions().isNull()) {
             const int rc = btlso::SocketOptUtil::setSocketOptions(
-                                                   socket->handle(),
-                                                   cs.d_socketOptions.value());
+                                  socket->handle(),
+                                  cs.d_connectOptions.socketOptions().value());
 
             if (rc) {
                 d_poolStateCb(e_ERROR_SETTING_OPTIONS,
@@ -3148,8 +3218,9 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
         // If a client address is specified bind to that address.
 
-        if (!cs.d_localAddress.isNull()) {
-            const int rc = socket->bind(cs.d_localAddress.value());
+        if (!cs.d_connectOptions.localAddress().isNull()) {
+            const int rc = socket->bind(
+                                   cs.d_connectOptions.localAddress().value());
 
             if (rc) {
                 d_poolStateCb(e_ERROR_BINDING_CLIENT_ADDR,
@@ -3215,7 +3286,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     }
 
     // Reschedule timeout.
-    cs.d_start += cs.d_period;
+    cs.d_start += cs.d_connectOptions.timeout();
 
     bsl::function<void()> connectTimeoutFunctor(bdlf::BindUtil::bind(
                                                 &ChannelPool::connectTimeoutCb,
@@ -3279,14 +3350,15 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
 
                                   // *** Channel management part ***
 
-void ChannelPool::importCb(StreamSocket                    *socket_p,
-                           const bslma::ManagedPtrDeleter&  deleter,
-                           TcpTimerEventManager            *manager,
-                           TcpTimerEventManager            *srcManager,
-                           int                              sourceId,
-                           bool                             readEnabledFlag,
-                           bool                             mode,
-                           bool                             imported)
+void ChannelPool::importCb(
+                    StreamSocket                    *socket_p,
+                    const bslma::ManagedPtrDeleter&  deleter,
+                    TcpTimerEventManager            *manager,
+                    TcpTimerEventManager            *srcManager,
+                    int                              sourceId,
+                    bool                             readEnabledFlag,
+                    bool                             allowHalfOpenConnections,
+                    bool                             imported)
 {
     bslma::ManagedPtr<StreamSocket> socket;
     if (deleter.object() == socket_p) {
@@ -3327,7 +3399,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
                                                sourceId,
                                                d_config,
                                                type,
-                                               mode,
+                                               allowHalfOpenConnections,
                                                d_channelStateCb,
                                                d_blobBasedReadCb,
                                                d_writeBlobFactory.ptr(),
@@ -3585,199 +3657,27 @@ int ChannelPool::close(int serverId)
     return e_SUCCESS;
 }
 
-int ChannelPool::listen(int                         port,
-                        int                         backlog,
-                        int                         serverId,
-                        int                         reuseAddress,
-                        bool                        readEnabledFlag,
-                        const btlso::SocketOptions *socketOptions,
-                        int                        *platformErrorCode)
+int ChannelPool::connectImp(int                    clientId,
+                            const ConnectOptions&  connectOptions,
+                            int                   *platformErrorCode)
 {
-    enum { e_IS_NOT_TIMED = 0 };
-
-    btlso::IPv4Address endpoint;
-    endpoint.setPortNumber(port);
-
-    return this->listen(endpoint,
-                        backlog,
-                        serverId,
-                        reuseAddress,
-                        readEnabledFlag,
-                        e_CLOSE_BOTH,
-                        e_IS_NOT_TIMED,
-                        bsls::TimeInterval(),
-                        socketOptions,
-                        platformErrorCode);
-}
-
-int ChannelPool::listen(int                         port,
-                        int                         backlog,
-                        int                         serverId,
-                        const bsls::TimeInterval&   timeout,
-                        int                         reuseAddress,
-                        bool                        readEnabledFlag,
-                        const btlso::SocketOptions *socketOptions,
-                        int                        *platformErrorCode)
-{
-    enum { e_IS_TIMED = 1 };
-
-    btlso::IPv4Address endpoint;
-    endpoint.setPortNumber(port);
-
-    return this->listen(endpoint,
-                        backlog,
-                        serverId,
-                        reuseAddress,
-                        readEnabledFlag,
-                        e_CLOSE_BOTH,
-                        e_IS_TIMED,
-                        timeout,
-                        socketOptions,
-                        platformErrorCode);
-}
-
-int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
-                        int                         backlog,
-                        int                         serverId,
-                        int                         reuseAddress,
-                        bool                        readEnabledFlag,
-                        const btlso::SocketOptions *socketOptions,
-                        int                        *platformErrorCode)
-{
-    enum { e_IS_NOT_TIMED = 0 };
-
-    return this->listen(endpoint,
-                        backlog,
-                        serverId,
-                        reuseAddress,
-                        readEnabledFlag,
-                        e_CLOSE_BOTH,
-                        e_IS_NOT_TIMED,
-                        bsls::TimeInterval(),
-                        socketOptions,
-                        platformErrorCode);
-}
-
-int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
-                        int                         backlog,
-                        int                         serverId,
-                        const bsls::TimeInterval&   timeout,
-                        int                         reuseAddress,
-                        bool                        readEnabledFlag,
-                        KeepHalfOpenMode            mode,
-                        const btlso::SocketOptions *socketOptions,
-                        int                        *platformErrorCode)
-{
-    enum { e_IS_TIMED = 1 };
-
-    return this->listen(endpoint,
-                        backlog,
-                        serverId,
-                        reuseAddress,
-                        readEnabledFlag,
-                        mode,
-                        e_IS_TIMED,
-                        timeout,
-                        socketOptions,
-                        platformErrorCode);
-}
-
-                         // *** Client-related section
-
-int ChannelPool::connect(
-                    const char                *hostname,
-                    int                        portNumber,
-                    int                        numAttempts,
-                    const bsls::TimeInterval&  interval,
-                    int                        sourceId,
-                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                              *socket,
-                    ConnectResolutionMode      resolutionMode,
-                    bool                       readEnabledFlag,
-                    KeepHalfOpenMode           halfCloseMode,
-                    int                       *platformErrorCode)
-{
-    BSLS_ASSERT(0 < numAttempts);
-    BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
-
-    if (0 != socket
-     && 0 != (*socket)->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
-        if (platformErrorCode) {
-            *platformErrorCode = getPlatformErrorCode();
-        }
-        return e_SET_NONBLOCKING_FAILED;                              // RETURN
-    }
-
-    return connectImp(hostname,
-                      portNumber,
-                      numAttempts,
-                      interval,
-                      sourceId,
-                      socket,
-                      resolutionMode,
-                      readEnabledFlag,
-                      halfCloseMode,
-                      0,
-                      0,
-                      platformErrorCode);
-}
-
-int ChannelPool::connect(
-                    const btlso::IPv4Address&  serverAddress,
-                    int                        numAttempts,
-                    const bsls::TimeInterval&  interval,
-                    int                        sourceId,
-                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                              *socket,
-                    bool                       readEnabledFlag,
-                    KeepHalfOpenMode           mode,
-                    int                       *platformErrorCode)
-{
-    BSLS_ASSERT(0 < numAttempts);
-    BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
-
-    if (0 != socket
-     && 0 != (*socket)->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
-        if (platformErrorCode) {
-            *platformErrorCode = getPlatformErrorCode();
-        }
-        return e_SET_NONBLOCKING_FAILED;                              // RETURN
-    }
-
-    return connectImp(serverAddress,
-                      numAttempts,
-                      interval,
-                      sourceId,
-                      socket,
-                      readEnabledFlag,
-                      mode,
-                      0,
-                      0,
-                      platformErrorCode);
-}
-
-int ChannelPool::connectImp(
-                    const char                 *serverName,
-                    int                         portNumber,
-                    int                         numAttempts,
-                    const bsls::TimeInterval&   interval,
-                    int                         clientId,
-                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                               *socket,
-                    ConnectResolutionMode       resolutionMode,
-                    bool                        readEnabledFlag,
-                    KeepHalfOpenMode            keepHalfOpenMode,
-                    const btlso::SocketOptions *socketOptions,
-                    const btlso::IPv4Address   *localAddress,
-                    int                        *platformErrorCode)
-{
-    BSLS_ASSERT(0 == socketOptions || (0 == socket && 0 == localAddress));
+    BSLS_ASSERT(bsls::TimeInterval(0) < connectOptions.timeout()
+             || 1 == connectOptions.numAttempts());
 
     if (!d_startFlag) {
         if (platformErrorCode) {
             *platformErrorCode = 0;
         }
         return e_NOT_RUNNING;                                         // RETURN
+    }
+
+    if (0 != connectOptions.socketPtr()
+     && 0 != (*connectOptions.socketPtr())->setBlockingMode(
+                                            btlso::Flag::e_NONBLOCKING_MODE)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
+        return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
 
     bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
@@ -3793,120 +3693,59 @@ int ChannelPool::connectImp(
     TcpTimerEventManager *manager = allocateEventManager();
     BSLS_ASSERT(manager);
 
+    const ConnectOptions::ServerEndpoint& endpoint =
+                                               connectOptions.serverEndpoint();
+
     btlso::IPv4Address serverAddress;
+    int                portNumber;
     bool               resolutionFlag;
 
-    if (e_RESOLVE_ONCE == resolutionMode) {
-        int errorCode = 0;
-        if (btlso::ResolveUtil::getAddress(&serverAddress,
-                                           serverName,
-                                           &errorCode)) {
-            if (platformErrorCode) {
-                *platformErrorCode = errorCode;
+    if (endpoint.is<btlso::Endpoint>()) {
+        const btlso::Endpoint& peer = endpoint.the<btlso::Endpoint>();
+        if (btlmt::ResolutionMode::e_RESOLVE_ONCE ==
+                                             connectOptions.resolutionMode()) {
+            int errorCode = 0;
+            if (btlso::ResolveUtil::getAddress(&serverAddress,
+                                               peer.hostname().c_str(),
+                                               &errorCode)) {
+                if (platformErrorCode) {
+                    *platformErrorCode = errorCode;
+                }
+                return e_FAILED_RESOLUTION;                           // RETURN
             }
-            return e_FAILED_RESOLUTION;                               // RETURN
+            serverAddress.setPortNumber(peer.port());
+            resolutionFlag = false;
         }
-        resolutionFlag = false;
+        else {
+            BSLS_ASSERT(btlmt::ResolutionMode::e_RESOLVE_EACH_TIME ==
+                                              connectOptions.resolutionMode());
+            serverAddress.setPortNumber(peer.port());
+            resolutionFlag = true;
+        }
     }
     else {
-        BSLS_ASSERT(e_RESOLVE_AT_EACH_ATTEMPT == resolutionMode);
-        resolutionFlag = true;
+        resolutionFlag = false;
+        serverAddress = endpoint.the<btlso::IPv4Address>();
     }
 
     bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> > socket_sp;
-    if (socket) {
-        socket_sp = bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >(
-                                                     *socket,
-                                                     &d_sharedPtrRepAllocator);
+    if (connectOptions.socketPtr()) {
+        socket_sp = StreamSocketSharedPtr(
+             *const_cast<StreamSocketManagedPtr *>(connectOptions.socketPtr()),
+             &d_sharedPtrRepAllocator);
     }
 
-    bsl::pair<ConnectorMap::iterator,bool> idx_status =
-                 d_connectors.insert(bsl::make_pair(clientId,
-                                                    Connector(socket_sp,
-                                                              manager,
-                                                              numAttempts,
-                                                              interval,
-                                                              readEnabledFlag,
-                                                              keepHalfOpenMode,
-                                                              socketOptions,
-                                                              localAddress)));
+    bsl::pair<ConnectorMap::iterator,bool> idx_status = d_connectors.insert(
+                          bsl::make_pair(clientId, Connector(socket_sp,
+                                                             manager,
+                                                             connectOptions)));
     idx = idx_status.first;
     BSLS_ASSERT(idx_status.second);
 
     Connector& cs = idx->second;
 
-    cs.d_serverName     = serverName;
     cs.d_serverAddress  = serverAddress;
-    cs.d_serverAddress.setPortNumber(portNumber);  // never overwritten
     cs.d_resolutionFlag = resolutionFlag;
-
-    cGuard.release()->unlock();
-
-    bsl::function<void()> connectFunctor(bdlf::BindUtil::bind(
-                                               &ChannelPool::connectInitiateCb,
-                                               this,
-                                               idx));
-
-    manager->execute(connectFunctor);
-
-    return ChannelStatus::e_SUCCESS;
-}
-
-int ChannelPool::connectImp(
-                    const btlso::IPv4Address&   server,
-                    int                         numAttempts,
-                    const bsls::TimeInterval&   interval,
-                    int                         clientId,
-                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                               *socket,
-                    bool                        readEnabledFlag,
-                    KeepHalfOpenMode            mode,
-                    const btlso::SocketOptions *socketOptions,
-                    const btlso::IPv4Address   *localAddress,
-                    int                        *platformErrorCode)
-{
-    BSLS_ASSERT(0 == socketOptions || 0 == socket);
-
-    if (!d_startFlag) {
-        if (platformErrorCode) {
-            *platformErrorCode = 0;
-        }
-        return e_NOT_RUNNING;                                         // RETURN
-    }
-
-    bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
-
-    ConnectorMap::iterator idx = d_connectors.find(clientId);
-    if (idx != d_connectors.end()) {
-        if (platformErrorCode) {
-            *platformErrorCode = 0;
-        }
-        return e_DUPLICATE_ID;                                        // RETURN
-    }
-
-    TcpTimerEventManager *manager = allocateEventManager();
-    BSLS_ASSERT(manager);
-
-    bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> > socket_sp;
-    if (socket) {
-        socket_sp = bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >(
-                                                     *socket,
-                                                     &d_sharedPtrRepAllocator);
-    }
-
-    bsl::pair<ConnectorMap::iterator,bool> idx_status =
-                  d_connectors.insert(bsl::make_pair(clientId,
-                                                     Connector(socket_sp,
-                                                               manager,
-                                                               numAttempts,
-                                                               interval,
-                                                               readEnabledFlag,
-                                                               mode,
-                                                               socketOptions,
-                                                               localAddress)));
-    idx = idx_status.first;
-    BSLS_ASSERT(idx_status.second);
-    idx->second.d_serverAddress = server;
 
     cGuard.release()->unlock();
 
@@ -3977,7 +3816,7 @@ int ChannelPool::import(
                                      *streamSocket,
                     int               sourceId,
                     bool              readEnabledFlag,
-                    KeepHalfOpenMode  mode)
+                    bool              allowHalfOpenConnections)
 {
     enum {
         e_CHANNEL_LIMIT = -1,
@@ -3995,16 +3834,16 @@ int ChannelPool::import(
     StreamSocket             *pointer = streamSocket->release(&deleter);
 
     bsl::function<void()> importFunctor(
-                                   bdlf::BindUtil::bind(&ChannelPool::importCb,
-                                                        this,
-                                                        pointer,
-                                                        deleter,
-                                                        manager,
-                                                        manager,
-                                                        sourceId,
-                                                        readEnabledFlag,
-                                                        mode,
-                                                        true));
+                                 bdlf::BindUtil::bind(&ChannelPool::importCb,
+                                                      this,
+                                                      pointer,
+                                                      deleter,
+                                                      manager,
+                                                      manager,
+                                                      sourceId,
+                                                      readEnabledFlag,
+                                                      allowHalfOpenConnections,
+                                                      true));
 
     manager->execute(importFunctor);
     return e_SUCCESS;
@@ -4033,15 +3872,10 @@ int ChannelPool::shutdown(int                       channelId,
     }
     BSLS_ASSERT(channelHandle);
 
-    ChannelDownMask channelDownMask = e_CLOSED_BOTH_MASK;
-    if (btlso::Flag::e_SHUTDOWN_RECEIVE == type) {
-        channelDownMask = e_CLOSED_RECEIVE_MASK;
-    }
-    else if (btlso::Flag::e_SHUTDOWN_SEND == type) {
-        channelDownMask = e_CLOSED_SEND_MASK;
-    }
-
     Channel *channel = channelHandle.get();
+
+    ChannelDownMask channelDownMask = channel->getChannelDownMask(type);
+
     if (channel->isChannelDown(channelDownMask)) {
         return e_ALREADY_DEAD;                                        // RETURN
     }
@@ -4942,6 +4776,254 @@ int ChannelPool::numEvents(int index) const
 
     return d_managers[index]->numEvents();
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+int ChannelPool::listen(int                         port,
+                        int                         backlog,
+                        int                         serverId,
+                        int                         reuseAddress,
+                        bool                        readEnabledFlag,
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
+{
+    btlso::IPv4Address endpoint;
+    endpoint.setPortNumber(port);
+
+    return listen(endpoint,
+                  backlog,
+                  serverId,
+                  reuseAddress,
+                  readEnabledFlag,
+                  socketOptions,
+                  platformErrorCode);
+}
+
+int ChannelPool::listen(int                         port,
+                        int                         backlog,
+                        int                         serverId,
+                        const bsls::TimeInterval&   timeout,
+                        int                         reuseAddress,
+                        bool                        readEnabledFlag,
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
+{
+    btlso::IPv4Address endpoint;
+    endpoint.setPortNumber(port);
+
+    return listen(endpoint,
+                  backlog,
+                  serverId,
+                  timeout,
+                  reuseAddress,
+                  readEnabledFlag,
+                  e_CLOSE_BOTH,
+                  socketOptions,
+                  platformErrorCode);
+}
+
+int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
+                        int                         backlog,
+                        int                         serverId,
+                        int                         reuseAddress,
+                        bool                        readEnabledFlag,
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
+{
+    enum {
+        e_AMBIGUOUS_REUSE_ADDRESS = -11
+    };
+
+    if (socketOptions
+     && !socketOptions->reuseAddress().isNull()
+     && (bool) reuseAddress != socketOptions->reuseAddress().value()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
+        return e_AMBIGUOUS_REUSE_ADDRESS;                             // RETURN
+    }
+
+    btlmt::ListenOptions listenOptions;
+
+    listenOptions.setServerAddress(endpoint);
+    listenOptions.setBacklog(backlog);
+    listenOptions.setEnableRead(readEnabledFlag);
+
+    btlso::SocketOptions updatedSocketOptions;
+    if (socketOptions) {
+        updatedSocketOptions = *socketOptions;
+        updatedSocketOptions.setReuseAddress(reuseAddress);
+    }
+    listenOptions.setSocketOptions(updatedSocketOptions);
+
+    return listenImp(serverId, listenOptions, platformErrorCode);
+}
+
+int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
+                        int                         backlog,
+                        int                         serverId,
+                        const bsls::TimeInterval&   timeout,
+                        int                         reuseAddress,
+                        bool                        readEnabledFlag,
+                        KeepHalfOpenMode            mode,
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
+{
+    enum {
+        e_AMBIGUOUS_REUSE_ADDRESS = -11
+    };
+
+    if (socketOptions
+     && !socketOptions->reuseAddress().isNull()
+     && (bool) reuseAddress != socketOptions->reuseAddress().value()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
+        return e_AMBIGUOUS_REUSE_ADDRESS;                             // RETURN
+    }
+
+    btlmt::ListenOptions listenOptions;
+
+    listenOptions.setServerAddress(endpoint);
+    listenOptions.setBacklog(backlog);
+    listenOptions.setTimeout(timeout);
+    listenOptions.setEnableRead(readEnabledFlag);
+    listenOptions.setAllowHalfOpenConnections(static_cast<bool>(mode));
+
+    btlso::SocketOptions updatedSocketOptions;
+    if (socketOptions) {
+        updatedSocketOptions = *socketOptions;
+        updatedSocketOptions.setReuseAddress(reuseAddress);
+    }
+    listenOptions.setSocketOptions(updatedSocketOptions);
+
+    return listenImp(serverId, listenOptions, platformErrorCode);
+}
+
+                         // *** Client-related section
+
+int ChannelPool::connect(const char                *hostname,
+                         int                        portNumber,
+                         int                        numAttempts,
+                         const bsls::TimeInterval&  interval,
+                         int                        sourceId,
+                         StreamSocketManagedPtr    *socket,
+                         ConnectResolutionMode      resolutionMode,
+                         bool                       readEnabledFlag,
+                         KeepHalfOpenMode           halfCloseMode,
+                         int                       *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    btlso::Endpoint serverAddress(hostname, portNumber);
+
+    connectOptions.setServerEndpoint(serverAddress);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    connectOptions.setSocketPtr(socket);
+    connectOptions.setResolutionMode(
+                     static_cast<btlmt::ResolutionMode::Enum>(resolutionMode));
+    connectOptions.setEnableRead(readEnabledFlag);
+    connectOptions.setAllowHalfOpenConnections(
+                                             static_cast<bool>(halfCloseMode));
+
+    return connectImp(sourceId, connectOptions, platformErrorCode);
+}
+
+int ChannelPool::connect(const char                 *hostname,
+                         int                         portNumber,
+                         int                         numAttempts,
+                         const bsls::TimeInterval&   interval,
+                         int                         sourceId,
+                         ConnectResolutionMode       resolutionMode,
+                         bool                        readEnabledFlag,
+                         KeepHalfOpenMode            closeMode,
+                         const btlso::SocketOptions *socketOptions,
+                         const btlso::IPv4Address   *localAddress,
+                         int                        *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    btlso::Endpoint endpoint(hostname, portNumber);
+    connectOptions.setServerEndpoint(endpoint);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    connectOptions.setEnableRead(readEnabledFlag);
+    connectOptions.setAllowHalfOpenConnections(static_cast<bool>(closeMode));
+    connectOptions.setResolutionMode(
+                     static_cast<btlmt::ResolutionMode::Enum>(resolutionMode));
+    if (socketOptions) {
+        connectOptions.setSocketOptions(*socketOptions);
+    }
+    if (localAddress) {
+        connectOptions.setLocalAddress(*localAddress);
+    }
+
+    return connectImp(sourceId, connectOptions, platformErrorCode);
+}
+
+int ChannelPool::connect(const btlso::IPv4Address&  serverAddress,
+                         int                        numAttempts,
+                         const bsls::TimeInterval&  interval,
+                         int                        sourceId,
+                         StreamSocketManagedPtr    *socket,
+                         bool                       readEnabledFlag,
+                         KeepHalfOpenMode           mode,
+                         int                       *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    connectOptions.setServerEndpoint(serverAddress);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    connectOptions.setSocketPtr(socket);
+    connectOptions.setEnableRead(readEnabledFlag);
+    connectOptions.setAllowHalfOpenConnections(static_cast<bool>(mode));
+
+    return connectImp(sourceId, connectOptions, platformErrorCode);
+}
+
+int ChannelPool::connect(const btlso::IPv4Address&   serverAddress,
+                         int                         numAttempts,
+                         const bsls::TimeInterval&   interval,
+                         int                         sourceId,
+                         bool                        readEnabledFlag,
+                         KeepHalfOpenMode            mode,
+                         const btlso::SocketOptions *socketOptions,
+                         const btlso::IPv4Address   *localAddress,
+                         int                        *platformErrorCode)
+{
+    btlmt::ConnectOptions connectOptions;
+
+    connectOptions.setServerEndpoint(serverAddress);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+    connectOptions.setEnableRead(readEnabledFlag);
+    connectOptions.setAllowHalfOpenConnections(static_cast<bool>(mode));
+    if (socketOptions) {
+        connectOptions.setSocketOptions(*socketOptions);
+    }
+    if (localAddress) {
+        connectOptions.setLocalAddress(*localAddress);
+    }
+
+    return connectImp(sourceId, connectOptions, platformErrorCode);
+}
+
+int ChannelPool::import(
+                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                     *streamSocket,
+                    int               sourceId,
+                    bool              readEnabledFlag,
+                    KeepHalfOpenMode  mode)
+{
+    return import(streamSocket,
+                  sourceId,
+                  readEnabledFlag,
+                  static_cast<bool>(mode));
+}
+
+#endif
 
                      // -----------------------------
                      // class ChannelPool_MessageUtil

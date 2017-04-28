@@ -850,6 +850,7 @@ my_Server::~my_Server()
          iter != d_channelMap.end(); ++iter) {
         d_allocator_p->deleteObject(iter->second);
     }
+    d_channelPool_p->stopAndRemoveAllChannels();
     d_allocator_p->deleteObject(d_channelPool_p);
 }
 
