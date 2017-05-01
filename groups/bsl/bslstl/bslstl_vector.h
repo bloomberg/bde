@@ -4868,6 +4868,10 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
                                             ContainerBase::allocator());
         this->d_dataEnd_p = this->d_dataBegin_p + newSize;
     }
+    else if (this->d_capacity == 0) {
+        Vector_Imp temp(newSize, this->get_allocator());
+        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+    }
     else {
         if (newSize > this->d_capacity) {
             const size_type maxSize = max_size();
