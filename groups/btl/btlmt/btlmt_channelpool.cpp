@@ -3697,7 +3697,6 @@ int ChannelPool::connectImp(int                    clientId,
                                                connectOptions.serverEndpoint();
 
     btlso::IPv4Address serverAddress;
-    int                portNumber;
     bool               resolutionFlag;
 
     if (endpoint.is<btlso::Endpoint>()) {
