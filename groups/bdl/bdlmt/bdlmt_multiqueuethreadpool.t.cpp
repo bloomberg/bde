@@ -678,6 +678,7 @@ struct StressJob {
 int StressJob::s_count = 0;
 
 namespace mqpoolperf {
+
 class MQPoolPerformance {
     // This class performs the various performance tests
 
@@ -695,9 +696,9 @@ class MQPoolPerformance {
         // threads are first, writers after.
 
     typedef struct WorkData {
-        RunFunc           d_func;
+        RunFunc            d_func;
         MQPoolPerformance *d_poolperf_p;
-        VecIntType        d_data;
+        VecIntType         d_data;
     } WorkData;
 
   private:
@@ -737,9 +738,6 @@ class MQPoolPerformance {
         // specified 'args' vector.  Return for each thread a triad of elapsed
         // wall time, user time, system time.
 
-    static void* workFunc(void*);
-        // The thread main function.
-
     // NOT IMPLEMENTED
     MQPoolPerformance(const MQPoolPerformance&);
     MQPoolPerformance& operator=(const MQPoolPerformance&);
@@ -766,6 +764,9 @@ class MQPoolPerformance {
         // print the output from the calculation
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        //  Return the allocator used by this object.
+
     int numCalcs() const;
         // Return the number of calculations
 
@@ -867,6 +868,32 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTests(VecIntType&      args
     return ret;
 } // END runTests
 
+extern "C" void *workFunc(void *arg)
+{
+    MQPoolPerformance::WorkData    *wdp
+                         = reinterpret_cast<MQPoolPerformance::WorkData*>(arg);
+    MQPoolPerformance::VecTimeType *pTimes
+        = new MQPoolPerformance::VecTimeType(wdp->d_poolperf_p->allocator());
+
+    MQPoolPerformance::TimeType startWTime = bsls::TimeUtil::getTimer();
+
+    MQPoolPerformance::TimeType startUTime, startSTime;
+    bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
+
+    int rc = wdp->d_func(wdp->d_poolperf_p, wdp->d_data);
+
+    MQPoolPerformance::TimeType endWTime = bsls::TimeUtil::getTimer();
+
+    MQPoolPerformance::TimeType endUTime, endSTime;
+    bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
+
+    pTimes->push_back((endWTime - startWTime) / 1000);
+    pTimes->push_back((endUTime - startUTime) / 1000);
+    pTimes->push_back((endSTime - startSTime) / 1000);
+
+    return pTimes;
+}
+
 MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(VecIntType&       args,
                                                 MQPoolPerformance::RunFunc func)
 {
@@ -929,25 +956,13 @@ void MQPoolPerformance::printResult()
             << d_seSTime / static_cast<double>(d_avgSTime) * 100.0 << "%\n";
 }
 
-void* MQPoolPerformance::workFunc(void* arg)
+// ACCESSORS
+inline
+bslma::Allocator *MQPoolPerformance::allocator() const
 {
-    WorkData    *wdp = reinterpret_cast<WorkData*>(arg);
-    VecTimeType *pTimes = new VecTimeType(wdp->d_poolperf_p->d_allocator_p);
-
-    TimeType startWTime = bsls::TimeUtil::getTimer();
-    TimeType startUTime, startSTime;
-    bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
-    int      rc = wdp->d_func(wdp->d_poolperf_p, wdp->d_data);
-    TimeType endWTime = bsls::TimeUtil::getTimer();
-    TimeType endUTime, endSTime;
-    bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
-    pTimes->push_back((endWTime - startWTime) / 1000);
-    pTimes->push_back((endUTime - startUTime) / 1000);
-    pTimes->push_back((endSTime - startSTime) / 1000);
-    return pTimes;
+    return d_allocator_p;
 }
 
-// ACCESSORS
 inline
 int MQPoolPerformance::numCalcs() const
 {

@@ -220,7 +220,7 @@ struct FieldType {
         e_DATETIME          =  7,
         e_DATETIMETZ        =  8,
         e_DATE              =  9,
-        e_TIME              =  10,
+        e_TIME              =  10
     };
 };
 

@@ -171,7 +171,7 @@ enum {
     k_SHORT_RANGE_MIN_SERIAL    =  620183,  // 1699/01/01
     k_SHORT_RANGE_MAX_SERIAL    =  803898,  // 2201/12/31
 
-    k_SHORT_RANGE_MIN_DAYOFWEEK =       5,  // 1699/01/01 was a Thursday.
+    k_SHORT_RANGE_MIN_DAYOFWEEK =       5   // 1699/01/01 was a Thursday.
 };
 
 // ============================================================================

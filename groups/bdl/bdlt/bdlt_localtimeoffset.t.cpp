@@ -170,7 +170,9 @@ bsls::TimeInterval f2(const bdlt::Datetime& /* utcDatetime */)
     return bsls::TimeInterval(17, 2);
 }
 
-typedef void *(*ThreadFunction)(void *);  // type of a thread function
+extern "C" {
+    typedef void *(*ThreadFunction)(void *);  // type of a thread function
+}
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
