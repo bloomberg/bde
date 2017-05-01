@@ -1265,7 +1265,7 @@ void callback(int *r, int *p, int *t, int *a, const char *c)
     ASSERT(-1 == condition.timedWait(&m, bdlt::CurrentTime::now() + 3));
 }
 
-void *setCategory(void *)
+extern "C" void *setCategory(void *)
     // Call 'setCategory' in order to invoke the 'callback' method above.
 {
     manager->setCategory("joe");

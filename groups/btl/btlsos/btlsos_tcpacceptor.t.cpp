@@ -221,7 +221,9 @@ bslma::TestAllocator testAllocator;
 // signal stuff
 #ifdef BSLS_PLATFORM_OS_UNIX
 volatile sig_atomic_t syncWithSigHandler = 0;
-static void signalHandler(int sig)
+
+
+extern "C" void signalHandler(int sig)
     // The signal handler does nothing.
 {
     (void)sig;
@@ -372,7 +374,7 @@ void* threadAsClient(void *arg)
 }
 
 #ifdef BSLS_PLATFORM_OS_SOLARIS
-static void* threadToCloseServer(void *arg)
+extern "C" void *threadToCloseServer(void *arg)
 {
     StreamSocket *serverSocket = (StreamSocket*) arg;
 
@@ -1841,9 +1843,9 @@ int main(int argc, char *argv[]) {
                       bslmt::ThreadUtil::Handle threadHandle;
                       bslmt::ThreadAttributes attributes;
                       int ret = bslmt::ThreadUtil::create(&threadHandle,
-                                                         attributes,
-                                                         threadToCloseServer,
-                                                         server);
+                                                          attributes,
+                                                          threadToCloseServer,
+                                                          server);
                       ASSERT(0 == ret);
 
                       int status = 0;
