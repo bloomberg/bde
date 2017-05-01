@@ -1233,7 +1233,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1313,6 +1313,39 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING UNOWNED HANG ISSUE
+        //
+        // Concerns:
+        //   DRQS 99979290 shows that if a multiqueue thread pool isconstructed
+        //   for a thread pool, and that threadpool is shutdown, operations on
+        //   the multiqueue thread pool hang.
+        //
+        // Plan:
+        //   Incorporate the example from DRQS and show it no longer hangs.
+        //
+        // Testing:
+        //   DRQS 99979290
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "Testing DRQS 99979290" << endl
+                 << "=====================" << endl;
+        }
+
+//        bslma::TestAllocator ta(veryVeryVerbose);
+        bslmt::ThreadAttributes attr;
+        bdlmt::ThreadPool pool(attr, 5, 5, 300);
+        bdlmt::MultiQueueThreadPool mq(&pool);
+        mq.start();
+
+        int queue = mq.createQueue();
+
+        pool.shutdown();
+
+        mq.deleteQueue(queue);
       }  break;
       case 19: {
         // --------------------------------------------------------------------

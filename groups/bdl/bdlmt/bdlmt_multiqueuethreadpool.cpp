@@ -348,7 +348,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
     MultiQueueThreadPool_QueueContext *context;
     int                                     rc = 1;
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
-    if (STATE_RUNNING == d_state.loadRelaxed() &&
+    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled() &&
         0             == d_queueRegistry.find(id, &context)) {
         bslmt::QLockGuard guard(&context->mutex());
         int               status = -1;
@@ -445,7 +445,7 @@ MultiQueueThreadPool::~MultiQueueThreadPool()
 int MultiQueueThreadPool::createQueue()
 {
     int id = 0;
-    if (STATE_RUNNING == d_state.loadRelaxed()) {
+    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled()) {
         MultiQueueThreadPool_QueueContext *context = d_queuePool.getObject();
 
         context->d_processingCb = bdlf::BindUtil::bind(
@@ -492,7 +492,7 @@ int MultiQueueThreadPool::enableQueue(int id)
     MultiQueueThreadPool_QueueContext *context;
     int                                rc = 1;
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
-    if (STATE_RUNNING == d_state.loadRelaxed() &&
+    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled() &&
         0 == d_queueRegistry.find(id, &context)) {
         context->d_queue.enable();
         rc = 0;
@@ -505,7 +505,7 @@ int MultiQueueThreadPool::disableQueue(int id)
     MultiQueueThreadPool_QueueContext *context;
     int                                     rc = 1;
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
-    if (STATE_RUNNING == d_state.loadRelaxed() &&
+    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled() &&
         0 == d_queueRegistry.find(id, &context)) {
         context->d_queue.disable();
         rc = 0;
@@ -517,8 +517,8 @@ bool MultiQueueThreadPool::isEnabled(int id) const
 {
     MultiQueueThreadPool_QueueContext *context = 0;
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
-    return (STATE_RUNNING == d_state.loadRelaxed() &&
-                                    0 == d_queueRegistry.find(id, &context) &&
+    return (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled()
+                                 && 0 == d_queueRegistry.find(id, &context) &&
                                                 context->d_queue.isEnabled());
 }
 
@@ -566,7 +566,8 @@ int MultiQueueThreadPool::start()
 void MultiQueueThreadPool::drain()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_stateLock);
-    if (STATE_STOPPED == d_state.loadRelaxed()) {
+    if (STATE_STOPPED == d_state.loadRelaxed() ||
+        0             == d_threadPool_p->enabled()) {
         return;                                                       // RETURN
     }
 
@@ -590,6 +591,7 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
     MultiQueueThreadPool_QueueContext *context;
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_registryLock);
     if (STATE_RUNNING != d_state.loadRelaxed() ||
+        0 == d_threadPool_p->enabled() ||
         0 != d_queueRegistry.find(id, &context)) {
         return 1;                                                     // RETURN
     }
