@@ -135,17 +135,6 @@ void SessionPoolSessionIterator::operator++()
 
 typedef bsl::shared_ptr<btlmt::SessionPool_Handle> HandlePtr;
 
-static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
-                                btlmt::SessionPool::ConnectResolutionMode mode)
-{
-    if (btlmt::SessionPool::e_RESOLVE_AT_EACH_ATTEMPT == mode) {
-        return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;         // RETURN
-    }
-
-    BSLS_ASSERT(btlmt::SessionPool::e_RESOLVE_ONCE == mode);
-    return btlmt::ChannelPool::e_RESOLVE_ONCE;
-}
-
                           // -----------------
                           // class SessionPool
                           // -----------------
