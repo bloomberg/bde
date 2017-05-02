@@ -91,7 +91,8 @@ short convertMask(uint32_t eventMask)
                 (eventMask & bdlb::BitMaskUtil::eq(EventType::e_READ) &&
                  eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)));
 
-    return (POLLIN * (short)pollinEvents) | (POLLOUT * (short)polloutEvents);
+    return static_cast<short>(  (POLLIN  * static_cast<short>(pollinEvents))
+                              | (POLLOUT * static_cast<short>(polloutEvents)));
 }
 
 static
@@ -101,7 +102,7 @@ inline int dispatchCallbacks(bsl::vector<struct ::pollfd>&  signaled,
 {
     int numCallbacks = 0;
 
-    for (int i = 0; i < rfds && i < signaled.size(); ++i) {
+    for (int i = 0; i < rfds && i < static_cast<int>(signaled.size()); ++i) {
         const struct ::pollfd& currData = signaled[i];
 
         BSLS_ASSERT(currData.revents);
