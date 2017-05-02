@@ -771,14 +771,15 @@ template <class PROTOTYPE, class INSTANCE>
 class MemFnInstance {
     // This class encapsulates a member function pointer having the
     // parameterized 'PROTOTYPE' and a value of the parameterized 'INSTANCE'
-    // type, which can be either a pointer or reference to an associated
-    // instance of the object type referred to by the 'PROTOTYPE', such that
-    // the member function pointer can be invoked on the wrapped instance in
-    // syntactically the same manner as a free function pointer.  Zero to
-    // fourteen additional arguments may be specified depending on the
-    // 'PROTOTYPE'.  Note that whether 'INSTANCE' is a pointer or a reference
-    // is determined by whether it has pointer semantics or not (as determined
-    // by the 'bslmf::HasPointerSemantics' type trait).
+    // type, which can be either be they type of object referred to by the
+    // 'PROTOTYPE', or a pointer to one, such that the member function pointer
+    // can be invoked on the wrapped instance in syntactically the same manner
+    // as a free function pointer.  Zero to fourteen additional arguments may
+    // be specified depending on the 'PROTOTYPE'.  Note that whether 'INSTANCE'
+    // is a pointer or an object is determined by whether it has pointer
+    // semantics or not (as determined by the 'bslmf::HasPointerSemantics' type
+    // trait).  Also note that if 'INSTANCE' is an object that does not have
+    // pointer semantics, 'PROTOTYPE' must be const-qualified.
 
     // PRIVATE TYPES
     typedef bslmf::MemberFunctionPointerTraits<PROTOTYPE> Traits;
