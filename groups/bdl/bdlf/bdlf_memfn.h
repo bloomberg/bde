@@ -771,7 +771,7 @@ template <class PROTOTYPE, class INSTANCE>
 class MemFnInstance {
     // This class encapsulates a member function pointer having the
     // parameterized 'PROTOTYPE' and a value of the parameterized 'INSTANCE'
-    // type, which can be either be they type of object referred to by the
+    // type, which can be either be the type of object referred to by the
     // 'PROTOTYPE', or a pointer to one, such that the member function pointer
     // can be invoked on the wrapped instance in syntactically the same manner
     // as a free function pointer.  Zero to fourteen additional arguments may
