@@ -279,9 +279,8 @@ namespace bdlde {
                                 // -----------
 
 // MANIPULATORS
-void Crc64::update(const void *data, int length)
+void Crc64::update(const void *data, bsl::size_t length)
 {
-    BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || !length);
 
     const unsigned char *d = (const unsigned char *)data;
@@ -298,7 +297,7 @@ void Crc64::update(const void *data, int length)
       case 0: ;
     }
 
-    int n = length / 8;
+    bsl::size_t n = length / 8;
     while (n) {
         tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
         tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);

@@ -96,10 +96,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
-
 
 namespace BloombergLP {
 namespace bdlde {
@@ -145,11 +148,10 @@ class Crc32 {
         // Construct a checksum having the value corresponding to no data
         // having been provided (i.e., having the value 0).
 
-    Crc32(const void *data, int length);
+    Crc32(const void *data, bsl::size_t length);
         // Construct a checksum corresponding to the specified 'data' having
-        // the specified 'length' (in bytes).  The behavior is undefined unless
-        // '0 <= length'.  Note that if 'data' is 0, then 'length' also must
-        // be 0.
+        // the specified 'length' (in bytes).  Note that if 'data' is 0, then
+        // 'length' also must be 0.
 
     Crc32(const Crc32& original);
         // Construct a checksum having the value of the specified 'original'
@@ -185,7 +187,7 @@ class Crc32 {
         // Reset the value of this checksum to the value the default
         // constructor provides.
 
-    void update(const void *data, int length);
+    void update(const void *data, bsl::size_t length);
         // Update the value of this checksum to incorporate the specified
         // 'data' having the specified 'length'.  If the current state is the
         // default state, the resultant value of this checksum is the
@@ -194,8 +196,8 @@ class Crc32 {
         // provided data and has not been subsequently reset, the current state
         // is not the default state and the resultant value is equivalent to
         // applying the CRC-32 algorithm upon the concatenation of all the
-        // provided data.  The behavior is undefined unless '0 <= length'.
-        // Note that if 'data' is 0, then 'length' also must be 0.
+        // provided data.  Note that if 'data' is 0, then 'length' also must be
+        // 0.
 
     // ACCESSORS
     template <class STREAM>
@@ -277,7 +279,7 @@ Crc32::Crc32()
 }
 
 inline
-Crc32::Crc32(const void *data, int length)
+Crc32::Crc32(const void *data, bsl::size_t length)
 : d_crc(0xffffffff)
 {
     update(data, length);
