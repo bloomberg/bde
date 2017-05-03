@@ -2,6 +2,7 @@ bdldfp_decimal
 bdldfp_decimalplatform
 bdldfp_decimalconvertutil
 bdldfp_decimalconvertutil_inteldfp
+bdldfp_decimalformatutil
 bdldfp_decimalimputil
 bdldfp_decimalimputil_decnumber
 bdldfp_decimalimputil_inteldfp
