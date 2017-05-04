@@ -611,7 +611,7 @@ class ThreadPool {
 
     // ACCESSORS
     int enabled() const;
-        // Return the state (enabled or nor) of the thread pool.
+        // Return the state (enabled or not) of the thread pool.
 
     int maxThreads() const;
         // Return the maximum number of threads that are allowed to be running

@@ -109,7 +109,8 @@ using namespace BloombergLP;
 // [10] CONCERN: One 'bdlmt::ThreadPool' can be shared by two MQTPs
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
-// [14] USAGE EXAMPLE 1
+// [20] DRQS 99979290
+// [21] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -1316,26 +1317,25 @@ int main(int argc, char *argv[]) {
       }  break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING UNOWNED HANG ISSUE
+        // TESTING DRQS 99979290
         //
         // Concerns:
-        //   DRQS 99979290 shows that if a multiqueue thread pool isconstructed
-        //   for a thread pool, and that threadpool is shutdown, operations on
-        //   the multiqueue thread pool hang.
+        //: 1 DRQS 99979290 shows that if a multiqueue thread pool is
+        //    constructed for a thread pool, and that threadpool is shutdown,
+        //    operations on the multiqueue thread pool hang.
         //
         // Plan:
-        //   Incorporate the example from DRQS and show it no longer hangs.
+        //: 1 Incorporate the example from DRQS and show it no longer hangs.
         //
         // Testing:
         //   DRQS 99979290
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Testing DRQS 99979290" << endl
+            cout << "TESTING DRQS 99979290" << endl
                  << "=====================" << endl;
         }
 
-//        bslma::TestAllocator ta(veryVeryVerbose);
         bslmt::ThreadAttributes attr;
         bdlmt::ThreadPool pool(attr, 5, 5, 300);
         bdlmt::MultiQueueThreadPool mq(&pool);
