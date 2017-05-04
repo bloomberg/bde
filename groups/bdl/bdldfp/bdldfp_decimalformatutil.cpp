@@ -66,6 +66,35 @@ int formatSign(char *buffer,
 }
 
 template <class SIGNIFICAND>
+int decimalLength(SIGNIFICAND significand)
+    // Compute the length of decimal presentations of the specified
+    // 'significand' value.
+{
+    int len = 1;
+    significand /= 10;
+    while (significand) {
+        significand /= 10;
+        ++len;
+    }
+    return len;
+}
+
+template <class SIGNIFICAND>
+SIGNIFICAND powOf10(int exp)
+    // Compute the value of 10 raised to the specified power 'exp'.  The
+    // behavior is undefined unless 'exp >= 0'.
+{
+    BSLS_ASSERT(exp >= 0);
+
+    SIGNIFICAND res = 1;
+    while (exp) {
+        res *= 10;
+        --exp;
+    }
+    return res;
+}
+
+template <class SIGNIFICAND>
 int printFixed(char        *buffer,
                int          length,
                SIGNIFICAND  significand,
@@ -86,29 +115,26 @@ int printFixed(char        *buffer,
     BSLS_ASSERT(precision >= 0);
     BSLS_ASSERT(significand >= 0);
 
-    int significandLength = 1 + (significand
-                                 ? static_cast<int>(bsl::log10(significand))
-                                 : 0);
-    int pointPos          = significandLength + exponent;
-    int decimalLength     = (pointPos > 0 ? pointPos : sizeof('0'))
+    int significandLength = decimalLength(significand);
+    int pointPos          = significand ? significandLength + exponent : 0;
+    int decimalLen        = (pointPos > 0 ? pointPos : sizeof('0'))
                             + (precision ? sizeof('.') : 0) + precision;
 
-    if (decimalLength <= length) {
+    if (decimalLen <= length) {
 
-        bsl::fill_n(buffer, decimalLength, '0');
+        bsl::fill_n(buffer, decimalLen, '0');
 
-        char *it           = buffer;
-        int   lastDigitPos = pointPos + precision;
+        char *it                 = buffer;
+        int   lessSignificandPos = pointPos + precision;
 
-        if (lastDigitPos < 0) {
+        if (lessSignificandPos <= 0) {
             *++it = point;
-            return decimalLength;
+            return decimalLen;
         }
-        else if (lastDigitPos < significandLength) {
-            significand = significand /= bsl::pow(10,
-                                                  significandLength
-                                                  - lastDigitPos);
-            significandLength = lastDigitPos;
+        else if (lessSignificandPos < significandLength) {
+            significand /= powOf10<SIGNIFICAND>(significandLength
+                                                - lessSignificandPos);
+            significandLength = lessSignificandPos;
         }
 
 
@@ -143,7 +169,7 @@ int printFixed(char        *buffer,
         }
     }
 
-    return decimalLength;
+    return decimalLen;
 }
 
 template <class SIGNIFICAND>
@@ -158,7 +184,51 @@ int printScientific(char        *buffer,
     BSLS_ASSERT(length >= 0);
     BSLS_ASSERT(precision >= 0);
 
-    return 0;
+     return 0;
+
+#if 0
+
+    int significandLength = decimalLength(significand);
+    exponent              = significandLength - 1 + exponent;
+    int exponentLength    = decimalLength(exponent);
+    int decimalLen        = 1
+                            + (precision ? sizeof('.') : 0) + precision
+                            + 2
+                            + exponentLength;
+
+    if (decimalLen <= length) {
+
+        bsl::fill_n(buffer, decimalLen, '0');
+
+        char *it = buffer;
+
+        if (precision < significandLength - 1) {
+            significand /= powOf10<SIGNIFICAND>(significandLength - 1
+                                                - precision);
+            significandLength = precision + 1;
+        }
+
+        it += decimalLen - 1;
+
+        for (char *end = it - exponentLength; it != end; --it) {
+            *it = '0' + exponent % 10;
+            exponent /= 10;
+        }
+        *it-- = (exponent >= 0 ? '+' : '-');
+        *it-- = 'E';
+
+        if (precision) {
+            for (char *end = buffer + 1; it > end; --it) {
+                *it = '0' + significand % 10;
+                significand /= 10;
+            }
+            *it-- = point;
+        }
+        *it = '0' + significand;
+    }
+
+    return decimalLen;
+#endif
 }
 
 template <class DECIMAL>
