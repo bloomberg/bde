@@ -150,7 +150,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
      // myapp.cpp
      int main()
      {
-         ball::TestObserver testObserver(bsl::cout);
+         ball::TestObserver testObserver(&bsl::cout);
 
 //..
 // Now, we load the logger manager 'configuration' with the desired "payload"
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
                  << "===========================================" << endl;
 
         // initialize logger manager
-        BloombergLP::ball::TestObserver testObserver(bsl::cout);
+        BloombergLP::ball::TestObserver testObserver(&bsl::cout);
         ball::LoggerManager::initSingleton(&testObserver);
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 

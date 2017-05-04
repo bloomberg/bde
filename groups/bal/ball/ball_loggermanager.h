@@ -744,9 +744,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 4: Logging using a 'ball::Logger'
 ///- - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using the a 'ball::Logger' directly to log
-// messages.  In practice, clients are encouraged to use the logging macros
-// (see {'ball_log'}, which cannot be shown here for dependency reasons.  The
+// This example demonstrates using a 'ball::Logger' directly to log messages.
+// In practice, clients are encouraged to use the logging macros (see
+// {'ball_log'}, which cannot be shown here for dependency reasons.  The
 // following example assumes logging has been correctly initialized (see prior
 // examples).
 //

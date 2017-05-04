@@ -62,12 +62,12 @@ BSLS_IDENT("$Id: $")
 //                         |              isUserFieldsLoggingEnabled
 //                         |              isPublishInLocalTimeEnabled
 //                         |              isPublicationThreadRunning
+//                         |              getLogFormat
 //                         |              recordQueueLength
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
 //                         |              stdoutThreshold
-//                         |              getLogFormat
 //                         V
 //                  ,--------------.
 //                 ( ball::Observer )
@@ -206,43 +206,56 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The following code fragments illustrate the essentials of using a file
-// observer within a 'ball' logging system.
+// This example demonstrates using a 'ball::AsyncFileObserver' within a 'ball'
+// logging system.
 //
-// First we create a 'ball::AsyncFileObserver' named 'asyncFileObserver' that
-// by default has a queue of records whose maximum length is 8192, and which
-// will drop any incoming record when that queue is full.  Note that the
-// 'ball::AsyncFileObserver' constructor accepts optional arguments specifying
-// both the maximum length of the record queue and the behavior when the queue
-// is full.
-//..
-//  ball::AsyncFileObserver asyncFileObserver;
-//..
-// Then, start the publication thread by invoking 'startPublicationThread':
-//..
-//  asyncFileObserver.startPublicationThread();
-//..
-// Next, the async file observer must then be installed within a 'ball' logging
-// system.  All messages that are published to the logging system will be
-// transmitted to the 'publish' method of 'asyncFileObserver'.  Set the log
-// category once this is done by passing the async file observer object to the
-// 'ball::LoggerManager::initSingleton' method:
+// First, we initialize 'ball' logging subsystem with the default
+// configuration:
 //..
 //  ball::LoggerManagerConfiguration configuration;
-//  ball::LoggerManager::initSingleton(&asyncFileObserver, configuration);
+//  ball::LoggerManagerScopedGuard   guard(configuration);
+//
+//  ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Note that the application is now prepared to log messages using the 'ball'
+// logging subsystem, but until the application registers an observer, all log
+// messages will be discarded.
+//
+// Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
+// 'observerPtr', having default attributes.  Note that default-constructed
+// async observer has an implementation defined size for log record queue and
+// will drop incoming log records when that queue is full.
+//..
+//  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
+//  bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
+//                                       new(*alloc) ball::AsyncFileObserver(),
+//                                       alloc);
+//..
+// Next, we set required logging format by calling the 'setLogFormat' method.
+// The statement below outputs timestamps in ISO 8601 format to a log file and
+// in 'bdlt'-style (default) format to 'stdout':
+//..
+//  observerPtr->setLogFormat("%i %p:%t %s %f:%l %c %m",
+//                            "%d %p:%t %s %f:%l %c %m");
+//..
+// Next, we start the publication thread by invoking 'startPublicationThread':
+//..
+//  observerPtr->startPublicationThread();
+//..
+// Then, we register the async file observer with the logger manager.  Upon
+// successful registration, the observer will start to receive log records via
+// 'publish' method:
+//..
+//  int rc = manager.registerObserver(observerPtr, "asyncObserver");
+//  assert(0 == rc);
+//..
+// Next, we set the log category and log few messages with different logging
+// severity.  By default, only the messages with 'WARN', 'ERROR' or 'FATAL'
+// severity will be logged to 'stdout'.  Note that logging to a file is not
+// enabled by default:
+//..
 //  BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
-//..
-// Then, the logging format can be optionally changed by calling the
-// 'setLogFormat' method.  The statement below outputs timestamps in ISO 8601
-// format to a log file and in 'bdlt'-style (default) format to 'stdout':
-//..
-//  asyncFileObserver.setLogFormat("%i %p:%t %s %f:%l %c %m",
-//                                 "%d %p:%t %s %f:%l %c %m");
-//..
-// Next, log one message to log file and log one message to 'stdout' by
-// specifying different logging severity.  By default, only the messages with
-// 'WARN', 'ERROR' or 'FATAL' severity will be logged to 'stdout'.
-//..
+//
 //  BALL_LOG_INFO << "Will not be published on 'stdout'."
 //                << BALL_LOG_END;
 //  BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
@@ -251,7 +264,7 @@ BSLS_IDENT("$Id: $")
 // Then, change the default severity for logging to 'stdout' by calling the
 // 'setStdoutThreshold' method:
 //..
-//  asyncFileObserver.setStdoutThreshold(ball::Severity::e_INFO);
+//  observerPtr->setStdoutThreshold(ball::Severity::e_INFO);
 //  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
 //                 << BALL_LOG_END;
 //  BALL_LOG_INFO  << "This info will be published on 'stdout'."
@@ -259,43 +272,52 @@ BSLS_IDENT("$Id: $")
 //  BALL_LOG_WARN  << "This warning will be published on 'stdout'."
 //                 << BALL_LOG_END;
 //..
-// Next, enable logging to a file and then specify log file rotation rules
-// based on the size of the log file or its lifetime:
+// Next, we disable logging to 'stdout' and enable logging to a file:
 //..
-//  asyncFileObserver.enableFileLogging("/var/log/task/task.log");
+//  observerPtr->setStdoutThreshold(ball::Severity::e_OFF);
+//
+//  observerPtr->enableFileLogging("/var/log/task/task.log");
 //      // Create and log records to a file named "/var/log/task/task.log".
+//..
+// Note that logs are now asynchronously written to the file.
 //
-//  asyncFileObserver.setStdoutThreshold(ball::Severity::e_OFF);
-//      // Disable 'stdout' logging.
-//
-//  asyncFileObserver.rotateOnSize(1024 * 256);
-//      // Rotate the file when its size becomes greater than or equal to 256
+// Then, we specify rules for log file rotation based on the size and time
+// interval:
+//..
+//  observerPtr->rotateOnSize(1024 * 32);
+//      // Rotate the file when its size becomes greater than or equal to 32
 //      // mega-bytes.
 //
-//  asyncFileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+//  observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //      // Rotate the file every 24 hours.
 //..
-// Notice that, in this configuration the user may end up with multiple log
-// files for a specific day (because of the rotation-on-size rule).
+// Note that in this configuration the user may end up with multiple log files
+// for a specific day (because of the rotation-on-size rule).
 //
-// Now, dynamically disable this feature and file logging:
+// Next, we disable the log rotation logic that is based on log file size and
+// completely disable logging to a file:
 //..
-//  asyncFileObserver.disableSizeRotation();
-//  asyncFileObserver.disableFileLogging();
+//  observerPtr->disableSizeRotation();
+//
+//  observerPtr->disableFileLogging();
 //..
-// Finally, stop the publication thread by explicitly calling the
+// Then, we stop the publication thread by explicitly calling the
 // 'stopPublicationThread' method.  The 'stopPublicationThread' is also invoked
 // when the async file observer is destroyed.
 //..
-//  asyncFileObserver.stopPublicationThread();
+//  observerPtr->stopPublicationThread();
 //..
-// Notice that, the logger manager in which the async file observer is
-// registered must be destroyed before that async file observer does.  On
-// destruction the logger manager calls 'releaseRecords' method of the async
-// file observer to release any queued log record whose memory may be managed
-// by the logger manager.  The 'releaseRecords' method can be used in similar
-// situations where the underlying resources referred to by queued shared
-// pointers need to be released immediately.
+// Note that stopping publication thread and disabling various features of the
+// async observer is not strictly necessary before object destruction.  All
+// resources managed by the async observer will be correctly released when the
+// object is destroyed.
+//
+//  Finally, we can deregister async observer from the 'ball' logging
+//  subsystem entirely (and destroy later):
+//..
+//  rc = manager.deregisterObserver("asyncObserver");
+//  assert(0 == rc);
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -368,6 +390,19 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
+                          // ===============================
+                          // struct AsyncFileObserver_Record
+                          // ===============================
+
+struct AsyncFileObserver_Record {
+    // PRIVATE CLASS STRUCT. For use only by 'ball::AsyncFileObserver'
+    // implementation.  This struct holds the log record and the context,
+    // associated with this record.
+
+    bsl::shared_ptr<const Record> d_record;   // log record
+    Context                       d_context;  // log record's context
+};
+
                           // =======================
                           // class AsyncFileObserver
                           // =======================
@@ -381,12 +416,6 @@ class AsyncFileObserver : public Observer {
     // memory leaked.
 
     // DATA
-    struct AsyncRecord
-    {
-        bsl::shared_ptr<const Record> d_record;
-        Context                       d_context;
-    };
-
     FileObserver                   d_fileObserver;   // forward most public
                                                      // method calls to this
                                                      // file observer member
@@ -394,7 +423,8 @@ class AsyncFileObserver : public Observer {
     bslmt::ThreadUtil::Handle      d_threadHandle;   // handle of asynchronous
                                                      // publication thread
 
-    bdlcc::FixedQueue<AsyncRecord> d_recordQueue;    // queue transmitting
+    bdlcc::FixedQueue<AsyncFileObserver_Record>
+                                   d_recordQueue;    // queue transmitting
                                                      // records to the
                                                      // publication thread
 
@@ -483,12 +513,12 @@ class AsyncFileObserver : public Observer {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit AsyncFileObserver(
-                          Severity::Level   stdoutThreshold = Severity::e_WARN,
-                          bslma::Allocator *basicAllocator  = 0);
+    explicit AsyncFileObserver(bslma::Allocator *basicAllocator  = 0);
+    explicit AsyncFileObserver(Severity::Level   stdoutThreshold,
+                               bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that asynchronously publishes log records
         // both to a log file, and possibly also to 'stdout' if a record's
-        // severity us at least as severe as the optionally specified
+        // severity is at least as severe as the optionally specified
         // 'stdoutThreshold'.  If 'stdoutThreshold' is not specified, log
         // records are published to 'stdout' if their severity is at least as
         // severe as 'Severity::e_WARN'.  Optionally specify a 'basicAllocator'
@@ -509,8 +539,8 @@ class AsyncFileObserver : public Observer {
         // both to a log file, and possibly also to 'stdout', if a record's
         // severity is at least as severe as the specified 'stdoutThreshold',
         // where the timestamp attribute of each published record is written in
-        // local-time if the specified 'publishInLocalTimeFlag' is 'true', and
-        // UTC time otherwise.  Optionally specify a 'basicAllocator' used to
+        // local-time if the specified 'publishInLocalTime' is 'true', and UTC
+        // time otherwise.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Published records are added onto the end
         // of a queue having a maximum length of 8192 records, and then later
@@ -531,12 +561,12 @@ class AsyncFileObserver : public Observer {
                       bslma::Allocator *basicAllocator = 0);
         // Create a file observer that asynchronously publishes log records by
         // enqueuing them onto a record queue having the specified
-        // 'maxRecordQueue' length, where an independent publication thread
+        // 'maxRecordQueueSize' length, where an independent publication thread
         // will later write them both to a log file and possibly also to
-        // 'stdout', if the records' severities are at least as severe as the
+        // 'stdout', if the records' severeties are at least as severe as the
         // specified 'stdoutThreshold', and where the timestamp attribute of
-        // each published record is written in local-time if
-        // 'publishInLocalTimeFlag' is 'true', and UTC otherwise.  Optionally
+        // each published record is written in local-time if the specified
+        // 'publishInLocalTime' is 'true', and UTC otherwise.  Optionally
         // specify 'dropRecordsOnFullQueueThreshold' indicating the severity
         // threshold below which records published when the queue is full will
         // be discarded (records published above this severity will block the
@@ -557,13 +587,13 @@ class AsyncFileObserver : public Observer {
         // Disable file logging for this async file observer.  This method has
         // no effect if file logging is not enabled.
 
-    void disableTimeIntervalRotation();
-        // Disable log file rotation based on periodic time interval for this
-        // file observer.  This method has no effect if
-        // rotation-on-time-interval is not enabled.
+    void disablePublishInLocalTime();
+        // Disable publishing of the timestamp attribute of records in local
+        // time by this async file observer.  This method has no effect if
+        // publishing in local time is not enabled.
 
     void disableSizeRotation();
-        // Disable log file rotation based on log file size for this file
+        // Disable log file rotation based on log file size for this async file
         // observer.  This method has no effect if rotation-on-size is not
         // enabled.
 
@@ -572,10 +602,10 @@ class AsyncFileObserver : public Observer {
         // format when logging to 'stdout'.  This method has no effect if the
         // default long output format for 'stdout' logging is not enabled.
 
-    void disablePublishInLocalTime();
-        // Disable publishing of the timestamp attribute of records in local
-        // time by this async file observer.  This method has no effect if
-        // publishing in local time is not enabled.
+    void disableTimeIntervalRotation();
+        // Disable log file rotation based on periodic time interval for this
+        // async file observer.  This method has no effect if
+        // rotation-on-time-interval is not enabled.
 
     int enableFileLogging(const char *logFilenamePattern);
         // Enable logging of all messages published to this async file observer
@@ -613,6 +643,14 @@ class AsyncFileObserver : public Observer {
         // time by this async file observer.  This method has no effect if
         // publishing in local time is already enabled.
 
+    void forceRotation();
+        // Forcefully perform a log file rotation by this async file observer.
+        // Close the current log file, rename the log file if necessary, and
+        // open a new log file.  See the "Rotated File Naming" section under
+        // @DESCRIPTION in the component-level documentation for details on
+        // filenames of the rotated log files.  This method has no effect if
+        // file logging is not enabled.
+
     using Observer::publish;  // Avoid hiding base class.
 
     void publish(const bsl::shared_ptr<const Record>& record,
@@ -629,14 +667,6 @@ class AsyncFileObserver : public Observer {
         // Discarded records will not be published.  This method should be
         // called to immediately release the resources managed by the shared
         // pointers supplied to 'publish'.
-
-    void forceRotation();
-        // Forcefully perform a log file rotation by this async file observer.
-        // Close the current log file, rename the log file if necessary, and
-        // open a new log file.  See the "Rotated File Naming" section under
-        // @DESCRIPTION in the component-level documentation for details on
-        // filenames of the rotated log files.  This method has no effect if
-        // file logging is not enabled.
 
     void rotateOnSize(int size);
         // Set this async file observer to perform log file rotation when the
@@ -661,6 +691,13 @@ class AsyncFileObserver : public Observer {
         // reference time of 'bdlt::Datetime(1, 1, 1)' and an interval of 24
         // hours would configure a periodic rotation at midnight each day.
 
+    void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
+        // Set the format of log records written to the log file and to
+        // 'stdout' to the specified 'logFileFormat' and 'stdoutFormat',
+        // respectively.  If this method is not called, default formats are
+        // used when publishing log records.  See "Log Record Formatting" under
+        // @DESCRIPTION for details of formatting syntax.
+
     void setOnFileRotationCallback(
               const FileObserver2::OnFileRotationCallback& onRotationCallback);
         // Set the specified 'onRotationCallback' to be invoked after each time
@@ -675,13 +712,6 @@ class AsyncFileObserver : public Observer {
         // observer to the specified 'stdoutThreshold' level.  Note that if the
         // value of 'stdoutThreshold' is 'Severity::e_OFF', logging to 'stdout'
         // is disabled.
-
-    void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
-        // Set the format of log records written to the log file and to
-        // 'stdout' to the specified 'logFileFormat' and 'stdoutFormat',
-        // respectively.  If this method is not called, default formats are
-        // used when publishing log records.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
 
     int shutdownPublicationThread();
         // Stop the publication thread without waiting for remaining log
@@ -702,12 +732,29 @@ class AsyncFileObserver : public Observer {
         // value if there is an error joining the publication thread.
 
     // ACCESSORS
+    void getLogFormat(const char **logFileFormat,
+                      const char **stdoutFormat) const;
+        // Load the format of log records written by this async file observer
+        // to the log file into the specified '*logFileFormat' address and the
+        // format of log records written to 'stdout' into the specified
+        // '*stdoutFormat' address.  See "Log Record Formatting" under
+        // @DESCRIPTION for details of formatting syntax.
+
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this async file
         // observer, and 'false' otherwise.  Load the optionally specified
         // 'result' with the name of the current log file if file logging is
         // enabled, and leave 'result' unmodified otherwise.
+
+    bool isPublicationThreadRunning() const;
+        // Return 'true' if the publication thread is running, and 'false'
+        // otherwise.
+
+    bool isPublishInLocalTimeEnabled() const;
+        // Return 'true' if this async file observer writes the timestamp
+        // attribute of records that it publishes in local time, and 'false'
+        // otherwise.
 
     bool isStdoutLoggingPrefixEnabled() const;
         // Return 'true' if this async file observer uses the default output
@@ -717,14 +764,17 @@ class AsyncFileObserver : public Observer {
         // Return 'true' if the logging of user-defined fields is enabled for
         // this async file observer, and 'false' otherwise.
 
-    bool isPublishInLocalTimeEnabled() const;
-        // Return 'true' if this async file observer writes the timestamp
-        // attribute of records that it publishes in local time, and 'false'
-        // otherwise.
-
-    bool isPublicationThreadRunning() const;
-        // Return 'true' if the publication thread is running, and 'false'
-        // otherwise.
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    bdlt::DatetimeInterval localTimeOffset() const;
+        // [!DEPRECATED!] Use 'bdlt::LocalTimeOffset' instead.
+        //
+        // Return the difference between the local time and UTC time in effect
+        // when this async file observer was constructed.  Note that this value
+        // remains unchanged during the lifetime of this object and therefore
+        // may become incorrect when the difference between the local time and
+        // UTC time changes (e.g., when transitioning into or out of daylight
+        // savings time).
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     int recordQueueLength() const;
         // Return the number of log records currently in this observer's log
@@ -740,29 +790,9 @@ class AsyncFileObserver : public Observer {
         // file rotation by this async file observer if rotation-on-size is in
         // effect, and 0 otherwise.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    bdlt::DatetimeInterval localTimeOffset() const;
-        // [!DEPRECATED!] Use 'bdlt::LocalTimeOffset' instead.
-        //
-        // Return the difference between the local time and UTC time in effect
-        // when this async file observer was constructed.  Note that this value
-        // remains unchanged during the lifetime of this object and therefore
-        // may become incorrect when the difference between the local time and
-        // UTC time changes (e.g., when transitioning into or out of daylight
-        // savings time).
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
     Severity::Level stdoutThreshold() const;
         // Return the minimum severity of messages that will be logged to
         // 'stdout' by this async file observer.
-
-    void getLogFormat(const char **logFileFormat,
-                      const char **stdoutFormat) const;
-        // Load the format of log records written by this async file observer
-        // to the log file into the specified '*logFileFormat' address and the
-        // format of log records written to 'stdout' into the specified
-        // '*stdoutFormat' address.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
 };
 
 // ============================================================================
@@ -781,9 +811,9 @@ void AsyncFileObserver::disableFileLogging()
 }
 
 inline
-void AsyncFileObserver::disableTimeIntervalRotation()
+void AsyncFileObserver::disablePublishInLocalTime()
 {
-    d_fileObserver.disableTimeIntervalRotation();
+    d_fileObserver.disablePublishInLocalTime();
 }
 
 inline
@@ -793,9 +823,33 @@ void AsyncFileObserver::disableSizeRotation()
 }
 
 inline
+void AsyncFileObserver::disableStdoutLoggingPrefix()
+{
+    d_fileObserver.disableStdoutLoggingPrefix();
+}
+
+inline
+void AsyncFileObserver::disableTimeIntervalRotation()
+{
+    d_fileObserver.disableTimeIntervalRotation();
+}
+
+inline
 int AsyncFileObserver::enableFileLogging(const char *logFilenamePattern)
 {
     return d_fileObserver.enableFileLogging(logFilenamePattern);
+}
+
+inline
+void AsyncFileObserver::enablePublishInLocalTime()
+{
+    d_fileObserver.enablePublishInLocalTime();
+}
+
+inline
+void AsyncFileObserver::enableStdoutLoggingPrefix()
+{
+    d_fileObserver.enableStdoutLoggingPrefix();
 }
 
 inline
@@ -826,34 +880,17 @@ void AsyncFileObserver::rotateOnTimeInterval(
 }
 
 inline
+void AsyncFileObserver::setLogFormat(const char *logFileFormat,
+                                     const char *stdoutFormat)
+{
+    d_fileObserver.setLogFormat(logFileFormat, stdoutFormat);
+}
+
+inline
 void AsyncFileObserver::setOnFileRotationCallback(
                const FileObserver2::OnFileRotationCallback& onRotationCallback)
 {
     d_fileObserver.setOnFileRotationCallback(onRotationCallback);
-}
-
-inline
-void AsyncFileObserver::disableStdoutLoggingPrefix()
-{
-    d_fileObserver.disableStdoutLoggingPrefix();
-}
-
-inline
-void AsyncFileObserver::disablePublishInLocalTime()
-{
-    d_fileObserver.disablePublishInLocalTime();
-}
-
-inline
-void AsyncFileObserver::enableStdoutLoggingPrefix()
-{
-    d_fileObserver.enableStdoutLoggingPrefix();
-}
-
-inline
-void AsyncFileObserver::enablePublishInLocalTime()
-{
-    d_fileObserver.enablePublishInLocalTime();
 }
 
 inline
@@ -862,14 +899,14 @@ void AsyncFileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
     d_fileObserver.FileObserver::setStdoutThreshold(stdoutThreshold);
 }
 
+// ACCESSORS
 inline
-void AsyncFileObserver::setLogFormat(const char *logFileFormat,
-                                     const char *stdoutFormat)
+void AsyncFileObserver::getLogFormat(const char **logFileFormat,
+                                     const char **stdoutFormat) const
 {
-    d_fileObserver.setLogFormat(logFileFormat, stdoutFormat);
+    d_fileObserver.getLogFormat(logFileFormat, stdoutFormat);
 }
 
-// ACCESSORS
 inline
 bool AsyncFileObserver::isFileLoggingEnabled() const
 {
@@ -883,35 +920,15 @@ bool AsyncFileObserver::isFileLoggingEnabled(bsl::string *result) const
 }
 
 inline
-bdlt::DatetimeInterval AsyncFileObserver::rotationLifetime() const
+bool AsyncFileObserver::isPublicationThreadRunning() const
 {
-    return d_fileObserver.rotationLifetime();
+    return bslmt::ThreadUtil::invalidHandle() != d_threadHandle;
 }
 
 inline
-int AsyncFileObserver::recordQueueLength() const
+bool AsyncFileObserver::isPublishInLocalTimeEnabled() const
 {
-    return d_recordQueue.length();
-}
-
-inline
-int AsyncFileObserver::rotationSize() const
-{
-    return d_fileObserver.rotationSize();
-}
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
-bdlt::DatetimeInterval AsyncFileObserver::localTimeOffset() const
-{
-    return d_fileObserver.localTimeOffset();
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-inline
-Severity::Level AsyncFileObserver::stdoutThreshold() const
-{
-    return d_fileObserver.stdoutThreshold();
+    return d_fileObserver.isPublishInLocalTimeEnabled();
 }
 
 inline
@@ -926,23 +943,36 @@ bool AsyncFileObserver::isUserFieldsLoggingEnabled() const
     return d_fileObserver.isUserFieldsLoggingEnabled();
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
-bool AsyncFileObserver::isPublishInLocalTimeEnabled() const
+bdlt::DatetimeInterval AsyncFileObserver::localTimeOffset() const
 {
-    return d_fileObserver.isPublishInLocalTimeEnabled();
+    return d_fileObserver.localTimeOffset();
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+inline
+int AsyncFileObserver::recordQueueLength() const
+{
+    return d_recordQueue.length();
 }
 
 inline
-bool AsyncFileObserver::isPublicationThreadRunning() const
+bdlt::DatetimeInterval AsyncFileObserver::rotationLifetime() const
 {
-    return bslmt::ThreadUtil::invalidHandle() != d_threadHandle;
+    return d_fileObserver.rotationLifetime();
 }
 
 inline
-void AsyncFileObserver::getLogFormat(const char **logFileFormat,
-                                     const char **stdoutFormat) const
+int AsyncFileObserver::rotationSize() const
 {
-    d_fileObserver.getLogFormat(logFileFormat, stdoutFormat);
+    return d_fileObserver.rotationSize();
+}
+
+inline
+Severity::Level AsyncFileObserver::stdoutThreshold() const
+{
+    return d_fileObserver.stdoutThreshold();
 }
 
 }  // close package namespace

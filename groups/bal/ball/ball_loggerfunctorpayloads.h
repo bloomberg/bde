@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 //   // myapp.cpp
 //   int main()
 //   {
-//       ball::TestObserver testObserver(bsl::cout);
+//       ball::TestObserver testObserver(&bsl::cout);
 //..
 // Now, we load the logger manager 'configuration' with the desired "payload"
 // function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',

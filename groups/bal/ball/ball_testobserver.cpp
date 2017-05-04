@@ -4,7 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_testobserver_cpp,"$Id$ $CSID$")
 
+#include <ball_recordattributes.h>     // for testing only
 #include <ball_transmission.h>
+#include <ball_userfields.h>           // for testing only
 
 #include <bsl_ostream.h>
 
@@ -33,12 +35,35 @@ void TestObserver::publish(const Record& record, const Context& context)
     ++d_numRecords;
 
     if (d_verboseFlag) {
-        d_stream << "Test Observer ID " << d_count
-                 << " publishing record number " << d_numRecords << '\n'
-                 << "Context: cause = " << context.transmissionCause() << '\n'
-                 << "         count = " << context.recordIndex() + 1
-                 << " of an expected "  << context.sequenceLength()
-                 << " total records.\n" << bsl::flush;
+        *d_stream_p << "Test Observer ID "   << d_id
+                    << " publishing record number "
+                                             << d_numRecords
+                    << "\nContext: cause = " << context.transmissionCause()
+                    << "\n         count = " << context.recordIndex() + 1
+                    << " of an expected "    << context.sequenceLength()
+                    << " total records.\n"   << bsl::flush;
+    }
+}
+
+void TestObserver::publish(const bsl::shared_ptr<const Record>& record,
+                           const Context&                       context)
+{
+    BSLS_ASSERT(record);
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    d_record  = *record;
+    d_context =  context;
+    ++d_numRecords;
+
+    if (d_verboseFlag) {
+        *d_stream_p << "Test Observer ID "   << d_id
+                    << " publishing record number "
+                                             << d_numRecords
+                    << "\nContext: cause = " << context.transmissionCause()
+                    << "\n         count = " << context.recordIndex() + 1
+                    << " of an expected "    << context.sequenceLength()
+                    << " total records.\n"   << bsl::flush;
     }
 }
 

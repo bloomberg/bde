@@ -1824,7 +1824,7 @@ int main(int argc, char *argv[])
         int numBufferedRecords = 0;
 
         bslma::TestAllocator             ta;
-        ball::TestObserver               to(bsl::cout, &ta);
+        ball::TestObserver               to(&bsl::cout, &ta);
         const ball::TestObserver        *TO = &to;
         ball::LoggerManagerConfiguration mXC;
         mXC.setTriggerMarkers(
@@ -2148,7 +2148,7 @@ int main(int argc, char *argv[])
                                                 bsls::Log::logMessageHandler();
         {
             if (veryVerbose) cout << "\tCreate the test observer." << endl;
-            ball::TestObserver observer(cout);
+            ball::TestObserver observer(&cout);
 
             if (veryVerbose) cout << "\tCreate scoped guard." << endl;
             ball::LoggerManagerConfiguration mXC;
@@ -2279,7 +2279,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numBlocksInUse());
         ASSERT(0 == ga.numBlocksInUse());
         {
-            ball::TestObserver observer(bsl::cout, &oa);
+            ball::TestObserver observer(&bsl::cout, &oa);
 
             InitializationVerifier ivPre(false);
             ASSERT(false == Obj::isInitialized());
@@ -2969,7 +2969,7 @@ int main(int argc, char *argv[])
         {
             Logger *logger[NUM_LOGGERS];
             RecBuf *recBuf[NUM_LOGGERS];
-            ball::TestObserver observer(cout);
+            ball::TestObserver observer(&cout);
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) ball::FixedSizeRecordBuffer(BUF_SIZE);
@@ -2995,7 +2995,7 @@ int main(int argc, char *argv[])
 
             Logger *logger[NUM_LOGGERS];
             RecBuf *recBuf[NUM_LOGGERS];
-            ball::TestObserver observer(cout);
+            ball::TestObserver observer(&cout);
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) ball::FixedSizeRecordBuffer(BUF_SIZE);
@@ -3272,7 +3272,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << testNames[a] << endl;
 
-            ball::TestObserver observer(cout);
+            ball::TestObserver observer(&cout);
 
             Cnf nameFilter(&toLower);
 
@@ -4081,7 +4081,7 @@ int main(int argc, char *argv[])
             cout << endl << "CONCERN: USER FIELDS POPULATOR CALLBACK" << endl
                          << "=======================================" << endl;
 
-        ball::TestObserver  observer1Holder(cout);
+        ball::TestObserver  observer1Holder(&cout);
         ball::TestObserver* observer1 = &observer1Holder;
 
         ball::LoggerManagerConfiguration mXC;
@@ -4094,7 +4094,7 @@ int main(int argc, char *argv[])
 
         // Install additional (non-legacy) observer.
         bsl::shared_ptr<ball::TestObserver> observer2(
-                                                 new ball::TestObserver(cout));
+                                                new ball::TestObserver(&cout));
 
         ASSERT(0 == mX.registerObserver(observer2, "observer2"));
 
@@ -4182,7 +4182,7 @@ int main(int argc, char *argv[])
         verifyLoggerManagerDefaults(X, &ga, 0);
 
         bsl::shared_ptr<ball::TestObserver> observer1(
-                                                 new ball::TestObserver(cout));
+                                                new ball::TestObserver(&cout));
 
         ASSERT(0 == mX.registerObserver(observer1, "observer1"));
         ASSERT(0 == X.observer());  // observer is not installed as legacy
@@ -4224,7 +4224,7 @@ int main(int argc, char *argv[])
 
         // Add another observer.
         bsl::shared_ptr<ball::TestObserver> observer2(
-                                                 new ball::TestObserver(cout));
+                                                new ball::TestObserver(&cout));
 
         ASSERT(0 == mX.registerObserver(observer2, "observer2"));
         ASSERT(0 == X.observer());  // observer is not installed as legacy
@@ -4352,7 +4352,7 @@ int main(int argc, char *argv[])
             verifyLoggerManagerDefaults(X, &ga, 0);
 
             bsl::shared_ptr<ball::TestObserver> observer1(
-                                                 new ball::TestObserver(cout));
+                                                new ball::TestObserver(&cout));
 
             ASSERT(0 == mX.registerObserver(observer1, "observer1"));
             ASSERT(0 == X.observer());  // observer is not installed as legacy
@@ -4372,7 +4372,7 @@ int main(int argc, char *argv[])
 
             // Add another observer.
             bsl::shared_ptr<ball::TestObserver> observer2(
-                                                 new ball::TestObserver(cout));
+                                                new ball::TestObserver(&cout));
 
             ASSERT(0 == mX.registerObserver(observer2, "observer2"));
             ASSERT(0 == X.observer());
@@ -4396,7 +4396,7 @@ int main(int argc, char *argv[])
 
             // Add another observer.  Adding to the existing name (no effect).
             bsl::shared_ptr<ball::TestObserver> observer3(
-                                                 new ball::TestObserver(cout));
+                                                new ball::TestObserver(&cout));
 
             ASSERT(0 != mX.registerObserver(observer3, "observer1"));
             ASSERT(0 == X.observer());
@@ -5444,7 +5444,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        ball::TestObserver testObserver(cout);
+        ball::TestObserver testObserver(&cout);
 
         Cnf nameFilter(&toLower);
 
@@ -5614,7 +5614,7 @@ int main(int argc, char *argv[])
                           << "==================================" << endl;
 
         {
-            ball::TestObserver testObserver(cout);
+            ball::TestObserver testObserver(&cout);
             ball::LoggerManagerConfiguration mXC;
 
             ball::LoggerManager::initSingleton(&testObserver, mXC);
@@ -5641,17 +5641,7 @@ int main(int argc, char *argv[])
         //   CONCERN: PERFORMANCE IMPLICATIONS
         // --------------------------------------------------------------------
 
-        Cnf nameFilter(&toLower);
-
-        Obj::DefaultThresholdLevelsCallback
-            thresholdsCallback(&inheritThresholdLevels);
-
-        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
-
         ball::LoggerManagerConfiguration mXC;
-        mXC.setCategoryNameFilterCallback(nameFilter);
-        mXC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mXC.setUserFieldsPopulatorCallback(populator);
 
         ASSERT(false == Obj::isInitialized());
         ball::LoggerManagerScopedGuard lmGuard(mXC);
@@ -5675,16 +5665,26 @@ int main(int argc, char *argv[])
         doPerformanceTest(mX, num_logs, verbose);
         if (verbose) cout << "-----------------------------\n\n" << endl;
 
-        bsl::shared_ptr<PerformanceObserver> observer
+        bsl::shared_ptr<PerformanceObserver> observer1
                                                    (new PerformanceObserver());
 
-        ASSERT(0 == mX.registerObserver(observer, "O1"));
+        ASSERT(0 == mX.registerObserver(observer1, "O1"));
 
         if (verbose) cout << "Single observer." << endl;
         doPerformanceTest(mX, num_logs, verbose);
         if (verbose) cout << "-----------------------------\n\n" << endl;
 
-        ASSERT(0 == mX.registerObserver(observer, "O2"));
+        bsl::shared_ptr<PerformanceObserver> observer2
+                                                   (new PerformanceObserver());
+        ASSERT(0 == mX.registerObserver(observer2, "O2"));
+
+        if (verbose) cout << "Two observers." << endl;
+        doPerformanceTest(mX, num_logs, verbose);
+        if (verbose) cout << "-----------------------------\n\n" << endl;
+
+        bsl::shared_ptr<PerformanceObserver> observer3
+                                                   (new PerformanceObserver());
+        ASSERT(0 == mX.registerObserver(observer3, "O3"));
 
         if (verbose) cout << "Two observers." << endl;
         doPerformanceTest(mX, num_logs, verbose);

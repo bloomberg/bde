@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // object and a logger manager object, and set the default threshold levels of
 // the logger manager object to [191, 95, 63, 31]:
 //..
-//     BloombergLP::ball::TestObserver  testObserver(bsl::cout);
+//     BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
 //     BloombergLP::ball::TestObserver *TO = &testObserver;
 //     ball::LoggerManager::initSingleton(TO);
 //     ball::LoggerManager& lm = ball::LoggerManager::singleton();

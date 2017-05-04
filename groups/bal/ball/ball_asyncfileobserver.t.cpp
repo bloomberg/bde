@@ -1,12 +1,4 @@
 // ball_asyncfileobserver.t.cpp                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_asyncfileobserver.h>
 
 #include <ball_context.h>
@@ -14,19 +6,21 @@
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
-#include <ball_multiplexobserver.h>           // for testing only
-#include <ball_severity.h>                    // for testing only
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_processutil.h>
+
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_localtimeoffset.h>
+
+#include <bslim_testutil.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -42,8 +36,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-
-#include <bsl_c_stdio.h>     // 'tempname'
 #include <bsl_c_stdlib.h>    // 'unsetenv'
 
 #include <sys/types.h>
@@ -77,41 +69,42 @@ using bsl::flush;
 //                                   TEST PLAN
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] ball::AsyncFileObserver(ball::Severity::Level, bslma::Allocator)
-// [ 1] ~ball::AsyncFileObserver()
+// [ 2] AsyncFileObserver(bslma::Allocator)
+// [ 2] AsyncFileObserver(ball::Severity::Level, bslma::Allocator)
+// [ 2] ~ball::AsyncFileObserver()
 //
 // MANIPULATORS
 // [ 1] publish(const ball::Record& record, const ball::Context& context)
 // [ 1] void disableFileLogging()
-// [ 3] void disableTimeIntervalRotation()
-// [ 3] void disableSizeRotation()
+// [ 5] void disableTimeIntervalRotation()
+// [ 5] void disableSizeRotation()
 // [ 1] void disableStdoutLoggingPrefix()
 // [ 1] int enableFileLogging(const char *logFilenamePattern)
 // [ 1] void enableStdoutLoggingPrefix()
-// [ 1] void publish(const bcemt::SharedPtr<const ball::Record>& record,
-//                   const ball::Context& context)
-// [ 2] void releaseRecords()
-// [ 2] void shutdownPublicationThread()
-// [ 3] void forceRotation()
-// [ 3] void rotateOnSize(int size)
-// [ 3] void rotateOnTimeInterval(const bdlt::DatetimeInterval timeInterval)
+// [ 1] void publish(const bsl::shared_ptr<const ball::Record>& record,
+//                   const ball::Context&                       context)
+// [ 4] void releaseRecords()
+// [ 5] void forceRotation()
+// [ 5] void rotateOnSize(int size)
+// [ 5] void rotateOnTimeInterval(const bdlt::DatetimeInterval timeInterval)
 // [ 1] void setStdoutThreshold(ball::Severity::Level stdoutThreshold)
 // [ 1] void setLogFormat(const char*, const char*)
-// [ 1] void startPublicationThread();
-// [ 1] void stopPublicationThread();
+// [ 3] void shutdownPublicationThread()
+// [ 3] void startPublicationThread();
+// [ 3] void stopPublicationThread();
 //
 // ACCESSORS
-// [ 9] int recordQueueLength() const
+// [11] int recordQueueLength() const
 // [ 1] bool isFileLoggingEnabled() const
 // [ 1] bool isStdoutLoggingPrefixEnabled() const
 // [ 1] void getLogFormat(const char**, const char**) const
-// [ 3] bdlt::DatetimeInterval rotationLifetime() const
-// [ 3] int rotationSize() const
+// [ 5] bdlt::DatetimeInterval rotationLifetime() const
+// [ 5] int rotationSize() const
 // [ 1] ball::Severity::Level stdoutThreshold() const
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] CONCERN: CONCURRENT PUBLICATION
-// [10] USAGE EXAMPLE
+// [10] CONCERN: CONCURRENT PUBLICATION
+// [12] USAGE EXAMPLE
 //
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
@@ -120,95 +113,135 @@ using bsl::flush;
 // most other test drivers.  This is necessary because test case 2 plays
 // tricks with cout and examines what is written there.
 
+namespace {
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cerr << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cerr << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-static void aSsErT2(int c, const char *s, int i)
+void aSsErT2(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
+}  // close unnamed namespace
+
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-
-//=============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
-
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-#define P(X) cerr << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cerr << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cerr << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cerr << '\t' << flush;          // Print tab w/o newline.
+static bool verbose;
+static bool veryVerbose;
+static bool veryVeryVerbose;
+static bool veryVeryVeryVerbose;
 
-//=============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0;
-
-typedef ball::AsyncFileObserver Obj;
+typedef ball::AsyncFileObserver      Obj;
+typedef bdls::FilesystemUtil         FsUtil;
+typedef bdls::FilesystemUtil::Offset Offset;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
+
+class TempDirectoryGuard {
+    // This class implements the scoped temporary directory guard.  The
+    // component tries to create a temporary directory in the system-wide temp
+    // directory and falls back to the current directory.
+    bsl::string d_dirName;
+
+  public:
+    // CREATORS
+    TempDirectoryGuard()
+        // Create temporary directory in the current directory.
+    : d_dirName("")
+    {
+        bsl::string tmpPath;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        char tmpPathBuf[MAX_PATH];
+        GetTempPath(MAX_PATH, tmpPathBuf);
+        tmpPath.assign(tmpPathBuf);
+#else
+        const char *envTmpPath = bsl::getenv("TMPDIR");
+        if (envTmpPath) {
+            tmpPath.assign(envTmpPath);
+        }
+#endif
+
+        int res = bdls::PathUtil::appendIfValid(&tmpPath, "ball_");
+        ASSERTV(tmpPath, 0 == res);
+
+        res = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName,
+                                                             tmpPath);
+        ASSERTV(tmpPath, 0 == res);
+    }
+
+    ~TempDirectoryGuard()
+        // Destroy this object and remove temporary directory (recursively)
+        // created at construction.
+    {
+        bdls::FilesystemUtil::remove(d_dirName, true);
+    }
+
+    // ACCESSORS
+    bsl::string getTempDirName() const
+        // Return the name of the created temporary directory.
+    {
+        return d_dirName;
+    }
+};
 
 bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     // Replace the second space character (' ') in the specified 'string' with
@@ -286,50 +319,21 @@ void removeFilesByPrefix(const char *prefix)
     bsl::string filename = prefix;
     filename += "*";
     glob(filename.c_str(), 0, 0, &globbuf);
-    for (int i = 0; i < (int)globbuf.gl_pathc; i++)
+
+    for (int i = 0; i < (int)globbuf.gl_pathc; i++) {
         unlink(globbuf.gl_pathv[i]);
+    }
+
     globfree(&globbuf);
 #endif
 }
 
-bsl::string tempFileName(bool /* verboseFlag */)
-{
-    bsl::string result;
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
-    GetTempPath(MAX_PATH, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, "ball", 0, tmpNameBuf);
-    result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    char tmpPathBuf[L_tmpnam];
-    result = tempnam(tmpPathBuf, "ball");
-#else
-    char *fn = tempnam(0, "ball");
-    if (0 == fn) {
-        ASSERTV("Unable to generate temporary file name", false);
-        return "ball.faketempfile";                                   // RETURN
-    }
-    else {
-        result = fn;
-        bsl::free(fn);
-    }
-#endif
-
-    if (veryVeryVerbose) {
-        cout << "Use " << result << " as a base filename." << endl;
-    }
-    // Test Invariant:
-    BSLS_ASSERT(!result.empty());
-    return result;
-}
-
-bsl::string readPartialFile(bsl::string& fileName, int startOffset)
+bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
     // Read everything after offset the specified 'startOffset' from a file and
     // return it as a string.
 {
     bsl::string result;
-    result.reserve(
-                bdls::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(FsUtil::getFileSize(fileName) + 1 - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
@@ -366,6 +370,88 @@ int countLoggedRecords(const bsl::string& fileName)
 
     return numLines / 2;
 }
+
+void waitEmptyRecordQueue(
+                       bsl::shared_ptr<const ball::AsyncFileObserver> observer)
+{
+    bsls::Stopwatch timer;
+    timer.start();
+
+    do {
+        bslmt::ThreadUtil::microSleep(1000, 0);
+    } while (observer->recordQueueLength() > 0
+             && timer.elapsedTime() < 5);
+
+    ASSERTV(timer.elapsedTime(),
+            observer->recordQueueLength(),
+            0 == observer->recordQueueLength());
+
+    bslmt::ThreadUtil::microSleep(1000, 0);
+}
+
+// Removed with bdlpcre_regex removal.
+#if 0
+int countMatchingRecords(const bsl::string&  fileName,
+                         const char         *pattern,
+                         bool                isNegativePattern = false)
+    // Return the number of lines in the specified 'fileName' matching
+    // the specified regex 'pattern'.  If the optionally specified
+    // 'isNegativePattern' flag is 'true', return instead the number of lines
+    // *not* matching 'pattern'.
+{
+    bsl::string line;
+    int numLines = 0;
+    bsl::ifstream fs;
+    fs.open(fileName.c_str(), bsl::ifstream::in);
+
+    ASSERT(fs.is_open());
+    bdlpcre::RegEx regex;
+    int rc = regex.prepare(0, 0, pattern);
+    BSLS_ASSERT_OPT(0 == rc); // test invariant
+
+    while (getline(fs, line)) {
+        bool matches = 0 == regex.match(line.c_str(), line.length());
+        if (!isNegativePattern == matches) {
+            ++numLines;
+        }
+    }
+    fs.close();
+    return numLines;
+}
+
+int accumulateMatchingRecords(const bsl::string&  fileName,
+                              const char         *pattern)
+    // Apply the specified regex 'pattern', which must contain one
+    // integer-matching subpattern, to each line in the specified 'fileName',
+    // and return the sum of all the values of the subpattern for matching
+    // lines.
+{
+    bsl::string line;
+    int sum = 0;
+    bsl::ifstream fs;
+    fs.open(fileName.c_str(), bsl::ifstream::in);
+
+    ASSERT(fs.is_open());
+    bdlpcre::RegEx regex;
+    int rc = regex.prepare(0, 0, pattern);
+    BSLS_ASSERT_OPT(0 == rc); // test invariant
+    BSLS_ASSERT_OPT(1 == regex.numSubpatterns()); //test invariant
+
+    while (getline(fs, line)) {
+        bsl::vector<bsl::pair<int, int> > result;
+        if(0 == regex.match(&result, line.c_str(), line.length())) {
+            bsl::istringstream iss(line.substr(result[1].first,
+                                               result[1].second));
+            int value = 0;
+            iss >> value;
+            sum += value;
+        }
+    }
+    fs.close();
+    return sum;
+}
+#endif
+
 
 class LogRotationCallbackTester {
     // This class can be used as a functor matching the signature of
@@ -466,7 +552,6 @@ typedef LogRotationCallbackTester RotCb;
 namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
 void executeInParallel(int                                numThreads,
-                       Obj                               *mX,
                        bslmt::ThreadUtil::ThreadFunction  function)
     // Create the specified 'numThreads', each executing the specified 'func'.
 {
@@ -475,8 +560,9 @@ void executeInParallel(int                                numThreads,
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::create(&threads[i], function, mX);
+        bslmt::ThreadUtil::create(&threads[i], function, 0);
     }
+
     for (int i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
     }
@@ -486,10 +572,11 @@ void executeInParallel(int                                numThreads,
 
 extern "C" void *workerThread(void *arg)
 {
-    BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
     (void)arg;
 
-    for (int i = 0;i < 10000; ++i) {
+    BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
+
+    for (int i = 0; i < 10000; ++i) {
         BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test "
                        << BALL_LOG_END;
     }
@@ -498,24 +585,33 @@ extern "C" void *workerThread(void *arg)
 
 extern "C" void *workerThread2(void *arg)
 {
+    (void) arg;
+
     BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
-    Obj *mX = (Obj*)arg;
+
+    bsl::shared_ptr<ball::AsyncFileObserver> observer;
+
+    ASSERT(0 == ball::LoggerManager::singleton().findObserver(
+                                                             &observer,
+                                                             "asyncObserver"));
+
     int ret;
-    for (int i = 0;i < 100; ++i) {
-        ret = mX->startPublicationThread();
+    for (int i = 0; i < 100; ++i) {
+        ret = observer->startPublicationThread();
         ASSERT(0 == ret);
-        for (int j = 0; j < 1000; ++j)
+        for (int j = 0; j < 1000; ++j) {
             BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test "
                            << BALL_LOG_END;
+        }
 
         // Test both stopPublicationThread and shutdownPublicationThread
 
         if (i % 2)
-            ret = mX->stopPublicationThread();
+            ret = observer->stopPublicationThread();
         else
-            ret = mX->shutdownPublicationThread();
+            ret = observer->shutdownPublicationThread();
         ASSERT(0 == ret);
-        ret = mX->startPublicationThread();
+        ret = observer->startPublicationThread();
         ASSERT(0 == ret);
     }
     return 0;
@@ -528,78 +624,161 @@ extern "C" void *workerThread2(void *arg)
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int  test           = argc > 1 ? atoi(argv[1]) : 0;
 
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl << flush;
 
-    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator allocator;
+    bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
         // Concerns:
-        //   The 'Example 1: Publication Through Logger Manager' provided in
-        //   the component header file must compile, link, and run on all
-        //   platforms as shown.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace explicit log file name to
-        //   temporarily created file name.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
-        if (verbose)
-            cout << "\nUsage Example 1: Publication Through Logger Manager"
-                 << "\n==================================================="
-                 << endl;
+        // This is standard preambula to create the directory and filename for
+        // the test.
+        TempDirectoryGuard tempDirGuard;
 
-        bsl::string fileName = tempFileName(veryVerbose);
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-        ball::AsyncFileObserver asyncFileObserver;
-        asyncFileObserver.startPublicationThread();
+///Example 1: Publication Through Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using a 'ball::AsyncFileObserver' within a 'ball'
+// logging system.
+//
+// First, we initialize 'ball' logging subsystem with the default
+// configuration:
+//..
+    ball::LoggerManagerConfiguration configuration;
+    ball::LoggerManagerScopedGuard   guard(configuration);
 
-        ball::LoggerManagerConfiguration configuration;
-        ball::LoggerManager::initSingleton(&asyncFileObserver, configuration);
+    ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Note that the application is now prepared to log messages using the 'ball'
+// logging subsystem, but until the application registers an observer, all log
+// messages will be discarded.
+//
+// Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
+// 'observerPtr', having default attributes.  Note that default-constructed
+// async observer has an implementation defined size for log record queue and
+// will drop incoming log records when that queue is full.
+//..
+    bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
+    bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
+                                         new(*alloc) ball::AsyncFileObserver(),
+                                         alloc);
+//..
+// Next, we set required logging format by calling the 'setLogFormat' method.
+// The statement below outputs timestamps in ISO 8601 format to a log file and
+// in 'bdlt'-style (default) format to 'stdout':
+//..
+    observerPtr->setLogFormat("%i %p:%t %s %f:%l %c %m",
+                              "%d %p:%t %s %f:%l %c %m");
+//..
+// Next, we start the publication thread by invoking 'startPublicationThread':
+//..
+    observerPtr->startPublicationThread();
+//..
+// Then, we register the async file observer with the logger manager.  Upon
+// successful registration, the observer will start to receive log records
+// via 'publish' method:
+//..
+    int rc = manager.registerObserver(observerPtr, "asyncObserver");
+    ASSERT(0 == rc);
+//..
+// Next, we set the log category and log few messages with different logging
+// severity.  By default, only the messages with 'WARN', 'ERROR' or 'FATAL'
+// severity will be logged to 'stdout'.  Note that logging to a file is not
+// enabled by default:
+//..
+    BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-        BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
+    BALL_LOG_INFO << "Will not be published on 'stdout'."
+                  << BALL_LOG_END;
+    BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
+                  << BALL_LOG_END;
+//..
+// Then, change the default severity for logging to 'stdout' by calling the
+// 'setStdoutThreshold' method:
+//..
+    observerPtr->setStdoutThreshold(ball::Severity::e_INFO);
+    BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
+                   << BALL_LOG_END;
+    BALL_LOG_INFO  << "This info will be published on 'stdout'."
+                   << BALL_LOG_END;
+    BALL_LOG_WARN  << "This warning will be published on 'stdout'."
+                   << BALL_LOG_END;
+//..
+// Next, we disable logging to 'stdout' and enable logging to a file:
+//..
+    observerPtr->setStdoutThreshold(ball::Severity::e_OFF);
 
-        asyncFileObserver.setLogFormat("%i %p:%t %s %f:%l %c %m",
-                                       "%d %p:%t %s %f:%l %c %m");
+    observerPtr->enableFileLogging(fileName.c_str());
+        // Create and log records to a file named "/var/log/task/task.log".
+//..
+// Note that logs are now asynchronously written to the file.
+//
+// Then, we specify rules for log file rotation based on the size and time
+// interval:
+//..
+    observerPtr->rotateOnSize(1024 * 32);
+        // Rotate the file when its size becomes greater than or equal to 32
+        // mega-bytes.
 
-        BALL_LOG_INFO << "Will not be published on 'stdout'."
-                      << BALL_LOG_END;
-        BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
-                      << BALL_LOG_END;
+    observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+        // Rotate the file every 24 hours.
+//..
+// Note that in this configuration the user may end up with multiple log files
+// for a specific day (because of the rotation-on-size rule).
+//
+// Next, we disable the log rotation logic that is based on log file size and
+// completely disable logging to a file:
+//..
+    observerPtr->disableSizeRotation();
 
-        asyncFileObserver.setStdoutThreshold(ball::Severity::e_INFO);
-        BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
-                       << BALL_LOG_END;
-        BALL_LOG_INFO  << "This info will be published on 'stdout'."
-                       << BALL_LOG_END;
-        BALL_LOG_WARN  << "This warning will be published on 'stdout'."
-                       << BALL_LOG_END;
-
-        asyncFileObserver.enableFileLogging(fileName.c_str());
-        asyncFileObserver.setStdoutThreshold(ball::Severity::e_OFF);
-        asyncFileObserver.rotateOnSize(1024 * 256);
-        asyncFileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
-        asyncFileObserver.disableSizeRotation();
-        asyncFileObserver.disableFileLogging();
-
-        asyncFileObserver.stopPublicationThread();
-        removeFilesByPrefix(fileName.c_str());
+    observerPtr->disableFileLogging();
+//..
+// Then, we stop the publication thread by explicitly calling the
+// 'stopPublicationThread' method.  The 'stopPublicationThread' is also invoked
+// when the async file observer is destroyed.
+//..
+    observerPtr->stopPublicationThread();
+//..
+// Note that stopping publication thread and disabling various features of the
+// async observer is not strictly necessary before object destruction.  All
+// resources managed by the async observer will be correctly released when the
+// object is destroyed.
+//
+//  Finally, we can deregister async observer from the 'ball' logging
+//  subsystem entirely (and destroy later):
+//..
+    rc = manager.deregisterObserver("asyncObserver");
+    ASSERT(0 == rc);
+//..
       } break;
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING: 'recordQueueLength'
         //  Note that this is a white box text, in that 'recordQueueLength'
@@ -645,7 +824,11 @@ int main(int argc, char *argv[])
             cout << "\tTesting basic 'recordQueueLength' behavior" << endl;
         }
         {
-            bsl::string fileName = tempFileName(veryVerbose);
+            TempDirectoryGuard tempDirGuard;
+
+            bsl::string fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
             enum { MAX_QUEUE_LENGTH = 1024 };
@@ -658,13 +841,13 @@ int main(int argc, char *argv[])
                    &ta);
             const Obj& X = mX;
 
+            bsl::shared_ptr<ball::Record> record;
+            record.createInplace(&ta);
+            record->fixedFields().setSeverity(ERROR);
+            ball::Context context;
+
             for (int i = 0; i < MAX_QUEUE_LENGTH; ++i) {
                 ASSERT(i == X.recordQueueLength());
-
-                bsl::shared_ptr<ball::Record> record;
-                record.createInplace(&ta);
-                record->fixedFields().setSeverity(ERROR);
-                ball::Context context;
 
                 mX.publish(record, context);
             }
@@ -674,33 +857,20 @@ int main(int argc, char *argv[])
 
             mX.startPublicationThread();
 
-
+            // Allow 20 seconds to complete file write.
             bsls::Stopwatch timer;
             timer.start();
-            while (MAX_QUEUE_LENGTH - X.recordQueueLength() <= 5) {
-                bslmt::ThreadUtil::microSleep(100, 0);
-                if (timer.elapsedTime() > 5) {
-                    ASSERTV("Failed to write any log records",
-                            timer.elapsedTime(),
-                            false);
-                }
 
-            }
+            do {
+                bslmt::ThreadUtil::microSleep(1000, 0);
+            } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 20 );
+            timer.stop();
 
-            // Note that stopping the publication thread clears the record
-            // queue, so we capture a snapshot of the queue length, and then
-            // disable publication so we can determine the number of logged
-            // records in the file.
+            ASSERTV(X.recordQueueLength(), 0 == X.recordQueueLength());
+            ASSERTV(timer.elapsedTime(),   timer.elapsedTime() < 20 );
 
             mX.disableFileLogging();
-
             mX.shutdownPublicationThread();
-
-            // After shutting down the publication thread, the queue should be
-            // cleared.
-            ASSERT(0 == X.recordQueueLength());
-
-            removeFilesByPrefix(fileName.c_str());
         }
 
         if (veryVerbose) {
@@ -708,7 +878,11 @@ int main(int argc, char *argv[])
                  << endl;
         }
         {
-            bsl::string fileName = tempFileName(veryVerbose);
+            TempDirectoryGuard tempDirGuard;
+
+            bsl::string fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
             enum { MAX_QUEUE_LENGTH = 10000 };
@@ -724,34 +898,40 @@ int main(int argc, char *argv[])
 
             mX.enableFileLogging(fileName.c_str());
             mX.startPublicationThread();
-            for (int iteration = 0; iteration < NUM_ITERATIONS; ++iteration){
+
+            for (int iteration = 0; iteration < NUM_ITERATIONS; ++iteration) {
+                bsl::shared_ptr<ball::Record> record;
+                record.createInplace(&ta);
+                record->fixedFields().setSeverity(ERROR);
+                ball::Context context;
+
                 for (int i = 0; i < MAX_QUEUE_LENGTH; ++i) {
-                    bsl::shared_ptr<ball::Record> record;
-                    record.createInplace(&ta);
-                    record->fixedFields().setSeverity(ERROR);
-                    ball::Context context;
                     mX.publish(record, context);
                 }
-                int testIteration = 0;
+
+                ASSERTV(X.recordQueueLength(), 0 < X.recordQueueLength());
+
+                // Allow 20 seconds to complete file write.
+                bsls::Stopwatch timer;
+                timer.start();
+
                 int prevQueueLength = X.recordQueueLength();
-                ASSERT(0 < prevQueueLength);
-                while (prevQueueLength > 0) {
+                do {
                     int queueLength = X.recordQueueLength();
                     ASSERT(queueLength <= prevQueueLength);
                     prevQueueLength = queueLength;
-                    ++testIteration;
-                }
-                if (veryVeryVerbose) {
-                    P(testIteration);
-                }
-                ASSERT(0 == X.recordQueueLength());
+                } while (X.recordQueueLength() > 0
+                         && timer.elapsedTime() < 20 );
+                timer.stop();
+
+                ASSERTV(X.recordQueueLength(), 0 == X.recordQueueLength());
+                ASSERTV(timer.elapsedTime(),   timer.elapsedTime() < 20 );
             }
             mX.shutdownPublicationThread();
-            ASSERT(0 == X.recordQueueLength());
-            removeFilesByPrefix(fileName.c_str());
+            mX.disableFileLogging();
         }
       } break;
-      case 8: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING: CONCURRENT PUBLICATION
         //
@@ -774,19 +954,23 @@ int main(int argc, char *argv[])
 
         using namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
 
-        bsl::string fileName = tempFileName(veryVerbose);
+        TempDirectoryGuard tempDirGuard;
+
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "testLog");
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         // Set up a blocking async observer
+        bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN,
+                                            false,
+                                            8192,
+                                            ball::Severity::e_TRACE,
+                                            &ta),
+                                &ta);
+        bsl::shared_ptr<const Obj> X = mX;
 
-        Obj mX(ball::Severity::e_WARN,
-               false,
-               8192,
-               ball::Severity::e_TRACE,
-               &ta);
-        mX.startPublicationThread();
-        bslmt::ThreadUtil::microSleep(0, 1);
+        mX->startPublicationThread();
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -794,23 +978,26 @@ int main(int argc, char *argv[])
                                                     ball::Severity::e_TRACE,
                                                     ball::Severity::e_OFF,
                                                     ball::Severity::e_OFF));
-        ball::LoggerManager::initSingleton(&mX, configuration);
 
-        mX.enableFileLogging(fileName.c_str());
+        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-        ASSERT(0 == bdls::FilesystemUtil::getFileSize(fileName));
+        mX->enableFileLogging(fileName.c_str());
+
+        ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+        ASSERT(0 == FsUtil::getFileSize(fileName));
 
         int numThreads = 4;
 
         // First test if concurrent publish is correct, check the total number
         // of lines afterwards
 
-        if (verbose)
-            cout << "Running first concurrency test." << endl;
-        executeInParallel(numThreads, &mX, workerThread);
+        if (verbose) cout << "Running first concurrency test." << endl;
 
-        mX.stopPublicationThread();
-        mX.disableFileLogging();
+        executeInParallel(numThreads, workerThread);
+
+        mX->stopPublicationThread();
+        mX->disableFileLogging();
 
         int numRecords = countLoggedRecords(fileName);
         ASSERT(numRecords == 10000 * numThreads);
@@ -818,17 +1005,16 @@ int main(int argc, char *argv[])
         // Next test if all thread-safe public methods can be called
         // concurrently without crash
 
-        if (verbose)
-            cout << "Running second concurrency test." << endl;
-        executeInParallel(numThreads, &mX, workerThread2);
+        if (verbose) cout << "Running second concurrency test." << endl;
+        executeInParallel(numThreads, workerThread2);
 
-        mX.stopPublicationThread();
+        mX->stopPublicationThread();
+        mX->disableFileLogging();
 
-        mX.disableFileLogging();
-        removeFilesByPrefix(fileName.c_str());
+        ASSERT(0 == manager.deregisterObserver("asyncObserver"));
 
       } break;
-      case 7: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
         //
@@ -860,24 +1046,31 @@ int main(int argc, char *argv[])
                                                     ball::Severity::e_OFF,
                                                     ball::Severity::e_OFF));
 
+        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
-        mX.startPublicationThread();
-        bslmt::ThreadUtil::microSleep(0, 1);
+        bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN, &ta), &ta);
+        bsl::shared_ptr<const Obj> X = mX;
+
+        ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+
+        mX->startPublicationThread();
 
         // Set callback to monitor rotation.
 
         RotCb cb(Z);
-        mX.setOnFileRotationCallback(cb);
+        mX->setOnFileRotationCallback(cb);
 
-        ball::LoggerManager::initSingleton(&mX, configuration);
+        // Create temporary directory for log files.
+        TempDirectoryGuard tempDirGuard;
+        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-        const bsl::string BASENAME = tempFileName(veryVerbose);
-
-        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-        ASSERT(X.isFileLoggingEnabled());
-        ASSERT(0 == cb.numInvocations());
+        ASSERT(0    == mX->enableFileLogging(fileName.c_str()));
+        ASSERT(true == X->isFileLoggingEnabled());
+        ASSERT(0    == cb.numInvocations());
 
         BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
@@ -885,20 +1078,16 @@ int main(int argc, char *argv[])
         {
             // Reset reference start time.
 
-            mX.disableFileLogging();
-
-            // Ensure log file did not exist
-
-            bdls::FilesystemUtil::remove(BASENAME.c_str());
+            mX->disableFileLogging();
 
             bdlt::Datetime refTime = bdlt::CurrentTime::local();
             refTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
-            mX.rotateOnTimeInterval(bdlt::DatetimeInterval(1), refTime);
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+            mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), refTime);
+            ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             bslmt::ThreadUtil::microSleep(0, 1);
-            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
+            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
             bslmt::ThreadUtil::microSleep(0, 3);
 
@@ -912,10 +1101,9 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(0, 1);
             } while (0 == cb.numInvocations() && loopCount++ < 3);
 
-            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
 
-            ASSERT(1 == bdls::FilesystemUtil::exists(
-                                                cb.rotatedFileName().c_str()));
+            ASSERT(true == FsUtil::exists(cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
@@ -923,19 +1111,19 @@ int main(int argc, char *argv[])
         {
             cb.reset();
 
-            mX.disableTimeIntervalRotation();
+            mX->disableTimeIntervalRotation();
             bslmt::ThreadUtil::microSleep(0, 3);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             bslmt::ThreadUtil::microSleep(0, 1);
 
-            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
+            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
         }
-        mX.stopPublicationThread();
-        mX.disableFileLogging();
-        removeFilesByPrefix(BASENAME.c_str());
+        mX->stopPublicationThread();
+        mX->disableFileLogging();
+        ASSERT(0 == manager.deregisterObserver("asyncObserver"));
       } break;
-      case 6: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'setOnFileRotationCallback'
         //
@@ -951,23 +1139,27 @@ int main(int argc, char *argv[])
         //  void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
 
+        // Create temporary directory for log files.
+        TempDirectoryGuard tempDirGuard;
+        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "testLog");
+
         bslma::TestAllocator ta(veryVeryVeryVerbose);
+
         Obj mX(ball::Severity::e_WARN, &ta);
-        bsl::string filename = tempFileName(veryVerbose);
 
         RotCb cb(Z);
         mX.setOnFileRotationCallback(cb);
 
         ASSERT(0 == cb.numInvocations());
 
-        mX.enableFileLogging(filename.c_str());
+        mX.enableFileLogging(fileName.c_str());
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
         mX.disableFileLogging();
-        removeFilesByPrefix(filename.c_str());
       } break;
-      case 5: {
+      case 7: {
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
@@ -991,11 +1183,16 @@ int main(int argc, char *argv[])
                                                   ball::Severity::e_TRACE,
                                                   ball::Severity::e_OFF,
                                                   ball::Severity::e_OFF));
-        ball::MultiplexObserver multiplexObserver;
-        ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
+
+        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        // Create a temporary directory for a log files.
+        TempDirectoryGuard tempDirGuard;
 
         {
-            bsl::string fn = tempFileName(veryVerbose);
+
+            bsl::stringstream os;
 
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_FSIZE, &rlim));
@@ -1008,13 +1205,16 @@ int main(int argc, char *argv[])
             act.sa_flags = 0;
             ASSERT(0 == sigaction(SIGXFSZ, &act, &oact));
 
-            Obj mX(ball::Severity::e_OFF, true, 8192, &ta);
-            const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            bsl::stringstream os;
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF,
+                                                true,
+                                                8192,
+                                                &ta),
+                                    &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            multiplexObserver.registerObserver(&mX);
+            mX->startPublicationThread();
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
@@ -1024,35 +1224,36 @@ int main(int argc, char *argv[])
             // cout, not cerr) from now on and report a summary to cout at the
             // end of this case.
 
-            bsl::string stderrFN = tempFileName(veryVerbose);
-            ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
+            bsl::string stderrFileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&stderrFileName, "strderrLog");
 
-            bsl::string fn_time = fn + bsl::string(".%T");
-            ASSERT2(0 == mX.enableFileLogging(fn_time.c_str()));
-            ASSERT2(X.isFileLoggingEnabled());
-            ASSERT2(1 == mX.enableFileLogging(fn_time.c_str()));
+            ASSERT(stderr == freopen(stderrFileName.c_str(), "w", stderr));
 
-            for (int i = 0 ; i < 40 ;  ++i) {
-                BALL_LOG_TRACE << "log"  << BALL_LOG_END;
+            bsl::string  fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            bsl::string fn_time = fileName + bsl::string(".%T");
+            ASSERT2(0    == mX->enableFileLogging(fn_time.c_str()));
+            ASSERT2(true == X->isFileLoggingEnabled());
+            ASSERT2(1    == mX->enableFileLogging(fn_time.c_str()));
+
+            for (int i = 0; i < 40; ++i) {
+                BALL_LOG_TRACE << "log" << BALL_LOG_END;
             }
 
             // Wait some time for async writing to complete
-
-            bslmt::ThreadUtil::microSleep(0, 1);
+            waitEmptyRecordQueue(X);
 
             fflush(stderr);
             bsl::fstream stderrFs;
-            stderrFs.open(stderrFN.c_str(), bsl::ios_base::in);
+            stderrFs.open(stderrFileName.c_str(), bsl::ios_base::in);
 
             bsl::string line;
             ASSERT2(getline(stderrFs, line)); // we caught an error
 
-            mX.disableFileLogging();
-            multiplexObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
-
-            removeFilesByPrefix(stderrFN.c_str());
-            removeFilesByPrefix(fn.c_str());
+            mX->disableFileLogging();
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
+            mX->stopPublicationThread();
         }
 #else
         if (verbose) {
@@ -1060,7 +1261,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
         // Rotation functions test
         //
@@ -1103,8 +1304,8 @@ int main(int argc, char *argv[])
                                                   ball::Severity::e_OFF,
                                                   ball::Severity::e_OFF));
 
-        ball::MultiplexObserver multiplexObserver;
-        ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
+        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
 #ifdef BSLS_PLATFORM_OS_UNIX
         bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1115,139 +1316,132 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            bsl::string filename = tempFileName(veryVerbose);
+            // Create a temporary directory for log files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(ball::Severity::e_OFF, &ta);  const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            multiplexObserver.registerObserver(&mX);
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF, &ta),
+                                    &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            mX->startPublicationThread();
+
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                bsl::string fn_time = filename + bsl::string(".%T");
-                ASSERT(0 == mX.enableFileLogging(fn_time.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(fn_time.c_str()));
+                bsl::string fn_time = fileName + bsl::string(".%T");
+                ASSERT(0    == mX->enableFileLogging(fn_time.c_str()));
+                ASSERT(true == X->isFileLoggingEnabled());
+                ASSERT(1    == mX->enableFileLogging(fn_time.c_str()));
 
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
-                bsls::Stopwatch timer;
-                timer.start();
+                ASSERT(1    == countLoggedRecords(globbuf.gl_pathv[0]));
+                ASSERT(true == X->isFileLoggingEnabled());
 
-                do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
-
-                {
-                    ASSERT(1 == countLoggedRecords(globbuf.gl_pathv[0]));
-                    globfree(&globbuf);
-                    ASSERT(X.isFileLoggingEnabled());
-                }
+                globfree(&globbuf);
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0) == X.rotationLifetime());
-                mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
+                ASSERT(bdlt::DatetimeInterval(0) == X->rotationLifetime());
+
+                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
+
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
-                                                         X.rotationLifetime());
+                                                        X->rotationLifetime());
+
+                // Wait for [longer than] rotation interval and log new
+                // messages.
                 bslmt::ThreadUtil::microSleep(0, 4);
+
+                // Those logs will go into a file after rotation.
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
-                // Wait up to 3 seconds for the rotation to complete
-
-                loopCount = 0;
-                do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                    glob_t globbuf;
-                    ASSERT(
-                       0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
-                    fileCount = globbuf.gl_pathc;
-                    globfree(&globbuf);
-                } while (fileCount < 2 && loopCount++ < 3);
-
-                // Check that a rotation occurred.
-
-                glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
-                ASSERT(2 == globbuf.gl_pathc);
-
-                // Wait up to 3 seconds for the async logging to complete
-
+                // Wait up to 3 seconds for the rotation to complete.
                 bsls::Stopwatch timer;
                 timer.start();
-
                 do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
+                    bslmt::ThreadUtil::microSleep(1000, 0);
+                    glob_t globbuf;
+                    ASSERT(
+                       0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
+                    fileCount = static_cast<int>(globbuf.gl_pathc);
+                    globfree(&globbuf);
+                } while (fileCount < 2 && timer.elapsedTime() < 3);
+
+                // Check that a rotation occurred.
+                glob_t globbuf;
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERTV(globbuf.gl_pathc, 2 == globbuf.gl_pathc);
+
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
                 // Check the number of lines in the file.
-                {
-                    ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[1]));
-                    globfree(&globbuf);
-                }
+                ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[1]));
+                globfree(&globbuf);
 
-                mX.disableTimeIntervalRotation();
+                mX->disableTimeIntervalRotation();
+
+                // Wait for [longer than] rotation interval and log new
+                // message.
                 bslmt::ThreadUtil::microSleep(0, 4);
+
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
-
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
-                timer.reset();
-                timer.start();
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
-                do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
-
-                {
-                    ASSERT(3 == countLoggedRecords(globbuf.gl_pathv[1]));
-                    globfree(&globbuf);
-                }
+                ASSERT(3 == countLoggedRecords(globbuf.gl_pathv[1]));
+                globfree(&globbuf);
             }
 
             if (verbose) cout << "Testing forced rotation." << endl;
             {
-                bslmt::ThreadUtil::microSleep(0, 2);
-                mX.forceRotation();
+                mX->disableTimeIntervalRotation();
+                mX->forceRotation();
+
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
                 BALL_LOG_INFO  << "log 3" << BALL_LOG_END;
                 BALL_LOG_WARN  << "log 4" << BALL_LOG_END;
 
                 // Check that the rotation occurred.
-
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(3 == globbuf.gl_pathc);
 
-                {
-                    ASSERT(4 == countLoggedRecords(globbuf.gl_pathv[2]));
-                    globfree(&globbuf);
-                }
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
+                ASSERT(4 == countLoggedRecords(globbuf.gl_pathv[2]));
+                globfree(&globbuf);
             }
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
             {
                 bslmt::ThreadUtil::microSleep(0, 2);
-                ASSERT(0 == X.rotationSize());
-                mX.rotateOnSize(1);
-                ASSERT(1 == X.rotationSize());
+                ASSERT(0 == X->rotationSize());
+                mX->rotateOnSize(1);
+                ASSERT(1 == X->rotationSize());
                 for (int i = 0 ; i < 30; ++i) {
                     BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
@@ -1258,7 +1452,7 @@ int main(int argc, char *argv[])
                 }
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(4 <= globbuf.gl_pathc);
 
                 // We are not checking the last one since we do not have any
@@ -1269,7 +1463,7 @@ int main(int argc, char *argv[])
                     fs.open(globbuf.gl_pathv[i + 2], bsl::ifstream::in);
                     fs.clear();
                     ASSERT(fs.is_open());
-                    int fileSize = 0;
+                    bsl::string::size_type fileSize = 0;
                     bsl::string line(&ta);
                     while (getline(fs, line)) {
                         fileSize += line.length() + 1;
@@ -1278,12 +1472,12 @@ int main(int argc, char *argv[])
                     ASSERT(fileSize > 1024);
                 }
 
-                int oldNumFiles = globbuf.gl_pathc;
+                int oldNumFiles = static_cast<int>(globbuf.gl_pathc);
                 globfree(&globbuf);
 
-                ASSERT(1 == X.rotationSize());
-                mX.disableSizeRotation();
-                ASSERT(0 == X.rotationSize());
+                ASSERT(1 == X->rotationSize());
+                mX->disableSizeRotation();
+                ASSERT(0 == X->rotationSize());
 
                 for (int i = 0 ; i < 30; ++i) {
                     BALL_LOG_TRACE << "log" << BALL_LOG_END;
@@ -1292,65 +1486,62 @@ int main(int argc, char *argv[])
 
                 // Verify that no rotation occurred.
 
-                ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(oldNumFiles == (int)globbuf.gl_pathc);
                 globfree(&globbuf);
             }
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(filename.c_str());
-            multiplexObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
+            mX->disableFileLogging();
+            mX->stopPublicationThread();
         }
+
+        // Test with no timestamp.
+        if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            // Test with no timestamp.
+            // Create a temporary directory for log files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            if (verbose) cout << "Test-case infrastructure setup." << endl;
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF, &ta),
+                                    &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            bsl::string filename = tempFileName(veryVerbose);
-
-            Obj mX(ball::Severity::e_OFF, &ta);  const Obj& X = mX;
-            mX.startPublicationThread();
+            mX->startPublicationThread();
             bslmt::ThreadUtil::microSleep(0, 1);
-            multiplexObserver.registerObserver(&mX);
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
+                ASSERT(X->isFileLoggingEnabled());
+                ASSERT(1 == mX->enableFileLogging(fileName.c_str()));
 
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
-                bsls::Stopwatch timer;
-                timer.start();
-                do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
-                {
-                    ASSERT(1 == countLoggedRecords(globbuf.gl_pathv[0]));
-                    globfree(&globbuf);
-                }
-
+                ASSERT(1 == countLoggedRecords(globbuf.gl_pathv[0]));
+                globfree(&globbuf);
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0) ==
-                       X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) == X->rotationLifetime());
 
-                mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
+                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
-                       X.rotationLifetime());
+                       X->rotationLifetime());
+
                 bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -1362,62 +1553,47 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::microSleep(0, 1);
                     glob_t globbuf;
                     ASSERT(
-                       0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-                    fileCount = globbuf.gl_pathc;
+                       0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
+                    fileCount = static_cast<int>(globbuf.gl_pathc);
                     globfree(&globbuf);
                 } while (fileCount < 2 && loopCount++ < 3);
 
                 // Check that a rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
-                bsls::Stopwatch timer;
-                timer.start();
-                do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
-                {
-                    ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[0]));
-                    globfree(&globbuf);
-                }
+                ASSERT(2 == countLoggedRecords(globbuf.gl_pathv[0]));
+                globfree(&globbuf);
 
-
-                mX.disableTimeIntervalRotation();
+                mX->disableTimeIntervalRotation();
                 bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
 
-                ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait for the async logging to complete.
+                waitEmptyRecordQueue(X);
 
-                timer.reset();
-                timer.start();
-                do {
-                    bslmt::ThreadUtil::microSleep(100, 0);
-                } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
-
-                {
-                    ASSERT(3 == countLoggedRecords(globbuf.gl_pathv[0]));
-                    globfree(&globbuf);
-                }
+                ASSERT(3 == countLoggedRecords(globbuf.gl_pathv[0]));
+                globfree(&globbuf);
             }
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(filename.c_str());
-            multiplexObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
+            mX->disableFileLogging();
+            mX->stopPublicationThread();
         }
 #endif
       } break;
-      case -3: // FALL THROUGH
-      case 3: {
+      case -5: // FALL THROUGH
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING NON-BLOCKING AND BLOCKING CALLER THREAD
         //
@@ -1455,91 +1631,109 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta;
 
         int numTestRecords = 40000;
-        ball::MultiplexObserver multiplexObserver;
+
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
                     ball::Severity::e_OFF,
                     ball::Severity::e_TRACE,
                     ball::Severity::e_OFF,
                     ball::Severity::e_OFF));
-        ball::LoggerManagerScopedGuard guard(&multiplexObserver,
-                                             configuration);
-        if (verbose) cerr << "Testing blocking caller thread."
-                          << endl;
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        if (verbose) cerr << "Testing blocking caller thread." << endl;
         {
-            bsl::string fileName = tempFileName(veryVerbose);
+            // Create a temporary directory for log files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            int fixedQueueSize     = 1000;
-            Obj mX(ball::Severity::e_ERROR,
-                   false,
-                   fixedQueueSize,
-                   ball::Severity::e_TRACE,
-                   &ta);
-            const Obj& X = mX;
+            int fixedQueueSize = 1000;
 
-            // Start the publication thread, make sure the publication thread
-            // started
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_ERROR,
+                                                false,
+                                                fixedQueueSize,
+                                                ball::Severity::e_TRACE,
+                                                &ta),
+                                    &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            mX.startPublicationThread();
-            ASSERT(X.isPublicationThreadRunning());
-            bslmt::ThreadUtil::microSleep(0, 1);
+            mX->startPublicationThread();
+            mX->enableFileLogging(fileName.c_str());
 
-            multiplexObserver.registerObserver(&mX);
-            mX.enableFileLogging(fileName.c_str());
+            ASSERT(true == X->isPublicationThreadRunning());
+            ASSERT(true == X->isFileLoggingEnabled());
+
+            ASSERT(0    == manager.registerObserver(mX, "testObserver"));
+
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-            ASSERT(0 == bdls::FilesystemUtil::getFileSize(fileName));
+            ASSERT(0 == FsUtil::getFileSize(fileName));
 
             ball::Context context;
-            for (int i = 0;i < numTestRecords; ++i)
+            for (int i = 0; i < numTestRecords; ++i) {
                 BALL_LOG_TRACE << "This will not be dropped." << BALL_LOG_END;
+            }
 
-            mX.stopPublicationThread();
-            mX.disableFileLogging();
-            multiplexObserver.deregisterObserver(&mX);
+            mX->stopPublicationThread();
+            mX->disableFileLogging();
+
+            ASSERT(false == X->isPublicationThreadRunning());
+            ASSERT(false == X->isFileLoggingEnabled());
+
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
 
             ASSERT(numTestRecords == countLoggedRecords(fileName));
-
-            removeFilesByPrefix(fileName.c_str());
         }
 
         if (verbose) cerr << "Testing non-blocking caller thread."
                           << endl;
         {
-            bsl::string fileName = tempFileName(veryVerbose);
+            // Create a temporary directory for log files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             int fixedQueueSize     = 1000;
-            Obj mX(ball::Severity::e_ERROR,
-                   false,
-                   fixedQueueSize,
-                   &ta);
-            const Obj& X = mX;
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_ERROR,
+                                                false,
+                                                fixedQueueSize,
+                                                &ta),
+                                    &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
             // Start the publication thread, make sure the publication thread
             // started
 
-            mX.startPublicationThread();
-            ASSERT(X.isPublicationThreadRunning());
-            bslmt::ThreadUtil::microSleep(0, 1);
-            multiplexObserver.registerObserver(&mX);
+            mX->startPublicationThread();
+            mX->enableFileLogging(fileName.c_str());
 
-            mX.enableFileLogging(fileName.c_str());
+            ASSERT(true == X->isPublicationThreadRunning());
+            ASSERT(true == X->isFileLoggingEnabled());
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             ball::Context context;
-            for (int i = 0;i < numTestRecords; ++i)
+            for (int i = 0; i < numTestRecords; ++i) {
                 BALL_LOG_TRACE << "This will be dropped." << BALL_LOG_END;
+            }
 
-            mX.stopPublicationThread();
-            mX.disableFileLogging();
-            multiplexObserver.deregisterObserver(&mX);
+            mX->stopPublicationThread();
+            mX->disableFileLogging();
+
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
+
+            ASSERT(numTestRecords >= countLoggedRecords(fileName));
 
             if (0 < test) {
                 removeFilesByPrefix(fileName.c_str());
             }
         }
       } break;
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING RELEASING RECORDS
         //
@@ -1575,26 +1769,32 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta;
 
-        // Redirect stdout to temporary file
+        // Create a temporary directory for log files.
+        TempDirectoryGuard tempDirGuard;
 
-        bsl::string fileName = tempFileName(veryVerbose);
+        // Redirecting stdout to a file.
+        bsl::string        stdoutFileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&stdoutFileName, "stdoutLog");
         {
             const FILE *out = stdout;
-            ASSERT(out == freopen(fileName.c_str(), "w", stdout));
+            ASSERT(out == freopen(stdoutFileName.c_str(), "w", stdout));
             fflush(stdout);
         }
+
         if (verbose)
             cerr << "Testing 'releaseRecords'.\n"
                  << "=========================\n" << endl;
         {
-            Obj mX;  const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            mX->startPublicationThread();
+
+            ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
-            int logCount  = 8000;
+            int logCount = 8000;
             {
                 ball::LoggerManagerConfiguration configuration;
 
@@ -1607,37 +1807,293 @@ int main(int argc, char *argv[])
                             ball::Severity::e_TRACE,
                             ball::Severity::e_OFF,
                             ball::Severity::e_OFF));
-                ball::LoggerManagerScopedGuard guard(&mX, configuration);
+
+                ball::LoggerManagerScopedGuard guard(configuration);
+                ball::LoggerManager& manager =
+                                              ball::LoggerManager::singleton();
+
+                ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
                 BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
                 // Throw fair large amount of logs into the queue
 
-                for (int i = 0;i < logCount;++i)
+                for (int i = 0; i < logCount; ++i)
                 {
                     ball::Context context;
-                    mX.publish(record, context);
+                    mX->publish(record, context);
                 }
 
                 ASSERT(record.use_count() > 1);
 
                 // After this code block the logger manager will be destroyed
-
             }
 
             // The 'releaseRecord' method should clear the queue immediately
 
             ASSERT(record.use_count() == 1);
 
-            mX.stopPublicationThread();
+            mX->stopPublicationThread();
 
             // Check that the records cleared by the 'releaseRecord' do not
             // get published.
 
-            ASSERT(countLoggedRecords(fileName) < logCount);
+            ASSERT(countLoggedRecords(stdoutFileName) < logCount);
         }
         fclose(stdout);
-        removeFilesByPrefix(fileName.c_str());
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING PUBLICATION THREAD
+        //
+        // Concerns:
+        //: 1 Publication thread can be started/stopped and shutdown at any
+        //:   object state.
+        //:
+        //: 2 Shutdown of the publication thread also drain all log records
+        //:   held in the internal queue.
+        //
+        // Plan:
+        //: 1 Start/stop/shutdown the publication thread at various initial
+        //:   object states.
+        //:
+        //: 2 Verify that the after publication thread is shutdown, there are
+        //:   no log records held by the object.
+        //
+        // Testing:
+        //   void startPublicationThread()
+        //   void shutdownPublicationThread();
+        //   void stopPublicationThread()
+        //   bool isPublicationThreadRunning()
+        // --------------------------------------------------------------------
+        if (verbose) cerr << "\nTESTING PUBLICATION THREAD"
+                          << "\n==========================" << endl;
+
+        if (veryVerbose) cerr << "\tTesting thread start/stop." << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+            ASSERT(false == X.isPublicationThreadRunning());
+
+            // Start/stop publication thread.
+            mX.startPublicationThread();
+            ASSERT(true  == X.isPublicationThreadRunning());
+
+            mX.stopPublicationThread();
+            ASSERT(false == X.isPublicationThreadRunning());
+
+            // Double start the publication thread.
+            mX.startPublicationThread();
+            ASSERT(true  == X.isPublicationThreadRunning());
+
+            mX.startPublicationThread();
+            ASSERT(true  == X.isPublicationThreadRunning());
+
+            // Double stop the publication thread.
+            mX.stopPublicationThread();
+            ASSERT(false == X.isPublicationThreadRunning());
+
+            mX.stopPublicationThread();
+            ASSERT(false == X.isPublicationThreadRunning());
+        }
+
+        if (veryVerbose) cerr << "\tTesting thread shutdown." << endl;
+        {
+            Obj mX; const Obj& X = mX;
+
+            ASSERT(false == X.isPublicationThreadRunning());
+
+            mX.shutdownPublicationThread();
+            ASSERT(false == X.isPublicationThreadRunning());
+        }
+        {
+            Obj mX; const Obj& X = mX;
+
+            mX.startPublicationThread();
+            ASSERT(true == X.isPublicationThreadRunning());
+
+            mX.shutdownPublicationThread();
+            ASSERT(false == X.isPublicationThreadRunning());
+            ASSERT(0     == X.recordQueueLength());
+        }
+
+        for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+            const char CONFIG = cfg;
+
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            Obj mX; const Obj& X = mX;
+
+            if (CONFIG == 'b') {
+                mX.startPublicationThread();
+            }
+
+            bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
+                                                 &ta);
+            ball::Context context;
+
+            for (int i = 0; i < 1024; ++i) {
+                mX.publish(record, context);
+            }
+            ASSERTV(CONFIG, 0     != X.recordQueueLength());
+
+            mX.shutdownPublicationThread();
+
+            ASSERTV(CONFIG, false == X.isPublicationThreadRunning());
+            ASSERTV(CONFIG, 0     == X.recordQueueLength());
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING CREATORS
+        //
+        // Concerns:
+        //: 1 An object created with the default and value constructor (with or
+        //:   without a supplied allocator) has the contractually specified
+        //:   value.
+        //:
+        //: 2 If an allocator is NOT supplied to the constructor, the default
+        //:   allocator in effect at the time of construction becomes the
+        //:   object allocator for the resulting object.
+        //:
+        //: 3 If an allocator IS supplied to the constructor, that allocator
+        //:   becomes the object allocator for the resulting object.
+        //:
+        //: 4 Supplying a null allocator address has the same effect as not
+        //:   supplying an allocator.
+        //:
+        //: 5 Supplying an allocator to the constructor has no effect on
+        //:   subsequent object values.
+        //:
+        //: 6 Any memory allocation is from the object allocator.
+        //:
+        //: 7 Every object releases any allocated memory at destruction.
+        //
+        // Plan:
+        //: 1 Using a loop-based approach, construct distinct objects, in turn,
+        //:   but configured differently: (a) without passing an allocator, (b)
+        //:   passing a null allocator address explicitly, and (c) passing the
+        //:   address of a test allocator distinct from the default.  For each
+        //:   of these iterations:  (C-1..8)
+        //:
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
+        //:     the current default allocator (note that a ubiquitous test
+        //:     allocator is already installed as the global allocator).
+        //:
+        //:   2 Use a constructor to dynamically create an object 'X', with its
+        //:     object allocator configured appropriately (see P-1); use a
+        //:     distinct test allocator for the object's footprint.
+        //:
+        //:   4 Use the appropriate test allocators to verify that memory is
+        //:     allocated by the correct allocator.  (C-2..4,6)
+        //:
+        //:   5 Use the individual (as yet unproven) salient attribute
+        //:     accessors to verify the constructed value.  (C-1,5)
+        //:
+        //:   6 Verify that all object memory is released when the object is
+        //:     destroyed.  (C-7)
+        //
+        // Testing:
+        //   AsyncFileObserver(bslma::Allocator *)
+        //   AsyncFileObserver(ball::Severity::Level, bslma::Allocator *)
+        //   ~AsyncFileObserver()
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING CREATORS\n"
+                             "================\n" << endl;
+
+        for (char cfg = 'a'; cfg <= 'f'; ++cfg) {
+            const char CONFIG = cfg;  // how we specify the creator variant
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
+
+            switch (CONFIG) {
+              case 'a': {
+                  if (verbose) {
+                      cout << "\t\tTesting default constructor." << endl;
+                  }
+                  objPtr = new (fa) Obj();
+                  objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                  if (verbose) {
+                      cout << "\t\tTesting constructor with null allocator."
+                           << endl;
+                  }
+                  objPtr = new (fa) Obj((bslma::Allocator *) 0);
+                  objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                  if (verbose) {
+                      cout << "\t\tTesting constructor with no allocator."
+                           << endl;
+                  }
+                  objPtr = new (fa) Obj(ball::Severity::e_WARN);
+                  objAllocatorPtr = &da;
+              } break;
+              case 'd': {
+                  if (verbose) {
+                      cout << "\t\tTesting constructor with null allocator."
+                           << endl;
+                  }
+                  objPtr = new (fa) Obj(ball::Severity::e_WARN,
+                                        (bslma::Allocator *) 0);
+                  objAllocatorPtr = &da;
+              } break;
+              case 'e': {
+                  if (verbose) {
+                      cout << "\t\tTesting constructor with an allocator."
+                           << endl;
+                  }
+                  objPtr = new (fa) Obj(&sa);
+                  objAllocatorPtr = &sa;
+              } break;
+              case 'f': {
+                  if (verbose) {
+                      cout << "\t\tTesting constructor with an allocator."
+                           << endl;
+                  }
+                  objPtr = new (fa) Obj(ball::Severity::e_WARN, &sa);
+                  objAllocatorPtr = &sa;
+              } break;
+              default: {
+                  ASSERTV(CONFIG, !"Bad allocator config.");
+              } break;
+            }
+
+            Obj&                  mX  = *objPtr;
+            const Obj&            X   = mX;
+            bslma::TestAllocator& oa  = *objAllocatorPtr;
+            bslma::TestAllocator& noa = CONFIG < 'e' ? sa : da;
+
+            ASSERTV(CONFIG, oa.numBlocksTotal(),  0 != oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            // Verify the object attributes.
+            ASSERT(false == X.isFileLoggingEnabled());
+            ASSERT(false == X.isPublicationThreadRunning());
+            ASSERT(false == X.isPublishInLocalTimeEnabled());
+            ASSERT(true  == X.isStdoutLoggingPrefixEnabled());
+            ASSERT(true  == X.isUserFieldsLoggingEnabled());
+            ASSERT(0     == X.recordQueueLength());
+            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
+
+
+            // Reclaim dynamically allocated object under test.
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+            ASSERTV(CONFIG, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            ASSERTV(CONFIG, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
+            ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1713,21 +2169,41 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST.\n"
                              "===============\n";
 
+        if (verbose) cerr << "Testing temp directory guard" << endl;
+        bsl::string tempDirectory;
+        {
+            TempDirectoryGuard tempDirGuard;
+
+            tempDirectory.assign(tempDirGuard.getTempDirName());
+
+            cerr << tempDirectory << endl;
+            ASSERT(true == FsUtil::exists(tempDirectory));
+            ASSERT(true == FsUtil::isDirectory(tempDirectory));
+        }
+        // The temporary directory guard should remove the directory in dtor.
+        ASSERT(false == FsUtil::exists(tempDirectory));
+        ASSERT(false == FsUtil::isDirectory(tempDirectory));
+
         bslma::TestAllocator ta;
 
         int loopCount = 0;
         int linesNum  = 0;
         bsl::string line(&ta);
 
-        bsl::string fileName = tempFileName(veryVerbose);
+        // Create a temporary directory for log files.
+        TempDirectoryGuard tempDirGuard;
+
+        // Redirecting stdout to a file.
+        bsl::string stdoutFileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&stdoutFileName, "stdoutLog");
         {
             const FILE *out = stdout;
-            ASSERT(out == freopen(fileName.c_str(), "w", stdout));
+            ASSERT(out == freopen(stdoutFileName.c_str(), "w", stdout));
             fflush(stdout);
         }
 
-        ASSERT(bdls::FilesystemUtil::exists(fileName));
-        ASSERT(0 == bdls::FilesystemUtil::getFileSize(fileName));
+        ASSERT(true == FsUtil::exists(stdoutFileName));
+        ASSERT(0    == FsUtil::getFileSize(stdoutFileName));
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && \
    (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
@@ -1735,6 +2211,53 @@ int main(int argc, char *argv[])
         // us.
         unsetenv("TZ");
 #endif
+        if (verbose) cerr << "Testing asynchronous publication."
+                          << endl;
+        {
+            Obj mX;
+            mX.startPublicationThread();
+
+            bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
+                                                &ta);
+
+            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
+
+            Offset beginFileOffset = FsUtil::getFileSize(stdoutFileName);
+            if (verbose)
+                cout << "Begin file offset: " << beginFileOffset << endl;
+
+            // Throw fair large amount of logs into the queue
+
+            int logCount  = 8000;
+            for (int i = 0; i < logCount;++i)
+            {
+                ball::Context context;
+                mX.publish(record, context);
+            }
+
+            // Verify there are still records left not published
+
+            ASSERT(record.use_count() > 1);
+            Offset afterFileOffset = FsUtil::getFileSize(stdoutFileName);
+            if (verbose)
+                cout << "FileOffset after publish: " << afterFileOffset
+                     << endl;
+
+            // Verify writing is in process even after all 'publish' calls are
+            // finished
+
+            bslmt::ThreadUtil::microSleep(0, 1);
+            Offset endFileOffset = FsUtil::getFileSize(stdoutFileName);
+            if (verbose) cout << "End file offset: " << endFileOffset << endl;
+
+            ASSERT(afterFileOffset < endFileOffset);
+
+            mX.stopPublicationThread();
+        }
+
+        if (verbose) cerr << "Testing threshold and output format."
+                          << endl;
+
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
@@ -1746,129 +2269,51 @@ int main(int argc, char *argv[])
                                               ball::Severity::e_TRACE,
                                               ball::Severity::e_OFF,
                                               ball::Severity::e_OFF));
-        ball::MultiplexObserver multiplexObserver;
-        ball::LoggerManagerScopedGuard guard(&multiplexObserver,
-                                             configuration);
 
-        if (verbose) cerr << "Testing publication thread start and stop."
-                          << endl;
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
         {
-            Obj mX;
-
-            // Start the publication thread, make sure the publication thread
-            // started
-
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(mX.isPublicationThreadRunning());
-
-            // Start the publication thread again, make sure nothing bad occurs
-
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(mX.isPublicationThreadRunning());
-
-            // Stop the publication thread, make sure the publication thread
-            // stopped
-
-            mX.stopPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(!mX.isPublicationThreadRunning());
-
-            // Stop the publication thread again, make sure nothing bad occurs
-
-            mX.stopPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(!mX.isPublicationThreadRunning());
-        }
-
-        if (verbose) cerr << "Testing asynchronous publication."
-                          << endl;
-        {
-            Obj mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-
-            bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
-                                                &ta);
-
-            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
-
-            bdls::FilesystemUtil::Offset beginFileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
-            if (verbose)
-                cout << "Begin file offset: " << beginFileOffset << endl;
-
-            // Throw fair large amount of logs into the queue
-
-            int logCount  = 8000;
-            for (int i = 0;i < logCount;++i)
-            {
-                ball::Context context;
-                mX.publish(record, context);
-            }
-
-            // Verify there are still records left not published
-
-            ASSERT(record.use_count() > 1);
-            bdls::FilesystemUtil::Offset afterFileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
-            if (verbose)
-                cout << "FileOffset after publish: " << afterFileOffset
-                     << endl;
-
-            // Verify writing is in process even after all 'publish' calls are
-            // finished
-
-            bslmt::ThreadUtil::microSleep(0, 1);
-            bdls::FilesystemUtil::Offset endFileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
-            if (verbose) cout << "End file offset: " << endFileOffset << endl;
-
-            ASSERT(afterFileOffset < endFileOffset);
-
-            mX.stopPublicationThread();
-        }
-
-        if (verbose) cerr << "Testing threshold and output format."
-                          << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
 
-            ball::DefaultObserver defaultObserver(&dos);
-            ball::MultiplexObserver localMultiObserver;
-            localMultiObserver.registerObserver(&mX);
-            localMultiObserver.registerObserver(&defaultObserver);
-            multiplexObserver.registerObserver(&localMultiObserver);
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            bsl::shared_ptr<ball::DefaultObserver> o1(
+                                           new(ta) ball::DefaultObserver(&dos),
+                                           &ta);
+
+            ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
+
+            mX->startPublicationThread();
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+            ASSERT(0 == manager.registerObserver(o1, "coutObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            bdls::FilesystemUtil::Offset fileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
+            Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
 
             // these two lines are a desperate kludge to make windows work --
             // this test driver works everywhere else without them.
 
-            (void) readPartialFile(fileName, 0);
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            (void) readPartialFile(stdoutFileName, 0);
+            fileOffset = bdls::FilesystemUtil::getFileSize(stdoutFileName);
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
@@ -1880,6 +2325,7 @@ int main(int argc, char *argv[])
                 replaceSecondSpace(&temp, ':');
                 dos.str(temp);
             }
+
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
                 // Wait up to 3 seconds for the async logging to complete
@@ -1888,17 +2334,20 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
+                ASSERTV(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             dos.str("");
 
-            mX.setStdoutThreshold(ball::Severity::e_ERROR);
-            ASSERT(ball::Severity::e_ERROR == X.stdoutThreshold());
+            mX->setStdoutThreshold(ball::Severity::e_ERROR);
+
+            ASSERT(ball::Severity::e_ERROR == X->stdoutThreshold());
+
             BALL_LOG_WARN << "not logged" << BALL_LOG_END;
-            ASSERT("" == readPartialFile(fileName, fileOffset));
+
+            ASSERT("" == readPartialFile(stdoutFileName, fileOffset));
             dos.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -1918,11 +2367,11 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
+                ASSERTV(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             dos.str("");
 
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
@@ -1942,60 +2391,66 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
+                ASSERTV(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             dos.str("");
 
             bsl::cout.rdbuf(coutSbuf);
-            multiplexObserver.deregisterObserver(&localMultiObserver);
-            localMultiObserver.deregisterObserver(&defaultObserver);
-            localMultiObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            mX->stopPublicationThread();
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
+            ASSERT(0 == manager.deregisterObserver("coutObserver"));
         }
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
         {
-            Obj mX(ball::Severity::e_FATAL, &ta);
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
-            bdls::FilesystemUtil::Offset fileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
 
-            ball::DefaultObserver defaultObserver(&dos);
-            ball::MultiplexObserver localMultiObserver;
-            localMultiObserver.registerObserver(&mX);
-            localMultiObserver.registerObserver(&defaultObserver);
-            multiplexObserver.registerObserver(&localMultiObserver);
+            bsl::shared_ptr<Obj>       mX(
+                                     new(ta) Obj(ball::Severity::e_FATAL, &ta),
+                                     &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            bsl::shared_ptr<ball::DefaultObserver> o1(
+                                           new(ta) ball::DefaultObserver(&dos),
+                                           &ta);
+
+
+            ASSERT(ball::Severity::e_FATAL == X->stdoutThreshold());
+            mX->startPublicationThread();
+
+            Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+            ASSERT(0 == manager.registerObserver(o1, "coutObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_WARN << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_ERROR << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_FATAL << "log" << BALL_LOG_END;
@@ -2015,42 +2470,44 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
+                ASSERTV(dos.str(), coutS, dos.str() == coutS);
             }
-            ASSERT(dos.str() == readPartialFile(fileName, fileOffset));
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            ASSERT(dos.str() == readPartialFile(stdoutFileName, fileOffset));
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             dos.str("");
 
             ASSERT("" == os.str());
 
             bsl::cout.rdbuf(coutSbuf);
-            multiplexObserver.deregisterObserver(&localMultiObserver);
-            localMultiObserver.deregisterObserver(&defaultObserver);
-            localMultiObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            mX->stopPublicationThread();
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
+            ASSERT(0 == manager.deregisterObserver("coutObserver"));
         }
 
         if (verbose) cerr << "Testing short format." << endl;
         {
-            Obj mX;  const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT(!X.isPublishInLocalTimeEnabled());
-            ASSERT( X.isStdoutLoggingPrefixEnabled());
-            mX.disableStdoutLoggingPrefix();
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
-
             bsl::ostringstream os, testOs, dos;
-            bdls::FilesystemUtil::Offset fileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
 
-            ball::DefaultObserver defaultObserver(&dos);
-            ball::MultiplexObserver localMultiObserver;
-            localMultiObserver.registerObserver(&mX);
-            localMultiObserver.registerObserver(&defaultObserver);
-            multiplexObserver.registerObserver(&localMultiObserver);
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            bsl::shared_ptr<ball::DefaultObserver> o1(
+                                           new(ta) ball::DefaultObserver(&dos),
+                                           &ta);
+
+
+            mX->startPublicationThread();
+            ASSERT(!X->isPublishInLocalTimeEnabled());
+            ASSERT( X->isStdoutLoggingPrefixEnabled());
+            mX->disableStdoutLoggingPrefix();
+            ASSERT(!X->isStdoutLoggingPrefixEnabled());
+
+            Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+            ASSERT(0 == manager.registerObserver(o1, "coutObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
@@ -2059,13 +2516,13 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
@@ -2077,11 +2534,11 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
+                ASSERTV(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             testOs.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -2094,16 +2551,16 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
+                ASSERTV(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             testOs.str("");
 
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            mX.enableStdoutLoggingPrefix();
-            ASSERT( X.isStdoutLoggingPrefixEnabled());
+            ASSERT(!X->isStdoutLoggingPrefixEnabled());
+            mX->enableStdoutLoggingPrefix();
+            ASSERT( X->isStdoutLoggingPrefixEnabled());
 
             dos.str("");
 
@@ -2124,45 +2581,48 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
-                LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
+                ASSERTV(dos.str(), coutS, dos.str() == coutS);
                 ASSERT(testOs.str() != coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
 
             ASSERT("" == os.str());
 
             bsl::cout.rdbuf(coutSbuf);
-            multiplexObserver.deregisterObserver(&localMultiObserver);
-            localMultiObserver.deregisterObserver(&defaultObserver);
-            localMultiObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            mX->stopPublicationThread();
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
+            ASSERT(0 == manager.deregisterObserver("coutObserver"));
         }
 
         if (verbose) cerr << "Testing short format with local time "
                           << "offset."
                           << endl;
         {
-            Obj mX(ball::Severity::e_WARN, true, 8192, &ta);
-            const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERT( X.isPublishInLocalTimeEnabled());
-            ASSERT( X.isStdoutLoggingPrefixEnabled());
-            mX.disableStdoutLoggingPrefix();
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            bdls::FilesystemUtil::Offset fileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
-
             bsl::ostringstream os, testOs, dos;
 
-            ball::DefaultObserver defaultObserver(&dos);
-            ball::MultiplexObserver localMultiObserver;
-            localMultiObserver.registerObserver(&mX);
-            localMultiObserver.registerObserver(&defaultObserver);
-            multiplexObserver.registerObserver(&localMultiObserver);
+            bsl::shared_ptr<Obj>       mX(
+                          new(ta) Obj(ball::Severity::e_WARN, true, 8192, &ta),
+                          &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            bsl::shared_ptr<ball::DefaultObserver> o1(
+                                           new(ta) ball::DefaultObserver(&dos),
+                                           &ta);
+
+
+            mX->startPublicationThread();
+            ASSERT( X->isPublishInLocalTimeEnabled());
+            ASSERT( X->isStdoutLoggingPrefixEnabled());
+            mX->disableStdoutLoggingPrefix();
+            ASSERT(!X->isStdoutLoggingPrefixEnabled());
+
+            Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
+            ASSERT(0 == manager.registerObserver(o1, "coutObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
@@ -2171,13 +2631,13 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdls::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
@@ -2189,11 +2649,11 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
+                ASSERTV(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             testOs.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -2206,16 +2666,16 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
+                ASSERTV(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FsUtil::getFileSize(stdoutFileName);
             testOs.str("");
 
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            mX.enableStdoutLoggingPrefix();
-            ASSERT( X.isStdoutLoggingPrefixEnabled());
+            ASSERT(!X->isStdoutLoggingPrefixEnabled());
+            mX->enableStdoutLoggingPrefix();
+            ASSERT( X->isStdoutLoggingPrefixEnabled());
 
             dos.str("");
 
@@ -2237,18 +2697,18 @@ int main(int argc, char *argv[])
                 bsl::string coutS = "";
                 do {
                     bslmt::ThreadUtil::microSleep(0, 1);
-                    coutS = readPartialFile(fileName, fileOffset);
+                    coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 if (0 ==
                     bdlt::LocalTimeOffset::localTimeOffset(
                                     bdlt::CurrentTime::utc()).totalSeconds()) {
-                    LOOP2_ASSERT(dos.str(), os.str(), dos.str() == coutS);
+                    ASSERTV(dos.str(), os.str(), dos.str() == coutS);
                 }
                 else {
-                    LOOP2_ASSERT(dos.str(), os.str(), dos.str() != coutS);
+                    ASSERTV(dos.str(), os.str(), dos.str() != coutS);
                 }
                 ASSERT(testOs.str() != coutS);
-                LOOP2_ASSERT(coutS, testOs.str(),
+                ASSERTV(coutS, testOs.str(),
                             bsl::string::npos != coutS.find(testOs.str()));
 
                 // Now let's verify the actual difference.
@@ -2268,7 +2728,7 @@ int main(int argc, char *argv[])
                 }
                 int difference = bdlt::CurrentTime::utc().hour() -
                                  bdlt::CurrentTime::local().hour();
-                LOOP3_ASSERT(fileObsHour, defaultObsHour, difference,
+                ASSERTV(fileObsHour, defaultObsHour, difference,
                        (fileObsHour + difference + 24) % 24 == defaultObsHour);
                 {
                     bsl::string temp = dos.str();
@@ -2290,40 +2750,49 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+
+                fileOffset = FsUtil::getFileSize(stdoutFileName);
                 ASSERT(0 == os.str().length());
 
                 bsl::cout.rdbuf(coutSbuf);
-                multiplexObserver.deregisterObserver(&localMultiObserver);
-                localMultiObserver.deregisterObserver(&defaultObserver);
-                localMultiObserver.deregisterObserver(&mX);
-                mX.stopPublicationThread();
+                mX->stopPublicationThread();
+
+                ASSERT(0 == manager.deregisterObserver("asyncObserver"));
+                ASSERT(0 == manager.deregisterObserver("coutObserver"));
             }
         }
 
         if (verbose) cerr << "Testing file logging." << endl;
         {
-            bsl::string fn = tempFileName(veryVerbose);
-            bdls::FilesystemUtil::Offset fileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
-
-            Obj mX(ball::Severity::e_WARN, &ta);
-            const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
-            Q(Ignore warning about /bogus/path/foo -- it is expected);
-            ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
             bsl::stringstream ss;
 
-            multiplexObserver.registerObserver(&mX);
+            bsl::string  fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN, &ta),
+                                    &ta);
+
+            bsl::shared_ptr<const Obj> X = mX;
+
+            mX->startPublicationThread();
+
+            Q(Ignore warning about /bogus/path/foo -- it is expected);
+            bsl::cout.flush();
+
+            Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
+
+            ASSERT(-1 == mX->enableFileLogging("/bogus/path/foo"));
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(ss.rdbuf());
-            ASSERT(0 == mX.enableFileLogging(fn.c_str()));
-            ASSERT(X.isFileLoggingEnabled());
-            ASSERT(1 == mX.enableFileLogging(fn.c_str()));
+
+            ASSERT(0    == mX->enableFileLogging(fileName.c_str()));
+            ASSERT(true == X->isFileLoggingEnabled());
+            ASSERT(1    == mX->enableFileLogging(fileName.c_str()));
 
             BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
             BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -2339,16 +2808,16 @@ int main(int argc, char *argv[])
                 linesNum = 0;
                 bslmt::ThreadUtil::microSleep(0, 1);
                 bsl::ifstream fs1;
-                fs1.open(fn.c_str(), bsl::ifstream::in);
+                fs1.open(fileName.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
             } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
-                fs.open(fn.c_str(), bsl::ifstream::in);
+                fs.open(fileName.c_str(), bsl::ifstream::in);
                 bsl::ifstream coutFs;
-                coutFs.open(fileName.c_str(), bsl::ifstream::in);
+                coutFs.open(stdoutFileName.c_str(), bsl::ifstream::in);
                 ASSERT(fs.is_open());
                 ASSERT(coutFs.is_open());
                 coutFs.seekg(fileOffset);
@@ -2358,7 +2827,7 @@ int main(int argc, char *argv[])
                         // check format
                         bsl::string coutLine;
                         getline(coutFs, coutLine);
-                        ASSERT(coutLine == line);
+                        ASSERTV(coutLine, line, coutLine == line);
                         //bsl::cerr << coutLine << endl << line << endl;
                     }
                     ++linesNum;
@@ -2369,9 +2838,9 @@ int main(int argc, char *argv[])
                 ASSERT(12 == linesNum);
             }
 
-            ASSERT(X.isFileLoggingEnabled());
-            mX.disableFileLogging();
-            ASSERT(!X.isFileLoggingEnabled());
+            ASSERT(true  == X->isFileLoggingEnabled());
+            mX->disableFileLogging();
+            ASSERT(false == X->isFileLoggingEnabled());
             BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
             BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
             BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
@@ -2386,14 +2855,14 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(0, 1);
                 linesNum = 0;
                 bsl::ifstream fs1;
-                fs1.open(fn.c_str(), bsl::ifstream::in);
+                fs1.open(fileName.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
             } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
-                fs.open(fn.c_str(), bsl::ifstream::in);
+                fs.open(fileName.c_str(), bsl::ifstream::in);
                 ASSERT(fs.is_open());
                 fs.clear();
                 linesNum = 0;
@@ -2402,9 +2871,9 @@ int main(int argc, char *argv[])
                 ASSERT(12 == linesNum);
             }
 
-            ASSERT(0 == mX.enableFileLogging(fn.c_str()));
-            ASSERT(X.isFileLoggingEnabled());
-            ASSERT(1 == mX.enableFileLogging(fn.c_str()));
+            ASSERT(0    == mX->enableFileLogging(fileName.c_str()));
+            ASSERT(true == X->isFileLoggingEnabled());
+            ASSERT(1    == mX->enableFileLogging(fileName.c_str()));
 
             BALL_LOG_TRACE << "log 7" << BALL_LOG_END;
             BALL_LOG_DEBUG << "log 8" << BALL_LOG_END;
@@ -2420,14 +2889,14 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(0, 1);
                 linesNum = 0;
                 bsl::ifstream fs1;
-                fs1.open(fn.c_str(), bsl::ifstream::in);
+                fs1.open(fileName.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
             } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
-                fs.open(fn.c_str(), bsl::ifstream::in);
+                fs.open(fileName.c_str(), bsl::ifstream::in);
                 ASSERT(fs.is_open());
                 fs.clear();
                 linesNum = 0;
@@ -2437,34 +2906,39 @@ int main(int argc, char *argv[])
                 bsl::cout.rdbuf(coutSbuf);
             }
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(fn.c_str());
-            multiplexObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            mX->disableFileLogging();
+            mX->stopPublicationThread();
+
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
 #ifdef BSLS_PLATFORM_OS_UNIX
         if (verbose) cerr << "Testing file logging with timestamp."
                           << endl;
         {
-            bsl::string fn = tempFileName(veryVerbose);
-
-            Obj mX(ball::Severity::e_WARN, &ta);
-            const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os;
 
-            multiplexObserver.registerObserver(&mX);
+            bsl::string  fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "test2Log");
+
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN, &ta),
+                                    &ta);
+
+            bsl::shared_ptr<const Obj> X = mX;
+
+            mX->startPublicationThread();
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(os.rdbuf());
-            bsl::string fn_time = fn + bsl::string(".%T");
-            ASSERT(0 == mX.enableFileLogging(fn_time.c_str()));
-            ASSERT(X.isFileLoggingEnabled());
-            ASSERT(1 == mX.enableFileLogging(fn_time.c_str()));
+            bsl::string fn_time = fileName + bsl::string(".%T");
+
+            ASSERT(0    == mX->enableFileLogging(fn_time.c_str()));
+            ASSERT(true == X->isFileLoggingEnabled());
+            ASSERT(1    == mX->enableFileLogging(fn_time.c_str()));
 
             BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
             BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -2474,7 +2948,7 @@ int main(int argc, char *argv[])
             BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
 
             glob_t globbuf;
-            ASSERT(0 == glob((fn + ".2*").c_str(), 0, 0, &globbuf));
+            ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
 
             // Wait up to 3 seconds for the async logging to complete
@@ -2496,47 +2970,53 @@ int main(int argc, char *argv[])
                 linesNum = 0;
                 while (getline(fs, line)) { ++linesNum; }
                 fs.close();
+
                 ASSERT(12 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
+                ASSERT(true ==X->isFileLoggingEnabled());
+
                 bsl::cout.rdbuf(coutSbuf);
             }
 
             ASSERT("" == os.str());
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(fn.c_str());
-            multiplexObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            mX->disableFileLogging();
+            mX->stopPublicationThread();
+
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
         if (verbose) cerr << "Testing log file name pattern." << endl;
         {
-            bsl::string baseName = tempFileName(veryVerbose);
+            bsl::string baseName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&baseName, "test3Log");
+
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s-%p";
 
-            Obj mX(ball::Severity::e_WARN, &ta);
-            const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN, &ta),
+                                    &ta);
 
-            multiplexObserver.registerObserver(&mX);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            mX->startPublicationThread();
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             bdlt::Datetime startDatetime, endDatetime;
 
-            mX.disableTimeIntervalRotation();
-            mX.disableSizeRotation();
-            mX.disableFileLogging();
-            mX.enablePublishInLocalTime();
+            mX->disableTimeIntervalRotation();
+            mX->disableSizeRotation();
+            mX->disableFileLogging();
+            mX->enablePublishInLocalTime();
 
             // loop until startDatetime is equal to endDatetime
             do {
                 startDatetime = getCurrentTimestamp();
 
-                ASSERT(0 == mX.enableFileLogging(pattern.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(pattern.c_str()));
+                ASSERT(0    == mX->enableFileLogging(pattern.c_str()));
+                ASSERT(true == X->isFileLoggingEnabled());
+                ASSERT(1    == mX->enableFileLogging(pattern.c_str()));
 
                 endDatetime = getCurrentTimestamp();
 
@@ -2548,11 +3028,13 @@ int main(int argc, char *argv[])
                     // because startDatetime and endDatetime are different;
                     // will try it again
                     bsl::string fn;
-                    ASSERT(1 == mX.isFileLoggingEnabled(&fn));
-                    mX.disableFileLogging();
+                    ASSERT(true == mX->isFileLoggingEnabled(&fn));
+
+                    mX->disableFileLogging();
+
                     ASSERT(0 == bsl::remove(fn.c_str()));
                 }
-            } while (!X.isFileLoggingEnabled());
+            } while (!X->isFileLoggingEnabled());
 
             ASSERT(startDatetime.year()   == endDatetime.year());
             ASSERT(startDatetime.month()  == endDatetime.month());
@@ -2585,9 +3067,8 @@ int main(int argc, char *argv[])
             // Look for the file with the constructed name
 
             glob_t globbuf;
-            LOOP_ASSERT(fnOs.str(),
-                        0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
-            LOOP_ASSERT(globbuf.gl_pathc, 1 == globbuf.gl_pathc);
+            ASSERTV(fnOs.str(), 0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
+            ASSERTV(globbuf.gl_pathc, 1 == globbuf.gl_pathc);
 
             // Wait up to 3 seconds for the async logging to complete
 
@@ -2601,7 +3082,7 @@ int main(int argc, char *argv[])
                 fs1.close();
             } while (linesNum < 2 && loopCount++ < 3);
 
-            mX.disableFileLogging();
+            mX->disableFileLogging();
 
             // Read the file to get the number of lines
 
@@ -2617,10 +3098,10 @@ int main(int argc, char *argv[])
                 ASSERT(2 == linesNum);
             }
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(baseName.c_str());
-            multiplexObserver.deregisterObserver(&mX);
-            mX.stopPublicationThread();
+            mX->disableFileLogging();
+            mX->stopPublicationThread();
+
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
         if (verbose) cerr << "Testing '%%' in file name pattern." << endl;
@@ -2640,14 +3121,16 @@ int main(int argc, char *argv[])
                 { L_,   "foo%%%",       "foo%"                          },
                 { L_,   "foo%%%bar",    "foo%bar"                       },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE     = DATA[ti].d_lineNum;
                 const char *PATTERN  = DATA[ti].d_patternSuffix_p;
                 const char *FILENAME = DATA[ti].d_filenameSuffix_p;
 
-                bsl::string baseName = tempFileName(veryVerbose);
+                bsl::string baseName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&baseName, "test4Log");
+
                 bsl::string pattern(baseName);   pattern  += PATTERN;
                 bsl::string expected(baseName);  expected += FILENAME;
                 bsl::string actual;
@@ -2655,23 +3138,22 @@ int main(int argc, char *argv[])
                 Obj mX(ball::Severity::e_WARN, &ta);
                 const Obj& X = mX;
 
-                LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(pattern.c_str()));
-                LOOP_ASSERT(LINE, X.isFileLoggingEnabled(&actual));
+                ASSERTV(LINE, 0    == mX.enableFileLogging(pattern.c_str()));
+                ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
 
                 if (veryVeryVerbose) {
                     P_(PATTERN);  P_(expected);  P(actual);
                 }
 
-                LOOP_ASSERT(LINE, expected == actual);
+                ASSERTV(LINE, expected == actual);
 
                 mX.disableFileLogging();
 
                 // Look for the file with the expected name
 
                 glob_t globbuf;
-                LOOP_ASSERT(LINE, 0 == glob(expected.c_str(),
-                                            0, 0, &globbuf));
-                LOOP_ASSERT(LINE, 1 == globbuf.gl_pathc);
+                ASSERTV(LINE, 0 == glob(expected.c_str(), 0, 0, &globbuf));
+                ASSERTV(LINE, 1 == globbuf.gl_pathc);
 
                 removeFilesByPrefix(expected.c_str());
             }
@@ -2679,27 +3161,30 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing customized format." << endl;
         {
-            bdls::FilesystemUtil::Offset fileOffset =
-                                   bdls::FilesystemUtil::getFileSize(fileName);
+            Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
 
-            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
-            mX.startPublicationThread();
-            bslmt::ThreadUtil::microSleep(0, 1);
+            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN, &ta),
+                                    &ta);
 
-            ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
+            bsl::shared_ptr<const Obj> X = mX;
 
-            multiplexObserver.registerObserver(&mX);
+            mX->startPublicationThread();
+
+            ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
+
+            ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             // Redirect 'stdout' to a string stream
 
             {
-                bsl::string baseName = tempFileName(veryVerbose);
+                bsl::string baseName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&baseName, "test5Log");
 
-                ASSERT(0 == mX.enableFileLogging(baseName.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
+                ASSERT(0    == mX->enableFileLogging(baseName.c_str()));
+                ASSERT(true == X->isFileLoggingEnabled());
+                ASSERT(1    == mX->enableFileLogging(baseName.c_str()));
 
                 bsl::stringstream os;
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
@@ -2708,10 +3193,10 @@ int main(int argc, char *argv[])
                 // For log file, use bdlt::Datetime format For stdout, use ISO
                 // format
 
-                mX.setLogFormat("%d %p %t %s %l %c %m %u",
-                                "%i %p %t %s %l %c %m %u");
+                mX->setLogFormat("%d %p %t %s %l %c %m %u",
+                                 "%i %p %t %s %l %c %m %u");
 
-                fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FsUtil::getFileSize(stdoutFileName);
 
                 BALL_LOG_WARN << "log" << BALL_LOG_END;
 
@@ -2756,7 +3241,7 @@ int main(int argc, char *argv[])
                 log1 = line.substr(pos, line.length());
 
                 fflush(stdout);
-                bsl::string fStr = readPartialFile(fileName, fileOffset);
+                bsl::string fStr = readPartialFile(stdoutFileName, fileOffset);
 
                 ASSERT("" == os.str());
 
@@ -2768,7 +3253,7 @@ int main(int argc, char *argv[])
 
                 log2 = fStr.substr(pos, fStr.length()-pos);
 
-                LOOP2_ASSERT(log1, log2, log1 == log2);
+                ASSERTV(log1, log2, log1 == log2);
 
                 // Now we try to convert datetime2 from ISO to bdlt::Datetime
 
@@ -2789,13 +3274,14 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
-                mX.disableFileLogging();
+                mX->disableFileLogging();
 
                 ASSERT("" == os.str());
-                fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FsUtil::getFileSize(stdoutFileName);
                 bsl::cout.rdbuf(coutSbuf);
 
-                mX.disableFileLogging();
+                mX->disableFileLogging();
+
                 removeFilesByPrefix(baseName.c_str());
             }
 
@@ -2803,21 +3289,22 @@ int main(int argc, char *argv[])
 
             if (verbose) cerr << "   .. customized format swapped.\n";
             {
-                bsl::string baseName = tempFileName(veryVerbose);
+                bsl::string baseName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&baseName, "test5Log");
 
-                ASSERT(0 == mX.enableFileLogging(baseName.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
+                ASSERT(0    == mX->enableFileLogging(baseName.c_str()));
+                ASSERT(true == X->isFileLoggingEnabled());
+                ASSERT(1    == mX->enableFileLogging(baseName.c_str()));
+                ASSERT(true == X->isFileLoggingEnabled());
 
-                fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FsUtil::getFileSize(stdoutFileName);
 
                 bsl::stringstream os;
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
                 bsl::cout.rdbuf(os.rdbuf());
 
-                mX.setLogFormat("%i %p %t %s %f %l %c %m %u",
-                                "%d %p %t %s %f %l %c %m %u");
+                mX->setLogFormat("%i %p %t %s %f %l %c %m %u",
+                                 "%d %p %t %s %f %l %c %m %u");
 
                 BALL_LOG_WARN << "log" << BALL_LOG_END;
 
@@ -2857,7 +3344,8 @@ int main(int argc, char *argv[])
 
                 // Get datetime and the rest from stdout
 
-                bsl::string soStr = readPartialFile(fileName, fileOffset);
+                bsl::string soStr =
+                                   readPartialFile(stdoutFileName, fileOffset);
                 pos = soStr.find(' ');
                 datetime1 = soStr.substr(0, pos);
                 log1 = soStr.substr(pos, soStr.length());
@@ -2868,7 +3356,7 @@ int main(int argc, char *argv[])
                 datetime2 = line.substr(0, pos);
                 log2 = line.substr(pos, line.length()-pos);
 
-                LOOP2_ASSERT(log1, log2, log1 == log2);
+                ASSERTV(log1, log2, log1 == log2);
 
                 // Now we try to convert datetime2 from ISO to bdlt::Datetime
 
@@ -2895,23 +3383,27 @@ int main(int argc, char *argv[])
                     bsl::cerr << "datetime1: " << datetime1 << bsl::endl;
                 }
 
-                fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FsUtil::getFileSize(stdoutFileName);
                 bsl::cout.rdbuf(coutSbuf);
-                mX.disableFileLogging();
+                mX->disableFileLogging();
+                mX->stopPublicationThread();
+
+                ASSERT(0 == manager.deregisterObserver("asyncObserver"));
                 removeFilesByPrefix(baseName.c_str());
-                multiplexObserver.deregisterObserver(&mX);
-                mX.stopPublicationThread();
             }
+
         }
 #endif
 
         if (verbose) cerr << "Testing User-Defined Fields Toggling\n";
         {
-            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
 
+            Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
+
             X.getLogFormat(&logFileFormat, &stdoutFormat);
+
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
@@ -2920,6 +3412,7 @@ int main(int argc, char *argv[])
             mX.setLogFormat("\n%d %p:%t %s %f:%l %c %m\n",
                             "\n%d %p:%t %s %f:%l %c %m\n");
             X.getLogFormat(&logFileFormat, &stdoutFormat);
+
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
@@ -2928,27 +3421,33 @@ int main(int argc, char *argv[])
             mX.setLogFormat("\n%d %p:%t %s %f:%l %c %m %u\n",
                             "\n%d %p:%t %s %f:%l %c %m %u\n");
             X.getLogFormat(&logFileFormat, &stdoutFormat);
+
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
             // Now change to short format for stdout.
+            ASSERT(true  == X.isStdoutLoggingPrefixEnabled());
 
-            ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
+
+            ASSERT(false == X.isStdoutLoggingPrefixEnabled());
+
             X.getLogFormat(&logFileFormat, &stdoutFormat);
+
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%s %f:%l %c %m %u\n"));
 
             // Change back to long format for stdout.
+            ASSERT(false == X.isStdoutLoggingPrefixEnabled());
 
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
             mX.enableStdoutLoggingPrefix();
-            ASSERT( X.isStdoutLoggingPrefixEnabled());
+
+            ASSERT(true  == X.isStdoutLoggingPrefixEnabled());
+
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
@@ -2959,17 +3458,22 @@ int main(int argc, char *argv[])
 
             const char *newLogFileFormat = "\n%s %f:%l %c %m %u\n";
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
+
             mX.setLogFormat(newLogFileFormat, newStdoutFormat);
             X.getLogFormat(&logFileFormat, &stdoutFormat);
+
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
 
             // Now set short format for stdout.
+            ASSERT(true  == X.isStdoutLoggingPrefixEnabled());
 
-            ASSERT(X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
-            ASSERT(!X.isStdoutLoggingPrefixEnabled());
+
+            ASSERT(false == X.isStdoutLoggingPrefixEnabled());
+
             X.getLogFormat(&logFileFormat, &stdoutFormat);
+
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
 
@@ -2978,28 +3482,8 @@ int main(int argc, char *argv[])
             // default short format.
         }
 
-        if (verbose) cerr << "Testing publication shutdown."
-                          << endl;
-        {
-            Obj mX; const Obj& X = mX;
-
-            // Start the publication thread, make sure the publication thread
-            // started
-
-            mX.startPublicationThread();
-            ASSERT(X.isPublicationThreadRunning());
-
-            bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
-                                                &ta);
-            ball::Context context;
-            for (int i = 0;i < 8000; ++i)
-                mX.publish(record, context);
-            mX.shutdownPublicationThread();
-            ASSERT(!mX.isPublicationThreadRunning());
-        }
 
         fclose(stdout);
-        removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

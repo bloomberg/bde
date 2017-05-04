@@ -1,34 +1,26 @@
-// ball_defaultobserver.h                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-#ifndef INCLUDED_BALL_DEFAULTOBSERVER
-#define INCLUDED_BALL_DEFAULTOBSERVER
+// ball_streamobserver.h                                              -*-C++-*-
+#ifndef INCLUDED_BALL_STREAMOBSERVER
+#define INCLUDED_BALL_STREAMOBSERVER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a default observer that emits log records to 'stdout'.
+//@PURPOSE: Provide an observer that emits log records to a stream.
 //
 //@CLASSES:
-//    ball::DefaultObserver: observer that outputs log records to 'stdout'
+//    ball::StreamObserver: observer that emits log records to a stream
 //
 //@SEE_ALSO: ball_record, ball_context, ball_loggermanager
 //
-//@AUTHOR: Banyar Aung
+//@AUTHOR: Oleg Subbotin
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol for receiving and processing log records:
 //..
-//                ,---------------------.
-//               ( ball::DefaultObserver )
+//                 ,--------------------.
+//                ( ball::StreamObserver )
 //                 `--------------------'
 //                           |              ctor
 //                           |              publish
@@ -38,12 +30,12 @@ BSLS_IDENT("$Id: $")
 //                    `--------------'
 //                                          dtor
 //..
-// 'ball::DefaultObserver' is a concrete class derived from 'ball::Observer'
+// 'ball::StreamObserver' is a concrete class derived from 'ball::Observer'
 // that processes the log records it receives through its 'publish' method by
-// printing them to 'stdout'.  Given its minimal functionality,
-// 'ball::DefaultObserver' is intended for development use only.
-// 'ball::DefaultObserver' is not recommended for use in a production
-// environment.
+// writing them to an output stream.  Given its minimal functionality,
+// 'ball::StreamObserver' should be used with care in a production environment.
+// It is not recommended to construct this observer with file-based streams due
+// to luck of any file rotation functionality.
 //
 ///Usage
 ///-----
@@ -51,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'ball::DefaultObserver' within a 'ball'
+// This example demonstrates using a 'ball::StreamObserver' within a 'ball'
 // logging system.
 //
 // First, we initialize 'ball' logging subsystem with the default
@@ -71,10 +63,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
 //  bsl::shared_ptr<ball::Observer> observerPtr(
-//                               new(*alloc) ball::DefaultObserver(&bsl::cout),
-//                               alloc);
+//                                new(*alloc) ball::StreamObserver(&bsl::cout),
+//                                alloc);
 //..
-// Then, we register the default observer with the logger manager.  Upon
+// Then, we register the stream observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
 // 'publish' method:
 //..
@@ -84,7 +76,7 @@ BSLS_IDENT("$Id: $")
 // Next, we set the log category and log few messages with different logging
 // severity:
 //..
-//  BALL_LOG_SET_CATEGORY("ball::DefaultObserver");
+//  BALL_LOG_SET_CATEGORY("ball::StreamObserver");
 //
 //  BALL_LOG_INFO << "Info Log Message."    << BALL_LOG_END;
 //  BALL_LOG_WARN << "Warning Log Message." << BALL_LOG_END;
@@ -112,11 +104,11 @@ namespace ball {
 class Context;
 class Record;
 
-                           // =====================
-                           // class DefaultObserver
-                           // =====================
+                           // ====================
+                           // class StreamObserver
+                           // ====================
 
-class DefaultObserver : public Observer {
+class StreamObserver : public Observer {
     // This class provides a concrete implementation of the 'Observer'
     // protocol.  The 'publish' method of this class outputs the log records
     // that it receives to an instance of 'bsl::ostream' supplied at
@@ -127,32 +119,20 @@ class DefaultObserver : public Observer {
     bslmt::Mutex  d_mutex;     // serializes concurrent calls to 'publish'
 
     // NOT IMPLEMENTED
-    DefaultObserver(const DefaultObserver&);
-    DefaultObserver& operator=(const DefaultObserver&);
+    StreamObserver(const StreamObserver&);
+    StreamObserver& operator=(const StreamObserver&);
 
   public:
-    using Observer::publish;
-
     // CREATORS
-    explicit DefaultObserver(bsl::ostream *stream);
-        // Create a default observer that transmits log records to the
-        // specified 'stream'.
+    explicit StreamObserver(bsl::ostream *stream);
+        // Create a stream observer that transmits log records to the specified
+        // 'stream'.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    explicit DefaultObserver(bsl::ostream& stream);
-        // Create a default observer that transmits log records to the
-        // specified 'stream'.
-        //
-        // DEPRECATED: replaced by 'DefaultObserver(bsl::ostream *stream)'
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-    virtual ~DefaultObserver();
-        // Destroy this default observer.
+    virtual ~StreamObserver();
+        // Destroy this stream observer.
 
     // MANIPULATORS
-    virtual void publish(const Record& record, const Context& context);
-        // Process the specified log 'record' having the specified publishing
-        // 'context'.
+    using Observer::publish;
 
     virtual void publish(const bsl::shared_ptr<const Record>& record,
                          const Context&                       context);
@@ -166,24 +146,16 @@ class DefaultObserver : public Observer {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                           // ---------------------
-                           // class DefaultObserver
-                           // ---------------------
+                           // --------------------
+                           // class StreamObserver
+                           // --------------------
 
 // CREATORS
 inline
-DefaultObserver::DefaultObserver(bsl::ostream *stream)
+StreamObserver::StreamObserver(bsl::ostream *stream)
 : d_stream_p(stream)
 {
 }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
-DefaultObserver::DefaultObserver(bsl::ostream& stream)
-: d_stream_p(&stream)
-{
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -191,7 +163,7 @@ DefaultObserver::DefaultObserver(bsl::ostream& stream)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

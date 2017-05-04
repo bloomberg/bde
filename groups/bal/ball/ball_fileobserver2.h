@@ -176,41 +176,58 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following code fragments illustrate the essentials of using a file
-// observer within a 'ball' logging system.
+// This section illustrates intended use of this component.
 //
-// First create a 'ball::FileObserver2' named 'fileObserver':
-//..
-//  ball::FileObserver2 fileObserver;
-//..
-// The file observer must then be installed within a 'ball' logging system.
-// This is done by passing 'fileObserver' to the 'ball::LoggerManager'
-// 'initSingleton' method:
+///Example 1: Publication Through Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - -
+// The example demonstrates using a 'ball::FileObserver2' within a 'ball'
+// logging system.
+//
+// First, we initialize 'ball' logging subsystem with the default
+// configuration:
 //..
 //  ball::LoggerManagerConfiguration configuration;
-//  ball::LoggerManager::initSingleton(&fileObserver, configuration);
-//..
-// Henceforth, all messages that are published by the logging system will be
-// transmitted to the 'publish' method of 'fileObserver'.  The user can log
-// all messages to a specified file and specify rotation rules based on the
-// size of the log file or a periodic time interval:
-//..
-//  fileObserver.enableFileLogging("/var/log/task/task.log");
-//      // Create and log records to a file named "/var/log/task/task.log".
+//  ball::LoggerManagerScopedGuard   guard(configuration);
 //
-//  fileObserver.rotateOnSize(1024 * 256);
-//      // Rotate the file when its size becomes greater than or equal to 256
+//  ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Note that the application is now prepared to log messages using the 'ball'
+// logging subsystem, but until the application registers an observer, all log
+// messages will be discarded.
+//
+// Then, we create a shared pointer to a 'ball::FileObserver2' object,
+// 'observerPtr', having default attributes:
+//..
+//  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
+//  bsl::shared_ptr<ball::FileObserver2> observerPtr(
+//                                           new(*alloc) ball::FileObserver2(),
+//                                           alloc);
+//..
+// Next, we configure the log file rotation rules:
+//..
+//  observerPtr->rotateOnSize(1024 * 128);
+//      // Rotate the file when its size becomes greater than or equal to 128
 //      // mega-bytes.
 //
-//  fileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+//  observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 //      // Rotate the file every 24 hours.
 //..
 // Note that in this configuration the user may end up with multiple log files
-// for a specific day (because of the rotation-on-size rule).  This feature can
-// be disabled dynamically later:
+// for a specific day (because of the rotation-on-size rule).
+//
+// Then, we enable logging to a file:
 //..
-//  fileObserver.disableSizeRotation();
+//  observerPtr->enableFileLogging("/var/log/task/task.log");
+//      // Create and log records to a file named "/var/log/task/task.log".
 //..
+// Finally, we register the file observer with the logger manager.  Upon
+// successful registration, the observer will start to receive log records via
+// 'publish' method:
+//..
+//  int rc = manager.registerObserver(observerPtr, "file_observer");
+//  assert(0 == rc);
+//..
+
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>

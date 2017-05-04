@@ -1,12 +1,12 @@
-// ball_defaultobserver.cpp                                           -*-C++-*-
-#include <ball_defaultobserver.h>
+// ball_streamobserver.cpp                                            -*-C++-*-
+#include <ball_streamobserver.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(ball_streamobserver_cpp,"$Id$ $CSID$")
 
 #include <ball_context.h>
 #include <ball_record.h>
-#include <ball_recordattributes.h>      // for testing only
+#include <ball_recordattributes.h>       // for testing only
 #include <ball_severity.h>
 #include <ball_userfields.h>
 #include <ball_userfieldvalue.h>
@@ -22,65 +22,18 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace ball {
 
-                           // ---------------------
-                           // class DefaultObserver
-                           // ---------------------
+                           // --------------------
+                           // class StreamObserver
+                           // --------------------
 
 // CREATORS
-DefaultObserver::~DefaultObserver()
+StreamObserver::~StreamObserver()
 {
 }
 
 // MANIPULATORS
-void DefaultObserver::publish(const Record& record, const Context&)
-{
-    const RecordAttributes& fixedFields = record.fixedFields();
-
-    // convert the severity level to ASCII value for publishing
-    Severity::Level severityLevel = (Severity::Level)fixedFields.severity();
-
-
-    const int bufferSize = 64;
-    char      buffer[bufferSize];
-    const int fractionalSecondPrecision = 3;
-
-    const int numBytesWritten = fixedFields.timestamp().printToBuffer(
-                                                    buffer,
-                                                    bufferSize,
-                                                    fractionalSecondPrecision);
-
-    bslstl::StringRef message = fixedFields.messageRef();
-
-    const ball::UserFields& customFields = record.customFields();
-    const int               numCustomFields = customFields.length();
-
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-
-    *d_stream_p << '\n';
-
-    d_stream_p->write(buffer, numBytesWritten);
-
-    *d_stream_p << ' '
-                << fixedFields.processID()          << ' '
-                << fixedFields.threadID()           << ' '
-                << Severity::toAscii(severityLevel) << ' '
-                << fixedFields.fileName()           << ' '
-                << fixedFields.lineNumber()         << ' '
-                << fixedFields.category()           << ' ';
-
-    d_stream_p->write(message.data(), message.length());
-
-    *d_stream_p << ' ';
-
-    for (int i = 0; i < numCustomFields; ++i) {
-        *d_stream_p << customFields[i] << ' ';
-    }
-
-    *d_stream_p << '\n' << bsl::flush;
-}
-
-void DefaultObserver::publish(const bsl::shared_ptr<const Record>& record,
-                              const Context&)
+void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
+                             const Context&)
 {
     const RecordAttributes& fixedFields = record->fixedFields();
 
@@ -116,10 +69,8 @@ void DefaultObserver::publish(const bsl::shared_ptr<const Record>& record,
 
     d_stream_p->write(message.data(), message.length());
 
-    *d_stream_p << ' ';
-
     for (int i = 0; i < numCustomFields; ++i) {
-        *d_stream_p << customFields[i] << ' ';
+        *d_stream_p << ' ' << customFields[i];
     }
 
     *d_stream_p << '\n' << bsl::flush;
@@ -129,7 +80,7 @@ void DefaultObserver::publish(const bsl::shared_ptr<const Record>& record,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

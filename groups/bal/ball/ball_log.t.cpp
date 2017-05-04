@@ -1297,7 +1297,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    BloombergLP::ball::TestObserver  testObserver(bsl::cout);
+    BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
     BloombergLP::ball::TestObserver *TO = &testObserver;
 
     TestAllocator ta(veryVeryVerbose);

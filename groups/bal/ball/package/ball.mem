@@ -36,6 +36,7 @@ ball_scopedattribute
 ball_scopedattributes
 ball_severity
 ball_severityutil
+ball_streamobserver
 ball_testobserver
 ball_thresholdaggregate
 ball_transmission

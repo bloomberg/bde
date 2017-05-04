@@ -1,5 +1,5 @@
-// ball_defaultobserver.t.cpp                                         -*-C++-*-
-#include <ball_defaultobserver.h>
+// ball_streamobserver.t.cpp                                          -*-C++-*-
+#include <ball_streamobserver.h>
 
 #include <ball_context.h>
 #include <ball_record.h>
@@ -37,7 +37,7 @@ using namespace bsl;
 // records to the 'bsl::ostream' supplied at construction.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] DefaultObserver(bsl::ostream *stream)
+// [ 1] StreamObserver(bsl::ostream *stream)
 //
 // MANIPULATORS
 // [ 2] void publish(const bsl::shared_ptr<const ball::Record>& record,
@@ -54,13 +54,58 @@ namespace {
 
 int testStatus = 0;
 
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
+    }
+}
+
 }  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::DefaultObserver Obj;
+typedef ball::StreamObserver Obj;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -99,12 +144,10 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
         if (verbose) cout << "Skipped due to cyclic dependancy." << endl;
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -119,8 +162,8 @@ int main(int argc, char *argv[])
         //: 1 Create the observer object and publish log record.
         //
         // Testing:
-        //   DefaultObserver(bsl::ostream * stream);
-        //   ~DefaultObserver();
+        //   StreamObserver(bsl::ostream * stream);
+        //   ~StreamObserver();
         //   publish(bsl::shared_ptr<Record> &record, const Context&);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING PRIMARY MANIPULATORS"
@@ -139,11 +182,11 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime timestamp(2017, 4, 1);
             fixed.setTimestamp(timestamp);
-            fixed.setProcessID(2);
-            fixed.setThreadID(3);
-            fixed.setSeverity(ball::Severity::e_TRACE);
+            fixed.setProcessID(1);
+            fixed.setThreadID(2);
+            fixed.setSeverity(ball::Severity::e_INFO);
             fixed.setFileName("test.cpp");
-            fixed.setLineNumber(191);
+            fixed.setLineNumber(189);
             fixed.setMessage("Log Message");
 
             bsl::shared_ptr<ball::Record> record;
@@ -155,8 +198,8 @@ int main(int argc, char *argv[])
                                              1));
 
             ASSERTV(os.str(),
-                    "\n01APR2017_00:00:00.000 2 3 TRACE test.cpp 191"
-                    "  Log Message \n"
+                    "\n01APR2017_00:00:00.000 1 2 INFO test.cpp 189"
+                    "  Log Message\n"
                     == os.str());
         }
       } break;
@@ -170,55 +213,45 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Run each method with arbitrary inputs and verify the behavior is
+        //:   as expected.
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============" << endl;
 
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        if (verbose)
-            cout << "Publish a single message (deprecated c'tor)." << endl;
-        {
-            Obj X(bsl::cout);
-
-            ball::RecordAttributes fixed;
-            ball::UserFields  userValues;
-
-            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
-            fixed.setTimestamp(now);
-            fixed.setProcessID(100);
-            fixed.setThreadID(0);
-            X.publish(ball::Record(fixed, userValues),
-                    ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
-        }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "Publish a single message." << endl;
         {
-            Obj X(&bsl::cout);
+            bsl::ostringstream os;
+            Obj X(&os);
 
             ball::RecordAttributes fixed;
-            ball::UserFields       userValues;
 
             bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixed.setTimestamp(now);
             fixed.setProcessID(100);
             fixed.setThreadID(0);
-            X.publish(ball::Record(fixed, userValues),
-                      ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
+            fixed.setMessage("Log Message (single)");
+
+            bsl::shared_ptr<ball::Record> record;
+            record.createInplace();
+            record->setFixedFields(fixed);
+
+            X.publish(record, ball::Context(ball::Transmission::e_PASSTHROUGH,
+                                            0,
+                                            1));
         }
 
         if (verbose) cout << "Publish a sequence of three messages." << endl;
         {
-            Obj X(&bsl::cout);
+            bsl::ostringstream os;
+            Obj X(&os);
 
             ball::RecordAttributes fixed;
-            ball::UserFields  userValues;
 
             const int NUM_MESSAGES = 3;
             for (int n = 0; n < NUM_MESSAGES; ++n) {
@@ -227,10 +260,15 @@ int main(int argc, char *argv[])
                 fixed.setTimestamp(now);
                 fixed.setProcessID(201 + n);
                 fixed.setThreadID(31 + n);
-                X.publish(ball::Record(fixed, userValues),
-                          ball::Context(ball::Transmission::e_TRIGGER,
-                                        n,
-                                        NUM_MESSAGES));
+                fixed.setMessage("Log Message (series)");
+
+                bsl::shared_ptr<ball::Record> record;
+                record.createInplace();
+                record->setFixedFields(fixed);
+
+                X.publish(record, ball::Context(ball::Transmission::e_TRIGGER,
+                                                n,
+                                                NUM_MESSAGES));
             }
         }
       } break;
@@ -247,7 +285,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
