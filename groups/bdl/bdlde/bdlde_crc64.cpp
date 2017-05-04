@@ -279,9 +279,8 @@ namespace bdlde {
                                 // -----------
 
 // MANIPULATORS
-void Crc64::update(const void *data, int length)
+void Crc64::update(const void *data, bsl::size_t length)
 {
-    BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || !length);
 
     const unsigned char *d = (const unsigned char *)data;
@@ -298,7 +297,7 @@ void Crc64::update(const void *data, int length)
       case 0: ;
     }
 
-    int n = length / 8;
+    bsl::size_t n = length / 8;
     while (n) {
         tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
         tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
@@ -333,7 +332,7 @@ bsl::ostream& Crc64::print(bsl::ostream& stream) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
