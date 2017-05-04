@@ -428,18 +428,19 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                 unsigned char hex;
 
                 if ('0' <= spec[i] && spec[i] <= '9') {
-                    hex = (spec[i] - '0') << 4;
+                    hex = static_cast<unsigned char>((spec[i] - '0') << 4);
                 } else if ('a' <= spec[i] && spec[i] <= 'f') {
-                    hex = (spec[i] - 'a' + 10) << 4;
+                    hex = static_cast<unsigned char>(
+                                                    (spec[i] - 'a' + 10) << 4);
                 }
 
                 // look at the next character
 
                 ++i;
                 if ('0' <= spec[i] && spec[i] <= '9') {
-                    hex |= (spec[i] - '0');
+                    hex |= static_cast<unsigned char>(spec[i] - '0');
                 } else if ('a' <= spec[i] && spec[i] <= 'f') {
-                    hex |= (spec[i] - 'a' + 10);
+                    hex |= static_cast<unsigned char>(spec[i] - 'a' + 10);
                 } else {
                     // syntax error, print an error message if vF != 0
 
@@ -591,7 +592,7 @@ int main(int argc, char *argv[])
         }
 
         for (int i = 0; i < 256; ++i) {
-            const unsigned char j = 255 - i;
+            const unsigned char j = static_cast<unsigned char>(255 - i);
 
             Obj obj;
             obj.update(&j, 1);
@@ -1357,7 +1358,7 @@ int main(int argc, char *argv[])
                     Obj t(VALUES[j]);
                     BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                       in.reset();
-                      LOOP2_ASSERT(i, j, X == t == (i == j));
+                      LOOP2_ASSERT(i, j, (X == t) == (i == j));
                       t.bdexStreamIn(in, VERSION);
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                     LOOP2_ASSERT(i, j, X == t);
@@ -2640,7 +2641,7 @@ int main(int argc, char *argv[])
         {
             bsl::cout << "BDE crc32 run" << bsl::endl;
 
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
 
             bsls::Stopwatch timer;
             timer.start();
@@ -2665,6 +2666,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_DATA; ++j) {
                     unsigned int crc32t =
                           crc32trm(DATA[j], bsl::strlen(DATA[j]), '\0');
+                    (void)crc32t;
                 }
             }
             timer.stop();
@@ -2688,7 +2690,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

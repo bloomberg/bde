@@ -162,9 +162,8 @@ namespace bdlde {
                                 // -----------
 
 // MANIPULATORS
-void Crc32::update(const void *data, int length)
+void Crc32::update(const void *data, bsl::size_t length)
 {
-    BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || !length);
 
     // The following is a Duff's Device-based implementation of a common
@@ -180,7 +179,7 @@ void Crc32::update(const void *data, int length)
       default: ;
     }
 
-    int n = length / 4;
+    bsl::size_t n = length / 4;
     while (n) {
         tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
         tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
@@ -223,7 +222,7 @@ bsl::ostream& Crc32::print(bsl::ostream& stream) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
