@@ -759,7 +759,7 @@ STREAM& Time::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) { // switch on the schema version
           case 2: {
-            bsls::Types::Int64 tmp;
+            bsls::Types::Int64 tmp = 0;
             stream.getInt64(tmp);
 
             if (   stream
@@ -772,7 +772,7 @@ STREAM& Time::bdexStreamIn(STREAM& stream, int version)
             }
           } break;
           case 1: {
-            int tmp;
+            int tmp = 0;
             stream.getInt32(tmp);
 
             if (   stream
