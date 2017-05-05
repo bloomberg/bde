@@ -197,6 +197,9 @@ class DatumMaker {
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder', then call 'pushBackHelper'
         // with the specified (variadic) entries.
+
+// IMPORTANT NOTE: The section below was manually modified to reduce the
+// maximum number of parameters for the array builder to 16.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -1896,6 +1899,9 @@ class DatumMaker {
     bdld::Datum a(ELEMENTS&&... elements) const;
         // Return a 'bdld::Datum' having an array value of the specified
         // 'elements'.
+
+// IMPORTANT NOTE: The section below was manually modified to reduce the
+// maximum number of parameters to 16.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
