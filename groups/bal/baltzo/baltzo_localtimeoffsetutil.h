@@ -199,6 +199,14 @@ struct LocalTimeOffsetUtil {
 
                         // *** local time offset methods ***
 
+    static void loadLocalTimeOffset(int                   *result,
+                                    const bdlt::Datetime&  utcDatetime);
+        // Efficiently load to the specified 'result' the offset of the local
+        // time from UTC for the specified 'utcDatetime'.  This function is
+        // thread-safe.  The behavior is undefined unless the local time zone
+        // has been previously established by a call to the 'configure' method.
+        // This method *is* thread-safe.
+
     static bsls::TimeInterval localTimeOffset(
                                             const bdlt::Datetime& utcDatetime);
         // Return the offset of the local time from UTC for the specified

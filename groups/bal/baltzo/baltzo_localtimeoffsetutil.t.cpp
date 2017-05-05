@@ -70,6 +70,9 @@ using namespace bsl;
 // [ 2] void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
 // [ 2] bsl::string loadTimezone(bsl::string *timezone);
 // [ 6] int updateCount();
+// [ 6] void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
+// [ 6] bdlt::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
+// 
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -1343,7 +1346,8 @@ int main(int argc, char *argv[])
         //:   in reverse order.  (C-2..3)
         //
         // Testing:
-        //  int localTimeOffset(int *result, const bdlt::Datetime& utc);
+        //  void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
+        //  bdlt::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
         //  int updateCount();
         // --------------------------------------------------------------------
 
@@ -1378,6 +1382,9 @@ int main(int argc, char *argv[])
                                      Util::localTimeOffset(UTC).totalSeconds();
                     ASSERT(expected.descriptor().utcOffsetInSeconds()
                         == reportedOffset);
+                    int loadOffset;
+                    Util::loadLocalTimeOffset(&loadOffset, UTC);
+                    ASSERT(reportedOffset == loadOffset);
                 }
             }
         }
