@@ -74,12 +74,12 @@ BSLS_IDENT("$Id: $")
 //      float                               DEFAULT
 //      double                              DEFAULT
 //      bsl::string                         DEFAULT, TEXT, BASE64, HEX
-//      bdlt::Date                           DEFAULT
-//      bdlt::DateTz                         DEFAULT
-//      bdlt::Datetime                       DEFAULT
-//      bdlt::DateTimeTz                     DEFAULT
-//      bdlt::Time                           DEFAULT
-//      bdlt::TimeTz                         DEFAULT
+//      bdlt::Date                          DEFAULT
+//      bdlt::DateTz                        DEFAULT
+//      bdlt::Datetime                      DEFAULT
+//      bdlt::DateTimeTz                    DEFAULT
+//      bdlt::Time                          DEFAULT
+//      bdlt::TimeTz                        DEFAULT
 //      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
@@ -242,6 +242,18 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCLASS
+#include <bslmf_isclass.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -758,6 +770,52 @@ struct TypesPrintUtil_Imp {
                                    const bsl::vector<char>&   object,
                                    const EncoderOptions      *encoderOptions,
                                    bdlat_TypeCategory::Array);
+
+    // FUNCTIONS FOR OBJECTS DERIVED FROM 'bslstl::StringRef'
+
+    template <typename TYPE>
+    static bsl::ostream& printBase64(
+                        bsl::ostream&                           stream,
+                        const TYPE&                             object,
+                        const EncoderOptions                   *encoderOptions,
+                        bdlat_TypeCategory::Simple,
+                        typename bsl::enable_if<
+                              bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                              bslstl::StringRef>::value>::type * = 0);
+
+    template <typename TYPE>
+    static bsl::ostream& printDefault(
+                        bsl::ostream&                           stream,
+                        const TYPE&                             object,
+                        const EncoderOptions                   *encoderOptions,
+                        bdlat_TypeCategory::Simple,
+                        typename bsl::enable_if<
+                              bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                              bslstl::StringRef>::value>::type * = 0);
+
+    template <typename TYPE>
+    static bsl::ostream& printHex(
+                        bsl::ostream&                           stream,
+                        const TYPE&                             object,
+                        const EncoderOptions                   *encoderOptions,
+                        bdlat_TypeCategory::Simple,
+                        typename bsl::enable_if<
+                              bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                              bslstl::StringRef>::value>::type * = 0);
+
+    template <typename TYPE>
+    static bsl::ostream& printText(
+                        bsl::ostream&                           stream,
+                        const TYPE&                             object,
+                        const EncoderOptions                   *encoderOptions,
+                        bdlat_TypeCategory::Simple,
+                        typename bsl::enable_if<
+                              bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                              bslstl::StringRef>::value>::type * = 0);
 };
 
 // ============================================================================
@@ -1858,13 +1916,83 @@ bsl::ostream& TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
     return stream << (object ? "true" : "false");
 }
 
+// FUNCTIONS FOR OBJECTS DERIVED FROM 'bslstl::StringRef'
+
+template <typename TYPE>
+inline
+static bsl::ostream& TypesPrintUtil_Imp::printBase64(
+       bsl::ostream&                                           stream,
+       const TYPE&                                             object,
+       const EncoderOptions                                   *encoderOptions,
+       bdlat_TypeCategory::Simple,
+       typename bsl::enable_if<bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                             bslstl::StringRef>::value>::type *)
+{
+    return printBase64(stream,
+                       static_cast<const bslstl::StringRef&>(object),
+                       encoderOptions,
+                       bdlat_TypeCategory::Simple());
+}
+
+template <typename TYPE>
+inline
+static bsl::ostream& TypesPrintUtil_Imp::printDefault(
+       bsl::ostream&                                           stream,
+       const TYPE&                                             object,
+       const EncoderOptions                                   *encoderOptions,
+       bdlat_TypeCategory::Simple,
+       typename bsl::enable_if<bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                             bslstl::StringRef>::value>::type *)
+{
+    return printDefault(stream,
+                        static_cast<const bslstl::StringRef&>(object),
+                        encoderOptions,
+                        bdlat_TypeCategory::Simple());
+}
+
+template <typename TYPE>
+inline
+static bsl::ostream& TypesPrintUtil_Imp::printHex(
+       bsl::ostream&                                           stream,
+       const TYPE&                                             object,
+       const EncoderOptions                                   *encoderOptions,
+       bdlat_TypeCategory::Simple,
+       typename bsl::enable_if<bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                             bslstl::StringRef>::value>::type *)
+{
+    return printHex(stream,
+                    static_cast<const bslstl::StringRef&>(object),
+                    encoderOptions,
+                    bdlat_TypeCategory::Simple());
+}
+
+template <typename TYPE>
+inline
+static bsl::ostream& TypesPrintUtil_Imp::printText(
+       bsl::ostream&                                           stream,
+       const TYPE&                                             object,
+       const EncoderOptions                                   *encoderOptions,
+       bdlat_TypeCategory::Simple,
+       typename bsl::enable_if<bsl::is_class<TYPE>::value
+                                                   && bsl::is_convertible<TYPE,
+                             bslstl::StringRef>::value>::type *)
+{
+    return printText(stream,
+                     static_cast<const bslstl::StringRef&>(object),
+                     encoderOptions,
+                     bdlat_TypeCategory::Simple());
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -102,6 +102,14 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef balxml::TypesPrintUtil Util;
 
+class MyStringRef : public bslstl::StringRef {
+  public:
+    MyStringRef(const char *data) : bslstl::StringRef(data) {}
+    MyStringRef(const bsl::string& string) : bslstl::StringRef(string) {}
+    MyStringRef(const char *from, const char *to)
+                                               : bslstl::StringRef(from, to) {}
+};
+
                               // ===============
                               // struct TestEnum
                               // ===============
@@ -2669,6 +2677,54 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nUsing 'MyStringRef'." << endl;
+        {
+            typedef MyStringRef Type;
+
+            static const struct {
+                int         d_lineNum;
+                Type        d_input;
+                const char *d_result;
+            } DATA[] = {
+                //line    input       result
+                //----    -----       ------
+                { L_,     "",         ""          },
+                { L_,     "Hello",    "Hello"     },
+                { L_,     "World!!",  "World!!"   },
+                { L_,     "&AB",      "&amp;AB"   },
+                { L_,     "A&B",      "A&amp;B"   },
+                { L_,     "AB&",      "AB&amp;"   },
+                { L_,     "<AB",      "&lt;AB"    },
+                { L_,     "A<B",      "A&lt;B"    },
+                { L_,     "AB<",      "AB&lt;"    },
+                { L_,     ">AB",      "&gt;AB"    },
+                { L_,     "A>B",      "A&gt;B"    },
+                { L_,     "AB>",      "AB&gt;"    },
+                { L_,     "\'AB",     "&apos;AB"  },
+                { L_,     "A\'B",     "A&apos;B"  },
+                { L_,     "AB\'",     "AB&apos;"  },
+                { L_,     "\"AB",     "&quot;AB"  },
+                { L_,     "A\"B",     "A&quot;B"  },
+                { L_,     "AB\"",     "AB&quot;"  },
+                { L_,     "\xC3\xB6" "AB",    "\xC3\xB6" "AB"     },
+                { L_,     "A" "\xC3\xB6" "B", "A" "\xC3\xB6" "B"  },
+                { L_,     "AB" "\xC3\xB6",    "AB" "\xC3\xB6"     },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE   = DATA[i].d_lineNum;
+                const Type  INPUT  = DATA[i].d_input;
+                const char *RESULT = DATA[i].d_result;
+
+                bsl::stringstream ss;
+
+                Util::printDefault(ss, INPUT);
+
+                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
         if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
         {
             typedef bsl::vector<char> Type;
@@ -3773,6 +3829,50 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
+                cout << "\nUsing 'MyStringRef' on valid strings.\n";
+            {
+                typedef MyStringRef Type;
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int  LINE   = VALID_DATA[i].d_lineNum;
+                    const Type INPUT  = VALID_DATA[i].d_input;
+                    const Type RESULT = VALID_DATA[i].d_result;
+
+                    bsl::stringstream ss;
+                    Util::printText(ss, INPUT);
+                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    LOOP_ASSERT(LINE, ss.good());
+
+                    const bsl::string INPUT2_STR = HEADER + INPUT;
+                    const bsl::string RESULT2_STR = HEADER + RESULT;
+                    const Type INPUT2 = INPUT2_STR;
+                    const Type RESULT2 = RESULT2_STR;
+                    ss.str("");
+                    Util::printText(ss, INPUT2);
+                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    LOOP_ASSERT(LINE, ss.good());
+
+                    const bsl::string INPUT3_STR = INPUT + TRAILER;
+                    const bsl::string RESULT3_STR = RESULT + TRAILER;
+                    const Type INPUT3 = INPUT3_STR;
+                    const Type RESULT3 = RESULT3_STR;
+                    ss.str("");
+                    Util::printText(ss, INPUT3);
+                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    LOOP_ASSERT(LINE, ss.good());
+
+                    const bsl::string INPUT4_STR = HEADER + INPUT + TRAILER;
+                    const bsl::string RESULT4_STR = HEADER + RESULT + TRAILER;
+                    const Type INPUT4 = INPUT4_STR;
+                    const Type RESULT4 = RESULT4_STR;
+                    ss.str("");
+                    Util::printText(ss, INPUT4);
+                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    LOOP_ASSERT(LINE, ss.good());
+                }
+            }
+
+            if (verbose)
                 cout << "\nUsing 'vector<char>' on valid strings." << endl;
             {
                 typedef bsl::vector<char> Type;
@@ -4254,6 +4354,50 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
+                cout << "\nUsing 'MyStringRef' on invalid strings."
+                     << endl;
+            {
+                typedef MyStringRef Type;
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int   LINE   = INVALID_DATA[i].d_lineNum;
+                    const Type  INPUT  = INVALID_DATA[i].d_input;
+                    const char *RESULT = "";
+
+                    bsl::stringstream ss;
+                    Util::printText(ss, INPUT);
+                    LOOP3_ASSERT(LINE, RESULT, ss.str(), RESULT == ss.str());
+                    LOOP_ASSERT(LINE, ss.fail());
+
+                    const bsl::string INPUT2_STR = HEADER + INPUT;
+                    const bsl::string RESULT2_STR = HEADER + RESULT;
+                    const Type INPUT2 = INPUT2_STR;
+                    const Type RESULT2 = RESULT2_STR;
+                    ss.clear(); ASSERT(ss.good()); ss.str("");
+                    Util::printText(ss, INPUT2);
+                    LOOP3_ASSERT(LINE, RESULT2, ss.str(), RESULT2 == ss.str());
+                    LOOP_ASSERT(LINE, ss.fail());
+
+                    const bsl::string INPUT3_STR = INPUT + TRAILER;
+                    const Type INPUT3 = INPUT3_STR;
+                    const Type RESULT3 = RESULT;
+                    ss.clear(); ASSERT(ss.good()); ss.str("");
+                    Util::printText(ss, INPUT3);
+                    LOOP3_ASSERT(LINE, RESULT3, ss.str(), RESULT3 == ss.str());
+                    LOOP_ASSERT(LINE, ss.fail());
+
+                    const bsl::string INPUT4_STR = HEADER + INPUT + TRAILER;
+                    const bsl::string RESULT4_STR = HEADER + RESULT;
+                    const Type INPUT4 = INPUT4_STR;
+                    const Type RESULT4 = RESULT4_STR;
+                    ss.clear(); ASSERT(ss.good()); ss.str("");
+                    Util::printText(ss, INPUT4);
+                    LOOP3_ASSERT(LINE, RESULT4, ss.str(), RESULT4 == ss.str());
+                    LOOP_ASSERT(LINE, ss.fail());
+                }
+            }
+
+            if (verbose)
                 cout << "\nUsing 'vector<char>' on invalid strings." << endl;
             {
                 typedef bsl::vector<char> Type;
@@ -4477,6 +4621,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
         {
             typedef bslstl::StringRef Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE          = DATA[i].d_lineNum;
+                const char *INPUT         = DATA[i].d_input;
+                const char *RESULT        = DATA[i].d_result;
+                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+
+                Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
+                bsl::stringstream ss;
+
+                Util::printHex(ss, X);
+
+                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'MyStringRef'." << endl;
+        {
+            typedef MyStringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE          = DATA[i].d_lineNum;
@@ -5381,6 +5544,25 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nUsing 'MyStringRef'." << endl;
+        {
+            typedef MyStringRef Type;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE          = DATA[i].d_lineNum;
+                const char *INPUT         = DATA[i].d_input;
+                const char *RESULT        = DATA[i].d_result;
+                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+
+                Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
+                bsl::stringstream ss;
+
+                Util::printBase64(ss, X);
+
+                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
         if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
         {
             typedef bsl::vector<char> Type;
@@ -5472,7 +5654,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
