@@ -3712,6 +3712,10 @@ int main(int argc, char *argv[])
                 { L_,  "@2012/3/1 30 0ua 5fa 0A 5BC",
                           "@2012/3/1 30 1mw 3ua 7f 1D 3A 5ABC 7",
                        "@2012/3/1 30 0ua 1uamw 3ua 5ufa 7fa 0A 1D 3A 5ABC 7" },
+
+                { L_,  "@2012/3/4 27 0ua 7umtwrfa",
+                          "@2012/3/4 27 0ua 1A 7B",
+                                           "@2012/3/4 27 0ua 7umtwrfa 1A 7B" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3825,7 +3829,10 @@ int main(int argc, char *argv[])
 
                 { L_,  "@2012/3/1 30 0ua 5fa 0A 5BC",
                           "@2012/3/1 30 1mw 3ua 7f 1D 3A 5ABC 7",
-                                               "@2012/3/1 30 3ua 5a 7f 5ABC" },
+                                            "@2012/3/1 30 3ua 5a 7f 3A 5ABC" },
+
+                { L_,  "@2012/3/4 27 0ua 7umtwrfa",
+                             "@2012/3/4 27 0ua 1A 7B", "@2012/3/4 27 0ua 7B" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3941,7 +3948,10 @@ int main(int argc, char *argv[])
 
                 { L_,  "@2012/3/1 30 0ua 5fa 0A 5BC",
                           "@2012/3/1 30 1mw 3ua 7f 1D 3A 5ABC 7",
-                                               "@2012/3/1 30 3ua 5a 7f 5ABC" },
+                                            "@2012/3/1 30 3ua 5a 7f 3A 5ABC" },
+
+                { L_,  "@2012/3/4 27 0ua 7umtwrfa",
+                             "@2012/3/4 27 0ua 1A 7B", "@2012/3/4 27 0ua 7B" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -4058,6 +4068,10 @@ int main(int argc, char *argv[])
                 { L_,  "@2012/3/1 30 0ua 5fa 0A 5BC",
                           "@2012/3/1 30 1mw 3ua 7f 1D 3A 5ABC 7",
                        "@2012/3/1 30 0ua 1uamw 3ua 5ufa 7fa 0A 1D 3A 5ABC 7" },
+
+                { L_,  "@2012/3/4 27 0ua 7umtwrfa",
+                          "@2012/3/4 27 0ua 1A 7B",
+                                           "@2012/3/4 27 0ua 7umtwrfa 1A 7B" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
