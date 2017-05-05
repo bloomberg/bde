@@ -80,7 +80,7 @@
 //  assert(retVal.theInteger() == 3);
 //..
 
-#ifndef INCLUDED_DLCSCM_VERSION
+#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
 
@@ -143,11 +143,17 @@ class DatumMaker {
         // 'bool'. This (unimplemented) function template should not be
         // instantiated unless 'operator()' is called with an unsupported type.
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=32
     // PRIVATE ACCESSORS
-	void pushBackHelper(bdld::DatumArrayBuilder *builder) const;
-		// Do nothing, End the recursion.
+    void pushBackHelper(bdld::DatumArrayBuilder *) const;
+        // Do nothing, ends template recursion.
 
+    void pushBackHelper(bdld::DatumMapBuilder *) const;
+        // Do nothing, ends template recursion.
+
+    void pushBackHelper(bdld::DatumMapOwningKeysBuilder *) const;
+        // Do nothing, ends template recursion.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=32
     template <typename TYPE>
     void pushBackHelper(bdld::DatumArrayBuilder *builder,
                         TYPE&&                   element) const;
@@ -160,27 +166,21 @@ class DatumMaker {
         // 'push_back' the specified 'element' into the specified 'builder',
         // then call 'pushBackHelper' with the specified (variadic) 'elements'.
 
-	void pushBackHelper(bdld::DatumMapBuilder                  *builder) const;
-		// Do nothing, End the recursion.
-
     template <typename TYPE>
-    void pushBackHelper(bdld::DatumMapBuilder                  *builder,
-                        const bslstl::StringRef&                key,
-                        TYPE&&                 value) const;
+    void pushBackHelper(bdld::DatumMapBuilder    *builder,
+                        const bslstl::StringRef&  key,
+                        TYPE&&                    value) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder'.
 
     template <typename TYPE, typename... ENTRIES>
-    void pushBackHelper(bdld::DatumMapBuilder                  *builder,
-                        const bslstl::StringRef&                key,
-                        TYPE&&                 value,
-                        ENTRIES&&...           entries) const;
+    void pushBackHelper(bdld::DatumMapBuilder    *builder,
+                        const bslstl::StringRef&  key,
+                        TYPE&&                    value,
+                        ENTRIES&&...              entries) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder', then call 'pushBackHelper'
         // with the specified (variadic) entries.
-
-	void pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder) const;
-		// Do nothing, End the recursion.
 
     template <typename TYPE>
     void pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder,
@@ -197,12 +197,13 @@ class DatumMaker {
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder', then call 'pushBackHelper'
         // with the specified (variadic) entries.
+
+// IMPORTANT NOTE: The section below was manually modified to reduce the
+// maximum number of parameters for the array builder to 16.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args 32 bdld_datummaker.h
-    void pushBackHelper(bdld::DatumArrayBuilder *builder) const;
-
     template <typename TYPE>
     void pushBackHelper(bdld::DatumArrayBuilder *builder,
                         BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) element
@@ -543,9 +544,6 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_15) elements_15,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_16) elements_16
                         ) const;
-
-
-    void pushBackHelper(bdld::DatumMapBuilder                  *builder) const;
 
     template <typename TYPE>
     void pushBackHelper(bdld::DatumMapBuilder                  *builder,
@@ -1177,9 +1175,6 @@ class DatumMaker {
                       BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_32) entries_32
                         ) const;
 
-
-    void pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder) const;
-
     template <typename TYPE>
     void pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder,
                         const bslstl::StringRef&         key,
@@ -1456,7 +1451,7 @@ class DatumMaker {
                       BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_20) entries_20
                         ) const;
 
-	template <typename TYPE, typename ENTRIES_01,
+    template <typename TYPE, typename ENTRIES_01,
                              typename ENTRIES_02,
                              typename ENTRIES_03,
                              typename ENTRIES_04,
@@ -1884,8 +1879,8 @@ class DatumMaker {
         // references.  Note that 'ConstDatumMapRef' is not supported at the
         // moment.
 
-    bdld::Datum operator()(const bdld::Datum               *elements,
-                           int                              size)  const;
+    bdld::Datum operator()(const bdld::Datum         *elements,
+                           int                        size)  const;
     bdld::Datum operator()(const bdld::DatumMapEntry *elements,
                            int                        size,
                            bool                       sorted = false)  const;
@@ -1900,28 +1895,31 @@ class DatumMaker {
         // 'bdld::Datum' object will contain a deep-copy of 'value'.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-	template <typename... ELEMENTS>
+    template <typename... ELEMENTS>
     bdld::Datum a(ELEMENTS&&... elements) const;
         // Return a 'bdld::Datum' having an array value of the specified
         // 'elements'.
+
+// IMPORTANT NOTE: The section below was manually modified to reduce the
+// maximum number of parameters to 16.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args 32 bdld_datummaker.h
-	bdld::Datum a(
+    bdld::Datum a(
                   ) const;
 
-	template <typename ELEMENTS_01>
+    template <typename ELEMENTS_01>
     bdld::Datum a(BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_01) elements_01
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02>
     bdld::Datum a(BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_01) elements_01,
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_02) elements_02
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03>
     bdld::Datum a(BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_01) elements_01,
@@ -1929,7 +1927,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_03) elements_03
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04>
@@ -1939,7 +1937,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_04) elements_04
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -1951,7 +1949,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_05) elements_05
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -1965,7 +1963,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_06) elements_06
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -1981,7 +1979,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_07) elements_07
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -1999,7 +1997,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_08) elements_08
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2019,7 +2017,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_09) elements_09
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2041,7 +2039,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_10) elements_10
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2065,7 +2063,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_11) elements_11
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2091,7 +2089,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_12) elements_12
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2119,7 +2117,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_13) elements_13
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2149,7 +2147,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_14) elements_14
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2181,7 +2179,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS_15) elements_15
                   ) const;
 
-	template <typename ELEMENTS_01,
+    template <typename ELEMENTS_01,
            typename ELEMENTS_02,
            typename ELEMENTS_03,
            typename ELEMENTS_04,
@@ -2217,14 +2215,14 @@ class DatumMaker {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-	template <typename... ELEMENTS>
+    template <typename... ELEMENTS>
     bdld::Datum a(BSLS_COMPILERFEATURES_FORWARD_REF(ELEMENTS)... elements
                   ) const;
 // }}} END GENERATED CODE
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-	template <typename... ENTRIES>
+    template <typename... ENTRIES>
     bdld::Datum m(ENTRIES&&... entries) const;
         // Return a 'bdld::Datum' object containing a map of the specified
         // 'entries'.  The 'entries' are supplied as pairs (odd number of
@@ -2235,15 +2233,15 @@ class DatumMaker {
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args 32 bdld_datummaker.h
-	bdld::Datum m() const;
+    bdld::Datum m() const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02>
     bdld::Datum m(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_01) entries_01,
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_02) entries_02
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04>
@@ -2253,7 +2251,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_04) entries_04
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2267,7 +2265,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_06) entries_06
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2285,7 +2283,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_08) entries_08
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2307,7 +2305,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_10) entries_10
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2333,7 +2331,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_12) entries_12
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2363,7 +2361,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_14) entries_14
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2397,7 +2395,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_16) entries_16
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2435,7 +2433,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_18) entries_18
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2477,7 +2475,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_20) entries_20
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2523,7 +2521,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_22) entries_22
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2573,7 +2571,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_24) entries_24
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2627,7 +2625,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_26) entries_26
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2685,7 +2683,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_28) entries_28
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2747,7 +2745,7 @@ class DatumMaker {
                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_30) entries_30
                   ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2816,13 +2814,13 @@ class DatumMaker {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-	template <typename... ENTRIES>
+    template <typename... ENTRIES>
     bdld::Datum m(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries) const;
 // }}} END GENERATED CODE
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-	template <typename... ENTRIES>
+    template <typename... ENTRIES>
     bdld::Datum mok(ENTRIES&&... entries) const;
         // Return a 'bdld::Datum' object containing a map with owned keys
         // consisting of the specified 'entries'.  The 'entries' are supplied
@@ -2834,16 +2832,16 @@ class DatumMaker {
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args 32 bdld_datummaker.h
-	bdld::Datum mok(
+    bdld::Datum mok(
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02>
     bdld::Datum mok(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_01) entries_01,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_02) entries_02
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04>
@@ -2853,7 +2851,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_04) entries_04
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2867,7 +2865,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_06) entries_06
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2885,7 +2883,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_08) entries_08
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2907,7 +2905,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_10) entries_10
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2933,7 +2931,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_12) entries_12
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2963,7 +2961,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_14) entries_14
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -2997,7 +2995,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_16) entries_16
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3035,7 +3033,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_18) entries_18
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3077,7 +3075,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_20) entries_20
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3123,7 +3121,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_22) entries_22
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3173,7 +3171,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_24) entries_24
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3227,7 +3225,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_26) entries_26
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3285,7 +3283,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_28) entries_28
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3347,7 +3345,7 @@ class DatumMaker {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_30) entries_30
                     ) const;
 
-	template <typename ENTRIES_01,
+    template <typename ENTRIES_01,
            typename ENTRIES_02,
            typename ENTRIES_03,
            typename ENTRIES_04,
@@ -3416,7 +3414,7 @@ class DatumMaker {
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-	template <typename... ENTRIES>
+    template <typename... ENTRIES>
     bdld::Datum mok(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries
                     ) const;
 // }}} END GENERATED CODE
@@ -3431,13 +3429,23 @@ class DatumMaker {
                               // class DatumMaker
                               // ----------------
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // PRIVATE ACCESSORS
-void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder) const
+inline
+void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *) const
 {
-	(void)builder;
 }
 
+inline
+void DatumMaker::pushBackHelper(bdld::DatumMapBuilder *) const
+{
+}
+
+inline
+void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *) const
+{
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <typename TYPE>
 void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
                                 TYPE&&                   element) const
@@ -3452,11 +3460,6 @@ void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
 {
     builder->pushBack((*this)(element));
     pushBackHelper(builder, elements...);
-}
-
-void DatumMaker::pushBackHelper(bdld::DatumMapBuilder *builder) const
-{
-	(void)builder;
 }
 
 template <typename TYPE>
@@ -3475,11 +3478,6 @@ void DatumMaker::pushBackHelper(bdld::DatumMapBuilder    *builder,
 {
     builder->pushBack(key, (*this)(value));
     pushBackHelper(builder, entries...);
-}
-
-void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder) const
-{
-	(void)builder;
 }
 
 template <typename TYPE>
@@ -3504,11 +3502,6 @@ void DatumMaker::pushBackHelper(
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args 32 bdld_datummaker.h
-void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder) const
-{
-	(void)builder;
-}
-
 template <typename TYPE>
 void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) element
@@ -4036,11 +4029,6 @@ void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
                             elements_14,
                             elements_15,
                             elements_16);
-}
-
-void DatumMaker::pushBackHelper(bdld::DatumMapBuilder *builder) const
-{
-    (void)builder;
 }
 
 template <typename TYPE>
@@ -4995,12 +4983,6 @@ void DatumMaker::pushBackHelper(bdld::DatumMapBuilder                 *builder,
                             entries_30,
                             entries_31,
                             entries_32);
-}
-
-
-void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder) const
-{
-    (void)builder;
 }
 
 template <typename TYPE>
@@ -5976,11 +5958,6 @@ void DatumMaker::pushBackHelper(
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder) const
-{
-	(void)builder;
-}
-
 template <typename TYPE>
 void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
                                 BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) element
@@ -5997,12 +5974,6 @@ void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
 {
     builder->pushBack((*this)(element));
     pushBackHelper(builder, elements...);
-}
-
-
-void DatumMaker::pushBackHelper(bdld::DatumMapBuilder *builder) const
-{
-	(void)builder;
 }
 
 template <typename TYPE>
@@ -6023,12 +5994,6 @@ void DatumMaker::pushBackHelper(bdld::DatumMapBuilder                  *builder,
 {
     builder->pushBack(key, (*this)(value));
     pushBackHelper(builder, entries...);
-}
-
-
-void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *builder) const
-{
-	(void)builder;
 }
 
 template <typename TYPE>
