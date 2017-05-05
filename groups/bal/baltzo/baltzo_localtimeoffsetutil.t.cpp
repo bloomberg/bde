@@ -57,22 +57,22 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-                        // *** local time offset methods ***
+//                         *** local time offset methods ***
 // [ 6] int localTimeOffset(int *result, const bdlt::Datetime& utc);
 // [ 4] bdlt::CurrentTime::LLTOC setLoadLocalTimeOffsetCallback();
-
-                        // *** configure methods ***
+//
+//                         *** configure methods ***
 // [ 3] int configure();
 // [ 3] int configure(const char *timezone);
 // [ 2] int configure(const char *timezone, const bdlt::Datetime& utc);
-
-                        // *** accessor methods ***
+//
+//                         *** accessor methods ***
 // [ 2] void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
 // [ 2] bsl::string loadTimezone(bsl::string *timezone);
 // [ 6] int updateCount();
 // [ 6] void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
 // [ 6] bdlt::TimeInterval loadLocalTimeOffset(const bdlt::Datetime& utc);
-// 
+//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -1034,7 +1034,7 @@ struct LogVerbosityGuard {
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
 
-    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough 
+    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
     explicit LogVerbosityGuard(bool verbose = false)
