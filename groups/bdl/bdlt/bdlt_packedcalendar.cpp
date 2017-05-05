@@ -360,11 +360,51 @@ void PackedCalendar::intersectHolidays(
             ++rhsH;
         }
         else if (*lhsH < *rhsH) {
+            if (rhs.isWeekendDay(*lhsH)) {
+                appendHoliday(resHolidayOffsets,
+                              resHolidayCodesIndex,
+                              resHolidayCodes,
+                              *lhsH - firstDate,
+                              lhs.beginHolidayCodes(lhsH),
+                              lhs.endHolidayCodes(lhsH));
+            }
             ++lhsH;
         }
         else {
+            if (lhs.isWeekendDay(*rhsH)) {
+                appendHoliday(resHolidayOffsets,
+                              resHolidayCodesIndex,
+                              resHolidayCodes,
+                              *rhsH - firstDate,
+                              rhs.beginHolidayCodes(rhsH),
+                              rhs.endHolidayCodes(rhsH));
+            }
             ++rhsH;
         }
+    }
+
+    while (lhsH != lhsHE) {
+        if (rhs.isWeekendDay(*lhsH)) {
+            appendHoliday(resHolidayOffsets,
+                          resHolidayCodesIndex,
+                          resHolidayCodes,
+                          *lhsH - firstDate,
+                          lhs.beginHolidayCodes(lhsH),
+                          lhs.endHolidayCodes(lhsH));
+        }
+        ++lhsH;
+    }
+
+    while (rhsH != rhsHE) {
+        if (lhs.isWeekendDay(*rhsH)) {
+            appendHoliday(resHolidayOffsets,
+                          resHolidayCodesIndex,
+                          resHolidayCodes,
+                          *rhsH - firstDate,
+                          rhs.beginHolidayCodes(rhsH),
+                          rhs.endHolidayCodes(rhsH));
+        }
+        ++rhsH;
     }
 }
 
