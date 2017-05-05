@@ -885,15 +885,16 @@ class PackedCalendar {
     void intersectNonBusinessDays(const PackedCalendar& other);
         // Merge the specified 'other' calendar into this calendar such that
         // the valid range of this calendar becomes the *intersection* of the
-        // two calendars' ranges, and the weekend days and holidays for this
-        // calendar become the intersection of those (non-business) days from
-        // the two calendars -- i.e., the valid business days of this calendar
-        // become the union of those of the two original calendars, over the
-        // *intersection* of their ranges.  For each holiday that remains, the
-        // resulting holiday codes in this calendar will be the union of the
-        // corresponding original holiday codes.  See {Iterator Invalidation}
-        // for information regarding which iterators are affected by the use of
-        // this method.
+        // two calendars' ranges, the weekend days for this calendar become the
+        // intersection of those days from the two calendars, and the holidays
+        // for this calendar become the set of days that are a holiday in one
+        // of the calendars and a non-business day in the other calendar --
+        // i.e., the valid business days of this calendar become the union of
+        // those of the two original calendars, over the *intersection* of
+        // their ranges.  For each holiday that remains, the resulting holiday
+        // codes in this calendar will be the union of the corresponding
+        // original holiday codes.  See {Iterator Invalidation} for information
+        // regarding which iterators are affected by the use of this method.
 
     void removeAll();
         // Remove all information from this calendar, leaving it with its
@@ -944,15 +945,16 @@ class PackedCalendar {
         // Merge the specified 'other' calendar into this calendar such that
         // the valid range of this calendar becomes the *union* of the two
         // calendars' ranges (or the minimal continuous range spanning the two
-        // ranges, if the ranges are non-overlapping), and the weekend days
-        // and holidays for this calendar become the intersection of those
-        // (non-business) days from the two calendars -- i.e., the valid
-        // business days of this calendar become the union of those of the two
-        // original calendar values.  For each holiday that remains, the
-        // resulting holiday codes in this calendar will be the union of the
-        // corresponding original holiday codes.  See {Iterator Invalidation}
-        // for information regarding which iterators are affected by the use of
-        // this method.
+        // ranges, if the ranges are non-overlapping), the weekend days for
+        // this calendar become the intersection of those days from the two
+        // calendars, and the holidays for this calendar become the set of days
+        // that are a holiday in one of the calendars and a non-business day in
+        // the other calendar -- i.e., the valid business days of this calendar
+        // become the union of those of the two original calendar values.  For
+        // each holiday that remains, the resulting holiday codes in this
+        // calendar will be the union of the corresponding original holiday
+        // codes.  See {Iterator Invalidation} for information regarding which
+        // iterators are affected by the use of this method.
 
     void unionNonBusinessDays(const PackedCalendar& other);
         // Merge the specified 'other' calendar into this calendar such that
