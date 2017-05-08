@@ -207,8 +207,8 @@ BSLS_IDENT("$Id: $")
 //                      const bsl::vector<bsl::string>& fileList,
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
-//       bdlmqq::Mutex     mutex;
-//       bdlmqq::ThreadAttributes defaultAttributes;
+//       bslmt::Mutex     mutex;
+//       bslmt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
