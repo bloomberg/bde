@@ -16,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under testing is a primitive trait class, which is used as a tag
-// type and therefore is empty.  There is nothing to test except that the name
-// of the class is as expected, and the usage example.
+// Verify that the trait under test can be detected using 'bslalg::HasTrait'
+// whether the trait is ascribed using 'BSLMF_NESTED_TRAIT_DECLARATION' or
+// using the (preferred) C++11 idiom for defining traits.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -72,6 +72,15 @@ typedef bslalg::TypeTraitHasStlIterators  Obj;
 
 struct Container {
     typedef int *iterator;
+
+    int *begin() { return 0; }
+    int *end()   { return 0; }
+};
+
+struct AnotherContainer {
+    typedef int *iterator;
+
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherContainer, bslalg::HasStlIterators);
 
     int *begin() { return 0; }
     int *end()   { return 0; }
@@ -133,11 +142,11 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<Container, Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<Empty,     Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<Container,        Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<Empty,            Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AnotherContainer, Obj>::VALUE));
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

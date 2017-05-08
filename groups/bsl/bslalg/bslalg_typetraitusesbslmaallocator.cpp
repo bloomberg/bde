@@ -6,10 +6,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslalg_hastrait.h>    // for testing only
 
-namespace BloombergLP {
-
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

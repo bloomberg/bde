@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// TBD
+// No Usage example is provided since this component is deprecated.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -56,7 +56,7 @@ struct TypeTraitNil
     template <class TYPE>
     struct NestedTraitDeclaration
     {
-        // This metafunction returns 'true_type' for any class that is queried
+        // This meta-function returns 'true_type' for any type that is queried
         // for the nil trait.
     };
 

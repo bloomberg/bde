@@ -16,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under testing is a primitive trait class, which is used as a tag
-// type and therefore is empty.  There is nothing to test except that the name
-// of the class is as expected, and the usage example.
+// Verify that the trait under test can be detected using 'bslalg::HasTrait'
+// whether the trait is ascribed using 'BSLMF_NESTED_TRAIT_DECLARATION' or
+// using the (preferred) C++11 idiom for defining traits.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -77,11 +77,23 @@ struct AlmostTrivial {
 
 class NotTrivial {
   private:
-    void *d_this;
+    void *d_this_p;
 
   public:
-    NotTrivial() : d_this(this) {}
-    NotTrivial(const NotTrivial&) : d_this(this) {}
+    NotTrivial() : d_this_p(this) {}
+    NotTrivial(const NotTrivial&) : d_this_p(this) {}
+};
+
+class AnotherNotTrivial {
+  private:
+    void *d_this_p;
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherNotTrivial,
+                                   bslmf::IsBitwiseMoveable);
+
+    AnotherNotTrivial() : d_this_p(this) {}
+    AnotherNotTrivial(const AnotherNotTrivial&) : d_this_p(this) {}
 };
 
 namespace BloombergLP {
@@ -137,11 +149,11 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<AlmostTrivial, Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotTrivial,    Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AlmostTrivial,     Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotTrivial,        Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AnotherNotTrivial, Obj>::VALUE));
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

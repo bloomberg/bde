@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // 'bslma::UsesBslmaAllocator' to be declared using the (deprecated)
 // 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslma_usesbslmaallocator'
 // component for details of this trait.
+//
+///Usage
+///-----
+// No Usage example is provided since this component is deprecated.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -40,9 +44,9 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-                 //==========================================
+                 //===================================
                  // struct TypeTraitUsesBslmaAllocator
-                 //==========================================
+                 //===================================
 
 struct TypeTraitUsesBslmaAllocator {
     // A 'TYPE' with this trait uses an allocator derived from

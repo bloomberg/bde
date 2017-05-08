@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // 'bslma::bslmf::IsBitwiseMoveable' to be declared using the (deprecated)
 // 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See the 'bslmf_isbitwisemoveable'
 // component for details of this trait.
+//
+///Usage
+///-----
+// No Usage example is provided since this component is deprecated.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

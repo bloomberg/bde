@@ -4,15 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslalg_typetraitbitwisecopyable.h>               // for testing only
-#include <bslalg_typetraitbitwiseequalitycomparable.h>     // for testing only
-#include <bslalg_typetraitbitwisemoveable.h>               // for testing only
-#include <bslalg_typetraithaspointersemantics.h>           // for testing only
-#include <bslalg_typetraithasstliterators.h>               // for testing only
-#include <bslalg_typetraithastrivialdefaultconstructor.h>  // for testing only
-#include <bslalg_typetraitpair.h>                          // for testing only
-#include <bslalg_typetraitusesbslmaallocator.h>            // for testing only
-
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

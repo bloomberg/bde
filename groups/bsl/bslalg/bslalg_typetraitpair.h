@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as similar to 'std::pair'.
 //
-//@DEPRECATED: Do not use.
+//@DEPRECATED: Use 'bslmf_ispair' instead.
 //
 //@CLASSES:
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
@@ -22,6 +22,10 @@ BSLS_IDENT("$Id: $")
 // 'bslalg::TypeTraitPair', which allows the trait 'bslmf::IsPair' to be
 // declared using the (deprecated) 'BSLALG_DECLARE_NESTED_TRAITS' macro.  See
 // the 'bslmf_ispair' component for details of this trait.
+//
+///Usage
+///-----
+// No Usage example is provided since this component is deprecated.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

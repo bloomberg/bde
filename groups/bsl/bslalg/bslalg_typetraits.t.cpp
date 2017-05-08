@@ -1,22 +1,10 @@
 // bslalg_typetraits.t.cpp                                            -*-C++-*-
 #include <bslalg_typetraits.h>
 
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwiseequalitycomparable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraithaspointersemantics.h>
-#include <bslalg_typetraithasstliterators.h>
-#include <bslalg_typetraithastrivialdefaultconstructor.h>
-#include <bslalg_typetraitnil.h>
-#include <bslalg_typetraitpair.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
-
 #include <bslma_testallocator.h>
 
-#include <bslmf_isconvertible.h>
-#include <bslmf_metaint.h>
-#include <bslmf_removecvq.h>
 #include <bslmf_if.h>
+#include <bslmf_metaint.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
@@ -40,7 +28,6 @@ using namespace BloombergLP;
 // performed in the breathing test.  There is a very good infrastructure for
 // testing, computing the traits of a type as a bit-field, which should be
 // reused systematically.
-//-----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] USAGE EXAMPLE
@@ -112,18 +99,23 @@ const unsigned TRAIT_HASPOINTERSEMANTICS          = 0x0080;
 const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
                             TRAIT_BITWISECOPYABLE |
                             TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR);
+
 const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
-// Traits detection
-template <class TYPE, class TRAIT>
-struct HasTrait {
-    enum {
-        VALUE = TRAIT::template Metafunction<TYPE>::value
-    };
+// 'TRAIT_PAIR' is intentionally excluded from 'TRAIT_OTHER' (below) despite
+// the use of 'BSLALG_DECLARE_NESTED_TRAITS5' in 'my_Class3'.  This is because,
+// as written, 'bslmf::IsPair' cannot be detected by 'bslalg::HasTrait' if it
+// is ascribed to a type using 'BSLALG_DECLARE_NESTED_TRAITS*'.  To "fix"
+// 'bslmf::IsPair' for this, 'bslmf_ispair' would have to depend on
+// 'bslmf_detectnestedtrait', which is not desirable.  See the implementation
+// of 'bslalg::HasStlIterators' for an example of the "fix".
 
-    typedef bslmf::MetaInt<VALUE> Type;
-};
+const unsigned TRAIT_OTHER = (TRAIT_BITWISEEQUALITYCOMPARABLE |
+// *** exclude ***            TRAIT_PAIR                      |
+                              TRAIT_USESBSLMAALLOCATOR        |
+                              TRAIT_HASSTLITERATORS           |
+                              TRAIT_HASPOINTERSEMANTICS);
 
 // Traits bit vector
 template <class TYPE>
@@ -131,31 +123,37 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
-            ? TRAIT_BITWISEMOVEABLE
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
-            ? TRAIT_BITWISECOPYABLE
-            : 0;
-    result |= HasTrait<TYPE,
-                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-            ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
-            ? TRAIT_BITWISEEQUALITYCOMPARABLE
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
-            ? TRAIT_PAIR
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE
-            ? TRAIT_USESBSLMAALLOCATOR
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
-            ? TRAIT_HASSTLITERATORS
-            : 0;
-    result |= HasTrait<TYPE, bslalg::TypeTraitHasPointerSemantics>::VALUE
-            ? TRAIT_HASPOINTERSEMANTICS
-            : 0;
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
+              ? TRAIT_BITWISEMOVEABLE
+              : 0;
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
+              ? TRAIT_BITWISECOPYABLE
+              : 0;
+    result |= bslalg::HasTrait<
+                          TYPE,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
+              ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
+              : 0;
+    result |= bslalg::HasTrait<
+                             TYPE,
+                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
+              ? TRAIT_BITWISEEQUALITYCOMPARABLE
+              : 0;
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
+              ? TRAIT_PAIR
+              : 0;
+    result |= bslalg::HasTrait<TYPE,
+                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+              ? TRAIT_USESBSLMAALLOCATOR
+              : 0;
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
+              ? TRAIT_HASSTLITERATORS
+              : 0;
+    result |= bslalg::HasTrait<TYPE,
+                               bslalg::TypeTraitHasPointerSemantics>::VALUE
+              ? TRAIT_HASPOINTERSEMANTICS
+              : 0;
+
     return result;
 }
 
@@ -172,25 +170,24 @@ struct Identity {
 
 // Test that 'traitBits<TYPE>()' returns the value 'TRAIT_BITS' for every
 // combination of cv-qualified 'TYPE' and reference to 'TYPE'.
-#define TRAIT_TEST(TYPE, TRAIT_BITS) do {                              \
-    typedef Identity<TYPE >::Type Type;                                \
-    typedef Type const            cType;                               \
-    typedef Type volatile         vType;                               \
-    typedef Type const volatile   cvType;                              \
-    static const char *TypeName = #TYPE;                               \
-    static const unsigned traits = traitBits<  Type>();                \
+#define TRAIT_TEST(TYPE, TRAIT_BITS) do {                                \
+    typedef Identity<TYPE >::Type Type;                                  \
+    typedef Type const            cType;                                 \
+    typedef Type volatile         vType;                                 \
+    typedef Type const volatile   cvType;                                \
+    static const char *TypeName = #TYPE;                                 \
+    static const unsigned traits = traitBits<  Type>();                  \
     LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
-    LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
-    LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
-    LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
+    LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);       \
+    LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);       \
+    LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);       \
 } while (0)
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-struct my_Class0
-{
+struct my_Class0 {
     int d_nonEmptyData;
 
     // Class with no defined traits.
@@ -201,8 +198,7 @@ struct my_Class0
         // implementation.
 };
 
-struct my_Class1 : my_Class0
-{
+struct my_Class1 : my_Class0 {
     // Class that uses explicitly-specialized type traits.
 };
 
@@ -224,17 +220,34 @@ template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 }  // close enterprise namespace
 
 template <class T>
-struct my_Class2
-{
-    // Class template that has nested type traits
+struct my_Class2 {
+    // Class template that has nested type traits.
+
     BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
                                 bslalg::TypeTraitBitwiseCopyable,
                                 bslalg::TypeTraitBitwiseMoveable,
                                 bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
-struct my_Class4 : my_Class0
-{
+template <class TYPE>
+struct my_Class3 {
+    // Class template that has a different set of nested type traits.
+
+    TYPE *d_first_p;
+    TYPE *d_second_p;
+
+    BSLALG_DECLARE_NESTED_TRAITS5(my_Class3,
+                                  bslalg::TypeTraitBitwiseEqualityComparable,
+                                  bslalg::TypeTraitHasPointerSemantics,
+                                  bslalg::TypeTraitHasStlIterators,
+                                  bslalg::TypeTraitPair,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
+
+    explicit my_Class3(bslma::Allocator * = 0) {}
+    my_Class3(const my_Class3&, bslma::Allocator * = 0) {}
+};
+
+struct my_Class4 : my_Class0 {
     // This 'class' has no special traits, but supports (implicit) conversion
     // from 'void *'.  It will be used to check against false positives for
     // 'bslma::Allocator *' traits.
@@ -244,19 +257,18 @@ struct my_Class4 : my_Class0
         // to 'bslma::Allocator', as an implicit conversion.
 };
 
-enum my_Enum
-{
+enum my_Enum {
     // Enumeration type (is automatically bitwise copyable)
     MY_ENUM_0
 };
 
-struct ConvertibleToAnyNoTraits : my_Class0
+struct ConvertibleToAnyNoTraits : my_Class0 {
     // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
     // assign it any traits.  The concern is that since
     // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
     // the "convert to anything" operator shouldn't interfere with the nested
     // trait logic.
-{
+
     template <class T>
     operator T() const { return T(); }
 };
@@ -418,7 +430,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
             // 'bslalg::TypeTraitUsesBslmaAllocator'.
         {
             copyConstruct(location, value, allocator,
-                typename bslmf::If<HasTrait<TYPE,
+                typename bslmf::If<bslalg::HasTrait<TYPE,
                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
                           bslalg::TypeTraitUsesBslmaAllocator,
                           bslalg::TypeTraitNil>::Type());
@@ -624,11 +636,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        // Nil traits
+        // Nil traits.
         TRAIT_TEST(my_Class0, TRAIT_NIL);
         TRAIT_TEST(my_Class4, TRAIT_NIL);
 
-        // Reference traits.  (Cannot use TRAIT_TEST for references.
+        // Reference traits.  (Cannot use TRAIT_TEST for references.)
         ASSERT(traitBits<int&>() == TRAIT_NIL);
         ASSERT(traitBits<const int&>() == TRAIT_NIL);
         ASSERT(traitBits<volatile int&>() == TRAIT_NIL);
@@ -640,8 +652,9 @@ int main(int argc, char *argv[])
         ASSERT(traitBits<my_Enum&>() == TRAIT_NIL);
         ASSERT(traitBits<my_Class1&>() == TRAIT_NIL);
         ASSERT(traitBits<my_Class2<int>&>() == TRAIT_NIL);
+        ASSERT(traitBits<my_Class3<int>&>() == TRAIT_NIL);
 
-        // Autodetected fundamental traits
+        // Auto-detected fundamental traits.
         TRAIT_TEST(char, TRAIT_EQPOD);
         TRAIT_TEST(unsigned char, TRAIT_EQPOD);
         TRAIT_TEST(signed char, TRAIT_EQPOD);
@@ -662,15 +675,16 @@ int main(int argc, char *argv[])
         TRAIT_TEST(int (*)(int), TRAIT_EQPOD | TRAIT_HASPOINTERSEMANTICS);
         TRAIT_TEST(int (my_Class1::*)(int), TRAIT_EQPOD);
 
-        // Explicit traits
+        // Explicit traits.
         TRAIT_TEST(my_Class1, TRAIT_USESBSLMAALLOCATOR);
         TRAIT_TEST(my_Class2<int>, TRAIT_POD);
+        TRAIT_TEST(my_Class3<int>, TRAIT_OTHER);
 
-        // Trait tests for type convertible to anything
+        // Trait tests for type convertible to anything.
         TRAIT_TEST(ConvertibleToAnyNoTraits, TRAIT_NIL);
         TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_USESBSLMAALLOCATOR);
-      } break;
 
+      } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

@@ -16,13 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under testing is a primitive trait class, which is used as a tag
-// type and therefore is empty.  There is nothing to test except that the name
-// of the class is as expected, and the usage example.
-//
-// For historical reasons, all 'bslalg' traits defer testing for the specifics
-// of their trait to the 'bslalg_hastrait' component, which is how 'bslalg'
-// traits are idiomatically queried.
+// Verify that the trait under test can be detected using 'bslalg::HasTrait'
+// whether the trait is ascribed using 'BSLMF_NESTED_TRAIT_DECLARATION' or
+// using the (preferred) C++11 idiom for defining traits.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -75,9 +71,18 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bslalg::TypeTraitHasPointerSemantics  Obj;
 
 struct PointerLike {
-    int *d_data;
+    int *d_data_p;
 
-    int & operator*() const { return *d_data; }
+    int & operator*() const { return *d_data_p; }
+};
+
+struct AnotherPointerLike {
+    int *d_data_p;
+
+    int & operator*() const { return *d_data_p; }
+
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherPointerLike,
+                                   bslmf::HasPointerSemantics);
 };
 
 struct ValueLike {
@@ -137,11 +142,11 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<PointerLike, Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<ValueLike,   Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<PointerLike,        Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<ValueLike,          Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AnotherPointerLike, Obj>::VALUE));
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
