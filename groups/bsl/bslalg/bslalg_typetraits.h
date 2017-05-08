@@ -392,8 +392,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
-// All headers below here are not really needed, but are kept here in case
-// legacy code is depending on a transitive include.
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -437,6 +437,8 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 

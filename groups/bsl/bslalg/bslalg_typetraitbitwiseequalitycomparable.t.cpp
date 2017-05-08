@@ -77,11 +77,23 @@ struct AlmostTrivial {
 
 class NotTrivial {
   private:
-    void *d_this;
+    void *d_this_p;
 
   public:
-    NotTrivial() : d_this(this) {}
-    NotTrivial(const NotTrivial&) : d_this(this) {}
+    NotTrivial() : d_this_p(this) {}
+    NotTrivial(const NotTrivial&) : d_this_p(this) {}
+};
+
+class AnotherNotTrivial {
+  private:
+    void *d_this_p;
+
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(AnotherNotTrivial,
+                                   bslmf::IsBitwiseEqualityComparable);
+
+    AnotherNotTrivial() : d_this_p(this) {}
+    AnotherNotTrivial(const AnotherNotTrivial&) : d_this_p(this) {}
 };
 
 namespace BloombergLP {
@@ -137,8 +149,9 @@ int main(int argc, char *argv[])
 
         (void) mX;
 
-        ASSERT(( bslalg::HasTrait<AlmostTrivial, Obj>::VALUE));
-        ASSERT((!bslalg::HasTrait<NotTrivial,    Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AlmostTrivial,     Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotTrivial,        Obj>::VALUE));
+        ASSERT(( bslalg::HasTrait<AnotherNotTrivial, Obj>::VALUE));
 
       } break;
 

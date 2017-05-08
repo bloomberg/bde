@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to select a suitable trait on a type.
 //
+//@DEPRECATED: Use 'bslmf_selecttrait' instead.
+//
 //@CLASSES:
 //  bslalg::SelectTrait: trait detection mechanism
 //

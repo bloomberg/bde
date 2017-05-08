@@ -2,8 +2,6 @@
 
 #include <bslalg_hasstliterators.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
