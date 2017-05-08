@@ -49,9 +49,11 @@ using namespace std;
 //
 // ACCESSORS
 // [ 1] const TYPE& object() const;
+// [ 2] TYPE TRAITS
 //-----------------------------------------------------------------------------
-// [ 2] USAGE EXAMPLE 1
-// [ 3] USAGE EXAMPLE 2
+// [ 3] USAGE EXAMPLE 1
+// [ 4] USAGE EXAMPLE 2
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -777,7 +779,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //   This will test the first usage example.
@@ -800,7 +802,7 @@ int main(int argc, char *argv[])
         UsageExample2::WithoutAllocatorTrait::run2();
         UsageExample2::WithAllocatorTrait::run();
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //   This will test the first usage example.
@@ -820,6 +822,45 @@ int main(int argc, char *argv[])
                             "\n=======================\n");
 
         UsageExample1::run();
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        //
+        // Concerns:
+        //: 1 That the bitwise moveable trait of a constructor proxy mirrors
+        //:   that of the contained type.
+        //:
+        //: 2 That the "Uses bslma allocator" trait of a constructor proxy is
+        //:   always 'true'.
+        //
+        // Plan:
+        //: 1 Test the traits on 'Obj_YesAllocator' and 'Obj_NoAllocator',
+        //:   neither of which are bitwise moveable, and 'int', which is.
+        //:
+        //: 2 Note that we use run-time asserts, rather than compile-time
+        //:   asserts, to do these tests, so that if they fail, the rest of the
+        //:   test driver is still able to compile and run and perform tests.
+        //:
+        // Testing:
+        //   TYPE TRAITS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TYPE TRAITS"
+                            "\n===================\n");
+
+        bslma::TestAllocator  testAllocator;
+        bslma::Allocator     *ALLOCATOR = &testAllocator;
+
+        typedef bslalg::ConstructorProxy<int> Obj_Int;
+
+        ASSERT(false == bslmf::IsBitwiseMoveable<Obj_YesAllocator>::value);
+        ASSERT(false == bslmf::IsBitwiseMoveable<Obj_NoAllocator >::value);
+        ASSERT(true  == bslmf::IsBitwiseMoveable<Obj_Int         >::value);
+
+        ASSERT(true  == bslma::UsesBslmaAllocator<Obj_YesAllocator>::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<Obj_NoAllocator >::value);
+        ASSERT(true  == bslma::UsesBslmaAllocator<Obj_Int         >::value);
       } break;
       case 1: {
         // --------------------------------------------------------------------
