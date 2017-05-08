@@ -640,6 +640,11 @@ struct TypesPrintUtil_Imp {
                                     const bsl::string&          object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                    bsl::ostream&               stream,
+                                    const bslstl::StringRef&    object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple);
     template <typename TYPE>
     static bsl::ostream& printDefault(
                         bsl::ostream&                           stream,
@@ -1678,6 +1683,19 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                      bdlat_TypeCategory::Simple());
 }
 
+inline
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                    bsl::ostream&               stream,
+                                    const bslstl::StringRef&    object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple)
+{
+    return printText(stream,
+                     object,
+                     encoderOptions,
+                     bdlat_TypeCategory::Simple());
+}
+
 template <typename TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
@@ -1689,10 +1707,10 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                                    && bsl::is_convertible<TYPE,
                              bslstl::StringRef>::value>::type *)
 {
-    return printText(stream,
-                     static_cast<const bslstl::StringRef&>(object),
-                     encoderOptions,
-                     bdlat_TypeCategory::Simple());
+    return printDefault(stream,
+                        static_cast<const bslstl::StringRef&>(object),
+                        encoderOptions,
+                        bdlat_TypeCategory::Simple());
 }
 
 template <class TYPE>
