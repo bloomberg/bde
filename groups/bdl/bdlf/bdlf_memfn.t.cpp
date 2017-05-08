@@ -592,7 +592,7 @@ DEFINE_TEST_CASE(10) {
 
         if (verbose) cout << "Check bw movable 'bdlf::MemFnInstance':\n";
         {
-            typedef BloombergLP::bdlf::MemFnInstance<
+            typedef bdlf::MemFnInstance<
                         bool (ConstructibleFromPointerToSelf::*)(),
                                   ConstructibleFromPointerToSelf *>  MFIType;
 
@@ -609,8 +609,7 @@ DEFINE_TEST_CASE(10) {
 
         if (verbose) cout << "Check !bw movable 'bdlf::MemFnInstance':\n";
         {
-            typedef BloombergLP::bdlf::MemFnInstance<
-                                           bool (NotBitwiseMovable::*)() const,
+            typedef bdlf::MemFnInstance<bool (NotBitwiseMovable::*)() const,
                                                    NotBitwiseMovable> MFITypeB;
 
             ASSERT(true  == bslma::UsesBslmaAllocator<MFITypeB>::value);
