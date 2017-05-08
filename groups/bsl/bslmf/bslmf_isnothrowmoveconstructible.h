@@ -40,6 +40,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #ifndef INCLUDED_BSLS_NATIVESTD

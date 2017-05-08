@@ -1,9 +1,18 @@
 // bslmf_movableref.t.cpp                                             -*-C++-*-
 #include <bslmf_movableref.h>
+
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
+#include <bslmf_addlvaluereference.h>
+#include <bslmf_addpointer.h>
+#include <bslmf_addvolatile.h>
 #include <bslmf_isclass.h>
 #include <bslmf_issame.h>
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <new>
 #include <stdio.h>
@@ -17,16 +26,17 @@ using namespace BloombergLP;
 //                                   Overview
 //                                   --------
 // ----------------------------------------------------------------------------
-// [  4] MovableRef<TYPE>::operator TYPE&();
-// [  5] TYPE& access(TYPE& lvalue);
-// [  5] TYPE& access(MovableRef<TYPE>& lvalue);
-// [  3] MovableRef<TYPE> move(TYPE& lvalue);
-// [  3] MovableRef<bsl::remove_reference<T>::type> move(MovableRef<T> ref)
+// [ 4] MovableRef<TYPE>::operator TYPE&() const;
+// [ 5] TYPE& access(TYPE& lvalue);
+// [ 5] TYPE& access(MovableRef<TYPE>& lvalue);
+// [ 3] MovableRef<TYPE> move(TYPE& lvalue);
+// [ 3] MovableRef<remove_reference<T>::type> move(MovableRef<T> ref);
 // ----------------------------------------------------------------------------
-// [  1] BREATHING TEST
-// [  2] MovableRef<TYPE>
-// [  6] MovableRef<TYPE> VS. RVALUE
-// [  7] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+// [ 2] MovableRef<TYPE>
+// [ 6] MovableRef<TYPE> VS. RVALUE
+// [ 7] EXTENDING 'bsl::is_nothrow_move_constructible'
+// [ 8] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -74,18 +84,18 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// BDE_VERIFY pragma: push   // Relax formatting rules for clearer exposition
-// BDE_VERIFY pragma: -BW01  // bdewrap recommendation
 
 namespace {
 
 template <class TYPE>
-class vector
-{
+class vector {
+
+    // DATA
     TYPE *d_begin;
     TYPE *d_end;
     TYPE *d_endBuffer;
 
+    // PRIVATE CLASS METHODS
     static void swap(TYPE*& a, TYPE*& b);
         // Swap the specified pointers 'a' and 'b'.
 
@@ -94,26 +104,25 @@ class vector
         // Create an empty vector.
 
     vector(bslmf::MovableRef<vector> other);                        // IMPLICIT
-        // Create a vector by transfering the content of the specified
-        // 'other'.
+        // Create a vector by transfering the content of the specified 'other'.
 
     vector(const vector& other);
         // Create a vector by copying the content of the specified 'other'.
 
-    vector& operator= (vector other);
-        // Assign a vector by copying the content of the specified 'other'
-        // and return a reference to this object.  Note that 'other' is
-        // passed by value to have the copy or move already be done, or
-        // even elided.  Within the body of the assignment operator the
-        // content of 'this' and 'other' are simply swapped.
+    vector& operator=(vector other);
+        // Assign a vector by copying the content of the specified 'other' and
+        // return a reference to this object.  Note that 'other' is passed by
+        // value to have the copy or move already be done, or even elided.
+        // Within the body of the assignment operator the content of 'this' and
+        // 'other' are simply swapped.
 
     ~vector();
         // Destroy the vector's elements and release any allocated memory.
 
-    TYPE&       operator[](int index)      { return this->d_begin[index]; }
+    TYPE&       operator[](int index)       { return this->d_begin[index]; }
         // Return a reference to the object at the specified 'index'.
 
-    const TYPE& operator[](int index) const{ return this->d_begin[index]; }
+    const TYPE& operator[](int index) const { return this->d_begin[index]; }
         // Return a reference to the object at the specified 'index'.
 
     TYPE       *begin()       { return this->d_begin; }
@@ -138,12 +147,11 @@ class vector
         // Append a copy of the specified 'value' to the vector.
 
     void push_back(bslmf::MovableRef<TYPE> value);
-        // Append an object moving the specified 'value' to the new
-        // location.
+        // Append an object moving the specified 'value' to the new location.
 
     void reserve(int newCapacity);
-        // Reserve enough capacity to fit at least as many elements as
-        // specified by 'newCapacity'.
+        // Reserve enough capacity to fit at least as many elements as the
+        // specified 'newCapacity'.
 
     int size() const { return int(this->d_end - this->d_begin); }
         // Return the size of the object.
@@ -154,16 +162,18 @@ class vector
 
 template <class TYPE>
 vector<TYPE>::vector()
-    : d_begin()
-    , d_end()
-    , d_endBuffer() {
+: d_begin()
+, d_end()
+, d_endBuffer()
+{
 }
 
 template <class TYPE>
 vector<TYPE>::vector(const vector& other)
-    : d_begin()
-    , d_end()
-    , d_endBuffer() {
+: d_begin()
+, d_end()
+, d_endBuffer()
+{
     if (!other.empty()) {
         this->reserve(4 < other.size()? other.size(): 4);
 
@@ -177,9 +187,10 @@ vector<TYPE>::vector(const vector& other)
 
 template <class TYPE>
 vector<TYPE>::vector(bslmf::MovableRef<vector> other)
-    : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
-    , d_end(bslmf::MovableRefUtil::access(other).d_end)
-    , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer) {
+: d_begin(bslmf::MovableRefUtil::access(other).d_begin)
+, d_end(bslmf::MovableRefUtil::access(other).d_end)
+, d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer)
+{
     vector& reference(other);
     reference.d_begin = 0;
     reference.d_end = 0;
@@ -187,7 +198,8 @@ vector<TYPE>::vector(bslmf::MovableRef<vector> other)
 }
 
 template <class TYPE>
-vector<TYPE>::~vector() {
+vector<TYPE>::~vector()
+{
     if (this->d_begin) {
         while (this->d_begin != this->d_end) {
             --this->d_end;
@@ -198,13 +210,15 @@ vector<TYPE>::~vector() {
 }
 
 template <class TYPE>
-vector<TYPE>& vector<TYPE>::operator= (vector other) {
+vector<TYPE>& vector<TYPE>::operator=(vector other)
+{
     this->swap(other);
     return *this;
 }
 
 template <class TYPE>
-void vector<TYPE>::push_back(const TYPE& value) {
+void vector<TYPE>::push_back(const TYPE& value)
+{
     if (this->d_end == this->d_endBuffer) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
@@ -214,7 +228,8 @@ void vector<TYPE>::push_back(const TYPE& value) {
 }
 
 template <class TYPE>
-void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value) {
+void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value)
+{
     if (this->d_end == this->d_endBuffer) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
@@ -224,7 +239,8 @@ void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value) {
 }
 
 template <class TYPE>
-void vector<TYPE>::reserve(int newCapacity) {
+void vector<TYPE>::reserve(int newCapacity)
+{
     if (this->capacity() < newCapacity) {
         vector tmp;
         int    size = int(sizeof(TYPE) * newCapacity);
@@ -241,14 +257,16 @@ void vector<TYPE>::reserve(int newCapacity) {
 }
 
 template <class TYPE>
-void vector<TYPE>::swap(TYPE*& a, TYPE*& b) {
+void vector<TYPE>::swap(TYPE*& a, TYPE*& b)
+{
     TYPE *tmp = a;
     a = b;
     b = tmp;
 }
 
 template <class TYPE>
-void vector<TYPE>::swap(vector& other) {
+void vector<TYPE>::swap(vector& other)
+{
     this->swap(this->d_begin, other.d_begin);
     this->swap(this->d_end, other.d_end);
     this->swap(this->d_endBuffer, other.d_endBuffer);
@@ -256,7 +274,6 @@ void vector<TYPE>::swap(vector& other) {
 
 }  // close unnamed namespace
 
-// BDE_VERIFY pragma: pop  // End of usage example relaxation
 //=============================================================================
 
 namespace {
@@ -333,7 +350,148 @@ class TestMoving {
         // Return the held pointer.
 };
 
+// The following test types and the macros defined further below were
+// originally in the 'bslmf_isnothrowmoveconstructible' test driver (to verify
+// that the 'bsl::is_nothrow_move_constructible' meta-function can be correctly
+// extended), but were moved here to eliminate a cycle, i.e., a direct cycle
+// between that component and this one.  Note that 'bslmf::MovableRef' must be
+// used to expose extensions of 'bsl::is_nothrow_move_constructible' to C++03
+// environments.  Testing of such extensions is done in case 7.
+
+struct UserDefinedNothrowTestType {
+    // This user-defined type, which is marked to have a nothrow move
+    // constructor using template specialization (below), is used for testing.
+
+    // CREATORS
+    UserDefinedNothrowTestType() {}
+    UserDefinedNothrowTestType(const UserDefinedNothrowTestType& original)
+    {
+        (void)original;
+    }
+    UserDefinedNothrowTestType(bslmf::MovableRef<UserDefinedNothrowTestType>)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    {}
+        // Explicitly supply constructors that do nothing, to ensure that this
+        // class has no trivial traits detected with a conforming C++11 library
+        // implementation.
+};
+
+struct UserDefinedNothrowTestType2 {
+    // This user-defined type, which is marked to have a 'nothrow' move
+    // constructor using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used
+    // for testing.
+
+    BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedNothrowTestType2,
+                                   bsl::is_nothrow_move_constructible);
+
+    // CREATORS
+    UserDefinedNothrowTestType2() {}
+    UserDefinedNothrowTestType2(const UserDefinedNothrowTestType2& original)
+    {
+        (void)original;
+    }
+    UserDefinedNothrowTestType2(bslmf::MovableRef<UserDefinedNothrowTestType2>)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    {}
+        // Explicitly supply constructors that do nothing, to ensure that this
+        // class has no trivial traits detected with a conforming C++11 library
+        // implementation.
+};
+
+struct UserDefinedThrowTestType {
+    // This user-defined type, which is not marked to be 'nothrow' move
+    // constructible, is used for testing.
+
+    // CREATORS
+    UserDefinedThrowTestType() {}
+    UserDefinedThrowTestType(
+                       bslmf::MovableRef<UserDefinedThrowTestType>) // IMPLICIT
+    {}
+    UserDefinedThrowTestType(const UserDefinedThrowTestType& original)
+    {
+        (void)original;
+    }
+};
+
 }  // close unnamed namespace
+
+namespace bsl {
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+template <>
+struct is_nothrow_move_constructible<UserDefinedNothrowTestType>
+            : bsl::true_type { };
+#endif
+
+}  // close namespace bsl
+
+//=============================================================================
+//                  COMPONENT SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+// These macros were copied from the 'bslmf_isnothrowmoveconstructible' test
+// driver.
+
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT)               \
+    ASSERT( bsl::is_nothrow_move_constructible<TYPE>::value == RESULT);       \
+    ASSERT( bsl::is_nothrow_move_constructible<                               \
+                                       bsl::add_pointer<TYPE>::type>::value); \
+    ASSERT( bsl::is_nothrow_move_constructible<                               \
+                    bsl::add_lvalue_reference<TYPE>::type>::value);
+
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)            \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT);                  \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
+                                      bsl::add_const<TYPE>::type, RESULT);    \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
+                                      bsl::add_volatile<TYPE>::type, RESULT); \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(                                \
+                                      bsl::add_cv<TYPE>::type, RESULT);
+
+// Two additional macros will allow testing on old MSVC compilers when 'TYPE'
+// is an array of unknown bound.
+
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT)        \
+    ASSERT( bsl::is_nothrow_move_constructible<TYPE>::value == RESULT);       \
+    ASSERT( bsl::is_nothrow_move_constructible<                               \
+                                         bsl::add_pointer<TYPE>::type>::value);
+
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE, RESULT)     \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT);           \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_NO_REF(                         \
+                                         bsl::add_const<TYPE>::type, RESULT); \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_NO_REF(                         \
+                                      bsl::add_volatile<TYPE>::type, RESULT); \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE_NO_REF(                         \
+                                      bsl::add_cv<TYPE>::type, RESULT);
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
+// correctly handling arrays of unknown bound as template parameters.
+# define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)       \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)           \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)
+
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+// Old Microsoft compilers do not support references to arrays of unknown
+// bound.
+
+# define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)       \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)           \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)         \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[], RESULT)       \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[][8], RESULT)
+
+#else
+# define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)       \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)           \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)         \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[], RESULT)              \
+    ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE[][8], RESULT)
+#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -344,9 +502,10 @@ int main(int argc, char *argv[])
     int  test = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose = argc > 2;
 
-    testStatus = 0;
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -414,6 +573,65 @@ int main(int argc, char *argv[])
         ASSERT(vvector[1].begin() == first);
         ASSERT(vvector[1].size() == 5);
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // EXTENDING 'bsl::is_nothrow_move_constructible'
+        //   Ensure the 'bsl::is_nothrow_move_constructible' meta-function
+        //   returns the correct value for types explicitly specified to have
+        //   a 'nothrow' move constructor.
+        //
+        // Concerns:
+        //: 1 The meta-function returns 'false' for normal user-defined types.
+        //:
+        //: 2 The meta-function returns 'true' for a user-defined type, if a
+        //:   specialization for 'bsl::is_nothrow_move_constructible' on that
+        //    type is defined to inherit from 'bsl::true_type'.
+        //:
+        //: 3 The meta-function returns 'true' for a user-defined type that
+        //:   specifies it has the trait using the
+        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+        //:
+        //: 4 For cv-qualified types, the meta-function returns 'true' if the
+        //:   corresponding cv-unqualified type is 'nothrow' move constructible
+        //    and 'false' otherwise.
+        //:
+        //: 5 For array types, the meta-function returns 'true' if the array
+        //:   element is 'nothrow' move constructible, and 'false' otherwise.
+        //
+        // Plan:
+        //:  1 Create a set of macros that will generate an 'ASSERT' test for
+        //:    all variants of a type:  (C-4..5)
+        //:    o  reference and pointer types
+        //:    o  all cv-qualified combinations
+        //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
+        //:
+        //:  2 For each category of type in concerns 1-3, use the appropriate
+        //:    test macro for confirm the correct result for a representative
+        //:    sample of types.
+        //
+        // Testing:
+        //   EXTENDING 'bsl::is_nothrow_move_constructible'
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nEXTENDING 'bsl::is_nothrow_move_constructible'"
+                   "\n==============================================\n");
+
+        // C-1
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                                 UserDefinedThrowTestType,
+                                                 false);
+
+        // C-2
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                                 UserDefinedNothrowTestType,
+                                                 true);
+
+        // C-3
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_OBJECT_TYPE(
+                                                 UserDefinedNothrowTestType2,
+                                                 true);
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // MOVABLEREF<TYPE> VS. RVALUE
@@ -440,6 +658,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nMOVABLEREF<TYPE> VS. RVALUE"
                             "\n===========================\n");
+
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         ASSERT(TestMovableRefArgument<int>::test(int(18)));
         ASSERT(TestMovableRefArgument<vector<int> >::test(vector<int>()));
@@ -500,7 +719,7 @@ int main(int argc, char *argv[])
         //:   check that the addresses are identical.
         //
         // Testing:
-        //   MovableRef<TYPE>::operator TYPE&();
+        //   MovableRef<TYPE>::operator TYPE&() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'MovableRef<TYPE>::operator TYPE&'"
@@ -554,7 +773,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   MovableRef<TYPE> move(TYPE& lvalue);
-        //   MovableRef<bsl::remove_reference<T>::type> move(MovableRef<T> ref)
+        //   MovableRef<remove_reference<T>::type> move(MovableRef<T> ref);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'MovableRefUtil::move'"
