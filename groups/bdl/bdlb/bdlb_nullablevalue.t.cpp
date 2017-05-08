@@ -181,6 +181,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
+//=============================================================================
+//                  COMPONENT-SPECIFIC MACROS FOR TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+# define BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION 1
+#endif
+
 // ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
@@ -201,6 +209,38 @@ const int   MAX_NUM_PARAMS = 5; // max in simulation of variadic templates
                                  "123456789012345678901234567890123"
 #endif
 BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+// NOTE: A bug in the IBM xlC compiler (Version: 12.01.0000.0012) was worked
+// around with the following otherwise unnecessary overload added to the
+// interface:
+//..
+//  TYPE& makeValue(const TYPE& value);
+//..
+// However, it was decided that we would not change the interface to cater to
+// xlC and had the client modify their code instead.
+//
+// The obscure test case (distilled from DRQS 98587609) that demonstrates the
+// issue could not be replicated in the test driver because it apparently
+// requires two translation units ('paramutil.cpp' and 'client.cpp' below):
+//..
+//  // paramutil.h
+//  namespace ParamUtil {
+//      extern const char L_SOME_STRING[];
+//  }
+//
+//  // paramutil.cpp
+//  #include <paramutil.h>
+//  namespace ParamUtil {
+//      const char L_SOME_STRING[] = "L_SOME_STRING";
+//  }
+//
+//  // client.cpp
+//  #include <paramutil.h>
+//  ...
+//      bdlb::NullableValue<bsl::string> mX;
+//      mX.makeValue(ParamUtil::L_SOME_STRING);
+//  ...
+//..
 
 // ============================================================================
 //                      GLOBAL HELPER CLASSES FOR TESTING
@@ -1324,6 +1364,11 @@ void swap(Swappable& a, Swappable& b)
     ++Swappable::s_swapCalled;
 
     bsl::swap(a.d_value, b.d_value);
+}
+
+void dummyFunction()
+    // Do nothing.
+{
 }
 
 // ASPECTS
@@ -5189,8 +5234,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            typedef const char *ValueType1;
-            typedef bsl::string ValueType2;
+            typedef const char  *ValueType1;
+            typedef bsl::string  ValueType2;
 
             typedef bdlb::NullableValue<ValueType1> ObjType1;
             typedef bdlb::NullableValue<ValueType2> ObjType2;
@@ -5279,6 +5324,21 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1b == OBJ2.value());
                 ASSERT(  addr2 == &obj2.value());
+            }
+
+            {
+                char VALUE[] = "1914-1918";
+
+                const char (&RVALUE)[sizeof VALUE] = VALUE;
+
+                ObjType2 mX(&oa);  const ObjType2& X = mX;
+                ObjType2 mY(&oa);  const ObjType2& Y = mY;
+
+                mX = RVALUE;
+                ASSERT(VALUE == X.value());
+
+                mY.makeValue(RVALUE);
+                ASSERT(VALUE == Y.value());
             }
         }
         ASSERT(0 == da.numBlocksTotal());  // no temporaries
@@ -5380,6 +5440,42 @@ int main(int argc, char *argv[])
             }
         }
         ASSERT(0 == da.numBlocksTotal());
+
+        if (verbose) cout << "\tDecay of function to pointer-to-function."
+                          << endl;
+        {
+            typedef bdlb::NullableValue<void(*)()> ObjType;
+
+            {
+                ObjType mX;  const ObjType& X = mX;
+                ASSERT( X.isNull());
+
+                mX = &dummyFunction;  // explicitly take address
+                ASSERT(!X.isNull());
+
+                ObjType mY;  const ObjType& Y = mY;
+                ASSERT( Y.isNull());
+
+                mY = dummyFunction;   // decay
+                ASSERT(!Y.isNull());
+            }
+
+            {
+                ObjType mX;  const ObjType& X = mX;
+                ASSERT( X.isNull());
+
+                mX.makeValue(&dummyFunction);  // explicitly take address
+                ASSERT(!X.isNull());
+
+                ObjType mY;  const ObjType& Y = mY;
+                ASSERT( Y.isNull());
+
+#if !defined(BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION)
+                mY.makeValue(dummyFunction);   // decay
+                ASSERT(!Y.isNull());
+#endif
+            }
+        }
 
 //#define SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
 #ifdef SOMETHING_ELSE_THAT_SHOULD_NOT_WORK
@@ -5554,6 +5650,31 @@ int main(int argc, char *argv[])
                     ASSERT(0 != oa.numBlocksInUse());
                 }
                 ASSERT(0 == oa.numBlocksInUse());
+
+                {
+                    const char (&RVALUE1)[sizeof VALUE1] = VALUE1;
+
+                    const ObjType2 OBJ2(RVALUE1, &oa);
+                    ASSERT(VALUE1 == OBJ2.value());
+
+                    ASSERT(dam.isTotalSame());
+                    ASSERT(0 != oa.numBlocksInUse());
+                }
+                ASSERT(0 == oa.numBlocksInUse());
+            }
+
+            if (verbose) cout << "\tDecay of function to pointer-to-function."
+                              << endl;
+            {
+                typedef bdlb::NullableValue<void(*)()> ObjType;
+
+                const ObjType X(&dummyFunction);  // explicitly take address
+                ASSERT(!X.isNull());
+
+#if !defined(BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION)
+                const ObjType Y(dummyFunction);   // decay
+                ASSERT(!Y.isNull());
+#endif
             }
         }
 
