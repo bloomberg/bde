@@ -1598,7 +1598,7 @@ if (veryVerbose)
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
  || !defined(BDE_BUILD_TARGET_OPT) \
- || BSLS_PLATFORM_CMP_VERSION >= 0x5130
+ || BSLS_PLATFORM_CMP_VERSION >= 0x5140
 
             ASSERT_SAFE_FAIL(Obj(0,
                                  0,
