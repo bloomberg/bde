@@ -931,7 +931,7 @@ bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
  || !defined(BDE_BUILD_TARGET_OPT) \
- || BSLS_PLATFORM_CMP_VERSION >= 0x5130
+ || BSLS_PLATFORM_CMP_VERSION >= 0x5140
 
     BSLS_ASSERT_SAFE(   0 <= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::min() -
