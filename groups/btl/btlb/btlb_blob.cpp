@@ -179,7 +179,7 @@ int Blob::assertInvariants() const
         // BSLS_ASSERT(d_dataIndex < static_cast<int>(d_buffers.size()));
         // BSLS_ASSERT(0 < d_dataLength - d_preDataIndexLength);
         // BSLS_ASSERT(d_dataLength - d_preDataIndexLength <=
-        //                                       d_buffers[d_dataIndex].size());
+        //                                      d_buffers[d_dataIndex].size());
 
         // If 'it != d_buffers.end()', then the following assertion is implied
         // by the loop above since we had to break; on the other hand, if
