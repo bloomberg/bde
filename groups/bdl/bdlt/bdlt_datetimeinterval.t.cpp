@@ -1595,12 +1595,19 @@ if (veryVerbose)
                                  0,
                                  k_USECS_MIN / 1000,
                                  k_USECS_MIN % 1000    ).totalMicroseconds());
+
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+ || !defined(BDE_BUILD_TARGET_OPT) \
+ || BSLS_PLATFORM_CMP_VERSION >= 0x5130
+
             ASSERT_SAFE_FAIL(Obj(0,
                                  0,
                                  0,
                                  0,
                                  k_USECS_MIN / 1000,
                                  k_USECS_MIN % 1000 - 1).totalMicroseconds());
+
+#endif
         }
       } break;
       case 13: {
@@ -4216,6 +4223,7 @@ if (veryVerbose)
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 
