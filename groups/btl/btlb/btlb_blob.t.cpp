@@ -1614,7 +1614,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Append 0-sized buffer
-		btlb::BlobBuffer empty;
+                btlb::BlobBuffer empty;
                 mX.appendDataBuffer(empty);
 
                 ASSERT(DATA_LENGTH + APPEND_BUFFER_SIZE == X.length());
@@ -1737,30 +1737,30 @@ int main(int argc, char *argv[])
                     ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
                 }
 
-		btlb::BlobBuffer emptyBuffer;
+                btlb::BlobBuffer emptyBuffer;
                 mX.insertBuffer(REMOVE_POSITION, emptyBuffer);
 
                 mX.removeBuffer(REMOVE_POSITION);
                 if (REMOVE_POSITION == EXP_NUM_DATA_BUFFERS - 1) {
-		  // Removing the last data buffer (variable number of data
-		  // bytes, equal to EXP_LAST_DB_LENGTH).
-		  if (0 < REMOVE_POSITION) {
-		    ASSERT(BUFFER_SIZE == X.lastDataBufferLength());
-		  } else {
-		    ASSERT(0 == X.lastDataBufferLength());
-		  }
-		  ASSERT(DATA_LENGTH - EXP_LAST_DB_LENGTH == X.length());
-		  ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
+                    // Removing the last data buffer (variable number of data
+                    // bytes, equal to EXP_LAST_DB_LENGTH).
+                    if (0 < REMOVE_POSITION) {
+                        ASSERT(BUFFER_SIZE == X.lastDataBufferLength());
+                    } else {
+                        ASSERT(0 == X.lastDataBufferLength());
+                    }
+                    ASSERT(DATA_LENGTH - EXP_LAST_DB_LENGTH == X.length());
+                    ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
                 } else if (REMOVE_POSITION < EXP_NUM_DATA_BUFFERS) {
-		  // Removing a data buffer.
-		  ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-		  ASSERT(DATA_LENGTH - BUFFER_SIZE == X.length());
-		  ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
+                    // Removing a data buffer.
+                    ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                    ASSERT(DATA_LENGTH - BUFFER_SIZE == X.length());
+                    ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
                 } else {
-		  // Removing a capacity buffer.
-		  ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-		  ASSERT(DATA_LENGTH == X.length());
-		  ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                    // Removing a capacity buffer.
+                    ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                    ASSERT(DATA_LENGTH == X.length());
+                    ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
                 }
 
                 checkNoAliasedBlobBuffers(X);
@@ -2066,7 +2066,7 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_NUM_BUFFERS + 1  == X.numBuffers());
                 ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
 
-		btlb::BlobBuffer emptyBuffer;
+                btlb::BlobBuffer emptyBuffer;
                 mX.appendBuffer(emptyBuffer); // TEST HERE
 
                 ASSERT(DATA_LENGTH == X.length());
@@ -2185,13 +2185,13 @@ int main(int argc, char *argv[])
 
                 // Insert empty buffer
 
-		btlb::BlobBuffer emptyBuffer;
+                btlb::BlobBuffer emptyBuffer;
                 mX.insertBuffer(INSERT_POSITION, emptyBuffer);
                 ASSERT(NEW_DATA_LENGTH    == X.length());
                 ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
                 ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
                 ASSERT(EXP_NUM_DATA_BUFFERS + 2 * INSERT_FLAG ==
-		       X.numDataBuffers());
+                       X.numDataBuffers());
 
                 // Repeat invariants after testing setLength in the presence of
                 // zero-sized buffers.
