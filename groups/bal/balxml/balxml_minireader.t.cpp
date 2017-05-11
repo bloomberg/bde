@@ -593,7 +593,7 @@ void readDepth(Obj& reader, int currentDepth, int depth) {
     // because 'currentDepth' does not account for the depth add by the header
     // information.
 
-    int rc = advancePastWhiteSpace(reader);
+    int rc = advancePastWhiteSpace(reader); (void)rc;
     (void)rc;
 
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -653,7 +653,7 @@ void readNodes(Obj& reader,
         return;                                                       // RETURN
     }
 
-    int rc = advancePastWhiteSpace(reader);
+    int rc = advancePastWhiteSpace(reader); (void)rc;
     (void)rc;
 
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -704,7 +704,7 @@ void readNodes(Obj& reader,
 
 void readHeader(Obj& reader)
 {
-    int rc = advancePastWhiteSpace(reader);
+    int rc = advancePastWhiteSpace(reader); (void)rc;
     //TBD: Mini Reader needs to be fix to pass back the correct encoding.
     //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
     ASSERT( reader.nodeType() ==
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -779,42 +779,40 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
-        // ADVANCE TO END NODE TEST
+        // ADVANCE TO END NODE RAW BARE TEST
         //
         // Concerns:
-        // 1 'advanceToEndNode' function skips all (text, CDATA, comment,
-        //   whitespace, start element, end element for skipped elements) node
-        //   types until it finds the end element for the element it was called
-        //   for.
+        // 1 'advanceToEndNodeRawBare' function skips all (text, whitespace,
+        //    start element, end element for skipped elements) node types
+        //    (without XML validation) until it finds the end element for
+        //   the element it was called for.
         //
-        // 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
-        //   'ST_ERROR' is a no-op and it returns an error.
+        // 2 Calling 'advanceToEndNodeRawBare' in states 'ST_EOF', 'ST_CLOSE'
+        //   or 'ST_ERROR' is a no-op and it returns an error.
         //
-        // 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
-        //   returns success.
+        // 3 Calling 'advanceToEndNodeRawBare' on an empty element is a no-op
+        //   and returns success.
         //
         // Testing:
-        //   'advanceToEndNode'
+        //   'advanceToEndNodeRawBare'
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nADVANCE TO END NODE TEST"
-                               << "\n========================" << bsl::endl;
+        if (verbose) bsl::cout << "\nADVANCE TO END NODE RAW BARE TEST"
+                               << "\n================================="
+                               << bsl::endl;
 
         static const char xmlStr[] =
           "<?xml version='1.0' encoding='UTF-8'?>\n"
-          "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
           "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
           "    elementFormDefault='qualified'\n"
           "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
           "    bdem:package='bascfg'>\n"
           "<Node0>\n"
-          "    <Element1>element1<!-- The first element has a comment -->"
-              "</Element1>\n"
+          "    <Element1>element1</Element1>\n"
           "    <Element2>element2</Element2>\n"
           "    <Element3>element3</Element3>\n"
-          "    <![CDATA[&lt;123&#240;&gt;]]>\n"
           "</Node0>\n"
           "</xs:schema>";
 
@@ -848,11 +846,6 @@ int main(int argc, char *argv[])
                                             "version='1.0' encoding='UTF-8'"));
 
             rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
@@ -867,10 +860,6 @@ int main(int argc, char *argv[])
             rc = advancePastWhiteSpace(reader);
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
             ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                         " The first element has a comment "));
             rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
@@ -892,15 +881,12 @@ int main(int argc, char *argv[])
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
             ASSERT(reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
+            LOOP_ASSERT((reader.nodeName() ? reader.nodeName() : "(null)"),
+                        !bsl::strcmp(reader.nodeName(), "Element3"));
 
             rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() ==
@@ -937,11 +923,6 @@ int main(int argc, char *argv[])
                                             "version='1.0' encoding='UTF-8'"));
 
             rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
@@ -953,7 +934,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
@@ -982,10 +963,6 @@ int main(int argc, char *argv[])
             ASSERT(reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
 
             rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() ==
@@ -1022,11 +999,6 @@ int main(int argc, char *argv[])
                                             "version='1.0' encoding='UTF-8'"));
 
             rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
@@ -1034,7 +1006,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
@@ -1070,15 +1042,10 @@ int main(int argc, char *argv[])
                                             "version='1.0' encoding='UTF-8'"));
 
             rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
@@ -1119,7 +1086,7 @@ int main(int argc, char *argv[])
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
@@ -1129,13 +1096,13 @@ int main(int argc, char *argv[])
 
             // Skip to end node fails, the parser is in the 'ST_EOF' state:
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
 
             reader.close();
 
             // Skip to end node fails, the parser is in the 'ST_CLOSED' state:
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
         }
 
         if (veryVerbose) bsl::cout << "\nTest in ST_ERROR state."
@@ -1179,7 +1146,7 @@ int main(int argc, char *argv[])
 
             // Skip to end node fails, the parser is in the 'ST_ERROR' state:
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == -1);
 
             reader.close();
         }
@@ -1219,16 +1186,203 @@ int main(int argc, char *argv[])
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);  // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
 
             reader.close();
         }
+
+        if (veryVerbose) bsl::cout << "\nTests large xml (*8K+)."
+                                      "\n- - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            bsl::string xmlStr =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "<Node0>\n"
+              "    <Element1>";
+
+            xmlStr += bsl::string(8 * 1024, 'b');
+
+            xmlStr += "</Element1>\n"
+              "    <Element2>element2</Element2>\n"
+              "    <Element3>element3</Element3>\n"
+              "</Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr.data(), xmlStr.size());
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            // Skip to end node
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+
+        if (veryVerbose) bsl::cout << "\nTests bad large xml (*8K+)."
+                                      "\n- - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            bsl::string xmlStr =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "<Node0>\n"
+              "    <Element1>";
+
+            xmlStr += bsl::string(8 * 1024 - xmlStr.length() - 7, 'b');
+
+            xmlStr += "</foobar</Element1>\n"
+              "    <Element2>element2</Element2>\n"
+              "    <Element3>element3</Element3>\n"
+              "</Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr.data(), xmlStr.size());
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            // Skip to end node
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
+
+            ASSERT(reader.nodeType() ==
+                balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTests bad unended large xml (*8K+)."
+                                      "\n- - - - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            bsl::string xmlStr =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "<Node0>\n"
+              "    <Element1>";
+
+            xmlStr += bsl::string(8 * 1024 - xmlStr.length() - 7, 'b');
+
+            xmlStr += "</foobar";
+
+            int rc = reader.open(xmlStr.data(), xmlStr.size());
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            // Skip to end node
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == -2);
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTests unended large xml (*8K+)."
+                                      "\n- - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            bsl::string xmlStr =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "<Node0>\n"
+              "    <Element1>";
+
+            xmlStr += bsl::string(8 * 1024, 'b');
+
+            int rc = reader.open(xmlStr.data(), xmlStr.size());
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            // Skip to end node
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == -2);
+
+            reader.close();
+        }
       } break;
 
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // ADVANCE TO END NODE RAW TEST
         //
@@ -1935,13 +2089,60 @@ int main(int argc, char *argv[])
               "<Node0>\n"
               "    <Element1>";
 
-            xmlStr += bsl::string(8 * 1024, 'b');
+            xmlStr += bsl::string(8 * 1024 - xmlStr.length() - 7, 'b');
 
-            xmlStr += " /foobar</Element1>\n"
+            xmlStr += "</foobar</Element1>\n"
               "    <Element2>element2</Element2>\n"
               "    <Element3>element3</Element3>\n"
               "</Node0>\n"
               "</xs:schema>";
+
+            int rc = reader.open(xmlStr.data(), xmlStr.size());
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            // Skip to end node
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
+
+            ASSERT(reader.nodeType() ==
+                balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTests bad unended large xml (*8K+)."
+                                      "\n- - - - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            bsl::string xmlStr =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "<Node0>\n"
+              "    <Element1>";
+
+            xmlStr += bsl::string(8 * 1024 - xmlStr.length() - 7, 'b');
+
+            xmlStr += "</foobar";
 
             int rc = reader.open(xmlStr.data(), xmlStr.size());
             ASSERT(-1 < rc);
@@ -2092,6 +2293,455 @@ int main(int argc, char *argv[])
             // Skip to end node
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -2); // SKIP
+
+            reader.close();
+        }
+      } break;
+
+      case 12: {
+        // --------------------------------------------------------------------
+        // ADVANCE TO END NODE TEST
+        //
+        // Concerns:
+        // 1 'advanceToEndNode' function skips all (text, CDATA, comment,
+        //   whitespace, start element, end element for skipped elements) node
+        //   types until it finds the end element for the element it was called
+        //   for.
+        //
+        // 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
+        //   'ST_ERROR' is a no-op and it returns an error.
+        //
+        // 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
+        //   returns success.
+        //
+        // Testing:
+        //   'advanceToEndNode'
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nADVANCE TO END NODE TEST"
+                               << "\n========================" << bsl::endl;
+
+        static const char xmlStr[] =
+          "<?xml version='1.0' encoding='UTF-8'?>\n"
+          "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
+          "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+          "    elementFormDefault='qualified'\n"
+          "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+          "    bdem:package='bascfg'>\n"
+          "<Node0>\n"
+          "    <Element1>element1<!-- The first element has a comment -->"
+              "</Element1>\n"
+          "    <Element2>element2</Element2>\n"
+          "    <Element3>element3</Element3>\n"
+          "    <![CDATA[&lt;123&#240;&gt;]]>\n"
+          "</Node0>\n"
+          "</xs:schema>";
+
+        if (veryVerbose) P(xmlStr);
+
+        balxml::NamespaceRegistry namespaces;
+        balxml::PrefixStack prefixStack(&namespaces);
+        Obj miniReader; Obj& reader = miniReader;
+
+        reader.setPrefixStack(&prefixStack);
+
+        if (veryVerbose) bsl::cout << "\nSkip deepest element, Element3."
+                                      "\n- - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+
+            ASSERT( reader.isOpen());
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                        " RCSId_bascfg_xsd = \"$Id: $\" "));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                         " The first element has a comment "));
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
+            ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nSkip Element1 (with comment)."
+                                      "\n- - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+
+            ASSERT( reader.isOpen());
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                        " RCSId_bascfg_xsd = \"$Id: $\" "));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
+            ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nSkip inner element, Node0."
+                                      "\n- - - - - - - - - - - - - "
+                                   << bsl::endl;
+        {
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+
+            ASSERT( reader.isOpen());
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                        " RCSId_bascfg_xsd = \"$Id: $\" "));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nSkip outer element, xs:schema."
+                                      "\n- - - - - - - - - - - - - - - "
+                                   << bsl::endl;
+        {
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+
+            ASSERT( reader.isOpen());
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                        " RCSId_bascfg_xsd = \"$Id: $\" "));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTests in ST_EOF and ST_CLOSED state."
+                                      "\n- - - - - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>text</Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            rc = advancePastWhiteSpace(reader); // Hit EOF here
+
+            // Skip to end node fails, the parser is in the 'ST_EOF' state:
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
+
+            reader.close();
+
+            // Skip to end node fails, the parser is in the 'ST_CLOSED' state:
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
+        }
+
+        if (veryVerbose) bsl::cout << "\nTest in ST_ERROR state."
+                                      "\n- - - - - - - - - - - -" << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0></Node1>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            // Wrong end-element name, going into error state:
+
+            LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) < 0);
+
+            // Skip to end node fails, the parser is in the 'ST_ERROR' state:
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTest empty element."
+                                      "\n- - - - - - - - - -" << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0/>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+            rc = advancePastWhiteSpace(reader);
+            // TBD: Mini Reader needs to be fixed to pass back the correct
+            // encoding.
+            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+            ASSERT( reader.nodeType() ==
+                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+            ASSERT( reader.nodeHasValue());
+            ASSERT(!bsl::strcmp(reader.nodeValue(),
+                                            "version='1.0' encoding='UTF-8'"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            rc = advancePastWhiteSpace(reader);
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);  // SKIP
+
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
 
             reader.close();
         }
@@ -3417,10 +4067,11 @@ int main(int argc, char *argv[])
                                << bsl::endl;
 
         if (verbose) bsl::cout << "\tPassing in an allocator." << bsl::endl;
+        typedef bsls::Types::Int64 Int64;
         if (verbose) bsl::cout << "\t\tWith no exceptions."    << bsl::endl;
         {
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+            const Int64 NUM_BYTES  = testAllocator.numBytesInUse();
             {
                 Obj mX(&testAllocator);
 
@@ -3433,8 +4084,8 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\t\tWith exceptions." << bsl::endl;
         {
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+            const Int64 NUM_BYTES  = testAllocator.numBytesInUse();
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&testAllocator);
 
@@ -3453,8 +4104,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\tPassing in an allocator." << bsl::endl;
         if (verbose) bsl::cout << "\t\tWith no exceptions." << bsl::endl;
         {
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+            const Int64 NUM_BYTES  = testAllocator.numBytesInUse();
             {
                 Obj mX(1024, &testAllocator);
 
@@ -3475,8 +4126,8 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\t\tWith exceptions." << bsl::endl;
         {
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+            const Int64 NUM_BYTES  = testAllocator.numBytesInUse();
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(1024, &testAllocator);
 

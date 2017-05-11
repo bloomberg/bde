@@ -488,6 +488,14 @@ class MiniReader :  public Reader {
         // pointer (d_scanPtr) to point to the next character after the string
         // read.  Return the string type found.
 
+    StringType searchElementName(const bsl::string& name);
+        // Scan the input for the specified element 'name', or the end tag
+        // corresponding to 'name'.  Stop at the first instance and update the
+        // internal read pointer (d_scanPtr) to point to the next character
+        // after the string read.  Return the string type found.  Notice that
+        // this method (unlike 'searchCommentCDataOrElementName') does not
+        // return 'e_STRINGTYPE_COMMENT' or 'e_STRINGTYPE_CDATA'.
+
     // LOW LEVEL PARSING PRIMITIVES
     const char *rebasePointer(const char *ptr, const char *newBase);
     void  rebasePointers(const char *newBase, size_t newLength);
@@ -661,15 +669,16 @@ class MiniReader :  public Reader {
         // "prior node".  E.g., the pointer returned from 'nodeName' for this
         // node won't be valid once 'advanceToEndNode' is called.  Note that
         // the reader will not advance by a subsequent call to
-        // 'advanceToEndNodeRaw' or 'advanceToEndNode' since the reader is
-        // on an end node.  You should call 'advanceToNextNode' to skip the
-        // current end element and find the start of the next element.
+        // 'advanceToEndNodeRaw', 'advanceToEndNodeRawBare', or
+        // 'advanceToEndNode' since the reader is on an end node.  You should
+        // call 'advanceToNextNode' to skip the current end element and find
+        // the start of the next element.
 
     virtual int advanceToEndNodeRaw();
         // Skip all the sub elements of the current node and position the
         // reader on its corresponding end node, and (unlike
         // 'advanceToNextNode') perform no checks to ensure that the elements
-        // being skipped are well - formed and that they do not contain any
+        // being skipped are well-formed and that they do not contain any
         // parsing errors.  Return 0 on successful skip, and a negative number
         // otherwise (error).  The behavior is undefined unless
         // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
@@ -678,8 +687,30 @@ class MiniReader :  public Reader {
         // "prior node".  E.g., the pointer returned from 'nodeName' for this
         // node will not be valid once 'advanceToEndNodeRaw' is called.  Note
         // that the reader will not advance by a subsequent call to
-        // 'advanceToEndNodeRaw' or 'advanceToEndNode' since the reader is on
-        // an end node.  You should call 'advanceToNextNode' to skip the
+        // 'advanceToEndNodeRaw', 'advanceToEndNodeRawBare', or
+        // 'advanceToEndNode' since the reader is on an end node.  You should
+        // call 'advanceToNextNode' to skip the current end element and find
+        // the start of the next element.
+
+    virtual int advanceToEndNodeRawBare();
+        // Skip all the sub elements of the current node and position the
+        // reader on its corresponding end node, and (unlike
+        // 'advanceToNextNode') perform no checks to ensure that the elements
+        // being skipped are well-formed and that they do not contain any
+        // parsing errors.  Unlike 'advanceToEndNodeRaw' this method does not
+        // expect (allow) comments or CDATA nodes in the input XML, in other
+        // words it is expecting "bare" XML.  Return 0 on successful skip, and
+        // a negative number otherwise (error).  The behavior is undefined
+        // unless 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.
+        // The behavior is also undefined if the input XML contains comment or
+        // CDATA nodes.  Note that each call to 'advanceToEndNodeRawBare'
+        // invalidates strings and data structures returned when 'Reader'
+        // accessors were called for the "prior node".  E.g., the pointer
+        // returned from 'nodeName' for this node will not be valid once
+        // 'advanceToEndNodeRawBare' is called.  Note that the reader will not
+        // advance by a subsequent call to 'advanceToEndNodeRaw',
+        // 'advanceToEndNodeRawBare', or 'advanceToEndNode' since the reader is
+        // on an end node.  You should call 'advanceToNextNode' to skip the
         // current end element and find the start of the next element.
 
     virtual int advanceToNextNode();

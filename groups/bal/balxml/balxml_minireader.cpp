@@ -944,7 +944,7 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
           }                                                     // FALL THROUGH
 
           default: {
-            while ((d_endPtr - d_scanPtr) < (int)len) {
+            while ((d_endPtr - d_scanPtr) < (int)name.length()) {
                 if (readInput() == 0) {
                     d_scanPtr = d_endPtr;
                     return e_STRINGTYPE_NONE;                         // RETURN
@@ -954,7 +954,49 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                 if (e_STRINGTYPE_NONE == type) {
                     type = e_STRINGTYPE_START_ELEMENT;
                 }
-                d_scanPtr += len;
+                return type;                                          // RETURN
+            }
+          }
+        }
+    }
+}
+
+MiniReader::StringType
+MiniReader::searchElementName(const bsl::string& name)
+{
+    BSLS_ASSERT(!name.empty());
+
+    char strSet[] = { '/', name[0] };
+
+    while (1) {
+        StringType type = e_STRINGTYPE_NONE;
+
+        size_t len = bsl::strcspn(d_scanPtr, strSet);
+        d_scanPtr += len;
+        if (d_scanPtr == d_endPtr) { // No chars from 'strSet' found.
+            if (readInput() == 0) {
+                d_scanPtr = d_endPtr;
+                return e_STRINGTYPE_NONE;                             // RETURN
+            }
+            continue;                                               // CONTINUE
+        }
+
+        switch (getChar()) {
+          case '/': {
+            type = e_STRINGTYPE_END_ELEMENT;
+          }                                                     // FALL THROUGH
+
+          default: {
+            while ((d_endPtr - d_scanPtr) < (int)name.length()) {
+                if (readInput() == 0) {
+                    d_scanPtr = d_endPtr;
+                    return e_STRINGTYPE_NONE;                         // RETURN
+                }
+            }
+            if (0 == bsl::memcmp(d_scanPtr, name.data(), name.length())) {
+                if (e_STRINGTYPE_NONE == type) {
+                    type = e_STRINGTYPE_START_ELEMENT;
+                }
                 return type;                                          // RETURN
             }
           }
@@ -1019,6 +1061,53 @@ int MiniReader::advanceToEndNodeRaw()
             ++level;
           } break;
 
+          case e_STRINGTYPE_NONE:
+          return -2;                                                  // RETURN
+        }
+        ++d_scanPtr;
+    }
+}
+
+int MiniReader::advanceToEndNodeRawBare()
+{
+    if (d_state == ST_EOF   ||    // Is the reader operational?
+        d_state == ST_ERROR ||
+        d_state == ST_CLOSED) {
+        return -1;                                                    // RETURN
+    }
+
+    const Node& node = currentNode();
+
+    BSLS_ASSERT(node.d_type == e_NODE_TYPE_ELEMENT);
+
+    if (isEmptyElement()) {  // Empty element so we already skipped the body
+        return 0;                                                     // RETURN
+    }
+
+    int level = 1;
+    while (1) {
+        StringType stringType = searchElementName(node.d_qualifiedName);
+        switch (stringType) {
+          case e_STRINGTYPE_END_ELEMENT: {
+            --level;
+            if (0 == level) {
+                scanEndElementRaw();
+
+                // Leaving the END node decreases 'd_activeNodesCount' so we
+                // need to increase it and add a name.
+                //
+                pushElementName();
+
+                return 0;  // we are done                             // RETURN
+            }
+          } break;
+
+          case e_STRINGTYPE_START_ELEMENT: {
+            ++level;
+          } break;
+
+          case e_STRINGTYPE_COMMENT: // to silence warning
+          case e_STRINGTYPE_CDATA:   // to silence warning
           case e_STRINGTYPE_NONE:
           return -2;                                                  // RETURN
         }
