@@ -4868,38 +4868,42 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
                                             ContainerBase::allocator());
         this->d_dataEnd_p = this->d_dataBegin_p + newSize;
     }
+    else if (0 == this->d_capacity) {
+        // Because of {DRQS 99966534}, we check for zero capacity here and
+        // handle it separately rather than falling into the case below.
+        Vector_Imp temp(newSize, this->get_allocator());
+        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+    }
+    else if (newSize > this->d_capacity) {
+        const size_type maxSize = max_size();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newSize > maxSize)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                "vector<...>::resize(n): vector too long");
+        }
+
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                       newSize, this->d_capacity, maxSize);
+        Vector_Imp temp(this->get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+        ArrayPrimitives::destructiveMoveAndInsert(
+            temp.d_dataBegin_p,
+            &this->d_dataEnd_p,
+            this->d_dataBegin_p,
+            this->d_dataEnd_p,
+            this->d_dataEnd_p,
+            newSize - this->size(),
+            ContainerBase::allocator());
+
+        temp.d_dataEnd_p += newSize;
+        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+    }
     else {
-        if (newSize > this->d_capacity) {
-            const size_type maxSize = max_size();
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newSize > maxSize)) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                    "vector<...>::resize(n): vector too long");
-            }
-
-            size_type newCapacity = Vector_Util::computeNewCapacity(
-                                           newSize, this->d_capacity, maxSize);
-            Vector_Imp temp(this->get_allocator());
-            temp.privateReserveEmpty(newCapacity);
-
-            ArrayPrimitives::destructiveMoveAndInsert(
-                temp.d_dataBegin_p,
-                &this->d_dataEnd_p,
-                this->d_dataBegin_p,
-                this->d_dataEnd_p,
-                this->d_dataEnd_p,
-                newSize - this->size(),
-                ContainerBase::allocator());
-
-            temp.d_dataEnd_p += newSize;
-            Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
-        }
-        else {
-            ArrayPrimitives::defaultConstruct(this->d_dataEnd_p,
-                                              newSize - this->size(),
-                                              ContainerBase::allocator());
-            this->d_dataEnd_p = this->d_dataBegin_p + newSize;
-        }
+        ArrayPrimitives::defaultConstruct(this->d_dataEnd_p,
+                                          newSize - this->size(),
+                                          ContainerBase::allocator());
+        this->d_dataEnd_p = this->d_dataBegin_p + newSize;
     }
 }
 
