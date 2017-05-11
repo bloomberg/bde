@@ -55,6 +55,7 @@ using namespace std;
 // [ 4] void operator +=(int value);
 // [ 4] void operator -=(int value);
 // [ 2] operator int() const;
+// [ 3] void bsls::AtomicInt::store(int value);
 //
 // bsls::AtomicInt64
 // -----------------
@@ -74,6 +75,7 @@ using namespace std;
 // [ 4] void operator +=(bsls::Types::Int64 value);
 // [ 4] void operator -=(bsls::Types::Int64 value);
 // [ 2] operator bsls::Types::Int64() const;
+// [ 3] void bsls::AtomicInt64::store(Int64 value);
 //
 // bsls::AtomicPointer
 // -------------------
@@ -88,6 +90,7 @@ using namespace std;
 // [ 2] T& operator*() const;
 // [ 3] T* operator->() const;
 // [ 2] operator T*() const;
+// [ 3] void bsls::AtomicPointer<T>::store(T* value);
 //
 // bsls::AtomicBool
 // ---------------
@@ -100,6 +103,7 @@ using namespace std;
 // [ 3] bsls::AtomicBool& operator= (const bsls::AtomicBool& rhs);
 // [ 2] bsls::AtomicBool& operator= (bool value);
 // [ 2] operator bool() const;
+// [ 3] void bsls::AtomicBool::store(bool value);
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -2194,15 +2198,19 @@ int main(int argc, char *argv[])
         //   bsls::AtomicInt(const bsls::AtomicInt& rhs);
         //   bsls::AtomicInt(int value);
         //   bsls::AtomicInt& operator= (const bsls::AtomicInt& rhs);
+        //   void bsls::AtomicInt::store(int value);
         //   bsls::AtomicInt64(const bsls::AtomicInt64& original);
         //   bsls::AtomicInt64(bsls::Types::Int64 value);
         //   bsls::AtomicInt64& operator= (const bsls::AtomicInt64& rhs);
+        //   void bsls::AtomicInt64::store(Int64 value);
         //   bsls::AtomicPointer(const bsls::AtomicPointer<T>& original);
         //   bsls::AtomicPointer(const T* value);
         //   bsls::AtomicPointer<T>& operator=(const bsls::AtomicPointer<T>&);
+        //   void bsls::AtomicPointer<T>::store(T* value);
         //   bsls::AtomicBool(const bsls::AtomicBool& rhs);
         //   bsls::AtomicBool(bool value);
         //   bsls::AtomicBool& operator= (const bsls::AtomicBool& rhs);
+        //   void bsls::AtomicBool::store(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulators"
@@ -2232,14 +2240,17 @@ int main(int argc, char *argv[])
                 AI x(VAL);              const AI& X = x;
                 AI y(X.loadRelaxed());  const AI& Y = y;
                 AI z;                   const AI& Z = z;
+                AI w;                   const AI& W = w;
 
                 z = X.loadRelaxed();
+                w.store(VAL);
                 if (veryVerbose) {
-                    T_(); P_(X); P_(Y); P_(Z); P(VAL);
+                    T_(); P_(X); P_(Y); P_(Z); P_(W); P(VAL);
                 }
                 LOOP_ASSERT(i, VAL == X);
                 LOOP_ASSERT(i, VAL == Y);
                 LOOP_ASSERT(i, VAL == Z);
+                LOOP_ASSERT(i, VAL == W);
             }
         }
 
@@ -2267,14 +2278,17 @@ int main(int argc, char *argv[])
                 AI64 x(VAL);                const AI64& X = x;
                 AI64 y(X.loadRelaxed());    const AI64& Y = y;
                 AI64 z;                     const AI64& Z = z;
+                AI64 w;                     const AI64& W = w;
 
                 z = X.loadRelaxed();
+                w.store(VAL);
                 if (veryVerbose) {
-                    T_(); P_(X); P_(Y); P_(Z); P(VAL);
+                    T_(); P_(X); P_(Y); P_(Z); P_(W); P(VAL);
                 }
                 LOOP_ASSERT(i, VAL == X);
                 LOOP_ASSERT(i, VAL == Y);
                 LOOP_ASSERT(i, VAL == Z);
+                LOOP_ASSERT(i, VAL == W);
             }
         }
 
@@ -2303,14 +2317,17 @@ int main(int argc, char *argv[])
                 AP x(VAL);              const AP& X = x;
                 AP y(X.loadRelaxed());  const AP& Y = y;
                 AP z;                   const AP& Z = z;
+                AP w;                   const AP& W = w;
 
                 z = X.loadRelaxed();
+                w.store(VAL);
                 if (veryVerbose) {
-                    T_(); P_(X); P_(Y); P_(Z); P(VAL);
+                    T_(); P_(X); P_(Y); P_(Z); P_(W); P(VAL);
                 }
                 LOOP_ASSERT(i, VAL == X);
                 LOOP_ASSERT(i, VAL == Y);
                 LOOP_ASSERT(i, VAL == Z);
+                LOOP_ASSERT(i, VAL == W);
             }
         }
 
@@ -2337,14 +2354,17 @@ int main(int argc, char *argv[])
                 AB x(VAL);              const AB& X = x;
                 AB y(X.loadRelaxed());  const AB& Y = y;
                 AB z;                   const AB& Z = z;
+                AB w;                   const AB& W = w;
 
                 z = X.loadRelaxed();
+                w.store(VAL);
                 if (veryVerbose) {
                     T_(); P_(X); P_(Y); P_(Z); P(VAL);
                 }
                 LOOP_ASSERT(i, VAL == X);
                 LOOP_ASSERT(i, VAL == Y);
                 LOOP_ASSERT(i, VAL == Z);
+                LOOP_ASSERT(i, VAL == W);
             }
         }
 
