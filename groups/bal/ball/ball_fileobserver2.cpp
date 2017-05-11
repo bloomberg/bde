@@ -18,12 +18,12 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <ball_userfields.h>
 #include <ball_userfieldvalue.h>
 
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
 #include <ball_recordstringformatter.h>       // for testing only
+#include <ball_streamobserver.h>              // for testing only
 
 #include <bdlf_memfn.h>
 
@@ -417,6 +417,7 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
 
     const ball::UserFields& customFields = record.customFields();
     const int numCustomFields = customFields.length();
+
     for (int i = 0; i < numCustomFields; ++i) {
         stream << customFields[i] << ' ';
     }

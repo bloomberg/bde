@@ -6,12 +6,12 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 
 #include <ball_attributecontext.h>
 #include <ball_context.h>
-#include <ball_defaultobserver.h>           // for testing only
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerdefaults.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-#include <ball_testobserver.h>              // for testing only
+#include <ball_streamobserver.h>           // for testing only
+#include <ball_testobserver.h>             // for testing only
 
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
@@ -46,9 +46,9 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-//=============================================================================
+// ============================================================================
 //                           IMPLEMENTATION NOTES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 ///Single-Threaded vs. Multi-Threaded Logger Manager
 ///-------------------------------------------------
@@ -67,7 +67,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 // The category registry capacity is managed by the 'setMaxNumCategories' and
 // 'maxNumCategories' methods, and the following data member:
 //..
-//    unsigned int ball::LoggerManager::d_maxNumCategoriesMinusOne;
+//  unsigned int ball::LoggerManager::d_maxNumCategoriesMinusOne;
 //..
 // From the client's perspective, valid capacity values are in the range
 // '[0 .. INT_MAX]'.  A value of 0 implies that no limit is imposed.  Capacity
@@ -78,22 +78,22 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 // 'd_maxNumCategoriesMinusOne', respectively.  This trick allows for more
 // efficient capacity testing, e.g.:
 //..
-//    if (d_maxNumCategoriesMinusOne >= d_categoryManager.length()) {
-//        // there is sufficient capacity to add a new category
-//        // ...
-//    }
+//  if (d_maxNumCategoriesMinusOne >= d_categoryManager.length()) {
+//      // there is sufficient capacity to add a new category
+//      // ...
+//  }
 //..
 // as compared to something like the following if the registry capacity were
 // stored in a hypothetical 'int' data member
 // 'ball::LoggerManager::d_maxNumCategories' not biased by 1:
 //..
-//    if (0 == d_maxNumCategories
-//     || d_maxNumCategories > d_categoryManager.length()) {
-//        // there is sufficient capacity to add a new category
-//        // ...
-//    }
+//  if (0 == d_maxNumCategories
+//   || d_maxNumCategories > d_categoryManager.length()) {
+//      // there is sufficient capacity to add a new category
+//      // ...
+//  }
 //..
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BloombergLP {
 namespace ball {
@@ -279,37 +279,6 @@ Logger::~Logger()
 }
 
 // PRIVATE MANIPULATORS
-void Logger::publish(Transmission::Cause cause)
-{
-    d_recordBuffer_p->beginSequence();
-
-    const int len = d_recordBuffer_p->length();
-    Context   context(cause, 0, len);
-
-    if (1 == len) {  // for len == 1, order does not matter, so optimize it
-        context.setRecordIndexRaw(0);
-        d_observer->publish(d_recordBuffer_p->back(), context);
-        d_recordBuffer_p->popBack();
-    }
-    else {
-        if (LoggerManagerConfiguration::e_LIFO == d_logOrder) {
-            for (int i = 0; i < len; ++i) {
-                context.setRecordIndexRaw(i);
-                d_observer->publish(d_recordBuffer_p->back(), context);
-                d_recordBuffer_p->popBack();
-            }
-        }
-        else {
-            for (int i = 0; i < len; ++i) {
-                context.setRecordIndexRaw(i);
-                d_observer->publish(d_recordBuffer_p->front(), context);
-                d_recordBuffer_p->popFront();
-            }
-        }
-    }
-    d_recordBuffer_p->endSequence();
-}
-
 void Logger::logMessage(const Category&            category,
                         int                        severity,
                         Record                    *record,
@@ -417,6 +386,37 @@ void Logger::logMessage(const Category&            category,
     }
 }
 
+void Logger::publish(Transmission::Cause cause)
+{
+    d_recordBuffer_p->beginSequence();
+
+    const int len = d_recordBuffer_p->length();
+    Context   context(cause, 0, len);
+
+    if (1 == len) {  // for len == 1, order does not matter, so optimize it
+        context.setRecordIndexRaw(0);
+        d_observer->publish(d_recordBuffer_p->back(), context);
+        d_recordBuffer_p->popBack();
+    }
+    else {
+        if (LoggerManagerConfiguration::e_LIFO == d_logOrder) {
+            for (int i = 0; i < len; ++i) {
+                context.setRecordIndexRaw(i);
+                d_observer->publish(d_recordBuffer_p->back(), context);
+                d_recordBuffer_p->popBack();
+            }
+        }
+        else {
+            for (int i = 0; i < len; ++i) {
+                context.setRecordIndexRaw(i);
+                d_observer->publish(d_recordBuffer_p->front(), context);
+                d_recordBuffer_p->popFront();
+            }
+        }
+    }
+    d_recordBuffer_p->endSequence();
+}
+
 // MANIPULATORS
 Record *Logger::getRecord(const char *file, int line)
 {
@@ -459,41 +459,12 @@ void Logger::logMessage(const Category&  category,
     logMessage(category, severity, record, thresholds);
 }
 
-void Logger::publish()
-{
-    publish(Transmission::e_MANUAL_PUBLISH);
-}
-
-void Logger::removeAll()
-{
-    d_recordBuffer_p->removeAll();
-}
-
 char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
 {
     d_scratchBufferMutex.lock();
-    *mutex = &d_scratchBufferMutex;
+    *mutex      = &d_scratchBufferMutex;
     *bufferSize = d_scratchBufferSize;
     return d_scratchBuffer_p;
-}
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-char *Logger::messageBuffer()
-{
-    return d_scratchBuffer_p;
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-// ACCESSORS
-int Logger::messageBufferSize() const
-{
-    return d_scratchBufferSize;
-}
-
-int Logger::numRecordsInUse() const
-{
-    return d_recordPool.numObjects() -
-           d_recordPool.numAvailableObjects();
 }
 
                            // -------------------
@@ -501,7 +472,8 @@ int Logger::numRecordsInUse() const
                            // -------------------
 
 // CLASS DATA
-LoggerManager *LoggerManager::s_singleton_p = 0;
+LoggerManager *LoggerManager::s_singleton_p   = 0;
+bool           LoggerManager::s_doNotShutDown = false;
 
 // PRIVATE CLASS METHODS
 void LoggerManager::initSingletonImpl(
@@ -509,12 +481,13 @@ void LoggerManager::initSingletonImpl(
                             bslma::Allocator                  *globalAllocator)
 {
     static bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;
+
     bslmt::OnceGuard doOnceGuard(&doOnceObj);
     if (doOnceGuard.enter() && 0 == s_singleton_p) {
         bslma::Allocator *allocator =
                               bslma::Default::globalAllocator(globalAllocator);
 
-        LoggerManager *singleton =  new (*allocator) LoggerManager(
+        LoggerManager *singleton = new (*allocator) LoggerManager(
                                                                  configuration,
                                                                  allocator);
         AttributeContext::initialize(&singleton->d_categoryManager,
@@ -535,6 +508,99 @@ void LoggerManager::initSingletonImpl(
                        __FILE__,
                        __LINE__,
                        "BALL logger manager has already been initialized!");
+    }
+}
+
+// PRIVATE CREATORS
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+LoggerManager::LoggerManager(
+                            const LoggerManagerConfiguration&  configuration,
+                            Observer                          *observer,
+                            bslma::Allocator                  *globalAllocator)
+: d_observer(new(*bslma::Default::globalAllocator(globalAllocator))
+             BroadcastObserver(bslma::Default::globalAllocator(
+                                                             globalAllocator)),
+             bslma::Default::globalAllocator(globalAllocator))
+, d_nameFilter(configuration.categoryNameFilterCallback())
+, d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
+, d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
+                           configuration.defaults().defaultPassLevel(),
+                           configuration.defaults().defaultTriggerLevel(),
+                           configuration.defaults().defaultTriggerAllLevel())
+, d_factoryThresholdLevels(configuration.defaults().defaultRecordLevel(),
+                           configuration.defaults().defaultPassLevel(),
+                           configuration.defaults().defaultTriggerLevel(),
+                           configuration.defaults().defaultTriggerAllLevel())
+, d_populator(configuration.userFieldsPopulatorCallback())
+, d_logger_p(0)
+, d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
+, d_maxNumCategoriesMinusOne((unsigned int)-1)
+, d_loggers(bslma::Default::globalAllocator(globalAllocator))
+, d_recordBuffer_p(0)
+, d_defaultCategory_p(0)
+, d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
+, d_defaultLoggers(bslma::Default::globalAllocator(globalAllocator))
+, d_logOrder(configuration.logOrder())
+, d_triggerMarkers(configuration.triggerMarkers())
+, d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
+{
+    BSLS_ASSERT(d_observer);
+
+    BSLS_ASSERT(observer);
+    bsl::shared_ptr<Observer> observerWrapper(observer,
+                                              bslstl::SharedPtrNilDeleter(),
+                                              d_allocator_p);
+
+    constructObject(configuration);
+
+    int rc = registerObserver(observerWrapper, INTERNAL_OBSERVER_NAME);
+    BSLS_ASSERT(0 == rc);
+    (void)rc;
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+// PRIVATE MANIPULATORS
+void LoggerManager::constructObject(
+                               const LoggerManagerConfiguration& configuration)
+{
+    BSLS_ASSERT(0 == d_logger_p);
+    BSLS_ASSERT(0 == d_defaultCategory_p);
+    BSLS_ASSERT(0 == d_recordBuffer_p);
+
+    d_publishAllCallback = bsl::function<void(Transmission::Cause)>(
+      bsl::allocator_arg_t(),
+      bsl::allocator<bsl::function<void(Transmission::Cause)> >(d_allocator_p),
+      bdlf::MemFnUtil::memFn(&LoggerManager::publishAllImp, this));
+
+    int recordBufferSize = configuration.defaults().defaultRecordBufferSize();
+    d_recordBuffer_p     = new(*d_allocator_p) FixedSizeRecordBuffer(
+                                                              recordBufferSize,
+                                                              d_allocator_p);
+
+    d_logger_p = new(*d_allocator_p) Logger(d_observer,
+                                            d_recordBuffer_p,
+                                            d_populator,
+                                            d_publishAllCallback,
+                                            d_scratchBufferSize,
+                                            d_logOrder,
+                                            d_triggerMarkers,
+                                            d_allocator_p);
+    d_loggers.insert(d_logger_p);
+    d_defaultCategory_p = d_categoryManager.addCategory(
+                                   DEFAULT_CATEGORY_NAME,
+                                   d_defaultThresholdLevels.recordLevel(),
+                                   d_defaultThresholdLevels.passLevel(),
+                                   d_defaultThresholdLevels.triggerLevel(),
+                                   d_defaultThresholdLevels.triggerAllLevel());
+}
+
+void LoggerManager::publishAllImp(Transmission::Cause cause)
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
+
+    bsl::set<Logger *>::iterator itr;
+    for (itr = d_loggers.begin(); itr != d_loggers.end(); ++itr) {
+        (*itr)->publish(cause);
     }
 }
 
@@ -566,6 +632,21 @@ LoggerManager::createLoggerManager(
 
     manager->load(new(*allocator) LoggerManager(configuration, allocator),
                   allocator);
+}
+
+Record *LoggerManager::getRecord(const char *file, int line)
+{
+    // This static method is called to obtain a record when the logger manager
+    // singleton is not available (either has not been initialized or has been
+    // destroyed).  The memory for the record is therefore supplied by the
+    // currently installed default allocator.
+
+    bslma::Allocator *allocator = bslma::Default::defaultAllocator();
+    Record           *record    = new(*allocator) Record(allocator);
+
+    record->fixedFields().setFileName(file);
+    record->fixedFields().setLineNumber(line);
+    return record;
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -615,49 +696,32 @@ LoggerManager& LoggerManager::initSingleton(
     return *s_singleton_p;
 }
 
-void LoggerManager::shutDownSingleton()
+void
+LoggerManager::initSingleton(LoggerManager *singleton, bool shutDownEnabled)
 {
-    if (s_singleton_p) {
-        {
-            // Restore the default 'bsls_log' message handler.  Note that this
-            // lock is necessary to ensure that the singleton is not destroyed
-            // while a 'bsls_log' record is being published.
+    BSLS_ASSERT(singleton);
 
-            bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
-            bsls::Log::setLogMessageHandler(
-                                    &bsls::Log::platformDefaultMessageHandler);
-        }
+    static bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;
 
-        // Clear the singleton pointer as early as possible to minimize the
-        // that one thread is destroying the singleton while another is still
-        // accessing the data members.
+    bslmt::OnceGuard doOnceGuard(&doOnceObj);
+    if (doOnceGuard.enter() && 0 == s_singleton_p) {
+        s_singleton_p   = singleton;
+        s_doNotShutDown = !shutDownEnabled;
 
-        LoggerManager *singleton = s_singleton_p;
+        // Configure 'bsls_log' to publish records using 'ball' via the
+        // 'LoggerManager' singleton.
 
-        s_singleton_p = 0;
-
-        singleton->allocator()->deleteObjectRaw(singleton);
+        bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+        bsls::Log::setLogMessageHandler(&bslsLogMessage);
     }
-}
-
-LoggerManager& LoggerManager::singleton()
-{
-    return *s_singleton_p;
-}
-
-Record *LoggerManager::getRecord(const char *file, int line)
-{
-    // This static method is called to obtain a record when the logger manager
-    // singleton is not available (either has not been initialized or has been
-    // destroyed).  The memory for the record is therefore supplied by the
-    // currently installed default allocator.
-
-    bslma::Allocator *allocator = bslma::Default::defaultAllocator();
-    Record           *record    = new(*allocator) Record(allocator);
-
-    record->fixedFields().setFileName(file);
-    record->fixedFields().setLineNumber(line);
-    return record;
+    else {
+        LoggerManager::singleton().getLogger().
+            logMessage(*s_singleton_p->d_defaultCategory_p,
+                       Severity::e_WARN,
+                       __FILE__,
+                       __LINE__,
+                       "BALL logger manager has already been initialized!");
+    }
 }
 
 void LoggerManager::logMessage(int severity, Record *record)
@@ -715,99 +779,32 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
     return buffer;
 }
 
-// PRIVATE MANIPULATORS
-void LoggerManager::publishAllImp(Transmission::Cause cause)
+void LoggerManager::shutDownSingleton()
 {
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
+    if (s_singleton_p && !s_doNotShutDown) {
+        {
+            // Restore the default 'bsls_log' message handler.  Note that this
+            // lock is necessary to ensure that the singleton is not destroyed
+            // while a 'bsls_log' record is being published.
 
-    bsl::set<Logger *>::iterator itr;
-    for (itr = d_loggers.begin(); itr != d_loggers.end(); ++itr) {
-        (*itr)->publish(cause);
+            bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+            bsls::Log::setLogMessageHandler(
+                                    &bsls::Log::platformDefaultMessageHandler);
+        }
+
+        // Clear the singleton pointer as early as possible to minimize the
+        // that one thread is destroying the singleton while another is still
+        // accessing the data members.
+
+        LoggerManager *singleton = s_singleton_p;
+
+        s_singleton_p = 0;
+
+        singleton->allocator()->deleteObjectRaw(singleton);
     }
 }
 
-void LoggerManager::constructObject(
-                               const LoggerManagerConfiguration& configuration)
-{
-    BSLS_ASSERT(0 == d_logger_p);
-    BSLS_ASSERT(0 == d_defaultCategory_p);
-    BSLS_ASSERT(0 == d_recordBuffer_p);
-
-    d_publishAllCallback = bsl::function<void(Transmission::Cause)>(
-      bsl::allocator_arg_t(),
-      bsl::allocator<bsl::function<void(Transmission::Cause)> >(d_allocator_p),
-      bdlf::MemFnUtil::memFn(&LoggerManager::publishAllImp, this));
-
-    int recordBufferSize = configuration.defaults().defaultRecordBufferSize();
-    d_recordBuffer_p     = new(*d_allocator_p) FixedSizeRecordBuffer(
-                                                              recordBufferSize,
-                                                              d_allocator_p);
-
-    d_logger_p = new(*d_allocator_p) Logger(d_observer,
-                                            d_recordBuffer_p,
-                                            d_populator,
-                                            d_publishAllCallback,
-                                            d_scratchBufferSize,
-                                            d_logOrder,
-                                            d_triggerMarkers,
-                                            d_allocator_p);
-    d_loggers.insert(d_logger_p);
-    d_defaultCategory_p = d_categoryManager.addCategory(
-                                   DEFAULT_CATEGORY_NAME,
-                                   d_defaultThresholdLevels.recordLevel(),
-                                   d_defaultThresholdLevels.passLevel(),
-                                   d_defaultThresholdLevels.triggerLevel(),
-                                   d_defaultThresholdLevels.triggerAllLevel());
-}
-
 // CREATORS
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-LoggerManager::LoggerManager(
-                            const LoggerManagerConfiguration&  configuration,
-                            Observer                          *observer,
-                            bslma::Allocator                  *globalAllocator)
-: d_observer(new(*bslma::Default::globalAllocator(globalAllocator))
-             BroadcastObserver(bslma::Default::globalAllocator(
-                                                             globalAllocator)),
-             bslma::Default::globalAllocator(globalAllocator))
-, d_nameFilter(configuration.categoryNameFilterCallback())
-, d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
-, d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
-, d_factoryThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
-, d_populator(configuration.userFieldsPopulatorCallback())
-, d_logger_p(0)
-, d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
-, d_maxNumCategoriesMinusOne((unsigned int)-1)
-, d_loggers(bslma::Default::globalAllocator(globalAllocator))
-, d_recordBuffer_p(0)
-, d_defaultCategory_p(0)
-, d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
-, d_defaultLoggers(bslma::Default::globalAllocator(globalAllocator))
-, d_logOrder(configuration.logOrder())
-, d_triggerMarkers(configuration.triggerMarkers())
-, d_allocator_p(bslma::Default::globalAllocator(globalAllocator))
-{
-    BSLS_ASSERT(d_observer);
-
-    BSLS_ASSERT(observer);
-    bsl::shared_ptr<Observer> observerWrapper(observer,
-                                              bslstl::SharedPtrNilDeleter(),
-                                              d_allocator_p);
-
-    constructObject(configuration);
-
-    int rc = registerObserver(observerWrapper, INTERNAL_OBSERVER_NAME);
-    BSLS_ASSERT(0 == rc);
-    (void)rc;
-}
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
 LoggerManager::LoggerManager(
                             const LoggerManagerConfiguration&  configuration,
                             bslma::Allocator                  *globalAllocator)
@@ -870,6 +867,8 @@ LoggerManager::~LoggerManager()
 }
 
 // MANIPULATORS
+                             // Logger Management
+
 Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_loggersLock);
@@ -1040,16 +1039,7 @@ void LoggerManager::setLogger(Logger *logger)
     }
 }
 
-Category *LoggerManager::lookupCategory(const char *categoryName)
-{
-    BSLS_ASSERT(categoryName);
-
-    bsl::string filteredName;
-
-    return d_categoryManager.lookupCategory(filterName(&filteredName,
-                                                       categoryName,
-                                                       d_nameFilter));
-}
+                             // Category Management
 
 Category *LoggerManager::addCategory(const char *categoryName,
                                      int         recordLevel,
@@ -1089,9 +1079,15 @@ Category *LoggerManager::addCategory(const char *categoryName,
                                          triggerAllLevel);
 }
 
-const Category *LoggerManager::setCategory(const char *categoryName)
+Category *LoggerManager::lookupCategory(const char *categoryName)
 {
-    return setCategory(0, categoryName);
+    BSLS_ASSERT(categoryName);
+
+    bsl::string filteredName;
+
+    return d_categoryManager.lookupCategory(filterName(&filteredName,
+                                                       categoryName,
+                                                       d_nameFilter));
 }
 
 const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
@@ -1198,9 +1194,36 @@ Category *LoggerManager::setCategory(const char *categoryName,
     }
 }
 
-Category& LoggerManager::defaultCategory()
+void LoggerManager::setMaxNumCategories(int length)
 {
-    return *d_defaultCategory_p;
+    d_maxNumCategoriesMinusOne = length - 1;
+}
+
+                             // Observer Management
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+Observer *LoggerManager::observer()
+{
+    return findObserver(INTERNAL_OBSERVER_NAME).get();
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+                             // Threshold Level Management
+
+void LoggerManager::setCategoryThresholdsToCurrentDefaults(Category *category)
+{
+    category->setLevels(d_defaultThresholdLevels.recordLevel(),
+                        d_defaultThresholdLevels.passLevel(),
+                        d_defaultThresholdLevels.triggerLevel(),
+                        d_defaultThresholdLevels.triggerAllLevel());
+}
+
+void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
+{
+    category->setLevels(d_factoryThresholdLevels.recordLevel(),
+                        d_factoryThresholdLevels.passLevel(),
+                        d_factoryThresholdLevels.triggerLevel(),
+                        d_factoryThresholdLevels.triggerAllLevel());
 }
 
 int LoggerManager::setDefaultThresholdLevels(int recordLevel,
@@ -1224,27 +1247,6 @@ int LoggerManager::setDefaultThresholdLevels(int recordLevel,
     return BALL_SUCCESS;
 }
 
-void LoggerManager::resetDefaultThresholdLevels()
-{
-    d_defaultThresholdLevels = d_factoryThresholdLevels;
-}
-
-void LoggerManager::setCategoryThresholdsToCurrentDefaults(Category *category)
-{
-    category->setLevels(d_defaultThresholdLevels.recordLevel(),
-                        d_defaultThresholdLevels.passLevel(),
-                        d_defaultThresholdLevels.triggerLevel(),
-                        d_defaultThresholdLevels.triggerAllLevel());
-}
-
-void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
-{
-    category->setLevels(d_factoryThresholdLevels.recordLevel(),
-                        d_factoryThresholdLevels.passLevel(),
-                        d_factoryThresholdLevels.triggerLevel(),
-                        d_factoryThresholdLevels.triggerAllLevel());
-}
-
 void LoggerManager::setDefaultThresholdLevelsCallback(
                                       DefaultThresholdLevelsCallback *callback)
 {
@@ -1259,77 +1261,18 @@ void LoggerManager::setDefaultThresholdLevelsCallback(
     }
 }
 
-void LoggerManager::setMaxNumCategories(int length)
-{
-    d_maxNumCategoriesMinusOne = length - 1;
-}
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-Observer *LoggerManager::observer()
-{
-    return findObserver(INTERNAL_OBSERVER_NAME).get();
-}
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
-int
-LoggerManager::registerObserver(const bsl::shared_ptr<Observer>& observer,
-                                const bslstl::StringRef&         observerName)
-{
-    return d_observer->registerObserver(observer, observerName);
-}
-
-int
-LoggerManager::deregisterObserver(const bslstl::StringRef& observerName)
-{
-    return d_observer->deregisterObserver(observerName);
-}
-
-void
-LoggerManager::deregisterAllObservers()
-{
-    d_observer->deregisterAllObservers();
-}
-
-bsl::shared_ptr<Observer>
-LoggerManager::findObserver(const bslstl::StringRef& observerName)
-{
-    return d_observer->findObserver(observerName);
-}
-
-void LoggerManager::publishAll()
-{
-    publishAllImp(Transmission::e_MANUAL_PUBLISH_ALL);
-}
-
-int LoggerManager::addRule(const Rule& value)
-{
-    return d_categoryManager.addRule(value);
-}
-
-int LoggerManager::addRules(const RuleSet& ruleSet)
-{
-    return d_categoryManager.addRules(ruleSet);
-}
-
-int LoggerManager::removeRule(const Rule& value)
-{
-    return d_categoryManager.removeRule(value);
-}
-
-int LoggerManager::removeRules(const RuleSet& ruleSet)
-{
-    return d_categoryManager.removeRules(ruleSet);
-}
-
-void LoggerManager::removeAllRules()
-{
-    d_categoryManager.removeAllRules();
-}
-
 // ACCESSORS
-bslma::Allocator *LoggerManager::allocator() const
+bool LoggerManager::isCategoryEnabled(const Category *category,
+                                      int             severity) const
 {
-    return d_allocator_p;
+    if (category->relevantRuleMask()) {
+        AttributeContext *context = AttributeContext::getContext();
+        ThresholdAggregate levels(0, 0, 0, 0);
+        context->determineThresholdLevels(&levels, category);
+        int threshold = ThresholdAggregate::maxLevel(levels);
+        return threshold >= severity;                                 // RETURN
+    }
+    return category->maxLevel() >= severity;
 }
 
 const Category *LoggerManager::lookupCategory(const char *categoryName) const
@@ -1343,11 +1286,6 @@ const Category *LoggerManager::lookupCategory(const char *categoryName) const
                                                        d_nameFilter));
 }
 
-const Category& LoggerManager::defaultCategory() const
-{
-    return *d_defaultCategory_p;
-}
-
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const Observer *LoggerManager::observer() const
 {
@@ -1355,64 +1293,10 @@ const Observer *LoggerManager::observer() const
 }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-bsl::shared_ptr<const Observer>
-LoggerManager::findObserver(const bslstl::StringRef& observerName) const
-{
-    return d_observer->findObserver(observerName);
-}
-
 const Logger::UserFieldsPopulatorCallback *
 LoggerManager::userFieldsPopulatorCallback() const
 {
     return d_populator ? &d_populator : 0;
-}
-
-int LoggerManager::defaultRecordThresholdLevel() const
-{
-    return d_defaultThresholdLevels.recordLevel();
-}
-
-int LoggerManager::defaultPassThresholdLevel() const
-{
-    return d_defaultThresholdLevels.passLevel();
-}
-
-int LoggerManager::defaultTriggerThresholdLevel() const
-{
-    return d_defaultThresholdLevels.triggerLevel();
-}
-
-int LoggerManager::defaultTriggerAllThresholdLevel() const
-{
-    return d_defaultThresholdLevels.triggerAllLevel();
-}
-
-int LoggerManager::maxNumCategories() const
-{
-    return (int)d_maxNumCategoriesMinusOne + 1;
-}
-
-int LoggerManager::numCategories() const
-{
-    return d_categoryManager.length();
-}
-
-const RuleSet& LoggerManager::ruleSet() const
-{
-    return d_categoryManager.ruleSet();
-}
-
-bool LoggerManager::isCategoryEnabled(const Category *category,
-                                      int             severity) const
-{
-    if (category->relevantRuleMask()) {
-        AttributeContext *context = AttributeContext::getContext();
-        ThresholdAggregate levels(0, 0, 0, 0);
-        context->determineThresholdLevels(&levels, category);
-        int threshold = ThresholdAggregate::maxLevel(levels);
-        return threshold >= severity;                                 // RETURN
-    }
-    return category->maxLevel() >= severity;
 }
 
 }  // close package namespace

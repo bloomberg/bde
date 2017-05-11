@@ -35,6 +35,8 @@ StreamObserver::~StreamObserver()
 void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
                              const Context&)
 {
+    BSLS_ASSERT(record);
+
     const RecordAttributes& fixedFields = record->fixedFields();
 
     Severity::Level severityLevel = (Severity::Level)fixedFields.severity();
@@ -68,9 +70,10 @@ void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
                 << fixedFields.category()           << ' ';
 
     d_stream_p->write(message.data(), message.length());
+    *d_stream_p << ' ';
 
     for (int i = 0; i < numCustomFields; ++i) {
-        *d_stream_p << ' ' << customFields[i];
+        *d_stream_p << customFields[i] << ' ';
     }
 
     *d_stream_p << '\n' << bsl::flush;

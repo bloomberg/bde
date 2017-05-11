@@ -527,7 +527,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::Severity::DEBUG' level, which is below the default configured logging
 // threshold.
 //..
-//  ball::DefaultObserver observer(&bsl::cout);
+//  ball::StreamObserver observer(&bsl::cout);
 //  ball::LoggerManagerConfiguration configuration;
 //  ball::LoggerManagerScopedGuard lmg(&observer, configuration);
 //

@@ -180,10 +180,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The example demonstrates using a 'ball::FileObserver2' within a 'ball'
+// The example demonstrates using a 'ball::FileObserver2' within the 'ball'
 // logging system.
 //
-// First, we initialize 'ball' logging subsystem with the default
+// First, we initialize the 'ball' logging subsystem with the default
 // configuration:
 //..
 //  ball::LoggerManagerConfiguration configuration;
@@ -222,9 +222,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we register the file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
-// 'publish' method:
+// the 'publish' method:
 //..
-//  int rc = manager.registerObserver(observerPtr, "file_observer");
+//  int rc = manager.registerObserver(observerPtr, "fileObserver");
 //  assert(0 == rc);
 //..
 

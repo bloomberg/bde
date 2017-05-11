@@ -13,6 +13,7 @@
 #include <ball_categorymanager.h>
 #include <ball_predicate.h>
 #include <ball_rule.h>
+#include <ball_testobserver.h>
 #include <ball_thresholdaggregate.h>
 
 #include <bslim_printer.h>

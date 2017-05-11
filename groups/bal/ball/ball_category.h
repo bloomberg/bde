@@ -437,11 +437,30 @@ class CategoryManagerImpUtil {
                         // class Category
                         // --------------
 
+// CLASS METHODS
+inline
+bool Category::areValidThresholdLevels(int recordLevel,
+                                       int passLevel,
+                                       int triggerLevel,
+                                       int triggerAllLevel)
+{
+    enum { k_BITS_PER_CHAR = 8 };
+
+    return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
+             >> k_BITS_PER_CHAR);
+}
+
 // ACCESSORS
 inline
 const char *Category::categoryName() const
 {
     return d_categoryName.c_str();
+}
+
+inline
+bool Category::isEnabled(int level) const
+{
+    return d_threshold >= level;
 }
 
 inline

@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(ball_administration_cpp,"$Id$ $CSID$")
 #include <ball_loggercategoryutil.h>
 #include <ball_loggermanager.h>
 
-#include <ball_defaultobserver.h>         // for testing only
+#include <ball_streamobserver.h>          // for testing only
 #include <ball_testobserver.h>            // for testing only
 
 #include <bsls_assert.h>

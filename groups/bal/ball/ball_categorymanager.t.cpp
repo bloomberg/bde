@@ -37,9 +37,9 @@
 #include <bsl_iostream.h>
 #include <bsl_new.h>
 #include <bsl_ostream.h>    // i2bs
-#include <bsl_string.h>
-#include <bsl_streambuf.h>  // i2bs
 #include <bsl_sstream.h>
+#include <bsl_streambuf.h>  // i2bs
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 #include <bsl_c_stdlib.h>
@@ -108,6 +108,22 @@ using namespace bsl;
 // [10] const ball::Category *category() const;
 // [10] int threshold() const;
 // [10] ball::CategoryHolder *next() const;
+//
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// 'ball::CategoryManagerIter' public interface:
+// [15] CategoryManagerIter(const CategoryManager& cm);
+// [15] ~CategoryManagerIter();
+// [15] void operator++();
+// [15] operator const void *() const;
+// [15] const Category& operator()() const;
+//
+// 'ball::CategoryManagerManip' public interface:
+// [16] CategoryManagerManip(CategoryManager *cm);
+// [16] ~CategoryManagerManip();
+// [16] void advance();
+// [16] Category& operator()();
+// [16] operator const void *() const;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] BASIC CONSTRUCTORS AND PRIMARY MANIPULATORS (BOOTSTRAP)
@@ -372,8 +388,7 @@ void *case9ThreadW(void *arg)
     if (veryVerbose) {
         MTCOUT << "\t"
                << bsl::setw(4)
-               << results.size() << " categories were added"
-               << MTENDL;
+               << results.size() << " categories were added" << MTENDL;
     }
 
     return 0;
@@ -399,8 +414,7 @@ void *case9ThreadQ(void *arg)
 
     for (int i = 0; i < NUM_NAMES; ++i) {
         if (veryVeryVerbose) {
-            MTCOUT << "Lookup category '" << names[i] << "'"
-                   << MTENDL;
+            MTCOUT << "Lookup category '" << names[i] << "'" << MTENDL;
         }
 
         Holder mH;
@@ -420,8 +434,7 @@ void *case9ThreadQ(void *arg)
     if (veryVeryVerbose) {
         MTCOUT << "\t"
                << "NUM_NAMES = " << NUM_NAMES << ", "
-               << "results.size() = " << results.size()
-               << MTENDL;
+               << "results.size() = " << results.size() << MTENDL;
     }
 
     ASSERT(NUM_NAMES == (signed) results.size());
@@ -430,14 +443,14 @@ void *case9ThreadQ(void *arg)
 }
 
 struct RuleThreadTestArgs {
-    Obj            *d_mx;
-    bslmt::Barrier *d_barrier;
+    Obj            *d_mx_p;
+    bslmt::Barrier *d_barrier_p;
 };
 
 extern "C" void *ruleThreadTest(void *args)
 {
-    Obj&            mX      = *((RuleThreadTestArgs *)args)->d_mx;
-    bslmt::Barrier& barrier = *((RuleThreadTestArgs *)args)->d_barrier;
+    Obj&            mX      = *((RuleThreadTestArgs *)args)->d_mx_p;
+    bslmt::Barrier& barrier = *((RuleThreadTestArgs *)args)->d_barrier_p;
     const Obj&      X       = mX;
 
     Holder initialValue; initialValue.reset();
@@ -461,6 +474,7 @@ extern "C" void *ruleThreadTest(void *args)
         // Rule 1 is shared by all threads and permanent, rule 2 is shared by
         // all threads but will be removed, rule 3 and 4 are only by this
         // thread (and removed).
+
         ball::Rule rule1(NAMES[i], 255, 255, 255, 255);
         ball::Rule rule2(NAMES[i], 255, 255, 255, 255);
         rule2.addPredicate(ball::Predicate("shared", 1));
@@ -538,7 +552,6 @@ extern "C" void *ruleThreadTest(void *args)
 
         }
         ASSERT(1 <= mX.removeRules(ruleSet));
-
     }
     barrier.wait();
 
@@ -562,7 +575,146 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'ball::CategoryManagerManip'
+        //
+        // Concerns:
+        //: 1 The basic concern is that the constructor, the destructor, the
+        //:   manipulators:
+        //:     - void advance();
+        //:     - Category& operator()();
+        //:   and the accessor:
+        //:     - operator const void *() const;
+        //:   operate as expected.
+        //
+        // Plan:
+        //: 1 Create a category manager X.  Add categories to X having various
+        //:   names and threshold level values.  Create an iterator for X.
+        //:   Change the threshold level values using the modifiable access
+        //:   provided by the iterator.  Verify that the values are changed.
+        //:   Change the threshold levels back to their original values, and
+        //:   verify that they were reset.  (C-1)
+        //
+        // Testing:
+        //   CategoryManagerManip(CategoryManager *cm);
+        //   ~CategoryManagerManip();
+        //   void advance();
+        //   Category& operator()();
+        //   operator const void *() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING 'ball::CategoryManagerManip'"
+                          << endl << "===================================="
+                          << endl;
+
+        Obj mX;  const Obj& X = mX;
+
+        for (int i = 0; i < NUM_NAMES; ++i) {
+            mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
+                                     LEVELS[i][2], LEVELS[i][3]);
+        }
+        ASSERT(NUM_NAMES == X.length());
+
+        for (ball::CategoryManagerManip it(&mX); it; it.advance()) {
+            const Entry *p          = X.lookupCategory(it().categoryName());
+            const int    record     = p->recordLevel();
+            const int    pass       = p->passLevel();
+            const int    trigger    = p->triggerLevel();
+            const int    triggerAll = p->triggerAllLevel();
+
+            ASSERT(record     == it().recordLevel());
+            ASSERT(pass       == it().passLevel());
+            ASSERT(trigger    == it().triggerLevel());
+            ASSERT(triggerAll == it().triggerAllLevel());
+
+            it().setLevels(it().recordLevel() + 1,
+                           it().passLevel() + 1,
+                           it().triggerLevel() + 1,
+                           it().triggerAllLevel() + 1);
+
+            ASSERT(record + 1     == p->recordLevel());
+            ASSERT(pass + 1       == p->passLevel());
+            ASSERT(trigger + 1    == p->triggerLevel());
+            ASSERT(triggerAll + 1 == p->triggerAllLevel());
+
+            it().setLevels(it().recordLevel() - 1,
+                           it().passLevel() - 1,
+                           it().triggerLevel() - 1,
+                           it().triggerAllLevel() - 1);
+
+            ASSERT(record     == p->recordLevel());
+            ASSERT(pass       == p->passLevel());
+            ASSERT(trigger    == p->triggerLevel());
+            ASSERT(triggerAll == p->triggerAllLevel());
+        }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING 'ball::CategoryManagerIter'
+        //
+        // Concerns:
+        //: 1 The basic concerns for the iterator are that the constructor,
+        //:   the destructor, the manipulator 'operator++', and the accessors:
+        //:     - operator const void *() const;
+        //:     - const Category& operator()() const;
+        //:   operate as expected.
+        //
+        // Plan
+        //: 1 Construct a category manager X.  Add categories to X having
+        //:   various names and threshold levels.  Construct another empty
+        //:   category manager Y.  Walk the categories of X with an iterator;
+        //:   add categories with names and threshold levels obtained from the
+        //:   iterator into Y.  Verify that the two category managers have the
+        //:   same length, and that entries in each with that same name have
+        //:   the same threshold levels.  (C-1)
+        //
+        // Testing:
+        //   CategoryManagerIter(const CategoryManager& cm);
+        //   ~CategoryManagerIter();
+        //   void operator ++();
+        //   operator const void *() const;
+        //   const Category& operator()() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING 'ball::CategoryManagerIter'"
+                          << endl << "==================================="
+                          << endl;
+
+        Obj mX;  const Obj& X = mX;
+
+        for (int i = 0; i < NUM_NAMES; ++i) {
+            mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
+                                     LEVELS[i][2], LEVELS[i][3]);
+        }
+        ASSERT(NUM_NAMES == X.length());
+
+        Obj mY;  const Obj& Y = mY;
+        ASSERT(0 == Y.length());
+        for (ball::CategoryManagerIter it(X); it; ++it) {
+            mY.addCategory(it().categoryName(),
+                           it().recordLevel(),
+                           it().passLevel(),
+                           it().triggerLevel(),
+                           it().triggerAllLevel());
+        }
+        ASSERT(X.length() == Y.length());
+
+        for (int i = 0; i < NUM_NAMES; ++i) {
+            const Entry *px = X.lookupCategory(NAMES[i]);
+            const Entry *py = Y.lookupCategory(NAMES[i]);
+
+            ASSERT(px != py);
+            ASSERT(px->recordLevel()     == py->recordLevel());
+            ASSERT(px->passLevel()       == py->passLevel());
+            ASSERT(px->triggerLevel()    == py->triggerLevel());
+            ASSERT(px->triggerAllLevel() == py->triggerAllLevel());
+        }
+
+      } break;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -656,8 +808,8 @@ int main(int argc, char *argv[])
                 << " ]" << endl;
         }
         if (veryVerbose) { out << ends; cout << buf << endl; }
-      }  break;
-      case 12: {
+      } break;
+      case 13: {
         // --------------------------------------------------------------------
         // CONCURRENCY TEST: RULES
         //
@@ -693,7 +845,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 14: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING IMPACT OF RULES ON CATEGORY HOLDERS
         //
@@ -863,7 +1015,7 @@ int main(int argc, char *argv[])
             mH.reset();
             Entry *entry = mX.lookupCategory(&mH, "dummy");
             ASSERT(0        == DA.numBytesInUse());
-            ASSERT(numBytes < TA.numBytesInUse());
+            ASSERT(numBytes <  TA.numBytesInUse());
             ASSERT(0        == entry);
             ASSERT(UC       == H.threshold());
             ASSERT(0        == H.category());
@@ -871,7 +1023,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0        == DA.numBytesInUse());
-        ASSERT(numBytes < TA.numBytesInUse());
+        ASSERT(numBytes <  TA.numBytesInUse());
         Holder mH; const Holder& H = mH;
         Holder mG; const Holder& G = mG;
         mH.reset();
@@ -1211,8 +1363,7 @@ int main(int argc, char *argv[])
                          CATEGORY == X.category());
 
             mX.setNext(NEXT);
-            LOOP3_ASSERT(LINE, NEXT, X.next(),
-                         NEXT == X.next());
+            LOOP3_ASSERT(LINE, NEXT, X.next(), NEXT == X.next());
 
             LOOP3_ASSERT(LINE, NUM_BYTES, testAllocator.numBytesInUse(),
                          NUM_BYTES == testAllocator.numBytesInUse());
@@ -1596,7 +1747,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 < ta.numBytesInUse());
-      }  break;
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING INDEXED ACCESS
@@ -1671,7 +1822,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 < ta.numBytesInUse());
-      }  break;
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING AREVALIDTHRESHOLDLEVELS AND MANIPULATORS
@@ -1831,7 +1982,6 @@ int main(int argc, char *argv[])
                     char setName[] = "Setiii";
                     sprintf(setName + 3, "%03d", i);  // unique name for set
                     ASSERT(0 == X.lookupCategory(setName));
-
 
                     const Entry *pCat3 = 0;
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)

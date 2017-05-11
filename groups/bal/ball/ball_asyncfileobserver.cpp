@@ -4,10 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
+#include <ball_streamobserver.h>              // for testing only
 
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>

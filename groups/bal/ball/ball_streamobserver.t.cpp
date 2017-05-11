@@ -12,6 +12,9 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_testallocator.h>
+
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -37,11 +40,12 @@ using namespace bsl;
 // records to the 'bsl::ostream' supplied at construction.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] StreamObserver(bsl::ostream *stream)
+// [ 2] StreamObserver(bsl::ostream *stream)
+// [ 2] virtual ~StreamObserver()
 //
 // MANIPULATORS
-// [ 2] void publish(const bsl::shared_ptr<const ball::Record>& record,
-//                   const ball::Context&)
+// [ 2] virtual void publish(const shared_ptr<const Record>&, Context&);
+// [ 2] virtual void releaseRecords();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
@@ -101,6 +105,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+#define ASSERT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -147,7 +153,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUSAGE EXAMPLE"
                           << "\n=============" << endl;
 
-        if (verbose) cout << "Skipped due to cyclic dependancy." << endl;
+        ball::RecordAttributes attributes;
+        ball::UserFields       fieldValues;
+        ball::Context          context;
+
+        bslma::TestAllocator ga("scratch", veryVeryVeryVerbose);
+
+        const bsl::shared_ptr<const ball::Record>
+            record(new (ga) ball::Record(attributes, fieldValues, &ga), &ga);
+
+        ball::StreamObserver observer(&bsl::cout);
+
+        observer.publish(record, context);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -162,9 +179,10 @@ int main(int argc, char *argv[])
         //: 1 Create the observer object and publish log record.
         //
         // Testing:
-        //   StreamObserver(bsl::ostream * stream);
-        //   ~StreamObserver();
-        //   publish(bsl::shared_ptr<Record> &record, const Context&);
+        //   StreamObserver(bsl::ostream *stream)
+        //   virtual ~StreamObserver()
+        //   virtual void publish(const shared_ptr<const Record>&, Context&);
+        //   virtual void releaseRecords();
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING PRIMARY MANIPULATORS"
                           << "\n============================" << endl;
@@ -199,8 +217,43 @@ int main(int argc, char *argv[])
 
             ASSERTV(os.str(),
                     "\n01APR2017_00:00:00.000 1 2 INFO test.cpp 189"
-                    "  Log Message\n"
+                    "  Log Message \n"
                     == os.str());
+        }
+
+        if (verbose) cout << "\nNegative Testing" << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            {
+                ASSERT_SAFE_PASS((Obj((&bsl::cout))));  // most vexing parse
+                ASSERT_SAFE_FAIL((Obj((         0))));
+            }
+
+            {
+                ball::Record        mR;
+                const ball::Context C;
+
+                Obj mX(&bsl::cout);
+
+                ASSERT_FAIL_RAW(mX.publish(mR, C));
+            }
+
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                bsl::shared_ptr<ball::Record>
+                            mR(new (scratch) ball::Record(&scratch), &scratch);
+
+                const ball::Context C;
+
+                Obj mX(&bsl::cout);
+
+                ASSERT_PASS(mX.publish(mR, C));
+                mR.reset();
+                ASSERT_FAIL(mX.publish(mR, C));
+            }
         }
       } break;
       case 1: {

@@ -15,11 +15,11 @@
 #include <ball_attributecontainerlist.h>
 #include <ball_attributecontext.h>
 #include <ball_defaultattributecontainer.h>
-#include <ball_defaultobserver.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_predicate.h>
 #include <ball_record.h>
 #include <ball_rule.h>
+#include <ball_streamobserver.h>
 #include <ball_testobserver.h>
 #include <ball_thresholdaggregate.h>
 #include <ball_userfields.h>
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
 // the 'ball::Severity::DEBUG' level, which is below the default configured
 // logging threshold.
 //..
-    ball::DefaultObserver observer(&bsl::cout);
+    ball::StreamObserver observer(&bsl::cout);
     ball::LoggerManagerConfiguration lmc;
     ball::LoggerManagerScopedGuard lmg(&observer, lmc);
 
@@ -1461,7 +1461,7 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "Initialize logger manager" << bsl::endl;
 
-        ball::DefaultObserver localObserver(&cout);
+        ball::StreamObserver localObserver(&cout);
         ball::LoggerManagerConfiguration lmc;
         ball::LoggerManagerScopedGuard lmg(&localObserver, lmc);
 
@@ -1932,7 +1932,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         const int DATA[] = { OFF, TRACE, DEBUG, INFO, WARN, ERROR, FATAL };
         enum { NUM_DATA = sizeof (DATA) / sizeof (*DATA) };
 
-        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
+        BloombergLP::ball::StreamObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(OFF, OFF, OFF, OFF);
 
@@ -3516,7 +3516,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "============================================"
                       << bsl::endl;
 
-        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
+        BloombergLP::ball::StreamObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3606,7 +3606,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
+        BloombergLP::ball::StreamObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3671,7 +3671,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
+        BloombergLP::ball::StreamObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3735,7 +3735,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
+        BloombergLP::ball::StreamObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                 BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3800,7 +3800,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
-        BloombergLP::ball::DefaultObserver observer(&bsl::cout);
+        BloombergLP::ball::StreamObserver observer(&bsl::cout);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3929,7 +3929,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "==========================" << bsl::endl;
 
         bsl::ostringstream os;
-        BloombergLP::ball::DefaultObserver observer(&os);
+        BloombergLP::ball::StreamObserver observer(&os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
 
         // for simplicity we keep the passthrough level to be 'FATAL', so that
@@ -3995,7 +3995,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "====================================" << bsl::endl;
 
         bsl::ostringstream os;
-        BloombergLP::ball::DefaultObserver observer(&os);
+        BloombergLP::ball::StreamObserver observer(&os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setLogOrder(
                   BloombergLP::ball::LoggerManagerConfiguration::e_FIFO);
@@ -4066,7 +4066,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         using namespace BALL_LOG_TEST_CASE_6;
 
         bsl::ostringstream os;
-        BloombergLP::ball::DefaultObserver observer(&os);
+        BloombergLP::ball::StreamObserver observer(&os);
         BloombergLP::ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -6769,7 +6769,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         using namespace BALL_LOG_TEST_CASE_MINUS_1;
         using namespace BloombergLP;  // okay here
 
-        ball::DefaultObserver observer(&bsl::cout);
+        ball::StreamObserver observer(&bsl::cout);
         ball::LoggerManager::initSingleton(&observer, 0);
 
         bslmt::ThreadAttributes attributes;

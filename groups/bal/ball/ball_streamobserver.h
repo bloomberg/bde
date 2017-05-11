@@ -23,11 +23,11 @@ BSLS_IDENT("$Id: $")
 //                ( ball::StreamObserver )
 //                 `--------------------'
 //                           |              ctor
-//                           |              publish
 //                           V
 //                    ,--------------.
 //                   ( ball::Observer )
 //                    `--------------'
+//                                          publish
 //                                          dtor
 //..
 // 'ball::StreamObserver' is a concrete class derived from 'ball::Observer'
@@ -35,51 +35,41 @@ BSLS_IDENT("$Id: $")
 // writing them to an output stream.  Given its minimal functionality,
 // 'ball::StreamObserver' should be used with care in a production environment.
 // It is not recommended to construct this observer with file-based streams due
-// to luck of any file rotation functionality.
+// to lack of any file rotation functionality.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Publication Through Logger Manager
-///- - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'ball::StreamObserver' within a 'ball'
-// logging system.
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// The following snippets of code illustrate the basic usage of
+// 'ball::StreamObserver'.
 //
-// First, we initialize 'ball' logging subsystem with the default
-// configuration:
+// First create a 'ball::Record' object 'record' and a 'ball::Context' object
+// 'context'.  Note that the default values for these objects (or their
+// contained objects) are perfectly suitable for logging purposes.
 //..
-//  ball::LoggerManagerConfiguration configuration;
-//  ball::LoggerManagerScopedGuard   guard(configuration);
+//  ball::RecordAttributes attributes;
+//  ball::UserFields       fieldValues;
+//  ball::Context          context;
 //
-//  ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//  bslma::Allocator *ga = bslma::Default::globalAllocator(0);
+//  const bsl::shared_ptr<const ball::Record>
+//             record(new (*ga) ball::Record(attributes, fieldValues, ga), ga);
 //..
-// Note that the application is now prepared to log messages using the 'ball'
-// logging subsystem, but until the application registers an observer, all log
-// messages will be discarded.
-//
-// Then, we create a shared pointer to a 'ball::StreamObserver' object,
-// 'observerPtr', passing a pointer to the 'bsl::cout'.
+// Next, create a stream observer 'observer' with the 'bsl::cout' as the output
+// stream.
 //..
-//  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
-//  bsl::shared_ptr<ball::Observer> observerPtr(
-//                                new(*alloc) ball::StreamObserver(&bsl::cout),
-//                                alloc);
+//  ball::StreamObserver observer(&bsl::cout);
 //..
-// Then, we register the stream observer with the logger manager.  Upon
-// successful registration, the observer will start to receive log records via
-// 'publish' method:
+// Finally, publish 'record' and 'context' to 'observer'.
 //..
-//  int rc = manager.registerObserver(observerPtr, "observer");
-//  assert(0 == rc);
+//  observer.publish(record, context);
 //..
-// Next, we set the log category and log few messages with different logging
-// severity:
+// This will produce the following output on 'stdout':
 //..
-//  BALL_LOG_SET_CATEGORY("ball::StreamObserver");
-//
-//  BALL_LOG_INFO << "Info Log Message."    << BALL_LOG_END;
-//  BALL_LOG_WARN << "Warning Log Message." << BALL_LOG_END;
+//  01JAN0001_24:00:00.000 0 0 OFF  0
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -92,6 +82,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -140,6 +134,12 @@ class StreamObserver : public Observer {
         // 'context'.  Print 'record' and 'context' to the 'bsl::ostream'
         // supplied at construction.  The behavior is undefined if 'record' or
         // 'context' is modified during the execution of this method.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a 'Record' object that was supplied
+        // to the 'publish' method, and is held by this observer.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released.
 };
 
 // ============================================================================
@@ -154,6 +154,13 @@ class StreamObserver : public Observer {
 inline
 StreamObserver::StreamObserver(bsl::ostream *stream)
 : d_stream_p(stream)
+{
+    BSLS_ASSERT_SAFE(d_stream_p);
+}
+
+// MANIPULATORS
+inline
+void StreamObserver::releaseRecords()
 {
 }
 

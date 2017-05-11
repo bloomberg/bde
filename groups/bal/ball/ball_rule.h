@@ -199,7 +199,6 @@ class Rule {
         // installed default allocator will be used.  Note that a newly created
         // 'Rule' object does not have any predicates.
 
-    // CREATORS
     Rule(const bslstl::StringRef&  pattern,
          int                       recordLevel,
          int                       passLevel,

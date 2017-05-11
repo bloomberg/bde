@@ -13,13 +13,12 @@
 BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 
 #include <ball_context.h>
-#include <ball_record.h>
-
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
+#include <ball_record.h>
+#include <ball_streamobserver.h>              // for testing only
 
 #include <bslmt_lockguard.h>
 

@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::CategoryManager: manager of category registry
 //
-//@SEE_ALSO: ball_loggermanager, ball_loggercategoryutil
+//@SEE_ALSO: ball_category, ball_loggermanager, ball_loggercategoryutil
 //
 //@AUTHOR: Hong Shi (hshi2), Mike Verschell (hversche)
 //
@@ -36,20 +36,21 @@ BSLS_IDENT("$Id: $")
 // component-level documentation for a typical interpretation of these four
 // thresholds.)
 //
-// A category is represented by a 'ball::Category' object.  Instances of
-// 'ball::Category' cannot be created directly; instead, they are created by
-// the 'ball::CategoryManager' class.  'ball::CategoryManager' manages a
-// registry of categories and exposes methods to add new categories to the
-// registry ('addCategory') and modify the threshold levels of existing
-// categories ('setThresholdLevels').  'ball::Category' provides accessors for
-// direct access to the name and threshold levels of a given category, and a
-// single manipulator to set the four threshold levels levels.
+// A category is represented by a 'ball::Category' object.  Although instances
+// of 'ball::Category' can be created directly, within the BALL logging
+// framework they are generally created by the 'ball::CategoryManager' class.
+// 'ball::CategoryManager' manages a registry of categories and exposes methods
+// to add new categories to the registry ('addCategory') and modify the
+// threshold levels of existing categories ('setThresholdLevels').
+// 'ball::Category' provides accessors for direct access to the name and
+// threshold levels of a given category, and a single manipulator to set the
+// four threshold levels levels (see 'ball_category').
 //
 ///Thread Safety
 ///-------------
-// 'ball::Category' and 'ball::CategoryManager' are *thread-safe*, meaning
-// that any operation on the same instance can be safely invoked from any
-// thread concurrently with any other operation.
+// 'ball::CategoryManager' is *thread-safe*, meaning that any operation on the
+// same instance can be safely invoked from any thread concurrently with any
+// other operation.
 //
 ///Usage
 ///-----
@@ -289,7 +290,7 @@ class CategoryManager {
 
     // MANIPULATORS
     Category& operator[](int index);
-        // Return a reference to the modifiable category at the specified
+        // Return a non-'const' reference to the category at the specified
         // 'index' in the registry of this category manager.  The behavior is
         // undefined unless '0 <= index < length()'.
 
@@ -394,7 +395,7 @@ class CategoryManager {
         // Remove every rule from the set of rules maintained by this object.
 
     bslmt::Mutex& rulesetMutex();
-        // Return a reference to the modifiable mutex that is used to guard
+        // Return a non-'const' reference to the mutex that is used to guard
         // against concurrent accesses to the rule set.  A lock to the returned
         // mutex should be acquired before accessing the properties of
         // 'ruleSet()'.  The behavior is undefined if a lock is acquired and
@@ -420,9 +421,9 @@ class CategoryManager {
         // defined.
 
     const Category& operator[](int index) const;
-        // Return a reference to the non-modifiable category at the specified
-        // 'index' in the registry of this category manager.  The behavior is
-        // undefined unless '0 <= index < length()'.
+        // Return a 'const' reference to the category at the specified 'index'
+        // in the registry of this category manager.  The behavior is undefined
+        // unless '0 <= index < length()'.
 
     int length() const;
         // Return the number of categories in the registry of this category
@@ -435,9 +436,9 @@ class CategoryManager {
         // 'categoryName' is null-terminated.
 
     const RuleSet& ruleSet() const;
-        // Return a reference to the non-modifiable rule set maintained by
-        // this object.  Note that the 'rulesetMutex()' should be locked prior
-        // to accessing this set.
+        // Return a 'const' reference to the rule set maintained by this
+        // object.  Note that the 'rulesetMutex()' should be locked prior to
+        // accessing this set.
 
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor) const;
@@ -449,6 +450,118 @@ class CategoryManager {
         //  void operator()(const Category *);
         //..
 };
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+                        // =========================
+                        // class CategoryManagerIter
+                        // =========================
+
+class CategoryManagerIter {
+    // This class defines an iterator providing sequential, read-only access to
+    // the categories in the registry of a category manager.  The order of the
+    // iteration is undefined.
+    //
+    // !DEPRECATED!: Use the 'CategoryManager::visitCategories' accessor
+    // instead.
+
+    // DATA
+    const CategoryManager *d_cm_p;   // associated category manager (held)
+    int                    d_index;  // index into category manager
+
+  private:
+    // NOT IMPLEMENTED
+    CategoryManagerIter(const CategoryManagerIter&);
+    CategoryManagerIter& operator=(const CategoryManagerIter&);
+    bool operator==(const CategoryManagerIter&) const;
+    bool operator!=(const CategoryManagerIter&) const;
+
+  public:
+    // CREATORS
+    explicit CategoryManagerIter(const CategoryManager& categoryManager);
+        // Create an iterator providing non-modifiable access to the categories
+        // in the specified 'categoryManager' that is initialized to refer to
+        // the first category in the sequence of categories in the registry of
+        // 'categoryManager', if one exists, and is initialized to be invalid
+        // otherwise.  The order of iteration is undefined.  The behavior is
+        // undefined unless the lifetime of 'categoryManager' is at least as
+        // long as the lifetime of this iterator.
+
+    //! ~CategoryManagerIter() = default;
+        // Destroy this iterator.
+
+    // MANIPULATORS
+    void operator++();
+        // Advance this iterator to refer to the next unvisited category.  If
+        // no such category exists, this iterator becomes invalid.  The
+        // behavior is undefined unless this iterator is initially valid.  Note
+        // that the order of iteration is undefined.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this iterator is valid, and 0 otherwise.
+
+    const Category& operator()() const;
+        // Return a 'const' reference to the category currently referred to by
+        // this iterator.  The behavior is undefined unless this iterator is
+        // valid.
+};
+
+                        // ==========================
+                        // class CategoryManagerManip
+                        // ==========================
+
+class CategoryManagerManip {
+    // This class defines an iterator providing sequential, modifiable access
+    // to the categories in the registry of a category manager.  The order of
+    // the iteration is undefined.
+    //
+    // !DEPRECATED!: Use the 'CategoryManager::visitCategories' manipulator
+    // instead.
+
+    // DATA
+    CategoryManager *d_cm_p;   // associated category manager (held)
+    int              d_index;  // index into category manager
+
+  private:
+    // NOT IMPLEMENTED
+    CategoryManagerManip(const CategoryManagerManip&);
+    CategoryManagerManip& operator=(const CategoryManagerManip&);
+    bool operator==(const CategoryManagerManip&) const;
+    bool operator!=(const CategoryManagerManip&) const;
+
+  public:
+    // CREATORS
+    explicit CategoryManagerManip(CategoryManager *categoryManager);
+        // Create an iterator providing modifiable access to the categories in
+        // the specified 'categoryManager' that is initialized to refer to the
+        // first category in the sequence of categories in the registry of
+        // 'categoryManager', if one exists, and is initialized to be invalid
+        // otherwise.  The order of iteration is undefined.  The behavior is
+        // undefined unless the lifetime of 'categoryManager' is at least as
+        // long as the lifetime of this iterator.
+
+    //! ~CategoryManagerManip() = default;
+        // Destroy this iterator.
+
+    // MANIPULATORS
+    void advance();
+        // Advance this iterator to refer to the next unvisited category.  If
+        // no such category exists, this iterator becomes invalid.  The
+        // behavior is undefined unless this iterator is initially valid.  Note
+        // that the order of iteration is undefined.
+
+    Category& operator()();
+        // Return a non-'const' reference to the category currently referred to
+        // by this iterator.  The behavior is undefined unless this iterator is
+        // valid.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this iterator is valid, and 0 otherwise.
+};
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -522,6 +635,75 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor) const
         visitor(*it);
     }
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+                        // -------------------------
+                        // class CategoryManagerIter
+                        // -------------------------
+
+// CREATORS
+inline
+CategoryManagerIter::CategoryManagerIter(
+                                        const CategoryManager& categoryManager)
+: d_cm_p(&categoryManager)
+, d_index(0)
+{
+}
+
+// MANIPULATORS
+inline
+void CategoryManagerIter::operator++()
+{
+    ++d_index;
+}
+
+// ACCESSORS
+inline
+CategoryManagerIter::operator const void *() const
+{
+    return (0 <= d_index && d_index < d_cm_p->length()) ? this : 0;
+}
+
+inline
+const Category& CategoryManagerIter::operator()() const
+{
+    return d_cm_p->operator[](d_index);
+}
+
+                        // --------------------------
+                        // class CategoryManagerManip
+                        // --------------------------
+
+// CREATORS
+inline
+CategoryManagerManip::CategoryManagerManip(CategoryManager *categoryManager)
+: d_cm_p(categoryManager)
+, d_index(0)
+{
+}
+
+// MANIPULATORS
+inline
+void CategoryManagerManip::advance()
+{
+    ++d_index;
+}
+
+inline
+Category& CategoryManagerManip::operator()()
+{
+    return d_cm_p->operator[](d_index);
+}
+
+// ACCESSORS
+inline
+CategoryManagerManip::operator const void *() const
+{
+    return (0 <= d_index && d_index < d_cm_p->length()) ? this : 0;
+}
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 }  // close enterprise namespace

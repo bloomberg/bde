@@ -9,7 +9,6 @@
 
 #include <ball_loggermanager.h>
 
-#include <ball_defaultobserver.h>
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_loggermanagerdefaults.h>
@@ -17,6 +16,7 @@
 #include <ball_userfieldtype.h>
 #include <ball_userfields.h>
 #include <ball_severity.h>
+#include <ball_streamobserver.h>
 #include <ball_testobserver.h>
 
 #include <bdlf_bind.h>
@@ -100,30 +100,30 @@ using namespace bdlf::PlaceHolders;
 // 'ball::Logger' private interface (tested indirectly):
 // [16] ball::Logger(Obs*, *buffer, Sch*, Pop&, Pac&, *ba);
 // [16] ~ball::Logger();
+// [16] bool logMessage(const Category& , int , ball::Record *, levels);
 // [17] void publish(ball::Transmission::Cause cause);
 //
 // 'ball::Logger' public interface:
 // [17] void logMessage(category, severity, file, line, msg);
-// [16] bool logMessage(const Category& , int , ball::Record *, levels);
+// [16] char *messageBuffer();
 // [16] void publish();
 // [16] void removeAll();
-// [16] char *messageBuffer();
 // [16] int messageBufferSize() const;
-// [33] int numRecordsInUse() const;
+// [35] int numRecordsInUse() const;
 //
 // 'ball::LoggerManager' private interface (tested indirectly):
 // [16] void publishAllImp(ball::Transmission::Cause cause);
 //
 // 'ball::LoggerManager' public interface:
+// [ 3] createLoggerManager(manager, configuration, basicAlloc = 0);
+// [ *] static ball::Record *getRecord(const char *file, int line);
 // [ 8] LoggerManager& initSingleton(bslma::Allocator *globalAlloc = 0);
 // [ 3] static LoggerManager& initSingleton(const Configuration&, *alloc=0);
 // [ 4] static LoggerManager& initSingleton(observer, *alloc = 0);
 // [ 5] static LoggerManager& initSingleton(observer, config, *alloc = 0);
 // [ *] static bool isInitialized();
-// [ *] static ball::LoggerManager& singleton();
-// [ *] static ball::Record *getRecord(const char *file, int line);
 // [ *] static void logMessage(int severity, ball::Record *record);
-// [ 3] createLoggerManager(manager, configuration, basicAlloc = 0);
+// [ *] static ball::LoggerManager& singleton();
 // [ 2] LoggerManager(Observer*, configuration, *ba = 0);
 // [ 2] LoggerManager(configuration, *globalAlloc = 0);
 // [ 2] ~LoggerManager();
@@ -132,43 +132,58 @@ using namespace bdlf::PlaceHolders;
 // [18] ball::Logger *allocateLogger(*buffer, *observer);
 // [18] ball::Logger *allocateLogger(*buffer, int msgBufSize, *observer);
 // [18] void deallocateLogger(ball::Logger *logger);
-// [18] void setLogger(ball::Logger *logger);
 // [ *] ball::Logger& getLogger();
-// [13] Category *lookupCategory(const char *name);
+// [18] void setLogger(ball::Logger *logger);
 // [13] Category *addCategory(const char *name, int, int, int, int);
+// [13] Category& defaultCategory();
+// [13] Category *lookupCategory(const char *name);
 // [13] const Category *setCategory(const char *name);
 // [13] Category *setCategory(const char *name, int, int, int, int);
-// [13] Category& defaultCategory();
+// [13] void setMaxNumCategories(int);
+// [10] deregisterAllObservers();
+// [10] deregisterObserver(const StringRef&);
+// [10] findObserver(const StringRef&);
+// [10] findObserver(const shared_ptr<OBSERVER>*, const StringRef&);
+// [ *] const Obs *observer() const;
+// [10] registerObserver(const shared_ptr<Observer>&, const StringRef&);
 // [13] int setDefaultThresholdLevels(int, int, int, int);
 // [13] int resetDefaultThresholdLevels();
 // [13] void setCategoryThresholdsToCurrentDefaults(Cat *cat);
 // [13] void setCategoryThresholdsToFactoryDefaults(Cat *cat);
-// [10] findObserver(const StringRef&);
-// [10] findObserver(const shared_ptr<OBSERVER>*, const StringRef&);
-// [10] registerObserver(const shared_ptr<Observer>&, const StringRef&);
-// [10] deregisterObserver(const StringRef&);
-// [10] deregisterAllObservers();
-// [13] void setMaxNumCategories(int);
 // [16] void publishAll();
-// [ *] const Cat *lookupCategory(const char *name) const;
 // [ *] const Cat& defaultCategory() const;
-// [ *] const Obs *observer() const;
-// [NA] const Pop *userFieldsPopulatorCallback() const;
-// [13] int defaultRecordThresholdLevel() const;
 // [13] int defaultPassThresholdLevel() const;
-// [13] int defaultTriggerThresholdLevel() const;
+// [13] int defaultRecordThresholdLevel() const;
 // [13] int defaultTriggerAllThresholdLevel() const;
+// [13] int defaultTriggerThresholdLevel() const;
+// [29] bool isCategoryEnabled(const ball::Category *, int) const;
+// [ *] const Cat *lookupCategory(const char *name) const;
 // [13] int maxNumCategories() const;
 // [13] int numCategories() const;
-// [29] bool isCategoryEnabled(const ball::Category *, int) const;
+// [NA] const Pop *userFieldsPopulatorCallback() const;
 //
 // 'ball::LoggerManagerScopedGuard' public interface:
 // [27] ball::LoggerManagerScopedGuard(Obs*, const Configuration&, ba = 0);
 // [27] ~ball::LoggerManagerScopedGuard();
 //
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// 'ball::LoggerManagerCategoryIter' public interface:
+// [40] LoggerManagerCategoryIter(const LoggerManager& lm);
+// [40] ~LoggerManagerCategoryIter();
+// [40] void operator++();
+// [40] operator const void *() const;
+// [40] const Cat& operator()() const;
+//
+// 'ball::LoggerManagerCategoryManip' public interface:
+// [41] LoggerManagerCategoryManip(LoggerManager *lm);
+// [41] ~LoggerManagerCategoryManip();
+// [41] void advance();
+// [41] Cat& operator()();
+// [41] operator const void *() const;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //---------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [] TESTING: LOGMESSAGE LOG ORDER and TRIGGER MARKERS
+// [17] TESTING: LOGMESSAGE LOG ORDER and TRIGGER MARKERS
 // [20] TESTING CONCURRENT ACCESS TO 'd_loggers'
 // [21] TESTING CONCURRENT ACCESS TO 'd_defaultLoggers'
 // [22] TESTING CONCURRENT ACCESS TO 'setCategory'
@@ -180,10 +195,12 @@ using namespace bdlf::PlaceHolders;
 // [29] TESTING: 'isCategoryEnabled' (RULE BASED LOGGING)
 // [30] TESTING: 'ball::Logger::logMessage' (RULE BASED LOGGING)
 // [31] TESTING: '~LoggerManager' calls 'Observer::releaseRecords'
-// [34] USAGE EXAMPLE #1
-// [35] USAGE EXAMPLE #2
-// [36] USAGE EXAMPLE #3
-// [37] USAGE EXAMPLE #4
+// [33] initSingleton(LoggerManager *, true);
+// [34] initSingleton(LoggerManager *, false);
+// [36] USAGE EXAMPLE #1
+// [37] USAGE EXAMPLE #2
+// [38] USAGE EXAMPLE #3
+// [39] USAGE EXAMPLE #4
 // [19] CONCERN: PERFORMANCE IMPLICATIONS
 // [12] CONCERN: USER FIELDS POPULATOR CALLBACK
 // [11] CONCERN: INTERNAL BROADCAST OBSERVER
@@ -277,6 +294,21 @@ typedef Obj::DefaultThresholdLevelsCallback Dtc;
 const int NUM_LOGGERS = 10;
 const int BUF_SIZE    = 32768;
 
+const char *NAMES[] = {  // test category names
+    "A",
+    "AB",
+    "ab",
+    "ABC",
+    "ABCDEDFGHIJKL",
+    "A.B.C.E",
+    "abcd_efgh_.abcd",
+    "a.b.c.e.d.f",
+    "1",
+    "12345",
+    "123abc456def",
+    "A really really really looooooooooooooooooooooooooooooooong name",
+};
+enum { NUM_NAMES = sizeof NAMES / sizeof *NAMES };
 
 struct my_Severity {
     enum Level {
@@ -359,16 +391,16 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1 {
 // logging subsystem, but until the application registers an observer, all log
 // messages will be discarded.
 //
-// Finally, we create a 'ball::DefaultObserver' object 'observer' that will
+// Finally, we create a 'ball::StreamObserver' object 'observer' that will
 // publish records to 'stdout' and register it with the logger manager
 // singleton.  Note that observers must be registered by name; this example
 // simply uses "default" for a name:
 //..
         bslma::Allocator *alloc = bslma::Default::globalAllocator(0);
 
-        bsl::shared_ptr<ball::DefaultObserver> observer(
-                                 new(*alloc) ball::DefaultObserver(&bsl::cout),
-                                 alloc);
+        bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc) ball::StreamObserver(&bsl::cout),
+                                  alloc);
         ball::LoggerManager::singleton().registerObserver(observer, "default");
 //..
 // The application is now prepared to log messages using the 'ball' logging
@@ -631,16 +663,16 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
         ASSERT( 75 == equitiesCategory->triggerLevel());
         ASSERT( 50 == equitiesCategory->triggerAllLevel());
 
-// Finally, we create a 'ball::DefaultObserver' object 'observer' that will
+// Finally, we create a 'ball::StreamObserver' object 'observer' that will
 // publish records to 'stdout' and register it with the logger manager
 // singleton.  Note that observers must be registered by name; this example
 // simply uses "default" for a name:
 //..
         bslma::Allocator *alloc = bslma::Default::globalAllocator(0);
 
-        bsl::shared_ptr<ball::DefaultObserver> observer(
-                                 new(*alloc) ball::DefaultObserver(&bsl::cout),
-                                 alloc);
+        bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc) ball::StreamObserver(&bsl::cout),
+                                  alloc);
 
         manager.registerObserver(observer, "default");
         // ...
@@ -930,7 +962,7 @@ int getDefaultThresholdLevels(int                        *recordLevel,
     }
 }
 
-static Obj* g_overrideManager;
+static Obj *g_overrideManager;
 
 static
 void inheritThresholdLevelsUsingManager(
@@ -1136,7 +1168,7 @@ void doPerformanceTest(ball::LoggerManager& loggerManager,
 
     if (verbose) cerr << "              'logMessage' < RECORD      : ";
     timer.start();
-    for (int i = 0; i < num_logs; ++i)  {
+    for (int i = 0; i < num_logs; ++i) {
         logger.logMessage(*cat, 250, currentFile, __LINE__, "Message");
     }
     timer.stop();
@@ -1144,7 +1176,7 @@ void doPerformanceTest(ball::LoggerManager& loggerManager,
 
     if (verbose) cerr << "RECORD      < 'logMessage' < PASS        : ";
     timer.start();
-    for (int i = 0; i < num_logs; ++i)  {
+    for (int i = 0; i < num_logs; ++i) {
         logger.logMessage(*cat, 180, currentFile, __LINE__, "Message");
     }
     timer.stop();
@@ -1153,7 +1185,7 @@ void doPerformanceTest(ball::LoggerManager& loggerManager,
 
     if (verbose) cerr << "PASS        < 'logMessage' < TRIGGER     : ";
     timer.start();
-    for (int i = 0; i < num_logs; ++i)  {
+    for (int i = 0; i < num_logs; ++i) {
         logger.logMessage(*cat, 120, currentFile, __LINE__, "Message");
     }
     timer.stop();
@@ -1162,7 +1194,7 @@ void doPerformanceTest(ball::LoggerManager& loggerManager,
 
     if (verbose) cerr << "TRIGGER     < 'logMessage' < TRIGGER ALL : ";
     timer.start();
-    for (int i = 0; i < num_logs; ++i)  {
+    for (int i = 0; i < num_logs; ++i) {
         logger.logMessage(*cat, 70, currentFile, __LINE__, "Message");
     }
     timer.stop();
@@ -1171,7 +1203,7 @@ void doPerformanceTest(ball::LoggerManager& loggerManager,
 
     if (verbose) cerr << "TRIGGER ALL < 'logMessage'               : ";
     timer.start();
-    for (int i = 0; i < num_logs; ++i)  {
+    for (int i = 0; i < num_logs; ++i) {
         logger.logMessage(*cat, 20, currentFile, __LINE__, "Message");
     }
     timer.stop();
@@ -1458,7 +1490,174 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 37: {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING 'ball::LoggerManagerCategoryManip'
+        //
+        // Concerns:
+        //: 1 The basic concern is that the constructor, the destructor, the
+        //:   manipulators:
+        //:    - void advance();
+        //:    - Cat& operator()();
+        //:   and the accessor:
+        //:    - operator const void *() const;
+        //:   operate as expected.
+        //
+        // Plan:
+        //: 1 Create a logger manager X.  Add categories to X having various
+        //:   names and threshold level values.  Create an iterator for X.
+        //:   Change the threshold level values using the modifiable access
+        //:   provided by the iterator.  Verify that the values are changed.
+        //:   Change the threshold levels back to their original values, and
+        //:   verify that they were reset.  (C-1)
+        //
+        // Testing:
+        //   LoggerManagerCategoryManip(LoggerManager *lm);
+        //   ~LoggerManagerCategoryManip();
+        //   void advance();
+        //   Cat& operator()();
+        //   operator const void *() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'ball::LoggerManagerCategoryManip'"
+                          << endl
+                          << "=========================================="
+                          << endl;
+
+        ball::TestObserver               testObserver(&cout);
+        ball::LoggerManagerConfiguration mLMC;
+        ball::LoggerManagerScopedGuard   lmg(&testObserver, mLMC);
+
+        Obj& mLM = Obj::singleton();
+
+        for (int i = 0; i < NUM_NAMES; ++i) {
+            // mod 253 so plus 1 is in valid range.
+            ASSERT(mLM.addCategory(NAMES[i],
+                                   (i + 7)  * (i + 23) % 253,   // record
+                                   (i + 3)  * (i + 11) % 253,   // pass
+                                   (i + 5)  * (i + 17) % 253,   // trigger
+                                   (i + 13) * (i + 29) % 253)); // trigger-all
+        }
+
+        int count = 0;
+        for (ball::LoggerManagerCategoryManip it(&mLM); it; it.advance()) {
+            const Cat *p  = mLM.lookupCategory(it().categoryName());
+            const int  rl = p->recordLevel();
+            const int  pl = p->passLevel();
+            const int  tl = p->triggerLevel();
+            const int  al = p->triggerAllLevel();
+
+            ASSERT(rl == it().recordLevel());
+            ASSERT(pl == it().passLevel());
+            ASSERT(tl == it().triggerLevel());
+            ASSERT(al == it().triggerAllLevel());
+
+            it().setLevels(it().recordLevel() + 1,
+                           it().passLevel() + 1,
+                           it().triggerLevel() + 1,
+                           it().triggerAllLevel() + 1);
+
+            ASSERT(rl + 1 == p->recordLevel());
+            ASSERT(pl + 1 == p->passLevel());
+            ASSERT(tl + 1 == p->triggerLevel());
+            ASSERT(al + 1 == p->triggerAllLevel());
+
+            it().setLevels(it().recordLevel() - 1,
+                           it().passLevel() - 1,
+                           it().triggerLevel() - 1,
+                           it().triggerAllLevel() - 1);
+
+            ASSERT(rl == p->recordLevel());
+            ASSERT(pl == p->passLevel());
+            ASSERT(tl == p->triggerLevel());
+            ASSERT(al == p->triggerAllLevel());
+
+            ++count;
+        }
+        ASSERT(NUM_NAMES + 1 == count);  // + 1 for the *Default* *Category*
+
+      } break;
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING 'ball::LoggerManagerCategoryIter'
+        //
+        // Concerns:
+        //: 1 The basic concerns for the iterator are that the constructor,
+        //:   the destructor, the manipulator 'operator++', and the accessors:
+        //:    - operator const void *() const;
+        //:    - const Cat& operator()() const;
+        //:   operate as expected.
+        //
+        // Plan:
+        //: 1 Create a map of 'bsl::string' and 'Category *'; add to the
+        //:   logger manager various categories with different threshold
+        //:   levels.  Add to our map the name of the category and the address
+        //:   of the category obtained when it is added.  Create an iterator of
+        //:   the logger manager, walk through the categories.  Obtain the name
+        //:   of the category returned by the iterator, use this name to lookup
+        //:   in our map, verify that a category is obtained, and verify all
+        //:   threshold levels are equal.  Remove the map entry from our map.
+        //:   Verify that when the iteration is complete, our map is empty.
+        //:   Note that the Default Category is always present in the logger
+        //:   manager, and needs to be added to our map separately.  (C-1)
+        //
+        // Testing:
+        //   LoggerManagerCategoryIter(const LoggerManager& lm);
+        //   ~LoggerManagerCategoryIter();
+        //   void operator++();
+        //   operator const void *() const;
+        //   const Cat& operator()() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'ball::LoggerManagerCategoryIter'"
+                          << endl
+                          << "========================================="
+                          << endl;
+
+        ball::TestObserver               testObserver(&cout);
+        ball::LoggerManagerConfiguration mLMC;
+        ball::LoggerManagerScopedGuard   lmg(&testObserver, mLMC);
+
+        Obj& mLM = Obj::singleton();
+
+        Cat *cat;
+        bsl::map<bsl::string, const Cat *> nameCatMap;
+        for (int i = 0; i < NUM_NAMES; ++i) {
+            ASSERT(cat = mLM.addCategory(
+                                    NAMES[i],
+                                    (i + 7)  * (i + 23) % 255,   // record
+                                    (i + 3)  * (i + 11) % 255,   // pass
+                                    (i + 5)  * (i + 17) % 255,   // trigger
+                                    (i + 13) * (i + 29) % 255)); // trigger-all
+            nameCatMap.insert(bsl::make_pair(bsl::string(NAMES[i]), cat));
+        }
+
+        // add *Default* *Category*
+        nameCatMap.insert(bsl::make_pair(mLM.defaultCategory().categoryName(),
+                                         &mLM.defaultCategory()));
+
+        for (ball::LoggerManagerCategoryIter it(mLM); it; ++it) {
+            bsl::map<bsl::string, const Cat *>::iterator itr =
+                                          nameCatMap.find(it().categoryName());
+            ASSERT(itr != nameCatMap.end());
+
+            const Cat *cat = itr->second;
+            ASSERT(cat);
+
+            ASSERT(cat->recordLevel()     == it().recordLevel());
+            ASSERT(cat->passLevel()       == it().passLevel());
+            ASSERT(cat->triggerLevel()    == it().triggerLevel());
+            ASSERT(cat->triggerAllLevel() == it().triggerAllLevel());
+            nameCatMap.erase(it().categoryName());
+        }
+        ASSERT(0 == nameCatMap.size())
+
+      } break;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+      case 39: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #4
         //
@@ -1480,7 +1679,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4;
 
-        ball::DefaultObserver observer(&cout);
+        ball::StreamObserver observer(&cout);
 
         ball::LoggerManagerConfiguration mXC;
         ball::LoggerManagerScopedGuard   lmGuard(&observer, mXC);
@@ -1492,7 +1691,7 @@ int main(int argc, char *argv[])
         (void)cat;
 
       } break;
-      case 36: {
+      case 38: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #3
         //
@@ -1514,7 +1713,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3;
 
-        ball::DefaultObserver            observer(&cout);
+        ball::StreamObserver             observer(&cout);
         ball::LoggerManagerConfiguration mXC;
         ball::LoggerManagerScopedGuard   lmGuard(&observer, mXC);
 
@@ -1540,7 +1739,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 35: {
+      case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #2
         //
@@ -1563,7 +1762,7 @@ int main(int argc, char *argv[])
         BALL_LOGGERMANAGER_USAGE_EXAMPLE_2::main();
 
       } break;
-      case 34: {
+      case 36: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #1
         //
@@ -1586,7 +1785,7 @@ int main(int argc, char *argv[])
         BALL_LOGGERMANAGER_USAGE_EXAMPLE_1::main();
 
       } break;
-      case 33: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING 'numRecordsInUse' METHOD
         //   Ensure that the method correctly returns the number of
@@ -1653,6 +1852,134 @@ int main(int argc, char *argv[])
         ball::LoggerManager::shutDownSingleton();
 
       } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // TESTING EXTERNAL 'initSingleton' WITH NO SHUTDOWN
+        //
+        // Concerns:
+        //: 1 We want to make sure that the supplied singleton is accepted and
+        //:   that 'shutDownSingleton' does not deallocate it.
+        //
+        // Plan:
+        //: 1 Construct a singleton using a custom allocator that will notice
+        //:   whether it is deleted.  Supply the singleton to the logger
+        //:   manager, verify that it has been accepted, and then call
+        //:   'shutDownSingleton' and verify that the singleton is not deleted.
+        //:   (C-1)
+        //
+        // Testing:
+        //   initSingleton(LoggerManager *, false);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING EXTERNAL 'initSingleton' WITH NO SHUTDOWN"
+                 << "\n=================================================\n";
+
+        struct TrackingAllocator : public bslma::Allocator {
+            void *d_tracked_pointer_p;
+            bool  d_deleted;
+
+            TrackingAllocator()
+            : d_tracked_pointer_p(0)
+            , d_deleted(false)
+            {
+            }
+
+            void *allocate(size_type size)
+            {
+                void *p = ::operator new(size);
+                if (!d_tracked_pointer_p
+                    && sizeof(ball::LoggerManager) == size) {
+                    d_tracked_pointer_p = p;
+                }
+                return p;
+            }
+
+            virtual void deallocate(void *address)
+            {
+                if (address && d_tracked_pointer_p == address) {
+                    d_deleted = true;
+                }
+                ::operator delete(address);
+            }
+        };
+
+        TrackingAllocator ta;
+        ball::StreamObserver obs(&cout);
+        ball::LoggerManagerConfiguration cfg;
+        bslma::ManagedPtr<ball::LoggerManager> mp;
+        ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+        ball::LoggerManager *p = mp.ptr();
+        ball::LoggerManager::initSingleton(p);
+        ASSERT(ta.d_tracked_pointer_p == p);
+        ASSERT(&ball::LoggerManager::singleton() == p);
+        ball::LoggerManager::shutDownSingleton();
+        ASSERT(!ta.d_deleted);
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING EXTERNAL 'initSingleton' WITH SHUTDOWN
+        //
+        // Concerns:
+        //: 1 We want to make sure that the supplied singleton is accepted and
+        //:   that 'shutDownSingleton' deallocates it.
+        //
+        // Plan:
+        //: 1 Construct a singleton using a custom allocator that will notice
+        //:   whether it is deleted.  Supply the singleton to the logger
+        //:   manager, verify that it has been accepted, and then call
+        //:   'shutDownSingleton' and verify that the singleton is deleted.
+        //:   (C-1)
+        //
+        // Testing:
+        //   initSingleton(LoggerManager *, true);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING EXTERNAL 'initSingleton' WITH SHUTDOWN"
+                 << "\n==============================================\n";
+
+        struct TrackingAllocator : public bslma::Allocator {
+            void *d_tracked_pointer_p;
+            bool  d_deleted;
+
+            TrackingAllocator()
+            : d_tracked_pointer_p(0)
+            , d_deleted(false)
+            {
+            }
+
+            void *allocate(size_type size)
+            {
+                void *p = ::operator new(size);
+                if (!d_tracked_pointer_p
+                    && sizeof(ball::LoggerManager) == size) {
+                    d_tracked_pointer_p = p;
+                }
+                return p;
+            }
+
+            virtual void deallocate(void *address)
+            {
+                if (address && d_tracked_pointer_p == address) {
+                    d_deleted = true;
+                }
+                ::operator delete(address);
+            }
+        };
+
+        TrackingAllocator ta;
+        ball::StreamObserver obs(&cout);
+        ball::LoggerManagerConfiguration cfg;
+        bslma::ManagedPtr<ball::LoggerManager> mp;
+        ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+        ball::LoggerManager *p = mp.release().first;
+        ball::LoggerManager::initSingleton(p, true);
+        ASSERT(ta.d_tracked_pointer_p == p);
+        ASSERT(&ball::LoggerManager::singleton() == p);
+        ball::LoggerManager::shutDownSingleton();
+        ASSERT(ta.d_deleted);
+      } break;
       case 32: {
         // --------------------------------------------------------------------
         // TESTING CONCURRENT ACCESS TO
@@ -1698,7 +2025,6 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadUtil::join(handle);
       } break;
-
       case 31: {
         // --------------------------------------------------------------------
         // TESTING: '~LoggerManager' calls 'Observer::releaseRecords'
@@ -2365,12 +2691,12 @@ int main(int argc, char *argv[])
          bslma::TestAllocator da("default", veryVeryVeryVerbose);
          bslma::DefaultAllocatorGuard dag(&da);
 
-         ball::Record* record1 = Obj::getRecord(F_, L_);
-         ball::Record* record2 = Obj::getRecord(F_, L_);
-         ball::Record* record3 = Obj::getRecord(F_, L_);
-         ball::Record* record4 = Obj::getRecord(F_, L_);
-         ball::Record* record5 = Obj::getRecord(F_, L_);
-         ball::Record* record6 = Obj::getRecord(F_, L_);
+         ball::Record *record1 = Obj::getRecord(F_, L_);
+         ball::Record *record2 = Obj::getRecord(F_, L_);
+         ball::Record *record3 = Obj::getRecord(F_, L_);
+         ball::Record *record4 = Obj::getRecord(F_, L_);
+         ball::Record *record5 = Obj::getRecord(F_, L_);
+         ball::Record *record6 = Obj::getRecord(F_, L_);
 
          // The first three messages are set to strings without embedded '\0'.
 
@@ -2590,7 +2916,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_CONCURRENT_TESTS;
 
-        ball::DefaultObserver observer(&cout);
+        ball::StreamObserver             observer(&cout);
         ball::LoggerManagerConfiguration mXC;
 
         ASSERT(false == Obj::isInitialized());
@@ -2642,7 +2968,7 @@ int main(int argc, char *argv[])
 
         static bslma::TestAllocator      sa("supplied", veryVeryVeryVerbose);
 
-        ball::DefaultObserver            observer(&cout);
+        ball::StreamObserver             observer(&cout);
         ball::LoggerManagerConfiguration mXC;
 
         ASSERT(false == Obj::isInitialized());
@@ -2805,7 +3131,7 @@ int main(int argc, char *argv[])
 
             int m = 29;         // a randomly picked prime number
 
-            for (int i = size - 1; i >= 0; --i)  {
+            for (int i = size - 1; i >= 0; --i) {
                 if (verbose && 0 == i % feedback) cerr << '.';
                 m = (m * i + m) % INT_MAX;
             }
@@ -2816,7 +3142,7 @@ int main(int argc, char *argv[])
                 "----+----+----+----+----+----+----+----+----+----+" << endl;
             if (verbose) cerr << "BEGIN";
 
-            for (int i = size - 1; i >= 0; --i)  {
+            for (int i = size - 1; i >= 0; --i) {
                 if (verbose && 0 == i % feedback) cerr << '.';
                 lgr.logMessage(*cat, 250, currentFile, __LINE__, "Message");
             }
@@ -2828,7 +3154,7 @@ int main(int argc, char *argv[])
                 "----+----+----+----+----+----+----+----+----+----+" << endl;
             if (verbose) cerr << "BEGIN";
 
-            for (int i = size - 1; i >= 0; --i)  {
+            for (int i = size - 1; i >= 0; --i) {
                 if (verbose && 0 == i % feedback) cerr << '.';
                 lgr.logMessage(*cat, 180, currentFile, __LINE__, "Message");
             }
@@ -2840,7 +3166,7 @@ int main(int argc, char *argv[])
                 "----+----+----+----+----+----+----+----+----+----+" << endl;
             if (verbose) cerr << "BEGIN";
 
-            for (int i = size - 1; i >= 0; --i)  {
+            for (int i = size - 1; i >= 0; --i) {
                 if (verbose && 0 == i % feedback) cerr << '.';
                 lgr.logMessage(*cat, 120, currentFile, __LINE__, "Message");
             }
@@ -2852,7 +3178,7 @@ int main(int argc, char *argv[])
                 "----+----+----+----+----+----+----+----+----+----+" << endl;
             if (verbose) cerr << "BEGIN";
 
-            for (int i = size - 1; i >= 0; --i)  {
+            for (int i = size - 1; i >= 0; --i) {
                 if (verbose && 0 == i % feedback) cerr << '.';
                 lgr.logMessage(*cat, 70, currentFile, __LINE__, "Message");
             }
@@ -2863,7 +3189,7 @@ int main(int argc, char *argv[])
                 "----+----+----+----+----+----+----+----+----+----+" << endl;
             if (verbose) cerr << "BEGIN";
 
-            for (int i = size - 1; i >= 0; --i)  {
+            for (int i = size - 1; i >= 0; --i) {
                 if (verbose && 0 == i % feedback) cerr << '.';
                 lgr.logMessage(*cat, 20, currentFile, __LINE__, "Message");
             }
@@ -3001,8 +3327,8 @@ int main(int argc, char *argv[])
                 recBuf[i] = new(*Z) ball::FixedSizeRecordBuffer(BUF_SIZE);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa)
                     logger[i] = mX.allocateLogger(recBuf[i],
-                                                   (i + 1) * K,
-                                                   &observer);
+                                                  (i + 1) * K,
+                                                  &observer);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT((i + 1) * K == logger[i]->messageBufferSize());
                 mX.setLogger(logger[i]);
@@ -3122,8 +3448,10 @@ int main(int argc, char *argv[])
                 const int MAX_LIMIT = 1000000;
                 mXC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
 
-                Obj        mX(mXC, &testObserver, &oa);
-                const Obj& X = mX;
+                bslma::ManagedPtr<Obj> objPtr;
+                Obj::createLoggerManager(&objPtr, &testObserver, mXC, &oa);
+
+                Obj& mX = *objPtr;  const Obj& X = mX;
 
                 // Set the default threshold.
                 mX.setDefaultThresholdLevels(RECORD,
@@ -3263,13 +3591,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING LOGGER INTERFACE" << endl
                                   << "========================" << endl;
 
-        const char* testNames[] = {
+        const char *testNames[] = {
             "Singleton\n---------",
             "Non-Singleton\n-------------"
         };
 
-        for (int a = 0; a < 2; ++a)
-        {
+        for (int a = 0; a < 2; ++a) {
             if (veryVerbose) cout << testNames[a] << endl;
 
             ball::TestObserver observer(&cout);
@@ -3288,8 +3615,8 @@ int main(int argc, char *argv[])
             mXC.setCategoryNameFilterCallback(nameFilter);
             mXC.setUserFieldsPopulatorCallback(populator);
 
-            Obj*                   mX_p;
-            bslma::ManagedPtr<Obj> mX_mp;
+            Obj                    *mX_p;
+            bslma::ManagedPtr<Obj>  mX_mp;
 
             Obj::DefaultThresholdLevelsCallback thresholdsCallback;
             if (0 == a) {
@@ -3712,7 +4039,7 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS AND ACCESSORS
-        //   Legacy test for various manipulators and accesors.
+        //   Legacy test for various manipulators and accessors.
         //
         // Concerns:
         //   We want to make sure that we can set various properties of the
@@ -4082,13 +4409,14 @@ int main(int argc, char *argv[])
                          << "=======================================" << endl;
 
         ball::TestObserver  observer1Holder(&cout);
-        ball::TestObserver* observer1 = &observer1Holder;
+        ball::TestObserver *observer1 = &observer1Holder;
 
         ball::LoggerManagerConfiguration mXC;
         mXC.setUserFieldsPopulatorCallback(&testUserFieldsPopulatorCb);
 
-        Obj        mX(mXC, observer1);
-        const Obj& X  = mX;
+        ball::LoggerManagerScopedGuard lmGuard(observer1, mXC);
+
+        Obj& mX = Obj::singleton();  const Obj& X = mX;
 
         verifyLoggerManagerDefaults(X, 0, observer1);
 
@@ -4123,7 +4451,7 @@ int main(int argc, char *argv[])
 
         // Verify that the message is logged in both observers
         for (int i = 0; i < 2; ++i) {
-            ball::TestObserver* observer = i ? observer1
+            ball::TestObserver *observer = i ? observer1
                                              : observer2.get();
 
             const Rec&  R = observer->lastPublishedRecord();
@@ -4250,7 +4578,7 @@ int main(int argc, char *argv[])
 
         // Verify that the message is logged in both observers
         for (int i = 0; i < 2; ++i) {
-            ball::TestObserver* observer = i ? observer1.get()
+            ball::TestObserver *observer = i ? observer1.get()
                                              : observer2.get();
 
             const Rec&  R2 = observer->lastPublishedRecord();
@@ -5029,36 +5357,23 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTest New Category Names with No Name"
                               << " filter" << endl;
+
         // Verify that when no name filter is registered, category names are
         // added unchanged.
-        const char *CATEGORY_NAMES[] = {  // test category names
-            "A",
-            "AB",
-            "ab",
-            "ABC",
-            "ABCDEDFGHIJKL",
-            "A.B.C.E",
-            "abcd_efgh_.abcd",
-            "a.b.c.e.d.f",
-            "1",
-            "12345",
-            "123abc456def",
-            "A really really really looooooooooooooooooooooooooooooooong name",
-        };
-        enum { NUM_CATEGORIES_NAMES =
-                              sizeof CATEGORY_NAMES / sizeof *CATEGORY_NAMES };
 
-        for (int i = 0; i < NUM_CATEGORIES_NAMES; ++i) {
-            const Cat *cat = mX.setCategory(CATEGORY_NAMES[i]);
+        for (int i = 0; i < NUM_NAMES; ++i) {
+            const Cat *cat = mX.setCategory(NAMES[i]);
             ASSERT(cat);
-            ASSERT(0 == bsl::strcmp(CATEGORY_NAMES[i], cat->categoryName()));
+            ASSERT(0 == bsl::strcmp(NAMES[i], cat->categoryName()));
         }
 
         if (veryVerbose) cout << "\tTest New Category Threshold Levels"
                               << " with No Inheritance" << endl;
+
         // Verify that when no threshold-level-values callback is installed,
         // all new categories take the default threshold values if they are
         // not specified.
+
         const char *HIERNAMES[] = {
             "A",
             "A.B",
@@ -5349,6 +5664,11 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
         }
 
+// TBD The constructor tested below is not even 'public' in 'bael'.  Leave this
+// code here (temporarily) in case the constructor that *is* 'public' in 'bael'
+// needs to be added to 'ball' (in which case the configuration and observer
+// arguments will have to be swapped below).
+#if 0
         // Legacy ctor taking mandatory observer
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the allocator
@@ -5364,8 +5684,7 @@ int main(int argc, char *argv[])
             Obj                  *objPtr;
             bslma::TestAllocator *objAllocatorPtr;
 
-            ball::DefaultObserver observer(cout);
-
+            ball::StreamObserver             observer(&cout);
             ball::LoggerManagerConfiguration mXC;
 
             switch (CONFIG) {
@@ -5424,6 +5743,7 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, fa.numBlocksInUse(), 0 == fa.numBlocksInUse());
             ASSERTV(CONFIG, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
         }
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

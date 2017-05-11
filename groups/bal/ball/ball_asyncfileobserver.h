@@ -206,10 +206,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'ball::AsyncFileObserver' within a 'ball'
-// logging system.
+// This example demonstrates using a 'ball::AsyncFileObserver' within the
+// 'ball' logging system.
 //
-// First, we initialize 'ball' logging subsystem with the default
+// First, we initialize the 'ball' logging subsystem with the default
 // configuration:
 //..
 //  ball::LoggerManagerConfiguration configuration;
@@ -222,18 +222,18 @@ BSLS_IDENT("$Id: $")
 // messages will be discarded.
 //
 // Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
-// 'observerPtr', having default attributes.  Note that default-constructed
-// async observer has an implementation defined size for log record queue and
-// will drop incoming log records when that queue is full.
+// 'observerPtr', having default attributes.  Note that a default-constructed
+// async observer has an implementation defined size for the log record queue
+// and will drop incoming log records when that queue is full.
 //..
 //  bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
 //  bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
 //                                       new(*alloc) ball::AsyncFileObserver(),
 //                                       alloc);
 //..
-// Next, we set required logging format by calling the 'setLogFormat' method.
-// The statement below outputs timestamps in ISO 8601 format to a log file and
-// in 'bdlt'-style (default) format to 'stdout':
+// Next, we set the required logging format by calling the 'setLogFormat'
+// method.  The statement below outputs timestamps in ISO 8601 format to a log
+// file and in 'bdlt'-style (default) format to 'stdout':
 //..
 //  observerPtr->setLogFormat("%i %p:%t %s %f:%l %c %m",
 //                            "%d %p:%t %s %f:%l %c %m");
@@ -244,13 +244,13 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we register the async file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
-// 'publish' method:
+// the 'publish' method:
 //..
 //  int rc = manager.registerObserver(observerPtr, "asyncObserver");
 //  assert(0 == rc);
 //..
-// Next, we set the log category and log few messages with different logging
-// severity.  By default, only the messages with 'WARN', 'ERROR' or 'FATAL'
+// Next, we set the log category and log a few messages with different logging
+// severity.  By default, only the messages with 'WARN', 'ERROR', or 'FATAL'
 // severity will be logged to 'stdout'.  Note that logging to a file is not
 // enabled by default:
 //..
@@ -307,13 +307,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  observerPtr->stopPublicationThread();
 //..
-// Note that stopping publication thread and disabling various features of the
-// async observer is not strictly necessary before object destruction.  All
+// Note that stopping the publication thread and disabling various features of
+// the async observer is not strictly necessary before object destruction.  All
 // resources managed by the async observer will be correctly released when the
 // object is destroyed.
 //
-//  Finally, we can deregister async observer from the 'ball' logging
-//  subsystem entirely (and destroy later):
+// Finally, we can deregister our async observer from the 'ball' logging
+// subsystem entirely (and destroy later):
 //..
 //  rc = manager.deregisterObserver("asyncObserver");
 //  assert(0 == rc);
@@ -396,9 +396,10 @@ namespace ball {
 
 struct AsyncFileObserver_Record {
     // PRIVATE CLASS STRUCT. For use only by 'ball::AsyncFileObserver'
-    // implementation.  This struct holds the log record and the context,
+    // implementation.  This struct holds the log record and the context
     // associated with this record.
 
+    // DATA
     bsl::shared_ptr<const Record> d_record;   // log record
     Context                       d_context;  // log record's context
 };

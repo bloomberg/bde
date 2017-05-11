@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
-//     ball::DefaultObserver observer(cout);
+//     ball::StreamObserver observer(&bsl::cout);
 //     ball::LoggerManagerConfiguration configuration;
 //     ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //..

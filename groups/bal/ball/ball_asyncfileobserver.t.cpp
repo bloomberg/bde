@@ -1,11 +1,10 @@
 // ball_asyncfileobserver.t.cpp                                       -*-C++-*-
 #include <ball_asyncfileobserver.h>
 
-#include <ball_context.h>
-#include <ball_defaultobserver.h>             // for testing only
-#include <ball_log.h>                         // for testing only
-#include <ball_loggermanager.h>               // for testing only
-#include <ball_loggermanagerconfiguration.h>  // for testing only
+#include <ball_log.h>
+#include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
+#include <ball_streamobserver.h>
 
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
@@ -21,6 +20,8 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -66,56 +67,77 @@ using bsl::endl;
 using bsl::flush;
 
 //=============================================================================
-//                                   TEST PLAN
+//                              TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The component under test defines an asynchronous observer
+// ('ball::AsyncFileObserver') that writes log records to a file and stdout
+// from a dedicated thread.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] AsyncFileObserver(bslma::Allocator)
-// [ 2] AsyncFileObserver(ball::Severity::Level, bslma::Allocator)
-// [ 2] ~ball::AsyncFileObserver()
+// [ 2] AsyncFileObserver(bslma::Allocator *);
+// [ 2] AsyncFileObserver(ball::Severity::Level, bslma::Allocator *);
+// [ X] AsyncFileObserver(ball::Severity::Level, bool, bslma::Allocator *);
+// [ 5] AsyncFileObserver(Severity::Level, bool, int, bslma::Allocator *);
+// [ 5] AsyncFileObserver(Severity, bool, int, Severity, Allocator *);
+// [ 2] ~AsyncFileObserver();
 //
 // MANIPULATORS
-// [ 1] publish(const ball::Record& record, const ball::Context& context)
-// [ 1] void disableFileLogging()
-// [ 5] void disableTimeIntervalRotation()
-// [ 5] void disableSizeRotation()
-// [ 1] void disableStdoutLoggingPrefix()
-// [ 1] int enableFileLogging(const char *logFilenamePattern)
-// [ 1] void enableStdoutLoggingPrefix()
-// [ 1] void publish(const bsl::shared_ptr<const ball::Record>& record,
-//                   const ball::Context&                       context)
-// [ 4] void releaseRecords()
-// [ 5] void forceRotation()
-// [ 5] void rotateOnSize(int size)
-// [ 5] void rotateOnTimeInterval(const bdlt::DatetimeInterval timeInterval)
-// [ 1] void setStdoutThreshold(ball::Severity::Level stdoutThreshold)
-// [ 1] void setLogFormat(const char*, const char*)
-// [ 3] void shutdownPublicationThread()
+// [ 1] void disableFileLogging();
+// [ X] void disablePublishInLocalTime();
+// [ 6] void disableSizeRotation();
+// [ 1] void disableStdoutLoggingPrefix();
+// [ 6] void disableTimeIntervalRotation();
+// [ 1] int enableFileLogging(const char *logFilenamePattern);
+// [ 1] void enableStdoutLoggingPrefix();
+// [ 1] void enablePublishInLocalTime();
+// [ 6] void forceRotation();
+// [ 1] void publish(const Record& record, const Context& context);
+// [ 1] void publish(const shared_ptr<Record>&, const Context&);
+// [ 4] void releaseRecords();
+// [ 6] void forceRotation();
+// [ 6] void rotateOnSize(int size);
+// [ 6] void rotateOnTimeInterval(const DatetimeInterval timeInterval);
+// [ 6] void rotateOnTimeInterval(const DatetimeI&, const Datetime&);
+// [ 1] void setLogFormat(const char* logF, const char* stdoutF);
+// [ 8] void setOnFileRotationCallback(const OnFileRotationCallback&);
+// [ 1] void setStdoutThreshold(ball::Severity::Level stdoutThreshold);
+// [ 3] void shutdownPublicationThread();
 // [ 3] void startPublicationThread();
 // [ 3] void stopPublicationThread();
 //
 // ACCESSORS
-// [11] int recordQueueLength() const
-// [ 1] bool isFileLoggingEnabled() const
-// [ 1] bool isStdoutLoggingPrefixEnabled() const
-// [ 1] void getLogFormat(const char**, const char**) const
-// [ 5] bdlt::DatetimeInterval rotationLifetime() const
-// [ 5] int rotationSize() const
-// [ 1] ball::Severity::Level stdoutThreshold() const
+// [ 1] void getLogFormat(const char** logF, const char** stdoutF) const;
+// [ 1] bool isFileLoggingEnabled() const;
+// [ X] bool isFileLoggingEnabled(bsl::string *result) const;
+// [ 3] bool isPublicationThreadRunning() const;
+// [ 1] bool isPublishInLocalTimeEnabled() const;
+// [ 1] bool isStdoutLoggingPrefixEnabled() const;
+// [ 1] bool isUserFieldsLoggingEnabled() const;
+// [11] int recordQueueLength() const;
+// [ 6] bdlt::DatetimeInterval rotationLifetime() const;
+// [ 6] int rotationSize() const;
+// [ 1] ball::Severity::Level stdoutThreshold() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] CONCERN: CONCURRENT PUBLICATION
+// [ 7] CONCERN: LOGGING TO A FAILING STREAM
+// [ 5] CONCERN: LOG MESSAGE DROP
+// [ 9] CONCERN: ROTATION
 // [12] USAGE EXAMPLE
-//
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+
 // Note assert and debug macros all output to 'cerr' instead of cout, unlike
-// most other test drivers.  This is necessary because test case 2 plays
-// tricks with cout and examines what is written there.
+// most other test drivers.  This is necessary because test case 2 plays tricks
+// with cout and examines what is written there.
+
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
-static int testStatus = 0;
+int testStatus = 0;
 
 void aSsErT(bool condition, const char *message, int line)
 {
@@ -197,18 +219,33 @@ typedef bdls::FilesystemUtil::Offset Offset;
 namespace {
 
 class TempDirectoryGuard {
-    // This class implements the scoped temporary directory guard.  The
-    // component tries to create a temporary directory in the system-wide temp
-    // directory and falls back to the current directory.
-    bsl::string d_dirName;
+    // This class implements a scoped temporary directory guard.  The guard
+    // tries to create a temporary directory in the system-wide temp directory
+    // and falls back to the current directory.
+
+    // DATA
+    bsl::string       d_dirName;      // path to the created directory
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+    // NOT IMPLEMENTED
+    TempDirectoryGuard(const TempDirectoryGuard&);
+    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    TempDirectoryGuard()
-        // Create temporary directory in the current directory.
-    : d_dirName("")
+    explicit TempDirectoryGuard(bslma::Allocator *basicAllocator = 0)
+        // Create temporary directory in the system-wide temp or current
+        // directory.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+    : d_dirName(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
-        bsl::string tmpPath;
+        bsl::string tmpPath(d_allocator_p);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         char tmpPathBuf[MAX_PATH];
         GetTempPath(MAX_PATH, tmpPathBuf);
@@ -229,38 +266,40 @@ class TempDirectoryGuard {
     }
 
     ~TempDirectoryGuard()
-        // Destroy this object and remove temporary directory (recursively)
+        // Destroy this object and remove the temporary directory (recursively)
         // created at construction.
     {
         bdls::FilesystemUtil::remove(d_dirName, true);
     }
 
     // ACCESSORS
-    bsl::string getTempDirName() const
-        // Return the name of the created temporary directory.
+    const bsl::string& getTempDirName() const
+        // Return a 'const' reference to the name of the created temporary
+        // directory.
     {
         return d_dirName;
     }
 };
 
-bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
-    // Replace the second space character (' ') in the specified 'string' with
-    // the specified 'value'.  Return the index position of the character that
-    // was replaced on success, and 'bsl::string::npos' otherwise.
+bsl::string::size_type replaceSecondSpace(bsl::string *input, char value)
+    // Replace the second space character (' ') in the specified 'input' string
+    // with the specified 'value'.  Return the index position of the character
+    // that was replaced on success, and 'bsl::string::npos' otherwise.
 {
-    bsl::string::size_type index = s->find(' ');
+    bsl::string::size_type index = input->find(' ');
     if (bsl::string::npos != index) {
-        index = s->find(' ', index + 1);
+        index = input->find(' ', index + 1);
         if (bsl::string::npos != index) {
-            (*s)[index] = value;
+            (*input)[index] = value;
         }
     }
     return index;
 }
 
 bdlt::Datetime getCurrentTimestamp()
+    // Return current local time as 'bdlt::Datetime' value.
 {
-    time_t currentTime = time(0);
+    time_t    currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     localtm = *localtime(&currentTime);
@@ -274,9 +313,11 @@ bdlt::Datetime getCurrentTimestamp()
 }
 
 void removeFilesByPrefix(const char *prefix)
+    // Remove the files with the specified 'prefix'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    bsl::string filename = prefix;
+    bsl::string filename(prefix);
+
     filename += "*";
     WIN32_FIND_DATA findFileData;
 
@@ -315,12 +356,13 @@ void removeFilesByPrefix(const char *prefix)
         }
     }
 #else
-    glob_t globbuf;
-    bsl::string filename = prefix;
+    glob_t      globbuf;
+    bsl::string filename(prefix);
+
     filename += "*";
     glob(filename.c_str(), 0, 0, &globbuf);
 
-    for (int i = 0; i < (int)globbuf.gl_pathc; i++) {
+    for (size_t i = 0; i < globbuf.gl_pathc; i++) {
         unlink(globbuf.gl_pathv[i]);
     }
 
@@ -329,8 +371,9 @@ void removeFilesByPrefix(const char *prefix)
 }
 
 bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
-    // Read everything after offset the specified 'startOffset' from a file and
-    // return it as a string.
+    // Read the content of a file with the specified 'fileName' starting at
+    // the specified 'startOffset' to the end-of-file and return it as a
+    // string.
 {
     bsl::string result;
     result.reserve(FsUtil::getFileSize(fileName) + 1 - startOffset);
@@ -342,7 +385,7 @@ bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
 
     int c;
     while (EOF != (c = getc(fp))) {
-        result += (char) c;
+        result += static_cast<char>(c);
     }
 
     fclose(fp);
@@ -351,10 +394,13 @@ bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
 }
 
 int countLoggedRecords(const bsl::string& fileName)
+    // Return the number of log records in a file with the specified
+    // 'fileName'.
 {
-    bsl::string line;
-    int numLines = 0;
+    bsl::string   line;
+    int           numLines = 0;
     bsl::ifstream fs;
+
     fs.open(fileName.c_str(), bsl::ifstream::in);
 
     ASSERT(fs.is_open());
@@ -373,6 +419,8 @@ int countLoggedRecords(const bsl::string& fileName)
 
 void waitEmptyRecordQueue(
                        bsl::shared_ptr<const ball::AsyncFileObserver> observer)
+    // Wait (for up to 5 seconds) until the specified 'observer' drains its
+    // record queue (by processing all pending log records).
 {
     bsls::Stopwatch timer;
     timer.start();
@@ -466,10 +514,12 @@ class LogRotationCallbackTester {
         int         d_status;
         bsl::string d_rotatedFileName;
 
-        explicit Rep(bslma::Allocator *allocator)
+        explicit Rep(bslma::Allocator *basicAllocator)
+            // Create an object with default attribute values.  Use the
+            // specified 'basicAllocator' to supply memory.
         : d_invocations(0)
         , d_status(0)
-        , d_rotatedFileName(allocator)
+        , d_rotatedFileName(basicAllocator)
         {
         }
 
@@ -490,14 +540,12 @@ class LogRotationCallbackTester {
         UNINITIALIZED = INT_MIN
     };
 
-    explicit LogRotationCallbackTester(bslma::Allocator *allocator)
-        // Create a callback tester that will use the specified 'status' and
-        // 'logFileName' to record the arguments to the function call
-        // operator.  Set '*status' to 'UNINITIALIZED' and set '*logFileName'
-        // to the empty string.
+    explicit LogRotationCallbackTester(bslma::Allocator *basicAllocator)
+        // Create a callback tester object with default attribute values.  Use
+        // the specified 'basicAllocator' to supply memory.
     : d_rep()
     {
-        d_rep.createInplace(allocator, allocator);
+        d_rep.createInplace(basicAllocator, basicAllocator);
         reset();
     }
 
@@ -505,7 +553,7 @@ class LogRotationCallbackTester {
                     const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'logFileName'.
+        // supplied at construction to the specified 'rotatedFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;
@@ -514,8 +562,7 @@ class LogRotationCallbackTester {
     }
 
     void reset()
-        // Set '*status' to 'UNINITIALIZED' and set '*logFileName' to the
-        // empty string.
+        // Reset the attributes of this object to their default values.
     {
         d_rep->d_invocations     = 0;
         d_rep->d_status          = UNINITIALIZED;
@@ -633,7 +680,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl << flush;
 
-    bslma::TestAllocator allocator;
+    bslma::TestAllocator  allocator;
     bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
@@ -653,10 +700,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nUSAGE EXAMPLE"
-                          << "\n=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE."
+                          << "\n==============" << endl;
 
-        // This is standard preambula to create the directory and filename for
+        // This is standard preamble to create the directory and filename for
         // the test.
         TempDirectoryGuard tempDirGuard;
 
@@ -665,10 +712,10 @@ int main(int argc, char *argv[])
 
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'ball::AsyncFileObserver' within a 'ball'
-// logging system.
+// This example demonstrates using a 'ball::AsyncFileObserver' within the
+// 'ball' logging system.
 //
-// First, we initialize 'ball' logging subsystem with the default
+// First, we initialize the 'ball' logging subsystem with the default
 // configuration:
 //..
     ball::LoggerManagerConfiguration configuration;
@@ -681,18 +728,19 @@ int main(int argc, char *argv[])
 // messages will be discarded.
 //
 // Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
-// 'observerPtr', having default attributes.  Note that default-constructed
-// async observer has an implementation defined size for log record queue and
-// will drop incoming log records when that queue is full.
+// 'observerPtr', having default attributes.  Note that a default-constructed
+// async observer has an implementation defined size for the log record queue
+// and will drop incoming log records when that queue is full.
 //..
     bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
+
     bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
                                          new(*alloc) ball::AsyncFileObserver(),
                                          alloc);
 //..
-// Next, we set required logging format by calling the 'setLogFormat' method.
-// The statement below outputs timestamps in ISO 8601 format to a log file and
-// in 'bdlt'-style (default) format to 'stdout':
+// Next, we set the required logging format by calling the 'setLogFormat'
+// method.  The statement below outputs timestamps in ISO 8601 format to a log
+// file and in 'bdlt'-style (default) format to 'stdout':
 //..
     observerPtr->setLogFormat("%i %p:%t %s %f:%l %c %m",
                               "%d %p:%t %s %f:%l %c %m");
@@ -702,14 +750,14 @@ int main(int argc, char *argv[])
     observerPtr->startPublicationThread();
 //..
 // Then, we register the async file observer with the logger manager.  Upon
-// successful registration, the observer will start to receive log records
-// via 'publish' method:
+// successful registration, the observer will start to receive log records via
+// the 'publish' method:
 //..
     int rc = manager.registerObserver(observerPtr, "asyncObserver");
     ASSERT(0 == rc);
 //..
-// Next, we set the log category and log few messages with different logging
-// severity.  By default, only the messages with 'WARN', 'ERROR' or 'FATAL'
+// Next, we set the log category and log a few messages with different logging
+// severity.  By default, only the messages with 'WARN', 'ERROR', or 'FATAL'
 // severity will be logged to 'stdout'.  Note that logging to a file is not
 // enabled by default:
 //..
@@ -766,13 +814,13 @@ int main(int argc, char *argv[])
 //..
     observerPtr->stopPublicationThread();
 //..
-// Note that stopping publication thread and disabling various features of the
-// async observer is not strictly necessary before object destruction.  All
+// Note that stopping the publication thread and disabling various features of
+// the async observer is not strictly necessary before object destruction.  All
 // resources managed by the async observer will be correctly released when the
 // object is destroyed.
 //
-//  Finally, we can deregister async observer from the 'ball' logging
-//  subsystem entirely (and destroy later):
+// Finally, we can deregister our async observer from the 'ball' logging
+// subsystem entirely (and destroy later):
 //..
     rc = manager.deregisterObserver("asyncObserver");
     ASSERT(0 == rc);
@@ -780,7 +828,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING: 'recordQueueLength'
+        // TESTING 'recordQueueLength'
         //  Note that this is a white box text, in that 'recordQueueLength'
         //  delegates to 'bdlcc_fixedqueue'.  This test verifies that records
         //  are added from and removed from the queue correctly (and the length
@@ -813,10 +861,8 @@ int main(int argc, char *argv[])
         //   int recordQueueLength() const;
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl
-                 << "Testing: 'recordQueueLength'" << endl
-                 << "============================" << endl;
+        if (verbose) cout << "\nTESTING 'recordQueueLength'."
+                          << "\n============================" << endl;
 
         const int ERROR = ball::Severity::e_ERROR;
 
@@ -834,11 +880,11 @@ int main(int argc, char *argv[])
             enum { MAX_QUEUE_LENGTH = 1024 };
 
             // Set up a non-blocking async observer
-            Obj mX(ball::Severity::e_FATAL,
-                   false,
-                   MAX_QUEUE_LENGTH,
-                   ball::Severity::e_TRACE,
-                   &ta);
+            Obj        mX(ball::Severity::e_FATAL,
+                          false,
+                          MAX_QUEUE_LENGTH,
+                          ball::Severity::e_TRACE,
+                          &ta);
             const Obj& X = mX;
 
             bsl::shared_ptr<ball::Record> record;
@@ -889,11 +935,11 @@ int main(int argc, char *argv[])
             enum { NUM_ITERATIONS = 10 };
 
             // Set up a non-blocking async observer
-            Obj mX(ball::Severity::e_FATAL,
-                   false,
-                   MAX_QUEUE_LENGTH,
-                   ball::Severity::e_TRACE,
-                   &ta);
+            Obj        mX(ball::Severity::e_FATAL,
+                          false,
+                          MAX_QUEUE_LENGTH,
+                          ball::Severity::e_TRACE,
+                          &ta);
             const Obj& X = mX;
 
             mX.enableFileLogging(fileName.c_str());
@@ -933,24 +979,23 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: CONCURRENT PUBLICATION
+        // TESTING CONCURRENT PUBLICATION
         //
         // Concerns:
-        //   Concurrent calls to 'publish' should work correctly that writes
-        //   records from different threads into same log file in defined
-        //   format.
+        //:  1 Concurrent calls to 'publish' should work correctly that writes
+        //:    records from different threads into same log file in defined
+        //:    format.
         //
         // Plan:
-        //   Concurrently invoke 'publish' of a fair large amount of records
-        //   from threads.  Verify that all the records from all threads are
-        //   written into log file and the format is not broken.
+        //:  1 Concurrently invoke 'publish' of a fair large amount of records
+        //:    from threads.  Verify that all the records from all threads are
+        //:    written into log file and the format is not broken.
         //
         // Testing:
-        //   This test invokes the 'publish' method, but doesn't test it.
+        //   CONCERN: CONCURRENT PUBLICATION
         // --------------------------------------------------------------------
-        if (verbose)
-            cout << endl << "Testing Concurrent Publication" << endl
-                         << "==============================" << endl;
+        if (verbose) cout << "\nTESTING CONCURRENT PUBLICATION."
+                          << "\n===============================" << endl;
 
         using namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
 
@@ -962,12 +1007,12 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         // Set up a blocking async observer
-        bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN,
-                                            false,
-                                            8192,
-                                            ball::Severity::e_TRACE,
-                                            &ta),
-                                &ta);
+        bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_WARN,
+                                                  false,
+                                                  8192,
+                                                  ball::Severity::e_TRACE,
+                                                  &ta),
+                                      &ta);
         bsl::shared_ptr<const Obj> X = mX;
 
         mX->startPublicationThread();
@@ -1033,9 +1078,9 @@ int main(int argc, char *argv[])
         //:   occurs afterwards.
         //
         // Testing:
-        //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
+        //   CONCERN: ROTATION
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting Time-Based Rotation"
+        if (verbose) cout << "\nTESTING TIME-BASED ROTATION"
                           << "\n===========================" << endl;
 
         ball::LoggerManagerConfiguration configuration;
@@ -1051,7 +1096,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_WARN, &ta), &ta);
+        bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_WARN, &ta),
+                                      &ta);
         bsl::shared_ptr<const Obj> X = mX;
 
         ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
@@ -1138,6 +1184,8 @@ int main(int argc, char *argv[])
         // Testing:
         //  void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING 'setOnFileRotationCallback'."
+                          << "\n====================================" << endl;
 
         // Create temporary directory for log files.
         TempDirectoryGuard tempDirGuard;
@@ -1160,15 +1208,26 @@ int main(int argc, char *argv[])
         mX.disableFileLogging();
       } break;
       case 7: {
+        // --------------------------------------------------------------------
+        // TESTING LOGGING TO A FAILING STREAM
+        //
+        // Concerns:
+        //: 1 Logging can be done to a stream that fails.
+        //
+        // Plan:
+        //: 1 Emulate stream failure.
+        //
+        // Testing:
+        //   CONCERN: LOGGING TO A FAILING STREAM
+        // --------------------------------------------------------------------
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
         // Don't run this if we're in the debugger because the debugger stops
         // and refuses to continue when we hit the file size limit.
 
-        if (verbose) cerr << "Testing output when the stream fails"
-                          << " (UNIX only)."
-                          << endl;
+        if (verbose) cerr << "\nTESTING LOGGING TO A FAILING STREAM."
+                          << "\n====================================" << endl;
 
         bslma::TestAllocator ta;
 
@@ -1205,11 +1264,11 @@ int main(int argc, char *argv[])
             act.sa_flags = 0;
             ASSERT(0 == sigaction(SIGXFSZ, &act, &oact));
 
-            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF,
-                                                true,
-                                                8192,
-                                                &ta),
-                                    &ta);
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_OFF,
+                                                      true,
+                                                      8192,
+                                                      &ta),
+                                          &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
             mX->startPublicationThread();
@@ -1257,40 +1316,39 @@ int main(int argc, char *argv[])
         }
 #else
         if (verbose) {
-            cout << "Skipping case 5 on Windows and Cygwin..." << endl;
+            cout << "Skipping case 7 on Windows and Cygwin..." << endl;
         }
 #endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // Rotation functions test
+        // TESTING FILE ROTATION
         //
         // Concerns:
-        //   1. 'rotateOnSize' triggers a rotation when expected.
-        //   2. 'disableSizeRotation' disables rotation on size
-        //   3. 'forceRotation' triggers a rotation
-        //   4. 'rotateOnTimeInterval' triggers a rotation when expected
-        //   5. 'disableTimeIntervalRotation' disables rotation on lifetime
+        //:  1 'rotateOnSize' triggers a rotation when expected.
+        //:  2 'disableSizeRotation' disables rotation on size
+        //:  3 'forceRotation' triggers a rotation
+        //:  4 'rotateOnTimeInterval' triggers a rotation when expected
+        //:  5 'disableTimeIntervalRotation' disables rotation on lifetime
         //
-        // Test plan:
-        //   We will exercise both rotation rules to verify that they work
-        //   properly using glob to count the files and proper timing.  We will
-        //   also verify that the size rule is followed by checking the size of
-        //   log files.
-        //
-        // Tactics:
-        //   - Ad-Hoc Data Selection Method
-        //   - Brute Force Implementation Technique
+        // Plan:
+        //:  1 We will exercise both rotation rules to verify that they work
+        //:    properly using glob to count the files and proper timing.  We
+        //:    also verify that the size rule is followed by checking the size
+        //:    of log files.
         //
         // Testing:
-        //   void disableTimeIntervalRotation()
-        //   void disableSizeRotation()
-        //   void forceRotation()
-        //   void rotateOnSize(int size)
-        //   void rotateOnTimeInterval(bdlt::DatetimeInterval timeInterval)
-        //   bdlt::DatetimeInterval rotationLifetime() const
-        //   int rotationSize() const
+        //   void disableTimeIntervalRotation();
+        //   void disableSizeRotation();
+        //   void forceRotation();
+        //   void rotateOnSize(int size);
+        //   void rotateOnTimeInterval(const DatetimeInterval timeInterval);
+        //   void rotateOnTimeInterval(const DatetimeI&, const Datetime&);
+        //   bdlt::DatetimeInterval rotationLifetime() const;
+        //   int rotationSize() const;
         // --------------------------------------------------------------------
+        if (verbose) cerr << "\nTESTING FILE ROTATION."
+                          << "\n======================" << endl;
 
         ball::LoggerManagerConfiguration configuration;
 
@@ -1310,8 +1368,8 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_UNIX
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        int loopCount = 0;
-        int fileCount = 0;
+        int         loopCount = 0;
+        int         fileCount = 0;
         bsl::string line(&ta);
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
@@ -1321,8 +1379,9 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF, &ta),
-                                    &ta);
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_OFF,
+                                                      &ta),
+                                          &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
             mX->startPublicationThread();
@@ -1458,17 +1517,21 @@ int main(int argc, char *argv[])
                 // We are not checking the last one since we do not have any
                 // information on its size.
 
-                for (int i = 0; i < (int)globbuf.gl_pathc - 3; ++i) {
+                for (size_t i = 0; i < globbuf.gl_pathc - 3; ++i) {
                     bsl::ifstream fs;
                     fs.open(globbuf.gl_pathv[i + 2], bsl::ifstream::in);
                     fs.clear();
+
                     ASSERT(fs.is_open());
+
                     bsl::string::size_type fileSize = 0;
-                    bsl::string line(&ta);
+                    bsl::string            line(&ta);
+
                     while (getline(fs, line)) {
                         fileSize += line.length() + 1;
                     }
                     fs.close();
+
                     ASSERT(fileSize > 1024);
                 }
 
@@ -1506,6 +1569,7 @@ int main(int argc, char *argv[])
 
             bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_OFF, &ta),
                                     &ta);
+
             bsl::shared_ptr<const Obj> X = mX;
 
             mX->startPublicationThread();
@@ -1592,41 +1656,42 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case -5: // FALL THROUGH
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING NON-BLOCKING AND BLOCKING CALLER THREAD
+        // TESTING LOG RECORDS DROP
         //
         // Concerns:
-        //   - Asynchronous observer is configured to drop records when the
-        //     fixed queue is full by default.  An alert should be printed
-        //     to the logfile for all dropped records.  This alert should
-        //     not be printed excessively.  (Specifically, it should be
-        //     printed when the queue is half empty or the count has reached
-        //     a threshold).
-        //
-        //   - Asynchronous observer can be configured to block the caller of
-        //     'publish'  when the fixed queue is full instead of dropping
-        //     records.  In that case no record should be dropped.
-        //
-        //   - Note, this test can be run as a negative test case.  Doing so
-        //     will preserve the logfiles.
+        //:  1 Asynchronous observer is configured to drop records when the
+        //:    fixed queue is full by default.  An alert should be printed to
+        //:    the logfile for all dropped records.  This alert should not be
+        //:    printed excessively.  (Specifically, it should be printed when
+        //:    the queue is half empty or the count has reached a threshold).
+        //:
+        //:  2 Asynchronous observer can be configured to block the caller of
+        //:    'publish'  when the fixed queue is full instead of dropping
+        //:    records.  In that case no record should be dropped.
+        //:
+        //:  3 Note, this test can be run as a negative test case.  Doing so
+        //:    will preserve the logfiles.
         //
         // Plan:
-        //   To test non-blocking caller thread, we will first create an async
-        //   file observer. Then publish a fair large amount of records.  We
-        //   verify dropped records alerts being raised.
-        //
-        //   To test blocking caller thread, we will first create an async file
-        //   observer by passing 'true' in the 'blocking' parameter.  Then
-        //   publish a fairly large amount of records.  We verify all the
-        //   records published are actually written to file and nothing gets
-        //   dropped.
+        //:  1 To test non-blocking caller thread, we will first create an
+        //:    async file observer. Then publish a fair large amount of
+        //:    records.  We verify dropped records alerts being raised.
+        //:
+        //:  2 To test blocking caller thread, we will first create an async
+        //:    file observer by passing 'true' in the 'blocking' parameter.
+        //:    Then publish a fairly large amount of records.  We verify all
+        //:    the records published are actually written to file and nothing
+        //:    gets dropped.
         //
         // Testing:
-        //   This test is for testing non-blocking and blocking caller thread,
-        //   not for any particular public method.
+        //   AsyncFileObserver(Severity::Level, bool, int, bslma::Allocator *);
+        //   AsyncFileObserver(Severity, bool, int, Severity, Allocator *);
+        //   CONCERN: LOG MESSAGE DROP
         // --------------------------------------------------------------------
+        if (verbose) cerr << "\nTESTING LOG RECORDS DROP."
+                          << "\n=========================" << endl;
 
         bslma::TestAllocator ta;
 
@@ -1640,6 +1705,7 @@ int main(int argc, char *argv[])
                     ball::Severity::e_OFF));
 
         ball::LoggerManagerScopedGuard guard(configuration);
+
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         if (verbose) cerr << "Testing blocking caller thread." << endl;
@@ -1651,12 +1717,12 @@ int main(int argc, char *argv[])
 
             int fixedQueueSize = 1000;
 
-            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_ERROR,
-                                                false,
-                                                fixedQueueSize,
-                                                ball::Severity::e_TRACE,
-                                                &ta),
-                                    &ta);
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_ERROR,
+                                                      false,
+                                                      fixedQueueSize,
+                                                      ball::Severity::e_TRACE,
+                                                      &ta),
+                                          &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
             mX->startPublicationThread();
@@ -1695,12 +1761,13 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            int fixedQueueSize     = 1000;
-            bsl::shared_ptr<Obj> mX(new(ta) Obj(ball::Severity::e_ERROR,
-                                                false,
-                                                fixedQueueSize,
-                                                &ta),
-                                    &ta);
+            int fixedQueueSize = 1000;
+
+            bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_ERROR,
+                                                      false,
+                                                      fixedQueueSize,
+                                                      &ta),
+                                          &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
             // Start the publication thread, make sure the publication thread
@@ -1735,25 +1802,21 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING RELEASING RECORDS
+        // TESTING 'releaseRecords'
         //
         // Concerns:
-        //   The 'releaseRecords' method clears all shared pointers in async
-        //   file observer's fixed queue without logging them.
+        //:  1 The 'releaseRecords' method clears all shared pointers in async
+        //:    file observer's fixed queue without logging them.
         //
         // Plan:
-        //   We will first create an async file observer and a logger manager
-        //   with limited life-time through scoped guard.  Then publish a fair
-        //   large amount of records after which let the scoped guard run out
-        //   of scope immediately.  The logger manager will be released and it
-        //   should call the 'releaseRecords' method of async file observer
-        //   before destruction.  We verify the 'releaseRecords' being called
-        //   and clears the fixed queue immediately.
-        //
-        // Tactics:
-        //   - Helper Function -1 (see paragraph below)
-        //   - Ad-Hoc Data Selection Method
-        //   - Brute Force Implementation Technique
+        //:  1 We will first create an async file observer and a logger manager
+        //:    with limited life-time through scoped guard.  Then publish a
+        //:    fairly large amount of records after which let the scoped guard
+        //:    run out of scope immediately.  The logger manager will be
+        //:    released and it should call the 'releaseRecords' method of async
+        //:    file observer before destruction.  We verify the
+        //:    'releaseRecords' being called and clears the fixed queue
+        //:    immediately.
         //
         // Helper Function:
         //   The helper function is run as a child task with stdout redirected
@@ -1766,6 +1829,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   void releaseRecords();
         // --------------------------------------------------------------------
+        if (verbose) cerr << "\nTESTING 'releaseRecords'."
+                          << "\n=========================" << endl;
 
         bslma::TestAllocator ta;
 
@@ -1781,12 +1846,10 @@ int main(int argc, char *argv[])
             fflush(stdout);
         }
 
-        if (verbose)
-            cerr << "Testing 'releaseRecords'.\n"
-                 << "=========================\n" << endl;
         {
             bsl::shared_ptr<Obj>       mX(new(ta) Obj(), &ta);
             bsl::shared_ptr<const Obj> X = mX;
+            int                        logCount = 8000;
 
             mX->startPublicationThread();
 
@@ -1794,7 +1857,6 @@ int main(int argc, char *argv[])
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
-            int logCount = 8000;
             {
                 ball::LoggerManagerConfiguration configuration;
 
@@ -1803,13 +1865,13 @@ int main(int argc, char *argv[])
                 // observer will only see each message only once.
 
                 ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                            ball::Severity::e_OFF,
-                            ball::Severity::e_TRACE,
-                            ball::Severity::e_OFF,
-                            ball::Severity::e_OFF));
+                                ball::Severity::e_OFF,
+                                ball::Severity::e_TRACE,
+                                ball::Severity::e_OFF,
+                                ball::Severity::e_OFF));
 
                 ball::LoggerManagerScopedGuard guard(configuration);
-                ball::LoggerManager& manager =
+                ball::LoggerManager&           manager =
                                               ball::LoggerManager::singleton();
 
                 ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
@@ -1861,10 +1923,10 @@ int main(int argc, char *argv[])
         //:   no log records held by the object.
         //
         // Testing:
-        //   void startPublicationThread()
+        //   void startPublicationThread();
         //   void shutdownPublicationThread();
-        //   void stopPublicationThread()
-        //   bool isPublicationThreadRunning()
+        //   void stopPublicationThread();
+        //   bool isPublicationThreadRunning() const;
         // --------------------------------------------------------------------
         if (verbose) cerr << "\nTESTING PUBLICATION THREAD"
                           << "\n==========================" << endl;
@@ -1920,6 +1982,8 @@ int main(int argc, char *argv[])
         for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
             const char CONFIG = cfg;
 
+            if (veryVerbose) cerr << "\tTesting thread shutdown" << endl;
+
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
             Obj mX; const Obj& X = mX;
@@ -1930,7 +1994,7 @@ int main(int argc, char *argv[])
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                  &ta);
-            ball::Context context;
+            ball::Context                 context;
 
             for (int i = 0; i < 1024; ++i) {
                 mX.publish(record, context);
@@ -1994,13 +2058,13 @@ int main(int argc, char *argv[])
         //:     destroyed.  (C-7)
         //
         // Testing:
-        //   AsyncFileObserver(bslma::Allocator *)
-        //   AsyncFileObserver(ball::Severity::Level, bslma::Allocator *)
-        //   ~AsyncFileObserver()
+        //   AsyncFileObserver(bslma::Allocator *);
+        //   AsyncFileObserver(ball::Severity::Level, bslma::Allocator *);
+        //   ~AsyncFileObserver();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING CREATORS\n"
-                             "================\n" << endl;
+        if (verbose) cout << "\nTESTING CREATORS."
+                             "\n=================" << endl;
 
         for (char cfg = 'a'; cfg <= 'f'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the creator variant
@@ -2016,52 +2080,52 @@ int main(int argc, char *argv[])
 
             switch (CONFIG) {
               case 'a': {
-                  if (verbose) {
-                      cout << "\t\tTesting default constructor." << endl;
-                  }
-                  objPtr = new (fa) Obj();
-                  objAllocatorPtr = &da;
+                if (veryVerbose) {
+                    cout << "\t\tTesting default constructor." << endl;
+                }
+                objPtr = new (fa) Obj();
+                objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  if (verbose) {
-                      cout << "\t\tTesting constructor with null allocator."
-                           << endl;
-                  }
-                  objPtr = new (fa) Obj((bslma::Allocator *) 0);
-                  objAllocatorPtr = &da;
+                if (veryVerbose) {
+                    cout << "\t\tTesting constructor with null allocator."
+                         << endl;
+                }
+                objPtr = new (fa) Obj((bslma::Allocator *) 0);
+                objAllocatorPtr = &da;
               } break;
               case 'c': {
-                  if (verbose) {
-                      cout << "\t\tTesting constructor with no allocator."
-                           << endl;
-                  }
-                  objPtr = new (fa) Obj(ball::Severity::e_WARN);
-                  objAllocatorPtr = &da;
+                if (veryVerbose) {
+                    cout << "\t\tTesting constructor with no allocator."
+                         << endl;
+                }
+                objPtr = new (fa) Obj(ball::Severity::e_WARN);
+                objAllocatorPtr = &da;
               } break;
               case 'd': {
-                  if (verbose) {
-                      cout << "\t\tTesting constructor with null allocator."
-                           << endl;
-                  }
-                  objPtr = new (fa) Obj(ball::Severity::e_WARN,
-                                        (bslma::Allocator *) 0);
-                  objAllocatorPtr = &da;
+                if (veryVerbose) {
+                    cout << "\t\tTesting constructor with null allocator."
+                         << endl;
+                }
+                objPtr = new (fa) Obj(ball::Severity::e_WARN,
+                                      (bslma::Allocator *) 0);
+                objAllocatorPtr = &da;
               } break;
               case 'e': {
-                  if (verbose) {
-                      cout << "\t\tTesting constructor with an allocator."
-                           << endl;
-                  }
-                  objPtr = new (fa) Obj(&sa);
-                  objAllocatorPtr = &sa;
+                if (veryVerbose) {
+                    cout << "\t\tTesting constructor with an allocator."
+                         << endl;
+                }
+                objPtr = new (fa) Obj(&sa);
+                objAllocatorPtr = &sa;
               } break;
               case 'f': {
-                  if (verbose) {
-                      cout << "\t\tTesting constructor with an allocator."
-                           << endl;
-                  }
-                  objPtr = new (fa) Obj(ball::Severity::e_WARN, &sa);
-                  objAllocatorPtr = &sa;
+                if (veryVerbose) {
+                    cout << "\t\tTesting constructor with an allocator."
+                         << endl;
+                }
+                objPtr = new (fa) Obj(ball::Severity::e_WARN, &sa);
+                objAllocatorPtr = &sa;
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
@@ -2097,44 +2161,47 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // Publishing Test
+        // BREATHING TEST
         //
         // Concerns:
-        //   1. The publication thread starts and stops properly
-        //   2. Records are published asynchronously
-        //   3. The 'publish' method logs in the expected format using
-        //      enable/disableStdoutLogging
-        //   4. The 'publish' method properly ignores the severity below the
-        //      one specified at construction on 'stdout'
-        //   5. The 'publish' publishes all messages to a file if file logging
-        //      is enabled
-        //   6. The name of the log file should be in accordance with what is
-        //      defined by the given pattern if file logging is enabled by a
-        //      pattern
-        //   7. The 'setLogFormat' method can change to the desired output
-        //      format for both 'stdout' and the log file
+        //:  1 The publication thread starts and stops properly
+        //:
+        //:  2 Records are published asynchronously
+        //:
+        //:  3 The 'publish' method logs in the expected format using
+        //:    enable/disableStdoutLogging
+        //:
+        //:  4 The 'publish' method properly ignores the severity below the one
+        //:    specified at construction on 'stdout'
+        //:
+        //:  5 The 'publish' publishes all messages to a file if file logging
+        //:    is enabled
+        //:
+        //:  6 The name of the log file should be in accordance with what is
+        //:    defined by the given pattern if file logging is enabled by a
+        //:    pattern
+        //:
+        //:  7 The 'setLogFormat' method can change to the desired output
+        //:    format for both 'stdout' and the log file
         //
         // Plan:
-        //   First, we setup up an observer and call 'startPublicationThread'
-        //   and 'stopPublicationThread' a couple of times to verify the
-        //   publication thread starts and stops as expected.
-        //
-        //   Then, we directly call 'publish' method to verify the publication
-        //   is indeed asynchronous.  This is done by checking records being
-        //   written even after the 'publish' methods are done invoked.
-        //
-        //   Last, we will set up the observer and check if logged messages are
-        //   in the expected format and contain the expected data by comparing
-        //   the output of this observer with 'ball::DefaultObserver', that we
-        //   slightly modify.  Then, we will configure the observer to ignore
-        //   different severity and test if only the expected messages are
-        //   published.  We will use different manipulators to affect output
-        //   format and verify that it has changed where expected.
-        //
-        // Tactics:
-        //   - Helper Function -1 (see paragraph below)
-        //   - Ad-Hoc Data Selection Method
-        //   - Brute Force Implementation Technique
+        //:  1 First, we setup up an observer and call 'startPublicationThread'
+        //:    and 'stopPublicationThread' a couple of times to verify the
+        //:    publication thread starts and stops as expected.
+        //:
+        //:  2 Then, we directly call 'publish' method to verify the
+        //:    publication is indeed asynchronous.  This is done by checking
+        //:    records being written even after the 'publish' methods are done
+        //:    invoked.
+        //:
+        //:  3 Last, we will set up the observer and check if logged messages
+        //:    are in the expected format and contain the expected data by
+        //:    comparing the output of this observer with
+        //:    'ball::StreamObserver', that we slightly modify.  Then, we will
+        //:    configure the observer to ignore different severity and test if
+        //:    only the expected messages are published.  We will use different
+        //:    manipulators to affect output format and verify that it has
+        //:    changed where expected.
         //
         // Helper Function:
         //   The helper function is run as a child task with stdout redirected
@@ -2145,25 +2212,22 @@ int main(int argc, char *argv[])
         //   compare it with the expected output.
         //
         // Testing:
-        //   ball::AsyncFileObserver(ball::Severity::Level, bslma::Allocator)
-        //   ~ball::AsyncFileObserver()
-        //   void startPublicationThread()
-        //   void shutdownPublicationThread();
-        //   void stopPublicationThread()
-        //   bool isPublicationThreadRunning()
-        //   publish(const ball::Record& record, const ball::Context& context)
-        //   void disableFileLogging()
-        //   void disableStdoutLoggingPrefix()
-        //   int enableFileLogging(const char *logFilenamePattern)
-        //   void enableStdoutLoggingPrefix()
-        //   void publish(const ball::Record&, const ball::Context&)
-        //   void setStdoutThreshold(ball::Severity::Level stdoutThreshold)
-        //   bool isFileLoggingEnabled() const
-        //   bool isStdoutLoggingPrefixEnabled() const
-        //   ball::Severity::Level stdoutThreshold() const
-        //   bool isPublishInLocalTimeEnabled() const
-        //   void setLogFormat(const char*, const char*)
-        //   void getLogFormat(const char**, const char**) const
+        //   void disableFileLogging();
+        //   void disableStdoutLoggingPrefix();
+        //   int enableFileLogging(const char *logFilenamePattern);
+        //   void enablePublishInLocalTime();
+        //   void enableStdoutLoggingPrefix();
+        //   void publish(const Record& record, const Context& context);
+        //   void publish(const shared_ptr<Record>&, const Context&);
+        //   void setLogFormat(const char* logF, const char* stdoutF);
+        //   void setStdoutThreshold(ball::Severity::Level stdoutThreshold);
+        //   void getLogFormat(const char** logF, const char** stdoutF) const;
+        //   bool isFileLoggingEnabled() const;
+        //   bool isStdoutLoggingPrefixEnabled() const;
+        //   bool isPublishInLocalTimeEnabled() const;
+        //   bool isUserFieldsLoggingEnabled() const;
+        //   ball::Severity::Level stdoutThreshold() const;
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST.\n"
@@ -2180,14 +2244,15 @@ int main(int argc, char *argv[])
             ASSERT(true == FsUtil::exists(tempDirectory));
             ASSERT(true == FsUtil::isDirectory(tempDirectory));
         }
-        // The temporary directory guard should remove the directory in dtor.
+        // The temporary directory guard should remove the directory in
+        // destructor.
         ASSERT(false == FsUtil::exists(tempDirectory));
         ASSERT(false == FsUtil::isDirectory(tempDirectory));
 
         bslma::TestAllocator ta;
 
-        int loopCount = 0;
-        int linesNum  = 0;
+        int         loopCount = 0;
+        int         linesNum  = 0;
         bsl::string line(&ta);
 
         // Create a temporary directory for log files.
@@ -2280,9 +2345,9 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<Obj>       mX(new(ta) Obj(), &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
-            bsl::shared_ptr<ball::DefaultObserver> o1(
-                                           new(ta) ball::DefaultObserver(&dos),
-                                           &ta);
+            bsl::shared_ptr<ball::StreamObserver> o1(
+                                            new(ta) ball::StreamObserver(&dos),
+                                            &ta);
 
             ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
 
@@ -2336,6 +2401,8 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(stdoutFileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
+                cerr << "[" << dos.str() << "]" << endl;
+                cerr << "[" << coutS << "]" << endl;
                 ASSERTV(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = FsUtil::getFileSize(stdoutFileName);
@@ -2413,9 +2480,9 @@ int main(int argc, char *argv[])
                                      &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
-            bsl::shared_ptr<ball::DefaultObserver> o1(
-                                           new(ta) ball::DefaultObserver(&dos),
-                                           &ta);
+            bsl::shared_ptr<ball::StreamObserver> o1(
+                                            new(ta) ball::StreamObserver(&dos),
+                                            &ta);
 
 
             ASSERT(ball::Severity::e_FATAL == X->stdoutThreshold());
@@ -2493,9 +2560,9 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<Obj>       mX(new(ta) Obj(), &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
-            bsl::shared_ptr<ball::DefaultObserver> o1(
-                                           new(ta) ball::DefaultObserver(&dos),
-                                           &ta);
+            bsl::shared_ptr<ball::StreamObserver> o1(
+                                            new(ta) ball::StreamObserver(&dos),
+                                            &ta);
 
 
             mX->startPublicationThread();
@@ -2608,9 +2675,9 @@ int main(int argc, char *argv[])
                           &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
-            bsl::shared_ptr<ball::DefaultObserver> o1(
-                                           new(ta) ball::DefaultObserver(&dos),
-                                           &ta);
+            bsl::shared_ptr<ball::StreamObserver> o1(
+                                            new(ta) ball::StreamObserver(&dos),
+                                            &ta);
 
 
             mX->startPublicationThread();
@@ -3135,14 +3202,14 @@ int main(int argc, char *argv[])
                 bsl::string expected(baseName);  expected += FILENAME;
                 bsl::string actual;
 
-                Obj mX(ball::Severity::e_WARN, &ta);
+                Obj        mX(ball::Severity::e_WARN, &ta);
                 const Obj& X = mX;
 
                 ASSERTV(LINE, 0    == mX.enableFileLogging(pattern.c_str()));
                 ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
 
                 if (veryVeryVerbose) {
-                    P_(PATTERN);  P_(expected);  P(actual);
+                    P_(PATTERN); P_(expected); P(actual);
                 }
 
                 ASSERTV(LINE, expected == actual);
@@ -3186,8 +3253,8 @@ int main(int argc, char *argv[])
                 ASSERT(true == X->isFileLoggingEnabled());
                 ASSERT(1    == mX->enableFileLogging(baseName.c_str()));
 
-                bsl::stringstream os;
-                bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
+                bsl::stringstream  os;
+                bsl::streambuf    *coutSbuf = bsl::cout.rdbuf();
                 bsl::cout.rdbuf(os.rdbuf());
 
                 // For log file, use bdlt::Datetime format For stdout, use ISO
@@ -3230,8 +3297,8 @@ int main(int argc, char *argv[])
                     fs.close();
                 }
 
-                bsl::string datetime1, datetime2;
-                bsl::string log1, log2;
+                bsl::string            datetime1, datetime2;
+                bsl::string            log1, log2;
                 bsl::string::size_type pos;
 
                 // Divide line into datetime and the rest
@@ -3258,8 +3325,10 @@ int main(int argc, char *argv[])
                 // Now we try to convert datetime2 from ISO to bdlt::Datetime
 
                 bsl::istringstream iss(datetime2);
-                int year, month, day, hour, minute, second;
+
+                int  year, month, day, hour, minute, second;
                 char c;
+
                 iss >> year >> c >> month >> c >> day >> c
                     >> hour >> c >> minute >> c >> second;
 
@@ -3299,8 +3368,8 @@ int main(int argc, char *argv[])
 
                 fileOffset = FsUtil::getFileSize(stdoutFileName);
 
-                bsl::stringstream os;
-                bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
+                bsl::stringstream  os;
+                bsl::streambuf    *coutSbuf = bsl::cout.rdbuf();
                 bsl::cout.rdbuf(os.rdbuf());
 
                 mX->setLogFormat("%i %p %t %s %f %l %c %m %u",
@@ -3338,8 +3407,8 @@ int main(int argc, char *argv[])
                     fs.close();
                 }
 
-                bsl::string datetime1, datetime2;
-                bsl::string log1, log2;
+                bsl::string            datetime1, datetime2;
+                bsl::string            log1, log2;
                 bsl::string::size_type pos;
 
                 // Get datetime and the rest from stdout
@@ -3361,13 +3430,15 @@ int main(int argc, char *argv[])
                 // Now we try to convert datetime2 from ISO to bdlt::Datetime
 
                 bsl::istringstream iss(datetime2);
-                int year, month, day, hour, minute, second;
+
+                int  year, month, day, hour, minute, second;
                 char c;
+
                 iss >> year >> c >> month >> c >> day >> c >> hour
                     >> c >> minute >> c >> second;
 
                 bdlt::Datetime datetime3(year, month, day, hour,
-                                        minute, second);
+                                         minute, second);
 
                 bsl::ostringstream oss;
                 oss << datetime3;
@@ -3391,7 +3462,6 @@ int main(int argc, char *argv[])
                 ASSERT(0 == manager.deregisterObserver("asyncObserver"));
                 removeFilesByPrefix(baseName.c_str());
             }
-
         }
 #endif
 
@@ -3481,8 +3551,6 @@ int main(int argc, char *argv[])
             // customized formats, the format happens to be the same as the
             // default short format.
         }
-
-
         fclose(stdout);
       } break;
       default: {

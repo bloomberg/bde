@@ -10,18 +10,13 @@
 #include <ball_fileobserver.h>
 
 #include <ball_context.h>
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_multiplexobserver.h>           // for testing only
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-
-#include <bslim_testutil.h>
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
+#include <ball_streamobserver.h>              // for testing only
 
 #include <bdlb_tokenizer.h>
 #include <bdlt_currenttime.h>
@@ -32,6 +27,11 @@
 #include <bdlt_localtimeoffset.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
+
+#include <bslim_testutil.h>
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bslmt_threadutil.h>
 
@@ -1748,7 +1748,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   We will set up the observer and check if logged messages are in
         //   the expected format and contain the expected data by comparing the
-        //   output of this observer with 'ball::DefaultObserver', that we
+        //   output of this observer with 'ball::StreamObserver', that we
         //   slightly modify.  Then, we will configure the observer to ignore
         //   different severity and test if only the expected messages are
         //   published.  We will use different manipulators to affect output
@@ -1830,7 +1830,7 @@ int main(int argc, char *argv[])
             ASSERT(ball::Severity::e_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
 
-            ball::DefaultObserver defaultObserver(&dos);
+            ball::StreamObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
             localMultiObserver.registerObserver(&mX);
             localMultiObserver.registerObserver(&defaultObserver);
@@ -1932,7 +1932,7 @@ int main(int argc, char *argv[])
 
             FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
-            ball::DefaultObserver defaultObserver(&dos);
+            ball::StreamObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
             localMultiObserver.registerObserver(&mX);
             localMultiObserver.registerObserver(&defaultObserver);
@@ -2003,7 +2003,7 @@ int main(int argc, char *argv[])
 
             FileUtil::Offset fileOffset = FileUtil::getFileSize(fileName);
 
-            ball::DefaultObserver defaultObserver(&dos);
+            ball::StreamObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
             localMultiObserver.registerObserver(&mX);
             localMultiObserver.registerObserver(&defaultObserver);
@@ -2090,7 +2090,7 @@ int main(int argc, char *argv[])
 
             bsl::ostringstream os, testOs, dos;
 
-            ball::DefaultObserver defaultObserver(&dos);
+            ball::StreamObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
             localMultiObserver.registerObserver(&mX);
             localMultiObserver.registerObserver(&defaultObserver);

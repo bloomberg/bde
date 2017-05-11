@@ -10,7 +10,6 @@
 #include <ball_fileobserver2.h>
 
 #include <ball_context.h>
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
@@ -18,6 +17,7 @@
 #include <ball_recordattributes.h>
 #include <ball_recordstringformatter.h>
 #include <ball_severity.h>
+#include <ball_streamobserver.h>              // for testing only
 #include <ball_userfieldvalue.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -123,6 +123,7 @@ using bsl::flush;
 // [ 8] CONCERN: 'rotateOnSize' triggers correctly for existing files
 // [ 7] CONCERN: Rotation on size is based on file size
 // [12] CONCERN: Published Records Show Current Local-Time Offset
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -753,10 +754,10 @@ int main(int argc, char *argv[])
         bsl::string fileName = tempFileName(veryVerbose);
 ///Example 1: Publication Through Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The example demonstrates using a 'ball::FileObserver2' within a 'ball'
+// The example demonstrates using a 'ball::FileObserver2' within the 'ball'
 // logging system.
 //
-// First, we initialize 'ball' logging subsystem with the default
+// First, we initialize the 'ball' logging subsystem with the default
 // configuration:
 //..
     ball::LoggerManagerConfiguration configuration;
@@ -795,9 +796,9 @@ int main(int argc, char *argv[])
 //..
 // Finally, we register the file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
-// 'publish' method:
+// the 'publish' method:
 //..
-    int rc = manager.registerObserver(observerPtr, "file_observer");
+    int rc = manager.registerObserver(observerPtr, "fileObserver");
     ASSERT(0 == rc);
 //..
       removeFilesByPrefix(fileName.c_str());
@@ -2938,7 +2939,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   We will set up the observer and check if logged messages are in
         //   the expected format and contain the expected data by comparing the
-        //   output of this observer with 'ball::DefaultObserver', that we
+        //   output of this observer with 'ball::StreamObserver', that we
         //   slightly modify.  Then, We will use different manipulators and
         //   functors to affect output format and verify that it has changed
         //   where expected.
@@ -3010,7 +3011,7 @@ int main(int argc, char *argv[])
                 ASSERT(currentLocalTime - currentUTCTime ==
                                                           X.localTimeOffset());
 
-                ball::DefaultObserver defaultObserver(&dos);
+                ball::StreamObserver defaultObserver(&dos);
                 ball::MultiplexObserver localMultiObserver;
                 localMultiObserver.registerObserver(&mX);
                 localMultiObserver.registerObserver(&defaultObserver);
@@ -3059,7 +3060,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostringstream testOs, dos;
 
-                ball::DefaultObserver defaultObserver(&dos);
+                ball::StreamObserver defaultObserver(&dos);
                 ball::MultiplexObserver localMultiObserver;
                 localMultiObserver.registerObserver(&mX);
                 localMultiObserver.registerObserver(&defaultObserver);

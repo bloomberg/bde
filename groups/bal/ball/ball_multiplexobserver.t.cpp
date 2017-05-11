@@ -11,9 +11,9 @@
 #include <ball_multiplexobserver.h>
 
 #include <ball_context.h>
-#include <ball_defaultobserver.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
+#include <ball_streamobserver.h>
 #include <ball_testobserver.h>
 #include <ball_transmission.h>
 
@@ -264,13 +264,13 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         {
-            typedef ball::DefaultObserver my_LogfileObserver;
-            typedef ball::DefaultObserver my_EncryptingObserver;
+            typedef ball::StreamObserver my_LogfileObserver;
+            typedef ball::StreamObserver my_EncryptingObserver;
 
             ball::MultiplexObserver multiplexor;
             ASSERT(0 == multiplexor.numRegisteredObservers());
 
-            ball::DefaultObserver  defaultObserver(&bsl::cout);
+            ball::StreamObserver   defaultObserver(&bsl::cout);
             my_LogfileObserver     logfileObserver(&bsl::cout);
             my_EncryptingObserver  encryptingObserver(&bsl::cout);
 
