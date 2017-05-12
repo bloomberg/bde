@@ -1382,9 +1382,11 @@ int main(int argc, char *argv[])
                                      Util::localTimeOffset(UTC).totalSeconds();
                     ASSERT(expected.descriptor().utcOffsetInSeconds()
                         == reportedOffset);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     int loadOffset;
                     Util::loadLocalTimeOffset(&loadOffset, UTC);
                     ASSERT(reportedOffset == loadOffset);
+#endif
                 }
             }
         }
