@@ -71,12 +71,6 @@ bsls::AtomicInt baltzo::LocalTimeOffsetUtil::s_updateCount(0);
 
                         // *** local time offset methods ***
 
-void baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset(
-                                            int                   *result,
-                                            const bdlt::Datetime&  utcDatetime)
-{
-    *result = static_cast<int>(localTimeOffset(utcDatetime).seconds());
-}
 
 bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
                                              const bdlt::Datetime& utcDatetime)

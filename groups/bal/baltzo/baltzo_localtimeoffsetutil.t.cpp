@@ -1382,9 +1382,6 @@ int main(int argc, char *argv[])
                                      Util::localTimeOffset(UTC).totalSeconds();
                     ASSERT(expected.descriptor().utcOffsetInSeconds()
                         == reportedOffset);
-                    int loadOffset;
-                    Util::loadLocalTimeOffset(&loadOffset, UTC);
-                    ASSERT(reportedOffset == loadOffset);
                 }
             }
         }
