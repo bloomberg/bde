@@ -1,3 +1,8 @@
+bsl-internal (3.1.3.0) unstable; urgency=low
+
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Thu, 11 May 2017 15:54:34 -0400
+
 bsl-internal (3.1.2.0) unstable; urgency=low
 
   * 2215647e1 Merge pull request #1126 from mgiroux/review/bump-bdl-version-to-3.1.2
