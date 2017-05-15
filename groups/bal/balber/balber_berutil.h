@@ -929,7 +929,7 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
             // wire.  The leading zero is followed by all of the bytes of the
             // unsigned value.
 
-            return sizeof(TYPE) + 1;                                  // RETURN
+            return static_cast<int>(sizeof(TYPE) + 1);                // RETURN
         }
 
         // This mask zeroes out the most significant byte and the first bit of
