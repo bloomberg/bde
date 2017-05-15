@@ -160,20 +160,17 @@ void Formatter::addValidCommentImpl(
     const char *openMarker  = NULL;
     const char *closeMarker = NULL;
 
-    int openMarkerLen  = 0;
-    int closeMarkerLen = 0;
+    int markerLength = 0;
 
     if (omitEnclosingWhitespace) {
-        openMarker     = "<!--";
-        closeMarker    = "-->";
-        openMarkerLen  = 4;
-        closeMarkerLen = 3;
+        openMarker   = "<!--";
+        closeMarker  = "-->";
+        markerLength = 7;
     }
     else {
-        openMarker     = "<!-- ";
-        closeMarker    = " -->";
-        openMarkerLen  = 5;
-        closeMarkerLen = 4;
+        openMarker   = "<!-- ";
+        closeMarker  = " -->";
+        markerLength = 9;
     }
 
     if (e_AT_START == d_state) {
@@ -200,9 +197,7 @@ void Formatter::addValidCommentImpl(
         d_column = 0;
     }
     else {
-        d_column += static_cast<int>(openMarkerLen
-                                     + comment.length()
-                                     + closeMarkerLen);
+        d_column += static_cast<int>(comment.length() + markerLength);
     }
 }
 
