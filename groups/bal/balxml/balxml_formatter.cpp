@@ -157,19 +157,24 @@ void Formatter::addValidCommentImpl(
                               bool                     forceNewline,
                               bool                     omitEnclosingWhitespace)
 {
+    const char *openMarker  = NULL;
+    const char *closeMarker = NULL;
 
-    const char *openTag       = "<!--";
-    const char *closeTag      = "-->";
-    const char *openSpaceTag  = "<!-- ";
-    const char *closeSpaceTag = " -->";
+    int openMarkerLen  = 0;
+    int closeMarkerLen = 0;
 
-    const char *openMarker  = omitEnclosingWhitespace
-                              ? openTag
-                              : openSpaceTag;
-
-    const char *closeMarker = omitEnclosingWhitespace
-                              ? closeTag
-                              : closeSpaceTag;
+    if (omitEnclosingWhitespace) {
+        openMarker     = "<!--";
+        closeMarker    = "-->";
+        openMarkerLen  = 4;
+        closeMarkerLen = 3;
+    }
+    else {
+        openMarker     = "<!-- ";
+        closeMarker    = " -->";
+        openMarkerLen  = 5;
+        closeMarkerLen = 4;
+    }
 
     if (e_AT_START == d_state) {
         d_state = e_AFTER_START_NO_TAG;
@@ -195,9 +200,9 @@ void Formatter::addValidCommentImpl(
         d_column = 0;
     }
     else {
-        d_column += static_cast<int>(bsl::strlen(openMarker)
+        d_column += static_cast<int>(openMarkerLen
                                      + comment.length()
-                                     + bsl::strlen(closeMarker));
+                                     + closeMarkerLen);
     }
 }
 
@@ -391,14 +396,15 @@ int Formatter::addValidComment(
                               bool                     forceNewline,
                               bool                     omitEnclosingWhitespace)
 {
-    const char *doubleHyphen  = "--";
-
+    const char *doubleHyphen      = "--";
+    const char *doubleHyphenBegin = doubleHyphen;
+    const char *doubleHyphenEnd   = doubleHyphenBegin + 2;
     // The string "--" (double-hyphen) must not occur within comments.  Also
     // the grammar does not allow a comment ending in "--->".
     if (comment.end() != bsl::search(comment.begin(),
                                      comment.end(),
-                                     doubleHyphen,
-                                     &doubleHyphen[bsl::strlen(doubleHyphen)])
+                                     doubleHyphenBegin,
+                                     doubleHyphenEnd)
         || (omitEnclosingWhitespace && !comment.empty()
             && '-' == *comment.rbegin()))
     {
