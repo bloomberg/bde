@@ -1019,10 +1019,6 @@ int main(int argc, char *argv[])
             }
             checkBlobBuffers(X);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-            break;
-#endif
-
             mX.appendDataBuffer(X.buffer(0));
             ASSERT(3 * BUFFER_SIZE - 1 == X.length());
             ASSERT(3 * BUFFER_SIZE - 1 == X.totalSize());
@@ -1397,41 +1393,33 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BUFFERS               == X.numBuffers());
             ASSERT(NUM_BUFFERS * BUFFER_SIZE == X.length());
 
+            btlb::BlobBuffer emptyBuffer;
+            mX.appendBuffer(emptyBuffer);
+
+            ASSERT(NUM_BUFFERS + 1           == X.numBuffers());
+            ASSERT(NUM_BUFFERS * BUFFER_SIZE == X.length());
+
             Obj mY(X, &fa, &ta); const Obj& Y = mY;
 
             ASSERT(X                         == Y );
-            ASSERT(NUM_BUFFERS               == Y.numBuffers());
+            ASSERT(NUM_BUFFERS + 1           == Y.numBuffers());
             ASSERT(NUM_BUFFERS * BUFFER_SIZE == Y.length());
 
             Obj mZ(&fa, &ta); const Obj& Z = mZ;
 
-            // X & Y should have the test value V0, and Z should have the
-            // default initialized value.
-            if (NUM_BUFFERS == 0) {
-                ASSERT(Y == Z);
-                ASSERT(X == Z);
-            }
-            else {
-                ASSERT(Y != Z);
-                ASSERT(X != Z);
-            }
+            ASSERT(Y != Z);
+            ASSERT(X != Z);
+
             ASSERT(0 == Z.numBuffers());
             ASSERT(0 == Z.length());
 
-            // X & Z should now have the test value V0, and Y should have the
-            // default initialized value.
             mZ.moveBuffers(&mY);
-            if (NUM_BUFFERS == 0) {
-                ASSERT(Y == Z);
-                ASSERT(X == Z);
-            }
-            else {
-                ASSERT(Y != Z);
-                ASSERT(X == Z);
-            }
+            ASSERT(Y != Z);
+            ASSERT(X == Z);
+
             ASSERT(0 == Y.numBuffers());
             ASSERT(0 == Y.length());
-            ASSERT(NUM_BUFFERS               == Z.numBuffers());
+            ASSERT(NUM_BUFFERS + 1           == Z.numBuffers());
             ASSERT(NUM_BUFFERS * BUFFER_SIZE == Z.length());
         }
         }
@@ -1565,10 +1553,6 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-#ifdef  BSLS_ASSERT_SAFE_IS_ACTIVE
-        break;
-#endif
-
         if (verbose) cout << "\nTesting 'appendDataBuffer'" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
@@ -1628,6 +1612,15 @@ int main(int argc, char *argv[])
                     ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
                     ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
                 }
+
+                // Append 0-sized buffer
+                btlb::BlobBuffer empty;
+                mX.appendDataBuffer(empty);
+
+                ASSERT(DATA_LENGTH + APPEND_BUFFER_SIZE == X.length());
+                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS + 2 == X.numDataBuffers());
+                ASSERT(0 == X.lastDataBufferLength());
 
                 checkNoAliasedBlobBuffers(X);
             }
@@ -1729,6 +1722,32 @@ int main(int argc, char *argv[])
                         ASSERT(BUFFER_SIZE == X.lastDataBufferLength());
                     } else {
                         ASSERT(0           == X.lastDataBufferLength());
+                    }
+                    ASSERT(DATA_LENGTH - EXP_LAST_DB_LENGTH == X.length());
+                    ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
+                } else if (REMOVE_POSITION < EXP_NUM_DATA_BUFFERS) {
+                    // Removing a data buffer.
+                    ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                    ASSERT(DATA_LENGTH - BUFFER_SIZE == X.length());
+                    ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
+                } else {
+                    // Removing a capacity buffer.
+                    ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                    ASSERT(DATA_LENGTH == X.length());
+                    ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                }
+
+                btlb::BlobBuffer emptyBuffer;
+                mX.insertBuffer(REMOVE_POSITION, emptyBuffer);
+
+                mX.removeBuffer(REMOVE_POSITION);
+                if (REMOVE_POSITION == EXP_NUM_DATA_BUFFERS - 1) {
+                    // Removing the last data buffer (variable number of data
+                    // bytes, equal to EXP_LAST_DB_LENGTH).
+                    if (0 < REMOVE_POSITION) {
+                        ASSERT(BUFFER_SIZE == X.lastDataBufferLength());
+                    } else {
+                        ASSERT(0 == X.lastDataBufferLength());
                     }
                     ASSERT(DATA_LENGTH - EXP_LAST_DB_LENGTH == X.length());
                     ASSERT(EXP_NUM_DATA_BUFFERS - 1 == X.numDataBuffers());
@@ -2047,6 +2066,14 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_NUM_BUFFERS + 1  == X.numBuffers());
                 ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
 
+                btlb::BlobBuffer emptyBuffer;
+                mX.appendBuffer(emptyBuffer); // TEST HERE
+
+                ASSERT(DATA_LENGTH == X.length());
+                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+
                 checkNoAliasedBlobBuffers(X);
             }
             ASSERT(0 <  ta.numAllocations());
@@ -2154,14 +2181,26 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_NUM_DATA_BUFFERS + INSERT_FLAG ==
                                                            X.numDataBuffers());
 
+                const int NEW_DATA_LENGTH = X.length();
+
+                // Insert empty buffer
+
+                btlb::BlobBuffer emptyBuffer;
+                mX.insertBuffer(INSERT_POSITION, emptyBuffer);
+                ASSERT(NEW_DATA_LENGTH    == X.length());
+                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS + 2 * INSERT_FLAG ==
+                       X.numDataBuffers());
+
                 // Repeat invariants after testing setLength in the presence of
                 // zero-sized buffers.
 
                 mX.setLength(0);
                 mX.setLength(DATA_LENGTH + INSERT_FLAG * INSERT_BUFFER_SIZE);
                 ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
-                ASSERT(EXP_NUM_BUFFERS + 1 == X.numBuffers());
-                ASSERT(EXP_NUM_DATA_BUFFERS + INSERT_FLAG ==
+                ASSERT(EXP_NUM_BUFFERS + 2 == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS + 2 * INSERT_FLAG ==
                                                            X.numDataBuffers());
 
                 checkNoAliasedBlobBuffers(X);
@@ -2735,7 +2774,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&ta);
         NullDeleter deleter;
 
-        if (verbose) cout << "\nTesting bcema_BlobBuffer." << endl;
+        if (verbose) cout << "\nTesting btlb::BlobBuffer." << endl;
         {
             typedef btlb::BlobBuffer Obj;
             bsl::shared_ptr<char> shptrA((char *) 0, &deleter, &ta);
@@ -2982,7 +3021,7 @@ int main(int argc, char *argv[])
             ASSERT(true  == (X1 == X4));    ASSERT(false == (X1 != X4));
         }
 
-        if (verbose) cout << "\nTesting bcema_Blob." << endl;
+        if (verbose) cout << "\nTesting btlb::Blob." << endl;
         {
             typedef btlb::Blob Obj;
             TestBlobBufferFactory fa(&ta);
