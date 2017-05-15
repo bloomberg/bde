@@ -1427,8 +1427,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
     VariantImp(TYPE&&                   value,
                typename bsl::enable_if<
                    !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
                bslma::Allocator>::type *basicAllocator);
 #else
     VariantImp(bslmf::MovableRef<TYPE>  value,
@@ -2476,8 +2477,9 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     Variant(TYPE&&                   value,
             typename bsl::enable_if<
                 !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
             bslma::Allocator>::type *basicAllocator);
 #else
     Variant(bslmf::MovableRef<TYPE>  value,
@@ -2657,8 +2659,9 @@ class Variant2 : public VariantImp<typename bslmf::TypeList2<
     Variant2(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant2(bslmf::MovableRef<TYPE>  value,
@@ -2839,8 +2842,9 @@ class Variant3 : public VariantImp<typename bslmf::TypeList3<
     Variant3(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant3(bslmf::MovableRef<TYPE>  value,
@@ -3021,8 +3025,9 @@ class Variant4 : public VariantImp<typename bslmf::TypeList4<
     Variant4(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant4(bslmf::MovableRef<TYPE>  value,
@@ -3203,8 +3208,9 @@ class Variant5 : public VariantImp<typename bslmf::TypeList5<
     Variant5(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant5(bslmf::MovableRef<TYPE>  value,
@@ -3385,8 +3391,9 @@ class Variant6 : public VariantImp<typename bslmf::TypeList6<
     Variant6(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant6(bslmf::MovableRef<TYPE>  value,
@@ -3568,8 +3575,9 @@ class Variant7 : public VariantImp<typename bslmf::TypeList7<
     Variant7(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant7(bslmf::MovableRef<TYPE>  value,
@@ -3751,8 +3759,9 @@ class Variant8 : public VariantImp<typename bslmf::TypeList8<
     Variant8(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant8(bslmf::MovableRef<TYPE>  value,
@@ -3934,8 +3943,9 @@ class Variant9 : public VariantImp<typename bslmf::TypeList9<
     Variant9(TYPE&&                   value,
              typename bsl::enable_if<
                  !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
              bslma::Allocator>::type *basicAllocator);
 #else
     Variant9(bslmf::MovableRef<TYPE>  value,
@@ -4118,8 +4128,9 @@ class Variant10 : public VariantImp<typename bslmf::TypeList10<
     Variant10(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant10(bslmf::MovableRef<TYPE>  value,
@@ -4303,8 +4314,9 @@ class Variant11 : public VariantImp<typename bslmf::TypeList11<
     Variant11(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant11(bslmf::MovableRef<TYPE>  value,
@@ -4488,8 +4500,9 @@ class Variant12 : public VariantImp<typename bslmf::TypeList12<
     Variant12(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant12(bslmf::MovableRef<TYPE>  value,
@@ -4674,8 +4687,9 @@ class Variant13 : public VariantImp<typename bslmf::TypeList13<
     Variant13(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant13(bslmf::MovableRef<TYPE>  value,
@@ -4863,8 +4877,9 @@ class Variant14 : public VariantImp<typename bslmf::TypeList14<
     Variant14(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant14(bslmf::MovableRef<TYPE>  value,
@@ -5052,8 +5067,9 @@ class Variant15 : public VariantImp<typename bslmf::TypeList15<
     Variant15(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant15(bslmf::MovableRef<TYPE>  value,
@@ -5242,8 +5258,9 @@ class Variant16 : public VariantImp<typename bslmf::TypeList16<
     Variant16(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant16(bslmf::MovableRef<TYPE>  value,
@@ -5432,8 +5449,9 @@ class Variant17 : public VariantImp<typename bslmf::TypeList17<
     Variant17(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant17(bslmf::MovableRef<TYPE>  value,
@@ -5622,8 +5640,9 @@ class Variant18 : public VariantImp<typename bslmf::TypeList18<
     Variant18(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant18(bslmf::MovableRef<TYPE>  value,
@@ -5814,8 +5833,9 @@ class Variant19 : public VariantImp<typename bslmf::TypeList19<
     Variant19(TYPE&&                   value,
               typename bsl::enable_if<
                   !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
               bslma::Allocator>::type *basicAllocator);
 #else
     Variant19(bslmf::MovableRef<TYPE>  value,
@@ -7184,19 +7204,23 @@ VariantImp<TYPES>::
 VariantImp(TYPE&&                   value,
            typename bsl::enable_if<
                !bsl::is_same<
-                            SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
            bslma::Allocator>::type *basicAllocator)
 #else
 VariantImp(bslmf::MovableRef<TYPE>  value,
            bslma::Allocator        *basicAllocator)
 #endif
-: Base(Variant_TypeIndex<TYPES,
-                         typename bsl::remove_reference<TYPE>::type>::value,
+: Base(Variant_TypeIndex<
+                     TYPES,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
        basicAllocator)
 {
-    typedef bsls::ObjectBuffer<typename bsl::remove_reference<TYPE>::type>
-                                                                    BufferType;
+    typedef bsls::ObjectBuffer<
+                 typename bsl::remove_const<
+                 typename bsl::remove_reference<TYPE>::type>::type> BufferType;
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     bslma::ConstructionUtil::construct(
@@ -8102,8 +8126,10 @@ Variant<TYPES...>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_same<SelfType,
-                          typename bsl::remove_reference<TYPE>::type>::value,
+            !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
         bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -8273,8 +8299,10 @@ Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant(TYPE&&                   value,
         typename bsl::enable_if<
-            !bsl::is_same<SelfType,
-                          typename bsl::remove_reference<TYPE>::type>::value,
+            !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
         bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -8475,8 +8503,10 @@ Variant2<A1, A2>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant2(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -8624,8 +8654,10 @@ Variant3<A1, A2, A3>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant3(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
         bslma::Allocator>::type  *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -8775,8 +8807,10 @@ Variant4<A1, A2, A3, A4>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant4(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -8926,8 +8960,10 @@ Variant5<A1, A2, A3, A4, A5>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant5(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -9077,8 +9113,10 @@ Variant6<A1, A2, A3, A4, A5, A6>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant6(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -9228,8 +9266,10 @@ Variant7<A1, A2, A3, A4, A5, A6, A7>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant7(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -9386,8 +9426,10 @@ Variant8<A1, A2, A3, A4, A5, A6, A7, A8>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant8(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -9553,8 +9595,10 @@ Variant9<A1, A2, A3, A4, A5, A6, A7, A8, A9>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant9(TYPE&&                   value,
          typename bsl::enable_if<
-             !bsl::is_same<SelfType,
-                           typename bsl::remove_reference<TYPE>::type>::value,
+             !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
          bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -9721,8 +9765,10 @@ Variant10<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant10(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -9890,8 +9936,10 @@ Variant11<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant11(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -10059,8 +10107,10 @@ Variant12<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant12(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -10233,8 +10283,10 @@ Variant13<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant13(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -10415,8 +10467,10 @@ Variant14<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant14(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -10597,8 +10651,10 @@ Variant15<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15>::
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant15(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -10785,8 +10841,10 @@ Variant16<A1,  A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant16(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -10983,8 +11041,10 @@ Variant17<A1,  A2,  A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant17(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -11181,8 +11241,10 @@ Variant18<A1,  A2,  A3,  A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant18(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else
@@ -11384,8 +11446,10 @@ Variant19<A1,  A2,  A3,  A4,  A5, A6, A7, A8, A9, A10, A11, A12, A13, A14,
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 Variant19(TYPE&&                   value,
           typename bsl::enable_if<
-              !bsl::is_same<SelfType,
-                            typename bsl::remove_reference<TYPE>::type>::value,
+              !bsl::is_same<
+                     SelfType,
+                     typename bsl::remove_const<
+                     typename bsl::remove_reference<TYPE>::type>::type>::value,
           bslma::Allocator>::type *basicAllocator)
 : Imp(BSLS_COMPILERFEATURES_FORWARD(TYPE, value), basicAllocator)
 #else

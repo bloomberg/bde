@@ -39,7 +39,9 @@
 
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 #undef SS  // Solaris 5.10/x86 sys/regset.h via stdlib.h
@@ -2117,6 +2119,8 @@ namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT {
 
 namespace TYPES_FOR_TESTING_VARIANTIMP {
 
+    // Without Allocator
+
     struct VariantHolder {
         typedef bdlb::VariantImp<bslmf::TypeList<TestArg1> > HeldVariant;
 
@@ -2135,11 +2139,28 @@ namespace TYPES_FOR_TESTING_VARIANTIMP {
     typedef bdlb::VariantImp<bslmf::TypeList<VariantHolder, TestArg2> >
                                                                    TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::VariantImp<bslmf::TypeList<bsl::string, TestArg2> >
+                                                                  AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANTIMP
 
 // types for testing 'Variant'
 
 namespace TYPES_FOR_TESTING_VARIANT {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant<TestArg1> HeldVariant;
@@ -2158,11 +2179,27 @@ namespace TYPES_FOR_TESTING_VARIANT {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant<bsl::string, TestArg2> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT
 
 // types for testing 'Variant2'
 
 namespace TYPES_FOR_TESTING_VARIANT2 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant2<TestArg1, TestArg2> HeldVariant;
@@ -2181,11 +2218,27 @@ namespace TYPES_FOR_TESTING_VARIANT2 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant2<bsl::string, TestArg2> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT2
 
 // types for testing 'Variant3'
 
 namespace TYPES_FOR_TESTING_VARIANT3 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant3<TestArg1, TestArg2, TestArg3> HeldVariant;
@@ -2204,11 +2257,27 @@ namespace TYPES_FOR_TESTING_VARIANT3 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant3<bsl::string, TestArg2, TestArg3> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT3
 
 // types for testing 'Variant4'
 
 namespace TYPES_FOR_TESTING_VARIANT4 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant4<TestArg1, TestArg2, TestArg3, TestArg4>
@@ -2228,11 +2297,28 @@ namespace TYPES_FOR_TESTING_VARIANT4 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant4<bsl::string, TestArg2, TestArg3, TestArg4>
+                                                                  AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT4
 
 // types for testing 'Variant5'
 
 namespace TYPES_FOR_TESTING_VARIANT5 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
@@ -2252,11 +2338,28 @@ namespace TYPES_FOR_TESTING_VARIANT5 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant5<bsl::string, TestArg2, TestArg3, TestArg4,
+                           TestArg5> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT5
 
 // types for testing 'Variant6'
 
 namespace TYPES_FOR_TESTING_VARIANT6 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
@@ -2276,11 +2379,28 @@ namespace TYPES_FOR_TESTING_VARIANT6 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant6<bsl::string, TestArg2, TestArg3, TestArg4,
+                           TestArg5,    TestArg6> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT6
 
 // types for testing 'Variant7'
 
 namespace TYPES_FOR_TESTING_VARIANT7 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
@@ -2300,11 +2420,28 @@ namespace TYPES_FOR_TESTING_VARIANT7 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant7<bsl::string, TestArg2, TestArg3, TestArg4,
+                           TestArg5,    TestArg6, TestArg7> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT7
 
 // types for testing 'Variant8'
 
 namespace TYPES_FOR_TESTING_VARIANT8 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant8<TestArg1, TestArg2, TestArg3, TestArg4,
@@ -2325,11 +2462,29 @@ namespace TYPES_FOR_TESTING_VARIANT8 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant8<bsl::string, TestArg2, TestArg3, TestArg4,
+                           TestArg5,    TestArg6, TestArg7, TestArg8>
+                                                                  AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT8
 
 // types for testing 'Variant9'
 
 namespace TYPES_FOR_TESTING_VARIANT9 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant9<TestArg1, TestArg2, TestArg3, TestArg4,
@@ -2350,11 +2505,29 @@ namespace TYPES_FOR_TESTING_VARIANT9 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant9<bsl::string, TestArg2, TestArg3, TestArg4,
+                           TestArg5,    TestArg6, TestArg7, TestArg8,
+                           TestArg9> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT9
 
 // types for testing 'Variant10'
 
 namespace TYPES_FOR_TESTING_VARIANT10 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant10<TestArg1, TestArg2,  TestArg3,  TestArg4,
@@ -2375,11 +2548,29 @@ namespace TYPES_FOR_TESTING_VARIANT10 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant10<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT10
 
 // types for testing 'Variant11'
 
 namespace TYPES_FOR_TESTING_VARIANT11 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant11<TestArg1, TestArg2,  TestArg3,  TestArg4,
@@ -2400,11 +2591,29 @@ namespace TYPES_FOR_TESTING_VARIANT11 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant11<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT11
 
 // types for testing 'Variant12'
 
 namespace TYPES_FOR_TESTING_VARIANT12 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant12<TestArg1, TestArg2,  TestArg3,  TestArg4,
@@ -2426,11 +2635,30 @@ namespace TYPES_FOR_TESTING_VARIANT12 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant12<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12>
+                                                                  AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT12
 
 // types for testing 'Variant13'
 
 namespace TYPES_FOR_TESTING_VARIANT13 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2452,11 +2680,30 @@ namespace TYPES_FOR_TESTING_VARIANT13 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant13<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT13
 
 // types for testing 'Variant14'
 
 namespace TYPES_FOR_TESTING_VARIANT14 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2478,11 +2725,30 @@ namespace TYPES_FOR_TESTING_VARIANT14 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant14<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13,   TestArg14> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT14
 
 // types for testing 'Variant15'
 
 namespace TYPES_FOR_TESTING_VARIANT15 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2504,11 +2770,30 @@ namespace TYPES_FOR_TESTING_VARIANT15 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant15<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13,   TestArg14, TestArg15> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT15
 
 // types for testing 'Variant16'
 
 namespace TYPES_FOR_TESTING_VARIANT16 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2531,11 +2816,31 @@ namespace TYPES_FOR_TESTING_VARIANT16 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant16<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13,   TestArg14, TestArg15, TestArg16>
+                                                                  AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT16
 
 // types for testing 'Variant17'
 
 namespace TYPES_FOR_TESTING_VARIANT17 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2558,11 +2863,31 @@ namespace TYPES_FOR_TESTING_VARIANT17 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant17<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13,   TestArg14, TestArg15, TestArg16,
+                            TestArg17> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT17
 
 // types for testing 'Variant18'
 
 namespace TYPES_FOR_TESTING_VARIANT18 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2585,11 +2910,31 @@ namespace TYPES_FOR_TESTING_VARIANT18 {
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
 
+    // With Allocator
+
+    typedef bdlb::Variant18<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13,   TestArg14, TestArg15, TestArg16,
+                            TestArg17,   TestArg18> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
+
 }  // close namespace TYPES_FOR_TESTING_VARIANT18
 
 // types for testing 'Variant19'
 
 namespace TYPES_FOR_TESTING_VARIANT19 {
+
+    // Without Allocator
 
     struct VariantHolder {
         typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
@@ -2611,6 +2956,24 @@ namespace TYPES_FOR_TESTING_VARIANT19 {
     };
 
     typedef bdlb::Variant<VariantHolder, TestArg2> TestVariant;
+
+    // With Allocator
+
+    typedef bdlb::Variant19<bsl::string, TestArg2,  TestArg3,  TestArg4,
+                            TestArg5,    TestArg6,  TestArg7,  TestArg8,
+                            TestArg9,    TestArg10, TestArg11, TestArg12,
+                            TestArg13,   TestArg14, TestArg15, TestArg16,
+                            TestArg17,   TestArg18, TestArg19> AllocVariant;
+
+    struct Comparator {
+        bool operator()(const AllocVariant&, const AllocVariant&) const
+            // Return 'true'.
+        {
+            return true;
+        }
+    };
+
+    typedef bsl::map<AllocVariant, int, Comparator> MapType;
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT19
 
@@ -2763,180 +3126,360 @@ void TestUtil::testCase27()
     {
         using namespace TYPES_FOR_TESTING_VARIANTIMP;  // 'VariantImp'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT;  // 'Variant'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant2'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT2;  // 'Variant2'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant3'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT3;  // 'Variant3'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant4'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT4;  // 'Variant4'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant5'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT5;  // 'Variant5'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant6'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT6;  // 'Variant6'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant7'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT7;  // 'Variant7'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant8'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT8;  // 'Variant8'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant9'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT9;  // 'Variant9'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant10'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT10;  // 'Variant10'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant11'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT11;  // 'Variant11'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant12'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT12;  // 'Variant12'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant13'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT13;  // 'Variant13'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant14'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT14;  // 'Variant14'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant15'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT15;  // 'Variant15'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant16'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT16;  // 'Variant16'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant17'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT17;  // 'Variant17'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant18'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT18;  // 'Variant18'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Test 'Variant19'.
     {
         using namespace TYPES_FOR_TESTING_VARIANT19;  // 'Variant19'
 
-        TestArg1 arg1;
+        // Without Allocator
+        {
+            TestArg1 arg1;
 
-        TestVariant mX(VariantHolder(arg1, 77));
+            TestVariant mX(VariantHolder(arg1, 77));
+        }
+
+        // With Allocator
+        {
+            MapType mM;
+            mM.insert(MapType::value_type(AllocVariant(), 77));
+        }
     }
 
     // Reproduce issue reported in DRQS 97858910.
