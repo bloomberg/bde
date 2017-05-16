@@ -24,6 +24,8 @@ BSLS_IDENT_RCSID(btls5_testserver_cpp, "$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bsls_atomic.h>
+#include <btlmt_connectoptions.h>
+#include <btlmt_listenoptions.h>
 #include <btlmt_session.h>
 #include <btlmt_sessionfactory.h>
 #include <btlmt_sessionpool.h>
@@ -889,13 +891,17 @@ btls5::TestServer::SessionFactory::SessionFactory(
     (void)rc; BSLS_ASSERT(!rc);
 
     int handle;
+    btlso::SocketOptions socketOptions;
+    socketOptions.setReuseAddress(true);
+
+    btlmt::ListenOptions listenOptions;
+    listenOptions.setBacklog(20);
+    listenOptions.setSocketOptions(socketOptions);
+
     rc = d_sessionPool->listen(&handle,
                                cb,
-                               0,         // let system assign port
-                               20,        // backlog
-                               1,         // REUSEADDR
-                               this,      // SessionFactory
-                               0);        // userData
+                               this,
+                               listenOptions);
     BSLS_ASSERT(!rc);
 
     const int port = d_sessionPool->portNumber(handle);
@@ -982,14 +988,18 @@ void btls5::TestServer::SessionFactory::connect(
 
     const int numAttempts = 3;
     bsls::TimeInterval interval(0.2);
+
+    btlmt::ConnectOptions connectOptions;
+    connectOptions.setServerEndpoint(destination);
+    connectOptions.setNumAttempts(numAttempts);
+    connectOptions.setTimeout(interval);
+
     int rc = d_sessionPool->connect(&handle,
                                     cb,
-                                    destination.hostname().c_str(),
-                                    destination.port(),
-                                    numAttempts,
-                                    interval,
                                     this,
-                                    userData);  // userData = clientSession
+                                    connectOptions,
+                                    userData);
+
     if (rc) {
         LOG_ERROR << "cannot initiate connection to " << destination
                   << ", rc" << rc;

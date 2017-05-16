@@ -135,8 +135,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_EchoSessionFactory,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_EchoSessionFactory,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // CREATORS
 //      my_EchoSessionFactory(bslma::Allocator *basicAllocator = 0);
@@ -303,8 +303,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_EchoServer,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_EchoServer,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // CREATORS
 //      my_EchoServer(bslmt::Mutex     *coutLock,
