@@ -36,11 +36,11 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 
 #include <bdls_processutil.h>
 
-#include <bslalg_typetraits.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_autorawdeleter.h>
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
 #include <bslmf_assert.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
 #include <bsls_log.h>
@@ -135,8 +135,8 @@ class TcpTimerEventManager_Request {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TcpTimerEventManager_Request,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TcpTimerEventManager_Request,
+                                   bslma::UsesBslmaAllocator);
 
     enum OpCode {
         e_NO_OP,                         // no operation

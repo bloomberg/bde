@@ -41,7 +41,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlb_nullablevalue.h>
 
 #include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
 #include <bslmf_metaint.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -978,8 +980,7 @@ class Connector {
     // to 'ChannelPool::connect' is in progress.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Connector,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Connector, bslma::UsesBslmaAllocator);
 
     // DATA MEMBERS
     StreamSocketSharedPtr          d_socket;           // connecting socket

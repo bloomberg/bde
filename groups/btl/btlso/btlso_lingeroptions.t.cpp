@@ -25,8 +25,6 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bslalg_hastrait.h>
-
 #include <bsls_asserttest.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'

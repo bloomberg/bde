@@ -34,7 +34,6 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
-#include <bslalg_typetraits.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>

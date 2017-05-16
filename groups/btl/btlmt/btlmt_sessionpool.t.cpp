@@ -787,8 +787,8 @@ class TesterFactory : public btlmt::SessionFactory {
     public:
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TesterFactory,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit TesterFactory(bslma::Allocator *basicAllocator = 0);
