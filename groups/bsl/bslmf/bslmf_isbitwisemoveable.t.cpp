@@ -184,8 +184,27 @@ struct UserDefinedBwmTestType2 {
 
 struct UserDefinedOneByteTestType {
     // One-byte simple structs should typically be bitwise moveable.
-    char dummy;
+    bool d_dummy;
 };
+
+
+struct UserDefinedNotTriviallyCopyableOneByteTestType {
+    // One-byte, non-trivially copyable type (used to test the one-byte
+    // bitwise-movable heuristic)
+
+    bool d_dummy;
+
+    UserDefinedNotTriviallyCopyableOneByteTestType(
+        const UserDefinedNotTriviallyCopyableOneByteTestType& rhs)
+    : d_dummy(!rhs.d_dummy)
+    {
+    }
+};
+#if defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+static_assert(!bsl::is_trivially_copyable<
+                  UserDefinedNotTriviallyCopyableOneByteTestType>::value,
+              "Incorrect test type declaration.");
+#endif
 
 struct UserDefinedTcTestType {
     // This user-defined type, which is marked to be trivially copyable using
@@ -195,7 +214,7 @@ struct UserDefinedTcTestType {
     // trivial data member to make this type large enough to avoid the size
     // base implicitly bitwise-movable test.
 
-    char dummy[4];
+    char d_dummy[4];
 };
 
 struct UserDefinedTcTestType2 {
@@ -213,12 +232,12 @@ struct UserDefinedNonTcTestType {
     // movable by default.  Also note that, as 'empty' or small types are
     // implicitly bitwise movable, we add a trivial data member to make this
     // type large enough to remain non-bitwise-movable.
-    UserDefinedNonTcTestType() : dummy() {}
+    UserDefinedNonTcTestType() : d_dummy() {}
     UserDefinedNonTcTestType(const UserDefinedNonTcTestType& other)
-    : dummy()
+    : d_dummy()
     {}
 
-    char dummy[4];
+    char d_dummy[4];
 };
 
 enum EnumTestType {
@@ -823,6 +842,9 @@ int main(int argc, char *argv[])
         // C-7 (1-byte type)
         ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(UserDefinedOneByteTestType,
                                                true);
+        ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(
+            UserDefinedNotTriviallyCopyableOneByteTestType, true);
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
