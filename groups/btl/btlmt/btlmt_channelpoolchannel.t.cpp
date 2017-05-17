@@ -835,8 +835,17 @@ my_Server::my_Server(const btlmt::ChannelPoolConfiguration&  config,
     d_channelPool_p->start();
 
     btlso::IPv4Address endpoint;
-    endpoint.setPortNumber(d_portNumber);
-    d_channelPool_p->listen(endpoint, 5, 1);
+
+    btlso::SocketOptions socketOptions;
+    socketOptions.setReuseAddress(true);
+
+    btlmt::ListenOptions listenOptions;
+    listenOptions.setBacklog(5);
+    listenOptions.setServerAddress(endpoint);
+    listenOptions.setSocketOptions(socketOptions);
+
+    d_channelPool_p->listen(1, listenOptions);
+
     btlso::IPv4Address address;
     const int rc = d_channelPool_p->getServerAddress(&address, 1);
     if (!rc) {

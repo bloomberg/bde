@@ -5729,7 +5729,7 @@ void runTestCaseEnableDisable(
                                    factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-            mX.import(&managedSocket, i);
+            mX.import(&managedSocket, i, true, false);
         } else {
             // for some of the sockets, provide a ManagedPtr to exercise
             // the ManagedPtr-based import() function
@@ -5741,7 +5741,7 @@ void runTestCaseEnableDisable(
                        &Deleter::deleteObject<btlso::IPv4Address>);
 
             ASSERT(0 == socket->connect(PEER));
-            mX.import(&socket, i);
+            mX.import(&socket, i, true, false);
         }
     }
 
@@ -7641,9 +7641,15 @@ namespace USAGE_EXAMPLE_NAMESPACE {
                                                            basicAllocator);
 
         ASSERT(0 == d_channelPool_p->start());
-        ASSERT(0 == d_channelPool_p->listen(portNumber,
-                                            numConnections,
-                                            SERVER_ID));
+
+        btlmt::ListenOptions listenOpts;
+        btlso::IPv4Address   serverAddr;
+        serverAddr.setPortNumber(portNumber);
+
+        listenOpts.setServerAddress(serverAddr);
+        listenOpts.setBacklog(numConnections);
+
+        ASSERT(0 == d_channelPool_p->listen(SERVER_ID, listenOpts));
     }
 //..
 // Destructor just stops the pool and destroys it:
@@ -8898,7 +8904,7 @@ void TestDriver::testCase37()
     // out these assertions on Windows.  Note that once Windows binds
     // to the port specified by BP, the rest of this block can be used
     // to confirm that binding to an invalid port via 'listen' fails.
-            
+
         {
             int error = 0;
 
@@ -11187,7 +11193,7 @@ void TestDriver::testCase25()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                ASSERT(0 == pool.import(&managedServerSocket, 0));
+                ASSERT(0 == pool.import(&managedServerSocket, 0, true, false));
 
                 // Wait for the channel to come up.
                 bsl::vector<ChannelPoolStateCbTester::ChannelState>
@@ -11312,7 +11318,7 @@ void TestDriver::testCase25()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                ASSERT(0 == pool.import(&managedServerSocket, 0));
+                ASSERT(0 == pool.import(&managedServerSocket, 0, true, false));
 
                 // Wait for the channel to come up.
                 bsl::vector<ChannelPoolStateCbTester::ChannelState>
@@ -11382,7 +11388,7 @@ void TestDriver::testCase25()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-            ASSERT(0 == pool.import(&managedServerSocket, 0));
+            ASSERT(0 == pool.import(&managedServerSocket, 0, true, false));
 
             // Wait for the channel to come up.
             bsl::vector<ChannelPoolStateCbTester::ChannelState> states(&ta);
@@ -11544,7 +11550,7 @@ void TestDriver::testCase24()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                ASSERT(0 == pool.import(&managedServerSocket, 0));
+                ASSERT(0 == pool.import(&managedServerSocket, 0, true, false));
 
                 char ONE_BYTE_MSG[] = { (char) 0xff };
 
@@ -11683,7 +11689,7 @@ void TestDriver::testCase23()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-            ASSERT(0 == pool.import(&managedServerSocket, 0));
+            ASSERT(0 == pool.import(&managedServerSocket, 0, true, false));
 
             btlb::Blob oneByteMsg(&ta);
             populateMessage(&oneByteMsg, 1, &ta);
@@ -12190,7 +12196,7 @@ void TestDriver::testCase21()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-            ASSERT(0 == pool.import(&managedServerSocket, 0));
+            ASSERT(0 == pool.import(&managedServerSocket, 0, true, false));
 
             btlb::Blob oneByteMsg(&ta);
             populateMessage(&oneByteMsg, 1, &ta);
@@ -12630,7 +12636,7 @@ void TestDriver::testCase19()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                    ret = mX.import(&managedSocket, i);
+                    ret = mX.import(&managedSocket, i, true, false);
                     LOOP_ASSERT(i, 0 == ret);
                     if (0 == ret) {
                         // Other barrier is in caseImportChannelStateCallback,
@@ -13511,7 +13517,10 @@ void TestDriver::testCase14()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                ASSERT(0 == mX.import(&managedSocket, CLIENT_ID2));
+                ASSERT(0 == mX.import(&managedSocket,
+                                      CLIENT_ID2,
+                                      true,
+                                      false));
 
                 // Wait until channel has been created.
 
@@ -14423,7 +14432,7 @@ void TestDriver::testCase11()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-            ASSERT(0 == mX.import(&managedServerSocket, 0));
+            ASSERT(0 == mX.import(&managedServerSocket, 0, true, false));
 
             barrier.wait();
             if (verbose) {
@@ -15402,7 +15411,8 @@ void TestDriver::testCase6()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                ASSERT(0 == pool.import(&managedSocket, SERVER_ID));
+                ASSERT(0 == pool.import(&managedSocket,
+                                        SERVER_ID, true, false));
                 barrier.wait();
 
                 factory.deallocate(socketB);
@@ -15504,7 +15514,7 @@ void TestDriver::testCase5()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                int retCode = mX.import(&managedSocket, i);
+                int retCode = mX.import(&managedSocket, i, true, false);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
                 socketVecA.push_back(socketA);
                 socketVecB.push_back(socketB);
@@ -15540,7 +15550,10 @@ void TestDriver::testCase5()
                                    &factory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                ASSERT(-1 == mX.import(&managedSocket, NUM_SOCKETS));
+                ASSERT(-1 == mX.import(&managedSocket,
+                                       NUM_SOCKETS,
+                                       true,
+                                       false));
             }
 
             int importedFlag[NUM_SOCKETS];

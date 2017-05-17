@@ -20,14 +20,13 @@
 #include <btlb_blobutil.h>
 #include <btlb_pooledblobbufferfactory.h>
 
-#include <btlso_flag.h>
-
 #include <bslma_testallocator.h>
 
-#include <bslmt_mutex.h>
-#include <bslmt_threadutil.h>
 #include <bslmt_barrier.h>
+#include <btlmt_channelpoolchannel.h>
+#include <bslmt_mutex.h>
 #include <bslmt_semaphore.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -36,12 +35,11 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
+#include <btlso_flag.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_socketoptions.h>
 #include <btlso_streamsocket.h>
-
-#include <btlmt_channelpoolchannel.h>
 
 #include <bsls_atomic.h>
 
@@ -696,7 +694,7 @@ TesterSession::TesterSession(
 : d_channel_sp(channel)
 {
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
-    d_blobFactory_sp.load(new (*allocator) btlb::PooledBlobBufferFactory(
+    d_blobFactory_sp.reset(new (*allocator) btlb::PooledBlobBufferFactory(
                                                                    WRITE_SIZE),
                           allocator);
 }
@@ -2284,7 +2282,7 @@ int main(int argc, char *argv[])
 
             barrier.wait();
 
-            ASSERT(Obj::SESSION_UP == state);
+            ASSERT(Obj::e_SESSION_UP == state);
 
             const char STRING[] = "Hello World!";
 
@@ -2366,7 +2364,7 @@ int main(int argc, char *argv[])
 
             barrier.wait();
 
-            ASSERT(Obj::SESSION_UP == state);
+            ASSERT(Obj::e_SESSION_UP == state);
 
             const char STRING[] = "Hello World!";
 
@@ -2438,7 +2436,7 @@ int main(int argc, char *argv[])
 
             barrier.wait();
 
-            ASSERT(Obj::SESSION_UP == state);
+            ASSERT(Obj::e_SESSION_UP == state);
 
             const char STRING[] = "Hello World!";
 
@@ -2521,7 +2519,7 @@ int main(int argc, char *argv[])
 
             barrier.wait();
 
-            ASSERT(Obj::SESSION_UP == state);
+            ASSERT(Obj::e_SESSION_UP == state);
 
             const char STRING[] = "Hello World!";
 
@@ -2630,12 +2628,17 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             int handle;
+            btlso::SocketOptions socketOptions;
+            socketOptions.setReuseAddress(true);
+
+            btlmt::ListenOptions listenOptions;
+            listenOptions.setBacklog(5);
+            listenOptions.setSocketOptions(socketOptions);
+
             rc = mX.listen(&handle,
                            sessionStateCb,
-                           0,
-                           5,
-                           1,
-                           &factory);
+                           &factory,
+                           listenOptions);
             ASSERT(0 == rc);
 
             const int PORTNUM = mX.portNumber(handle);
@@ -2696,6 +2699,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //-------------------------------------------------------------------
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) bsl::cout << "TESTING getting platform-specific errors"
                                << bsl::endl
@@ -3070,6 +3075,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != platformError);
 #endif
         }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 14: {
         // --------------------------------------------------------------------
