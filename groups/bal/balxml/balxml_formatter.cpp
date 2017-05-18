@@ -157,8 +157,8 @@ void Formatter::addValidCommentImpl(
                               bool                     forceNewline,
                               bool                     omitEnclosingWhitespace)
 {
-    const char *openMarker  = NULL;
-    const char *closeMarker = NULL;
+    const char *openMarker  = 0;
+    const char *closeMarker = 0;
 
     int markerLength = 0;
 
@@ -401,9 +401,8 @@ int Formatter::addValidComment(
                                      doubleHyphenBegin,
                                      doubleHyphenEnd)
         || (omitEnclosingWhitespace && !comment.empty()
-            && '-' == *comment.rbegin()))
-    {
-        return 1;
+            && '-' == *comment.rbegin())) {
+        return 1;                                                     // RETURN
     }
 
     addValidCommentImpl(comment, forceNewline, omitEnclosingWhitespace);
