@@ -152,6 +152,55 @@ Formatter::Formatter(bsl::ostream&          output,
 }
 
 // PRIVATE MANIPULATORS
+void Formatter::addValidCommentImpl(
+                              const bslstl::StringRef& comment,
+                              bool                     forceNewline,
+                              bool                     omitEnclosingWhitespace)
+{
+    const char *openMarker  = 0;
+    const char *closeMarker = 0;
+
+    int markerLength = 0;
+
+    if (omitEnclosingWhitespace) {
+        openMarker   = "<!--";
+        closeMarker  = "-->";
+        markerLength = 7;
+    }
+    else {
+        openMarker   = "<!-- ";
+        closeMarker  = " -->";
+        markerLength = 9;
+    }
+
+    if (e_AT_START == d_state) {
+        d_state = e_AFTER_START_NO_TAG;
+    }
+    if (e_AFTER_START_NO_TAG != d_state) {
+        closeTagIfOpen();
+    }
+
+    bool isOnSeparateLine = false;
+    if ((forceNewline || 0 == d_column) && d_wrapColumn >= 0) {
+        indent();
+        isOnSeparateLine = true;
+    }
+    else {
+        d_outputStream << ' ';
+        ++d_column;
+    }
+
+    d_outputStream << openMarker << comment << closeMarker;
+
+    if (isOnSeparateLine) {
+        d_outputStream << '\n';
+        d_column = 0;
+    }
+    else {
+        d_column += static_cast<int>(comment.length() + markerLength);
+    }
+}
+
 void Formatter::indent()
 {
     if (d_wrapColumn < 0) {
@@ -334,29 +383,28 @@ void Formatter::addHeader(const bslstl::StringRef& encoding)
 void Formatter::addComment(const bslstl::StringRef& comment,
                            bool                     forceNewline)
 {
-    if (e_AT_START == d_state) {
-        d_state = e_AFTER_START_NO_TAG;
+    addValidCommentImpl(comment, forceNewline, false);
+}
+
+int Formatter::addValidComment(
+                              const bslstl::StringRef& comment,
+                              bool                     forceNewline,
+                              bool                     omitEnclosingWhitespace)
+{
+    const char doubleHyphen[] = "--";
+    // The string "--" (double-hyphen) must not occur within comments.  Also
+    // the grammar does not allow a comment ending in "--->".
+    if (comment.end() != bsl::search(comment.begin(),
+                                     comment.end(),
+                                     doubleHyphen,
+                                     doubleHyphen + sizeof doubleHyphen - 1)
+        || (omitEnclosingWhitespace && !comment.empty()
+            && '-' == *comment.rbegin())) {
+        return 1;                                                     // RETURN
     }
-    if (e_AFTER_START_NO_TAG != d_state) {
-        closeTagIfOpen();
-    }
-    bool isOnSeparateLine = false;
-    if ((forceNewline || 0 == d_column) && d_wrapColumn >= 0) {
-        indent();
-        isOnSeparateLine = true;
-    }
-    else {
-        d_outputStream << ' ';
-        ++d_column;
-    }
-    d_outputStream << "<!-- " << comment << " -->";
-    if (isOnSeparateLine) {
-        d_outputStream << '\n';
-        d_column = 0;
-    }
-    else {
-        d_column += static_cast<int>(comment.length()) + 9;
-    }
+
+    addValidCommentImpl(comment, forceNewline, omitEnclosingWhitespace);
+    return 0;
 }
 
 void Formatter::reset()
