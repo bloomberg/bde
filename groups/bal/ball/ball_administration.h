@@ -340,7 +340,7 @@ struct Administration {
         // No categories are removed from the registry if the current number of
         // categories exceeds 'length'; however, subsequent attempts to add
         // categories to the registry will fail.  The behavior is undefined
-        // unless the logger manager singleton has been initialized and is not
+        // unless the logger manager singleton has been initialized, it is not
         // in the process of being shut down, and '0 <= length'.
 };
 
