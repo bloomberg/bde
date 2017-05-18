@@ -108,6 +108,19 @@ bsls::Types::Uint64 divmod10(Uint128& v)
     }
 }
 
+template <class T>
+bool isZero(const T& v)
+    // Return true if the specified 'v' equals 0, and false otherwise.
+{
+    return v == 0;
+}
+
+bool isZero(const Uint128& v)
+    // Return true if the specified 'v' equals 0, and false otherwise.
+{
+    return v.high() == 0 && v.low() == 0;
+}
+
 template <class SIGNIFICAND>
 int parseSignificand(int *remainders, SIGNIFICAND significand)
     // Divide the specified 'significand' value by 10 unless it equals 0 and
@@ -117,25 +130,7 @@ int parseSignificand(int *remainders, SIGNIFICAND significand)
     // first.  Return the length of resultant buffer.
 {
     int *begin = remainders;
-    while (significand > 0) {
-        *remainders++ = divmod10(significand);
-    }
-    if (begin == remainders) {
-        *remainders = 0;
-        return 1;
-    }
-    return remainders - begin;
-}
-
-int parseSignificand(int *remainders, Uint128 significand)
-    // Divide the specified 'significand' value by 10 unless it equals 0 and
-    // load the result of each division into the specified buffer 'reminders'.
-    // Note that the 'reminders' will represent the 'significand' in
-    // 'little-endian' format, i.e. the least significand digit will be stored
-    // first.  Return the length of resultant buffer.
-{
-    int *begin = remainders;
-    while (significand.high() > 0 || significand.low() > 0) {
+    while (!isZero(significand)) {
         *remainders++ = divmod10(significand);
     }
     if (begin == remainders) {
@@ -151,17 +146,7 @@ int pointPosition(SIGNIFICAND significand, int significandLength, int exponent)
     // decimal value designated by the specified 'significand',
     // 'significandLength' and 'exponent' values.
 {
-    return significand ? significandLength + exponent : 0;
-}
-
-int pointPosition(Uint128 significand, int significandLength, int exponent)
-    // Return the point position relatively the most significand digit of a
-    // decimal value designated by the specified 'significand',
-    // 'significandLength' and 'exponent' values.
-{
-    return (significand.high() || significand.low())
-           ? significandLength + exponent
-           : 0;
+    return isZero(significand) ? 0 : significandLength + exponent;
 }
 
 template <class SIGNIFICAND>
