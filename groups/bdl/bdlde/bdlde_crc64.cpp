@@ -288,12 +288,19 @@ void Crc64::update(const void *data, bsl::size_t length)
 
     switch (length % 8) {
       case 7: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 6: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 5: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 4: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 3: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 2: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 1: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+              // FALL THROUGH
       case 0: ;
     }
 
