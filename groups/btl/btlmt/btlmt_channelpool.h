@@ -312,10 +312,10 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //      // DATA
-//      btlmt::ChannelPoolConfiguration d_config;        // pool's config
-//      btlmt::ChannelPool             *d_channelPool_p; // managed pool
-//      bslma::Allocator              *d_allocator_p;    // memory manager
-//      bslmt::Mutex                   *d_coutLock_p;   // synchronize 'cout'
+//      btlmt::ChannelPoolConfiguration  d_config;         // pool's config
+//      btlmt::ChannelPool              *d_channelPool_p;  // managed pool
+//      bslma::Allocator                *d_allocator_p;    // memory manager
+//      bslmt::Mutex                    *d_coutLock_p;     // 'cout' lock
 //
 //    private:
 //      // Callback functions:
@@ -342,10 +342,10 @@ BSLS_IDENT("$Id: $")
 //          // (using 'setChannelContext()'), in this example we do not
 //          // specify a context, so the value will be 0.
 //
-//      void dataCb(int           *numNeeded,
+//      void dataCb(int         *numNeeded,
 //                  btlb::Blob  *msg,
-//                  int            channelId
-//                  void          *context);
+//                  int          channelId
+//                  void        *context);
 //          // Echo the specified 'msg' to the client on the channel
 //          // identified by 'channelId' channel, load into the
 //          // specified 'numNeeeded' the minimum length of
@@ -361,7 +361,7 @@ BSLS_IDENT("$Id: $")
 //      my_EchoServer& operator=(const my_EchoServer&);
 //
 //    public:
-//      my_EchoServer(bslmt::Mutex      *coutLock,
+//      my_EchoServer(bslmt::Mutex     *coutLock,
 //                    int               portNumber,
 //                    int               numConnections,
 //                    bslma::Allocator *basicAllocator = 0);
@@ -385,7 +385,7 @@ BSLS_IDENT("$Id: $")
 // the channel pool is created, configured, and started.  The listening port
 // is established:
 //..
-//  my_EchoServer::my_EchoServer(bslmt::Mutex      *coutLock,
+//  my_EchoServer::my_EchoServer(bslmt::Mutex     *coutLock,
 //                               int               portNumber,
 //                               int               numConnections,
 //                               bslma::Allocator *basicAllocator)
@@ -421,9 +421,15 @@ BSLS_IDENT("$Id: $")
 //                            basicAllocator);
 //
 //      assert(0 == d_channelPool_p->start());
-//      assert(0 == d_channelPool_p->listen(portNumber,
-//                                          numConnections,
-//                                          SERVER_ID));
+//
+//      btlmt::ListenOptions listenOpts;
+//      btlso::IPv4Address   serverAddr;
+//      serverAddr.setPortNumber(portNumber);
+//
+//      listenOpts.setServerAddress(serverAddr);
+//      listenOpts.setBacklog(numConnections);
+//
+//      assert(0 == d_channelPool_p->listen(SERVER_ID, listenOpts));
 //  }
 //..
 // Destructor just stops the pool and destroys it:

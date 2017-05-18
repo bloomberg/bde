@@ -7,44 +7,45 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <btlmt_channelpoolchannel.h>
 
 #include <btlmt_asyncchannel.h>
 #include <btlmt_channelpool.h>
+#include <btlmt_listenoptions.h>
 #include <btlmt_session.h>
 
 #include <btlb_blob.h>
 #include <btlb_blobutil.h>
-#include <bslma_testallocator.h>
-#include <bslmt_mutex.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_barrier.h>
-
-#include <bdlf_placeholder.h>
-#include <bdlf_memfn.h>
-#include <bdlf_bind.h>
-
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-#include <bslma_usesbslmaallocator.h>
-
-#include <bslmf_nestedtraitdeclaration.h>
-
-#include <bslx_marshallingutil.h>
 
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_streamsocket.h>
 #include <btlsos_tcpconnector.h>
 
+#include <bdlf_placeholder.h>
+#include <bdlf_memfn.h>
+#include <bdlf_bind.h>
+
+#include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
+
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>
+
+#include <bslx_marshallingutil.h>
+
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -835,8 +836,17 @@ my_Server::my_Server(const btlmt::ChannelPoolConfiguration&  config,
     d_channelPool_p->start();
 
     btlso::IPv4Address endpoint;
-    endpoint.setPortNumber(d_portNumber);
-    d_channelPool_p->listen(endpoint, 5, 1);
+
+    btlso::SocketOptions socketOptions;
+    socketOptions.setReuseAddress(true);
+
+    btlmt::ListenOptions listenOptions;
+    listenOptions.setBacklog(5);
+    listenOptions.setServerAddress(endpoint);
+    listenOptions.setSocketOptions(socketOptions);
+
+    d_channelPool_p->listen(1, listenOptions);
+
     btlso::IPv4Address address;
     const int rc = d_channelPool_p->getServerAddress(&address, 1);
     if (!rc) {
