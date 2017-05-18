@@ -121,94 +121,201 @@ int main(int argc, char *argv[])
                           << "TEST FORMAT METHODS" << endl
                           << "===================" << endl;
 
-        typedef bdldfp::Decimal32 Type;
+        {
+            if (verbose) cout << endl
+                              << "Test Decimal32" << endl
+                              << "--------------" << endl;
 
-        const Util::Style e_F = Util::e_FIXED;
-        const Util::Style e_S = Util::e_SCIENTIFIC;
+            typedef bdldfp::Decimal32 Type;
+
+            const Util::Style e_F = Util::e_FIXED;
+            const Util::Style e_S = Util::e_SCIENTIFIC;
 
 #define DEC(X) BDLDFP_DECIMAL_DF(X)
 
-        static const struct {
-            const int          d_line;
-            const Type         d_decimal;
-            const int          d_precision;
-            Util::Style        d_style;
-            const char        *d_expected;
-        } DATA [] = {
-            //-----------------------------------------------------
-            // Line | Decimal               | Precision |  Expected
-            //-----------------------------------------------------
-            {  L_,                  DEC(0.0),        0  ,  e_F, "0"    },
-            {  L_,                  DEC(0.0),        1  ,  e_F, "0.0"  },
-            {  L_,                  DEC(0.0),        2  ,  e_F, "0.00" },
+            static const struct {
+                const int          d_line;
+                const Type         d_decimal;
+                const int          d_precision;
+                Util::Style        d_style;
+                const char        *d_expected;
+            } DATA [] = {
+                //-----------------------------------------------------
+                // Line | Decimal               | Precision |  Expected
+                //-----------------------------------------------------
+                {  L_,                  DEC(0.0),        0  ,  e_F, "0"    },
+                {  L_,                  DEC(0.0),        1  ,  e_F, "0.0"  },
+                {  L_,                  DEC(0.0),        2  ,  e_F, "0.00" },
 
-            {  L_,                  DEC(1.0),        0  ,  e_F, "1"     },
-            {  L_,                  DEC(1.0),        1  ,  e_F, "1.0"   },
-            {  L_,                  DEC(1.0),        2  ,  e_F, "1.00"  },
+                {  L_,                  DEC(1.0),        0  ,  e_F, "1"     },
+                {  L_,                  DEC(1.0),        1  ,  e_F, "1.0"   },
+                {  L_,                  DEC(1.0),        2  ,  e_F, "1.00"  },
 
-            {  L_,                  DEC(0.1),        0  ,  e_F, "0"     },
-            {  L_,                  DEC(0.1),        1  ,  e_F, "0.1"   },
-            {  L_,                  DEC(0.1),        2  ,  e_F, "0.10"  },
+                {  L_,                  DEC(0.1),        0  ,  e_F, "0"     },
+                {  L_,                  DEC(0.1),        1  ,  e_F, "0.1"   },
+                {  L_,                  DEC(0.1),        2  ,  e_F, "0.10"  },
 
-            {  L_,                  DEC(0.01),       0  ,  e_F, "0"     },
-            {  L_,                  DEC(0.01),       1  ,  e_F, "0.0"   },
-            {  L_,                  DEC(0.01),       2  ,  e_F, "0.01"  },
-            {  L_,                  DEC(0.01),       3  ,  e_F, "0.010" },
+                {  L_,                  DEC(0.01),       0  ,  e_F, "0"     },
+                {  L_,                  DEC(0.01),       1  ,  e_F, "0.0"   },
+                {  L_,                  DEC(0.01),       2  ,  e_F, "0.01"  },
+                {  L_,                  DEC(0.01),       3  ,  e_F, "0.010" },
 
-            {  L_,                  DEC(10.0),        0  ,  e_F, "10"     },
-            {  L_,                  DEC(10.0),        1  ,  e_F, "10.0"  },
-            {  L_,                  DEC(10.0),        2  ,  e_F, "10.00"  },
+                {  L_,                  DEC(10.0),        0  ,  e_F, "10"     },
+                {  L_,                  DEC(10.0),        1  ,  e_F, "10.0"  },
+                {  L_,                  DEC(10.0),        2  ,  e_F, "10.00"  },
 
-            {  L_,               DEC(-10.123),        0  ,  e_F, "-10"       },
-            {  L_,               DEC(-10.123),        1  ,  e_F, "-10.1"     },
-            {  L_,               DEC(-10.123),        2  ,  e_F, "-10.12"    },
-            {  L_,               DEC(-10.123),        3  ,  e_F, "-10.123"   },
-            {  L_,               DEC(-10.123),        4  ,  e_F, "-10.1230"  },
+                {  L_,               DEC(-10.123),        0  ,  e_F, "-10"       },
+                {  L_,               DEC(-10.123),        1  ,  e_F, "-10.1"     },
+                {  L_,               DEC(-10.123),        2  ,  e_F, "-10.12"    },
+                {  L_,               DEC(-10.123),        3  ,  e_F, "-10.123"   },
+                {  L_,               DEC(-10.123),        4  ,  e_F, "-10.1230"  },
+                {  L_,               DEC(-10.123),        5  ,  e_F, "-10.12300"  },
 
-            {  L_,               DEC(-123e+3),        0  ,  e_F, "-123000"  },
+                {  L_,               DEC(-123e+3),        0  ,  e_F, "-123000"  },
+                {  L_,               DEC(-123e+3),        2  ,  e_F, "-123000.00"  },
+                {  L_,               DEC(-123e-2),        5  ,  e_F, "-1.23000"  },
 
-            {  L_,                  DEC(0e+1),        0  ,  e_F, "0"  },
-            {  L_,                DEC(1.0e+1),        1  ,  e_F, "10.0"  },
+                {  L_,                  DEC(0e+1),        0  ,  e_F, "0"  },
+                {  L_,                DEC(1.0e+1),        1  ,  e_F, "10.0"  },
 
-            {  L_,                DEC(9.999999e+0),   0  ,  e_F, "9"  },
-            {  L_,                DEC(9.999999e+0),   1  ,  e_F, "9.9"  },
-            {  L_,                DEC(9.999999e+0),   2  ,  e_F, "9.99"  },
-            {  L_,                DEC(9.999999e+0),   3  ,  e_F, "9.999"  },
-            {  L_,                DEC(9.999999e+0),   4  ,  e_F, "9.9999"  },
-            {  L_,                DEC(9.999999e+0),   5  ,  e_F, "9.99999"  },
-            {  L_,                DEC(9.999999e+0),   6  ,  e_F, "9.999999"  },
-            {  L_,                DEC(9.999999e+0),   7  ,  e_F, "9.9999990"  },
+                {  L_,                DEC(9.999999e+0),   0  ,  e_F, "9"  },
+                {  L_,                DEC(9.999999e+0),   1  ,  e_F, "9.9"  },
+                {  L_,                DEC(9.999999e+0),   2  ,  e_F, "9.99"  },
+                {  L_,                DEC(9.999999e+0),   3  ,  e_F, "9.999"  },
+                {  L_,                DEC(9.999999e+0),   4  ,  e_F, "9.9999"  },
+                {  L_,                DEC(9.999999e+0),   5  ,  e_F, "9.99999"  },
+                {  L_,                DEC(9.999999e+0),   6  ,  e_F, "9.999999"  },
+                {  L_,                DEC(9.999999e+0),   7  ,  e_F, "9.9999990"  },
 
-            // {  L_,                  DEC(1.0),        0  ,  e_S, "1E+0"    },
-            // {  L_,                  DEC(1.2),        1  ,  e_S, "1.2E+0"    },
-            // {  L_,                  DEC(12.34),      2  ,  e_S, "1.23E+1"    },
-            // {  L_,                  DEC(12.34),      3  ,  e_S, "1.234E+1"    },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                // {  L_,                  DEC(1.0),        0  ,  e_S, "1E+0"    },
+                // {  L_,                  DEC(1.2),        1  ,  e_S, "1.2E+0"    },
+                // {  L_,                  DEC(12.34),      2  ,  e_S, "1.23E+1"    },
+                // {  L_,                  DEC(12.34),      3  ,  e_S, "1.234E+1"    },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const int k_BUFFER_SIZE = 256;
-        char      buffer[k_BUFFER_SIZE] = {0};
+            const int k_BUFFER_SIZE = 256;
+            char      buffer[k_BUFFER_SIZE] = {0};
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int           LINE        = DATA[ti].d_line;
-            const Type          DECIMAL32   = DATA[ti].d_decimal;
-            const int           PRECISION   = DATA[ti].d_precision;
-            const Util::Style   STYLE       = DATA[ti].d_style;
-            const string        EXPECTED    = DATA[ti].d_expected;
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE        = DATA[ti].d_line;
+                const Type          DECIMAL32   = DATA[ti].d_decimal;
+                const int           PRECISION   = DATA[ti].d_precision;
+                const Util::Style   STYLE       = DATA[ti].d_style;
+                const string        EXPECTED    = DATA[ti].d_expected;
 
-            int len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   DECIMAL32,
-                                   PRECISION,
-                                   STYLE);
+                int len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       DECIMAL32,
+                                       PRECISION,
+                                       STYLE);
 
-            const string RESULT(buffer, len);
-            if (veryVerbose) P_(len) P(RESULT);
+                const string RESULT(buffer, len);
+                if (veryVerbose) P_(len) P(RESULT);
 
-            LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
-            LOOP3_ASSERT(LINE, len, EXPECTED.length(), RESULT == EXPECTED);
-        }
+                LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
+                LOOP3_ASSERT(LINE, len, EXPECTED.length(), RESULT == EXPECTED);
+            }
 #undef DEC
+        }
+        {
+            if (verbose) cout << endl
+                              << "Test Decimal128" << endl
+                              << "---------------" << endl;
+
+            typedef bdldfp::Decimal128 Type;
+
+            Type V1      = Type(0xFFFFFFFFFFFFFFFFull) + 1;
+
+            const Util::Style e_F = Util::e_FIXED;
+            const Util::Style e_S = Util::e_SCIENTIFIC;
+
+#define DEC(X) BDLDFP_DECIMAL_DL(X)
+
+            static const struct {
+                const int          d_line;
+                const Type         d_decimal;
+                const int          d_precision;
+                Util::Style        d_style;
+                const char        *d_expected;
+            } DATA [] = {
+                //-----------------------------------------------------
+                // Line | Decimal               | Precision |  Expected
+                //-----------------------------------------------------
+                {  L_,                  DEC(0.0),        0  ,  e_F, "0"    },
+                {  L_,                  DEC(0.0),        1  ,  e_F, "0.0"  },
+                {  L_,                  DEC(0.0),        2  ,  e_F, "0.00" },
+
+                {  L_,                  DEC(1.0),        0  ,  e_F, "1"     },
+                {  L_,                  DEC(1.0),        1  ,  e_F, "1.0"   },
+                {  L_,                  DEC(1.0),        2  ,  e_F, "1.00"  },
+
+                {  L_,                  DEC(0.1),        0  ,  e_F, "0"     },
+                {  L_,                  DEC(0.1),        1  ,  e_F, "0.1"   },
+                {  L_,                  DEC(0.1),        2  ,  e_F, "0.10"  },
+
+                {  L_,                  DEC(0.01),       0  ,  e_F, "0"     },
+                {  L_,                  DEC(0.01),       1  ,  e_F, "0.0"   },
+                {  L_,                  DEC(0.01),       2  ,  e_F, "0.01"  },
+                {  L_,                  DEC(0.01),       3  ,  e_F, "0.010" },
+
+                {  L_,                  DEC(10.0),        0  ,  e_F, "10"     },
+                {  L_,                  DEC(10.0),        1  ,  e_F, "10.0"  },
+                {  L_,                  DEC(10.0),        2  ,  e_F, "10.00"  },
+
+                {  L_,               DEC(-10.123),        0  ,  e_F, "-10"       },
+                {  L_,               DEC(-10.123),        1  ,  e_F, "-10.1"     },
+                {  L_,               DEC(-10.123),        2  ,  e_F, "-10.12"    },
+                {  L_,               DEC(-10.123),        3  ,  e_F, "-10.123"   },
+                {  L_,               DEC(-10.123),        4  ,  e_F, "-10.1230"  },
+
+                {  L_,               DEC(-123e+3),        0  ,  e_F, "-123000"  },
+
+                {  L_,                  DEC(0e+1),        0  ,  e_F, "0"  },
+                // {  L_,                DEC(1.0e+1),        1  ,  e_F, "10.0"  },
+                {  L_,                   V1 + V1,                 1  ,  e_F, "36893488147419103232.0"  },
+                // {  L_,                   DEC(4321987654321098765.67),             2  ,  e_F, "10.0"  },
+
+                {  L_,                DEC(9.999999e+0),   0  ,  e_F, "9"  },
+                {  L_,                DEC(9.999999e+0),   1  ,  e_F, "9.9"  },
+                {  L_,                DEC(9.999999e+0),   2  ,  e_F, "9.99"  },
+                {  L_,                DEC(9.999999e+0),   3  ,  e_F, "9.999"  },
+                {  L_,                DEC(9.999999e+0),   4  ,  e_F, "9.9999"  },
+                {  L_,                DEC(9.999999e+0),   5  ,  e_F, "9.99999"  },
+                {  L_,                DEC(9.999999e+0),   6  ,  e_F, "9.999999"  },
+                {  L_,                DEC(9.999999e+0),   7  ,  e_F, "9.9999990"  },
+
+                // {  L_,                  DEC(1.0),        0  ,  e_S, "1E+0"    },
+                // {  L_,                  DEC(1.2),        1  ,  e_S, "1.2E+0"    },
+                // {  L_,                  DEC(12.34),      2  ,  e_S, "1.23E+1"    },
+                // {  L_,                  DEC(12.34),      3  ,  e_S, "1.234E+1"    },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            const int k_BUFFER_SIZE = 256;
+            char      buffer[k_BUFFER_SIZE] = {0};
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE        = DATA[ti].d_line;
+                const Type          DECIMAL128  = DATA[ti].d_decimal;
+                const int           PRECISION   = DATA[ti].d_precision;
+                const Util::Style   STYLE       = DATA[ti].d_style;
+                const string        EXPECTED    = DATA[ti].d_expected;
+
+                int len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       DECIMAL128,
+                                       PRECISION,
+                                       STYLE);
+
+                const string RESULT(buffer, len);
+                if (veryVerbose) P_(DECIMAL128) P_(len) P(RESULT);
+
+                LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
+                LOOP3_ASSERT(LINE, len, EXPECTED.length(), RESULT == EXPECTED);
+            }
+#undef DEC
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------

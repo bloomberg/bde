@@ -60,6 +60,7 @@ struct DecimalFormatUtil {
                Letters     letters   = e_LOWER,
                char        point     = '.'
                );
+    static
     int format(char       *buffer,
                int         length,
                Decimal64   value,
@@ -68,6 +69,7 @@ struct DecimalFormatUtil {
                Sign        sign      = e_NEGATIVE_ONLY,
                Letters     letters   = e_LOWER,
                char        point     = '.');
+    static
     int format(char       *buffer,
                int         length,
                Decimal128  value,

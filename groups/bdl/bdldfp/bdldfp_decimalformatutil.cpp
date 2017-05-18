@@ -5,6 +5,7 @@
 BSLS_IDENT_RCSID(bdldfp_decimalformatutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalutil.h>
+#include <bdldfp_uint128.h>
 
 #include <bsls_assert.h>
 #include <bsl_cstdio.h>
@@ -29,6 +30,12 @@ template <>
 struct DecimalTraits<Decimal64>
 {
     typedef bsls::Types::Uint64 Significand;
+};
+
+template <>
+struct DecimalTraits<Decimal128>
+{
+    typedef Uint128 Significand;
 };
 
 int formatSign(char *buffer,
@@ -65,33 +72,96 @@ int formatSign(char *buffer,
     return len;
 }
 
-template <class SIGNIFICAND>
-int decimalLength(SIGNIFICAND significand)
-    // Compute the length of decimal presentations of the specified
-    // 'significand' value.
+template <class T>
+T divmod10(T& v)
+    // Load the resultant value of division the specified value 'v' by 10 into
+    // 'v'.  Return the remainder of the division.
 {
-    int len = 1;
-    significand /= 10;
-    while (significand) {
-        significand /= 10;
-        ++len;
+    T r =  v % 10;
+    v /= 10;
+    return r;
+}
+
+bsls::Types::Uint64 divmod10(Uint128& v)
+    // Load the resultant value of division the specified value 'v' by 10 into
+    // 'v'.  Return the remainder of the division.
+{
+    // Set a = v.high(), b = v.low().
+    // Let Q = (2^64 * a + b) / 10 and R = (2^64 * a + b) % 10.
+    // Set a to Q / 2^64, b to Q % 2^64, and return R.
+    bsls::Types::Uint64 a = v.high();
+    bsls::Types::Uint64 b = v.low();
+    bsls::Types::Uint64 r = 0;
+    if (a) {
+        bsls::Types::Uint64 qa = a / 10;
+        bsls::Types::Uint64 ra = a % 10;
+        bsls::Types::Uint64 qb = b / 10;
+        bsls::Types::Uint64 rb = b % 10;
+        v.setHigh(qa);
+        v.setLow(qb + 1844674407370955161ull * ra + (6 * ra + rb) / 10);
+        return (6 * ra + rb) % 10;
     }
-    return len;
+    else {
+        r = divmod10(b);
+        v.setLow(b);
+        return r;
+    }
 }
 
 template <class SIGNIFICAND>
-SIGNIFICAND powOf10(int exp)
-    // Compute the value of 10 raised to the specified power 'exp'.  The
-    // behavior is undefined unless 'exp >= 0'.
+int parseSignificand(int *remainders, SIGNIFICAND significand)
+    // Divide the specified 'significand' value by 10 unless it equals 0 and
+    // load the result of each division into the specified buffer 'reminders'.
+    // Note that the 'reminders' will represent the 'significand' in
+    // 'little-endian' format, i.e. the least significand digit will be stored
+    // first.  Return the length of resultant buffer.
 {
-    BSLS_ASSERT(exp >= 0);
-
-    SIGNIFICAND res = 1;
-    while (exp) {
-        res *= 10;
-        --exp;
+    int *begin = remainders;
+    while (significand > 0) {
+        *remainders++ = divmod10(significand);
     }
-    return res;
+    if (begin == remainders) {
+        *remainders = 0;
+        return 1;
+    }
+    return remainders - begin;
+}
+
+int parseSignificand(int *remainders, Uint128 significand)
+    // Divide the specified 'significand' value by 10 unless it equals 0 and
+    // load the result of each division into the specified buffer 'reminders'.
+    // Note that the 'reminders' will represent the 'significand' in
+    // 'little-endian' format, i.e. the least significand digit will be stored
+    // first.  Return the length of resultant buffer.
+{
+    int *begin = remainders;
+    while (significand.high() > 0 || significand.low() > 0) {
+        *remainders++ = divmod10(significand);
+    }
+    if (begin == remainders) {
+        *remainders = 0;
+        return 1;
+    }
+    return remainders - begin;
+}
+
+template <class SIGNIFICAND>
+int pointPosition(SIGNIFICAND significand, int significandLength, int exponent)
+    // Return the point position relatively the most significand digit of a
+    // decimal value designated by the specified 'significand',
+    // 'significandLength' and 'exponent' values.
+{
+    return significand ? significandLength + exponent : 0;
+}
+
+int pointPosition(Uint128 significand, int significandLength, int exponent)
+    // Return the point position relatively the most significand digit of a
+    // decimal value designated by the specified 'significand',
+    // 'significandLength' and 'exponent' values.
+{
+    return (significand.high() || significand.low())
+           ? significandLength + exponent
+           : 0;
 }
 
 template <class SIGNIFICAND>
@@ -113,63 +183,56 @@ int printFixed(char        *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(length >= 0);
     BSLS_ASSERT(precision >= 0);
-    BSLS_ASSERT(significand >= 0);
+    // BSLS_ASSERT(significand >= 0);
 
-    int significandLength = decimalLength(significand);
-    int pointPos          = significand ? significandLength + exponent : 0;
-    int decimalLen        = (pointPos > 0 ? pointPos : sizeof('0'))
+    const int k_MAX_SIGNIFICAND_LENGTH = 34;
+    int reminders[k_MAX_SIGNIFICAND_LENGTH];
+
+    int significandLength = parseSignificand(&reminders[0], significand);
+    int pointPos          = pointPosition(significand,
+                                          significandLength,
+                                          exponent);
+    int outputLength      = (pointPos > 0 ? pointPos : sizeof('0'))
                             + (precision ? sizeof('.') : 0) + precision;
 
-    if (decimalLen <= length) {
+    if (outputLength <= length) {
 
-        bsl::fill_n(buffer, decimalLen, '0');
+        int i    = 0;
+        int j    = significandLength - 1;
+        int stop = bsl::min(j + 1, pointPos);
 
-        char *it                 = buffer;
-        int   lessSignificandPos = pointPos + precision;
-
-        if (lessSignificandPos <= 0) {
-            *++it = point;
-            return decimalLen;
-        }
-        else if (lessSignificandPos < significandLength) {
-            significand /= powOf10<SIGNIFICAND>(significandLength
-                                                - lessSignificandPos);
-            significandLength = lessSignificandPos;
+        for (; i < stop; ++i, --j) {
+            buffer[i] = '0' + reminders[j];
         }
 
-
-        if (pointPos <= 0) {
-            if (precision) {
-                *++it  = point;
-                it    += (-pointPos + significandLength);
-
-                for (char *end = it - significandLength; it != end; --it) {
-                    *it = '0' + significand % 10;
-                    significand /= 10;
-                }
-            }
+        for (; i < pointPos; ++i) {
+            buffer[i] = '0';
         }
-        else {
-            it += significandLength;
 
-            if (precision) {
-                for (char *end = buffer + pointPos; it > end; --it) {
-                    *it = '0' + significand % 10;
-                    significand /= 10;
-                }
-                *it = point;
-            }
-            --it;
+        if (0 >= pointPos) {
+            buffer[i++] = '0';
+        }
 
-            for (; it != buffer; --it) {
-                *it = '0' + significand % 10;
-                significand /= 10;
+        if (precision) {
+            buffer[i++] = '.';
+
+            stop = bsl::min(i - pointPos, outputLength);
+            for (; i < stop; ++i) {
+                buffer[i] = '0';
             }
-            *it = '0' + significand;
+
+            stop = bsl::min(i + j + 1, outputLength);
+            for (; i < stop; ++i, --j) {
+                buffer[i] = '0' + reminders[j];
+            }
+
+            for (; i < outputLength; ++i) {
+                buffer[i] = '0';
+            }
         }
     }
 
-    return decimalLen;
+    return outputLength;
 }
 
 template <class SIGNIFICAND>
@@ -184,7 +247,7 @@ int printScientific(char        *buffer,
     BSLS_ASSERT(length >= 0);
     BSLS_ASSERT(precision >= 0);
 
-     return 0;
+    return 0;
 
 #if 0
 
@@ -203,8 +266,8 @@ int printScientific(char        *buffer,
         char *it = buffer;
 
         if (precision < significandLength - 1) {
-            significand /= powOf10<SIGNIFICAND>(significandLength - 1
-                                                - precision);
+            significand /= pow10(significandLength - 1
+                                 - precision);
             significandLength = precision + 1;
         }
 
@@ -335,7 +398,14 @@ int DecimalFormatUtil::format(char       *buffer,
                               Letters     letters,
                               char        point)
 {
-    return 0;
+    return formatImpl(buffer,
+                      length,
+                      value,
+                      precision,
+                      style,
+                      sign,
+                      letters,
+                      point);
 }
 
 }  // close package namespace
