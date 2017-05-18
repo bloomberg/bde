@@ -106,7 +106,7 @@ BSLS_IDENT("$Id: $")
 //      // . . .
 //  }
 //
-//  int listen(const btlmt::ListenOptions&   options,
+//  int listen(const btlmt::ListenOptions&   options,
 //             bsl::function<void(int, int)> callback)
 //      // Create a listening socket based on the specified listen 'options'
 //      // and wait for incoming connections.  Invoke the specified 'callback'

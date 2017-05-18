@@ -652,7 +652,7 @@ class SessionPool {
 
   public:
     // PUBLIC TYPES
-    enum SessionState{
+    enum SessionState {
         // Result code passed to the session callback.
 
         e_SESSION_UP             = 1,  // new session has been allocated
