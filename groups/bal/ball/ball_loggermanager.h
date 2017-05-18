@@ -31,8 +31,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides the core of the 'ball' logging toolkit:
 // the logger class itself, 'ball::Logger', which manages log record storage
 // and publication control, the logger manager class, 'ball::LoggerManager',
-// which is a singleton that is both a factory for loggers and a category
-// manager, and the logger manager scoped guard,
+// which is typically instantiated as a singleton that is both a factory for
+// loggers and a category manager, and the logger manager scoped guard,
 // 'ball::LoggerManagerScopedGuard', which provides a convenient way to
 // initialize and manage lifetime of the logger manager singleton object.
 //
@@ -82,8 +82,8 @@ BSLS_IDENT("$Id: $")
 ///Logger Manager Singleton Initialization
 ///---------------------------------------
 // The recommended way to initialize the logger manager singleton is to create
-// a 'ball::LoggerManagerScopedGuard' object in 'main' (*before* creating any
-// threads).  The logger manager scoped guard constructor takes a configuration
+// a 'ball::LoggerManagerScopedGuard' object in 'main' *before* creating any
+// threads.  The logger manager scoped guard constructor takes a configuration
 // object (an instance of 'ball::LoggerManagerConfiguration'), and an optional
 // allocator.  The logger manager singleton is created as a side-effect of
 // creating the scoped guard object.  When the guard object goes out of scope
@@ -103,20 +103,22 @@ BSLS_IDENT("$Id: $")
 // Unless 'shutDownSingleton' is called, the singleton will not be destroyed
 // and resources used by the singleton will leak.
 //
+// Note that the logger manager singleton *can* be reinitialized after it has
+// been destroyed.  However, such practice should generally be restricted to
+// test drivers and very specialized use cases.  Clients should generally avoid
+// initializing and destroying the singleton more than once in a program unless
+// they know what they are doing.
+//
 ///Deprecation Notice
 ///------------------
-// Direct use of the 'public' logger manager constructor to initialize the
-// logger manager singleton is *deprecated*.  The constructor will be declared
-// 'private' in a future release.
-//
-// Direct use of any of the 'initSingleton' methods that do *not* take an
-// instance of 'ball::LoggerManagerConfiguration' to initialize the logger
-// manager singleton is *deprecated*.  These methods will be eliminated in a
-// future release.
-//
 // Direct use of any of the 'ball::LoggerManager' or
 // 'ball::LoggerManagerScopedGuard' methods that take raw pointers to observers
 // is *deprecated*.  These methods will be eliminated in a future release.
+//
+// The 'ball::LoggerManagerCategoryIter' and 'ball::LoggerManagerCategoryManip'
+// classes are *deprecated*.  Clients of 'ball::LoggerManager' should use the
+// 'visitCategories' accessor (the replacement for 'LoggerManagerCategoryIter')
+// or 'visitCategories' manipulator ('LoggerManagerCategoryManip') instead.
 //
 ///Categories, Severities, and Threshold Levels
 ///--------------------------------------------
@@ -227,7 +229,7 @@ BSLS_IDENT("$Id: $")
 ///Category Creation, Management, and Threshold Levels
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the logger manager singleton is created, a unique category known as the
-// *default* *category* is created, and is given "factory-supplied" default
+// *Default* *Category* is created, and is given "factory-supplied" default
 // threshold levels.  The default values for the default category are each in
 // the range '[0 .. 255]', but are otherwise unspecified.  The user can also
 // specify default values explicitly when the logger manager singleton is
@@ -718,7 +720,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      ball::Record *record = logger->getRecord(fileName, lineNumber);
 //..
-// Then, we get a modifiable reference to the fixed fields of 'record':
+// Then, we get a non-'const' reference to the fixed fields of 'record':
 //..
 //      ball::RecordAttributes& attributes = record->fixedFields();
 //..
@@ -1170,10 +1172,10 @@ class LoggerManagerCategoryManip;
                            // ===================
 
 class LoggerManager {
-    // This class is a singleton.  It provides a factory for 'Logger' objects
-    // and is also a wrapper for category administration services.  Note that
-    // the services provided by this class are available only after the
-    // singleton has been initialized.
+    // This class is *usually* a singleton.  It provides a factory for
+    // 'Logger' objects and is also a wrapper for category administration
+    // services.  Note that the services provided by this class are available
+    // only after the singleton has been initialized.
 
   public:
     // TYPES
@@ -1206,7 +1208,8 @@ class LoggerManager {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS DATA
-    static LoggerManager  *s_singleton_p;        // singleton-enforcement
+    static LoggerManager  *s_singleton_p;        // address of singleton if
+                                                 // initialized; 0 otherwise
 
     static bool            s_doNotShutDown;      // whether 'shutDownSingleton'
                                                  // should do nothing
@@ -1263,7 +1266,7 @@ class LoggerManager {
                                                  // records within process
                                                  // (always valid)
 
-    Category              *d_defaultCategory_p;  // holds *default* *category*
+    Category              *d_defaultCategory_p;  // holds *Default* *Category*
                                                  // (owned)
 
     int                    d_scratchBufferSize;  // logger default message
@@ -1288,12 +1291,11 @@ class LoggerManager {
     static void initSingletonImpl(
                            const LoggerManagerConfiguration&  configuration,
                            bslma::Allocator                  *globalAllocator);
-        // Initialize (once!) the logger manager singleton having the specified
+        // Initialize the logger manager singleton having the specified
         // 'configuration' of defaults and attributes, and the specified
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
-        // the currently installed global allocator is used.  Note that this
-        // method has no effect if the logger manager singleton has already
-        // been initialized.
+        // the currently installed global allocator is used.  This method has
+        // no effect if the logger manager singleton currently exists.
 
     // PRIVATE CREATORS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1315,7 +1317,7 @@ class LoggerManager {
         // Construct the default category, default logger members, and record
         // buffer members of this logger manager based on the specified
         // 'configuration'.  The behavior is undefined if this method is
-        // invoked again on this logger manager.
+        // invoked more than once on this logger manager.
 
     void publishAllImp(Transmission::Cause cause);
         // Transmit to the observer registered with this logger manager all log
@@ -1372,17 +1374,17 @@ class LoggerManager {
                        Observer                          *observer,
                        const LoggerManagerConfiguration&  configuration,
                        bslma::Allocator                  *globalAllocator = 0);
-        // Initialize (once!) the logger manager singleton having the specified
+        // Initialize the logger manager singleton having the specified
         // 'observer' that receives published log records.  Optionally specify
         // a 'configuration' describing how the singleton should be configured.
         // If 'configuration' is not specified, a default constructed
         // 'LoggerManagerConfiguration' object is used.  Optionally specify a
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
         // the currently installed global allocator is used.  Return a
-        // reference to the modifiable logger manager singleton.  The behavior
+        // non-'const' reference to the logger manager singleton.  The behavior
         // is undefined if 'observer' is 0, goes out of scope, or is otherwise
-        // destroyed.  Note that this method has no effect if the logger
-        // manager singleton has already been initialized.
+        // destroyed.  This method has no effect if the logger manager
+        // singleton already exists.
         //
         // !DEPRECATED!: Use the 'initSingleton' method that does *not* take an
         // 'observer' instead.
@@ -1392,33 +1394,35 @@ class LoggerManager {
     static LoggerManager& initSingleton(
                        const LoggerManagerConfiguration&  configuration,
                        bslma::Allocator                  *globalAllocator = 0);
-        // Initialize (once!) the logger manager singleton.  Optionally specify
-        // a 'configuration' describing how the singleton should be configured.
+        // Initialize the logger manager singleton.  Optionally specify a
+        // 'configuration' describing how the singleton should be configured.
         // If 'configuration' is not specified, a default constructed
         // 'LoggerManagerConfiguration' object is used.  Optionally specify a
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
         // the currently installed global allocator is used.  Return a
-        // reference to the modifiable logger manager singleton.  Note that
-        // this method has no effect if the logger manager singleton has
-        // already been initialized.
+        // non-'const' reference to the logger manager singleton.  This method
+        // has no effect if the logger manager singleton currently exists.
 
     static void initSingleton(LoggerManager *singleton,
                               bool           shutDownEnabled = false);
-        // Initialize (once!) the logger manager singleton with the specified
+        // Initialize the logger manager singleton with the specified
         // 'singleton'.  Optionally specify a 'shutDownEnabled' flag to
-        // indicate whether 'shutDownSingleton' will do anything when called
-        // (in which case it will also destroy the singleton).  If
-        // 'shutDownEnabled' is not specified, 'shutDownSingleton' will have no
-        // effect.  This method has no effect if the logger manager singleton
-        // has already been initialized.  Note that a suitable singleton may be
-        // obtained by calling 'createLoggerManager', or from the 'singleton'
-        // class method of an already-initialized 'LoggerManager' system, when
-        // this version of 'initSingleton' is used to initialize another
-        // dynamically loaded copy of the 'LoggerManager' system on Windows.
+        // indicate whether 'shutDownSingleton' will do anything when called,
+        // in which case it will destroy 'singleton' and this method takes
+        // ownership of 'singleton'.  If 'shutDownEnabled' is not specified,
+        // 'shutDownSingleton' will have no effect and this method does *not*
+        // take ownership of 'singleton'.  This method has no effect if the
+        // logger manager singleton already exists, in which case this method
+        // does *not* take ownership of 'singleton' regardless of the value of
+        // 'shutDownEnabled'.  Note that a suitable singleton may be obtained
+        // by calling 'createLoggerManager', or from the 'singleton' class
+        // method of an already-initialized 'LoggerManager' system, when this
+        // version of 'initSingleton' is used to initialize another dynamically
+        // loaded copy of the 'LoggerManager' system on Windows.
 
     static bool isInitialized();
-        // Return 'true' if the logger manager singleton has been initialized
-        // and has not yet been destroyed, and 'false' otherwise.
+        // Return 'true' if the logger manager singleton exists, and 'false'
+        // otherwise.
 
     static void logMessage(int severity, Record *record);
         // Publish the specified 'record' to 'stderr' after setting its
@@ -1443,15 +1447,14 @@ class LoggerManager {
     static void shutDownSingleton();
         // Destroy the logger manager singleton and release all resources used
         // by it.  This method has no effect if the logger manager singleton
-        // has not been initialized or has already been destroyed.  The
-        // behavior is undefined if this method is called from one thread while
-        // another thread is accessing the logger manager singleton (i.e., this
-        // method is *not* thread-safe).
+        // does not exist (i.e., it has not been initialized or has already
+        // been destroyed).  The behavior is undefined if this method is called
+        // from one thread while another thread is accessing the logger manager
+        // singleton (i.e., this method is *not* thread-safe).
 
     static LoggerManager& singleton();
-        // Return a reference to the modifiable logger manager singleton.  The
-        // behavior is undefined unless the logger manager singleton has been
-        // initialized and has not yet been destroyed.
+        // Return a non-'const' reference to the logger manager singleton.  The
+        // behavior is undefined unless the logger manager singleton exists.
 
     // CREATORS
     explicit LoggerManager(
@@ -1531,7 +1534,7 @@ class LoggerManager {
         // applications.
 
     Logger& getLogger();
-        // Return a reference to a modifiable logger managed by this logger
+        // Return a non-'const' reference to a logger managed by this logger
         // manager suitable for performing logging operations for this thread
         // of execution.
 
@@ -1560,7 +1563,7 @@ class LoggerManager {
         // 'categoryName' is null-terminated.
 
     Category& defaultCategory();
-        // Return a reference to the modifiable *Default* *Category* in the
+        // Return a non-'const' reference to the *Default* *Category* in the
         // category registry of this logger manager.
 
     Category *lookupCategory(const char *categoryName);
@@ -1576,7 +1579,7 @@ class LoggerManager {
         // categories in the registry is less than the registry capacity.
         // Return the address of the (possibly newly-created) non-modifiable
         // category having 'categoryName', if such a category exists, and the
-        // address of the non-modifiable *default* *category* otherwise.  The
+        // address of the non-modifiable *Default* *Category* otherwise.  The
         // behavior is undefined unless 'categoryName' is null-terminated.
         // Note that a valid category address is *always* returned.
 
@@ -1588,7 +1591,7 @@ class LoggerManager {
         // categories in the registry is less than the registry capacity.
         // Return the address of the (possibly newly-created) non-modifiable
         // category having 'categoryName', if such a category exists, and the
-        // address of the non-modifiable *default* *category* otherwise.  If
+        // address of the non-modifiable *Default* *Category* otherwise.  If
         // the specified 'categoryHolder' is non-null, then also load into
         // 'categoryHolder' the returned category and its maximum level and
         // link 'categoryHolder' to the category if it has not yet been linked.
@@ -1614,7 +1617,7 @@ class LoggerManager {
         // 'categoryName' if 'categoryName' was either created or its
         // thresholds reset, and 0 otherwise.  The behavior is undefined unless
         // 'categoryName' is null-terminated.  Note that 0, and *not* the
-        // *default* *category*, is returned on failure.
+        // *Default* *Category*, is returned on failure.
 
     void setMaxNumCategories(int length);
         // Set the capacity of the category registry of this logger manager to
@@ -1749,7 +1752,7 @@ class LoggerManager {
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor);
         // Invoke the specified 'visitor' functor on each category managed by
-        // this object, supplying that functor modifiable access to each
+        // this object, providing that functor modifiable access to each
         // category.  'visitor' must be a functor that can be called as if it
         // had the following signature:
         //..
@@ -1762,7 +1765,7 @@ class LoggerManager {
         // manager.
 
     const Category& defaultCategory() const;
-        // Return a reference to the non-modifiable *default* *category* in the
+        // Return a 'const' reference to the *Default* *Category* in the
         // category registry of this logger manager.
 
     int defaultPassThresholdLevel() const;
@@ -1839,8 +1842,8 @@ class LoggerManager {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     const RuleSet& ruleSet() const;
-        // Return a reference to the non-modifiable rule set maintained by
-        // this object.
+        // Return a 'const' reference to the rule set maintained by this
+        // object.
 
     const Logger::UserFieldsPopulatorCallback *userFieldsPopulatorCallback()
                                                                          const;
@@ -1851,7 +1854,7 @@ class LoggerManager {
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor) const;
         // Invoke the specified 'visitor' functor on each category managed by
-        // this object, supplying that functor non-modifiable access to each
+        // this object, providing that functor non-modifiable access to each
         // category.  'visitor' must be a functor that can be called as if it
         // had the following signature:
         //..
@@ -1878,15 +1881,16 @@ class LoggerManagerScopedGuard {
                        Observer                          *observer,
                        const LoggerManagerConfiguration&  configuration,
                        bslma::Allocator                  *globalAllocator = 0);
-        // Create a scoped guard that will create (once!) the logger manager
-        // singleton having the specified 'observer' that receives published
-        // log records and the specified 'configuration' of defaults and
-        // attributes.  Optionally specify a 'globalAllocator' used to supply
-        // memory.  If 'globalAllocator' is 0, the currently installed global
-        // allocator is used.  The behavior is undefined if 'observer' is 0,
-        // goes out of scope, or is otherwise destroyed.  Note that on
-        // destruction, this scoped guard will destroy the logger manager
-        // singleton, if the singleton exists at that time.
+        // Create a scoped guard that will create the logger manager singleton
+        // having the specified 'observer' that receives published log records
+        // and the specified 'configuration' of defaults and attributes.
+        // Optionally specify a 'globalAllocator' used to supply memory.  If
+        // 'globalAllocator' is 0, the currently installed global allocator is
+        // used.  The behavior is undefined if 'observer' is 0, goes out of
+        // scope, or is otherwise destroyed.  This method has no effect if the
+        // logger manager singleton already exists.  Note that on destruction,
+        // this scoped guard will destroy the logger manager singleton, if the
+        // singleton exists at that time.
         //
         // !DEPRECATED!: Use the 'LoggerManagerScopedGuard' constructor that
         // does *not* take an 'observer' instead.
@@ -1895,11 +1899,12 @@ class LoggerManagerScopedGuard {
     explicit LoggerManagerScopedGuard(
                        const LoggerManagerConfiguration&  configuration,
                        bslma::Allocator                  *globalAllocator = 0);
-        // Create a scoped guard that will create (once!) the logger manager
-        // singleton having the specified 'configuration' of defaults and
-        // attributes.  Optionally specify a 'globalAllocator' used to supply
-        // memory.  If 'globalAllocator' is 0, the currently installed global
-        // allocator is used.  Note that on destruction, this scoped guard will
+        // Create a scoped guard that will create the logger manager singleton
+        // having the specified 'configuration' of defaults and attributes.
+        // Optionally specify a 'globalAllocator' used to supply memory.  If
+        // 'globalAllocator' is 0, the currently installed global allocator is
+        // used.  This method has no effect if the logger manager singleton
+        // already exists.  Note that on destruction, this scoped guard will
         // destroy the logger manager singleton, if the singleton exists at
         // that time.
 

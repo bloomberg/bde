@@ -162,10 +162,16 @@ ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
     return ball::Severity::e_ERROR;
 }
 
-static bslmt::QLock s_bslsLogLock = BSLMT_QLOCK_INITIALIZER;
-    // A lock used to protect the configuration of the 'bsl_Log' callback
-    // handler.  This lock prevents the logger manager from being destroyed
-    // concurrently to an attempt to log a record.
+static bslmt::QLock bslsLogQLock = BSLMT_QLOCK_INITIALIZER;
+    // The lock used to protect the configuration of the 'bsls::Log' callback
+    // handler.  This lock prevents the logger manager singleton from being
+    // destroyed concurrently with an attempt to log a 'bsls::Log' record.
+
+static ball::Category *bslsLogCategoryPtr = 0;
+    // Address of the category to which 'bsls::Log' messages are logged when
+    // the logger manager singleton exists.
+
+const char *const BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
 
 void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                     const char              *fileName,
@@ -176,21 +182,24 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     // 'bsls::Log::LogMessageHandler' and is intended to be installed as a
     // 'bsls::Log' message handler.
 {
-    static ball::Category *category               = 0;
-    static const char     *BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
-
-    bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+    bslmt::QLockGuard qLockGuard(&bslsLogQLock);
 
     if (ball::LoggerManager::isInitialized()) {
         ball::LoggerManager& singleton = ball::LoggerManager::singleton();
 
-        if (0 == category) {
+        if (0 == bslsLogCategoryPtr) {
             singleton.addCategory(BSLS_LOG_CATEGORY_NAME,
                                   singleton.defaultRecordThresholdLevel(),
                                   singleton.defaultPassThresholdLevel(),
                                   singleton.defaultTriggerThresholdLevel(),
                                   singleton.defaultTriggerAllThresholdLevel());
-            category = singleton.lookupCategory(BSLS_LOG_CATEGORY_NAME);
+
+            // It is *possible* that the category "BSLS.LOG" was already added
+            // (e.g., in client code), in which case the above 'addCategory'
+            // would return 0.
+
+            bslsLogCategoryPtr = singleton.lookupCategory(
+                                                       BSLS_LOG_CATEGORY_NAME);
         }
 
         ball::Logger&  logger = singleton.getLogger();
@@ -199,7 +208,9 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
         ball::RecordAttributes& attributes = record->fixedFields();
         attributes.setMessage(message);
 
-        logger.logMessage(*category, convertBslsLogSeverity(severity), record);
+        logger.logMessage(*bslsLogCategoryPtr,
+                          convertBslsLogSeverity(severity),
+                          record);
     }
     else {
         (bsls::Log::platformDefaultMessageHandler)(severity,
@@ -475,15 +486,23 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
 LoggerManager *LoggerManager::s_singleton_p   = 0;
 bool           LoggerManager::s_doNotShutDown = false;
 
+namespace {
+
+static bslmt::QLock singletonQLock = BSLMT_QLOCK_INITIALIZER;
+    // The lock used to protect logger manager singleton (re)initialization and
+    // shutdown.
+
+}  // close unnamed namespace
+
 // PRIVATE CLASS METHODS
 void LoggerManager::initSingletonImpl(
                             const LoggerManagerConfiguration&  configuration,
                             bslma::Allocator                  *globalAllocator)
 {
-    static bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;
+    bslmt::QLockGuard qLockGuard(&singletonQLock);
 
-    bslmt::OnceGuard doOnceGuard(&doOnceObj);
-    if (doOnceGuard.enter() && 0 == s_singleton_p) {
+    if (0 == s_singleton_p) {
+
         bslma::Allocator *allocator =
                               bslma::Default::globalAllocator(globalAllocator);
 
@@ -495,10 +514,10 @@ void LoggerManager::initSingletonImpl(
 
         s_singleton_p = singleton;
 
-        // Configure 'bsls_log' to publish records using 'ball' via the
+        // Configure 'bsls::Log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
 
-        bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+        bslmt::QLockGuard qLockGuard(&bslsLogQLock);
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
     }
     else {
@@ -701,17 +720,16 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool shutDownEnabled)
 {
     BSLS_ASSERT(singleton);
 
-    static bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;
+    bslmt::QLockGuard qLockGuard(&singletonQLock);
 
-    bslmt::OnceGuard doOnceGuard(&doOnceObj);
-    if (doOnceGuard.enter() && 0 == s_singleton_p) {
+    if (0 == s_singleton_p) {
         s_singleton_p   = singleton;
         s_doNotShutDown = !shutDownEnabled;
 
-        // Configure 'bsls_log' to publish records using 'ball' via the
+        // Configure 'bsls::Log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
 
-        bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+        bslmt::QLockGuard qLockGuard(&bslsLogQLock);
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
     }
     else {
@@ -781,24 +799,27 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
 
 void LoggerManager::shutDownSingleton()
 {
+    bslmt::QLockGuard qLockGuard(&singletonQLock);
+
     if (s_singleton_p && !s_doNotShutDown) {
-        {
-            // Restore the default 'bsls_log' message handler.  Note that this
-            // lock is necessary to ensure that the singleton is not destroyed
-            // while a 'bsls_log' record is being published.
+        // Restore the default 'bsls::Log' message handler.  The lock ensures
+        // that the singleton is not destroyed while a 'bsls::Log' record is
+        // being published.
 
-            bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
-            bsls::Log::setLogMessageHandler(
+        bslmt::QLockGuard qLockGuard(&bslsLogQLock);
+        bsls::Log::setLogMessageHandler(
                                     &bsls::Log::platformDefaultMessageHandler);
-        }
 
-        // Clear the singleton pointer as early as possible to minimize the
-        // that one thread is destroying the singleton while another is still
-        // accessing the data members.
+        // Clear the singleton pointer as early as possible to narrow the
+        // window during which one thread is destroying the singleton while
+        // another is still accessing its data members.
 
         LoggerManager *singleton = s_singleton_p;
 
-        s_singleton_p = 0;
+        s_singleton_p      = 0;
+        bslsLogCategoryPtr = 0;
+
+        AttributeContext::reset();
 
         singleton->allocator()->deleteObjectRaw(singleton);
     }

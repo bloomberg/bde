@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide macros and utility functions to facilitate logging.
 //
 //@CLASSES:
-//  ball::Log: namespace for a suite of logging utilities
+//  ball::Log: namespace for logging utilities (for *internal* use only)
 //
 //@SEE_ALSO: ball_loggermanager, ball_category, ball_severity, ball_record
 //
@@ -29,6 +29,17 @@ BSLS_IDENT("$Id: $")
 // particular, the macros defined herein greatly simplify the mechanics of
 // generating log records.  The utility functions provided in 'ball::Log' are
 // intended only for use by the macros and should *not* be called directly.
+//
+// The macros defined herein pertain to the logger manager singleton only, and
+// not to any non-singleton instances of 'ball::LoggerManager'.  In particular,
+// the macros do not have any effect unless the logger manager singleton is
+// initialized.  Note that the flow of control may pass through a use of any of
+// the macros *before* the logger manager singleton has been initialized or
+// *after* it has been destroyed; however, control should not pass through any
+// macro use *during* logger manager singleton initialization or destruction.
+// See {Logger Manager Singleton Initialization} in the 'ball_loggermanager'
+// component-level documentation for details on the recommended procedure for
+// initializing the singleton.
 //
 ///Thread Safety
 ///-------------
@@ -76,7 +87,7 @@ BSLS_IDENT("$Id: $")
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY' in any given block (or else a compiler
 // diagnostic will result).  Note that categories that are set using these
 // macros, including dynamic categories, are not destroyed until the logger
-// manager is destroyed.
+// manager singleton is destroyed.
 //
 ///Macro for Defining Categories at Class Scope
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -97,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //
 // Note that similar to block-scope categories (see 'BALL_LOG_SET_CATEGORY' and
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY'), class-scope categories are not destroyed
-// until the logger manager is destroyed.
+// until the logger manager singleton is destroyed.
 //
 ///Macros for Logging Records
 /// - - - - - - - - - - - - -
@@ -1026,7 +1037,8 @@ struct Log {
         // 'file' and 'line' attributes.  The memory for the record will be
         // supplied by the allocator held by the logger manager singleton if
         // the specified 'category' is non-null, or by the currently installed
-        // default allocator otherwise.
+        // default allocator otherwise.  The behavior is undefined unless the
+        // logger manager singleton is initialized if 'category' is non-null.
 
     static void logMessage(const Category *category,
                            int             severity,
@@ -1046,11 +1058,12 @@ struct Log {
         // threshold level of 'category'.  Publish the entire contents of all
         // buffers of all loggers if 'severity' is at least as severe as the
         // current "Trigger-All" threshold level of 'category' (i.e., via the
-        // callback supplied at construction of the logger manager).  Note that
-        // this method has no effect if 'severity' is less severe than each of
-        // the threshold levels of 'category'.  The behavior is undefined
-        // unless 'severity' is in the range '[1 .. 255]' and the logger
-        // manager singleton has been initialized.
+        // callback supplied at construction of the logger manager singleton).
+        // This method has no effect if 'category' is 0 or 'severity' is less
+        // severe than each of the threshold levels of 'category'.  The
+        // behavior is undefined unless 'severity' is in the range '[1 .. 255]'
+        // and the logger manager singleton is initialized if 'category' is
+        // non-null.
 
     static void logMessage(const Category *category,
                            int             severity,
@@ -1068,12 +1081,12 @@ struct Log {
         // threshold level of 'category'.  Publish the entire contents of all
         // buffers of all loggers if 'severity' is at least as severe as the
         // current "Trigger-All" threshold level of 'category' (i.e., via the
-        // callback supplied at construction of the logger manager).  Note that
-        // this method has no effect if 'severity' is less severe than each of
+        // callback supplied at construction of the logger manager singleton).
+        // This method has no effect if 'severity' is less severe than each of
         // the threshold levels of 'category'.  The behavior is undefined
         // unless 'severity' is in the range '[1 .. 255]', 'record' was
         // obtained by a call to 'Log::getRecord', and the logger manager
-        // singleton has been initialized.
+        // singleton is initialized.
 
     static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
         // Block until access to the buffer used for formatting messages in
@@ -1097,13 +1110,14 @@ struct Log {
         // 'Log::obtainMessageBuffer' and has not yet been unlocked.
 
     static const Category *setCategory(const char *categoryName);
-        // Return from the logger manager's category registry the address of
-        // the non-modifiable category having the specified 'categoryName' if
-        // such a category exists, or if a new category having 'categoryName'
-        // can be added to the registry (i.e., if the registry has sufficient
-        // capacity to accommodate new entries); otherwise, return the address
-        // of the non-modifiable *Default* *Category*.  Return 0 if the logger
-        // manager singleton has not been initialized or has been destroyed.
+        // Return from the logger manager singleton's category registry the
+        // address of the non-modifiable category having the specified
+        // 'categoryName' if such a category exists, or if a new category
+        // having 'categoryName' can be added to the registry (i.e., if the
+        // registry has sufficient capacity to accommodate new entries);
+        // otherwise, return the address of the non-modifiable *Default*
+        // *Category*.  Return 0 if the logger manager singleton is not
+        // initialized.
 
     static void setCategory(CategoryHolder *categoryHolder,
                             const char     *categoryName);
@@ -1114,7 +1128,8 @@ struct Log {
         // capacity to accommodate new entries); otherwise, load the address of
         // the non-modifiable *Default* *Category*.  Also load into
         // 'categoryHolder' the maximum threshold level of the category
-        // ultimately loaded into 'categoryHolder'.
+        // ultimately loaded into 'categoryHolder'.  This method has no effect
+        // if the logger manager singleton is not initialized.
 
     static bool isCategoryEnabled(const CategoryHolder *categoryHolder,
                                   int                   severity);

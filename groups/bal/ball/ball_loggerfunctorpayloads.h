@@ -15,89 +15,68 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a suite of useful logger manager functor payloads.
+//@PURPOSE: Provide a suite of logger manager singleton functor payloads.
 //
 //@CLASSES
 //  ball::LoggerFunctorPayloads: namespace for logger manager functor payloads
 //
-//@SEE_ALSO: ball_loggermanager, ball_categorymanager
+//@SEE_ALSO: ball_loggermanagerconfiguration, ball_loggermanager
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
-//@DESCRIPTION: This component provides a suite of pure procedures, each of
-// which may be used as the function body "payload" of one of the various
+//@DESCRIPTION: This component provides a namespace,
+// 'ball::LoggerFunctorPayloads', containing a suite of pure procedures, each
+// of which may be used as the function body "payload" of one of the various
 // 'bsl::function' functors used as callbacks in the 'ball_loggermanager'
 // component.  Each function provides a specific customization or convenience
 // enhancement to the basic logger functionality.
 //
-// Functions in this component have at most six parameters and match one of
-// the three signatures:
-//..
-//    (ball::UserFields *)
-//    (ball::Transmission::Cause)
-//    (int *, int *, int *, int *, const char *, char)
-//..
-// These signatures match the 'typedef' definitions used in the
-// 'ball_loggermanager' component, as shown below.  Note that
-// 'ball::LoggerManager::PublishAllCallback' is just an alias for
-// 'ball::Logger::PublishAllCallback', which is itself an alias for a
-// particular 'bsl::function' specialization.
-//..
-//  ball::Logger Functors
-//  --------------------
-//  typedef bsl::function<void(ball::UserFields *)> Populator;
-//      // 'Populator' is the type of a user-supplied callback functor used to
-//      // populate the user-defined fields in each log record.
+// !WARNING!: Note that all functions defined in this component are intended
+// for use with the logger manager singleton *only*, and not with any
+// non-singleton instances of 'ball::LoggerManager'; in particular, a
+// precondition of each of the functions is that the logger manager singleton
+// must be initialized and not in the process of being shut down.
 //
-//  typedef bsl::function<void(ball::Transmission::Cause)> PublishAllCallback;
-//      // 'PublishAllCallback' is the type of the functor that is invoked
-//      // to publish all record buffers of all loggers that are allocated
-//      // by the logger manager.
-//
-//  ball::LoggerManager Functors
-//  ---------------------------
+// The lone function defined in 'ball::LoggerFunctorPayloads' at this time,
+// 'loadParentCategoryThresholdValues', has signature:
+//..
+//  (int *, int *, int *, int *, const char *, char)
+//..
+// The initial five types in this signature match the following 'typedef' from
+// 'ball::LoggerManager' (and 'ball::LoggerManagerConfiguration'):
+//..
 //  typedef bsl::function<void(int *, int *, int *, int *, const char *)>
-//                                                   DefaultThresholdsCallback;
-//      // 'DefaultThresholdsCallback' is the type of the functor that
+//                                              DefaultThresholdLevelsCallback;
+//      // 'DefaultThresholdLevelsCallback' is the type of the functor that
 //      // determines default threshold levels for categories added to the
 //      // registry by the 'setCategory(const char *)' method.
-//
-//  typedef ball::Logger::PublishAllCallback PublishAllCallback;
-//      // 'PublishAllCallback' is the type of the functor that is invoked
-//      // to publish all record buffers of all active loggers (i.e., loggers
-//      // allocated by the logger manager that have not yet been deallocated).
 //..
-//
-///Synopsis
-///--------
-// The following is a list of functions available in this component, each
-// followed by the callback 'typedef' for which it is appropriate.
-//..
-//    loadParentCategoryThresholdValues     DefaultThresholdsCallback
-//..
+// The purpose of the trailing 'char' argument is discussed in the following
+// section, the Usage example, and the 'loadParentCategoryThresholdValues'
+// function-level documentation.
 //
 ///Support for Hierarchical Category Names
 ///---------------------------------------
 // The 'ball' logging toolkit does not explicitly support any structure in the
 // registry of category names; each unique sequence of characters defines a
 // unique category that is, from the logger's perspective, a "peer" to all
-// other categories.  The toolkit does, however, provides several callback
+// other categories.  The toolkit does, however, provide several callback
 // mechanisms that facilitate customized naming conventions.
 //
-// In particular, 'ball::LoggerManager' can accept an argument of type
-// 'DefaultThresholdsCallback' (see the 'typedef' definition above), which, if
-// not null, is invoked to populate the four threshold levels whenever the user
-// creates a category having the "default" thresholds.  This component provides
-// the function 'loadParentCategoryThresholdValues', which can be used as the
-// payload to 'DefaultThresholdsCallback'.  'loadParentCategoryThresholdValues'
-// populates its four category threshold level arguments from a specified
-// "child" category name and a 'char' delimiter by searching the category
-// registry for a name that is "the most proximate parent category", assuming a
-// hierarchical naming convention that uses the delimiter character.  If such a
-// parent category is found, the "child" category will receive the threshold
-// levels of the parent.  If no such parent exists, the new category will
-// receive the standard "default" thresholds that it would have gotten had the
-// callback been null.
+// In particular, the 'ball::LoggerManager' singleton can be configured with a
+// 'DefaultThresholdLevelsCallback' (see the 'typedef' definition above) that,
+// if not null, is invoked to populate the four threshold levels whenever the
+// user creates a category having the "default" thresholds.  This component
+// provides the function 'loadParentCategoryThresholdValues' that can be used
+// as the payload to 'DefaultThresholdLevelsCallback'.
+// 'loadParentCategoryThresholdValues' populates its four category threshold
+// level arguments from a specified "child" category name and a 'char'
+// delimiter by searching the category registry for a name that is "the most
+// proximate parent category", assuming a hierarchical naming convention that
+// uses the delimiter character.  If such a parent category is found, the
+// "child" category will receive the threshold levels of the parent.  If no
+// such parent exists, the new category will receive the standard "default"
+// thresholds that it would have gotten had the callback been null.
 //
 ///Usage
 ///-----
@@ -270,25 +249,30 @@ namespace ball {
 
 struct LoggerFunctorPayloads {
     // This 'struct' provides a namespace for a suite of utility functions,
-    // each of which may be used as function body for an appropriate
+    // each of which may be used as the function body for an appropriate
     // 'bsl::function' callback functor within 'ball_loggermanager'.
+    //
+    // !WARNING!: Note that all functions are intended for use with the logger
+    // manager singleton *only*, and not with any non-singleton instances of
+    // 'ball::LoggerManager'.
 
     // CLASS METHODS
     static
-    void loadParentCategoryThresholdValues(int                *recordLevel,
-                                           int                *passLevel,
-                                           int                *triggerLevel,
-                                           int                *triggerAllLevel,
-                                           const char         *categoryName,
-                                           char                delimiter);
+    void loadParentCategoryThresholdValues(int        *recordLevel,
+                                           int        *passLevel,
+                                           int        *triggerLevel,
+                                           int        *triggerAllLevel,
+                                           const char *categoryName,
+                                           char        delimiter);
         // Load into the specified 'recordLevel', 'passLevel', 'triggerLevel',
         // and 'triggerAllLevel' the respective threshold levels of the
-        // category in the (singleton) registry of the 'ball' logger that is
-        // the most proximate parent category among existing hierarchically
-        // named categories in the registry, if such a parent category exists,
-        // or the default thresholds otherwise; use the specified 'delimiter'
-        // to define hierarchical category names.  The behavior is undefined
-        // unless the 'LoggerManager' singleton has been initialized.
+        // category in the registry of the (singleton) 'ball' logger manager
+        // that is the most proximate parent category among existing
+        // hierarchically named categories in the registry, if such a parent
+        // category exists, or the default thresholds otherwise; use the
+        // specified 'delimiter' to define hierarchical category names.  The
+        // behavior is undefined unless the logger manager singleton has been
+        // initialized and it is not in the process of being shut down.
 };
 
 }  // close package namespace

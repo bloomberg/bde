@@ -142,7 +142,7 @@
 :      Provide a suite of utility functions for category management.
 :
 : 'ball_loggerfunctorpayloads':
-:      Provide a suite of useful logger manager functor payloads.
+:      Provide a suite of logger manager singleton functor payloads.
 :
 : 'ball_loggermanager':
 :      Provide a manager of core logging functionality.
@@ -320,7 +320,7 @@
 
  For convenient reference only, the 'ball::Severity::Level' 'enum'
  implementation is presented below.  Note that this implementation and the
- specific numerical values may not be relied upon.  Note also that the
+ specific numerical values may not be relied upon.  Also note that the
  enumerator 'NONE' is deprecated, since its name has proven to be confusing.
  As an argument to 'logMessage', it would satisfy "none" of the thresholds, but
  when provided as a threshold value itself, it would enable "all" of the
@@ -605,9 +605,11 @@
 
  The user should note the following two facts about macro usage:
 
-: 1 The 'BALL_LOG_SET_CATEGORY' macro is not only convenient, it is *required*
-:   for macro use, since it defines symbols that the other macros expect to
-:   see.
+: 1 The 'BALL_LOG_SET_CATEGORY' macro is not only convenient, it is most often
+:   *required* for macro use, since it defines symbols that the other macros
+:   expect to see.  (Alternatively, either the 'BALL_LOG_SET_DYNAMIC_CATEGORY'
+:   or 'BALL_LOG_SET_CLASS_CATEGORY' macro may be used instead; see the
+:   'ball_log' component for details.)
 :
 : 2 There are two styles of logging macros, C++ stream style and 'printf'
 :   style.  The 'printf'-style logging macros write to an intermediate
@@ -775,11 +777,10 @@
 :   This is the intended behavior.
 
  Note that, when logging using the macros, the 'BALL_LOG_SET_CATEGORY' macro is
- not only extremely convenient, it is required, since it in turn defines
- symbols that the logging macros expect to see.  Note also that
- 'BALL_LOG_SET_CATEGORY' must be used at function scope.  Finally, note that
- 'BALL_LOG_SET_CATEGORY' can be used only once within a scope, although it can
- be nested in inner scopes.
+ not only extremely convenient, it is typically required, since it in turn
+ defines symbols that the logging macros expect to see.  Also note that
+ 'BALL_LOG_SET_CATEGORY' must be used at function scope, and can be used only
+ once within a scope, although it can be nested in inner scopes.
 
  The entire program file is as follows.
 ..
@@ -1032,7 +1033,7 @@
  instance, and with that logger instance invokes the 'publish' method.  Note
  that the logger's "manual" 'publish' method should not be confused with the
  'ball::Observer' 'publish' method, which is invoked by all "manual" and
- "automatic" logger "publishing" operations.  Note also that should the
+ "automatic" logger "publishing" operations.  Also note that should the
  'manager' instance for some reason not be visible, the class method
  'ball::LoggerManager::singleton()' can be used to obtain a reference to that
  instance.  The full program file appears as follows.
