@@ -378,8 +378,7 @@ void readCbWithReadSize(int            result,
 {
     static int numRead = 0;
 
-    if (result)
-    {
+    if (result) {
         // Session is going down.
 
         return;
@@ -394,8 +393,7 @@ void readCbWithReadSize(int            result,
     btlb::BlobUtil::erase(data, 0, bytesToRead);
 
     numRead += bytesToRead;
-    if (numRead >= totalDataSize)
-    {
+    if (numRead >= totalDataSize) {
         barrier->wait();
         numRead = 0;
     }
@@ -1158,7 +1156,6 @@ namespace BTLMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB {
 
 using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
-static bslma::TestAllocator testAllocator;
 static int callbackCount = 0;
 
 static int maxLength = 0;
@@ -3907,13 +3904,11 @@ int main(int argc, char *argv[])
             semaphore.wait();
 
             if (veryVerbose) {
-                MTCOUT << "TA In Use: " << testAllocator.numBytesInUse()
-                       << MTENDL;
+                MTCOUT << "TA In Use: " << ta.numBytesInUse() << MTENDL;
                 MTCOUT << "TA In Use Blocks: "
-                       << testAllocator.numBlocksInUse()
+                       << ta.numBlocksInUse()
                        << MTENDL;
-                MTCOUT << "TA In Max: " << testAllocator.numBytesMax()
-                       << MTENDL;
+                MTCOUT << "TA In Max: " << ta.numBytesMax() << MTENDL;
                 MTCOUT << "maxLength: " << maxLength << MTENDL;
                 MTCOUT << "maxSize: " << maxSize << MTENDL;
                 MTCOUT << "maxExtra: " << maxExtra << MTENDL;
