@@ -239,43 +239,48 @@ void SpookyHashAlgorithmImp::shortHash(
         }
     }
 
+    // The "FALL THROUGH" comments here are necessary to avoid the
+    // implicit-fallthrough warnings that GCC 7 introduces.  We could
+    // instead use GNU C's __attribute__(fallthrough) vendor
+    // extension or C++17's [[fallthrough]] attribute but these would
+    // need to be hidden from the Oracle and IBM compilers.
+
     // Handle the last 0 to 15 bytes, and their length.
     d += (static_cast<Uint64>(length)) << 56;
     switch (remainder)
-    // Note that this statement relies on fall-through behaviour.
     {
     case 15:
-        d += (static_cast<Uint64>(u.p8[14])) << 48;
+        d += (static_cast<Uint64>(u.p8[14])) << 48;  // FALL THROUGH
     case 14:
-        d += (static_cast<Uint64>(u.p8[13])) << 40;
+        d += (static_cast<Uint64>(u.p8[13])) << 40;  // FALL THROUGH
     case 13:
-        d += (static_cast<Uint64>(u.p8[12])) << 32;
+        d += (static_cast<Uint64>(u.p8[12])) << 32;  // FALL THROUGH
     case 12:
         d += u.p32[2];
         c += u.p64[0];
         break;
     case 11:
-        d += (static_cast<Uint64>(u.p8[10])) << 16;
+        d += (static_cast<Uint64>(u.p8[10])) << 16;  // FALL THROUGH
     case 10:
-        d += (static_cast<Uint64>(u.p8[9])) << 8;
+        d += (static_cast<Uint64>(u.p8[9])) << 8;    // FALL THROUGH
     case 9:
-        d += static_cast<Uint64>(u.p8[8]);
+        d += static_cast<Uint64>(u.p8[8]);           // FALL THROUGH
     case 8:
         c += u.p64[0];
         break;
     case 7:
-        c += (static_cast<Uint64>(u.p8[6])) << 48;
+        c += (static_cast<Uint64>(u.p8[6])) << 48;   // FALL THROUGH
     case 6:
-        c += (static_cast<Uint64>(u.p8[5])) << 40;
+        c += (static_cast<Uint64>(u.p8[5])) << 40;   // FALL THROUGH
     case 5:
-        c += (static_cast<Uint64>(u.p8[4])) << 32;
+        c += (static_cast<Uint64>(u.p8[4])) << 32;   // FALL THROUGH
     case 4:
         c += u.p32[0];
         break;
     case 3:
-        c += (static_cast<Uint64>(u.p8[2])) << 16;
+        c += (static_cast<Uint64>(u.p8[2])) << 16;  // FALL THROUGH
     case 2:
-        c += (static_cast<Uint64>(u.p8[1])) << 8;
+        c += (static_cast<Uint64>(u.p8[1])) << 8;   // FALL THROUGH
     case 1:
         c += static_cast<Uint64>(u.p8[0]);
         break;

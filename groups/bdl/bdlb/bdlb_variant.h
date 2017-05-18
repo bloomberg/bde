@@ -5956,7 +5956,7 @@ struct Variant_TypeIndex {
               : 0
     };
 
-    BSLMF_ASSERT(value);
+    BSLMF_ASSERT(0 != value);
 
 #if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
     // See 'testCase17' in the test driver for code snippets that motivate this
@@ -7707,7 +7707,7 @@ template <class TYPE>
 inline
 TYPE& VariantImp<TYPES>::the()
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value));
+    BSLMF_ASSERT((0 != Variant_TypeIndex<TYPES, TYPE>::value));
     BSLS_ASSERT_SAFE((this->d_type == Variant_TypeIndex<TYPES, TYPE>::value));
 
     typedef bsls::ObjectBuffer<TYPE> BufferType;
@@ -7824,7 +7824,7 @@ template <class TYPE>
 inline
 const TYPE& VariantImp<TYPES>::the() const
 {
-    BSLMF_ASSERT((Variant_TypeIndex<TYPES, TYPE>::value));
+    BSLMF_ASSERT((0 != Variant_TypeIndex<TYPES, TYPE>::value));
     BSLS_ASSERT_SAFE((this->d_type == Variant_TypeIndex<TYPES, TYPE>::value));
 
     typedef bsls::ObjectBuffer<TYPE> BufferType;

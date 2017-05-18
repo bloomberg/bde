@@ -2122,14 +2122,20 @@ size_t BitStringUtil::num1(const uint64_t *bitString,
 
     BSLS_ASSERT_SAFE(ii < 8);
 
+    // The "FALL THROUGH" comments here are necessary to avoid the
+    // implicit-fallthrough warnings that GCC 7 introduces.  We could
+    // instead use GNU C's __attribute__(fallthrough) vendor
+    // extension or C++17's [[fallthrough]] attribute but these would
+    // need to be hidden from the Oracle and IBM compilers.
+
     switch (ii) {
-      case 7: ret += BitUtil::numBitsSet(array[--ii]);
-      case 6: ret += BitUtil::numBitsSet(array[--ii]);
-      case 5: ret += BitUtil::numBitsSet(array[--ii]);
-      case 4: ret += BitUtil::numBitsSet(array[--ii]);
-      case 3: ret += BitUtil::numBitsSet(array[--ii]);
-      case 2: ret += BitUtil::numBitsSet(array[--ii]);
-      case 1: ret += BitUtil::numBitsSet(array[--ii]);
+      case 7: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
+      case 6: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
+      case 5: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
+      case 4: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
+      case 3: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
+      case 2: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
+      case 1: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
       default: ;
     }
 

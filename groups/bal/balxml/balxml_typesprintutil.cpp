@@ -387,8 +387,8 @@ const char *printTextReplacingXMLEscapes(
             if (dataLength == -1) {
                 stream.write(runBegin, data - runBegin);
                 return 0;                                             // RETURN
-            }                                              // ELSE FALL THROUGH
-          }
+            }
+          }                                                // ELSE FALL THROUGH
 
           case CONTROL_CHARACTER: {
             // Control characters, although allowed in XML 1.1, are discouraged
