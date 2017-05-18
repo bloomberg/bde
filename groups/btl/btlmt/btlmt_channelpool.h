@@ -315,7 +315,7 @@ BSLS_IDENT("$Id: $")
 //      btlmt::ChannelPoolConfiguration  d_config;         // pool's config
 //      btlmt::ChannelPool              *d_channelPool_p;  // managed pool
 //      bslma::Allocator                *d_allocator_p;    // memory manager
-//      bslmt::Mutex                    *d_coutLock_p;     // synchronize 'cout'
+//      bslmt::Mutex                    *d_coutLock_p;     // 'cout' lock
 //
 //    private:
 //      // Callback functions:

@@ -10,6 +10,7 @@
 #include <btlmt_sessionpool.h>
 
 #include <btlmt_asyncchannel.h>
+#include <btlmt_channelpoolchannel.h>
 #include <btlmt_channelpool.h>
 #include <btlmt_connectoptions.h>
 #include <btlmt_listenoptions.h>
@@ -20,32 +21,31 @@
 #include <btlb_blobutil.h>
 #include <btlb_pooledblobbufferfactory.h>
 
-#include <bslma_testallocator.h>
-
-#include <bslmt_barrier.h>
-#include <btlmt_channelpoolchannel.h>
-#include <bslmt_mutex.h>
-#include <bslmt_semaphore.h>
-#include <bslmt_threadutil.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-#include <bdlf_memfn.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-
 #include <btlso_flag.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_socketoptions.h>
 #include <btlso_streamsocket.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+#include <bdlf_memfn.h>
+
+#include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_atomic.h>
 
+#include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_cstdlib.h>     // atoi()
 
 using namespace BloombergLP;
 using namespace bsl;
