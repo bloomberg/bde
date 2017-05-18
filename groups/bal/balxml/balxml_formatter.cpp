@@ -391,8 +391,7 @@ int Formatter::addValidComment(
                               bool                     forceNewline,
                               bool                     omitEnclosingWhitespace)
 {
-    const char *doubleHyphen      = "--";
-    const char *doubleHyphenBegin = doubleHyphen;
+    const char *doubleHyphenBegin = "--";
     const char *doubleHyphenEnd   = doubleHyphenBegin + 2;
     // The string "--" (double-hyphen) must not occur within comments.  Also
     // the grammar does not allow a comment ending in "--->".
