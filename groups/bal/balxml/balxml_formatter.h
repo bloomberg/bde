@@ -372,6 +372,20 @@ class Formatter {
 
   private:
     // PRIVATE MANIPULATORS
+    void addValidCommentImpl(
+                     const bslstl::StringRef& comment,
+                     bool                     forceNewline,
+                     bool                     omitEnclosingWhitespace);
+        // Write the specified 'comment' into the stream.  The specified
+        // 'forceNewLine' option, if 'true', results in a new line being output
+        // before the comment if it is not on a new line already.  Otherwise,
+        // comments continue on current line.  The specified
+        // 'omitEnclosingWhitespace' option, if 'true', omits adding a space
+        // character before and after 'comment'.  Otherwise, a space character
+        // is added before and after 'comment'.  Note that if an
+        // element-opening tag is not completed with a '>',
+        // 'addValidCommentImpl' will add '>'.
+
     void doAddAttribute(const bslstl::StringRef& name,
                         const bslstl::StringRef& value);
         // Add an attribute of the specified 'name' that with the specified
@@ -465,11 +479,31 @@ class Formatter {
 
     void addComment(const bslstl::StringRef& comment,
                     bool                     forceNewline = true);
+        // [!DEPRECATED!] Use 'addValidComment' instead.
+        //
         // Write the specified 'comment' into the stream.  The specified
         // 'forceNewLine', if true, forces to start a new line solely for the
         // comment if it's not on a new line already.  Otherwise, comments
         // continue on current line.  If an element-opening tag is not
         // completed with a '>', 'addComment' will add '>'.
+
+    int addValidComment(
+                     const bslstl::StringRef& comment,
+                     bool                     forceNewline = true,
+                     bool                     omitEnclosingWhitespace = false);
+        // Write the specified 'comment' into the stream.  Optionally specify
+        // 'forceNewLine' that specifies if a new line should be added before
+        // the comment if it is not already on a new line.  If 'forceNewLine'
+        // is not specified then a new line is inserted for comments not
+        // already on a new line.  Also optionally specify an
+        // 'omitEnclosingWhitespace' that specifies if a space character should
+        // be omitted before and after 'comment'.  If 'omitEnclosingWhitespace'
+        // is not specified then a space character is inserted before and after
+        // 'comment'.  Return 0 on success, and non-zero value otherwise.  Note
+        // that a non-zero return value is returned if either 'comment'
+        // contains '--' or if 'omitEnclosingWhitespace' is 'true' and
+        // 'comment' ends with '-'.  Also note that if an element-opening tag
+        // is not completed with a '>', 'addValidComment' will add '>'.
 
     template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
