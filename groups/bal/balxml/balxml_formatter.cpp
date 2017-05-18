@@ -391,14 +391,13 @@ int Formatter::addValidComment(
                               bool                     forceNewline,
                               bool                     omitEnclosingWhitespace)
 {
-    const char *doubleHyphenBegin = "--";
-    const char *doubleHyphenEnd   = doubleHyphenBegin + 2;
+    const char doubleHyphen[] = "--";
     // The string "--" (double-hyphen) must not occur within comments.  Also
     // the grammar does not allow a comment ending in "--->".
     if (comment.end() != bsl::search(comment.begin(),
                                      comment.end(),
-                                     doubleHyphenBegin,
-                                     doubleHyphenEnd)
+                                     doubleHyphen,
+                                     doubleHyphen + sizeof doubleHyphen - 1)
         || (omitEnclosingWhitespace && !comment.empty()
             && '-' == *comment.rbegin())) {
         return 1;                                                     // RETURN
