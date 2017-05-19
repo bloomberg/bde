@@ -107,7 +107,7 @@ struct NodeHash {
     }
 };
 
-struct NodeEquals {
+struct NodeEqual {
     // The explicit EQUALS functor for the simple node structure.
 
     typedef Node first_argument_type;
@@ -333,8 +333,8 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // EXPLICIT HASH AND EQUALS TEST
-        //   This case tests sorting with explicitly specified HASH and EQUALS
+        // EXPLICIT HASH AND EQUAL TEST
+        //   This case tests sorting with explicitly specified HASH and EQUAL
         //   functors (for the 'unordered_map' used during sorting.
         //
         // Concerns:
@@ -349,8 +349,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "EXPLICIT HASH AND EQUALS TEST" << endl
-                          << "=============================" << endl;
+                          << "EXPLICIT HASH AND EQUAL TEST" << endl
+                          << "============================" << endl;
 
         bsl::vector<bsl::pair<Node, Node> > relations;
 
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 
         bsl::vector<Node> results;
         bsl::vector<Node> unordered;
-        bool sorted = TopologicalSortUtil::sort<Node, NodeHash, NodeEquals>(
+        bool sorted = TopologicalSortUtil::sort<Node, NodeHash, NodeEqual>(
                                                                     &results,
                                                                     &unordered,
                                                                     relations);

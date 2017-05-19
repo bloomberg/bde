@@ -299,18 +299,19 @@ class TopologicalSortUtil_Helper {
         // Create a helper class which holds the different data structures
         // required to sort the specified 'relations' in topological order.
         // Optionally, specify an 'allocator' for needed memory.  If
-        // 'allocator' is 0, use the globally supply default allocator instead.
+        // 'allocator' is 0, use the globally supplied default allocator
+        // instead.
 
     ~TopologicalSortUtil_Helper();
         // Destroy this object.
 
     // MANIPULATORS
-    bool nextProcessed(VALUE_TYPE &result);
+    bool nextProcessed(VALUE_TYPE *result);
         // Load an element which doesn't have any predecessors into the
         // specified 'result'.  Return 'false' if there is no such element left
         // or the input set is fully processed else return 'true'.  Note that
         // if this method detects cycles in the input set it will set the
-        // 'd_hasCycle' flag to 'true' and return 'false.  Please use the
+        // 'd_hasCycle' flag to 'true' and return 'false'.  Please use the
         // 'hasCycle' accessor to access the value of the flag.
 
     // ACCESSORS
@@ -322,7 +323,7 @@ class TopologicalSortUtil_Helper {
         // Load elements which have not been sorted to the specified
         // 'unorderedList'.  Note that the behavior is undefined if this method
         // is called before the sort routine is finished (determined by
-        // 'nextProcessed' method returning false) and it has been determined
+        // 'nextProcessed' method returning 'false') and it has been determined
         // that there is a cycle which can be found by using the 'hasCycle'
         // method.
 };
@@ -337,7 +338,7 @@ struct TopologicalSortUtil {
   public:
     // CLASS METHODS
       template <class VALUE_TYPE,
-                class HASH = bsl::hash<VALUE_TYPE>,
+                class HASH  = bsl::hash<VALUE_TYPE>,
                 class EQUAL = bsl::equal_to<VALUE_TYPE> >
     static bool sort(
          bsl::vector<VALUE_TYPE>                               *result,
@@ -353,16 +354,18 @@ struct TopologicalSortUtil {
         // specify an 'allocator' for memory.  If 'allocator' is 0, use the
         // globally supply default allocator instead.  Return 'false' if sort
         // fails due to a cycle in the input else return 'true' if sort
-        // successful.  Note that even if the method returns false 'result' can
-        // contain a subset of elements in the right topological order,
-        // essentially elements which the routine was able to sort before the
-        // cycle was discovered and 'unorderedList' will contain the elements
-        // which the routine was unable to sort.
+        // successful.  Optionally use the specified 'HASH' and 'EQUAL' functor
+        // types in the 'unordered_map' used temporarily during processing.
+        // Note that even if the method returns false 'result' can contain a
+        // subset of elements in the right topological order, essentially
+        // elements which the routine was able to sort before the cycle was
+        // discovered and 'unorderedList' will contain the elements which the
+        // routine was unable to sort.
 };
 
-                   // ------------------------------------------
-                   // class TopologicalSortUtil_Helper::NodeInfo
-                   // ------------------------------------------
+                 // ------------------------------------------
+                 // class TopologicalSortUtil_Helper::NodeInfo
+                 // ------------------------------------------
 
 // CREATORS
 template <class VALUE_TYPE, class HASH, class EQUAL>
@@ -455,7 +458,7 @@ TopologicalSortUtil_Helper<VALUE_TYPE,
 template <typename VALUE_TYPE, class HASH, class EQUAL>
 bool TopologicalSortUtil_Helper<VALUE_TYPE,
                                 HASH,
-                                EQUAL>::nextProcessed(VALUE_TYPE &result)
+                                EQUAL>::nextProcessed(VALUE_TYPE *result)
 {
     // process element with no predecessors
 
@@ -498,7 +501,7 @@ bool TopologicalSortUtil_Helper<VALUE_TYPE,
 
         // remove this node from the d_orderedNodes and return
 
-        result = processed;
+        *result = processed;
         d_orderedNodes.pop();
         return true;                                                  // RETURN
     }
@@ -554,7 +557,7 @@ bool TopologicalSortUtil::sort(
                                                                     allocator);
 
     VALUE_TYPE processed;
-    while (tSortHelper.nextProcessed(processed)) {
+    while (tSortHelper.nextProcessed(&processed)) {
         result->push_back(processed);
     }
 
