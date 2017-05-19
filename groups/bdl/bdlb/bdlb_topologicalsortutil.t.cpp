@@ -427,10 +427,10 @@ int main(int argc, char *argv[])
                           << "EDGE TEST" << endl
                           << "=========" << endl;
 
-        bsl::vector<bsl::pair<int, int> > relations;
+        bsl::vector<bsl::pair<bsl::string, bsl::string> > relations;
 
-        bsl::vector<int> results;
-        bsl::vector<int> unordered;
+        bsl::vector<bsl::string> results;
+        bsl::vector<bsl::string> unordered;
         bool sorted = TopologicalSortUtil::sort(&results,
                                                 &unordered,
                                                 relations);
@@ -441,7 +441,8 @@ int main(int argc, char *argv[])
 
         // One edge
 
-        relations.push_back(bsl::make_pair(1, 2));
+        relations.push_back(bsl::make_pair(bsl::string("1"),
+                                           bsl::string("2")));
 
         sorted = TopologicalSortUtil::sort(&results, &unordered, relations);
         ASSERT(true == sorted);
@@ -449,8 +450,8 @@ int main(int argc, char *argv[])
 
         ASSERT(results.size() == 2);
 
-        LOOP_ASSERT(results[0], results[0] == 1);
-        LOOP_ASSERT(results[1], results[1] == 2);
+        LOOP_ASSERT(results[0], results[0] == "1");
+        LOOP_ASSERT(results[1], results[1] == "2");
 
       } break;
       case 1: {
