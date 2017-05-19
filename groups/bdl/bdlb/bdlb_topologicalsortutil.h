@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 //  enum FieldIds2 {
 //      FIELD1 = 0,
 //      FIELD2 = 1,
-//      FIELD3 = 2,
+//      FIELD3 = 2
 //  };
 //
 //  bsl::vector<bsl::pair<int, int> > relations2;
@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //  enum FieldIds3 {
 //      FIELD4 = 3,
 //      FIELD5 = 4,
-//      FIELD6 = 5,
+//      FIELD6 = 5
 //  };
 //
 //  bsl::vector<bsl::pair<int, int> > relations3;
