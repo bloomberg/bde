@@ -211,11 +211,11 @@ BSLS_IDENT("$Id: $")
 //
 //  if (veryVeryVerbose)
 //  {
-//      for (int i = 0; i < results3.size(); ++i) {
+//      for (bsl::size_t i = 0; i < results3.size(); ++i) {
 //              cout << "results3[" << i << "] is " << results3[i] << "\n";
 //      }
 //
-//      for (int i = 0; i < unordered3.size(); ++i) {
+//      for (bsl::size_t i = 0; i < unordered3.size(); ++i) {
 //              cout << "unordered3[" << i << "] is " << unordered3[i] << "\n";
 //      }
 //  }
