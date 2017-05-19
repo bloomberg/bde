@@ -250,7 +250,9 @@ namespace bdlb {
                         // class TopologicalSortUtil_Helper
                         // ================================
 
-template <class VALUE_TYPE>
+template <class VALUE_TYPE,
+          class HASH = bsl::hash<VALUE_TYPE>,
+          class EQUAL = bsl::equal_to<VALUE_TYPE >>
 class TopologicalSortUtil_Helper {
     // This class provides data structures required to sort the partial
     // unordered pairs into a total ordered set.
@@ -272,8 +274,8 @@ class TopologicalSortUtil_Helper {
             // globally supply default allocator instead.
     };
 
-    typedef bsl::vector< bsl::pair<VALUE_TYPE, VALUE_TYPE> > Relations;
-    typedef bsl::unordered_map<VALUE_TYPE, NodeInfo *>       SetInfo;
+    typedef bsl::vector< bsl::pair<VALUE_TYPE, VALUE_TYPE> >        Relations;
+    typedef bsl::unordered_map<VALUE_TYPE, NodeInfo *, HASH, EQUAL> SetInfo;
 
     // DATA
     SetInfo                 d_setInfo;     // additional data structure needed
@@ -334,7 +336,9 @@ struct TopologicalSortUtil {
 
   public:
     // CLASS METHODS
-    template <typename VALUE_TYPE>
+      template <class VALUE_TYPE,
+                class HASH = bsl::hash<VALUE_TYPE>,
+                class EQUAL = bsl::equal_to<VALUE_TYPE> >
     static bool sort(
          bsl::vector<VALUE_TYPE>                               *result,
          bsl::vector<VALUE_TYPE>                               *unorderedList,
@@ -361,8 +365,8 @@ struct TopologicalSortUtil {
                    // ------------------------------------------
 
 // CREATORS
-template <typename VALUE_TYPE>
-TopologicalSortUtil_Helper<VALUE_TYPE>::NodeInfo::NodeInfo(
+template <class VALUE_TYPE, class HASH, class EQUAL>
+TopologicalSortUtil_Helper<VALUE_TYPE, HASH, EQUAL>::NodeInfo::NodeInfo(
                                                   bslma::Allocator *allocator):
     d_predecessorCount(0),
     d_successors(allocator)
@@ -374,8 +378,10 @@ TopologicalSortUtil_Helper<VALUE_TYPE>::NodeInfo::NodeInfo(
                       // --------------------------------
 
 // CREATORS
-template <typename VALUE_TYPE>
-TopologicalSortUtil_Helper<VALUE_TYPE>::TopologicalSortUtil_Helper(
+template <typename VALUE_TYPE, class HASH, class EQUAL>
+TopologicalSortUtil_Helper<VALUE_TYPE,
+                           HASH,
+                           EQUAL>::TopologicalSortUtil_Helper(
            const bsl::vector< bsl::pair<VALUE_TYPE, VALUE_TYPE> >& relations,
            bslma::Allocator                                       *allocator) :
     d_setInfo      (allocator),
@@ -431,8 +437,10 @@ TopologicalSortUtil_Helper<VALUE_TYPE>::TopologicalSortUtil_Helper(
     }
 }
 
-template <typename VALUE_TYPE>
-TopologicalSortUtil_Helper<VALUE_TYPE>::~TopologicalSortUtil_Helper()
+template <typename VALUE_TYPE, class HASH, class EQUAL>
+TopologicalSortUtil_Helper<VALUE_TYPE,
+                           HASH,
+                           EQUAL>::~TopologicalSortUtil_Helper()
 {
     // Iterate through the set and delete any elements which have not been
     // processed.
@@ -444,8 +452,10 @@ TopologicalSortUtil_Helper<VALUE_TYPE>::~TopologicalSortUtil_Helper()
 }
 
 // MANIPULATORS
-template <typename VALUE_TYPE>
-bool TopologicalSortUtil_Helper<VALUE_TYPE>::nextProcessed(VALUE_TYPE &result)
+template <typename VALUE_TYPE, class HASH, class EQUAL>
+bool TopologicalSortUtil_Helper<VALUE_TYPE,
+                                HASH,
+                                EQUAL>::nextProcessed(VALUE_TYPE &result)
 {
     // process element with no predecessors
 
@@ -505,14 +515,14 @@ bool TopologicalSortUtil_Helper<VALUE_TYPE>::nextProcessed(VALUE_TYPE &result)
 }
 
 // ACCESSORS
-template <typename VALUE_TYPE>
-bool TopologicalSortUtil_Helper<VALUE_TYPE>::hasCycle() const
+template <typename VALUE_TYPE, class HASH, class EQUAL>
+bool TopologicalSortUtil_Helper<VALUE_TYPE, HASH, EQUAL>::hasCycle() const
 {
     return d_hasCycle;
 }
 
-template <typename VALUE_TYPE>
-void TopologicalSortUtil_Helper<VALUE_TYPE>::unordered(
+template <typename VALUE_TYPE, class HASH, class EQUAL>
+void TopologicalSortUtil_Helper<VALUE_TYPE, HASH, EQUAL>::unordered(
                                   bsl::vector<VALUE_TYPE> *unorderedList) const
 {
 
@@ -532,7 +542,7 @@ void TopologicalSortUtil_Helper<VALUE_TYPE>::unordered(
                         // -------------------------
 
 // MANIPULATORS
-template <typename VALUE_TYPE>
+template <typename VALUE_TYPE, class HASH, class EQUAL>
 bool TopologicalSortUtil::sort(
               bsl::vector<VALUE_TYPE>                           *result,
               bsl::vector<VALUE_TYPE>                           *unorderedList,
@@ -540,16 +550,15 @@ bool TopologicalSortUtil::sort(
                                                                  relations,
               bslma::Allocator                                  *allocator)
 {
-    TopologicalSortUtil_Helper<VALUE_TYPE> tSortHelper(relations, allocator);
+    TopologicalSortUtil_Helper<VALUE_TYPE, HASH, EQUAL> tSortHelper(relations,
+                                                                    allocator);
 
     VALUE_TYPE processed;
-    while (tSortHelper.nextProcessed(processed))
-    {
+    while (tSortHelper.nextProcessed(processed)) {
         result->push_back(processed);
     }
 
-    if ( tSortHelper.hasCycle() )
-    {
+    if (tSortHelper.hasCycle()) {
         // load unorderedList with unordered elements
 
         tSortHelper.unordered(unorderedList);
