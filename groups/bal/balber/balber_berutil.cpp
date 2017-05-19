@@ -1107,12 +1107,6 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
     }
 
     value->resize(length);
-    // KLUDGE: The standard does not guarantee that the contents of a string
-    // are contiguous in memory.  For efficiency, we take advantage of the fact
-    // that our implementation (and almost every other implementation) is
-    // contiguous.  We assert this assumption here:
-
-    BSLS_ASSERT(&value[length-1] == &value[0] + length - 1);
 
     const bsl::streamsize bytesConsumed =
                                         streamBuf->sgetn(&(*value)[0], length);
