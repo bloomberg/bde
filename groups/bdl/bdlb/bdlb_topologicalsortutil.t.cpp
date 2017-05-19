@@ -89,9 +89,9 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
+    bool         veryVerbose = argc > 3; (void)veryVerbose;
     bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    bool veryVeryVeryVerbose = argc > 5; (void)veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -283,11 +283,11 @@ int main(int argc, char *argv[])
 
     if (veryVeryVerbose)
     {
-        for (int i = 0; i < results3.size(); ++i) {
+        for (bsl::size_t i = 0; i < results3.size(); ++i) {
                 cout << "results3[" << i << "] is " << results3[i] << "\n";
         }
 
-        for (int i = 0; i < unordered3.size(); ++i) {
+        for (bsl::size_t i = 0; i < unordered3.size(); ++i) {
                 cout << "unordered3[" << i << "] is " << unordered3[i] << "\n";
         }
     }
