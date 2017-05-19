@@ -654,7 +654,7 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
 
         int status =
             d_threadPool_p->enqueueJob(context->d_processingCb);
-        BSLS_ASSERT(0 == status);
+        (void)status; BSLS_ASSERT(0 == status);
 
         // now unlock the registry and context locks to wait on the semaphore.
         guard.unlock();
