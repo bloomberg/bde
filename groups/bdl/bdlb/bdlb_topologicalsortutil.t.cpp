@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -330,6 +330,81 @@ int main(int argc, char *argv[])
         }
     }
 //..
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // CYCLE IS DETECTED TEST
+        //   This case test that a cycle in the graphs is detected.
+        //
+        // Concerns:
+        //: 1 A graph with a cycle does not sort successfully.
+        //:
+        //: 2 The cycle is reported in the 'unordered' argument.
+        //
+        // Testing:
+        //   sort
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CYCLE IS DETECTED TEST" << endl
+                          << "======================" << endl;
+
+        bsl::vector<bsl::pair<int, int> > relations;
+
+        relations.push_back(bsl::make_pair(1, 2));
+        relations.push_back(bsl::make_pair(2, 3));
+        relations.push_back(bsl::make_pair(3, 1));
+
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
+        bool sorted = TopologicalSortUtil::sort(&results,
+                                                &unordered,
+                                                relations);
+        ASSERT(false == sorted);
+        ASSERT(results.empty());
+
+        ASSERT(unordered.size() == 3);
+
+        LOOP_ASSERT(unordered[0], unordered[0] == 1);
+        LOOP_ASSERT(unordered[1], unordered[1] == 2);
+        LOOP_ASSERT(unordered[2], unordered[2] == 3);
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // SELF REF IS CYCLE TEST
+        //   This case proves that a self referencing node is reported as a
+        //   cycle.
+        //
+        // Concerns:
+        //: 1 A graph with a self referencing node does not sort successfully.
+        //:
+        //: 2 A graph with a self referencing node reports a cycle.
+        //
+        // Testing:
+        //   sort
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "SELF REF IS CYCLE TEST" << endl
+                          << "======================" << endl;
+
+        bsl::vector<bsl::pair<int, int> > relations;
+
+        relations.push_back(bsl::make_pair(1, 1));
+
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
+        bool sorted = TopologicalSortUtil::sort(&results,
+                                                &unordered,
+                                                relations);
+        ASSERT(false == sorted);
+        ASSERT(results.empty());
+
+        ASSERT(unordered.size() == 1);
+
+        LOOP_ASSERT(unordered[0], unordered[0] == 1);
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
