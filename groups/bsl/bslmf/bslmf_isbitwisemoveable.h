@@ -661,19 +661,20 @@ struct IsBitwiseMoveable_Imp<TYPE, false>
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
     defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
     // In C++11 and beyond, we can accurately detect trivial-copiable types
-    // without relying on the one-byte heuristic.  If we detect that this
-    // trait yields true with the one-byte heuristic but false without it in
-    // C++11 mode, trigger a static assert; 'IsBitwiseMoveable<TYPE>' should be
-    // specialized to inherit from 'false_type'.
+    // which would allow us to remove the one-byte heuristic used above.
+    // Testing with gcc-5 on Bloomberg production software indicates that
+    // there are many 1-byte types, which are conceptually bitwise moveable,
+    // that are not correctly marked bitwise moveable (for example, any 1-byte
+    // code-generated type).  For the moment we have decided not to enable
+    // more conservative logic for automatically deducing the
+    // 'IsBitwiseMoveableTrait'.  The more conservative logic is shown below
+    // for future reference:
 
     static const bool k_ValueWithoutOnebyteHeuristic =
         !bsl::is_reference<TYPE>::value
             && (  bsl::is_trivially_copyable<TYPE>::value
                || native_std::is_empty<TYPE>::value   // required for gcc < 5.0
                || k_NestedBitwiseMoveableTrait);
-
-    static_assert(! (value && !k_ValueWithoutOnebyteHeuristic),
-                  "False positive IsBitwiseMoveable for one-byte type");
 #endif
 };
 
