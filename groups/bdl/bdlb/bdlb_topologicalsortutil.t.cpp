@@ -5,11 +5,11 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_vector.h>
-#include <bsl_queue.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
-#include <bsl_sstream.h>
+#include <bsl_queue.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -72,7 +72,7 @@ static void aSsErT(int c, const char *s, int i) {
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value
 #define Q(X) cout << "<! " #X " |>" << endl;  // Quote identifier literally
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) wihtout '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__
 #define _T() cout << "\t" << flush;           // Print tab w/o newline
 
@@ -81,12 +81,50 @@ static void aSsErT(int c, const char *s, int i) {
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+struct Node {
+    // A simple node structure for testing explicit HASH and EQUALS functors.
+
+    // DATA
+    int d_number;
+
+    // CREATORS
+    Node()
+    : d_number(-1)
+    {
+    }
+
+    Node(int number)
+    : d_number(number)
+    {
+    }
+};
+
+struct NodeHash {
+    // The explicit HASH functor for the simple node structure.
+
+    bsl::size_t operator()(const Node &node) const {
+        return bsl::hash<int>()(node.d_number);
+    }
+};
+
+struct NodeEquals {
+    // The explicit EQUALS functor for the simple node structure.
+
+    typedef Node first_argument_type;
+    typedef Node second_argument_type;
+    typedef bool result_type;
+
+    bool operator()(const Node &lhs, const Node &rhs) const {
+        return lhs.d_number == rhs.d_number;
+    }
+};
 
 //=============================================================================
 //                                   MAIN
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
@@ -96,7 +134,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -119,11 +157,11 @@ int main(int argc, char *argv[]) {
 ///Example 1: Using topological sort for calculating formulas
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are evaluating formulas for a set of market data fields, where
-// formulas can reference other firelds as part of their calculation.  As an
+// formulas can reference other fields as part of their calculation.  As an
 // example let's say we have a field k_bbgDefinedVwap which is dependent on
 // k_vwapTurnover and k_vwapVolume.  These fields in turn are dependent on
 // k_tradeSize and k_tradePrice respectively.  So essentially the fields which
-// are not dependent on any other field should be caluclated first and then the
+// are not dependent on any other field should be calculated first and then the
 // dependent fields.  We can use the topological sort utility to provide us the
 // order in which these fields should be calculated.
 //
@@ -228,7 +266,9 @@ int main(int argc, char *argv[]) {
 //..
     bsl::vector<int> results2;
     bsl::vector<int> unordered2;
-    bool sorted2 = TopologicalSortUtil::sort(&results2, &unordered2, relations2);
+    bool sorted2 = TopologicalSortUtil::sort(&results2,
+                                             &unordered2,
+                                             relations2);
 //..
 // Finally, we verify whether the routine recognizes that there is a cycle and
 // returns false:
@@ -239,8 +279,8 @@ int main(int argc, char *argv[]) {
 ///Example 3: Using topological sort with self relations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which have input relations where predecessor
-// and successor point to the same value. i.e. we have pairs of input like (u,u)
-// First, we define such a set of inputs
+// and successor point to the same value. i.e. we have pairs of input like
+// (u,u).  First, we define such a set of inputs
 //..
     enum FieldIds3 {
         FIELD4 = 3,
@@ -261,7 +301,9 @@ int main(int argc, char *argv[]) {
 //..
     bsl::vector<int> results3;
     bsl::vector<int> unordered3;
-    bool sorted3 = TopologicalSortUtil::sort(&results3, &unordered3, relations3);
+    bool sorted3 = TopologicalSortUtil::sort(&results3,
+                                             &unordered3,
+                                             relations3);
 //..
 // Finally, we verify that the self relations causes the cycle:
 //..
@@ -289,6 +331,136 @@ int main(int argc, char *argv[]) {
     }
 //..
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // EXPLICIT HASH AND EQUALS TEST
+        //   This case tests sorting with explicitly specified HASH and EQUALS
+        //   functors (for the 'unordered_map' used during sorting.
+        //
+        // Concerns:
+        //: 1 The code successfully compiles and links.
+        //:
+        //: 2 The graphs is successfully topologically sorted.
+        //:
+        //: 2 No nodes are missing from the result.
+        //
+        // Testing:
+        //   sort
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EXPLICIT HASH AND EQUALS TEST" << endl
+                          << "=============================" << endl;
+
+        bsl::vector<bsl::pair<Node, Node> > relations;
+
+        relations.push_back(bsl::make_pair<Node, Node>(1, 2));
+        relations.push_back(bsl::make_pair<Node, Node>(2, 3));
+        relations.push_back(bsl::make_pair<Node, Node>(4, 5));
+
+        bsl::vector<Node> results;
+        bsl::vector<Node> unordered;
+        bool sorted = TopologicalSortUtil::sort<Node, NodeHash, NodeEquals>(
+                                                                    &results,
+                                                                    &unordered,
+                                                                    relations);
+        ASSERT(true == sorted);
+        ASSERT(unordered.empty());
+
+        ASSERT(results.size() == 5);
+
+        LOOP_ASSERT(results[0].d_number, results[0].d_number == 4);
+        LOOP_ASSERT(results[1].d_number, results[1].d_number == 1);
+        LOOP_ASSERT(results[2].d_number, results[2].d_number == 5);
+        LOOP_ASSERT(results[3].d_number, results[3].d_number == 2);
+        LOOP_ASSERT(results[4].d_number, results[4].d_number == 3);
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TWO GRAPHS TEST
+        //   This case tests sorting of two disconnected graphs.
+        //
+        // Concerns:
+        //: 1 The two graphs are successfully topologically sorted.
+        //:
+        //: 2 No nodes are missing from the result.
+        //
+        // Testing:
+        //   sort
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EDGE TEST" << endl
+                          << "=========" << endl;
+
+        bsl::vector<bsl::pair<int, int> > relations;
+
+        relations.push_back(bsl::make_pair(1, 2));
+        relations.push_back(bsl::make_pair(2, 3));
+        relations.push_back(bsl::make_pair(4, 5));
+
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
+        bool sorted = TopologicalSortUtil::sort(&results,
+                                                &unordered,
+                                                relations);
+        ASSERT(true == sorted);
+        ASSERT(unordered.empty());
+
+        ASSERT(results.size() == 5);
+
+        LOOP_ASSERT(results[0], results[0] == 4);
+        LOOP_ASSERT(results[1], results[1] == 1);
+        LOOP_ASSERT(results[2], results[2] == 5);
+        LOOP_ASSERT(results[3], results[3] == 2);
+        LOOP_ASSERT(results[4], results[4] == 3);
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // EDGE TEST
+        //   This case test sorting of zero and one relations graphs.
+        //
+        // Concerns:
+        //: 1 Zero edges result in successful sort and zero sorted nodes.
+        //:
+        //: 2 One edge results in successful sort and two sorted nodes.
+        //
+        // Testing:
+        //   sort
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "EDGE TEST" << endl
+                          << "=========" << endl;
+
+        bsl::vector<bsl::pair<int, int> > relations;
+
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
+        bool sorted = TopologicalSortUtil::sort(&results,
+                                                &unordered,
+                                                relations);
+        ASSERT(true == sorted);
+        ASSERT(unordered.empty());
+
+        ASSERT(results.size() == 0);
+
+        // One edge
+
+        relations.push_back(bsl::make_pair(1, 2));
+
+        sorted = TopologicalSortUtil::sort(&results, &unordered, relations);
+        ASSERT(true == sorted);
+        ASSERT(unordered.empty());
+
+        ASSERT(results.size() == 2);
+
+        LOOP_ASSERT(results[0], results[0] == 1);
+        LOOP_ASSERT(results[1], results[1] == 2);
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -305,6 +477,55 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
+
+        bsl::vector<bsl::pair<bsl::string, bsl::string> > relations;
+
+        relations.push_back(bsl::make_pair(bsl::string("3"),
+                                           bsl::string("8")));
+
+        relations.push_back(bsl::make_pair(bsl::string("3"),
+                                           bsl::string("10")));
+
+        relations.push_back(bsl::make_pair(bsl::string("5"),
+                                           bsl::string("11")));
+
+        relations.push_back(bsl::make_pair(bsl::string("7"),
+                                           bsl::string("8")));
+
+        relations.push_back(bsl::make_pair(bsl::string("7"),
+                                           bsl::string("11")));
+
+        relations.push_back(bsl::make_pair(bsl::string("8"),
+                                           bsl::string("9")));
+
+        relations.push_back(bsl::make_pair(bsl::string("11"),
+                                           bsl::string("2")));
+
+        relations.push_back(bsl::make_pair(bsl::string("11"),
+                                           bsl::string("9")));
+
+        relations.push_back(bsl::make_pair(bsl::string("11"),
+                                           bsl::string("10")));
+
+        bsl::vector<bsl::string> results;
+        bsl::vector<bsl::string> unordered;
+        const bool sorted = TopologicalSortUtil::sort(&results,
+                                                      &unordered,
+                                                      relations);
+        ASSERT(true == sorted);
+        ASSERT(unordered.empty());
+
+        ASSERT(results.size() == 8);
+
+        LOOP_ASSERT(results[0], results[0] == "7");
+        LOOP_ASSERT(results[1], results[1] == "3");
+        LOOP_ASSERT(results[2], results[2] == "5");
+        LOOP_ASSERT(results[3], results[3] == "8");
+        LOOP_ASSERT(results[4], results[4] == "11");
+        LOOP_ASSERT(results[5], results[5] == "2");
+        LOOP_ASSERT(results[6], results[6] == "9");
+        LOOP_ASSERT(results[7], results[7] == "10");
+
       } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
