@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //
 // Soft delimiters are used in applications where multiple consecutive
 // delimiter characters are to be treated as just a single delimiter.  For
-// example, if we want the input string "Sticks  and stones" to parse into a
+// example, if we want the input string '"Sticks  and stones"'' to parse into a
 // sequence of three non-empty tokens ["Sticks", "and", "stones"], rather than
 // the five-token sequence ["Sticks", "", "", "and", "stones"], we would make
 // the space (' ') a soft-delimiter character.
