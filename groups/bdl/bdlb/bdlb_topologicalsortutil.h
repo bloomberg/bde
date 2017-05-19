@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility to topologically sort a set of inputs.
+//@PURPOSE: Provide a utility to topologically sort a collection of inputs.
 //
 //@CLASSES:
 //    bdlb::TopologicalSortUtil: routine for topologically sorting inputs
@@ -15,22 +15,23 @@ BSLS_IDENT("$Id: $")
 //@SEE ALSO:
 //
 //@DESCRIPTION: This component provides an utility 'struct',
-// 'TopologicalSortUtil' to topologically sort a set of inputs.  A topological
-// sort is useful for defining the order in which an input should be processed
-// based on certain conditions.  As an example consider two jobs B and C both
-// of which have a dependency on job A, i.e. job A needs to be completed before
-// B and C can be run.  Given such a requirement a topological sort can provide
-// an ordering of the three jobs such that A precedes B and C.  Note that there
-// may be multiple orderings that might be correct (e.g.: A, B and C or A, C
-// and B, both are correct and satisfy the dependencies of A running before the
-// B and C jobs, we don't care whether B precedes C or vice versa).
+// 'TopologicalSortUtil' to topologically sort a collection of inputs.  A
+// topological sort is useful for defining the order in which an input should
+// be processed based on certain conditions.  As an example consider two jobs B
+// and C both of which have a dependency on job A, i.e. job A needs to be
+// completed before B and C can be run.  Given such a requirement a topological
+// sort can provide an ordering of the three jobs such that A precedes B and C.
+// Note that there may be multiple orderings that might be correct (e.g.: A, B,
+// then C or A, C then B, both are correct and satisfy the dependencies of A
+// running before the B and C jobs, we don't care whether B precedes C or vice
+// versa).
 //
 // The dependencies are specified in pairs (U,V) (read as U precedes V), which
 // define the relations between U and V that the sort needs to maintain.  The
-// elements in these pairs make up a finite set S, the output of the
-// topological sort is an ordering of all elements of set S, such that all
-// relations specified in the input (as pairs) are satisfied.  Note that such
-// an ordering is only possible if there are no cycles in the input
+// elements in these pairs (e.g., U and V) make up a finite set S, the output
+// of the topological sort is an ordering of all elements of set S, such that
+// all relations specified in the input (as pairs) are satisfied.  Note that
+// such an ordering is only possible if there are no cycles in the input
 // dependencies.  For example, if A depends on B and B depends on A then it is
 // not possible to order A and B satisfying both the relations.  The routine
 // 'sort' defined in this component returns 'false' if it detects a cycle while
