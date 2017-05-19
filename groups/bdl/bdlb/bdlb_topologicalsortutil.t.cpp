@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
     enum FieldIds2 {
         FIELD1 = 0,
         FIELD2 = 1,
-        FIELD3 = 2,
+        FIELD3 = 2
     };
 
     bsl::vector<bsl::pair<int, int> > relations2;
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
     enum FieldIds3 {
         FIELD4 = 3,
         FIELD5 = 4,
-        FIELD6 = 5,
+        FIELD6 = 5
     };
 
     bsl::vector<bsl::pair<int, int> > relations3;
@@ -470,37 +470,28 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bsl::vector<bsl::pair<bsl::string, bsl::string> > relations;
+        bsl::vector<bsl::pair<int, int> > relations;
 
-        relations.push_back(bsl::make_pair(bsl::string("3"),
-                                           bsl::string("8")));
+        relations.push_back(bsl::make_pair(3, 8));
 
-        relations.push_back(bsl::make_pair(bsl::string("3"),
-                                           bsl::string("10")));
+        relations.push_back(bsl::make_pair(3, 10));
 
-        relations.push_back(bsl::make_pair(bsl::string("5"),
-                                           bsl::string("11")));
+        relations.push_back(bsl::make_pair(5, 11));
 
-        relations.push_back(bsl::make_pair(bsl::string("7"),
-                                           bsl::string("8")));
+        relations.push_back(bsl::make_pair(7, 8));
 
-        relations.push_back(bsl::make_pair(bsl::string("7"),
-                                           bsl::string("11")));
+        relations.push_back(bsl::make_pair(7, 11));
 
-        relations.push_back(bsl::make_pair(bsl::string("8"),
-                                           bsl::string("9")));
+        relations.push_back(bsl::make_pair(8, 9));
 
-        relations.push_back(bsl::make_pair(bsl::string("11"),
-                                           bsl::string("2")));
+        relations.push_back(bsl::make_pair(11, 2));
 
-        relations.push_back(bsl::make_pair(bsl::string("11"),
-                                           bsl::string("9")));
+        relations.push_back(bsl::make_pair(11, 9));
 
-        relations.push_back(bsl::make_pair(bsl::string("11"),
-                                           bsl::string("10")));
+        relations.push_back(bsl::make_pair(11, 10));
 
-        bsl::vector<bsl::string> results;
-        bsl::vector<bsl::string> unordered;
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
         const bool sorted = TopologicalSortUtil::sort(&results,
                                                       &unordered,
                                                       relations);
@@ -509,14 +500,14 @@ int main(int argc, char *argv[])
 
         ASSERT(results.size() == 8);
 
-        LOOP_ASSERT(results[0], results[0] == "7");
-        LOOP_ASSERT(results[1], results[1] == "3");
-        LOOP_ASSERT(results[2], results[2] == "5");
-        LOOP_ASSERT(results[3], results[3] == "8");
-        LOOP_ASSERT(results[4], results[4] == "11");
-        LOOP_ASSERT(results[5], results[5] == "2");
-        LOOP_ASSERT(results[6], results[6] == "9");
-        LOOP_ASSERT(results[7], results[7] == "10");
+        LOOP_ASSERT(results[0], results[0] == 7);
+        LOOP_ASSERT(results[1], results[1] == 3);
+        LOOP_ASSERT(results[2], results[2] == 5);
+        LOOP_ASSERT(results[3], results[3] == 8);
+        LOOP_ASSERT(results[4], results[4] == 11);
+        LOOP_ASSERT(results[5], results[5] == 2);
+        LOOP_ASSERT(results[6], results[6] == 9);
+        LOOP_ASSERT(results[7], results[7] == 10);
 
       } break;
       default: {
