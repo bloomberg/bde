@@ -81,44 +81,6 @@ static void aSsErT(int c, const char *s, int i) {
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct Node {
-    // A simple node structure for testing explicit HASH and EQUALS functors.
-
-    // DATA
-    int d_number;
-
-    // CREATORS
-    Node()
-    : d_number(-1)
-    {
-    }
-
-    Node(int number)
-    : d_number(number)
-    {
-    }
-};
-
-struct NodeHash {
-    // The explicit HASH functor for the simple node structure.
-
-    bsl::size_t operator()(const Node &node) const {
-        return bsl::hash<int>()(node.d_number);
-    }
-};
-
-struct NodeEqual {
-    // The explicit EQUALS functor for the simple node structure.
-
-    typedef Node first_argument_type;
-    typedef Node second_argument_type;
-    typedef bool result_type;
-
-    bool operator()(const Node &lhs, const Node &rhs) const {
-        return lhs.d_number == rhs.d_number;
-    }
-};
-
 //=============================================================================
 //                                   MAIN
 //-----------------------------------------------------------------------------
@@ -134,7 +96,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -331,7 +293,7 @@ int main(int argc, char *argv[])
     }
 //..
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // CYCLE IS DETECTED TEST
         //   This case test that a cycle in the graphs is detected.
@@ -365,12 +327,12 @@ int main(int argc, char *argv[])
 
         ASSERT(unordered.size() == 3);
 
-        LOOP_ASSERT(unordered[0], unordered[0] == 1);
-        LOOP_ASSERT(unordered[1], unordered[1] == 2);
-        LOOP_ASSERT(unordered[2], unordered[2] == 3);
+        LOOP_ASSERT(unordered[0], unordered[0] == 3);
+        LOOP_ASSERT(unordered[1], unordered[1] == 1);
+        LOOP_ASSERT(unordered[2], unordered[2] == 2);
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // SELF REF IS CYCLE TEST
         //   This case proves that a self referencing node is reported as a
@@ -404,51 +366,6 @@ int main(int argc, char *argv[])
         ASSERT(unordered.size() == 1);
 
         LOOP_ASSERT(unordered[0], unordered[0] == 1);
-
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // EXPLICIT HASH AND EQUAL TEST
-        //   This case tests sorting with explicitly specified HASH and EQUAL
-        //   functors (for the 'unordered_map' used during sorting.
-        //
-        // Concerns:
-        //: 1 The code successfully compiles and links.
-        //:
-        //: 2 The graphs is successfully topologically sorted.
-        //:
-        //: 2 No nodes are missing from the result.
-        //
-        // Testing:
-        //   sort
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "EXPLICIT HASH AND EQUAL TEST" << endl
-                          << "============================" << endl;
-
-        bsl::vector<bsl::pair<Node, Node> > relations;
-
-        relations.push_back(bsl::make_pair<Node, Node>(1, 2));
-        relations.push_back(bsl::make_pair<Node, Node>(2, 3));
-        relations.push_back(bsl::make_pair<Node, Node>(4, 5));
-
-        bsl::vector<Node> results;
-        bsl::vector<Node> unordered;
-        bool sorted = TopologicalSortUtil::sort<Node, NodeHash, NodeEqual>(
-                                                                    &results,
-                                                                    &unordered,
-                                                                    relations);
-        ASSERT(true == sorted);
-        ASSERT(unordered.empty());
-
-        ASSERT(results.size() == 5);
-
-        LOOP_ASSERT(results[0].d_number, results[0].d_number == 4);
-        LOOP_ASSERT(results[1].d_number, results[1].d_number == 1);
-        LOOP_ASSERT(results[2].d_number, results[2].d_number == 5);
-        LOOP_ASSERT(results[3].d_number, results[3].d_number == 2);
-        LOOP_ASSERT(results[4].d_number, results[4].d_number == 3);
 
       } break;
       case 3: {
