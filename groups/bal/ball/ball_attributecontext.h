@@ -718,7 +718,7 @@ inline
 AttributeContext_RuleEvaluationCache::AttributeContext_RuleEvaluationCache()
 : d_evalMask(0)
 , d_resultMask(0)
-, d_timestamp(-1)
+, d_sequenceNumber(-1)
 {
 }
 
@@ -737,7 +737,7 @@ bool AttributeContext_RuleEvaluationCache::isDataAvailable(
                                     bsls::Types::Int64 sequenceNumber,
                                     RuleSet::MaskType  relevantRulesMask) const
 {
-    return timestamp         == d_timestamp
+    return sequenceNumber    == d_sequenceNumber
         && relevantRulesMask == (relevantRulesMask & d_evalMask);
 }
 

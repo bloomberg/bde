@@ -11,8 +11,6 @@
 
 #include <bdlb_bitutil.h>
 
-#include <bdlt_currenttime.h>
-
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslim_testutil.h>
@@ -1638,8 +1636,6 @@ int main(int argc, char *argv[])
             cout << endl
                  << "TESTING 'addRule', 'removeRule', 'removeAllRules'" << endl
                  << "=================================================" <<endl;
-
-        const Int64 now = bdlt::CurrentTime::now().totalNanoseconds();
 
         bslma::TestAllocator ta;
 

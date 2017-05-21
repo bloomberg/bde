@@ -1021,8 +1021,13 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect 'stderr' to a temp file.
+
+    TempDirectoryGuard tempDirGuard;
+
+    bsl::string filename(tempDirGuard.getTempDirName());
+    bdls::PathUtil::appendRaw(&filename, "stderrOut");
+
     fflush(stderr);
-    bsl::string filename = tempnam(0, "ball_log");
     int fd = creat(filename.c_str(), 0777);
     ASSERT(fd != -1);
     int saved_stderr_fd = dup(2);
@@ -1085,7 +1090,6 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         ASSERT(6 == numLines);
     }
     fs.close();
-    unlink(filename.c_str());
 #endif
     ASSERT("" == os.str());
     bsl::cerr.rdbuf(cerrBuf);
@@ -1447,8 +1451,13 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect 'stderr' to a temp file.
+
+    TempDirectoryGuard tempDirGuard;
+
+    bsl::string filename(tempDirGuard.getTempDirName());
+    bdls::PathUtil::appendRaw(&filename, "stderrOut");
+
     fflush(stderr);
-    bsl::string filename = tempnam(0, "ball_log");
     int fd = creat(filename.c_str(), 0777);
     ASSERT(fd != -1);
     int saved_stderr_fd = dup(2);
@@ -1525,7 +1534,6 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         ASSERT(26 == numLines);
     }
     fs.close();
-    unlink(filename.c_str());
 #endif
     ASSERT("" == os.str());
     bsl::cerr.rdbuf(cerrBuf);

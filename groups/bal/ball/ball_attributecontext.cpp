@@ -114,7 +114,7 @@ AttributeContext_RuleEvaluationCache::print(bsl::ostream& stream,
     stream << "[" << EL;
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    stream << d_timestamp << EL;
+    stream << d_sequenceNumber << EL;
 
     RuleSet::printMask(stream, d_resultMask, level + 1, spacesPerLevel);
 
