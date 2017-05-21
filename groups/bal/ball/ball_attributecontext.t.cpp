@@ -80,6 +80,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 6] (OLD) USAGE EXAMPLE
 // [ 7] USAGE EXAMPLE
+// [ 1] AttributeSet
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -306,75 +307,14 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
 
 namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE {
 
-///Example 1: Managing Attributes
-///- - - - - - - - - - - - - - -
-// First we will define a thread function that will create and install two
-// attributes.  Note that we will use the 'AttributeSet' implementation of the
-// 'ball::AttributeContainer' protocol defined in the component documentation
-// for 'ball_attributecontainer'; the 'ball' package provides a similar class
-// in the 'ball_defaultattributecontainer' component.
-//..
-    extern "C" void *thread1(void *)
-    {
-//..
-// Inside this thread function, we create an attribute set to hold our
-// attribute values, then we create two 'ball::Attribute' objects and add them
-// to that set:
-//..
-        AttributeSet attributes;
-        ball::Attribute a1("uuid", 4044457);
-        ball::Attribute a2("name", "Gang Chen");
-        attributes.insert(a1);
-        attributes.insert(a2);
-//..
-// Next, we obtain a reference to the current thread's attribute context using
-// the 'getContext' class method:
-//..
-        ball::AttributeContext *context = ball::AttributeContext::getContext();
-        ASSERT(context);
-        ASSERT(context == ball::AttributeContext::lookupContext());
-//..
-// We can add our attribute container, 'attributes', to the current context
-// using the 'addAttributes' method.  We store the returned iterator so that
-// we can remove 'attributes' before it goes out of scope and is destroyed:
-//..
-        ball::AttributeContext::iterator it =
-                                           context->addAttributes(&attributes);
-        ASSERT(context->hasAttribute(a1));
-        ASSERT(context->hasAttribute(a2));
-//..
-// We then call the 'removeAttributes' method to remove the attributes from
-// the attribute context:
-//..
-        context->removeAttributes(it);
-        ASSERT(false == context->hasAttribute(a1));
-        ASSERT(false == context->hasAttribute(a2));
-//..
-// This completes the first thread function:
-//..
-        return 0;
-    }
-//..
-// The second thread function will simply verify that there is no currently
-// available attribute context.  Note that attribute contexts are created and
-// managed by individual threads using thread-specific storage, and that
-// attribute contexts created by one thread are not visible in any other
-// threads:
-//..
-    extern "C" void *thread2(void *)
-    {
-        ASSERT(0 == ball::AttributeContext::lookupContext());
-
-        return 0;
-    }
-
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager;
+    ball::CategoryManager *d_categoryManager_p;
 };
 
 extern "C" void *usageExample2(void *args)
 {
-    ball::CategoryManager  *manager = ((ThreadArgs *)args)->d_categoryManager;
+    ball::CategoryManager  *manager =
+                     reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
     ball::CategoryManager&  categoryManager = *manager;
 
 // Next, we add a category to the category manager.  Each created category has
@@ -393,7 +333,7 @@ extern "C" void *usageExample2(void *args)
 // Also note that a higher number indicates a lower severity.
 //..
     const ball::Category *cat1 =
-               categoryManager.addCategory("MyCategory", 128, 96, 64, 32);
+                    categoryManager.addCategory("MyCategory", 128, 96, 64, 32);
 //..
 // Next we obtain the context for the current thread.
 //..
@@ -532,7 +472,7 @@ namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6 {
 bslmt::Barrier barrier(2);  // synchronize threads
 
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager;
+    ball::CategoryManager *d_categoryManager_p;
 };
 
 extern "C" void *workerThread1(void *)
@@ -585,7 +525,8 @@ extern "C" void *workerThread2(void *)
 
 extern "C" void *workerThread3(void *args)
 {
-    ball::CategoryManager *manager = ((ThreadArgs *)args)->d_categoryManager;
+    ball::CategoryManager *manager =
+                     reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
     const ball::Category *cat1 =
                             manager->addCategory("weekday", 128,  96, 64, 32);
@@ -703,7 +644,8 @@ extern "C" void *workerThread3(void *args)
 
 extern "C" void *oldUsageExample(void *args)
 {
-    ball::CategoryManager *manager = ((ThreadArgs *)args)->d_categoryManager;
+    ball::CategoryManager *manager =
+                     reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
     ASSERT(0 == ball::AttributeContext::lookupContext());
 
@@ -836,7 +778,7 @@ enum {
 bslmt::Barrier barrier(NUM_THREADS);  // synchronize threads
 
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager;
+    ball::CategoryManager *d_categoryManager_p;
     unsigned  int          d_seed;
 };
 
@@ -855,8 +797,10 @@ int randomValue(unsigned int *seed)
 
 extern "C" void *case4RuleThread(void *args)
 {
-    ball::CategoryManager *manager = ((ThreadArgs *)args)->d_categoryManager;
-    unsigned int           seed    = ((ThreadArgs *)args)->d_seed;
+    ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
+
+    ball::CategoryManager *manager = threadArgs->d_categoryManager_p;
+    unsigned int           seed    = threadArgs->d_seed;
 
     barrier.wait();
 
@@ -944,7 +888,8 @@ extern "C" void *case4RuleThread(void *args)
 
 extern "C" void *case4ContextThread(void *args)
 {
-    ball::CategoryManager *manager = ((ThreadArgs *)args)->d_categoryManager;
+    ball::CategoryManager *manager =
+                     reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
     barrier.wait();
 
@@ -1467,9 +1412,9 @@ int main(int argc, char *argv[])
 
 ///Example 2: Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate how to call the 'hasRelevantActiveRules'
-// and 'determineThresholdLevels' methods.  These methods are used (primarily
-// by other components in the 'ball' package) to determine the effect of the
+// In this example we demonstrate how to call the 'hasRelevantActiveRules' and
+// 'determineThresholdLevels' methods.  These methods are used (primarily by
+// other components in the 'ball' package) to determine the effect of the
 // current logging rules on the logging thresholds of a category.  Note that a
 // rule is "relevant" if the rule's pattern matches the category's name, and a
 // rule is "active" if 'ball::Rule::evaluate' returns 'true' for the
@@ -1499,10 +1444,10 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING ORIGINAL USAGE EXAMPLE
-        //
-        // Concerns:
         //   This test runs the original usage example for this component.  It
         //   remains in the test driver for completeness.
+        //
+        // Concerns:
         //
         // Plan:
         //
@@ -1538,16 +1483,17 @@ int main(int argc, char *argv[])
         // TESTING 'AttributeContextProctor'
         //
         // Concerns:
-        //   That the 'AttributeContextProctor' destructor destroys the current
-        //   thread's context (if any) and releases all its memory.
+        //: 1 That the 'AttributeContextProctor' destructor destroys the
+        //:   current thread's context (if any) and releases all its memory.
         //
         // Plan:
-        //   First test that destroying an 'AttributeContextProctor' when there
-        //   is no context has no effect.  Then test destroying proctors where
-        //   (1) the context defaults to using the global allocator, and (2)
-        //   the context uses the allocator established by a call to the
-        //   'initialize' class method.  Verify in each case that the context's
-        //   memory has been released following the destruction of the proctor.
+        //: 1 First test that destroying an 'AttributeContextProctor' when
+        //:   there is no context has no effect.  Then test destroying proctors
+        //:   where (1) the context defaults to using the global allocator, and
+        //:   (2) the context uses the allocator established by a call to the
+        //:   'initialize' class method.  Verify in each case that the
+        //:   context's memory has been released following the destruction of
+        //:   the proctor.  (C-1)
         //
         // Testing:
         //   AttributeContextProctor();
@@ -1717,8 +1663,8 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_RULETHREADS; ++j) {
                 ThreadArgs ruleThreadArgs[NUM_RULETHREADS];
 
-                ruleThreadArgs[j].d_categoryManager = &manager;
-                ruleThreadArgs[j].d_seed            = seed;
+                ruleThreadArgs[j].d_categoryManager_p = &manager;
+                ruleThreadArgs[j].d_seed              = seed;
 
                 bslmt::ThreadUtil::create(&ruleThreads[j],
                                           case4RuleThread,
@@ -1728,8 +1674,8 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_CONTEXTTHREADS; ++j) {
                 ThreadArgs contextThreadArgs[NUM_CONTEXTTHREADS];
 
-                contextThreadArgs[j].d_categoryManager = &manager;
-                contextThreadArgs[j].d_seed            = seed;
+                contextThreadArgs[j].d_categoryManager_p = &manager;
+                contextThreadArgs[j].d_seed              = seed;
 
                 bslmt::ThreadUtil::create(&contextThreads[j],
                                           case4ContextThread,
@@ -1815,8 +1761,8 @@ int main(int argc, char *argv[])
             Obj *context = Obj::getContext();
             ASSERT(context);
 
-            ASSERT_PASS(context->addAttributes(&as));
-            ASSERT_FAIL(context->addAttributes(0));
+            ASSERT_SAFE_PASS(context->addAttributes(&as));
+            ASSERT_SAFE_FAIL(context->addAttributes(0));
 
             ball::AttributeContextProctor proctor;
         }

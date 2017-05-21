@@ -11,8 +11,6 @@
 
 #include <bdlb_bitutil.h>
 
-#include <bdlt_currenttime.h>
-
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslim_testutil.h>
@@ -97,8 +95,8 @@ using namespace bsl;
 // [ 6] const ball::Category& operator[](int index) const;
 // [ 3] const ball::Category *lookupCategory(const char *name) const;
 // [ 3] int length() const;
-// [ 8] bsls::Types::Int64 ruleSetTimestamp() const;
 // [13] ball::RuleSet& ruleSet() const;
+// [ 8] bsls::Types::Int64 ruleSetSequenceNumber() const;
 //
 // 'ball::CategoryHolder' public interface:
 // [10] void reset();
@@ -183,8 +181,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define PA(X)  cout << #X " = " << ((void *) X) << endl;
 #define PA_(X) cout << #X " = " << ((void *) X) << ", " << flush;
 
-// The following variable and macros provide a thread-safe framework
-// for using 'bsl::cout'.
+// The following variable and macros provide a thread-safe framework for using
+// 'bsl::cout'.
 
 static bslmt::Mutex coutMutex;
 
@@ -529,7 +527,7 @@ extern "C" void *ruleThreadTest(void *args)
         ASSERT(bdlb::BitUtil::isBitSet(entry->relevantRuleMask(), ruleId4));
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&mX.rulesetMutex());
-            Int64 timestamp = X.ruleSetTimestamp();
+            Int64 seqNo = X.ruleSetSequenceNumber();
             const ball::RuleSet& rules = X.ruleSet();
             int numRules      = rules.numRules();
             int numPredicates = rules.numPredicates();
@@ -545,7 +543,7 @@ extern "C" void *ruleThreadTest(void *args)
             ASSERT(ruleId4 == rules.ruleId(rule4));
             ASSERT(ruleId1 == rules.ruleId(rule1));
 
-            ASSERT(timestamp     == X.ruleSetTimestamp());
+            ASSERT(seqNo         == X.ruleSetSequenceNumber());
             ASSERT(count         == rules.numRules());
             ASSERT(numRules      == rules.numRules());
             ASSERT(numPredicates == rules.numPredicates());
@@ -1392,8 +1390,8 @@ int main(int argc, char *argv[])
         //   Finally, remove all the rules, and verify the return value.
         //
         // Testing:
-        //   int addRules(const ball::RuleSet&);
-        //   int removeRules(const ball::RuleSet&);
+        //   int addRules(const ball::RuleSet& ruleSet);
+        //   int removeRules(const ball::RuleSet& ruleSet);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1412,7 +1410,7 @@ int main(int argc, char *argv[])
         MaskType endMask = ~(static_cast<MaskType>(~0) << NUM_NAMES);
 
         for (MaskType mask = 0; mask <= endMask; ++mask) {
-            Int64 timestamp = X.ruleSetTimestamp();
+            Int64 seqNo = X.ruleSetSequenceNumber();
             ball::RuleSet rules(&ta);
             for (int i= 0; i < NUM_NAMES; ++i) {
                 if (bdlb::BitUtil::isBitSet(mask, i)) {
@@ -1426,12 +1424,12 @@ int main(int argc, char *argv[])
             ASSERT(rules.numRules()                == mX.addRules(rules));
             ASSERT(bdlb::BitUtil::numBitsSet(mask) == X.ruleSet().numRules());
             if (mask != 0) {
-                ASSERT(timestamp < X.ruleSetTimestamp());
-                timestamp = X.ruleSetTimestamp();
+                ASSERT(seqNo < X.ruleSetSequenceNumber());
+                seqNo = X.ruleSetSequenceNumber();
             }
 
-            ASSERT(0         == mX.addRules(rules));
-            ASSERT(timestamp == X.ruleSetTimestamp());
+            ASSERT(0     == mX.addRules(rules));
+            ASSERT(seqNo == X.ruleSetSequenceNumber());
 
             // Verify the relevant rule masks for each category.
             for (int i = 0; i < NUM_NAMES; ++i) {
@@ -1466,7 +1464,7 @@ int main(int argc, char *argv[])
                                                       mX.ruleSet().numRules());
             ASSERT(0 == mX.addRules(allRules));
 
-            timestamp = X.ruleSetTimestamp();
+            seqNo = X.ruleSetSequenceNumber();
 
             // Remove those rules indicated by the bitmask 'mask'.  Note that
             // the category manager should have a rule for every category.
@@ -1475,7 +1473,7 @@ int main(int argc, char *argv[])
                                                       X.ruleSet().numRules());
 
             if (mask != 0) {
-                ASSERT(timestamp < X.ruleSetTimestamp());
+                ASSERT(seqNo < X.ruleSetSequenceNumber());
             }
             ASSERT(0 == mX.removeRules(rules));
 
@@ -1506,7 +1504,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING: 'addRule', 'removeRule', 'removeAllRules'
+        // TESTING 'addRule', 'removeRule', 'removeAllRules'
         //
         // Concerns:
         //   'addRule', 'removeRule', 'removeAllRules' update the set of rules
@@ -1525,30 +1523,28 @@ int main(int argc, char *argv[])
         //    points.
         //
         // Testing:
-        //   int addRule(const ball::RuleSet&);
-        //   int removeRule(const ball::Rule&);
+        //   int addRule(const ball::Rule& rule);
+        //   int removeRule(const ball::Rule& rule);
         //   void removeAllRules();
-        //   bsls::Types::Int64 ruleSetTimestamp() const;
+        //   bsls::Types::Int64 ruleSetSequenceNumber() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "Test 'addRule', 'removeRule'  " << endl
-                          << "==============================" << endl;
-
-        const Int64 now = bdlt::CurrentTime::now().totalNanoseconds();
+        if (verbose)
+            cout << endl
+                 << "TESTING 'addRule', 'removeRule', 'removeAllRules'" << endl
+                 << "=================================================" <<endl;
 
         bslma::TestAllocator ta;
 
         Obj mX(&ta);  const Obj& X = mX;
 
-        Int64 timestamp = X.ruleSetTimestamp();
-        ASSERT(now < timestamp);
+        Int64 seqNo = X.ruleSetSequenceNumber();
 
         for (int i = 0; i < NUM_NAMES; ++i) {
             mX.addCategory(NAMES[i], LEVELS[i][0], LEVELS[i][1],
                                      LEVELS[i][2], LEVELS[i][3]);
         }
-        ASSERT(timestamp == X.ruleSetTimestamp());
+        ASSERT(seqNo == X.ruleSetSequenceNumber());
 
         for (int i = 0; i < NUM_NAMES; ++i) {
             ball::Rule rule1(NAMES[i], LEVELS[i][0], LEVELS[i][1],
@@ -1557,8 +1553,8 @@ int main(int argc, char *argv[])
             // Add a rule for this category.
             ASSERT(1 == mX.addRule(rule1));
             ASSERT(0 == mX.addRule(rule1));
-            ASSERT(timestamp < X.ruleSetTimestamp());
-            timestamp = X.ruleSetTimestamp();
+            ASSERT(seqNo < X.ruleSetSequenceNumber());
+            seqNo = X.ruleSetSequenceNumber();
 
             int ruleId1 = X.ruleSet().ruleId(rule1);
             ASSERT(0 <= ruleId1);
@@ -1579,8 +1575,8 @@ int main(int argc, char *argv[])
             // Add a second rule for this category.
             ASSERT(1 == mX.addRule(rule2));
             ASSERT(0 == mX.addRule(rule2));
-            ASSERT(timestamp < X.ruleSetTimestamp());
-            timestamp = X.ruleSetTimestamp();
+            ASSERT(seqNo < X.ruleSetSequenceNumber());
+            seqNo = X.ruleSetSequenceNumber();
 
             int ruleId2 = X.ruleSet().ruleId(rule2);
             ASSERT(0 <= ruleId2)
@@ -1598,8 +1594,8 @@ int main(int argc, char *argv[])
             // Remove the second rule for this category.
             ASSERT(1 == mX.removeRule(rule2));
             ASSERT(0 == mX.removeRule(rule2));
-            ASSERT(timestamp < X.ruleSetTimestamp());
-            timestamp = X.ruleSetTimestamp();
+            ASSERT(seqNo < X.ruleSetSequenceNumber());
+            seqNo = X.ruleSetSequenceNumber();
 
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool isSet = i == j;
@@ -1615,7 +1611,7 @@ int main(int argc, char *argv[])
 
         // Remove all the rules.
         mX.removeAllRules();
-        ASSERT(timestamp < X.ruleSetTimestamp());
+        ASSERT(seqNo < X.ruleSetSequenceNumber());
         for (int i = 0; i < NUM_NAMES; ++i) {
             const Entry *cat = X.lookupCategory(NAMES[i]);
             ASSERT(0 == cat->relevantRuleMask());

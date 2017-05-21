@@ -338,21 +338,20 @@ BSLS_IDENT("$Id: $")
 //
 ///'bsls::Log' Logging Redirection
 ///-------------------------------
-// The 'ball::LoggerManager' singleton, on construction, will redirect the
-// 'bsls::Log' records to 'ball' in the log category 'BSLS.LOG' at the severity
-// level 'ERROR'.  Upon its destruction the logger manager singleton will
-// redirect 'bsls::Log' records back to the default 'bsls::Log' message
-// handler.
+// The 'ball::LoggerManager' singleton, on construction, redirects 'bsls::Log'
+// messages to 'ball' using the logging category "BSLS.LOG".  Upon its
+// destruction, the logger manager singleton redirects 'bsls::Log' messages
+// back to the default 'bsls::Log' message handler (see 'bsls_log').
 //
 ///Usage
 ///-----
 // This section illustrates instantiation of the logger manager singleton,
-// which is required (once!) in 'main', and also shows *direct* use of the
-// logger and logger manager interfaces, much of which is actually *not*
-// recommended.  The most basic logger functionality has been wrapped in macros
-// defined in the 'ball_log' component.  See the 'ball' package-level
-// documentation and the 'ball_log' component documentation for recommended
-// real-world usage examples.
+// which is required in 'main', and also shows *direct* use of the logger and
+// logger manager interfaces, much of which is actually *not* recommended.  The
+// most basic logger functionality has been wrapped in macros defined in the
+// 'ball_log' component.  See the 'ball' package-level documentation and the
+// 'ball_log' component documentation for recommended real-world usage
+// examples.
 //
 ///Example 1: Initialization #1
 /// - - - - - - - - - - - - - -

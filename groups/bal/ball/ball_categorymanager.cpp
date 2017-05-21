@@ -9,13 +9,12 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 
-#include <bdlt_currenttime.h>
-
 #include <bslmt_lockguard.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_writelockguard.h>
 
 #include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -32,6 +31,13 @@ namespace BloombergLP {
 namespace ball {
 
 namespace {
+
+typedef bsls::AtomicOperations AtomicOps;
+
+static
+AtomicOps::AtomicTypes::Int64 categoryManagerSequenceNumber = { 0 };
+    // This object is used for assigning a unique initial rule set sequence
+    // number to each category manager that is created.
 
                     // =====================
                     // class CategoryProctor
@@ -160,11 +166,13 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
 // CREATORS
 CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
 : d_registry(bdlb::CStringLess(), basicAllocator)
-, d_ruleSetTimestamp(bdlt::CurrentTime::now().totalNanoseconds())
+, d_ruleSetSequenceNumber(
+              AtomicOps::getInt64Relaxed(&categoryManagerSequenceNumber) << 48)
 , d_ruleSet(bslma::Default::allocator(basicAllocator))
 , d_categories(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
+    AtomicOps::incrementInt64(&categoryManagerSequenceNumber);
 }
 
 CategoryManager::~CategoryManager()
@@ -368,12 +376,13 @@ Category *CategoryManager::setThresholdLevels(const char *categoryName,
 int CategoryManager::addRule(const Rule& value)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
-    int ruleId = d_ruleSet.addRule(value);
+
+    const int ruleId = d_ruleSet.addRule(value);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
     }
 
-    d_ruleSetTimestamp = bdlt::CurrentTime::now().totalNanoseconds();
+    ++d_ruleSetSequenceNumber;
 
     const Rule *rule = d_ruleSet.getRuleById(ruleId);
 
@@ -410,12 +419,13 @@ int CategoryManager::addRules(const RuleSet& ruleSet)
 int CategoryManager::removeRule(const Rule& value)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
-    int ruleId = d_ruleSet.ruleId(value);
+
+    const int ruleId = d_ruleSet.ruleId(value);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
     }
 
-    d_ruleSetTimestamp = bdlt::CurrentTime::now().totalNanoseconds();
+    ++d_ruleSetSequenceNumber;
 
     const Rule *rule = d_ruleSet.getRuleById(ruleId);
 
@@ -469,7 +479,7 @@ void CategoryManager::removeAllRules()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
 
-    d_ruleSetTimestamp = bdlt::CurrentTime::now().totalNanoseconds();
+    ++d_ruleSetSequenceNumber;
 
     for (int i = 0; i < length(); ++i) {
         if (d_categories[i]->relevantRuleMask()) {

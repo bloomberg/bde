@@ -25,8 +25,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Tom Marshall (tmarshal)
 //
 //@DESCRIPTION: This component provides a namespace,
-// 'ball::LoggerFunctorPayloads', containing a suite of pure procedures, each
-// of which may be used as the function body "payload" of one of the various
+// 'ball::LoggerFunctorPayloads', containing a suite of functions, each of
+// which may be used as the function body "payload" of one of the various
 // 'bsl::function' functors used as callbacks in the 'ball_loggermanager'
 // component.  Each function provides a specific customization or convenience
 // enhancement to the basic logger functionality.
@@ -267,12 +267,13 @@ struct LoggerFunctorPayloads {
         // Load into the specified 'recordLevel', 'passLevel', 'triggerLevel',
         // and 'triggerAllLevel' the respective threshold levels of the
         // category in the registry of the (singleton) 'ball' logger manager
-        // that is the most proximate parent category among existing
-        // hierarchically named categories in the registry, if such a parent
-        // category exists, or the default thresholds otherwise; use the
-        // specified 'delimiter' to define hierarchical category names.  The
-        // behavior is undefined unless the logger manager singleton has been
-        // initialized and it is not in the process of being shut down.
+        // that is the most proximate parent category of the category having
+        // the specified 'categoryName' among existing hierarchically named
+        // categories in the registry, if such a parent category exists, or the
+        // default thresholds otherwise; use the specified 'delimiter' to
+        // define hierarchical category names.  The behavior is undefined
+        // unless the logger manager singleton has been initialized and it is
+        // not in the process of being shut down.
 };
 
 }  // close package namespace

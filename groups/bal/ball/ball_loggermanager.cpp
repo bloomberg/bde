@@ -171,7 +171,7 @@ static ball::Category *bslsLogCategoryPtr = 0;
     // Address of the category to which 'bsls::Log' messages are logged when
     // the logger manager singleton exists.
 
-const char *const BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
+const char *const k_BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
 
 void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                     const char              *fileName,
@@ -188,7 +188,7 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
         ball::LoggerManager& singleton = ball::LoggerManager::singleton();
 
         if (0 == bslsLogCategoryPtr) {
-            singleton.addCategory(BSLS_LOG_CATEGORY_NAME,
+            singleton.addCategory(k_BSLS_LOG_CATEGORY_NAME,
                                   singleton.defaultRecordThresholdLevel(),
                                   singleton.defaultPassThresholdLevel(),
                                   singleton.defaultTriggerThresholdLevel(),
@@ -199,7 +199,7 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
             // would return 0.
 
             bslsLogCategoryPtr = singleton.lookupCategory(
-                                                       BSLS_LOG_CATEGORY_NAME);
+                                                     k_BSLS_LOG_CATEGORY_NAME);
         }
 
         ball::Logger&  logger = singleton.getLogger();
@@ -213,6 +213,9 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                           record);
     }
     else {
+        // Don't call 'bsls::Log::logMessage' because this function is set as
+        // the 'bsls::Log' message handler!
+
         (bsls::Log::platformDefaultMessageHandler)(severity,
                                                    fileName,
                                                    lineNumber,

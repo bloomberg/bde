@@ -82,9 +82,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bdlf::PlaceHolders;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test is a logger manager that form the base of the BDE
@@ -96,7 +96,7 @@ using namespace bdlf::PlaceHolders;
 // guard which is used so simplify the initialization and destruction of the
 // logger manager singleton for client applications.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // 'ball::Logger' private interface (tested indirectly):
 // [16] ball::Logger(Obs*, *buffer, Sch*, Pop&, Pac&, *ba);
 // [16] ~ball::Logger();
@@ -168,22 +168,22 @@ using namespace bdlf::PlaceHolders;
 //
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // 'ball::LoggerManagerCategoryIter' public interface:
-// [40] LoggerManagerCategoryIter(const LoggerManager& lm);
-// [40] ~LoggerManagerCategoryIter();
-// [40] void operator++();
-// [40] operator const void *() const;
-// [40] const Cat& operator()() const;
+// [41] LoggerManagerCategoryIter(const LoggerManager& lm);
+// [41] ~LoggerManagerCategoryIter();
+// [41] void operator++();
+// [41] operator const void *() const;
+// [41] const Cat& operator()() const;
 //
 // 'ball::LoggerManagerCategoryManip' public interface:
-// [41] LoggerManagerCategoryManip(LoggerManager *lm);
-// [41] ~LoggerManagerCategoryManip();
-// [41] void advance();
-// [41] Cat& operator()();
-// [41] operator const void *() const;
+// [42] LoggerManagerCategoryManip(LoggerManager *lm);
+// [42] ~LoggerManagerCategoryManip();
+// [42] void advance();
+// [42] Cat& operator()();
+// [42] operator const void *() const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-//---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [17] TESTING: LOGMESSAGE LOG ORDER and TRIGGER MARKERS
+// [17] TESTING LOGMESSAGE LOG ORDER and TRIGGER MARKERS
 // [20] TESTING CONCURRENT ACCESS TO 'd_loggers'
 // [21] TESTING CONCURRENT ACCESS TO 'd_defaultLoggers'
 // [22] TESTING CONCURRENT ACCESS TO 'setCategory'
@@ -191,16 +191,17 @@ using namespace bdlf::PlaceHolders;
 // [24] TESTING CONCURRENT ACCESS TO 'lookupCategory'
 // [25] TBD
 // [26] TBD
-// [28] TESTING LOW-LEVEL LOGGING
-// [29] TESTING: 'isCategoryEnabled' (RULE BASED LOGGING)
-// [30] TESTING: 'ball::Logger::logMessage' (RULE BASED LOGGING)
-// [31] TESTING: '~LoggerManager' calls 'Observer::releaseRecords'
+// [28] LOW-LEVEL LOGGING
+// [29] TESTING 'isCategoryEnabled' (RULE BASED LOGGING)
+// [30] TESTING 'ball::Logger::logMessage' (RULE BASED LOGGING)
+// [31] TESTING '~LoggerManager' calls 'Observer::releaseRecords'
 // [33] initSingleton(LoggerManager *, true);
 // [34] initSingleton(LoggerManager *, false);
-// [36] USAGE EXAMPLE #1
-// [37] USAGE EXAMPLE #2
-// [38] USAGE EXAMPLE #3
-// [39] USAGE EXAMPLE #4
+// [36] SINGLETON REINITIALIZATION
+// [37] USAGE EXAMPLE #1
+// [38] USAGE EXAMPLE #2
+// [39] USAGE EXAMPLE #3
+// [40] USAGE EXAMPLE #4
 // [19] CONCERN: PERFORMANCE IMPLICATIONS
 // [12] CONCERN: USER FIELDS POPULATOR CALLBACK
 // [11] CONCERN: INTERNAL BROADCAST OBSERVER
@@ -265,9 +266,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef ball::LoggerManager              Obj;
 
@@ -282,7 +283,8 @@ typedef ball::RecordBuffer               RecBuf;
 typedef ball::UserFieldType              FieldType;
 typedef ball::UserFields                 FieldValues;
 
-typedef ball::ThresholdAggregate            Thresholds;
+typedef ball::ThresholdAggregate         Thresholds;
+
 typedef Logger::PublishAllTriggerCallback   Pac;
 typedef Logger::UserFieldsPopulatorCallback Pop;
 
@@ -350,10 +352,9 @@ void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
     delete [] threads;
 }
 
-
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE 1
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1 {
 
@@ -414,9 +415,9 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1 {
 
 }  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_1
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE 2
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 
@@ -682,9 +683,9 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 //..
 }  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE 3
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3 {
 
@@ -763,7 +764,6 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3 {
 // object contents into.  That would have required an extra copy and the cost
 // of allocation and deallocation, and thus would have been more inefficient.
 
-
         //  Elided function definitions
 
 Information::Information(const char *heading, const char *contents)
@@ -788,10 +788,9 @@ const bsl::string& Information::contents() const
 
 }  // close namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3
 
-
-//=============================================================================
-//                               USAGE EXAMPLE # 4
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               USAGE EXAMPLE 4
+// ----------------------------------------------------------------------------
 
 namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4 {
 
@@ -1010,10 +1009,6 @@ void inheritThresholdLevels(int        *recordLevel,
                                        categoryName, &lm);
 }
 
-}  // close unnamed namespace
-
-namespace {
-
 void verifyLoggerManagerDefaults(const ball::LoggerManager&  manager,
                                  bslma::Allocator           *expectedAllocator,
                                  ball::Observer             *expectedObserver)
@@ -1054,19 +1049,101 @@ void myPopulator(ball::UserFields *list)
     list->appendInt64(globalFactorialArgument);
 }
 
-//=============================================================================
-//                         CASE 8 RELATED ENTITIES
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                  LOGGER MANAGER SINGLETON REINITIALIZATION
+// ----------------------------------------------------------------------------
 
-namespace BALL_LOGGERMANAGER_TEST_CASE_8 {
+namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION {
+
+static
+void logMessageTest(
+                bool                                   loggerManagerExistsFlag,
+                const BloombergLP::ball::TestObserver& testObserver,
+                int                                    numPublishedSoFar)
+    // Log a message through the logger manager singleton if the specified
+    // 'loggerManagerExistsFlag' is 'true' and unconditionally invoke
+    // 'BSLS_LOG_WARN', then verify the expected logging behavior based on
+    // 'loggerManagerExistsFlag' and the specified 'testObserver' and
+    // 'numPublishedSoFar'.
+{
+    ASSERT(loggerManagerExistsFlag == Obj::isInitialized());
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    // Temporarily redirect 'stderr' to a temp file.
+    fflush(stderr);
+    bsl::string filename = tempnam(0, "ball_log");
+    int fd = creat(filename.c_str(), 0777);
+    ASSERT(fd != -1);
+    int saved_stderr_fd = dup(2);
+    dup2(fd, 2);
+#endif
+
+    bsl::stringstream os;
+    bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
+    bsl::cerr.rdbuf(os.rdbuf());
+
+    // Log through the singleton if it exists.
+
+    if (loggerManagerExistsFlag) {
+        Obj& mX = Obj::singleton();  const Obj& X = mX;
+
+        mX.setCategory("X.Y.Z");  // default threshold levels
+        const Cat *cat = X.lookupCategory("X.Y.Z");
+
+        ball::Logger& logger = mX.getLogger();
+
+        logger.logMessage(*cat, 64, __FILE__, __LINE__, "'ball' message");
+    }
+
+    // Log using 'bsls::Log' regardless of whether the singleton exists.
+
+    BSLS_LOG_WARN("'bsls::Log' message");
+
+    if (loggerManagerExistsFlag) {
+        numPublishedSoFar += 2;
+    }
+    ASSERT(numPublishedSoFar == testObserver.numPublishedRecords());
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    // Restore 'stderr' to the state it was in before we redirected it.
+    fflush(stderr);
+    dup2(saved_stderr_fd, 2);
+
+    // Verify the expected number of lines were written to the temp file.
+    bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
+    int numLines = 0;
+    bsl::string line;
+    while (getline(fs, line)) {
+        ++numLines;
+    }
+    if (loggerManagerExistsFlag) {
+        ASSERT(0 == numLines);
+    }
+    else {
+        ASSERT(1 == numLines);
+    }
+    fs.close();
+    unlink(filename.c_str());
+#endif
+    ASSERT("" == os.str());
+    bsl::cerr.rdbuf(cerrBuf);
+}
+
+}  // close namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION
+
+// ============================================================================
+//                         CASE 17 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_TEST_CASE_17 {
 
 class MyObserver : public ball::Observer {
     // This concrete implementation of 'ball::Observer' maintains a count of
     // the number of messages published to it and gives access to that count
     // through 'publishCount'.
 
-    int                 d_publishCount;
-    bsl::ostream&       d_stream;
+    int           d_publishCount;
+    bsl::ostream& d_stream;
 
   public:
     // CREATORS
@@ -1097,7 +1174,7 @@ class MyObserver : public ball::Observer {
 
 };
 
-}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_8
+}  // close namespace BALL_LOGGERMANAGER_TEST_CASE_17
 
 namespace {
 class TestDestroyObserver : public ball::Observer {
@@ -1214,7 +1291,7 @@ void doPerformanceTest(ball::LoggerManager& loggerManager,
 
 namespace BALL_LOGGERMANAGER_TEST_LOOKUP_CATEGORY {
 enum {
-    NUM_THREADS = 4 // number of threads
+    k_NUM_THREADS = 4  // number of threads
 };
 
 const char *LC[] = {
@@ -1232,18 +1309,18 @@ const char *UC[] = {
 };
 
 struct ThreadData {
-    int index;  // index of current thread
+    int d_index;  // index of current thread
 };
 
-bslmt::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 extern "C" {
     void *workerThreadLookupCategory(void *arg)
     {
-        ThreadData *p = (ThreadData*)arg;
+        ThreadData *p = reinterpret_cast<ThreadData *>(arg);
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-        ASSERT(manager.lookupCategory(UC[p->index]) != 0);
+        ASSERT(manager.lookupCategory(UC[p->d_index]) != 0);
         return 0;
     }
 }  // extern "C"
@@ -1252,31 +1329,30 @@ extern "C" {
 
 namespace BALL_LOGGERMANAGER_TEST_INIT_SINGLETON {
 enum {
-    NUM_THREADS = 4 // number of threads
+    k_NUM_THREADS = 4  // number of threads
 };
 
 struct ThreadData {
-    int                    index;    // the index of current thread
-
-    ball::LoggerManager   *manager;  // the instance observed by current thread
+    int                  d_index;      // index of current thread
+    ball::LoggerManager *d_manager_p;  // instance observed by current thread
 };
 
-bslmt::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 extern "C" {
     void *workerThreadInitSingleton(void *arg)
     {
-        ThreadData *p = (ThreadData*)arg;
+        ThreadData *p = reinterpret_cast<ThreadData *>(arg);
 
         ball::LoggerManagerConfiguration configuration;
-        configuration.setDefaultThresholdLevelsIfValid(p->index,
-                                                       p->index,
-                                                       p->index,
-                                                       p->index);
+        configuration.setDefaultThresholdLevelsIfValid(p->d_index,
+                                                       p->d_index,
+                                                       p->d_index,
+                                                       p->d_index);
 
         barrier.wait();
         ball::LoggerManager::initSingleton(configuration);
-        p->manager = &ball::LoggerManager::singleton();
+        p->d_manager_p = &ball::LoggerManager::singleton();
 
         return 0;
     }
@@ -1287,12 +1363,12 @@ extern "C" {
 namespace BALL_LOGGERMANAGER_CONCURRENT_TESTS {
 
 enum {
-    NUM_THREADS = 5,       // number of threads
-    NUM_ITERATIONS = 1000  // number of iterations
+    k_NUM_THREADS = 5,       // number of threads
+    k_NUM_ITERATIONS = 1000  // number of iterations
 };
 
-enum { MAX_LIMIT = 32 * 1024 };
-bslmt::Barrier barrier(NUM_THREADS);
+enum { k_MAX_LIMIT = 32 * 1024 };
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 extern "C" {
 
@@ -1301,7 +1377,7 @@ extern "C" {
     {
         ball::LoggerManager& manager = Obj::singleton();
         barrier.wait();
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
             ASSERT(manager.setCategory("TEST-CATEGORY") != 0);
         }
         return 0;
@@ -1314,11 +1390,11 @@ extern "C" {
 
         int remainder = (int)(bsls::Types::IntPtr)arg % 2;
         if (remainder == 1) {  // odd numbered threads
-            ball::FixedSizeRecordBuffer buf(MAX_LIMIT);
+            ball::FixedSizeRecordBuffer buf(k_MAX_LIMIT);
 
             ball::Logger *logger = manager.allocateLogger(&buf);
             barrier.wait();
-            for (int i = 0; i < NUM_ITERATIONS; ++i) {
+            for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
                 manager.setLogger(logger);
                 ASSERT(logger == &manager.getLogger());
             }
@@ -1327,7 +1403,7 @@ extern "C" {
         else {                 // odd numbered threads
             const ball::Logger *logger = &manager.getLogger();
             barrier.wait();
-            for (int i = 0; i < NUM_ITERATIONS; ++i) {
+            for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
                 ASSERT(logger == &manager.getLogger());
             }
         }
@@ -1341,26 +1417,32 @@ class PublishCountingObserver : public ball::Observer {
     // the number of messages published to it and gives access to that count
     // through 'publishCount'.
 
-    bsls::AtomicInt d_publishCount;
+    // DATA
+    bsls::AtomicInt d_publishCount;  // count of published records
 
   public:
-    // CONSTRUCTORS
-    PublishCountingObserver() : d_publishCount(0)
+    // CREATORS
+    PublishCountingObserver()
+        // Create a Publish Counting Observer having an initial count of 0.
+    : d_publishCount(0)
     {
     }
 
     ~PublishCountingObserver()
+        // Destroy this Publish Counting Observer.
     {
     }
 
-    //MANIPULATORS
-    void publish(const ball::Record& , const ball::Context& )
+    // MANIPULATORS
+    void publish(const ball::Record&, const ball::Context&)
+        // Increment the count maintained by this observer by 1.
     {
         ++d_publishCount;
     }
 
-    //ACCESSORS
+    // ACCESSORS
     int publishCount() const
+        // Return the current count maintained by this observer.
     {
         return d_publishCount;
     }
@@ -1374,8 +1456,8 @@ extern "C" {
         ASSERT(category);
 
         barrier.wait();
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
-            ball::FixedSizeRecordBuffer buf(MAX_LIMIT);
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+            ball::FixedSizeRecordBuffer buf(k_MAX_LIMIT);
 
             ball::Logger *logger = mX.allocateLogger(&buf);
 
@@ -1392,13 +1474,13 @@ extern "C" {
 
 }  // close namespace BALL_LOGGERMANAGER_CONCURRENT_TESTS
 
-namespace BALL_LOGGERMANAGER_TEST_DTLC {
+namespace BALL_LOGGERMANAGER_TEST_DEFAULTTHRESHOLDLEVELSCALLBACK {
 enum {
-    NUM_THREADS = 4 // number of threads
+    k_NUM_THREADS = 4  // number of threads
 };
 ball::LoggerManager *manager;
 bsl::function<void(int *, int *, int *, int *, const char *)> functionDTLC;
-bslmt::Barrier barrier(NUM_THREADS + 1);
+bslmt::Barrier barrier(k_NUM_THREADS + 1);
 bslmt::Condition condition;
 
 void callback(int *r, int *p, int *t, int *a, const char *c)
@@ -1434,11 +1516,11 @@ extern "C" {
     }
 }  // extern "C"
 
-}  // close namespace BALL_LOGGERMANAGER_TEST_DTLC
+}  // close namespace BALL_LOGGERMANAGER_TEST_DEFAULTTHRESHOLDLEVELSCALLBACK
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -1475,9 +1557,9 @@ void testUserFieldsPopulatorCb(ball::UserFields *list)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1491,7 +1573,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 41: {
+      case 42: {
         // --------------------------------------------------------------------
         // TESTING 'ball::LoggerManagerCategoryManip'
         //
@@ -1579,7 +1661,7 @@ int main(int argc, char *argv[])
         ASSERT(NUM_NAMES + 1 == count);  // + 1 for the *Default* *Category*
 
       } break;
-      case 40: {
+      case 41: {
         // --------------------------------------------------------------------
         // TESTING 'ball::LoggerManagerCategoryIter'
         //
@@ -1657,9 +1739,9 @@ int main(int argc, char *argv[])
 
       } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE #4
+        // USAGE EXAMPLE 4
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -1691,9 +1773,9 @@ int main(int argc, char *argv[])
         (void)cat;
 
       } break;
-      case 38: {
+      case 39: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE #3
+        // USAGE EXAMPLE 3
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -1739,9 +1821,9 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE #2
+        // USAGE EXAMPLE 2
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -1762,9 +1844,9 @@ int main(int argc, char *argv[])
         BALL_LOGGERMANAGER_USAGE_EXAMPLE_2::main();
 
       } break;
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE #1
+        // USAGE EXAMPLE 1
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -1783,6 +1865,127 @@ int main(int argc, char *argv[])
                                   << "===============" << endl;
 
         BALL_LOGGERMANAGER_USAGE_EXAMPLE_1::main();
+
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING SINGLETON REINITIALIZATION
+        //
+        // Concerns:
+        //: 1 TBD doc
+        //
+        // Plan:
+        //: 1 TBD doc
+        //
+        // Testing:
+        //   SINGLETON REINITIALIZATION
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SINGLETON REINITIALIZATION" << endl
+                          << "==================================" << endl;
+
+        using namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION;
+
+        bslma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator ga("global",  veryVeryVerbose);
+        bslma::TestAllocator oa("object",  veryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard guard(&da);
+        bslma::Default::setGlobalAllocator(&ga);
+
+        // Create 'ball::LoggerManagerScopedGuard' in a loop.
+        {
+            ball::LoggerManagerConfiguration lmc(&oa);
+            ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
+                                                       0,
+                                                       ball::Severity::e_TRACE,
+                                                       0,
+                                                       0));
+
+                  ball::TestObserver  mTO(&bsl::cout);
+            const ball::TestObserver& TO = mTO;
+
+            ASSERT(0 == TO.numPublishedRecords());
+
+            for (int i = 0; i < 5; ++i) {
+                ASSERT(!Obj::isInitialized());
+                logMessageTest(false, TO, TO.numPublishedRecords());
+
+                {
+                     ball::LoggerManagerScopedGuard guard(&mTO, lmc);
+
+                     ASSERT(Obj::isInitialized());
+                     logMessageTest(true, TO, TO.numPublishedRecords());
+                }
+            }
+        }
+
+        // Call 'initSingleton' and 'shutDownSingleton' in a loop.
+        {
+            ball::LoggerManagerConfiguration lmc(&oa);
+            ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
+                                                       0,
+                                                       ball::Severity::e_TRACE,
+                                                       0,
+                                                       0));
+
+                  ball::TestObserver  mTO(&bsl::cout);
+            const ball::TestObserver& TO = mTO;
+
+            ASSERT(0 == TO.numPublishedRecords());
+
+            for (int i = 0; i < 5; ++i) {
+                ASSERT(!Obj::isInitialized());
+                logMessageTest(false, TO, TO.numPublishedRecords());
+
+                {
+                     ball::LoggerManager::initSingleton(&mTO, lmc);
+
+                     ASSERT(Obj::isInitialized());
+                     logMessageTest(true, TO, TO.numPublishedRecords());
+
+                     ball::LoggerManager::shutDownSingleton();
+                }
+            }
+        }
+
+        // Test nested scoped guards (which is a bit funky).
+        {
+            ball::LoggerManagerConfiguration lmc(&oa);
+            ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
+                                                       0,
+                                                       ball::Severity::e_TRACE,
+                                                       0,
+                                                       0));
+
+                  ball::TestObserver  mTO(&bsl::cout);
+            const ball::TestObserver& TO = mTO;
+
+            ASSERT(0 == TO.numPublishedRecords());
+
+            {
+                ASSERT(!Obj::isInitialized());
+                logMessageTest(false, TO, TO.numPublishedRecords());
+
+                ball::LoggerManagerScopedGuard guard(&mTO, lmc);
+
+                ASSERT( Obj::isInitialized());
+                logMessageTest(true, TO, TO.numPublishedRecords());
+                {
+                     ball::LoggerManagerScopedGuard guard(&mTO, lmc);
+
+                     ASSERT(Obj::isInitialized());
+                     logMessageTest(true, TO, TO.numPublishedRecords());
+                }
+                ASSERT(!Obj::isInitialized());
+                logMessageTest(false, TO, TO.numPublishedRecords());
+            }
+            ASSERT(!Obj::isInitialized());
+            logMessageTest(false, TO, TO.numPublishedRecords());
+        }
+
+        // TBD test concurrency of 'initSingleton' and 'shutDownSingleton'
 
       } break;
       case 35: {
@@ -1982,8 +2185,7 @@ int main(int argc, char *argv[])
       } break;
       case 32: {
         // --------------------------------------------------------------------
-        // TESTING CONCURRENT ACCESS TO
-        // 'ball::LoggerManager::setDefaultThresholdLevelsCallback':
+        // TESTING CONCURRENT ACCESS TO 'setDefaultThresholdLevelsCallback'
         //   Verify Concurrent access to 'setDefaultThresholdLevelsCallback'.
         //
         // Concerns:
@@ -1998,17 +2200,16 @@ int main(int argc, char *argv[])
         // Testing:
         //   void setDefaultThresholdLevelsCallback(Dtc *cb);
         // --------------------------------------------------------------------
+
         if (verbose) {
-            cout << endl
-                 << "TESTING CONCURRENT ACCESS TO "
-                 << "'ball::LoggerManager::setDefaultThresholdLevelsCallback'"
-                 << endl
-                 << "============================="
-                 << "======================================================="
+            cout << endl <<
+             "TESTING CONCURRENT ACCESS TO 'setDefaultThresholdLevelsCallback'"
+                 << endl <<
+             "================================================================"
                  << endl;
         }
 
-        using namespace BALL_LOGGERMANAGER_TEST_DTLC;
+        using namespace BALL_LOGGERMANAGER_TEST_DEFAULTTHRESHOLDLEVELSCALLBACK;
 
         ball::LoggerManagerConfiguration mXC;
         ball::LoggerManagerScopedGuard   lmGuard(mXC);
@@ -2021,13 +2222,13 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::Handle handle;
         bslmt::ThreadUtil::create(&handle, setCategory, 0);
 
-        executeInParallel(NUM_THREADS, workerThreadDTLC);
+        executeInParallel(k_NUM_THREADS, workerThreadDTLC);
 
         bslmt::ThreadUtil::join(handle);
       } break;
       case 31: {
         // --------------------------------------------------------------------
-        // TESTING: '~LoggerManager' calls 'Observer::releaseRecords'
+        // TESTING '~LoggerManager' CALLS 'Observer::releaseRecords'
         //
         // Concerns:
         //: 1 A logger manager invokes 'releaseRecords' of its registered
@@ -2049,10 +2250,13 @@ int main(int argc, char *argv[])
         //   that function.
         // --------------------------------------------------------------------
 
-        if (verbose)
+        if (verbose) {
             cout << endl
-                 << "Testing 'releaseRecords' calling on destruction" << endl
-                 << "===============================================" << endl;
+                 << "TESTING '~LoggerManager' CALLS 'Observer::releaseRecords'"
+                 << endl
+                 << "========================================================="
+                 << endl;
+        }
 
         TestDestroyObserver                  observer1;
         bsl::shared_ptr<TestDestroyObserver> observer2(
@@ -2072,7 +2276,7 @@ int main(int argc, char *argv[])
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING: 'ball::Logger::logMessage' (RULE BASED LOGGING)
+        // TESTING 'Logger::logMessage' (RULE BASED LOGGING)
         //
         // Concerns:
         //: 1 Verify that 'logMessage' uses the currently installed rules when
@@ -2106,9 +2310,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing Rule Based Logging: logMessage\n"
-                      << "======================================\n";
+            cout << endl
+                 << "TESTING 'Logger::logMessage' (RULE BASED LOGGING)\n"
+                 << "=================================================\n";
+
         using namespace BloombergLP;
 
         int VALUES[] = { 1,
@@ -2293,7 +2498,7 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING: 'isCategoryEnabled' (RULE BASED LOGGING)
+        // TESTING 'isCategoryEnabled' (RULE BASED LOGGING)
         //
         // Concerns:
         //: 1 'isCategoryEnabled' behaves correctly with respect to the rule
@@ -2322,9 +2527,10 @@ int main(int argc, char *argv[])
         //   bool isCategoryEnabled(const ball::Category *, int) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "isCategoryEnabled" << endl
-                          << "=================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING 'isCategoryEnabled' (RULE BASED LOGGING)" << endl
+                 << "================================================" << endl;
 
         int VALUES[] = { 1,
                          ball::Severity::e_FATAL - 1,
@@ -2462,7 +2668,7 @@ int main(int argc, char *argv[])
         //:   reinstated after the scoped guard's destruction.
         //
         // Testing:
-        //   TESTING LOW-LEVEL LOGGING
+        //   LOW-LEVEL LOGGING
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2571,7 +2777,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl << "Testing 'ball::LoggerManagerScopedGuard'" << endl
+            cout << endl << "TESTING 'ball::LoggerManagerScopedGuard'" << endl
                          << "========================================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -2670,7 +2876,7 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING STATIC 'getRecord' and 'logMessage'
+        // TESTING STATIC 'getRecord' AND 'logMessage'
         //
         // Concerns:
         //: 1 The 'getRecord' and 'logMessage' should work correctly without a
@@ -2684,9 +2890,10 @@ int main(int argc, char *argv[])
         //   static void logMessage(int severity, ball::Record *record);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'getRecord' and 'logMessage'" << endl
-                          << "====================================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING STATIC 'getRecord' AND 'logMessage'" << endl
+                 << "===========================================" << endl;
 
          bslma::TestAllocator da("default", veryVeryVeryVerbose);
          bslma::DefaultAllocatorGuard dag(&da);
@@ -2781,12 +2988,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   const ball::Category *lookupCategory(const char *categoryName);
         // --------------------------------------------------------------------
+
         if (verbose) {
             cout << endl
-                 << "TESTING CONCURRENT ACCESS TO "
-                 << "PRIMARY 'ball::LoggerManager::lookupCategory'" << endl
-                 << "============================="
-                 << "============================================" << endl;
+                 << "TESTING CONCURRENT ACCESS TO 'lookupCategory'" << endl
+                 << "=============================================" << endl;
         }
 
         using namespace BALL_LOGGERMANAGER_TEST_LOOKUP_CATEGORY;
@@ -2801,36 +3007,36 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof LC / sizeof *LC;
 
-        ASSERT(NUM_DATA == NUM_THREADS);
+        ASSERT(NUM_DATA == k_NUM_THREADS);
 
         int ti;
-        for (ti = 0; ti < NUM_THREADS; ++ti) {
+        for (ti = 0; ti < k_NUM_THREADS; ++ti) {
             ASSERT(mX.setCategory(LC[ti]));
         }
 
-        ThreadData data[NUM_THREADS];
+        ThreadData data[k_NUM_THREADS];
 
-        for (ti = 0; ti < NUM_THREADS; ++ti) {
-            data[ti].index = ti;
+        for (ti = 0; ti < k_NUM_THREADS; ++ti) {
+            data[ti].d_index = ti;
         }
 
-        bslmt::ThreadUtil::Handle threads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
-        for (ti = 0; ti < NUM_THREADS; ++ti) {
+        for (ti = 0; ti < k_NUM_THREADS; ++ti) {
             bslmt::ThreadUtil::create(&threads[ti],
                                       workerThreadLookupCategory,
                                       (void*)&data[ti]);
         }
 
-        for (ti = 0; ti < NUM_THREADS; ++ti) {
+        for (ti = 0; ti < k_NUM_THREADS; ++ti) {
             bslmt::ThreadUtil::join(threads[ti]);
         }
 
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING CONCURRENT ACCESS TO 'initSingleton()':
-        //   Verify concurrent access to 'initSingleton()'.
+        // TESTING CONCURRENT ACCESS TO 'initSingleton'
+        //   Verify concurrent access to 'initSingleton'.
         //
         // Concerns:
         //: 1 Multiple threads can safely invoke 'initSingleton' with
@@ -2843,58 +3049,59 @@ int main(int argc, char *argv[])
         //:   different observers and configuration objects.
         //
         // Testing:
+        //   TESTING CONCURRENT ACCESS TO 'initSingleton'
         // --------------------------------------------------------------------
+
         if (verbose) {
             cout << endl
-                 << "TESTING CONCURRENT ACCESS TO "
-                 << "PRIMARY 'ball::LoggerManager::initSingleton'" << endl
-                 << "============================="
+                 << "TESTING CONCURRENT ACCESS TO 'initSingleton'" << endl
                  << "============================================" << endl;
         }
 
         using namespace BALL_LOGGERMANAGER_TEST_INIT_SINGLETON;
 
-        ThreadData data[NUM_THREADS];
+        ThreadData data[k_NUM_THREADS];
 
         int i;
-        for (i = 0; i < NUM_THREADS; ++i) {
-            data[i].index = i;
+        for (i = 0; i < k_NUM_THREADS; ++i) {
+            data[i].d_index = i;
         }
 
-        bslmt::ThreadUtil::Handle threads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
-        for (i = 0; i < NUM_THREADS; ++i) {
+        for (i = 0; i < k_NUM_THREADS; ++i) {
             bslmt::ThreadUtil::create(&threads[i],
                                       workerThreadInitSingleton,
                                       (void*)&data[i]);
         }
 
-        for (i = 0; i < NUM_THREADS; ++i) {
+        for (i = 0; i < k_NUM_THREADS; ++i) {
             bslmt::ThreadUtil::join(threads[i]);
         }
 
         Obj& mX = Obj::singleton();
-        for (i = 0; i < NUM_THREADS; ++i) {
-            ASSERTV(i, &mX == data[i].manager);
-            if (mX.defaultRecordThresholdLevel() == data[i].index) {
+        for (i = 0; i < k_NUM_THREADS; ++i) {
+            ASSERTV(i, &mX == data[i].d_manager_p);
+            if (mX.defaultRecordThresholdLevel() == data[i].d_index) {
                 if (veryVerbose) cout << "Thread " << i << " initialized "
                                       << "the logger manager singleton"
                                       << endl;
 
-                ASSERT(mX.defaultRecordThresholdLevel()     == data[i].index);
-                ASSERT(mX.defaultPassThresholdLevel()       == data[i].index);
-                ASSERT(mX.defaultTriggerThresholdLevel()    == data[i].index);
-                ASSERT(mX.defaultTriggerAllThresholdLevel() == data[i].index);
+                ASSERT(mX.defaultRecordThresholdLevel()    == data[i].d_index);
+                ASSERT(mX.defaultPassThresholdLevel()      == data[i].d_index);
+                ASSERT(mX.defaultTriggerThresholdLevel()   == data[i].d_index);
+                ASSERT(mX.defaultTriggerAllThresholdLevel()== data[i].d_index);
 
                 break;
             }
         }
 
-        ASSERT(NUM_THREADS != i);
+        ASSERT(k_NUM_THREADS != i);
+
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING CONCURRENT ACCESS TO 'setCategory':
+        // TESTING CONCURRENT ACCESS TO 'setCategory'
         //   Verify Concurrent access to 'setCategory'.
         //
         // Concerns:
@@ -2907,10 +3114,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   const ball::Category *setCategory(const char *categoryName);
         // --------------------------------------------------------------------
+
         if (verbose) {
             cout << endl
-                 << "TESTING CONCURRENT ACCESS TO"
-                 << "'ball::LoggerManager::setCategory'" << endl
+                 << "TESTING CONCURRENT ACCESS TO 'setCategory'" << endl
                  << "==========================================" << endl;
         }
 
@@ -2925,12 +3132,12 @@ int main(int argc, char *argv[])
 
         verifyLoggerManagerDefaults(Obj::singleton(), 0, &observer);
 
-        executeInParallel(NUM_THREADS, workerThreadSetCategory);
+        executeInParallel(k_NUM_THREADS, workerThreadSetCategory);
 
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING CONCURRENT ACCESS TO 'd_defaultLoggers':
+        // TESTING CONCURRENT ACCESS TO 'd_defaultLoggers'
         //   Verify concurrent access to 'd_defaultLoggers' (a class member
         //   of 'ball::LoggerManager').
         //
@@ -2977,12 +3184,12 @@ int main(int argc, char *argv[])
 
         verifyLoggerManagerDefaults(Obj::singleton(), &sa, &observer);
 
-        executeInParallel(NUM_THREADS, workerThreadDefaultLoggers);
+        executeInParallel(k_NUM_THREADS, workerThreadDefaultLoggers);
 
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING CONCURRENT ACCESS TO 'd_loggers':
+        // TESTING CONCURRENT ACCESS TO 'd_loggers'
         //   Verify concurrent access to 'd_loggers' (a class member
         //   of 'ball::LoggerManager').
         //
@@ -3011,6 +3218,7 @@ int main(int argc, char *argv[])
         //                   int                    lineNumber,
         //                   const char            *message);
         // --------------------------------------------------------------------
+
         if (verbose) {
             cout << endl
                  << "TESTING CONCURRENT ACCESS TO 'd_loggers'" << endl
@@ -3048,16 +3256,16 @@ int main(int argc, char *argv[])
 
         ASSERT(cat);
 
-        executeInParallel(NUM_THREADS, workerThreadMultipleLoggers);
+        executeInParallel(k_NUM_THREADS, workerThreadMultipleLoggers);
         int expected = observer.publishCount();
 
-        // there are 'NUM_THREADS', each of which logs 'NUM_ITERATIONS'
-        // messages.  Also note that each logged message is eventually
-        // published (either by trigger-all caused by the same thread or by
-        // different thread).  Thus the publish count should be equal to
-        // 'NUM_THREADS * NUM_ITERATIONS'.
+        // There are 'k_NUM_THREADS', each of which logs 'k_NUM_ITERATIONS'
+        // messages.  Note that each logged message is eventually published
+        // (either by a trigger-all caused by the same thread or by a different
+        // thread).  Thus the publish count should be equal to
+        // 'k_NUM_THREADS * k_NUM_ITERATIONS'.
 
-        ASSERTV(expected, expected == NUM_THREADS * NUM_ITERATIONS);
+        ASSERTV(expected, expected == k_NUM_THREADS * k_NUM_ITERATIONS);
 
       } break;
       case 19: {
@@ -3199,7 +3407,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // -------------------------------------------------------------------
-        // TESTING LOGGERS ALLOCATION
+        // TESTING LOGGER ALLOCATION
         //
         // Concerns:
         //   - Default and user-supplied message buffer sizes are correct
@@ -3221,7 +3429,7 @@ int main(int argc, char *argv[])
         //   void setLogger(ball::Logger *logger);
         // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING LOGGERS ALLOCATION" << endl
+        if (verbose) cout << endl << "TESTING LOGGER ALLOCATION" << endl
                                   << "=========================" << endl;
 
         bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
@@ -3345,7 +3553,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING: LOGMESSAGE LOG ORDER and TRIGGER MARKERS
+        // TESTING LOGMESSAGE LOG ORDER AND TRIGGER MARKERS
         //
         // Concerns:
         //   We want to ensure that log records are published in the proper
@@ -3376,8 +3584,10 @@ int main(int argc, char *argv[])
         //   Note: '^' indicates a private method which is tested indirectly.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'logMessage'" << endl
-                                  << "====================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING LOGMESSAGE LOG ORDER AND TRIGGER MARKERS" << endl
+                 << "================================================" << endl;
 
         enum Level {
             TRIGGERALL =  32,
@@ -3433,7 +3643,7 @@ int main(int argc, char *argv[])
                 }
 
                 bsl::stringstream outStream;
-                BALL_LOGGERMANAGER_TEST_CASE_8::MyObserver testObserver(
+                BALL_LOGGERMANAGER_TEST_CASE_17::MyObserver testObserver(
                                                                     outStream);
 
                 ball::LoggerManagerConfiguration mXC;
@@ -3445,8 +3655,8 @@ int main(int argc, char *argv[])
                     mXC.setTriggerMarkers(TRIGGERMARKERS[j]);
                 }
 
-                const int MAX_LIMIT = 1000000;
-                mXC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
+                const int k_MAX_LIMIT = 1000000;
+                mXC.setDefaultRecordBufferSizeIfValid(k_MAX_LIMIT);
 
                 bslma::ManagedPtr<Obj> objPtr;
                 Obj::createLoggerManager(&objPtr, &testObserver, mXC, &oa);
@@ -3552,7 +3762,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'logMessage'
+        // TESTING LOGGER INTERFACE
         //
         // Concerns:
         //   We want to ensure that log records are properly stored in the
@@ -3609,8 +3819,8 @@ int main(int argc, char *argv[])
             mXC.setTriggerMarkers(
                                ball::LoggerManagerConfiguration::e_NO_MARKERS);
 
-            const int MAX_LIMIT = 1000000;
-            mXC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
+            const int k_MAX_LIMIT = 1000000;
+            mXC.setDefaultRecordBufferSizeIfValid(k_MAX_LIMIT);
 
             mXC.setCategoryNameFilterCallback(nameFilter);
             mXC.setUserFieldsPopulatorCallback(populator);
@@ -4087,8 +4297,9 @@ int main(int argc, char *argv[])
         //   int maxNumCategories() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TEST PRIMARY MANIPULATORS" << endl
-                                  << "=========================" << endl;
+        if (verbose) cout << endl
+                          << "TEST PRIMARY MANIPULATORS AND ACCESSORS" << endl
+                          << "=======================================" << endl;
 
         Cnf nameFilter(&toLower);
 
@@ -4629,7 +4840,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING OBSERVERS REGISTRATION
+        // TESTING OBSERVER REGISTRATION
         //
         // Concerns:
         //: 1 Default-constructed logger manager does not have any registered
@@ -4662,8 +4873,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl << "TESTING OBSERVERS REGISTRATION" << endl
-                         << "==============================" << endl;
+            cout << endl << "TESTING OBSERVER REGISTRATION" << endl
+                         << "=============================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator ga("global",  veryVeryVeryVerbose);
@@ -5111,7 +5322,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'initSingleton()'
+        // TESTING 'initSingleton'
         //
         // Concerns:
         //: 1 We want to make sure that we get a valid singleton and that it is
@@ -5133,8 +5344,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl << "TESTING 'initSingleton()'" << endl
-                         << "=========================" << endl;
+            cout << endl << "TESTING 'initSingleton'" << endl
+                         << "=======================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator ga("global",  veryVeryVeryVerbose);
@@ -5177,8 +5388,8 @@ int main(int argc, char *argv[])
         //   CONCERN: CATEGORY NAME FILTER CALLBACK
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING CATEGORY NAME FILTER" << endl
-                                  << "============================" << endl;
+        if (verbose) cout << endl << "CONCERN: CATEGORY NAME FILTER" << endl
+                                  << "=============================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator ga("global",  veryVeryVeryVerbose);
@@ -5463,8 +5674,8 @@ int main(int argc, char *argv[])
         //   createLoggerManager(manager, configuration, *basicAllocator = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING CONSTRUCTORS" << endl
-                                  << "===================" << endl;
+        if (verbose) cout << endl << "TESTING 'createLoggerManager'" << endl
+                                  << "=============================" << endl;
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
             const char CONFIG = cfg;  // how we specify the allocator
@@ -5909,7 +6120,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // CONCERN: LEGACY OBSERVERS LIFETIME
+        // CONCERN: LEGACY OBSERVER LIFETIME
         //  Legacy observer lifetime can be shorter that the lifetime of the
         //  logger manager singleton.  This test verifies that we can (under
         //  some conditions) shutdown logger manager singleton without
@@ -5930,8 +6141,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CONCERN: LEGACY OBSERVERS LIFETIME" << endl
-                          << "==================================" << endl;
+                          << "CONCERN: LEGACY OBSERVER LIFETIME" << endl
+                          << "=================================" << endl;
 
         {
             ball::TestObserver testObserver(&cout);
@@ -5987,7 +6198,6 @@ int main(int argc, char *argv[])
 
         bsl::shared_ptr<PerformanceObserver> observer1
                                                    (new PerformanceObserver());
-
         ASSERT(0 == mX.registerObserver(observer1, "O1"));
 
         if (verbose) cout << "Single observer." << endl;

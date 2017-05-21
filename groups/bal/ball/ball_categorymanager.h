@@ -237,10 +237,11 @@ class CategoryManager {
                                                       // indices in
                                                       // 'd_categories'
 
-    volatile bsls::Types::Int64      d_ruleSetTimestamp;
-                                                      // timestamp at which the
-                                                      // rule set was last
-                                                      // updated
+    volatile bsls::Types::Int64      d_ruleSetSequenceNumber;
+                                                      // sequence number that
+                                                      // is incremented each
+                                                      // time the rule set is
+                                                      // changed
 
     RuleSet                          d_ruleSet;       // rule set that contains
                                                       // all registered rules
@@ -413,13 +414,6 @@ class CategoryManager {
         //..
 
     // ACCESSORS
-    bsls::Types::Int64 ruleSetTimestamp() const;
-        // Return the timestamp indicating when the rule set of this category
-        // manager was last modified.  Calls to this method before and after
-        // the rule set is changed return monotonically increasing values; the
-        // representation of the return value is otherwise implementation
-        // defined.
-
     const Category& operator[](int index) const;
         // Return a 'const' reference to the category at the specified 'index'
         // in the registry of this category manager.  The behavior is undefined
@@ -437,8 +431,15 @@ class CategoryManager {
 
     const RuleSet& ruleSet() const;
         // Return a 'const' reference to the rule set maintained by this
-        // object.  Note that the 'rulesetMutex()' should be locked prior to
-        // accessing this set.
+        // category manager.  The mutex returned by 'rulesetMutex' should be
+        // locked prior to accessing the rule set.
+
+    bsls::Types::Int64 ruleSetSequenceNumber() const;
+        // Return the sequence number that tracks changes to the rule set
+        // maintained by this category manager.  The value returned by this
+        // method is guaranteed to monotonically increase between calls before
+        // and after the rule set is changed, and is otherwise implementation
+        // defined.
 
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor) const;
@@ -598,31 +599,29 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
 
 // ACCESSORS
 inline
-bsls::Types::Int64 CategoryManager::ruleSetTimestamp() const
-{
-    return d_ruleSetTimestamp;
-}
-
-inline
 int CategoryManager::length() const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    const int length = static_cast<int>(d_categories.size());
-    return length;
+    return static_cast<int>(d_categories.size());
 }
 
 inline
 const Category& CategoryManager::operator[](int index) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    const Category& category = *d_categories[index];
-    return category;
+    return *d_categories[index];
 }
 
 inline
 const RuleSet& CategoryManager::ruleSet() const
 {
     return d_ruleSet;
+}
+
+inline
+bsls::Types::Int64 CategoryManager::ruleSetSequenceNumber() const
+{
+    return d_ruleSetSequenceNumber;
 }
 
 template <class CATEGORY_VISITOR>

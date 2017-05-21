@@ -39,12 +39,13 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 // performance reasons this component (and the 'ball' package in general)
 // attempts to be consistent, but does *not* provide a *guarantee* that
 // messages will (or will not) be logged if any state of the logger is modified
-// while logging occurs.  When using cached rule evaluations, if the rule set
-// timestamp stored in the cache matches the rule set timestamp of the category
-// manager at *any* point in the operation, the cached data is considered to be
-// reasonably up to date (i.e., it is "good enough").  Note that if a client
-// required strictly synchronized results for these methods, a lock would need
-// to be held (until the message was actually written to the log).
+// while logging occurs.  When using cached rule evaluations, if the sequence
+// number stored in the cache matches the rule set sequence number of the
+// category manager at *any* point in the operation, the cached data is
+// considered to be reasonably up to date (i.e., it is "good enough").  Note
+// that if a client required strictly synchronized results for these methods, a
+// lock would need to be held (until the message was actually written to the
+// log).
 
 namespace BloombergLP {
 namespace ball {
@@ -56,18 +57,18 @@ namespace ball {
 // MANIPULATORS
 RuleSet::MaskType
 AttributeContext_RuleEvaluationCache::update(
-                               bsls::Types::Int64            timestamp,
+                               bsls::Types::Int64            sequenceNumber,
                                RuleSet::MaskType             relevantRulesMask,
                                const RuleSet&                rules,
                                const AttributeContainerList& attributes)
 {
-    // If the timestamp has changed, the cache is considered entirely out of
-    // date.
+    // If the sequence number has changed, the cache is considered entirely out
+    // of date.
 
-    if (d_timestamp != timestamp) {
-        d_resultMask = 0;
-        d_evalMask   = 0;
-        d_timestamp  = timestamp;
+    if (d_sequenceNumber != sequenceNumber) {
+        d_resultMask      = 0;
+        d_evalMask        = 0;
+        d_sequenceNumber  = sequenceNumber;
     }
 
     RuleSet::MaskType needEvaluations = ~d_evalMask & relevantRulesMask;
@@ -106,7 +107,7 @@ AttributeContext_RuleEvaluationCache::print(bsl::ostream& stream,
     stream << "[" << EL;
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    stream << d_timestamp << EL;
+    stream << d_sequenceNumber << EL;
 
     RuleSet::printMask(stream, d_resultMask, level + 1, spacesPerLevel);
 
@@ -126,8 +127,8 @@ AttributeContextProctor::~AttributeContextProctor()
 {
     const bslmt::ThreadUtil::Key& contextKey = AttributeContext::contextKey();
 
-    AttributeContext *context = (AttributeContext *)
-                                    bslmt::ThreadUtil::getSpecific(contextKey);
+    AttributeContext *context = reinterpret_cast<AttributeContext *>
+                                  (bslmt::ThreadUtil::getSpecific(contextKey));
 
     if (context) {
         AttributeContext::removeContext(context);
@@ -145,7 +146,7 @@ namespace {
 // 'bslmt::ThreadUtil' thread-specific storage.
 
 #ifdef BSLMT_THREAD_LOCAL_VARIABLE
-BSLMT_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
+BSLMT_THREAD_LOCAL_VARIABLE(ball::AttributeContext *, g_threadLocalContext, 0);
 #endif
 
 }  // close unnamed namespace
@@ -189,7 +190,7 @@ void AttributeContext::removeContext(void *arg)
     g_threadLocalContext = 0;
 #endif
 
-    AttributeContext *context = (AttributeContext *)arg;
+    AttributeContext *context = reinterpret_cast<AttributeContext *>(arg);
     if (context) {
         bslma::Allocator *allocator = context->d_allocator_p;
 
@@ -202,38 +203,6 @@ void AttributeContext::removeContext(void *arg)
 }
 
 // CLASS METHODS
-void AttributeContext::initialize(CategoryManager  *categoryManager,
-                                  bslma::Allocator *globalAllocator)
-{
-    BSLS_ASSERT_OPT(categoryManager);
-
-    if (s_categoryManager_p) {
-        bsl::fprintf(stderr,
-                     "Attempt to re-initialize 'AttributeContext'. %s:%d.\n",
-                     __FILE__,
-                     __LINE__);
-        return;                                                       // RETURN
-    }
-
-    s_categoryManager_p = categoryManager;
-    s_globalAllocator_p = bslma::Default::globalAllocator(globalAllocator);
-}
-
-void AttributeContext::reset()
-{
-    s_categoryManager_p = 0;
-    s_globalAllocator_p = 0;
-}
-
-AttributeContext *AttributeContext::lookupContext()
-{
-#ifdef BSLMT_THREAD_LOCAL_VARIABLE
-    return g_threadLocalContext;
-#else
-    return (AttributeContext *)bslmt::ThreadUtil::getSpecific(contextKey());
-#endif
-}
-
 AttributeContext *AttributeContext::getContext()
 {
 #ifdef BSLMT_THREAD_LOCAL_VARIABLE
@@ -277,6 +246,38 @@ AttributeContext *AttributeContext::getContext()
     return context;
 }
 
+void AttributeContext::initialize(CategoryManager  *categoryManager,
+                                  bslma::Allocator *globalAllocator)
+{
+    BSLS_ASSERT_OPT(categoryManager);
+
+    if (s_categoryManager_p) {
+        bsl::fprintf(stderr,
+                     "Attempt to re-initialize 'AttributeContext'. %s:%d.\n",
+                     __FILE__,
+                     __LINE__);
+        return;                                                       // RETURN
+    }
+
+    s_categoryManager_p = categoryManager;
+    s_globalAllocator_p = bslma::Default::globalAllocator(globalAllocator);
+}
+
+AttributeContext *AttributeContext::lookupContext()
+{
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
+    return g_threadLocalContext;
+#else
+    return (AttributeContext *)bslmt::ThreadUtil::getSpecific(contextKey());
+#endif
+}
+
+void AttributeContext::reset()
+{
+    s_categoryManager_p = 0;
+    s_globalAllocator_p = 0;
+}
+
 // ACCESSORS
 bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 {
@@ -291,8 +292,9 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
     // The 'rulesetMutex' is intentionally *not* locked before checking the
     // cache (see implementation note at the top).
 
-    if (d_ruleCache_p.isDataAvailable(s_categoryManager_p->ruleSetTimestamp(),
-                                      relevantRulesMask)) {
+    if (d_ruleCache_p.isDataAvailable(
+                                  s_categoryManager_p->ruleSetSequenceNumber(),
+                                  relevantRulesMask)) {
         return relevantRulesMask & d_ruleCache_p.knownActiveRules();  // RETURN
     }
 
@@ -303,7 +305,7 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
                                          &s_categoryManager_p->rulesetMutex());
 
     return relevantRulesMask
-           & d_ruleCache_p.update(s_categoryManager_p->ruleSetTimestamp(),
+           & d_ruleCache_p.update(s_categoryManager_p->ruleSetSequenceNumber(),
                                   relevantRulesMask,
                                   s_categoryManager_p->ruleSet(),
                                   d_containerList);
@@ -333,8 +335,9 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // active rules for 'category'.
 
     RuleSet::MaskType activeAndRelevantRules = 0;
-    if (d_ruleCache_p.isDataAvailable(s_categoryManager_p->ruleSetTimestamp(),
-                                      relevantRulesMask)) {
+    if (d_ruleCache_p.isDataAvailable(
+                                  s_categoryManager_p->ruleSetSequenceNumber(),
+                                  relevantRulesMask)) {
         activeAndRelevantRules = d_ruleCache_p.knownActiveRules()
                                  & relevantRulesMask;
         if (!activeAndRelevantRules) {
@@ -352,13 +355,15 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // If 'isDataAvailable' returns 'true', the rule set has not changed and we
     // must have assigned 'activeAndRelevantRules' before obtaining the lock.
 
-    if (!d_ruleCache_p.isDataAvailable(s_categoryManager_p->ruleSetTimestamp(),
-                                       relevantRulesMask)) {
+    if (!d_ruleCache_p.isDataAvailable(
+                                  s_categoryManager_p->ruleSetSequenceNumber(),
+                                  relevantRulesMask)) {
           activeAndRelevantRules = relevantRulesMask
-                & d_ruleCache_p.update(s_categoryManager_p->ruleSetTimestamp(),
-                                       relevantRulesMask,
-                                       s_categoryManager_p->ruleSet(),
-                                       d_containerList);
+                & d_ruleCache_p.update(
+                                  s_categoryManager_p->ruleSetSequenceNumber(),
+                                  relevantRulesMask,
+                                  s_categoryManager_p->ruleSet(),
+                                  d_containerList);
     }
 
     int i;

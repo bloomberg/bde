@@ -927,6 +927,97 @@ void *workerThread18(void *)
 }  // close namespace BALL_LOG_TEST_CASE_18
 
 // ============================================================================
+//                         CASE 17 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace BALL_LOG_TEST_CASE_17 {
+
+static
+void macrosTest(bool                                   loggerManagerExistsFlag,
+                const BloombergLP::ball::TestObserver& testObserver,
+                int                                    numPublishedSoFar)
+    // Invoke each of the callback macros and verify the expected logging
+    // behavior based on the specified 'loggerManagerExistsFlag',
+    // 'testObserver', and 'numPublishedSoFar'.
+{
+    ASSERT(loggerManagerExistsFlag ==
+                            BloombergLP::ball::LoggerManager::isInitialized());
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    // Temporarily redirect 'stderr' to a temp file.
+    fflush(stderr);
+    bsl::string filename = tempnam(0, "ball_log");
+    int fd = creat(filename.c_str(), 0777);
+    ASSERT(fd != -1);
+    int saved_stderr_fd = dup(2);
+    dup2(fd, 2);
+    if (verbose)
+        bsl::cout << "STDERR redirected to " << filename << bsl::endl;
+#endif
+
+    bsl::stringstream os;
+    bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
+    bsl::cerr.rdbuf(os.rdbuf());
+
+    bsl::function<void(BloombergLP::ball::UserFields *)> callback =
+                                                                  &incCallback;
+
+    BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
+
+    if (verbose)
+        bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro."
+                  << bsl::endl;
+
+    numIncCallback = 0;
+
+    BALL_LOGCB_TRACE(callback) << "No Logger Manager!" << BALL_LOGCB_END;
+    BALL_LOGCB_DEBUG(callback) << "No Logger Manager!" << BALL_LOGCB_END;
+    BALL_LOGCB_INFO(callback)  << "No Logger Manager!" << BALL_LOGCB_END;
+    BALL_LOGCB_WARN(callback)  << "No Logger Manager!" << BALL_LOGCB_END;
+    BALL_LOGCB_ERROR(callback) << "No Logger Manager!" << BALL_LOGCB_END;
+    BALL_LOGCB_FATAL(callback) << "No Logger Manager!" << BALL_LOGCB_END;
+
+    if (loggerManagerExistsFlag) {
+        numPublishedSoFar += 6;
+        ASSERT(6 == numIncCallback);
+    }
+    else {
+        ASSERT(3 == numIncCallback);
+    }
+    ASSERT(numPublishedSoFar == testObserver.numPublishedRecords());
+
+    if (verbose)
+        bsl::cout << "Safely invoked callback macros." << bsl::endl;
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    // Restore 'stderr' to the state it was in before we redirected it.
+    fflush(stderr);
+    dup2(saved_stderr_fd, 2);
+
+    // Verify the expected number of lines were written to the temp file.
+    bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
+    int numLines = 0;
+    bsl::string line;
+    while (getline(fs, line)) {
+        ++numLines;
+        if (veryVerbose) bsl::cout << "\t>>" << line << "<<\n";
+    }
+    if (loggerManagerExistsFlag) {
+        ASSERT(0 == numLines);
+    }
+    else {
+        ASSERT(6 == numLines);
+    }
+    fs.close();
+    unlink(filename.c_str());
+#endif
+    ASSERT("" == os.str());
+    bsl::cerr.rdbuf(cerrBuf);
+}
+
+}  // close namespace BALL_LOG_TEST_CASE_17
+
+// ============================================================================
 //                         CASE 15 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
@@ -1260,6 +1351,111 @@ const char *f()
 }
 
 }  // close namespace BALL_LOG_TEST_CASE_6
+
+// ============================================================================
+//                         CASE 5 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace BALL_LOG_TEST_CASE_5 {
+
+static
+void macrosTest(bool                                   loggerManagerExistsFlag,
+                const BloombergLP::ball::TestObserver& testObserver,
+                int                                    numPublishedSoFar)
+    // Invoke each of the callback macros and verify the expected logging
+    // behavior based on the specified 'loggerManagerExistsFlag',
+    // 'testObserver', and 'numPublishedSoFar'.
+{
+    ASSERT(loggerManagerExistsFlag ==
+                            BloombergLP::ball::LoggerManager::isInitialized());
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    // Temporarily redirect 'stderr' to a temp file.
+    fflush(stderr);
+    bsl::string filename = tempnam(0, "ball_log");
+    int fd = creat(filename.c_str(), 0777);
+    ASSERT(fd != -1);
+    int saved_stderr_fd = dup(2);
+    dup2(fd, 2);
+    if (verbose)
+        bsl::cout << "STDERR redirected to " << filename << bsl::endl;
+#endif
+
+    bsl::stringstream os;
+    bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
+    bsl::cerr.rdbuf(os.rdbuf());
+
+    BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
+
+    if (verbose)
+        bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro."
+                  << bsl::endl;
+
+    BALL_LOG_TRACE << "Logger Manager?" << BALL_LOG_END;
+    BALL_LOG_DEBUG << "Logger Manager?" << BALL_LOG_END;
+    BALL_LOG_INFO  << "Logger Manager?" << BALL_LOG_END;
+    BALL_LOG_WARN  << "Logger Manager?" << BALL_LOG_END;
+    BALL_LOG_ERROR << "Logger Manager?" << BALL_LOG_END;
+    BALL_LOG_FATAL << "Logger Manager?" << BALL_LOG_END;
+
+    if (loggerManagerExistsFlag) {
+        numPublishedSoFar += 6;
+    }
+    ASSERT(numPublishedSoFar == testObserver.numPublishedRecords());
+
+    if (verbose)
+        bsl::cout << "Safely invoked stream-style macros." << bsl::endl;
+
+    BloombergLP::ball::Severity::Level severity =
+                                           BloombergLP::ball::Severity::e_WARN;
+
+    scribbleBuffer();
+    BALL_LOGVA(severity, "Hello?");
+    ASSERT(!isBufferUnchangedSinceScribbled());
+    BALL_LOGVA(severity, "Hello?", 1);
+    BALL_LOGVA(severity, "Hello?", 1, 2);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6, 7);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6, 7, 8);
+    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+    if (loggerManagerExistsFlag) {
+        numPublishedSoFar += 10;
+    }
+    ASSERT(numPublishedSoFar == testObserver.numPublishedRecords());
+
+    if (verbose) bsl::cout << "Safely invoked printf-style macros.\n";
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    // Restore 'stderr' to the state it was in before we redirected it.
+    fflush(stderr);
+    dup2(saved_stderr_fd, 2);
+
+    // Verify the expected number of lines were written to the temp file.
+    bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
+    int numLines = 0;
+    bsl::string line;
+    while (getline(fs, line)) {
+        ++numLines;
+        if (veryVerbose) bsl::cout << "\t>>" << line << "<<\n";
+    }
+    if (loggerManagerExistsFlag) {
+        ASSERT( 0 == numLines);
+    }
+    else {
+        ASSERT(26 == numLines);
+    }
+    fs.close();
+    unlink(filename.c_str());
+#endif
+    ASSERT("" == os.str());
+    bsl::cerr.rdbuf(cerrBuf);
+}
+
+}  // close namespace BALL_LOG_TEST_CASE_5
 
 // ============================================================================
 //                         CASE -1 RELATED ENTITIES
@@ -3007,11 +3203,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
         //
         // Concerns:
-        //   This macro must be safe against being invoked before the logger
-        //   manager is instantiated.
+        //: 1 The callback-based logging macros must be safe whether invoked
+        //:   before the logger manager singleton is initialized, while it
+        //:   exists, or after it has been destroyed.
         //
         // Plan:
-        //   Invoke the macro and confirm that the process continues normally.
+        //: 1 Within a loop, invoke the logging macros (1) before the singleton
+        //:   has been (re)initialized, (2) while it exists, and (3) after it
+        //:   has been destroyed, each time verifying that the expected number
+        //:   of messages are either published to the test observer or written
+        //:   by the 'bsls::Log' message handler.  (C-1)
         //
         // Testing:
         //   BALL_LOGCB_TRACE
@@ -3022,135 +3223,32 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_LOGCB_FATAL
         // --------------------------------------------------------------------
 
-        class LogOnDestruction {
-          public:
-            LogOnDestruction()
-            {
-            }
-            ~LogOnDestruction()
-            {
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-                fflush(stderr);
-                bsl::string filename = tempnam(0, "ball_log");
-                int fd = creat(filename.c_str(), 0777);
-                ASSERT(fd != -1);
-                int saved_stderr_fd = dup(2);
-                dup2(fd, 2);
-#endif
-
-                bsl::stringstream os;
-                bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
-                bsl::cerr.rdbuf(os.rdbuf());
-
-                ASSERT(false ==
-                            BloombergLP::ball::LoggerManager::isInitialized());
-                bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
-                numIncCallback = 0;
-
-                BALL_LOG_SET_CATEGORY("LoggerManagerDestroyed");
-
-                BALL_LOGCB_TRACE(callback) << "No Logger Manager!"
-                                           << BALL_LOGCB_END;
-                BALL_LOGCB_DEBUG(callback) << "No Logger Manager!"
-                                           << BALL_LOGCB_END;
-                BALL_LOGCB_INFO(callback)  << "No Logger Manager!"
-                                           << BALL_LOGCB_END;
-                BALL_LOGCB_WARN(callback)  << "No Logger Manager!"
-                                           << BALL_LOGCB_END;
-                BALL_LOGCB_ERROR(callback) << "No Logger Manager!"
-                                           << BALL_LOGCB_END;
-                BALL_LOGCB_FATAL(callback) << "No Logger Manager!"
-                                           << BALL_LOGCB_END;
-
-                ASSERT(3 == numIncCallback);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-                fflush(stderr);
-                dup2(saved_stderr_fd, 2);
-
-                bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
-                int numLines = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++numLines;
-                }
-                fs.close();
-                ASSERT(6 == numLines);
-                unlink(filename.c_str());
-#endif
-                ASSERT("" == os.str());
-                bsl::cerr.rdbuf(cerrBuf);
-            }
-        };
-
-        static LogOnDestruction logOnDestruction;
-
         if (verbose)
             bsl::cout << bsl::endl
-                      << "Testing callback macro safety w/o LoggerManager\n"
-                      << "===============================================\n";
-
-        bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
-
-        numIncCallback = 0;
-
-        if (verbose)
-            bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro"
+          << "TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER"
+                      << bsl::endl
+          << "================================================================"
                       << bsl::endl;
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-        fflush(stderr);
-        bsl::string filename = tempnam(0, "ball_log");
-        int fd = creat(filename.c_str(), 0777);
-        ASSERT(fd != -1);
-        int saved_stderr_fd = dup(2);
-        dup2(fd, 2);
-        if (verbose)
-            bsl::cout << "STDERR redirected to " << filename << bsl::endl;
-#endif
+        using namespace BALL_LOG_TEST_CASE_17;
 
-        bsl::stringstream os;
-        bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
-        bsl::cerr.rdbuf(os.rdbuf());
+        ASSERT(0 == TO->numPublishedRecords());
 
-        BALL_LOG_SET_CATEGORY("ThereIsNoLoggerManager");
+        for (int i = 0; i < 5; ++i) {
+            macrosTest(false, *TO, TO->numPublishedRecords());
 
-        BALL_LOGCB_TRACE(callback) << "No Logger Manager!" << BALL_LOGCB_END;
-        BALL_LOGCB_DEBUG(callback) << "No Logger Manager!" << BALL_LOGCB_END;
-        BALL_LOGCB_INFO(callback)  << "No Logger Manager!" << BALL_LOGCB_END;
-        BALL_LOGCB_WARN(callback)  << "No Logger Manager!" << BALL_LOGCB_END;
-        BALL_LOGCB_ERROR(callback) << "No Logger Manager!" << BALL_LOGCB_END;
-        BALL_LOGCB_FATAL(callback) << "No Logger Manager!" << BALL_LOGCB_END;
+            {
+                 BloombergLP::ball::LoggerManagerConfiguration lmc;
+                 ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(0,
+                                                                  TRACE,
+                                                                  0,
+                                                                  0));
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-        fflush(stderr);
-        dup2(saved_stderr_fd, 2);
+                 BloombergLP::ball::LoggerManagerScopedGuard guard(TO, lmc);
 
-        bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
-        int numLines = 0;
-        bsl::string line;
-        while (getline(fs, line)) {
-            ++numLines;
-            if (veryVerbose) bsl::cout << "\t>>" << line << "<<" << bsl::endl;
+                 macrosTest(true, *TO, TO->numPublishedRecords());
+            }
         }
-        fs.close();
-        ASSERT(6 == numLines);
-        unlink(filename.c_str());
-#endif
-
-        ASSERT(3 == numIncCallback);
-
-        if (verbose)
-            bsl::cout << "Safely invoked stream-style macros" << bsl::endl;
-
-        BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard guard(TO, lmc);
-
-        ASSERT("" == os.str());
-        bsl::cerr.rdbuf(cerrBuf);
 
       } break;
       case 16: {
@@ -4094,16 +4192,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
         //
         // Concerns:
-        //   A logging macros must be safe against being invoked before the
-        //   logger manager is instantiated, and it must be safe to use the
-        //   ball macros after the singleton has been destroyed.
+        //: 1 The non-callback-based logging macros must be safe whether
+        //:   invoked before the logger manager singleton is initialized, while
+        //:   it exists, or after it has been destroyed.
         //
         // Plan:
-        //   Invoke the macro and confirm that the process continues normally.
-        //   An object with BALL macro calls in the d'tor is created before the
-        //   ball singleton is created, so those macro calls happen after the
-        //   singleton is destroyed, testing that the macros will work with a
-        //   destroyed singleton.
+        //: 1 Within a loop, invoke the logging macros (1) before the singleton
+        //:   has been (re)initialized, (2) while it exists, and (3) after it
+        //:   has been destroyed, each time verifying that the expected number
+        //:   of messages are either published to the test observer or written
+        //:   by the 'bsls::Log' message handler.  (C-1)
         //
         // Testing:
         //   BALL_LOG_TRACE
@@ -4114,169 +4212,33 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_LOG_FATAL
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::cout << "TEST 5 TEMPORARILY SUPPRESSED ON WINDOWS -- MUST FIX\n";
-#else
         if (verbose)
             bsl::cout << bsl::endl
-                      << "Testing macro safety w/o LoggerManager" << bsl::endl
-                      << "======================================" << bsl::endl;
-
-        class LogOnDestruction {
-          public:
-            LogOnDestruction()
-            {
-            }
-            ~LogOnDestruction()
-            {
-                if (verbose) bsl::cout << "Entered ~LogOnDestruction\n";
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-                // temporarily reroute stderr to a temp file
-                fflush(stderr);
-                bsl::string filename = tempnam(0, "ball_log");
-                int fd = creat(filename.c_str(), 0777);
-                ASSERT(fd != -1);
-                int saved_stderr_fd = dup(2);
-                dup2(fd, 2);
-                if (verbose) bsl::cout << "STDERR redirected to " << filename
-                                       << bsl::endl;
-#endif
-
-                ASSERT(false ==
-                            BloombergLP::ball::LoggerManager::isInitialized());
-                BALL_LOG_SET_CATEGORY("LoggerManagerDestroyed");
-                if (verbose)
-                    bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro"
-                              << bsl::endl;
-
-                BALL_LOG_TRACE << "No Logger Manager!" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "No Logger Manager!" << BALL_LOG_END;
-                BALL_LOG_INFO  << "No Logger Manager!" << BALL_LOG_END;
-                BALL_LOG_WARN  << "No Logger Manager!" << BALL_LOG_END;
-                BALL_LOG_ERROR << "No Logger Manager!" << BALL_LOG_END;
-                BALL_LOG_FATAL << "No Logger Manager!" << BALL_LOG_END;
-
-                if (verbose)
-                    bsl::cout << "Safely invoked stream-style macros"
-                              << bsl::endl;
-
-                BloombergLP::ball::Severity::Level severity =
-                                  BloombergLP::ball::Severity::e_FATAL;
-
-                BALL_LOGVA(severity, "Hello!");
-                BALL_LOGVA(severity, "Hello!", 1);
-                BALL_LOGVA(severity, "Hello!", 1, 2);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6, 7);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6, 7, 8);
-                BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6, 7, 8, 9);
-
-                if (verbose) bsl::cout <<
-                                        "Safely invoked printf-style macros\n";
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-                // restore stderr to the state it was in before we rerouted it.
-                fflush(stderr);
-                dup2(saved_stderr_fd, 2);
-                if (verbose) bsl::cout << "STDERR redirected back to normal\n";
-
-                // verify 26 lines were written to the temp file
-                bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
-                int numLines = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++numLines;
-                    if (veryVerbose) bsl::cout << "\t>>" << line << "<<\n";
-                }
-                fs.close();
-                ASSERT(26 == numLines);
-
-                unlink(filename.c_str());
-#endif
-            }
-        };
-
-        // This static object is created before the ball singleton is created,
-        // so it will be destroyed AFTER the singleton is destroyed, so the
-        // macro calls in the d'tor will be called after the singleton is
-        // destroyed.
-
-        static LogOnDestruction logOnDestruction;
-
-        BALL_LOG_SET_CATEGORY("ThereIsNoLoggerManager");
-
-        if (verbose)
-            bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro"
+                  << "TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER"
+                      << bsl::endl
+                  << "======================================================="
                       << bsl::endl;
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-        // temporarily reroute stderr to a temp file
-        fflush(stderr);
-        bsl::string filename = tempnam(0, "ball_log");
-        int fd = creat(filename.c_str(), 0777);
-        ASSERT(fd != -1);
-        int saved_stderr_fd = dup(2);
-        dup2(fd, 2);
-        if (verbose)
-                 bsl::cout << "STDERR redirected to " << filename << bsl::endl;
-#endif
+        using namespace BALL_LOG_TEST_CASE_5;
 
-        BALL_LOG_TRACE << "No Logger Manager!" << BALL_LOG_END;
-        BALL_LOG_DEBUG << "No Logger Manager!" << BALL_LOG_END;
-        BALL_LOG_INFO  << "No Logger Manager!" << BALL_LOG_END;
-        BALL_LOG_WARN  << "No Logger Manager!" << BALL_LOG_END;
-        BALL_LOG_ERROR << "No Logger Manager!" << BALL_LOG_END;
-        BALL_LOG_FATAL << "No Logger Manager!" << BALL_LOG_END;
+        ASSERT(0 == TO->numPublishedRecords());
 
-        if (verbose)
-            bsl::cout << "Safely invoked stream-style macros" << bsl::endl;
+        for (int i = 0; i < 5; ++i) {
+            macrosTest(false, *TO, TO->numPublishedRecords());
 
-        BloombergLP::ball::Severity::Level severity =
-            BloombergLP::ball::Severity::e_FATAL;
+            {
+                 BloombergLP::ball::LoggerManagerConfiguration lmc;
+                 ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(0,
+                                                                  TRACE,
+                                                                  0,
+                                                                  0));
 
-        scribbleBuffer();
-        BALL_LOGVA(severity, "Hello!");
-        ASSERT(0 == isBufferUnchangedSinceScribbled());
-        BALL_LOGVA(severity, "Hello!", 1);
-        BALL_LOGVA(severity, "Hello!", 1, 2);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6, 7);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6, 7, 8);
-        BALL_LOGVA(severity, "Hello!", 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                 BloombergLP::ball::LoggerManagerScopedGuard guard(TO, lmc);
 
-        if (verbose)
-            bsl::cout << "Safely invoked printf-style macros" << bsl::endl;
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-        // restore stderr to the state it was in before we rerouted it.
-        fflush(stderr);
-        dup2(saved_stderr_fd, 2);
-        if (verbose) bsl::cout << "STDERR redirected back to normal\n";
-
-        // verify 26 lines were written to the temp file
-        bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
-        int numLines = 0;
-        bsl::string line;
-        while (getline(fs, line)) {
-            ++numLines;
-            if (veryVerbose) bsl::cout << "\t>>" << line << "<<" << bsl::endl;
+                 macrosTest(true, *TO, TO->numPublishedRecords());
+            }
         }
-        fs.close();
-        ASSERT(26 == numLines);
 
-        unlink(filename.c_str());
-#endif
-
-        BloombergLP::ball::LoggerManagerConfiguration lmc;
-        BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc);
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------

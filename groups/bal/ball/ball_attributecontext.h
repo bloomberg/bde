@@ -27,7 +27,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a mechanism, 'ball::AttributeContext',
 // used for storing attributes in thread-local storage and evaluating rules
-// associated with a given category using those stored attributes.
+// associated with a given category using those stored attributes, and a scoped
+// proctor, 'ball::AttributeContextProctor', used for destroying the attribute
+// context of the current thread.
 //
 // Clients obtain the attribute context for the current thread by calling the
 // 'getContext' class method.  Attributes are added and removed from an
@@ -133,9 +135,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate how to call the 'hasRelevantActiveRules'
-// and 'determineThresholdLevels' methods.  These methods are used (primarily
-// by other components in the 'ball' package) to determine the effect of the
+// In this example we demonstrate how to call the 'hasRelevantActiveRules' and
+// 'determineThresholdLevels' methods.  These methods are used (primarily by
+// other components in the 'ball' package) to determine the effect of the
 // current logging rules on the logging thresholds of a category.  Note that a
 // rule is "relevant" if the rule's pattern matches the category's name, and a
 // rule is "active" if 'ball::Rule::evaluate' returns 'true' for the
@@ -170,7 +172,7 @@ BSLS_IDENT("$Id: $")
 // Also note that a higher number indicates a lower severity.
 //..
 //  const ball::Category *cat1 =
-//             categoryManager.addCategory("MyCategory", 128, 96, 64, 32);
+//                  categoryManager.addCategory("MyCategory", 128, 96, 64, 32);
 //..
 // Next, we obtain the context for the current thread:
 //..
@@ -360,23 +362,25 @@ class AttributeContext_RuleEvaluationCache {
     // evaluated and that those evaluations are up-to-date.
 
     // DATA
-    RuleSet::MaskType  d_evalMask;    // set of bits, each of which indicates
-                                      // whether the corresponding rule has
-                                      // been evaluated and cached in
-                                      // 'd_resultMask' (1 if evaluated and 0
-                                      // otherwise)
+    RuleSet::MaskType  d_evalMask;        // set of bits, each of which
+                                          // indicates whether the
+                                          // corresponding rule has been
+                                          // evaluated and cached in
+                                          // 'd_resultMask' (1 if evaluated and
+                                          // 0 otherwise)
 
-    RuleSet::MaskType  d_resultMask;  // set of bits, each of which caches the
-                                      // result of the most recent evaluation
-                                      // of the corresponding rule (1 if the
-                                      // rule is active and 0 otherwise)
+    RuleSet::MaskType  d_resultMask;      // set of bits, each of which caches
+                                          // the result of the most recent
+                                          // evaluation of the corresponding
+                                          // rule (1 if the rule is active and
+                                          // 0 otherwise)
 
-    bsls::Types::Int64 d_timestamp;   // timestamp used to determine if this
-                                      // cache is in sync with the rule set
-                                      // maintained by the category manager
-                                      // (see 'update'); if the timestamp
-                                      // changes it indicates the cache is out
-                                      // of date
+    bsls::Types::Int64 d_sequenceNumber;  // sequence number used to determine
+                                          // if this cache is in sync with the
+                                          // rule set maintained by the
+                                          // category manager (see 'update');
+                                          // if the sequence number changes it
+                                          // indicates the cache is out of date
 
     // NOT IMPLEMENTED
     AttributeContext_RuleEvaluationCache(
@@ -387,7 +391,8 @@ class AttributeContext_RuleEvaluationCache {
   public:
     // CREATORS
     AttributeContext_RuleEvaluationCache();
-        // Create an empty rule evaluation cache having a timestamp of -1.
+        // Create an empty rule evaluation cache having a sequence number of
+        // -1.
 
     // ~AttributeContext_RuleEvaluationCache();
         // Destroy this rule evaluation cache.  Note that this trivial
@@ -398,12 +403,12 @@ class AttributeContext_RuleEvaluationCache {
         // Clear any currently cached rule evaluation data, restoring this
         // object to its default constructed state (empty).
 
-    RuleSet::MaskType update(bsls::Types::Int64            timestamp,
+    RuleSet::MaskType update(bsls::Types::Int64            sequenceNumber,
                              RuleSet::MaskType             relevantRulesMask,
                              const RuleSet&                rules,
                              const AttributeContainerList& attributes);
-        // Update, for the specified 'timestamp', the cache for those rules
-        // indicated by the specified 'relevantRulesMask' bit mask in the
+        // Update, for the specified 'sequenceNumber', the cache for those
+        // rules indicated by the specified 'relevantRulesMask' bit mask in the
         // specified set of 'rules', by evaluating those rules for the
         // specified 'attributes'; return the bit mask indicating those rules
         // that are known to be active.  If a bit in the returned bit mask
@@ -412,30 +417,30 @@ class AttributeContext_RuleEvaluationCache {
         // either not active *or* has not been evaluated.  This operation does,
         // however, guarantee that all the rules indicated by the
         // 'relevantRulesMask' *will* be evaluated.  A particular rule is
-        // considered "active" if all of it's predicates are satisfied by
+        // considered "active" if all of its predicates are satisfied by
         // 'attributes' (i.e., if 'Rule::evaluate' returns 'true' for
         // 'attributes').  The behavior is undefined unless 'rules' is not
         // modified during this operation (i.e., any lock associated with
         // 'rules' must be locked during this operation).
 
     // ACCESSORS
-    bool isDataAvailable(bsls::Types::Int64 timestamp,
+    bool isDataAvailable(bsls::Types::Int64 sequenceNumber,
                          RuleSet::MaskType  relevantRulesMask) const;
         // Return 'true' if this cache contains up-to-date cached rule
-        // evaluations having the specified 'timestamp' for the set of rules
-        // indicated by the specified 'relevantRulesMask' bit mask, and 'false'
-        // otherwise.
+        // evaluations having the specified 'sequenceNumber' for the set of
+        // rules indicated by the specified 'relevantRulesMask' bit mask, and
+        // 'false' otherwise.
 
     RuleSet::MaskType knownActiveRules() const;
         // Return a bit mask indicating those rules, from the set of rules
-        // provided in the last call to 'update', that are known to be
-        // active (as of that last call to 'update').  If a bit in the
-        // returned value is set to 1, the rule at the corresponding index is
-        // active; however, if a bit is set to 0, the corresponding rule is
-        // either not active *or* has not been evaluated.  Note that
-        // 'isDataAvailable' should be called to test if this cache contains
-        // up-to-date evaluated rule information for the rules in which they
-        // are interested before using the result of this method.
+        // provided in the last call to 'update', that are known to be active
+        // (as of that last call to 'update').  If a bit in the returned value
+        // is set to 1, the rule at the corresponding index is active; however,
+        // if a bit is set to 0, the corresponding rule is either not active
+        // *or* has not been evaluated.  Note that 'isDataAvailable' should be
+        // called to test if this cache contains up-to-date evaluated rule
+        // information for the rules in which they are interested before using
+        // the result of this method.
 
     RuleSet::MaskType evaluatedRules() const;
         // Return a bit mask indicating those rules, from the set of rules
@@ -443,15 +448,15 @@ class AttributeContext_RuleEvaluationCache {
         // of that last call to 'update').  If a bit in the returned value is
         // set to 1, the rule at the corresponding index has been evaluated; if
         // a bit is 0, the corresponding rule has not been evaluated.  Note
-        // that the timestamp for the rules may be out of date, and, in
+        // that the sequence number for the rules may be out of date, and, in
         // general, 'isDataAvailable' should be called first to test if this
         // cache contains up-to-date rule information.
 
-    bsls::Types::Int64 timestamp() const;
-        // Return the timestamp associated with this cache, and -1 if this
-        // cache is empty.  Note that the timestamp is used to determine if the
-        // cache is in sync with the rule set maintained by the category
-        // manager.
+    bsls::Types::Int64 sequenceNumber() const;
+        // Return the sequence number associated with this cache, and -1 if
+        // this cache is empty.  Note that the sequence number is used to
+        // determine if the cache is in sync with the rule set maintained by
+        // the category manager.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -513,8 +518,8 @@ class AttributeContext {
 
     // CLASS DATA
     static CategoryManager  *s_categoryManager_p;  // holds the rule set, rule
-                                                   // set timestamp, and rule
-                                                   // set mutex
+                                                   // set sequence number, and
+                                                   // rule set mutex
 
     static bslma::Allocator *s_globalAllocator_p;  // allocator for thread-
                                                    // local context objects
@@ -567,6 +572,13 @@ class AttributeContext {
     typedef AttributeContainerList::iterator iterator;
 
     // CLASS METHODS
+    static AttributeContext *getContext();
+        // Return the address of the current thread's attribute context, if
+        // such context exists; otherwise, create an attribute context, install
+        // it in thread-local storage, and return the address of the newly
+        // created context.  Note that this method can be invoked safely even
+        // if the 'initialize' class method has not yet been called.
+
     static void initialize(CategoryManager  *categoryManager,
                            bslma::Allocator *globalAllocator = 0);
         // Initialize the static data members of 'AttributeContext' using the
@@ -579,6 +591,13 @@ class AttributeContext {
         // 'LoggerManager' singleton is initialized -- i.e., it is not intended
         // to be called directly by clients of the 'ball' package.
 
+    static AttributeContext *lookupContext();
+        // Return the address of the modifiable 'AttributeContext' object
+        // installed in local storage for the current thread, or 0 if no
+        // attribute context has been created for this thread.  Note that this
+        // method can be invoked safely even if the 'initialize' class method
+        // has not yet been called.
+
     static void reset();
         // Reset the static data members of 'AttributeContext' to their initial
         // state (0).  Unless 'initialize' is subsequently called, invoking
@@ -586,20 +605,6 @@ class AttributeContext {
         // this method will be called *automatically* when the 'LoggerManager'
         // singleton is destroyed -- i.e., it is not intended to be called
         // directly by clients of the 'ball' package.
-
-    static AttributeContext *getContext();
-        // Return the address of the current thread's attribute context, if
-        // such context exists; otherwise, create an attribute context, install
-        // it in thread-local storage, and return the address of the newly
-        // created context.  Note that this method can be invoked safely even
-        // if the 'initialize' class method has not yet been called.
-
-    static AttributeContext *lookupContext();
-        // Return the address of the modifiable 'AttributeContext' object
-        // installed in local storage for the current thread, or 0 if no
-        // attribute context has been created for this thread.  Note that this
-        // method can be invoked safely even if the 'initialize' class method
-        // has not yet been called.
 
     // MANIPULATORS
     iterator addAttributes(const AttributeContainer *attributes);
@@ -730,7 +735,7 @@ inline
 AttributeContext_RuleEvaluationCache::AttributeContext_RuleEvaluationCache()
 : d_evalMask(0)
 , d_resultMask(0)
-, d_timestamp(-1)
+, d_sequenceNumber(-1)
 {
 }
 
@@ -738,18 +743,18 @@ AttributeContext_RuleEvaluationCache::AttributeContext_RuleEvaluationCache()
 inline
 void AttributeContext_RuleEvaluationCache::clear()
 {
-    d_evalMask   =  0;
-    d_resultMask =  0;
-    d_timestamp  = -1;
+    d_evalMask       =  0;
+    d_resultMask     =  0;
+    d_sequenceNumber = -1;
 }
 
 // ACCESSORS
 inline
 bool AttributeContext_RuleEvaluationCache::isDataAvailable(
-                                    bsls::Types::Int64 timestamp,
+                                    bsls::Types::Int64 sequenceNumber,
                                     RuleSet::MaskType  relevantRulesMask) const
 {
-    return timestamp         == d_timestamp
+    return sequenceNumber    == d_sequenceNumber
         && relevantRulesMask == (relevantRulesMask & d_evalMask);
 }
 
