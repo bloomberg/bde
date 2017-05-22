@@ -65,6 +65,7 @@ using namespace bsl;  // automatically added by script
 // [4 ] void stop();
 // [4 ] void drain();
 // [4 ] void shutdown();
+// [4 ] int enabled() const;
 // [4 ] int numActiveThreads() const;
 // [4 ] int numWaitingThreads() const;
 // [4 ] int numPendingJobs() const;
@@ -1415,6 +1416,7 @@ int main(int argc, char *argv[])
         //   void stop();
         //   void drain();
         //   void shutdown();
+        //   int enabled() const;
         // --------------------------------------------------------------------
 
         static const struct {
@@ -1470,6 +1472,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
+            ASSERT(1 == x.enabled());
             mutex.lock();
             ASSERT(MIN == x.numWaitingThreads());
             for (int j=0; j < MIN; j++) {
@@ -1526,6 +1529,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
+            ASSERT(1 == x.enabled());
             mutex.lock();
             ASSERT(x.numWaitingThreads() == MIN);
             for (int j=0; j < MAX; j++) {
@@ -1540,6 +1544,7 @@ int main(int argc, char *argv[])
             mutex.unlock();
             stopCond.broadcast();
             x.stop();
+            ASSERT(0 == x.enabled());
             ASSERT(MAX == args.d_count);
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
@@ -1604,6 +1609,7 @@ int main(int argc, char *argv[])
             stopCond.broadcast();
             mutex.unlock();
             x.shutdown();
+            ASSERT(0 == x.enabled());
 
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());

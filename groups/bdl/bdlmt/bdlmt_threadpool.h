@@ -601,6 +601,9 @@ class ThreadPool {
         // complete, then shut down all processing threads.
 
     // ACCESSORS
+    int enabled() const;
+        // Return the state (enabled or not) of the thread pool.
+
     int maxThreads() const;
         // Return the maximum number of threads that are allowed to be running
         // at given time.
@@ -657,6 +660,12 @@ int ThreadPool::enqueueJob(ThreadPoolJobFunc function, void *userData)
 }
 
 // ACCESSORS
+
+inline
+int ThreadPool::enabled() const
+{
+    return d_enabled;
+}
 
 inline
 int ThreadPool::minThreads() const
