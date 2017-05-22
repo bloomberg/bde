@@ -148,14 +148,14 @@ int pointPosition(SIGNIFICAND significand, int significandLength, int exponent)
     return isZero(significand) ? 0 : significandLength + exponent;
 }
 
-template <class SIGNIFICAND>
 static
-int printFixed(char        *buffer,
-               int          length,
-               SIGNIFICAND  significand,
-               int          exponent,
-               int          precision,
-               char         point)
+int formatFixed(char      *buffer,
+                int        length,
+                const int *significand,
+                int        significandLength,
+                int        pointPos,
+                int        precision,
+                char       point)
 {
     // Format a decimal value designated by the specified 'significand' and
     // 'exponent' values using 'e_FIXED' style and load the output into the
@@ -168,47 +168,39 @@ int printFixed(char        *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(length >= 0);
     BSLS_ASSERT(precision >= 0);
-    // BSLS_ASSERT(significand >= 0);
 
-    const int k_MAX_SIGNIFICAND_LENGTH = 34;
-    int remainders[k_MAX_SIGNIFICAND_LENGTH];
-
-    int significandLength = parseSignificand(&remainders[0], significand);
-    int pointPos          = pointPosition(significand,
-                                          significandLength,
-                                          exponent);
-    int outputLength      = (pointPos > 0 ? pointPos : sizeof('0'))
-                            + (precision ? sizeof('.') : 0) + precision;
+    int outputLength = (pointPos > 0 ? pointPos : sizeof('0'))
+                       + (precision ? sizeof(point) : 0) + precision;
 
     if (outputLength <= length) {
+
         int i = 0;
         int j = significandLength - 1;
 
-        if (pointPos > 0) {
-            int stop = bsl::min(j + 1, pointPos);
-            for (; i < stop; ++i, --j) {
-                buffer[i] = '0' + remainders[j];
-            }
-
-            for (; i < pointPos; ++i) {
-                buffer[i] = '0';
-            }
+        int stop = bsl::min(j + 1, pointPos);
+        for (; i < stop; ++i, --j) {
+            buffer[i] = '0' + significand[j];
         }
-        else {
+
+        for (; i < pointPos; ++i) {
+            buffer[i] = '0';
+        }
+
+        if (0 >= pointPos) {
             buffer[i++] = '0';
         }
 
         if (precision) {
-            buffer[i++] = '.';
+            buffer[i++] = point;
 
-            int stop = bsl::min(i - pointPos, outputLength);
+            stop = bsl::min(i - pointPos, outputLength);
             for (; i < stop; ++i) {
                 buffer[i] = '0';
             }
 
             stop = bsl::min(i + j + 1, outputLength);
             for (; i < stop; ++i, --j) {
-                buffer[i] = '0' + remainders[j];
+                buffer[i] = '0' + significand[j];
             }
 
             for (; i < outputLength; ++i) {
@@ -280,6 +272,58 @@ int printScientific(char        *buffer,
 #endif
 }
 
+Decimal32 round(Decimal32 value, int exponent)
+{
+    Decimal64 v = value;
+    v = DecimalUtil::multiplyByPowerOf10(v, exponent);
+    v = DecimalUtil::quantize(v, Decimal64(exponent));
+    v = DecimalUtil::multiplyByPowerOf10(v, -exponent);
+    return Decimal32(v);
+}
+
+template <class DECIMAL>
+DECIMAL round(DECIMAL value, int exponent)
+{
+    value = DecimalUtil::multiplyByPowerOf10(value, exponent);
+    value = DecimalUtil::quantize(value, DECIMAL(exponent));
+    value = DecimalUtil::multiplyByPowerOf10(value, -exponent);
+    return value;
+}
+
+template <class DECIMAL>
+static
+int parseDecimal(int     *buffer,
+                 int     *length,
+                 int     *sign,
+                 int     *pointPos,
+                 int      precision,
+                 DECIMAL  value)
+{
+    typedef typename DecimalTraits<DECIMAL>::Significand SIGNIFICAND;
+
+    SIGNIFICAND significand;
+    int         exponent;
+    int         cls = DecimalUtil::decompose(sign,
+                                             &significand,
+                                             &exponent,
+                                             value);
+
+    *length          = parseSignificand(buffer, significand);
+    *pointPos        = pointPosition(significand, *length, exponent);
+    int roundingPos  = precision + *pointPos;
+
+    if (roundingPos > 0 && roundingPos < *length) {
+        value     = round(value, roundingPos - 1);
+        cls       = DecimalUtil::decompose(sign,
+                                           &significand,
+                                           &exponent,
+                                           value);
+        *length   = parseSignificand(buffer, significand);
+        *pointPos = pointPosition(significand, *length, exponent);
+    }
+    return cls;
+}
+
 template <class DECIMAL>
 static
 int formatImpl(char                       *buffer,
@@ -294,13 +338,17 @@ int formatImpl(char                       *buffer,
     BSLS_ASSERT(buffer || length < 0);
     BSLS_ASSERT(precision >= 0);
 
-    typedef typename DecimalTraits<DECIMAL>::Significand SIGNIFICAND;
-
+    const int   k_MAX_SIGNIFICAND_LENGTH = 34;
+    int         significand[k_MAX_SIGNIFICAND_LENGTH] = { 0 };
+    int         significandLength;
     int         sign;
-    SIGNIFICAND significand;
-    int         exponent;
-
-    int cls = DecimalUtil::decompose(&sign, &significand, &exponent, value);
+    int         pointPos;
+    int         cls = parseDecimal(&significand[0],
+                                   &significandLength,
+                                   &sign,
+                                   &pointPos,
+                                   precision,
+                                   value);
 
     char  signSymbol;
     int   signLength    = formatSign(&signSymbol, 1, sign, signFormat);
@@ -314,20 +362,21 @@ int formatImpl(char                       *buffer,
 
         switch (style) {
           case DecimalFormatUtil::e_SCIENTIFIC: {
-              decimalLength = printScientific(it,
-                                              bufferLength,
-                                              significand,
-                                              exponent,
-                                              precision,
-                                              point);
+              // decimalLength = printScientific(it,
+              //                                 bufferLength,
+              //                                 significand,
+              //                                 exponent,
+              //                                 precision,
+              //                                 point);
           } break;
           case DecimalFormatUtil::e_FIXED: {
-              decimalLength = printFixed(it,
-                                         bufferLength,
-                                         significand,
-                                         exponent,
-                                         precision,
-                                         point);
+              decimalLength = formatFixed(it,
+                                          bufferLength,
+                                          &significand[0],
+                                          significandLength,
+                                          pointPos,
+                                          precision,
+                                          point);
           } break;
           default: {
             BSLS_ASSERT(!"Unexpected format style value");

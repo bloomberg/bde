@@ -132,6 +132,14 @@ int main(int argc, char *argv[])
             const Util::Style e_S = Util::e_SCIENTIFIC;
 
 #define DEC(X) BDLDFP_DECIMAL_DF(X)
+            // bdldfp::Decimal64 v(-10.123);
+            // bdldfp::Decimal64 v1 = bdldfp::DecimalUtil::multiplyByPowerOf10(v, 2);
+            // bdldfp::Decimal64 v2 = bdldfp::DecimalUtil::quantize(v1, bdldfp::Decimal64(0));
+            // bdldfp::Decimal64 v3 = bdldfp::DecimalUtil::multiplyByPowerOf10(v2, -2);
+
+            if (verbose) {
+                // P_(v) P_(v1) P(v2) P(v3);
+            }
 
             static const struct {
                 const int          d_line;
@@ -178,12 +186,12 @@ int main(int argc, char *argv[])
                 {  L_,                  DEC(0e+1),        0  ,  e_F, "0"  },
                 {  L_,                DEC(1.0e+1),        1  ,  e_F, "10.0"  },
 
-                {  L_,                DEC(9.999999e+0),   0  ,  e_F, "9"  },
-                {  L_,                DEC(9.999999e+0),   1  ,  e_F, "9.9"  },
-                {  L_,                DEC(9.999999e+0),   2  ,  e_F, "9.99"  },
-                {  L_,                DEC(9.999999e+0),   3  ,  e_F, "9.999"  },
-                {  L_,                DEC(9.999999e+0),   4  ,  e_F, "9.9999"  },
-                {  L_,                DEC(9.999999e+0),   5  ,  e_F, "9.99999"  },
+                {  L_,                DEC(9.999999e+0),   0  ,  e_F, "10"  },
+                {  L_,                DEC(9.999999e+0),   1  ,  e_F, "10.0"  },
+                {  L_,                DEC(9.999999e+0),   2  ,  e_F, "10.00"  },
+                {  L_,                DEC(9.999999e+0),   3  ,  e_F, "10.000"  },
+                {  L_,                DEC(9.999999e+0),   4  ,  e_F, "10.0000"  },
+                {  L_,                DEC(9.999999e+0),   5  ,  e_F, "10.00000"  },
                 {  L_,                DEC(9.999999e+0),   6  ,  e_F, "9.999999"  },
                 {  L_,                DEC(9.999999e+0),   7  ,  e_F, "9.9999990"  },
 
@@ -216,6 +224,7 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
                 LOOP3_ASSERT(LINE, len, EXPECTED.length(), RESULT == EXPECTED);
             }
+
 #undef DEC
         }
         {
@@ -276,14 +285,14 @@ int main(int argc, char *argv[])
                 {  L_,                   V1 + V1,                 1  ,  e_F, "36893488147419103232.0"  },
                 // {  L_,                   DEC(4321987654321098765.67),             2  ,  e_F, "10.0"  },
 
-                {  L_,                DEC(9.999999e+0),   0  ,  e_F, "9"  },
-                {  L_,                DEC(9.999999e+0),   1  ,  e_F, "9.9"  },
-                {  L_,                DEC(9.999999e+0),   2  ,  e_F, "9.99"  },
-                {  L_,                DEC(9.999999e+0),   3  ,  e_F, "9.999"  },
-                {  L_,                DEC(9.999999e+0),   4  ,  e_F, "9.9999"  },
-                {  L_,                DEC(9.999999e+0),   5  ,  e_F, "9.99999"  },
-                {  L_,                DEC(9.999999e+0),   6  ,  e_F, "9.999999"  },
-                {  L_,                DEC(9.999999e+0),   7  ,  e_F, "9.9999990"  },
+                {  L_,                DEC(9.999999e+0),   0  ,  e_F, "10"  },
+                {  L_,                DEC(9.999999e+0),   1  ,  e_F, "10.0"  },
+                {  L_,                DEC(9.999999e+0),   2  ,  e_F, "10.00"  },
+                {  L_,                DEC(9.999999e+0),   3  ,  e_F, "10.000"  },
+                {  L_,                DEC(9.999999e+0),   4  ,  e_F, "10.0000"  },
+                {  L_,                DEC(9.999999e+0),   5  ,  e_F, "10.00000"  },
+                {  L_,                DEC(9.999999e+0),   6  ,  e_F,  "9.999999"  },
+                {  L_,                DEC(9.999999e+0),   7  ,  e_F,  "9.9999990"  },
 
                 // {  L_,                  DEC(1.0),        0  ,  e_S, "1E+0"    },
                 // {  L_,                  DEC(1.2),        1  ,  e_S, "1.2E+0"    },
