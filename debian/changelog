@@ -1,3 +1,12 @@
+bsl-internal (3.1.4.0) unstable; urgency=low
+
+  * 1bc6e4ca6 Merge pull request #1151 from bde/review/bump-version-numbers-for-3.1.4
+  * 4d63154d6 bump bsl version to 3.0.18 (for the 3.1.4 release)
+  * 5346efcc6 Merge pull request #1143 from osubbotin/pr/589-rebased-releases/3.1.x
+  * d75c44464 Merge pull request #1149 from hversche/pr/1145-rebased-releases/3.1.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 22 May 2017 14:29:15 -0400
+
 bsl-internal (3.1.3.0) unstable; urgency=low
 
 
