@@ -1638,7 +1638,7 @@ int FilesystemUtil::move(const char *oldPath, const char *newPath)
     BSLS_ASSERT(oldPath);
     BSLS_ASSERT(newPath);
 
-    return rename(oldPath, newPath);
+    return ::rename(oldPath, newPath);
 }
 
 bool FilesystemUtil::exists(const char *path)
