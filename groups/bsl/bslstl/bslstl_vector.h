@@ -3959,9 +3959,9 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
                     size_type         numElements,
                     const VALUE_TYPE *value)
     {
-        return Base::insert((const void *const *) position,
-                            numElements,
-                            (const void *) value);
+        return (iterator) Base::insert((const void *const *) position,
+                                       numElements,
+                                       (const void *) value);
     }
 
     template <class INPUT_ITER>
