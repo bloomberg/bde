@@ -339,9 +339,10 @@ BSLS_IDENT("$Id: $")
 ///'bsls::Log' Logging Redirection
 ///-------------------------------
 // The 'ball::LoggerManager' singleton, on construction, redirects 'bsls::Log'
-// messages to 'ball' using the logging category "BSLS.LOG".  Upon its
-// destruction, the logger manager singleton redirects 'bsls::Log' messages
-// back to the default 'bsls::Log' message handler (see 'bsls_log').
+// messages to 'ball'.  Such messages use the logging category "BSLS.LOG".
+// Upon its destruction, the logger manager singleton redirects 'bsls::Log'
+// messages back to the 'bsls::Log' message handler that was in effect prior to
+// the creation of the singleton (see 'bsls_log').
 //
 ///Usage
 ///-----

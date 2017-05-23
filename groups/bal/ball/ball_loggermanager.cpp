@@ -167,6 +167,11 @@ static bslmt::QLock bslsLogQLock = BSLMT_QLOCK_INITIALIZER;
     // handler.  This lock prevents the logger manager singleton from being
     // destroyed concurrently with an attempt to log a 'bsls::Log' record.
 
+static bsls::Log::LogMessageHandler savedBslsLogMessageHandler = 0;
+    // This variable is used to save the 'bsls::Log' message handler that is in
+    // effect prior to creating the singleton, so that it can be restored when
+    // the singleton is destroyed.
+
 static ball::Category *bslsLogCategoryPtr = 0;
     // Address of the category to which 'bsls::Log' messages are logged when
     // the logger manager singleton exists.
@@ -521,6 +526,8 @@ void LoggerManager::initSingletonImpl(
         // 'LoggerManager' singleton.
 
         bslmt::QLockGuard qLockGuard(&bslsLogQLock);
+
+        savedBslsLogMessageHandler = bsls::Log::logMessageHandler();
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
     }
     else {
@@ -733,6 +740,8 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool shutDownEnabled)
         // 'LoggerManager' singleton.
 
         bslmt::QLockGuard qLockGuard(&bslsLogQLock);
+
+        savedBslsLogMessageHandler = bsls::Log::logMessageHandler();
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
     }
     else {
@@ -805,13 +814,12 @@ void LoggerManager::shutDownSingleton()
     bslmt::QLockGuard qLockGuard(&singletonQLock);
 
     if (s_singleton_p && !s_doNotShutDown) {
-        // Restore the default 'bsls::Log' message handler.  The lock ensures
-        // that the singleton is not destroyed while a 'bsls::Log' record is
-        // being published.
+        // Restore the 'bsls::Log' message handler that was in effect prior to
+        // the creation of the singleton.  The lock ensures that the singleton
+        // is not destroyed while a 'bsls::Log' record is being published.
 
         bslmt::QLockGuard qLockGuard(&bslsLogQLock);
-        bsls::Log::setLogMessageHandler(
-                                    &bsls::Log::platformDefaultMessageHandler);
+        bsls::Log::setLogMessageHandler(savedBslsLogMessageHandler);
 
         // Clear the singleton pointer as early as possible to narrow the
         // window during which one thread is destroying the singleton while

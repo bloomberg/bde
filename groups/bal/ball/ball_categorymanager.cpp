@@ -35,7 +35,7 @@ namespace {
 typedef bsls::AtomicOperations AtomicOps;
 
 static
-AtomicOps::AtomicTypes::Int64 categoryManagerSequenceNumber = { 0 };
+AtomicOps::AtomicTypes::Int64 categoryManagerSequenceNumber = { -1 };
     // This object is used for assigning a unique initial rule set sequence
     // number to each category manager that is created.
 
@@ -167,12 +167,11 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
 CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
 : d_registry(bdlb::CStringLess(), basicAllocator)
 , d_ruleSetSequenceNumber(
-              AtomicOps::getInt64Relaxed(&categoryManagerSequenceNumber) << 48)
+             AtomicOps::incrementInt64Nv(&categoryManagerSequenceNumber) << 48)
 , d_ruleSet(bslma::Default::allocator(basicAllocator))
 , d_categories(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    AtomicOps::incrementInt64(&categoryManagerSequenceNumber);
 }
 
 CategoryManager::~CategoryManager()

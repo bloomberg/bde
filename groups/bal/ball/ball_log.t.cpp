@@ -970,12 +970,12 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 
     numIncCallback = 0;
 
-    BALL_LOGCB_TRACE(callback) << "No Logger Manager!" << BALL_LOGCB_END;
-    BALL_LOGCB_DEBUG(callback) << "No Logger Manager!" << BALL_LOGCB_END;
-    BALL_LOGCB_INFO(callback)  << "No Logger Manager!" << BALL_LOGCB_END;
-    BALL_LOGCB_WARN(callback)  << "No Logger Manager!" << BALL_LOGCB_END;
-    BALL_LOGCB_ERROR(callback) << "No Logger Manager!" << BALL_LOGCB_END;
-    BALL_LOGCB_FATAL(callback) << "No Logger Manager!" << BALL_LOGCB_END;
+    BALL_LOGCB_TRACE(callback) << "Logger Manager?" << BALL_LOGCB_END;
+    BALL_LOGCB_DEBUG(callback) << "Logger Manager?" << BALL_LOGCB_END;
+    BALL_LOGCB_INFO(callback)  << "Logger Manager?" << BALL_LOGCB_END;
+    BALL_LOGCB_WARN(callback)  << "Logger Manager?" << BALL_LOGCB_END;
+    BALL_LOGCB_ERROR(callback) << "Logger Manager?" << BALL_LOGCB_END;
+    BALL_LOGCB_FATAL(callback) << "Logger Manager?" << BALL_LOGCB_END;
 
     if (loggerManagerExistsFlag) {
         numPublishedSoFar += 6;

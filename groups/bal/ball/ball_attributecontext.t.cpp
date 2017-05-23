@@ -30,6 +30,7 @@
 #include <bslmt_mutex.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstddef.h>
@@ -78,9 +79,10 @@ using namespace bsl;
 // [ 5] AttributeContextProctor();
 // [ 5] ~AttributeContextProctor();
 //-----------------------------------------------------------------------------
-// [ 6] (OLD) USAGE EXAMPLE
-// [ 7] USAGE EXAMPLE
+// [ 7] (OLD) USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 // [ 1] AttributeSet
+// [ 6] CONCERN: No false positives from 'hasRelevantActiveRules'.
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -156,6 +158,8 @@ void aSsErT(int c, const char *s, int i)
 typedef ball::AttributeContext       Obj;
 
 typedef ball::AttributeContainerList List;
+typedef ball::CategoryManager        CatMngr;
+
 typedef bsls::Types::Int64           Int64;
 
 bool verbose;
@@ -308,14 +312,14 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
 namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE {
 
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager_p;
+    CatMngr *d_categoryManager_p;
 };
 
 extern "C" void *usageExample2(void *args)
 {
-    ball::CategoryManager  *manager =
+    CatMngr  *manager =
                      reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
-    ball::CategoryManager&  categoryManager = *manager;
+    CatMngr&  categoryManager = *manager;
 
 // Next, we add a category to the category manager.  Each created category has
 // a name and the logging threshold levels for that category.  The logging
@@ -342,7 +346,7 @@ extern "C" void *usageExample2(void *args)
 // We call 'hasRelevantActiveRules' on 'cat1'.  This will be 'false' because
 // we haven't supplied any rules:
 //..
-    ASSERT(false == context->hasRelevantActiveRules(cat1));
+    ASSERT(!context->hasRelevantActiveRules(cat1));
 //..
 // We call 'determineThresholdLevels' on 'cat1'.  This will simply return the
 // logging threshold levels we defined for 'cat1' when it was created because
@@ -373,7 +377,7 @@ extern "C" void *usageExample2(void *args)
 // that we will discuss the meaning of "active" and the use of predicates later
 // in this example.
 //..
-    ASSERT(true == context->hasRelevantActiveRules(cat1));
+    ASSERT(context->hasRelevantActiveRules(cat1));
 //..
 // Next, we call 'determineThresholdLevels' for 'cat1'.  This method compares
 // the threshold levels defined for a category with those of any active rules
@@ -413,7 +417,7 @@ extern "C" void *usageExample2(void *args)
 // satisfied by the current thread, i.e., the current thread's attribute
 // context does not contain an attribute matching '("uuid", 3938908)'.
 //..
-    ASSERT(false == context->hasRelevantActiveRules(cat1));
+    ASSERT(!context->hasRelevantActiveRules(cat1));
 //..
 // Next, we call 'determineThresholdLevels' on 'cat1' and find that it
 // returns the threshold levels we defined for 'cat1' when we created it:
@@ -438,7 +442,7 @@ extern "C" void *usageExample2(void *args)
 // all of the predicates defined for 'myRule' are satisfied by the attributes
 // held by this thread's attribute context):
 //..
-    ASSERT(true == context->hasRelevantActiveRules(cat1));
+    ASSERT(context->hasRelevantActiveRules(cat1));
 //..
 // Now, when we call 'determineThresholdLevels'; it will again return the
 // maximum threshold level from 'cat1' and 'myRule':
@@ -472,7 +476,7 @@ namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6 {
 bslmt::Barrier barrier(2);  // synchronize threads
 
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager_p;
+    CatMngr *d_categoryManager_p;
 };
 
 extern "C" void *workerThread1(void *)
@@ -525,7 +529,7 @@ extern "C" void *workerThread2(void *)
 
 extern "C" void *workerThread3(void *args)
 {
-    ball::CategoryManager *manager =
+    CatMngr *manager =
                      reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
     const ball::Category *cat1 =
@@ -546,8 +550,8 @@ extern "C" void *workerThread3(void *args)
     Obj::iterator iter = attrContext->addAttributes(&attributes);
     (void)iter;
 
-    ASSERT(true == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(true == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(attrContext->hasRelevantActiveRules(cat1));
+    ASSERT(attrContext->hasRelevantActiveRules(cat2));
 
     ball::ThresholdAggregate levels(0, 0, 0, 0);
 
@@ -565,8 +569,8 @@ extern "C" void *workerThread3(void *args)
 
     manager->removeRule(rule);
 
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -584,8 +588,8 @@ extern "C" void *workerThread3(void *args)
     rule.addPredicate(pred1);
     manager->addRule(rule);
 
-    ASSERT(true == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(true == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(attrContext->hasRelevantActiveRules(cat1));
+    ASSERT(attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -603,8 +607,8 @@ extern "C" void *workerThread3(void *args)
     rule.setPattern("weekend");
     manager->addRule(rule);
 
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(true  == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
+    ASSERT( attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -624,8 +628,8 @@ extern "C" void *workerThread3(void *args)
     rule.addPredicate(pred2);
     manager->addRule(rule);
 
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -644,7 +648,7 @@ extern "C" void *workerThread3(void *args)
 
 extern "C" void *oldUsageExample(void *args)
 {
-    ball::CategoryManager *manager =
+    CatMngr *manager =
                      reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
     ASSERT(0 == ball::AttributeContext::lookupContext());
@@ -684,8 +688,8 @@ extern "C" void *oldUsageExample(void *args)
     ASSERT( 50 == levels.triggerAllLevel());
 
     manager->removeRule(rule);
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -721,8 +725,8 @@ extern "C" void *oldUsageExample(void *args)
     manager->removeRule(rule);
     rule.setPattern("weekend");
     manager->addRule(rule);
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(true  == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
+    ASSERT( attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -742,8 +746,8 @@ extern "C" void *oldUsageExample(void *args)
     rule.addPredicate(pred2);
     manager->addRule(rule);
 
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(false == attrContext->hasRelevantActiveRules(cat2));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
+    ASSERT(!attrContext->hasRelevantActiveRules(cat2));
 
     attrContext->determineThresholdLevels(&levels, cat1);
     ASSERT(128 == levels.recordLevel());
@@ -778,8 +782,8 @@ enum {
 bslmt::Barrier barrier(NUM_THREADS);  // synchronize threads
 
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager_p;
-    unsigned  int          d_seed;
+    CatMngr      *d_categoryManager_p;
+    unsigned int  d_seed;
 };
 
 int randomValue(unsigned int *seed)
@@ -799,8 +803,8 @@ extern "C" void *case4RuleThread(void *args)
 {
     ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
 
-    ball::CategoryManager *manager = threadArgs->d_categoryManager_p;
-    unsigned int           seed    = threadArgs->d_seed;
+    CatMngr      *manager = threadArgs->d_categoryManager_p;
+    unsigned int  seed    = threadArgs->d_seed;
 
     barrier.wait();
 
@@ -888,7 +892,7 @@ extern "C" void *case4RuleThread(void *args)
 
 extern "C" void *case4ContextThread(void *args)
 {
-    ball::CategoryManager *manager =
+    CatMngr *manager =
                      reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
     barrier.wait();
@@ -957,7 +961,7 @@ extern "C" void *case4ContextThread(void *args)
 
     // All categories except the first one must be active now.
 
-    ASSERT(false == X.hasRelevantActiveRules(CATEGORIES[0]));
+    ASSERT(!X.hasRelevantActiveRules(CATEGORIES[0]));
     for (int i = 1; i < NUM_CATEGORIES; ++i) {
         LOOP_ASSERT(i, X.hasRelevantActiveRules(CATEGORIES[i]));
 
@@ -1051,7 +1055,7 @@ extern "C" void *case4ContextThread(void *args)
 
     // All categories except the first one must be active now.
 
-    ASSERT(false == X.hasRelevantActiveRules(CATEGORIES[0]));
+    ASSERT(!X.hasRelevantActiveRules(CATEGORIES[0]));
     for (int i = 1; i < NUM_CATEGORIES; ++i) {
         LOOP_ASSERT(i, X.hasRelevantActiveRules(CATEGORIES[i]));
     }
@@ -1101,7 +1105,7 @@ extern "C" void *case4ContextThread(void *args)
     // There are no longer any active categories.
 
     for (int i = 0; i < NUM_CATEGORIES; ++i) {
-        LOOP_ASSERT(i, false == X.hasRelevantActiveRules(CATEGORIES[i]));
+        LOOP_ASSERT(i, !X.hasRelevantActiveRules(CATEGORIES[i]));
         X.determineThresholdLevels(&levels, CATEGORIES[i]);
         LOOP_ASSERT(i, CATEGORIES[i]->recordLevel() == levels.recordLevel());
         LOOP_ASSERT(i, CATEGORIES[i]->passLevel()   == levels.passLevel());
@@ -1391,7 +1395,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -1441,7 +1445,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::join(mainThread);
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING ORIGINAL USAGE EXAMPLE
         //   This test runs the original usage example for this component.  It
@@ -1476,6 +1480,191 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::Handle mainThread;
         bslmt::ThreadUtil::create(&mainThread, oldUsageExample, &args);
         bslmt::ThreadUtil::join(mainThread);
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // NO FALSE POSITIVES FROM 'hasRelevantActiveRules'
+        //
+        // Concerns:
+        //: 1 That 'hasRelevantActiveRules' does not produce any false
+        //:   positives.  The basis for this concern is that the initial scheme
+        //:   for initializing the rule set sequence number in the category
+        //:   manager does open up 'hasRelevantActiveRules' for producing false
+        //:   positives now that the logger manager singleton, and necessarily
+        //:   the global state of 'AttributeContext', can be reinitialized.
+        //:   This is because the rule evaluation cache uses that sequence
+        //:   number to determine if the cache needs to be refreshed.
+        //:
+        //: 2 That 'determineThresholdLevels' returns the correct result after
+        //:   the global state of 'AttributeContext' has been reinitialized.
+        //:   The basis for this concern is that the logic used by
+        //:   'determineThresholdLevels' to determine if the cache needs to be
+        //:   refereshed is the same as that used by 'hasRelevantActiveRules'.
+        //
+        // Plan:
+        //: 1 Using ad hoc testing: (C-1..2)
+        //:
+        //:   1 Create a category manager having one category and one rule that
+        //:     is relevant to that category.  The rule has one predicate.
+        //:
+        //:   2 Initialize the 'AttributeContext' global state with the
+        //:     category manager created in P-1.1.
+        //:
+        //:   3 Add an attribute to the main thread's attribute context that
+        //:     matches the predicate from P-1.1.  Leave the context unchanged
+        //:     for the remainder of the test.
+        //:
+        //:   4 Verify that both 'hasRelevantActiveRules' and
+        //:     'determineThresholdLevels' produce the expected result, i.e.,
+        //:     the rule *is* relevant and it *should* influence the category's
+        //:     threshold levels.
+        //:
+        //:   5 Reset the 'AttributeContext' global state (simulating what
+        //:     would happen when the logger manager singleton is shut down).
+        //:
+        //:   6 Repeat P-1.1, but this time the predicate added to the rule
+        //:     should not match the attribute that is (still) in the main
+        //:     thread's attribute context.
+        //:
+        //:   7 Again verify that both 'hasRelevantActiveRules' and
+        //:     'determineThresholdLevels' produce the expected result, i.e.,
+        //:     the rule is *not* relevant and it should *not* influence the
+        //:     category's threshold levels.  (C-1..2)
+        //
+        // Note that assertions that would fail if the old scheme for
+        // initializing the rule set sequence number in the category manager
+        // was still in place are marked by "!*!*!*" comments.
+        //
+        // Testing:
+        //   CONCERN: No false positives from 'hasRelevantActiveRules'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "NO FALSE POSITIVES FROM 'hasRelevantActiveRules'"
+                          << endl
+                          << "================================================"
+                          << endl;
+
+        {
+            ball::ThresholdAggregate catLevels( 128,  96, 64, 32);
+            ball::ThresholdAggregate ruleLevels(130, 110, 70, 40);
+            ball::ThresholdAggregate levels(      0,   0,  0,  0);
+
+            // [1] Initialize 'AttributeContext' with first category manager.
+            // Load category manager with:
+            //   o category "ABC-Category", and
+            //   o matching rule with predicate ("uuid", 2468).
+            // Load context with attribute ("uuid", 2468).
+            // 'hasRelevantActiveRules' should return 'true'.
+
+            bsls::ObjectBuffer<CatMngr> buffer1;
+            new (buffer1.address()) CatMngr(&globalAllocator);
+
+            CatMngr *cmPtr1 = buffer1.address();
+
+            Obj::initialize(cmPtr1, &globalAllocator);
+
+            Obj *mX = Obj::getContext();  const Obj& X = *mX;
+
+            const ball::Category *cat =
+                          cmPtr1->addCategory("ABC-Category", 128, 96, 64, 32);
+            ASSERT(cat);
+            ASSERT(!X.hasRelevantActiveRules(cat));
+
+            {
+                ball::Rule rule("ABC-*", 130, 110, 70, 40);
+                ball::Predicate pred("uuid", 2468);
+                rule.addPredicate(pred);
+                cmPtr1->addRule(rule);
+            }
+
+            ASSERT(!X.hasRelevantActiveRules(cat));
+
+            AttributeSet attrSet;
+            attrSet.insert(ball::Attribute("uuid", 2468));
+            ball::AttributeContext::iterator it = mX->addAttributes(&attrSet);
+
+            ASSERT( X.hasRelevantActiveRules(cat));
+
+            X.determineThresholdLevels(&levels, cat);
+            ASSERT(levels == ruleLevels);
+
+            // The context must not be modified from here on until it is
+            // destroyed at the end of the test case.
+
+            buffer1.object().~CatMngr();
+
+            // [2] Reinitialize 'AttributeContext' with new category manager.
+            // Load new category manager with:
+            //   o category "ABC-Category" (same name), and
+            //   o matching rule with predicate ("uuid", 1357).
+            // Context attribute ("uuid", 2468) remains in place.
+            // 'hasRelevantActiveRules' should return 'false'.
+
+            bsls::ObjectBuffer<CatMngr> buffer2;
+            new (buffer2.address()) CatMngr(&globalAllocator);
+
+            CatMngr *cmPtr2 = buffer2.address();
+
+            Obj::reset();
+            Obj::initialize(cmPtr2, &globalAllocator);
+
+            cat = cmPtr2->addCategory("ABC-Category", 128, 96, 64, 32);
+            ASSERT(cat);
+
+            {
+                ball::Rule rule("ABC-*", 130, 110, 70, 40);
+                ball::Predicate pred("uuid", 1357);
+                rule.addPredicate(pred);
+                cmPtr2->addRule(rule);
+            }
+
+            ASSERT(!X.hasRelevantActiveRules(cat));  // !*!*!*
+
+            X.determineThresholdLevels(&levels, cat);
+            ASSERT(levels == catLevels);             // !*!*!*
+
+            buffer2.object().~CatMngr();
+
+            // [3] Reinitialize 'AttributeContext' again.
+            // Load new category manager with:
+            //   o category "XYZ-Category" (different name), and
+            //   o matching rule with predicate ("uuid", 1357).
+            // Context attribute ("uuid", 2468) still remains in place.
+            // 'hasRelevantActiveRules' should return 'false'.
+
+            bsls::ObjectBuffer<CatMngr> buffer3;
+            new (buffer3.address()) CatMngr(&globalAllocator);
+
+            CatMngr *cmPtr3 = buffer3.address();
+
+            Obj::reset();
+            Obj::initialize(cmPtr3, &globalAllocator);
+
+            cat = cmPtr3->addCategory("XYZ-Category", 128, 96, 64, 32);
+            ASSERT(cat);
+
+            {
+                ball::Rule rule("XYZ-*", 130, 110, 70, 40);
+                ball::Predicate pred("uuid", 1357);
+                rule.addPredicate(pred);
+                cmPtr3->addRule(rule);
+            }
+
+            ASSERT(!X.hasRelevantActiveRules(cat));  // !*!*!*
+
+            X.determineThresholdLevels(&levels, cat);
+            ASSERT(levels == catLevels);             // !*!*!*
+
+            buffer3.object().~CatMngr();
+
+            // [4] Clean up context.
+
+            mX->removeAttributes(it);
+
+            ball::AttributeContextProctor proctor;  // destroys context
+        }
 
       } break;
       case 5: {
@@ -1554,8 +1743,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTest with specified allocator.\n";
 
-        bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
-        ball::CategoryManager manager(&scratch);
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        CatMngr manager(&scratch);
 
         {
             Obj::initialize(&manager, Z);
@@ -1712,7 +1902,7 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(context->determineThresholdLevels(&levels,   0));
             ASSERT_FAIL(context->determineThresholdLevels(      0, cat));
 
-            ball::AttributeContextProctor proctor;
+            ball::AttributeContextProctor proctor;  // destroys context
         }
 
       } break;
@@ -1764,7 +1954,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(context->addAttributes(&as));
             ASSERT_SAFE_FAIL(context->addAttributes(0));
 
-            ball::AttributeContextProctor proctor;
+            ball::AttributeContextProctor proctor;  // destroys context
         }
 
       } break;
@@ -1799,7 +1989,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_2;
 
-        ball::CategoryManager dummy;
+        CatMngr dummy;
 
         if (veryVerbose)
             cout << "\tTest with various allocator configurations.\n";
@@ -1875,7 +2065,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            ball::CategoryManager dummy;
+            CatMngr dummy;
 
             ASSERT_OPT_PASS(Obj::initialize(&dummy));
             Obj::reset();

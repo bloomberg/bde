@@ -181,7 +181,7 @@ BSLS_IDENT("$Id: $")
 // We call 'hasRelevantActiveRules' on 'cat1'.  This will be 'false' because
 // we haven't supplied any rules:
 //..
-//  assert(false == context->hasRelevantActiveRules(cat1));
+//  assert(!context->hasRelevantActiveRules(cat1));
 //..
 // We call 'determineThresholdLevels' on 'cat1'.  This will simply return the
 // logging threshold levels we defined for 'cat1' when it was created because
@@ -212,7 +212,7 @@ BSLS_IDENT("$Id: $")
 // that we will discuss the meaning of "active" and the use of predicates later
 // in this example.
 //..
-//  assert(true == context->hasRelevantActiveRules(cat1));
+//  assert(context->hasRelevantActiveRules(cat1));
 //..
 // Next, we call 'determineThresholdLevels' for 'cat1'.  This method compares
 // the threshold levels defined for a category with those of any active rules
@@ -252,7 +252,7 @@ BSLS_IDENT("$Id: $")
 // satisfied by the current thread, i.e., the current thread's attribute
 // context does not contain an attribute matching '("uuid", 3938908)'.
 //..
-//  assert(false == context->hasRelevantActiveRules(cat1));
+//  assert(!context->hasRelevantActiveRules(cat1));
 //..
 // Next, we call 'determineThresholdLevels' on 'cat1' and find that it
 // returns the threshold levels we defined for 'cat1' when we created it:
@@ -277,7 +277,7 @@ BSLS_IDENT("$Id: $")
 // all of the predicates defined for 'myRule' are satisfied by the attributes
 // held by this thread's attribute context):
 //..
-//  assert(true == context->hasRelevantActiveRules(cat1));
+//  assert(context->hasRelevantActiveRules(cat1));
 //..
 // Now, when we call 'determineThresholdLevels'; it will again return the
 // maximum threshold level from 'cat1' and 'myRule':
@@ -441,22 +441,6 @@ class AttributeContext_RuleEvaluationCache {
         // called to test if this cache contains up-to-date evaluated rule
         // information for the rules in which they are interested before using
         // the result of this method.
-
-    RuleSet::MaskType evaluatedRules() const;
-        // Return a bit mask indicating those rules, from the set of rules
-        // provided in the last call to 'update', that have been evaluated (as
-        // of that last call to 'update').  If a bit in the returned value is
-        // set to 1, the rule at the corresponding index has been evaluated; if
-        // a bit is 0, the corresponding rule has not been evaluated.  Note
-        // that the sequence number for the rules may be out of date, and, in
-        // general, 'isDataAvailable' should be called first to test if this
-        // cache contains up-to-date rule information.
-
-    bsls::Types::Int64 sequenceNumber() const;
-        // Return the sequence number associated with this cache, and -1 if
-        // this cache is empty.  Note that the sequence number is used to
-        // determine if the cache is in sync with the rule set maintained by
-        // the category manager.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,

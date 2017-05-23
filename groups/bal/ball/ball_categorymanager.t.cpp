@@ -109,18 +109,18 @@ using namespace bsl;
 //
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // 'ball::CategoryManagerIter' public interface:
-// [15] CategoryManagerIter(const CategoryManager& cm);
-// [15] ~CategoryManagerIter();
-// [15] void operator++();
-// [15] operator const void *() const;
-// [15] const Category& operator()() const;
+// [16] CategoryManagerIter(const CategoryManager& cm);
+// [16] ~CategoryManagerIter();
+// [16] void operator++();
+// [16] operator const void *() const;
+// [16] const Category& operator()() const;
 //
 // 'ball::CategoryManagerManip' public interface:
-// [16] CategoryManagerManip(CategoryManager *cm);
-// [16] ~CategoryManagerManip();
-// [16] void advance();
-// [16] Category& operator()();
-// [16] operator const void *() const;
+// [17] CategoryManagerManip(CategoryManager *cm);
+// [17] ~CategoryManagerManip();
+// [17] void advance();
+// [17] Category& operator()();
+// [17] operator const void *() const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -129,7 +129,8 @@ using namespace bsl;
 // [ 7] MT-SAFETY
 // [12] TESTING IMPACT OF RULES ON CATEGORY HOLDERS
 // [13] CONCURRENCY TEST: RULES
-// [14] USAGE EXAMPLE
+// [14] UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER
+// [15] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -556,6 +557,44 @@ extern "C" void *ruleThreadTest(void *args)
     return 0;
 }
 
+// ============================================================================
+//                         CASE 14 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace BALL_CATEGORYMANAGER_UNIQUENESS_OF_SEQUENCE_NUMBERS {
+
+enum {
+    k_NUM_OBJECTS = 512,
+    k_NUM_THREADS = 3
+};
+
+bslmt::Barrier barrier(k_NUM_THREADS);  // synchronize threads
+
+struct ThreadArgs {
+    bool *d_flags_p;  // 'k_NUM_OBJECTS * k_NUM_THREADS' elements
+};
+
+extern "C" void *seqNumUniquenessThread(void *args)
+{
+    ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
+
+    bool *flags = threadArgs->d_flags_p;
+
+    barrier.wait();
+
+    for (int i = 0; i < k_NUM_OBJECTS; ++i) {
+        const Obj X;
+
+        const Int64 shiftedSeqNum = X.ruleSetSequenceNumber() >> 48;
+        ASSERT(0 <= shiftedSeqNum);
+        ASSERT(     shiftedSeqNum < k_NUM_OBJECTS * k_NUM_THREADS);
+
+        flags[shiftedSeqNum] = true;
+    }
+}
+
+}  // close namespace BALL_CATEGORYMANAGER_UNIQUENESS_OF_SEQUENCE_NUMBERS
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -574,7 +613,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING 'ball::CategoryManagerManip'
         //
@@ -648,7 +687,7 @@ int main(int argc, char *argv[])
             ASSERT(triggerAll == p->triggerAllLevel());
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING 'ball::CategoryManagerIter'
         //
@@ -712,7 +751,7 @@ int main(int argc, char *argv[])
 
       } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -806,6 +845,63 @@ int main(int argc, char *argv[])
                 << " ]" << endl;
         }
         if (veryVerbose) { out << ends; cout << buf << endl; }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER
+        //
+        // Concerns:
+        //: 1 For each object, the initial value for the rule set sequence
+        //:   number is unique.
+        //
+        // Plan
+        //: 1 Run three threads concurrently that each create a succession of
+        //:   category manager objects in a tight loop.  The threads share an
+        //:   array having the same number of elements as the total number of
+        //:   objects created across the three threads.  Each time an object is
+        //:   created, the element in the array corresponding to that object's
+        //:   initial rule set sequence number is marked.  After joining the
+        //:   three threads, verify that all elements of the array have been
+        //:   marked.  (C-1)
+        //
+        // Testing:
+        //   UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER"
+                 << endl
+                 << "======================================================"
+                 << endl;
+
+        using namespace BALL_CATEGORYMANAGER_UNIQUENESS_OF_SEQUENCE_NUMBERS;
+
+        const int k_NUM_FLAGS = k_NUM_OBJECTS * k_NUM_THREADS;
+
+        bool       flags[k_NUM_FLAGS];
+        ThreadArgs threadArgs = { flags };
+
+        {
+            bsl::fill_n(flags, k_NUM_FLAGS, false);
+
+            bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
+
+            for (int i = 0; i < k_NUM_THREADS; ++i) {
+                bslmt::ThreadUtil::create(&threads[i],
+                                          seqNumUniquenessThread,
+                                          (void *)&threadArgs);
+            }
+
+            for (int i = 0; i < k_NUM_THREADS; ++i) {
+                bslmt::ThreadUtil::join(threads[i], 0);
+            }
+
+            for (int j = 0; j < k_NUM_FLAGS; ++j) {
+                ASSERTV(j, flags[j]);
+            }
+        }
+
       } break;
       case 13: {
         // --------------------------------------------------------------------

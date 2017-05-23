@@ -46,6 +46,13 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 // that if a client required strictly synchronized results for these methods, a
 // lock would need to be held (until the message was actually written to the
 // log).
+//
+///'initialize' and 'reset'
+///------------------------
+// Although there is no lock in the implementation of this component, the
+// 'initialize' and 'reset' class methods *should* be mutually exclusive.  Note
+// that they are made so by the fact that they are called under a lock in
+// 'ball::LoggerManager' code ('initSingletonImpl' and 'shutDownSingleton').
 
 namespace BloombergLP {
 namespace ball {

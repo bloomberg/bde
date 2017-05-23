@@ -1055,6 +1055,24 @@ void myPopulator(ball::UserFields *list)
 
 namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION {
 
+static int bslsLogMsgCount = 0;
+
+static
+void countingBslsLogMessageHandler(bsls::LogSeverity::Enum,
+                                   const char              *fileName,
+                                   int                      lineNumber,
+                                   const char              *message)
+    // Handle a 'ball' record having the specified 'fileName', 'lineNumber',
+    // and 'message', and increment the count of messages routed to this
+    // handler.
+{
+    ASSERT(fileName);        (void)fileName;
+    ASSERT(0 < lineNumber);  (void)lineNumber;
+    ASSERT(message);         (void)message;
+
+    ++bslsLogMsgCount;
+}
+
 static
 void logMessageTest(
                 bool                                   loggerManagerExistsFlag,
@@ -1067,20 +1085,6 @@ void logMessageTest(
     // 'numPublishedSoFar'.
 {
     ASSERT(loggerManagerExistsFlag == Obj::isInitialized());
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-    // Temporarily redirect 'stderr' to a temp file.
-    fflush(stderr);
-    bsl::string filename = tempnam(0, "ball_log");
-    int fd = creat(filename.c_str(), 0777);
-    ASSERT(fd != -1);
-    int saved_stderr_fd = dup(2);
-    dup2(fd, 2);
-#endif
-
-    bsl::stringstream os;
-    bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
-    bsl::cerr.rdbuf(os.rdbuf());
 
     // Log through the singleton if it exists.
 
@@ -1104,29 +1108,12 @@ void logMessageTest(
     }
     ASSERT(numPublishedSoFar == testObserver.numPublishedRecords());
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-    // Restore 'stderr' to the state it was in before we redirected it.
-    fflush(stderr);
-    dup2(saved_stderr_fd, 2);
-
-    // Verify the expected number of lines were written to the temp file.
-    bsl::ifstream fs(filename.c_str(), bsl::ifstream::in);
-    int numLines = 0;
-    bsl::string line;
-    while (getline(fs, line)) {
-        ++numLines;
-    }
     if (loggerManagerExistsFlag) {
-        ASSERT(0 == numLines);
+        ASSERT(0 == bslsLogMsgCount);
     }
     else {
-        ASSERT(1 == numLines);
+        ASSERT(1 == bslsLogMsgCount);
     }
-    fs.close();
-    unlink(filename.c_str());
-#endif
-    ASSERT("" == os.str());
-    bsl::cerr.rdbuf(cerrBuf);
 }
 
 }  // close namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION
@@ -1887,6 +1874,8 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION;
 
+        bsls::Log::setLogMessageHandler(&countingBslsLogMessageHandler);
+
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::TestAllocator ga("global",  veryVeryVerbose);
         bslma::TestAllocator oa("object",  veryVeryVerbose);
@@ -1910,12 +1899,14 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 5; ++i) {
                 ASSERT(!Obj::isInitialized());
+                bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
 
                 {
                      ball::LoggerManagerScopedGuard guard(&mTO, lmc);
 
                      ASSERT(Obj::isInitialized());
+                     bslsLogMsgCount = 0;
                      logMessageTest(true, TO, TO.numPublishedRecords());
                 }
             }
@@ -1937,12 +1928,14 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 5; ++i) {
                 ASSERT(!Obj::isInitialized());
+                bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
 
                 {
                      ball::LoggerManager::initSingleton(&mTO, lmc);
 
                      ASSERT(Obj::isInitialized());
+                     bslsLogMsgCount = 0;
                      logMessageTest(true, TO, TO.numPublishedRecords());
 
                      ball::LoggerManager::shutDownSingleton();
@@ -1966,22 +1959,27 @@ int main(int argc, char *argv[])
 
             {
                 ASSERT(!Obj::isInitialized());
+                bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
 
                 ball::LoggerManagerScopedGuard guard(&mTO, lmc);
 
                 ASSERT( Obj::isInitialized());
+                bslsLogMsgCount = 0;
                 logMessageTest(true, TO, TO.numPublishedRecords());
                 {
                      ball::LoggerManagerScopedGuard guard(&mTO, lmc);
 
                      ASSERT(Obj::isInitialized());
+                     bslsLogMsgCount = 0;
                      logMessageTest(true, TO, TO.numPublishedRecords());
                 }
                 ASSERT(!Obj::isInitialized());
+                bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
             }
             ASSERT(!Obj::isInitialized());
+            bslsLogMsgCount = 0;
             logMessageTest(false, TO, TO.numPublishedRecords());
         }
 
