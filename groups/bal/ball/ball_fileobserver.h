@@ -371,12 +371,12 @@ class FileObserver : public Observer {
                           bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally specified
-        // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
-        // records are published to 'stdout' if their severity is at least as
-        // severe as 'Severity::e_WARN'.  The timestamp attribute of published
-        // records is written in UTC time by default.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Note that
+        // 'stdoutThreshold' level.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  If 'stdoutThreshold' is not specified,
+        // log records are published to 'stdout' if their severity is at least
+        // as severe as 'Severity::e_WARN'.  The timestamp attribute of
+        // published records is written in UTC time by default.  Note that
         // user-defined fields are published to 'stdout' by default.  Also note
         // that file logging is initially disabled.
 
@@ -385,14 +385,16 @@ class FileObserver : public Observer {
                  bslma::Allocator *basicAllocator = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the specified
-        // 'stdoutThreshold' level.  If the specified 'publishInLocalTime' flag
-        // is 'true', the timestamp attribute of published records is written
-        // in local time; otherwise the timestamp attribute of published
-        // records is written in UTC time.  The offset between the local time
-        // and UTC time is computed at construction and remains unchanged
-        // during the lifetime of this object.  Note that user-defined fields
-        // are published to 'stdout' by default.  Also note that file logging
-        // is initially disabled.
+        // 'stdoutThreshold' level.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  If the specified 'publishInLocalTime'
+        // flag is 'true', the timestamp attribute of published records is
+        // written in local time; otherwise the timestamp attribute of
+        // published records is written in UTC time.  The offset between the
+        // local time and UTC time is computed at construction and remains
+        // unchanged during the lifetime of this object.  Note that
+        // user-defined fields are published to 'stdout' by default.  Also note
+        // that file logging is initially disabled.
 
     ~FileObserver();
         // Close the log file of this file observer if file logging is enabled,
@@ -408,7 +410,7 @@ class FileObserver : public Observer {
         // file observer.  This method has no effect if
         // rotation-on-time-interval is not enabled.
         //
-        // DEPRECATED: Use 'disableTimeIntervalRotation' instead.
+        // !DEPRECATED!: Use 'disableTimeIntervalRotation' instead.
 
     void disableTimeIntervalRotation();
         // Disable log file rotation based on periodic time interval for this
@@ -431,7 +433,7 @@ class FileObserver : public Observer {
         // enabled, or if a format string other than the default one is in
         // effect.
         //
-        // DEPRECATED: Use 'setLogFormat' instead.
+        // !DEPRECATED!: Use 'setLogFormat' instead.
 
     void disablePublishInLocalTime();
         // Disable publishing of the timestamp attribute of records in local
@@ -475,8 +477,9 @@ class FileObserver : public Observer {
         // contain any '%'-escape sequence, this method behaves as if ".%T" is
         // appended to 'logFilenamePattern'.
         //
-        // DEPRECATED: Use 'enableFileLogging(logFilenamePattern)' instead (use
-        // the ".%T" pattern to replicate 'appendTimestampFlag' being enabled).
+        // !DEPRECATED!: Use 'enableFileLogging(logFilenamePattern)' instead
+        // (use the ".%T" pattern to replicate 'appendTimestampFlag' being
+        // enabled).
 
     void enableStdoutLoggingPrefix();
         // Enable this file observer to use the default long output format
@@ -525,39 +528,38 @@ class FileObserver : public Observer {
         // filenames of the rotated log files.  This method has no effect if
         // file logging is not enabled.
 
+    void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified 'timeInterval'.  The behavior is
+        // undefined unless '0 < timeInterval.totalMilliseconds()'.  This rule
+        // replaces any rotation-on-time-interval rule currently in effect.
+        //
+        // !DEPRECATED!: Use 'rotateOnTimeInterval' instead.
+
     void rotateOnSize(int size);
         // Set this file observer to perform log file rotation when the size of
         // the file exceeds the specified 'size' (in kilo-bytes).  This rule
         // replaces any rotation-on-size rule currently in effect.  The
         // behavior is undefined unless 'size > 0'.
 
-    void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
-        // Set this file observer to perform a periodic log-file rotation at
-        // multiples of the specified 'interval'.  The behavior is undefined
-        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
-        // rotation-on-time-interval rule currently in effect.
-        //
-        // DEPRECATED: Use 'rotateOnTimeInterval' instead.
-
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
-    void rotateOnTimeInterval(
-                             const bdlt::DatetimeInterval& interval,
-                             const bdlt::Datetime&         referenceStartTime);
+    void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval,
+                              const bdlt::Datetime&         startTime);
         // Set this file observer to perform a periodic log-file rotation at
         // multiples of the specified 'interval'.  Optionally, specify
-        // 'referenceStartTime' indicating the *local* datetime to use as the
-        // starting point for computing the periodic rotation schedule.
-        // 'referenceStartTime' is interpreted using the local-time offset at
-        // the time this object was constructed.  If 'referenceStartTime' is
-        // unspecified, the current time is used.  The behavior is undefined
-        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
+        // 'startTime' indicating the *local* datetime to use as the starting
+        // point for computing the periodic rotation schedule.  'startTime' is
+        // interpreted using the local-time offset at the time this object was
+        // constructed.  If 'startTime' is unspecified, the current time is
+        // used.  The behavior is undefined unless
+        // '0 < interval.totalMilliseconds()'.  This rule replaces any
         // rotation-on-time-interval rule currently in effect.  Note that
-        // 'referenceStartTime' may be a fixed time in the past.  E.g., a
-        // reference time of 'bdlt::Datetime(1, 1, 1)' and an interval of 24
-        // hours would configure a periodic rotation at midnight each day.
+        // 'startTime' may be a fixed time in the past.  E.g., a start time of
+        // 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
+        // configure a periodic rotation at midnight each day.
 
     void setOnFileRotationCallback(
-         const FileObserver2::OnFileRotationCallback& onRotationCallback);
+              const FileObserver2::OnFileRotationCallback& onRotationCallback);
         // Set the specified 'onRotationCallback' to be invoked after each time
         // this file observer attempts perform a log file rotation.  The
         // behavior is undefined if the supplied function calls either
@@ -579,6 +581,14 @@ class FileObserver : public Observer {
         // @DESCRIPTION for details of formatting syntax.
 
     // ACCESSORS
+    void getLogFormat(const char **logFileFormat,
+                      const char **stdoutFormat) const;
+        // Load the format of log records written by this file observer to the
+        // log file into the specified '*logFileFormat' address and the format
+        // of log records written to 'stdout' into the specified
+        // '*stdoutFormat' address.  See "Log Record Formatting" under
+        // @DESCRIPTION for details of formatting syntax.
+
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this file observer, and
@@ -598,6 +608,16 @@ class FileObserver : public Observer {
         // Return 'true' if this file observer writes the timestamp attribute
         // of records that it publishes in local time, and 'false' otherwise.
 
+    bdlt::DatetimeInterval localTimeOffset() const;
+        // Return the difference between the local time and UTC time in effect
+        // when this file observer was constructed.  Note that this value
+        // remains unchanged during the lifetime of this object and therefore
+        // may become incorrect when the difference between the local time and
+        // UTC time changes (e.g., when transitioning into or out of daylight
+        // savings time).
+        //
+        // !DEPRECATED! Use 'bdlt::LocalTimeOffset' instead.
+
     bdlt::DatetimeInterval rotationLifetime() const;
         // Return the lifetime of the log file that will trigger a file
         // rotation by this file observer if rotation-on-lifetime is in effect,
@@ -608,27 +628,9 @@ class FileObserver : public Observer {
         // file rotation by this file observer if rotation-on-size is in
         // effect, and 0 otherwise.
 
-    bdlt::DatetimeInterval localTimeOffset() const;
-        // [!DEPRECATED!] Use 'bdlt::LocalTimeOffset' instead.
-        //
-        // Return the difference between the local time and UTC time in effect
-        // when this file observer was constructed.  Note that this value
-        // remains unchanged during the lifetime of this object and therefore
-        // may become incorrect when the difference between the local time and
-        // UTC time changes (e.g., when transitioning into or out of daylight
-        // savings time).
-
     Severity::Level stdoutThreshold() const;
         // Return the minimum severity of messages that will be logged to
         // 'stdout' by this file observer.
-
-    void getLogFormat(const char **logFileFormat,
-                      const char **stdoutFormat) const;
-        // Load the format of log records written by this file observer to the
-        // log file into the specified '*logFileFormat' address and the format
-        // of log records written to 'stdout' into the specified
-        // '*stdoutFormat' address.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
 };
 
 // ============================================================================
@@ -649,12 +651,6 @@ void FileObserver::disableFileLogging()
 inline
 void FileObserver::disableLifetimeRotation()
 {
-    d_fileObserver2.disableLifetimeRotation();
-}
-
-inline
-void FileObserver::disableTimeIntervalRotation()
-{
     d_fileObserver2.disableTimeIntervalRotation();
 }
 
@@ -662,6 +658,12 @@ inline
 void FileObserver::disableSizeRotation()
 {
     d_fileObserver2.disableSizeRotation();
+}
+
+inline
+void FileObserver::disableTimeIntervalRotation()
+{
+    d_fileObserver2.disableTimeIntervalRotation();
 }
 
 inline
@@ -697,15 +699,15 @@ void FileObserver::releaseRecords()
 }
 
 inline
-void FileObserver::rotateOnSize(int size)
-{
-    d_fileObserver2.rotateOnSize(size);
-}
-
-inline
 void FileObserver::rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval)
 {
     d_fileObserver2.rotateOnLifetime(timeInterval);
+}
+
+inline
+void FileObserver::rotateOnSize(int size)
+{
+    d_fileObserver2.rotateOnSize(size);
 }
 
 inline
@@ -716,15 +718,15 @@ void FileObserver::rotateOnTimeInterval(const bdlt::DatetimeInterval& interval)
 
 inline
 void FileObserver::rotateOnTimeInterval(
-                              const bdlt::DatetimeInterval& interval,
-                              const bdlt::Datetime&         referenceStartTime)
+                                       const bdlt::DatetimeInterval& interval,
+                                       const bdlt::Datetime&         startTime)
 {
-    d_fileObserver2.rotateOnTimeInterval(interval, referenceStartTime);
+    d_fileObserver2.rotateOnTimeInterval(interval, startTime);
 }
 
 inline
 void FileObserver::setOnFileRotationCallback(
-          const FileObserver2::OnFileRotationCallback& onRotationCallback)
+               const FileObserver2::OnFileRotationCallback& onRotationCallback)
 {
     d_fileObserver2.setOnFileRotationCallback(onRotationCallback);
 }
@@ -743,6 +745,13 @@ bool FileObserver::isFileLoggingEnabled(bsl::string *result) const
 }
 
 inline
+bdlt::DatetimeInterval FileObserver::localTimeOffset() const
+{
+    return d_fileObserver2.localTimeOffset();
+}
+
+
+inline
 bdlt::DatetimeInterval FileObserver::rotationLifetime() const
 {
     return d_fileObserver2.rotationLifetime();
@@ -752,12 +761,6 @@ inline
 int FileObserver::rotationSize() const
 {
     return d_fileObserver2.rotationSize();
-}
-
-inline
-bdlt::DatetimeInterval FileObserver::localTimeOffset() const
-{
-    return d_fileObserver2.localTimeOffset();
 }
 
 }  // close package namespace

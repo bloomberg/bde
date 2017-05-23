@@ -1,12 +1,4 @@
 // ball_log.t.cpp                                                     -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_log.h>
 
 #include <ball_administration.h>
@@ -24,6 +16,9 @@
 #include <ball_thresholdaggregate.h>
 #include <ball_userfields.h>
 
+#include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -34,9 +29,13 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
@@ -80,6 +79,7 @@
 //
 // using namespace BloombergLP;
 // using namespace bsl;
+
 using bsl::cout;
 using bsl::endl;
 using bsl::flush;
@@ -221,13 +221,82 @@ const int ERROR = Sev::e_ERROR;
 const int FATAL = Sev::e_FATAL;
 const int OFF   = Sev::e_OFF;
 
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
+static bool verbose;
+static bool veryVerbose;
+static bool veryVeryVerbose;
+static bool veryVeryVeryVerbose;
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace {
+
+using namespace BloombergLP;
+
+class TempDirectoryGuard {
+    // This class implements a scoped temporary directory guard.  The guard
+    // tries to create a temporary directory in the system-wide temp directory
+    // and falls back to the current directory.
+
+    // DATA
+    bsl::string       d_dirName;      // path to the created directory
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+    // NOT IMPLEMENTED
+    TempDirectoryGuard(const TempDirectoryGuard&);
+    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
+                                   bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit TempDirectoryGuard(bslma::Allocator *basicAllocator = 0)
+        // Create temporary directory in the system-wide temp or current
+        // directory.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+    : d_dirName(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        bsl::string tmpPath(d_allocator_p);
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        char tmpPathBuf[MAX_PATH];
+        GetTempPath(MAX_PATH, tmpPathBuf);
+        tmpPath.assign(tmpPathBuf);
+#else
+        const char *envTmpPath = bsl::getenv("TMPDIR");
+        if (envTmpPath) {
+            tmpPath.assign(envTmpPath);
+        }
+#endif
+
+        int res = bdls::PathUtil::appendIfValid(&tmpPath, "ball_");
+        ASSERTV(tmpPath, 0 == res);
+
+        res = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName,
+                                                             tmpPath);
+        ASSERTV(tmpPath, 0 == res);
+    }
+
+    ~TempDirectoryGuard()
+        // Destroy this object and remove the temporary directory (recursively)
+        // created at construction.
+    {
+        bdls::FilesystemUtil::remove(d_dirName, true);
+    }
+
+    // ACCESSORS
+    const bsl::string& getTempDirName() const
+        // Return a 'const' reference to the name of the created temporary
+        // directory.
+    {
+        return d_dirName;
+    }
+};
+
 
 void executeInParallel(
                      int                                            numThreads,
@@ -357,6 +426,8 @@ class CerrBufferGuard {
         // Restore the 'streambuf' being used by 'cerr' to that which was
         // being used on this objects construction.
 };
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                             USAGE EXAMPLE 8
@@ -1486,17 +1557,18 @@ struct ThreadFunctor {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;  // not used
+    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;  // not used
+    veryVeryVeryVerbose = argc > 4;  // not used
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
     BloombergLP::ball::TestObserver *TO = &testObserver;
 
-    TestAllocator ta(veryVeryVerbose);
+    TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 31: {
@@ -3034,13 +3106,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         using namespace BALL_LOG_TEST_CASE_18;
 
-        int i;
-        for (i = 0; i < MAX_MSG_SIZE; ++i) {
+        for (int i = 0; i < MAX_MSG_SIZE; ++i) {
             message[i] = 'X';
         }
         message[MAX_MSG_SIZE] = '\0';
 
-        for (i = 0; i < NUM_MSGS; ++i) {
+        for (int i = 0; i < NUM_MSGS; ++i) {
             randomSizes[i] = bsl::rand() % (MAX_MSG_SIZE + 1);
         }
 
@@ -3050,8 +3121,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
+            TempDirectoryGuard tempDirGuard;
+
+            bsl::string filename(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&filename, "stderrOut");
+
             fflush(stderr);
-            bsl::string filename = tempnam(0, "ball_log");
             int fd = creat(filename.c_str(), 0777);
             ASSERT(fd != -1);
             int saved_stderr_fd = dup(2);
@@ -3086,7 +3161,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
             fs.close();
             ASSERT(6 == numLines);
-            unlink(filename.c_str());
 #endif
         }
 
@@ -3157,8 +3231,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
+            TempDirectoryGuard tempDirGuard;
+
+            bsl::string filename(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&filename, "stderrOut");
+
             fflush(stderr);
-            bsl::string filename = tempnam(0, "ball_log");
             int fd = creat(filename.c_str(), 0777);
             ASSERT(fd != -1);
             int saved_stderr_fd = dup(2);
@@ -3193,7 +3271,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
             fs.close();
             ASSERT(6 == numLines);
-            unlink(filename.c_str());
 #endif
         }
 
@@ -6712,7 +6789,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // Concerns:
         //   That multiple threads writing with ball will not crash.  Streams
         //   on ibm have a problem where they are not thread-safe.  Ibm solved
-        //   this by having ONE global mutex shaved by all streams, including
+        //   this by having ONE global mutex shared by all streams, including
         //   cin, cout, cerr and even stringstreams, which undermined
         //   multithreading.  We set a compilation flag to not use this
         //   mutex, and we changed ball to use 'FILE *' i/o instead of streams

@@ -44,7 +44,7 @@ enum {
     k_FORCE_WARN_THRESHOLD     = 5000
 };
 
-static const char LOG_CATEGORY[] = "BALL.ASYNCFILEOBSERVER";
+static const char *const k_LOG_CATEGORY = "BALL.ASYNCFILEOBSERVER";
 
 static void populateWarnRecord(ball::Record *record,
                                int           lineNumber,
@@ -182,7 +182,7 @@ void AsyncFileObserver::construct()
             bdlf::MemFnUtil::memFn(&AsyncFileObserver::publishThreadEntryPoint,
                                    this));
     d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
-    d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
+    d_droppedRecordWarning.fixedFields().setCategory(k_LOG_CATEGORY);
     d_droppedRecordWarning.fixedFields().setSeverity(Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
                                             bdls::ProcessUtil::getProcessId());

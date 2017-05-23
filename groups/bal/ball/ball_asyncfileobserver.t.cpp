@@ -11,6 +11,7 @@
 #include <bdls_processutil.h>
 
 #include <bdlt_date.h>
+#include <bdlt_datetimeinterval.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_currenttime.h>
@@ -66,15 +67,15 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test defines an asynchronous observer
 // ('ball::AsyncFileObserver') that writes log records to a file and stdout
 // from a dedicated thread.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] AsyncFileObserver(bslma::Allocator *);
 // [ 2] AsyncFileObserver(ball::Severity::Level, bslma::Allocator *);
@@ -119,7 +120,7 @@ using bsl::flush;
 // [ 6] bdlt::DatetimeInterval rotationLifetime() const;
 // [ 6] int rotationSize() const;
 // [ 1] ball::Severity::Level stdoutThreshold() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] CONCERN: CONCURRENT PUBLICATION
 // [ 7] CONCERN: LOGGING TO A FAILING STREAM
@@ -200,9 +201,9 @@ void aSsErT2(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static bool verbose;
 static bool veryVerbose;
 static bool veryVeryVerbose;
@@ -212,9 +213,9 @@ typedef ball::AsyncFileObserver      Obj;
 typedef bdls::FilesystemUtil         FsUtil;
 typedef bdls::FilesystemUtil::Offset Offset;
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -371,9 +372,8 @@ void removeFilesByPrefix(const char *prefix)
 }
 
 bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
-    // Read the content of a file with the specified 'fileName' starting at
-    // the specified 'startOffset' to the end-of-file and return it as a
-    // string.
+    // Read the content of a file with the specified 'fileName' starting at the
+    // specified 'startOffset' to the end-of-file and return it as a string.
 {
     bsl::string result;
     result.reserve(FsUtil::getFileSize(fileName) + 1 - startOffset);
@@ -533,13 +533,12 @@ class LogRotationCallbackTester {
     bsl::shared_ptr<Rep> d_rep;
 
   public:
-
     // PUBLIC CONSTANTS
-
     enum {
         UNINITIALIZED = INT_MIN
     };
 
+    // CREATORS
     explicit LogRotationCallbackTester(bslma::Allocator *basicAllocator)
         // Create a callback tester object with default attribute values.  Use
         // the specified 'basicAllocator' to supply memory.
@@ -549,6 +548,7 @@ class LogRotationCallbackTester {
         reset();
     }
 
+    // MANIPULATORS
     void operator()(int                status,
                     const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
@@ -558,7 +558,6 @@ class LogRotationCallbackTester {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;
         d_rep->d_rotatedFileName = rotatedFileName;
-
     }
 
     void reset()
@@ -567,7 +566,6 @@ class LogRotationCallbackTester {
         d_rep->d_invocations     = 0;
         d_rep->d_status          = UNINITIALIZED;
         d_rep->d_rotatedFileName = "";
-
     }
 
     // ACCESSORS
@@ -582,9 +580,9 @@ class LogRotationCallbackTester {
         // 0.
 
     const bsl::string& rotatedFileName() const
-        // Return a reference to the non-modifiable file name supplied to the
-        // most recent invocation of the function-call operator, or the empty
-        // string if 'numInvocations' is 0.
+        // Return a 'const' reference to the file name supplied to the most
+        // recent invocation of the function-call operator, or the empty string
+        // if 'numInvocations' is 0.
     {
         return d_rep->d_rotatedFileName;
     }
@@ -1006,7 +1004,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        // Set up a blocking async observer
+        // Set up a blocking async observer.
         bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_WARN,
                                                   false,
                                                   8192,
@@ -1017,14 +1015,19 @@ int main(int argc, char *argv[])
 
         mX->startPublicationThread();
 
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                    ball::Severity::e_OFF,
-                                                    ball::Severity::e_TRACE,
-                                                    ball::Severity::e_OFF,
-                                                    ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
         ball::LoggerManager::initSingleton(configuration);
+
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         mX->enableFileLogging(fileName.c_str());
@@ -1035,7 +1038,7 @@ int main(int argc, char *argv[])
         int numThreads = 4;
 
         // First test if concurrent publish is correct, check the total number
-        // of lines afterwards
+        // of lines afterwards.
 
         if (verbose) cout << "Running first concurrency test." << endl;
 
@@ -1048,7 +1051,7 @@ int main(int argc, char *argv[])
         ASSERT(numRecords == 10000 * numThreads);
 
         // Next test if all thread-safe public methods can be called
-        // concurrently without crash
+        // concurrently without crash.
 
         if (verbose) cout << "Running second concurrency test." << endl;
         executeInParallel(numThreads, workerThread2);
@@ -1056,6 +1059,7 @@ int main(int argc, char *argv[])
         mX->stopPublicationThread();
         mX->disableFileLogging();
 
+        // Deregister here as we used local allocator for the observer.
         ASSERT(0 == manager.deregisterObserver("asyncObserver"));
 
       } break;
@@ -1083,15 +1087,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING TIME-BASED ROTATION"
                           << "\n===========================" << endl;
 
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
         ball::LoggerManagerConfiguration configuration;
-
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                    ball::Severity::e_OFF,
-                                                    ball::Severity::e_TRACE,
-                                                    ball::Severity::e_OFF,
-                                                    ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
+
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1140,7 +1148,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             bslmt::ThreadUtil::microSleep(0, 1);
 
-            // Wait up to 3 seconds for the file rotation to complete
+            // Wait up to 3 seconds for the file rotation to complete.
 
             int loopCount = 0;
             do {
@@ -1167,6 +1175,8 @@ int main(int argc, char *argv[])
         }
         mX->stopPublicationThread();
         mX->disableFileLogging();
+
+        // Deregister here as we used local allocator for the observer.
         ASSERT(0 == manager.deregisterObserver("asyncObserver"));
       } break;
       case 8: {
@@ -1220,30 +1230,31 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: LOGGING TO A FAILING STREAM
         // --------------------------------------------------------------------
+
+        if (verbose) cerr << "\nTESTING LOGGING TO A FAILING STREAM."
+                          << "\n====================================" << endl;
+
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
         // Don't run this if we're in the debugger because the debugger stops
         // and refuses to continue when we hit the file size limit.
 
-        if (verbose) cerr << "\nTESTING LOGGING TO A FAILING STREAM."
-                          << "\n====================================" << endl;
-
         bslma::TestAllocator ta;
 
-        ball::LoggerManagerConfiguration configuration;
-
-        // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only see
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
         // each message only once.
 
+        ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
+
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         // Create a temporary directory for a log files.
@@ -1300,7 +1311,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
             }
 
-            // Wait some time for async writing to complete
+            // Wait some time for async writing to complete.
             waitEmptyRecordQueue(X);
 
             fflush(stderr);
@@ -1311,8 +1322,10 @@ int main(int argc, char *argv[])
             ASSERT2(getline(stderrFs, line)); // we caught an error
 
             mX->disableFileLogging();
-            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
             mX->stopPublicationThread();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 #else
         if (verbose) {
@@ -1350,19 +1363,19 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "\nTESTING FILE ROTATION."
                           << "\n======================" << endl;
 
-        ball::LoggerManagerConfiguration configuration;
-
-        // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only see
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
         // each message only once.
 
+        ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-        ball::LoggerManager::initSingleton(configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
+
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -1554,9 +1567,11 @@ int main(int argc, char *argv[])
                 globfree(&globbuf);
             }
 
-            ASSERT(0 == manager.deregisterObserver("testObserver"));
             mX->disableFileLogging();
             mX->stopPublicationThread();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
 
         // Test with no timestamp.
@@ -1610,7 +1625,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
-                // Wait up to 3 seconds for the rotation to complete
+                // Wait up to 3 seconds for the rotation to complete.
 
                 loopCount = 0;
                 do {
@@ -1650,9 +1665,11 @@ int main(int argc, char *argv[])
                 globfree(&globbuf);
             }
 
-            ASSERT(0 == manager.deregisterObserver("testObserver"));
             mX->disableFileLogging();
             mX->stopPublicationThread();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
 #endif
       } break;
@@ -1693,20 +1710,26 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "\nTESTING LOG RECORDS DROP."
                           << "\n=========================" << endl;
 
-        bslma::TestAllocator ta;
-
-        int numTestRecords = 40000;
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                    ball::Severity::e_OFF,
-                    ball::Severity::e_TRACE,
-                    ball::Severity::e_OFF,
-                    ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
+
+        bslma::TestAllocator ta;
+
+        int numTestRecords = 40000;
 
         if (verbose) cerr << "Testing blocking caller thread." << endl;
         {
@@ -1733,11 +1756,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0    == manager.registerObserver(mX, "testObserver"));
 
-            BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
-
             ASSERT(0 == FsUtil::getFileSize(fileName));
 
-            ball::Context context;
             for (int i = 0; i < numTestRecords; ++i) {
                 BALL_LOG_TRACE << "This will not be dropped." << BALL_LOG_END;
             }
@@ -1748,9 +1768,10 @@ int main(int argc, char *argv[])
             ASSERT(false == X->isPublicationThreadRunning());
             ASSERT(false == X->isFileLoggingEnabled());
 
-            ASSERT(0 == manager.deregisterObserver("testObserver"));
-
             ASSERT(numTestRecords == countLoggedRecords(fileName));
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
 
         if (verbose) cerr << "Testing non-blocking caller thread."
@@ -1771,7 +1792,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<const Obj> X = mX;
 
             // Start the publication thread, make sure the publication thread
-            // started
+            // started.
 
             mX->startPublicationThread();
             mX->enableFileLogging(fileName.c_str());
@@ -1783,7 +1804,6 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-            ball::Context context;
             for (int i = 0; i < numTestRecords; ++i) {
                 BALL_LOG_TRACE << "This will be dropped." << BALL_LOG_END;
             }
@@ -1791,13 +1811,10 @@ int main(int argc, char *argv[])
             mX->stopPublicationThread();
             mX->disableFileLogging();
 
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
 
             ASSERT(numTestRecords >= countLoggedRecords(fileName));
-
-            if (0 < test) {
-                removeFilesByPrefix(fileName.c_str());
-            }
         }
       } break;
       case 4: {
@@ -1858,27 +1875,26 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
             {
+                // This configuration guarantees that the logger manager will
+                // publish all messages regardless of their severity and the
+                // observer will see each message only once.
+
                 ball::LoggerManagerConfiguration configuration;
-
-                // Publish synchronously all messages regardless of their
-                // severity.  This configuration also guarantees that the
-                // observer will only see each message only once.
-
                 ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                ball::Severity::e_OFF,
-                                ball::Severity::e_TRACE,
-                                ball::Severity::e_OFF,
-                                ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
                 ball::LoggerManagerScopedGuard guard(configuration);
-                ball::LoggerManager&           manager =
-                                              ball::LoggerManager::singleton();
+
+                ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
                 ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
-                BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
+                BALL_LOG_SET_CATEGORY("TestCategory");
 
-                // Throw fair large amount of logs into the queue
+                // Throw fair large amount of logs into the queue.
 
                 for (int i = 0; i < logCount; ++i)
                 {
@@ -1888,10 +1904,10 @@ int main(int argc, char *argv[])
 
                 ASSERT(record.use_count() > 1);
 
-                // After this code block the logger manager will be destroyed
+                // After this code block the logger manager will be destroyed.
             }
 
-            // The 'releaseRecord' method should clear the queue immediately
+            // The 'releaseRecord' method should clear the queue immediately.
 
             ASSERT(record.use_count() == 1);
 
@@ -1999,6 +2015,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 1024; ++i) {
                 mX.publish(record, context);
             }
+
             ASSERTV(CONFIG, 0     != X.recordQueueLength());
 
             mX.shutdownPublicationThread();
@@ -2230,8 +2247,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "BREATHING TEST.\n"
-                             "===============\n";
+        if (verbose) cout << "\nBREATHING TEST"
+                             "\n==============" << endl;
 
         if (verbose) cerr << "Testing temp directory guard" << endl;
         bsl::string tempDirectory;
@@ -2291,16 +2308,16 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "Begin file offset: " << beginFileOffset << endl;
 
-            // Throw fair large amount of logs into the queue
+            // Throw fair large amount of logs into the queue.
 
-            int logCount  = 8000;
-            for (int i = 0; i < logCount;++i)
+            int logCount = 8000;
+            for (int i = 0; i < logCount; ++i)
             {
                 ball::Context context;
                 mX.publish(record, context);
             }
 
-            // Verify there are still records left not published
+            // Verify there are still records left not published.
 
             ASSERT(record.use_count() > 1);
             Offset afterFileOffset = FsUtil::getFileSize(stdoutFileName);
@@ -2309,7 +2326,7 @@ int main(int argc, char *argv[])
                      << endl;
 
             // Verify writing is in process even after all 'publish' calls are
-            // finished
+            // finished.
 
             bslmt::ThreadUtil::microSleep(0, 1);
             Offset endFileOffset = FsUtil::getFileSize(stdoutFileName);
@@ -2323,17 +2340,16 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing threshold and output format."
                           << endl;
 
-        ball::LoggerManagerConfiguration configuration;
-
-        // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only see
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
         // each message only once.
 
+        ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_TRACE,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
         ball::LoggerManagerScopedGuard guard(configuration);
 
@@ -2363,7 +2379,7 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
             Offset fileOffset = FsUtil::getFileSize(stdoutFileName);
 
-            // these two lines are a desperate kludge to make windows work --
+            // These two lines are a desperate kludge to make windows work --
             // this test driver works everywhere else without them.
 
             (void) readPartialFile(stdoutFileName, 0);
@@ -2383,7 +2399,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             // Replace the spaces after pid, __FILE__ to make dos match the
-            // file
+            // file.
             {
                 bsl::string temp = dos.str();
                 temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
@@ -2393,7 +2409,7 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2419,16 +2435,17 @@ int main(int argc, char *argv[])
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
             // Replace the spaces after pid, __FILE__ to make dos match the
-            // file
+            // file.
             {
                 bsl::string temp = dos.str();
                 temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
                 replaceSecondSpace(&temp, ':');
                 dos.str(temp);
             }
+
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2443,16 +2460,17 @@ int main(int argc, char *argv[])
 
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
             // Replace the spaces after pid, __FILE__ to make dos match the
-            // file
+            // file.
             {
                 bsl::string temp = dos.str();
                 temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
                 replaceSecondSpace(&temp, ':');
                 dos.str(temp);
             }
+
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2467,6 +2485,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             mX->stopPublicationThread();
+
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
             ASSERT(0 == manager.deregisterObserver("coutObserver"));
         }
@@ -2522,7 +2542,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_FATAL << "log" << BALL_LOG_END;
             // Replace the spaces after pid, __FILE__ to make dos match the
-            // file
+            // file.
             {
                 bsl::string temp = dos.str();
                 temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
@@ -2531,7 +2551,7 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2549,6 +2569,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             mX->stopPublicationThread();
+
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
             ASSERT(0 == manager.deregisterObserver("coutObserver"));
         }
@@ -2595,7 +2617,7 @@ int main(int argc, char *argv[])
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log WARN " << "\n";
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2612,7 +2634,7 @@ int main(int argc, char *argv[])
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log ERROR " << "\n";
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2636,13 +2658,13 @@ int main(int argc, char *argv[])
                       " ball::AsyncFileObserverTest log FATAL " << "\n";
             {
                 // Replace the spaces after pid, __FILE__ to make dos match the
-                // file
+                // file.
                 bsl::string temp = dos.str();
                 temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
                 replaceSecondSpace(&temp, ':');
                 dos.str(temp);
 
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2660,6 +2682,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             mX->stopPublicationThread();
+
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
             ASSERT(0 == manager.deregisterObserver("coutObserver"));
         }
@@ -2710,7 +2734,7 @@ int main(int argc, char *argv[])
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log WARN " << "\n";
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2727,7 +2751,7 @@ int main(int argc, char *argv[])
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log ERROR " << "\n";
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2749,7 +2773,7 @@ int main(int argc, char *argv[])
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
             testOs << "FATAL " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log FATAL " << "\n";
-            // Replace the spaces after pid, __FILE__
+            // Replace the spaces after pid, __FILE__.
             {
                 bsl::string temp = dos.str();
                 temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
@@ -2758,7 +2782,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 bsl::string coutS = "";
@@ -2806,7 +2830,7 @@ int main(int argc, char *argv[])
 
                 if (defaultObsHour - difference >= 0 &&
                     defaultObsHour - difference < 24) {
-                    // UTC and local time are on the same day
+                    // UTC and local time are on the same day.
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
 
                 }
@@ -2824,6 +2848,7 @@ int main(int argc, char *argv[])
                 bsl::cout.rdbuf(coutSbuf);
                 mX->stopPublicationThread();
 
+                // Deregister here as we used local allocator for the observer.
                 ASSERT(0 == manager.deregisterObserver("asyncObserver"));
                 ASSERT(0 == manager.deregisterObserver("coutObserver"));
             }
@@ -2868,7 +2893,7 @@ int main(int argc, char *argv[])
             BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
             BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
 
-            // Wait up to 3 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete.
 
             loopCount = 0;
             do {
@@ -2895,7 +2920,6 @@ int main(int argc, char *argv[])
                         bsl::string coutLine;
                         getline(coutFs, coutLine);
                         ASSERTV(coutLine, line, coutLine == line);
-                        //bsl::cerr << coutLine << endl << line << endl;
                     }
                     ++linesNum;
                 }
@@ -2915,7 +2939,7 @@ int main(int argc, char *argv[])
             BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
             BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
 
-            // Wait up to 3 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete.
 
             loopCount = 0;
             do {
@@ -2949,7 +2973,7 @@ int main(int argc, char *argv[])
             BALL_LOG_ERROR << "log 2" << BALL_LOG_END;
             BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
-            // Wait up to 3 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete.
 
             loopCount = 0;
             do {
@@ -2976,6 +3000,7 @@ int main(int argc, char *argv[])
             mX->disableFileLogging();
             mX->stopPublicationThread();
 
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
@@ -3018,7 +3043,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
 
-            // Wait up to 3 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete.
 
             loopCount = 0;
             do {
@@ -3049,6 +3074,7 @@ int main(int argc, char *argv[])
             mX->disableFileLogging();
             mX->stopPublicationThread();
 
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
@@ -3077,7 +3103,7 @@ int main(int argc, char *argv[])
             mX->disableFileLogging();
             mX->enablePublishInLocalTime();
 
-            // loop until startDatetime is equal to endDatetime
+            // loop until startDatetime is equal to endDatetime.
             do {
                 startDatetime = getCurrentTimestamp();
 
@@ -3093,7 +3119,7 @@ int main(int argc, char *argv[])
                  || startDatetime.second() != endDatetime.second()) {
                     // not sure the exact time when the log file was opened
                     // because startDatetime and endDatetime are different;
-                    // will try it again
+                    // will try it again.
                     bsl::string fn;
                     ASSERT(true == mX->isFileLoggingEnabled(&fn));
 
@@ -3112,32 +3138,32 @@ int main(int argc, char *argv[])
 
             BALL_LOG_INFO<< "log" << BALL_LOG_END;
 
-            // Construct the name of the log file from startDatetime
+            // Construct the name of the log file from startDatetime.
 
             bsl::ostringstream fnOs;
             fnOs << baseName;
             fnOs << bsl::setw(4) << bsl::setfill('0')
-                     << startDatetime.year();
+                 << startDatetime.year();
             fnOs << bsl::setw(2) << bsl::setfill('0')
-                     << startDatetime.month();
+                 << startDatetime.month();
             fnOs << bsl::setw(2) << bsl::setfill('0')
-                     << startDatetime.day();
+                 << startDatetime.day();
             fnOs << bsl::setw(2) << bsl::setfill('0')
-                     << startDatetime.hour();
+                 << startDatetime.hour();
             fnOs << bsl::setw(2) << bsl::setfill('0')
-                     << startDatetime.minute();
+                 << startDatetime.minute();
             fnOs << bsl::setw(2) << bsl::setfill('0')
-                     << startDatetime.second();
+                 << startDatetime.second();
             fnOs << "-";
             fnOs << bdls::ProcessUtil::getProcessId();
 
-            // Look for the file with the constructed name
+            // Look for the file with the constructed name.
 
             glob_t globbuf;
             ASSERTV(fnOs.str(), 0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
             ASSERTV(globbuf.gl_pathc, 1 == globbuf.gl_pathc);
 
-            // Wait up to 3 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete.
 
             loopCount = 0;
             do {
@@ -3151,7 +3177,7 @@ int main(int argc, char *argv[])
 
             mX->disableFileLogging();
 
-            // Read the file to get the number of lines
+            // Read the file to get the number of lines.
 
             {
                 bsl::ifstream fs;
@@ -3168,6 +3194,7 @@ int main(int argc, char *argv[])
             mX->disableFileLogging();
             mX->stopPublicationThread();
 
+            // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
@@ -3216,7 +3243,7 @@ int main(int argc, char *argv[])
 
                 mX.disableFileLogging();
 
-                // Look for the file with the expected name
+                // Look for the file with the expected name.
 
                 glob_t globbuf;
                 ASSERTV(LINE, 0 == glob(expected.c_str(), 0, 0, &globbuf));
@@ -3243,7 +3270,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-            // Redirect 'stdout' to a string stream
+            // Redirect 'stdout' to a string stream.
 
             {
                 bsl::string baseName(tempDirGuard.getTempDirName());
@@ -3258,7 +3285,7 @@ int main(int argc, char *argv[])
                 bsl::cout.rdbuf(os.rdbuf());
 
                 // For log file, use bdlt::Datetime format For stdout, use ISO
-                // format
+                // format.
 
                 mX->setLogFormat("%d %p %t %s %l %c %m %u",
                                  "%i %p %t %s %l %c %m %u");
@@ -3267,13 +3294,13 @@ int main(int argc, char *argv[])
 
                 BALL_LOG_WARN << "log" << BALL_LOG_END;
 
-                // Look for the file with the constructed name
+                // Look for the file with the constructed name.
 
                 glob_t globbuf;
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 do {
@@ -3285,7 +3312,7 @@ int main(int argc, char *argv[])
                     fs1.close();
                 } while (!linesNum && loopCount++ < 3);
 
-                // Read the log file to get the record
+                // Read the log file to get the record.
 
                 {
                     bsl::ifstream fs;
@@ -3301,7 +3328,7 @@ int main(int argc, char *argv[])
                 bsl::string            log1, log2;
                 bsl::string::size_type pos;
 
-                // Divide line into datetime and the rest
+                // Divide line into datetime and the rest.
 
                 pos = line.find(' ');
                 datetime1 = line.substr(0, pos);
@@ -3312,7 +3339,7 @@ int main(int argc, char *argv[])
 
                 ASSERT("" == os.str());
 
-                // Divide os.str() into datetime and the rest
+                // Divide os.str() into datetime and the rest.
 
                 pos = fStr.find(' ');
                 ASSERT(bsl::string::npos != pos);
@@ -3322,7 +3349,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(log1, log2, log1 == log2);
 
-                // Now we try to convert datetime2 from ISO to bdlt::Datetime
+                // Now we try to convert datetime2 from ISO to bdlt::Datetime.
 
                 bsl::istringstream iss(datetime2);
 
@@ -3339,7 +3366,7 @@ int main(int argc, char *argv[])
                 oss << datetime3;
 
                 // Ignore the millisecond field so don't compare the entire
-                // strings
+                // strings.
 
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
@@ -3354,7 +3381,7 @@ int main(int argc, char *argv[])
                 removeFilesByPrefix(baseName.c_str());
             }
 
-            // Swap the two string formats
+            // Swap the two string formats.
 
             if (verbose) cerr << "   .. customized format swapped.\n";
             {
@@ -3377,13 +3404,13 @@ int main(int argc, char *argv[])
 
                 BALL_LOG_WARN << "log" << BALL_LOG_END;
 
-                // Look for the file with the constructed name
+                // Look for the file with the constructed name.
 
                 glob_t globbuf;
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 3 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete.
 
                 loopCount = 0;
                 do {
@@ -3395,7 +3422,7 @@ int main(int argc, char *argv[])
                     fs1.close();
                 } while (!linesNum && loopCount++ < 3);
 
-                // Read the log file to get the record
+                // Read the log file to get the record.
 
                 {
                     bsl::ifstream fs;
@@ -3411,7 +3438,7 @@ int main(int argc, char *argv[])
                 bsl::string            log1, log2;
                 bsl::string::size_type pos;
 
-                // Get datetime and the rest from stdout
+                // Get datetime and the rest from stdout.
 
                 bsl::string soStr =
                                    readPartialFile(stdoutFileName, fileOffset);
@@ -3419,7 +3446,7 @@ int main(int argc, char *argv[])
                 datetime1 = soStr.substr(0, pos);
                 log1 = soStr.substr(pos, soStr.length());
 
-                // Divide line into datetime and the rest
+                // Divide line into datetime and the rest.
 
                 pos = line.find(' ');
                 datetime2 = line.substr(0, pos);
@@ -3427,7 +3454,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(log1, log2, log1 == log2);
 
-                // Now we try to convert datetime2 from ISO to bdlt::Datetime
+                // Now we try to convert datetime2 from ISO to bdlt::Datetime.
 
                 bsl::istringstream iss(datetime2);
 
@@ -3444,7 +3471,7 @@ int main(int argc, char *argv[])
                 oss << datetime3;
 
                 // Ignore the millisecond field so don't compare the entire
-                // strings
+                // strings.
 
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
@@ -3459,6 +3486,7 @@ int main(int argc, char *argv[])
                 mX->disableFileLogging();
                 mX->stopPublicationThread();
 
+                // Deregister here as we used local allocator for the observer.
                 ASSERT(0 == manager.deregisterObserver("asyncObserver"));
                 removeFilesByPrefix(baseName.c_str());
             }

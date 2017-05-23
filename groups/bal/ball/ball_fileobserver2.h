@@ -448,7 +448,7 @@ class FileObserver2 : public Observer {
         // file observer.  This method has no effect if
         // rotation-on-time-interval is not enabled.
         //
-        // DEPRECATED: Use 'disableTimeIntervalRotation' instead.
+        // !DEPRECATED!: Use 'disableTimeIntervalRotation' instead.
 
     void disableTimeIntervalRotation();
         // Disable log file rotation based on periodic time interval for this
@@ -500,10 +500,6 @@ class FileObserver2 : public Observer {
 
     int enableFileLogging(const char *logFilenamePattern,
                           bool        appendTimestampFlag);
-        // !DEPRECATED!: Use 'enableFileLogging(logFilenamePattern)' instead
-        // (use the ".%T" pattern to replicate 'appendTimestampFlag' being
-        // enabled).
-        //
         // Enable logging of all messages published to this file observer to a
         // file indicated by the specified 'logFilenamePattern' and append a
         // timestamp to the log filename if specified 'appendTimestampFlag' is
@@ -513,6 +509,10 @@ class FileObserver2 : public Observer {
         // 'appendTimestampFlag' is 'true' and 'logFilenamePattern' does not
         // contain any '%'-escape sequence, this method behaves as if ".%T" is
         // appended to 'logFilenamePattern'.
+        //
+        // !DEPRECATED!: Use 'enableFileLogging(logFilenamePattern)' instead
+        // (use the ".%T" pattern to replicate 'appendTimestampFlag' being
+        // enabled).
 
     void enablePublishInLocalTime();
         // Enable publishing of the timestamp attribute of records in local
@@ -556,28 +556,27 @@ class FileObserver2 : public Observer {
 
     void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
         // Set this file observer to perform a periodic log-file rotation at
-        // multiples of the specified 'interval'.  The behavior is undefined
-        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
-        // rotation-on-time-interval rule currently in effect.
+        // multiples of the specified 'timeInterval'.  The behavior is
+        // undefined unless '0 < timeInterval.totalMilliseconds()'.  This rule
+        // replaces any rotation-on-time-interval rule currently in effect.
         //
-        // DEPRECATED: Use 'rotateOnTimeInterval' instead.
+        // !DEPRECATED!: Use 'rotateOnTimeInterval' instead.
 
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
-    void rotateOnTimeInterval(
-                             const bdlt::DatetimeInterval& interval,
-                             const bdlt::Datetime&         referenceStartTime);
+    void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval,
+                              const bdlt::Datetime&         startTime);
         // Set this file observer to perform a periodic log-file rotation at
         // multiples of the specified 'interval'.  Optionally, specify
-        // 'referenceStartTime' indicating the *local* datetime to use as the
-        // starting point for computing the periodic rotation schedule.
-        // 'referenceStartTime' is interpreted using the local-time offset at
-        // the time this object was constructed.  If 'referenceStartTime' is
-        // unspecified, the current time is used.  The behavior is undefined
-        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
+        // 'startTime' indicating the *local* datetime to use as the starting
+        // point for computing the periodic rotation schedule.  'startTime' is
+        // interpreted using the local-time offset at the time this object was
+        // constructed.  If 'startTime' is unspecified, the current time is
+        // used.  The behavior is undefined unless
+        // '0 < interval.totalMilliseconds()'.  This rule replaces any
         // rotation-on-time-interval rule currently in effect.  Note that
-        // 'referenceStartTime' may be a fixed time in the past.  E.g., a
-        // reference time of 'bdlt::Datetime(1, 1, 1)' and an interval of 24
-        // hours would configure a periodic rotation at midnight each day.
+        // 'startTime' may be a fixed time in the past.  E.g., a reference time
+        // of 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
+        // configure a periodic rotation at midnight each day.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file
@@ -616,14 +615,14 @@ class FileObserver2 : public Observer {
         // effect, and 0 otherwise.
 
     bdlt::DatetimeInterval localTimeOffset() const;
-        // !DEPRECATED!: Use 'bdlt::LocalTimeOffset' instead.
-        //
         // Return the difference between the local time and UTC time in effect
         // when this file observer was constructed.  Note that this value
         // remains unchanged during the lifetime of this object and therefore
         // may become incorrect when the difference between the local time and
         // UTC time changes (e.g., when transitioning into or out of daylight
         // savings time).
+        //
+        // !DEPRECATED!: Use 'bdlt::LocalTimeOffset' instead.
 };
 
 // ============================================================================
