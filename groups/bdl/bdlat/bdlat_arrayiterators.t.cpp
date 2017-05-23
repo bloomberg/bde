@@ -10,10 +10,11 @@
 
 #include <bdlat_arrayiterators.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_valuetypefunctions.h>
+
+#include <bslim_testutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
@@ -90,21 +91,25 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// Allow compilation of individual test-cases (for test drivers that take a
-// very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
-// only the '<testcase>' test case.
-#define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
+// ============================================================================
+//              DEFECT MACROS FOR PLATFORM SPECIFIC WORKAROUNDS 
+// ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
+# define BDLAT_ARRAYITERATORS_CANNOT_BEFRIEND_FREE_FUNCTION_TEMPLATES
+// The Solaris CC 5.12.4 compiler has a regression for name lookup when a class
+// template befriends a function template, causing a compile error claiming the
+// function cannot be found.  This can be resolved by making all the members of
+// the troublesome class template 'public'.
+#endif
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
+static bool         verbose = false;
+static bool     veryVerbose = false;
+static bool veryVeryVerbose = false;
 
 namespace Obj = bdlat_ArrayIterators;
 
@@ -147,7 +152,7 @@ class FixedArray
     // Fixed-sized array that conforms to the 'bdlat_arrayfunctions' interface
     // and can only be manipulated and accessed through that interface.
 
-#ifndef BSLS_PLATFORM_CMP_MSVC // MSVC has problems with friend templates.
+#if !defined(BDLAT_ARRAYITERATORS_CANNOT_BEFRIEND_FREE_FUNCTION_TEMPLATES)
 
     // FRIEND MANIPULATORS (only way to change an object of this class)
     template <int SIZE2, class TYPE2, class MANIPULATOR>
@@ -171,7 +176,8 @@ class FixedArray
     friend bsl::size_t bdlat_arraySize(const FixedArray<SIZE2, TYPE2>& array);
 
 #else
-    // MSVC has problems with friend templates, so make everything public.
+    // Some platforms have problems with friend templates, so make everything
+    // public.
   public:
 #endif
     // PRIVATE DATA MEMBERS
@@ -219,7 +225,7 @@ class FixedArrayElement {
     // underlying array items.  This class meets the requirements of
     // 'bdlat_valuefunction'.
 
-#ifndef BSLS_PLATFORM_CMP_MSVC // MSVC has problems with friend templates.
+#if !defined(BDLAT_ARRAYITERATORS_CANNOT_BEFRIEND_FREE_FUNCTION_TEMPLATES)
 
     template <int SIZE, class TYPE2>
     friend class FixedArray;
@@ -237,7 +243,8 @@ class FixedArrayElement {
                                      const FixedArrayElement<TYPE2>&  rhs);
 
 #else
-    // MSVC has problems with friend templates, so make everything public.
+    // Some platforms have problems with friend templates, so make everything
+    // public.
   public:
 #endif
     TYPE* d_element;
@@ -482,9 +489,9 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+            verbose = argc > 2;
+        veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
