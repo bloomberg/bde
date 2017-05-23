@@ -1645,7 +1645,7 @@ bool FilesystemUtil::exists(const char *path)
 {
     BSLS_ASSERT(path);
 
-    return 0 == access(path, F_OK);
+    return 0 == ::access(path, F_OK);
 }
 
 bool FilesystemUtil::isRegularFile(const char *path, bool followLinksFlag)
