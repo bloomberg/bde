@@ -160,6 +160,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
@@ -924,9 +928,19 @@ bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
     BSLS_ASSERT_SAFE(   0 >= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::max() -
                         d_microseconds) / TimeUnitRatio::k_US_PER_D >= d_days);
+
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+ || !defined(BDE_BUILD_TARGET_OPT) \
+ || BSLS_PLATFORM_CMP_VERSION >= 0x5140
+
+    // Older versions of the Sun compiler (e.g., 5.12.3 and 5.12.4) fail to
+    // compile the following 'BSLS_ASSERT_SAFE' correctly in optimized builds.
+
     BSLS_ASSERT_SAFE(   0 <= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::min() -
                         d_microseconds) / TimeUnitRatio::k_US_PER_D <= d_days);
+
+#endif
 
     return static_cast<bsls::Types::Int64>(d_days) * TimeUnitRatio::k_US_PER_D
                                                               + d_microseconds;
