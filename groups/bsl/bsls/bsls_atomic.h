@@ -10,6 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide types with atomic operations.
 //
 //@CLASSES:
+//  bsls::AtomicBool: atomic boolean type
 //  bsls::AtomicInt: atomic 32-bit integer type
 //  bsls::AtomicInt64: atomic 64-bit integer types
 //  bsls::AtomicPointer: parameterized atomic pointer type
@@ -753,6 +754,10 @@ class AtomicInt {
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
+    void store(int value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the sequential consistency memory ordering guarantee.
+
     void storeRelaxed(int value);
         // Atomically assign the specified 'value' to this object, providing
         // the relaxed memory ordering guarantee.
@@ -878,6 +883,10 @@ class AtomicInt64 {
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
+    void store(Types::Int64 value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the sequential consistency memory ordering guarantee.
+
     void storeRelaxed(Types::Int64 value);
         // Atomically assign the specified 'value' to this object, providing
         // the relaxed memory ordering guarantee.
@@ -986,6 +995,10 @@ class AtomicPointer {
         // Atomically assign the specified 'value' to this object, and return a
         // modifiable reference to 'this' object.
 
+    void store(TYPE *value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the sequential consistency memory ordering guarantee.
+
     void storeRelaxed(TYPE *value);
         // Atomically assign the specified 'value' to this object, providing
         // the relaxed memory ordering guarantee.
@@ -1083,6 +1096,10 @@ class AtomicBool {
     AtomicBool& operator=(bool value);
         // Atomically assign the specified 'value' to this object, and return a
         // modifiable reference to 'this' object.
+
+    void store(bool value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the sequential consistency memory ordering guarantee.
 
     void storeRelaxed(bool value);
         // Atomically assign the specified 'value' to this object, providing
@@ -1219,6 +1236,12 @@ inline
 int AtomicInt::addAcqRel(int value)
 {
     return AtomicOperations_Imp::addIntNvAcqRel(&d_value, value);
+}
+
+inline
+void AtomicInt::store(int value)
+{
+    AtomicOperations_Imp::setInt(&d_value, value);
 }
 
 inline
@@ -1367,6 +1390,12 @@ Types::Int64 AtomicInt64::addAcqRel(Types::Int64 value)
 }
 
 inline
+void AtomicInt64::store(Types::Int64 value)
+{
+    AtomicOperations_Imp::setInt64(&d_value, value);
+}
+
+inline
 void AtomicInt64::storeRelaxed(Types::Int64 value)
 {
     AtomicOperations_Imp::setInt64Relaxed(&d_value, value);
@@ -1466,6 +1495,15 @@ AtomicPointer<TYPE>::operator=(TYPE *value)
             &d_value,
             reinterpret_cast<void *>(const_cast<NcType *>(value)));
     return *this;
+}
+
+template <class TYPE>
+inline
+void AtomicPointer<TYPE>::store(TYPE *value)
+{
+    AtomicOperations_Imp::setPtr(
+            &d_value,
+            reinterpret_cast<void *>(const_cast<NcType *>(value)));
 }
 
 template <class TYPE>
@@ -1600,6 +1638,14 @@ AtomicBool& AtomicBool::operator=(bool value)
         &d_value,
         value ? AtomicBool::e_TRUE : AtomicBool::e_FALSE);
     return *this;
+}
+
+inline
+void AtomicBool::store(bool value)
+{
+    AtomicOperations_Imp::setInt(
+        &d_value,
+        value ? AtomicBool::e_TRUE : AtomicBool::e_FALSE);
 }
 
 inline
