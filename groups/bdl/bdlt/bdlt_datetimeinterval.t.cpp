@@ -1595,12 +1595,23 @@ if (veryVerbose)
                                  0,
                                  k_USECS_MIN / 1000,
                                  k_USECS_MIN % 1000    ).totalMicroseconds());
+
+#if !defined(BSLS_PLATFORM_CMP_SUN) \
+ || !defined(BDE_BUILD_TARGET_OPT) \
+ || BSLS_PLATFORM_CMP_VERSION >= 0x5140
+
+            // Older versions of the Sun compiler (e.g., 5.12.3 and 5.12.4)
+            // fail to compile the 'BSLS_ASSERT_SAFE' corresponding to the
+            // following 'ASSERT_SAFE_FAIL' correctly in optimized builds.
+
             ASSERT_SAFE_FAIL(Obj(0,
                                  0,
                                  0,
                                  0,
                                  k_USECS_MIN / 1000,
                                  k_USECS_MIN % 1000 - 1).totalMicroseconds());
+
+#endif
         }
       } break;
       case 13: {
@@ -4216,6 +4227,7 @@ if (veryVerbose)
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 
