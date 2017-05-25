@@ -1638,14 +1638,14 @@ int FilesystemUtil::move(const char *oldPath, const char *newPath)
     BSLS_ASSERT(oldPath);
     BSLS_ASSERT(newPath);
 
-    return rename(oldPath, newPath);
+    return ::rename(oldPath, newPath);
 }
 
 bool FilesystemUtil::exists(const char *path)
 {
     BSLS_ASSERT(path);
 
-    return 0 == access(path, F_OK);
+    return 0 == ::access(path, F_OK);
 }
 
 bool FilesystemUtil::isRegularFile(const char *path, bool followLinksFlag)
