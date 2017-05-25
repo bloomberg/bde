@@ -208,8 +208,8 @@ BSLS_IDENT("$Id: $")
 // is destroyed or reset.  Note also the previous delimiter field remains
 // accessible from a 'tokenizer' object even after it has reached the end of
 // its input.  Also note that the *leader* is accessible, using the
-// 'previousDelimiter', method prior to advancing the interation state of
-// state of the 'Tokenizer'.
+// 'previousDelimiter' method prior to advancing the iteration state of the
+// 'Tokenizer'.
 //
 ///Comprehensive Detailed Parsing Specification
 ///--------------------------------------------
@@ -236,7 +236,7 @@ BSLS_IDENT("$Id: $")
 // after advancing the tokenizer, the second line of that row shows the
 // current state of iteration with the previous delimiter being a '#' as well
 // as the current one.  The current token is again shown as empty.  After
-// advancing the tokenizer again, we now see that the iterater is invalid, yet
+// advancing the tokenizer again, we now see that the iterator is invalid, yet
 // the previous delimiter (still accessible) is a '#').
 //..
 //  (%) = repeat   Previous   Current   Current   Iterator
@@ -434,7 +434,7 @@ BSLS_IDENT("$Id: $")
 // Suppose, we want to reformat comma-separated-value file and insert the
 // default value of '0' into missing columns.
 //
-// First, we create an example csv line:
+// First, we create an example CSV line:
 //..
 //  const char text2[] = "Col1,Col2,Col3\n111,,133\n,222,\n311,322,\n";
 //..
@@ -518,6 +518,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include <bsl_iterator.h>
 #endif
 
 namespace BloombergLP {
@@ -627,6 +631,15 @@ class TokenizerIterator {
         // specified delimiter and token mapper 'sharedData'.
 
   public:
+    // TYPES
+    typedef bslstl::StringRef        value_type;
+    typedef int                      difference_type;
+    typedef bslstl::StringRef       *pointer;
+    typedef bslstl::StringRef        reference;
+    typedef bsl::input_iterator_tag  iterator_category;
+        // Defines a type alias for the tag type that represents the iterator
+        // concept this class models.
+
     // CREATORS
     TokenizerIterator();
     TokenizerIterator(const TokenizerIterator& origin);

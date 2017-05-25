@@ -167,7 +167,8 @@ using namespace bsl;
 // [  ] TOKENIZER IS NOT COPYABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
-// [ 9] USAGE EXAMPLE
+// [ 9] DRQS 101217017
+// [10] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -373,7 +374,7 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -515,6 +516,42 @@ int main(int argc, char **argv)
     const string EXPECTED3("This is a test.");
     ASSERT(EXPECTED3 == result3);
 //..
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // DRQS 101217017
+        //   Test the fix for DRQS 101217017.
+        //
+        // Concerns:
+        //: 1 The code below did not compile prior to adding the missing
+        //:   traits.
+        //
+        // Plan:
+        //: 1 Verify that the code compiles.
+        //:   (C-1)
+        //
+        // Testing:
+        //   DRQS 101217017
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING DRQS 101217017" << endl
+                          << "======================" << endl;
+
+        bsl::string data = "foo bar baz";
+        bsl::vector<bsl::string> tokens;
+        bdlb::Tokenizer tokenizer(data, " ");
+
+        tokens.assign(tokenizer.begin(), tokenizer.end()); // DOESN'T COMPILE
+
+        bsl::copy(tokens.begin(), tokens.end(),
+            bsl::ostream_iterator<bsl::string>(bsl::cout, "\n"));
+
+        // This fails with error: no type named 'iterator_category' in 'struct 
+        // std::iterator_traits<BloombergLP::bdlb::TokenizerIterator>'. Alternative test 
+        // case:
+        bsl::copy(tokenizer.begin(), tokenizer.end(),
+            bsl::back_inserter(tokens)); // DOESN'T COMPILE EITHER
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
