@@ -1,12 +1,4 @@
 // btlscm_version.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BTLSCM_VERSION
 #define INCLUDED_BTLSCM_VERSION
 
@@ -39,18 +31,44 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Displaying Verson Information
+///Example 1: Embedding Version Information
 /// - - - - - - - - - - - - - - - - - - - -
-// A program can display the version of BTL that was used to build it by
-// printing the version string returned by 'btlscm::Version::version()' to
-// 'stdout' as follows:
+// The version of the 'btl' package group linked into a program can be
+// obtained at runtime using the 'version' 'static' member function as follows:
 //..
-//  bsl::printf("BTL version: %s\n", btlscm::Version::version());
+//        #include <btlscm_version.h>
+//
+//        assert(0 != btlscm::Version::version());
+//
+//        bsl::cout << "BTL version: " << btlscm::Version::version()
+//                  << bsl::endl;
 //..
-
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
-#endif
+// Output similar to the following will be printed to 'stdout':
+//..
+//        BTL version: BLP_LIB_BDE_BTL_0.01.0
+//..
+// The "0.01.0" portion of the string distinguishes different versions of the
+// 'btl' package group.
+//
+///Example 2: Accessing the Embedded Version information
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The versioning information embedded into a binary file by this component can
+// be examined under UNIX using several well-known utilities.  For example:
+//..
+//        $ ident a.out
+//        a.out:
+//             $Id: BLP_LIB_BDE_BTL_0.01.0 $
+//
+//        $ what a.out | grep BTL
+//                BLP_LIB_BDE_BTL_0.01.0
+//
+//        $ strings a.out | grep BTL
+//        $Id: BLP_LIB_BDE_BTL_0.01.0 $
+//        @(#)BLP_LIB_BDE_BTL_0.01.0
+//        BLP_LIB_BDE_BTL_0.01.0
+//..
+// Note that 'ident' and 'what' typically will display many version strings
+// unrelated to 'btl' depending on the libraries used by 'a.out'.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -60,33 +78,65 @@ BSLS_IDENT("$Id: $")
 #include <bsls_linkcoercion.h>
 #endif
 
+#ifndef INCLUDED_BTLSCM_VERSIONTAG
+#include <btlscm_versiontag.h>     // 'BTL_VERSION_MAJOR', 'BTL_VERSION_MINOR'
+#endif
+
 namespace BloombergLP {
 
 namespace btlscm {
 
-struct Version {
-    static const char *s_ident;
-    static const char *s_what;
+                         // ==============
+                         // struct Version
+                         // ==============
 
-    static const char *s_version;
-    static const char *s_dependencies;
-    static const char *s_buildInfo;
-    static const char *s_timestamp;
-    static const char *s_sourceControlInfo;
+struct Version {
+    // This struct provides a namespace for (1) source control management
+    // (versioning) information that is embedded in binary executable files,
+    // and (2) a facility to query that information at runtime.
+
+    // CLASS DATA
+    static const char *s_ident;              // RCS-style version string
+    static const char *s_what;               // SCCS-style version string
+
+#define BTLSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
+#define BTLSCM_CONCAT(a,b,c,d,e,f)  BTLSCM_CONCAT2(a,b,c,d,e,f)
+
+// 'BTLSCM_S_VERSION' is a symbol whose name warns users of version mismatch
+// linking errors.  Note that the exact string "compiled_this_object" must be
+// present in this version coercion symbol.  Tools may look for this pattern to
+// warn users of mismatches.
+#define BTLSCM_S_VERSION BTLSCM_CONCAT(s_version_BTL_,       \
+                                       BTL_VERSION_MAJOR, _, \
+                                       BTL_VERSION_MINOR, _, \
+                                       compiled_this_object)
+
+    static const char *BTLSCM_S_VERSION;     // BDE-style version string
+
+    static const char *s_dependencies;       // available for future use
+    static const char *s_buildInfo;          // available for future use
+    static const char *s_timestamp;          // available for future use
+    static const char *s_sourceControlInfo;  // available for future use
 
     // CLASS METHODS
     static const char *version();
+        // Return the address of a character string that identifies the version
+        // of the 'btl' package group in use.
 };
 
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                         // --------------
+                         // struct Version
+                         // --------------
+
 // CLASS METHODS
 inline
 const char *Version::version()
 {
-    return s_version;
+    return BTLSCM_S_VERSION;
 }
 
 }  // close package namespace
@@ -95,7 +145,7 @@ const char *Version::version()
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           btlscm_version_assertion,
-                                          btlscm::Version::s_version);
+                                          btlscm::Version::BTLSCM_S_VERSION);
 
 }  // close enterprise namespace
 

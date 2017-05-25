@@ -8,6 +8,8 @@ BSLS_IDENT_RCSID(bblscm_version_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+// 'bbl' is maintained in sync with 'bsl', so they share a patch version.
+
 #define BBL_VERSION_PATCH BSLSCM_PATCHVERSION_PATCH
 
 #define STRINGIFY2(a) #a
@@ -18,7 +20,7 @@ namespace BloombergLP {
                                              "." STRINGIFY(BBL_VERSION_PATCH)
 
 const char *bblscm::Version::s_ident = "$Id: " BBLSCM_VERSION_STRING " $";
-const char *bblscm::Version::s_what  = "@(#)" BBLSCM_VERSION_STRING;
+const char *bblscm::Version::s_what  = "@(#)"  BBLSCM_VERSION_STRING;
 
 const char *bblscm::Version::BBLSCM_S_VERSION    = BBLSCM_VERSION_STRING;
 const char *bblscm::Version::s_dependencies      = "";

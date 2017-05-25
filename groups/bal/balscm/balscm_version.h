@@ -1,12 +1,4 @@
 // balscm_version.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALSCM_VERSION
 #define INCLUDED_BALSCM_VERSION
 
@@ -78,16 +70,12 @@ BSLS_IDENT("$Id: $")
 // Note that 'ident' and 'what' typically will display many version strings
 // unrelated to 'bal' depending on the libraries used by 'a.out'.
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BALSCM_VERSIONTAG
+#include <balscm_versiontag.h>     // 'BAL_VERSION_MAJOR', 'BAL_VERSION_MINOR'
 #endif
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_LINKCOERCION
@@ -97,15 +85,34 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balscm {
+
+                         // ==============
+                         // struct Version
+                         // ==============
+
 struct Version {
     // This struct provides a namespace for (1) source control management
     // (versioning) information that is embedded in binary executable files,
     // and (2) a facility to query that information at runtime.
 
+    // CLASS DATA
     static const char *s_ident;              // RCS-style version string
     static const char *s_what;               // SCCS-style version string
 
-    static const char *s_version;            // BDE-style version string
+#define BALSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
+#define BALSCM_CONCAT(a,b,c,d,e,f)  BALSCM_CONCAT2(a,b,c,d,e,f)
+
+// 'BALSCM_S_VERSION' is a symbol whose name warns users of version mismatch
+// linking errors.  Note that the exact string "compiled_this_object" must be
+// present in this version coercion symbol.  Tools may look for this pattern to
+// warn users of mismatches.
+#define BALSCM_S_VERSION BALSCM_CONCAT(s_version_BAL_,       \
+                                       BAL_VERSION_MAJOR, _, \
+                                       BAL_VERSION_MINOR, _, \
+                                       compiled_this_object)
+
+    static const char *BALSCM_S_VERSION;     // BDE-style version string
+
     static const char *s_dependencies;       // available for future use
     static const char *s_buildInfo;          // available for future use
     static const char *s_timestamp;          // available for future use
@@ -121,19 +128,24 @@ struct Version {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                         // --------------
+                         // struct Version
+                         // --------------
+
 // CLASS METHODS
 inline
 const char *Version::version()
 {
-    return s_version;
+    return BALSCM_S_VERSION;
 }
+
 }  // close package namespace
 
 // Force linker to pull in this component's object file.
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           balscm_version_assertion,
-                                          balscm::Version::s_version);
+                                          balscm::Version::BALSCM_S_VERSION);
 
 }  // close enterprise namespace
 

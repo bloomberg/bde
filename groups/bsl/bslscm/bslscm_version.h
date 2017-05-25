@@ -62,7 +62,16 @@ namespace BloombergLP {
 
 namespace bslscm {
 
+                         // =======
+                         // Version
+                         // =======
+
 struct Version {
+    // This struct provides a namespace for (1) source control management
+    // (versioning) information that is embedded in binary executable files,
+    // and (2) a facility to query that information at runtime.
+
+    // CLASS DATA
     static const char *s_ident;
     static const char *s_what;
 
@@ -86,9 +95,21 @@ struct Version {
     static const char *s_timestamp;
     static const char *s_sourceControlInfo;
 
+    // CLASS METHODS
     static const char *version();
+        // Return the address of a character string that identifies the version
+        // of the 'bal' package group in use.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                         // --------------
+                         // struct Version
+                         // --------------
+
+// CLASS METHODS
 inline
 const char *Version::version()
 {
