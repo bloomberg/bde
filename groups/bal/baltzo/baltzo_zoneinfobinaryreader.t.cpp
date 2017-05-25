@@ -1828,6 +1828,14 @@ class ZoneinfoData {
         // that this operation has no effect if binary data version is not
         // equal to '2' or '3'.
 
+    void setTransitionTime(int index, int timeValue);
+        // Set the transition at the specified 'index' to the specified
+        // 'timeValue' (a 32 bit 'time_t').
+
+    void setTransitionTime64(int index, bsls::Types::Int64 timeValue);
+        // Set the transition at the specified 'index' to the specified
+        // 'timeValue' (a 32 bit 'time_t').
+
     // ACCESSORS
     char *buffer() const;
         // Return the address of the buffer containing the Zoneinfo data.
@@ -1854,11 +1862,11 @@ class ZoneinfoData {
         // nothing between the newlines if there is no POSIX representation for
         // such instants.
 
-    bdlb::BigEndianInt32 *getTransitionTime() const;
+    unsigned char *getTransitionTime() const;
         // Return the address of the portion in the buffer containing the times
         // of transitions.
 
-    bdlb::BigEndianInt64 *getTransitionTime64() const;
+    unsigned char *getTransitionTime64() const;
         // Return the address of the portion in the buffer containing the
         // version '2' times of transitions.
 
@@ -1951,17 +1959,15 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
 
 void ZoneinfoData::populateTransitionTimeBuf()
 {
-    bdlb::BigEndianInt32 *buffer = getTransitionTime();
     for (int i = 0; i < getRawHeader()->numTransitions(); ++i) {
-        buffer[i] = i;
+        setTransitionTime(i, i);
     }
 }
 
 void ZoneinfoData::populateTransitionTimeBuf64()
 {
-    bdlb::BigEndianInt64 *buffer = getTransitionTime64();
     for (int i = 0; i < getRawHeader64()->numTransitions(); ++i) {
-        buffer[i] = i;
+        setTransitionTime64(i, i);
     }
 }
 
@@ -2043,14 +2049,15 @@ void ZoneinfoData::populateAbbreviationData64()
 
 void ZoneinfoData::populateTimeZoneString()
 {
-        char *buffer = getTimeZoneString();
-        if (buffer) {
-            // Adding two new lines symbols.
+    char *buffer = getTimeZoneString();
+    if (buffer) {
+        // Adding two new lines symbols.
 
-            memset(buffer - 1, 10, 1);  // enclosing data part with new line
-            memset(buffer,     10, 1);  // enclosing empty zone info string
-                                        // with new line
-        }
+        memset(buffer - 1, 10, 1);  // enclosing data part with new line
+
+        memset(buffer,     10, 1);  // enclosing empty zone info string with
+                                    // new line
+    }
 }
 
 // CREATORS
@@ -2134,6 +2141,21 @@ void ZoneinfoData::setTimeZoneString(const char *data, bsl::size_t size)
      d_buffer = buffer;
 }
 
+void ZoneinfoData::setTransitionTime(int index, int timeValue)
+{
+    char *buffer = reinterpret_cast<char *>(getTransitionTime());
+    writeBigEndian(buffer + index * sizeof(timeValue),
+                   timeValue);
+}
+
+void ZoneinfoData::setTransitionTime64(int index, bsls::Types::Int64 timeValue)
+{
+    char *buffer = reinterpret_cast<char *>(getTransitionTime64());
+    writeBigEndian64(buffer + index * sizeof(timeValue),
+                     timeValue);
+}
+
+
 
 // ACCESSORS
 char *ZoneinfoData::buffer() const
@@ -2184,16 +2206,15 @@ char *ZoneinfoData::getTimeZoneString() const
         + 1;  // newline enclosing for data part
 }
 
-bdlb::BigEndianInt32 *ZoneinfoData::getTransitionTime() const
+unsigned char *ZoneinfoData::getTransitionTime() const
 {
-    return reinterpret_cast<bdlb::BigEndianInt32*>(
-        &d_buffer[sizeof(RawHeader)]);
+    return reinterpret_cast<unsigned char *>(&d_buffer[sizeof(RawHeader)]);
 }
 
-bdlb::BigEndianInt64 *ZoneinfoData::getTransitionTime64() const
+unsigned char *ZoneinfoData::getTransitionTime64() const
 {
-    return reinterpret_cast<bdlb::BigEndianInt64*>(
-        getVersion2Or3Address() + sizeof(RawHeader));
+    return reinterpret_cast<unsigned char *>(getVersion2Or3Address() +
+                                             sizeof(RawHeader));
 }
 
 unsigned char *ZoneinfoData::getTransitionIndex() const
@@ -2319,7 +2340,7 @@ static int verifyTimeZone(const ZoneinfoData&     data,
 
     ++XT;
 
-    bdlb::BigEndianInt32 *transitionTimeBuf = data.getTransitionTime();
+
     unsigned char *transitionIndexBuf = data.getTransitionIndex();
     for (int i = 0; i < H->numTransitions(); ++i) {
         if (X.endTransitions() == XT) {
@@ -2329,7 +2350,10 @@ static int verifyTimeZone(const ZoneinfoData&     data,
             return 3;                                                 // RETURN
         }
 
-        int TT = *transitionTimeBuf;
+        int TT = readBigEndian(
+            reinterpret_cast<char *>(data.getTransitionTime()) +
+            i * sizeof(int));
+
         if (TT != XT->utcTime()) {
             if (!expectToFail) {
                 LOOP4_ASSERT(LINE, i, TT, XT->utcTime(),
@@ -2354,7 +2378,6 @@ static int verifyTimeZone(const ZoneinfoData&     data,
         }
 
         ++XT;
-        ++transitionTimeBuf;
     }
 
     return 0;
@@ -2396,7 +2419,7 @@ static int verifyTimeZoneVersion2Or3Format(
 
     ++XT;
 
-    bdlb::BigEndianInt64 *transitionTimeBuf = data.getTransitionTime64();
+
     unsigned char *transitionIndexBuf = data.getTransitionIndex64();
     for (int i = 0; i < H->numTransitions(); ++i) {
         if (X.endTransitions() == XT) {
@@ -2406,7 +2429,10 @@ static int verifyTimeZoneVersion2Or3Format(
             return 3;                                                 // RETURN
         }
 
-        bsls::Types::Int64 TT = *transitionTimeBuf;
+        bsls::Types::Int64 TT = readBigEndian64(
+                          reinterpret_cast<char *> data.getTransitionTime64() +
+                          i * sizeof(bsls::Types::Int64));
+
         if (TT != XT->utcTime()) {
             if (!expectToFail) {
                 LOOP4_ASSERT(LINE, i, TT, XT->utcTime(),
@@ -2431,7 +2457,6 @@ static int verifyTimeZoneVersion2Or3Format(
         }
 
         ++XT;
-        ++transitionTimeBuf;
     }
 
     // Verify time zone string.
@@ -2508,9 +2533,8 @@ static int testVerifyTimeZone(int verbose)
 
     ZoneinfoData ZI(RH);
 
-    bdlb::BigEndianInt32 *transitions = ZI.getTransitionTime();
     for (int i = 0; i < NUM_TRANSITION_TIME; ++i) {
-        transitions[i] = TRANSITION_TIMES[i];
+        ZI.setTransitionTime(i, TRANSITION_TIMES[i]);
     }
 
     RawLocalTimeTypes *localTimeTypes = ZI.getRawLocalTimeTypes();
@@ -2739,9 +2763,8 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
 
     ZoneinfoData ZI(RH);
 
-    bdlb::BigEndianInt64 *transitions = ZI.getTransitionTime64();
     for (int i = 0; i < NUM_TRANSITION_TIME; ++i) {
-        transitions[i] = TRANSITION_TIMES[i];
+        ZI.setTransitionTime64(i, TRANSITION_TIMES[i]);
     }
 
     RawLocalTimeTypes *localTimeTypes = ZI.getRawLocalTimeTypes64();
@@ -4073,8 +4096,7 @@ int main(int argc, char *argv[])
                 RH.setNumTransitions(1);
 
                 ZoneinfoData ZI(RH);
-                bdlb::BigEndianInt32 *transitions = ZI.getTransitionTime();
-                transitions[0] = TRANSITION;
+                ZI.setTransitionTime(0, TRANSITION);
 
                 bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
                 bsl::istream inputStream(&isb);
@@ -4104,8 +4126,7 @@ int main(int argc, char *argv[])
                 RH.setNumTransitions(1);
 
                 ZoneinfoData ZI(RH);
-                bdlb::BigEndianInt64 *transitions = ZI.getTransitionTime64();
-                transitions[0] = TRANSITION;
+                ZI.setTransitionTime64(0, TRANSITION);
 
                 bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
                 bsl::istream inputStream(&isb);
@@ -4173,9 +4194,8 @@ int main(int argc, char *argv[])
             RH.setNumTransitions(2);
 
             ZoneinfoData ZI(RH);
-            bdlb::BigEndianInt32 *transitions = ZI.getTransitionTime();
-            transitions[0] = 0;
-            transitions[1] = 0;
+            ZI.setTransitionTime(0, 0);
+            ZI.setTransitionTime(1, 0);
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -4192,9 +4212,8 @@ int main(int argc, char *argv[])
             RH.setNumTransitions(2);
 
             ZoneinfoData ZI(RH);
-            bdlb::BigEndianInt64 *transitions = ZI.getTransitionTime64();
-            transitions[0] = 0;
-            transitions[1] = 0;
+            ZI.setTransitionTime64(0, 0);
+            ZI.setTransitionTime64(1, 0);
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -4210,9 +4229,8 @@ int main(int argc, char *argv[])
             RH.setNumTransitions(2);
 
             ZoneinfoData ZI(RH);
-            bdlb::BigEndianInt32 *transitions = ZI.getTransitionTime();
-            transitions[0] = 1;
-            transitions[1] = 0;
+            ZI.setTransitionTime(0, 1);
+            ZI.setTransitionTime(1, 0);
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -4229,9 +4247,8 @@ int main(int argc, char *argv[])
             RH.setNumTransitions(2);
 
             ZoneinfoData ZI(RH);
-            bdlb::BigEndianInt64 *transitions = ZI.getTransitionTime64();
-            transitions[0] = 1;
-            transitions[1] = 0;
+            ZI.setTransitionTime64(0, 1);
+            ZI.setTransitionTime64(1, 0);
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -5033,7 +5050,7 @@ int main(int argc, char *argv[])
 
             ASSERT(TEST_DATA_VERSION2_SIZE == ZI.size());
             ASSERT(0 == memcmp(ZI.buffer(), TEST_DATA_VERSION2,
-                                                     TEST_DATA_VERSION2_SIZE));
+                                            TEST_DATA_VERSION2_SIZE));
 
 
         }
