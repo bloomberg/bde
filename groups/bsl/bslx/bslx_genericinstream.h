@@ -1154,7 +1154,7 @@ GenericInStream<STREAMBUF>& GenericInStream<STREAMBUF>::getLength(int& length)
         else {
             // If 'length <= 127', 'length' is stored as one byte.
 
-            char tmp;
+            char tmp = 0;
             getInt8(tmp);
             length = tmp;
         }

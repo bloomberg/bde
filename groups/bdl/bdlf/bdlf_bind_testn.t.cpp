@@ -12,6 +12,7 @@
 
 #include <bslmf_nil.h>
 
+#include <bsls_types.h>
 #include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
 
@@ -330,6 +331,9 @@ typedef bdlf::PlaceHolder<14> PH14;
           N1, N1, N1, N1, N1, N1, N1, N1, N1, N1, N1, N1, N1, N1, N1          \
     };                                                                        \
                                                                               \
+    (void)NO_ALLOC_SLOTS;                                                     \
+    (void)NO_ALLOC_SLOTS_DEFAULT;                                             \
+                                                                              \
     /* Values that do not take an allocator. */                               \
                                                                               \
     const NoAllocTestArg1  I1  = 1;                                           \
@@ -346,6 +350,21 @@ typedef bdlf::PlaceHolder<14> PH14;
     const NoAllocTestArg12 I12 = 12;                                          \
     const NoAllocTestArg13 I13 = 13;                                          \
     const NoAllocTestArg14 I14 = 14;                                          \
+                                                                              \
+    (void)I1;                                                                 \
+    (void)I2;                                                                 \
+    (void)I3;                                                                 \
+    (void)I4;                                                                 \
+    (void)I5;                                                                 \
+    (void)I6;                                                                 \
+    (void)I7;                                                                 \
+    (void)I8;                                                                 \
+    (void)I9;                                                                 \
+    (void)I10;                                                                \
+    (void)I11;                                                                \
+    (void)I12;                                                                \
+    (void)I13;                                                                \
+    (void)I14;                                                                \
                                                                               \
     /*                                                                        \
     // The following machinery is for use in conjunction with the             \
@@ -374,6 +393,9 @@ typedef bdlf::PlaceHolder<14> PH14;
     const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                \
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0          \
     };                                                                        \
+                                                                              \
+    (void)ALLOC_SLOTS;                                                        \
+    (void)ALLOC_SLOTS_DEFAULT;                                                \
                                                                               \
     /* Values that do take an allocator (default allocator is used). */       \
                                                                               \
@@ -452,9 +474,10 @@ DEFINE_TEST_CASE(17) {
             printf("\nTESTING 'bslmf::IsBitwiseMoveable<bdlf::Bind<R,F,L>>'"
                    "\n====================================================\n");
 
-#if BBT_n > 0
-        (void) veryVeryVerbose;
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
 
+#if BBT_n > 0
         typedef bdlf::Bind_TestArgNoAlloc<1> BitwiseArg;
         typedef bdlf::Bind_TestArgNoAlloc<2> BitwiseRet;
         typedef bdlf::Bind_TestTypeNoAlloc   BitwiseInvocable;
@@ -537,7 +560,7 @@ DEFINE_TEST_CASE(17) {
                   bdlf::BindUtil::bind(FUNC,BWM_ARGS(FIRST,LAST)))));         \
         ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
             bdlf::BindUtil::bindR<RET>(FUNC,BWM_ARGS(FIRST,LAST)))));         \
-//        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
+//        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                      
 //            bdlf::BindUtil::bindA(&alloc0,FUNC,BWM_ARGS(FIRST,LAST)))));
 
         if (veryVerbose) printf("Testing BindUtil::bind[RA]\n");
@@ -596,7 +619,7 @@ DEFINE_TEST_CASE(16) {
             const NoAllocTestType  EXPECTED;
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -604,7 +627,8 @@ DEFINE_TEST_CASE(16) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS =
+                                      Z0->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -615,7 +639,7 @@ DEFINE_TEST_CASE(16) {
             const NoAllocTestType  EXPECTED;
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -623,7 +647,8 @@ DEFINE_TEST_CASE(16) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS =
+                                      Z0->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -652,8 +677,9 @@ DEFINE_TEST_CASE(16) {
             const AllocTestType  EXPECTED(Z1);
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE      = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -661,10 +687,10 @@ DEFINE_TEST_CASE(16) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -687,8 +713,9 @@ DEFINE_TEST_CASE(16) {
             const AllocTestType& X = mX;
             const AllocTestType  EXPECTED(Z1);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE  = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -696,9 +723,10 @@ DEFINE_TEST_CASE(16) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -733,6 +761,8 @@ DEFINE_TEST_CASE(15) {
         //   bdlf::BindUtil::bindR(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf("\nTESTING 'bdlf::BindUtil::bindR' WITH FUNCTION OBJECT "
                    "POINTER"
@@ -754,7 +784,7 @@ DEFINE_TEST_CASE(15) {
             const NoAllocTestType BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -762,7 +792,8 @@ DEFINE_TEST_CASE(15) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -773,7 +804,7 @@ DEFINE_TEST_CASE(15) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -781,7 +812,8 @@ DEFINE_TEST_CASE(15) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -804,8 +836,9 @@ DEFINE_TEST_CASE(15) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -813,10 +846,10 @@ DEFINE_TEST_CASE(15) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -835,8 +868,9 @@ DEFINE_TEST_CASE(15) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -844,10 +878,10 @@ DEFINE_TEST_CASE(15) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -882,6 +916,8 @@ DEFINE_TEST_CASE(14) {
         //   bdlf::BindUtil::bindR(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf("\nTESTING 'bdlf::BindUtil::bindR' WITH MEMBER FUNCTION "
                    "POINTER"
@@ -911,7 +947,7 @@ DEFINE_TEST_CASE(14) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -920,7 +956,8 @@ DEFINE_TEST_CASE(14) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -931,7 +968,7 @@ DEFINE_TEST_CASE(14) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -940,7 +977,8 @@ DEFINE_TEST_CASE(14) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -963,8 +1001,9 @@ DEFINE_TEST_CASE(14) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -973,10 +1012,10 @@ DEFINE_TEST_CASE(14) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -995,8 +1034,9 @@ DEFINE_TEST_CASE(14) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1005,10 +1045,10 @@ DEFINE_TEST_CASE(14) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1031,6 +1071,8 @@ DEFINE_TEST_CASE(13) {
         // Testing:
         //   bdlf::BindUtil::bindR(Func const&, ...);
         // --------------------------------------------------------------------
+
+        (void)veryVerbose;
 
         if (verbose)
             printf("\nTESTING 'bdlf::BindUtil::bindR' WITH FREE FUNCTION "
@@ -1060,7 +1102,7 @@ DEFINE_TEST_CASE(13) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1069,7 +1111,8 @@ DEFINE_TEST_CASE(13) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -1080,7 +1123,7 @@ DEFINE_TEST_CASE(13) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1089,7 +1132,8 @@ DEFINE_TEST_CASE(13) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -1112,8 +1156,9 @@ DEFINE_TEST_CASE(13) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1122,10 +1167,10 @@ DEFINE_TEST_CASE(13) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -1144,8 +1189,9 @@ DEFINE_TEST_CASE(13) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1154,10 +1200,10 @@ DEFINE_TEST_CASE(13) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1194,6 +1240,8 @@ DEFINE_TEST_CASE(12) {
         //   bdlf::BindUtil::bindR(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf(
                 "\nTESTING 'bdlf::BindUtil::bindR' WITH FREE FUNCTION POINTER"
@@ -1222,7 +1270,7 @@ DEFINE_TEST_CASE(12) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1231,7 +1279,8 @@ DEFINE_TEST_CASE(12) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -1242,7 +1291,7 @@ DEFINE_TEST_CASE(12) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1251,7 +1300,8 @@ DEFINE_TEST_CASE(12) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -1274,8 +1324,9 @@ DEFINE_TEST_CASE(12) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1284,10 +1335,10 @@ DEFINE_TEST_CASE(12) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -1306,8 +1357,9 @@ DEFINE_TEST_CASE(12) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS ==
                 bdlf::BindUtil::bindR<ConvertibleFromToInt>(
@@ -1316,10 +1368,10 @@ DEFINE_TEST_CASE(12) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1331,6 +1383,11 @@ DEFINE_TEST_CASE(12) {
       }
 
 DEFINE_TEST_CASE(11) {
+
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
@@ -1360,8 +1417,9 @@ DEFINE_TEST_CASE(11) {
             const NoAllocTestType  EXPECTED;
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -1373,10 +1431,10 @@ DEFINE_TEST_CASE(11) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -1394,8 +1452,9 @@ DEFINE_TEST_CASE(11) {
             const NoAllocTestType  EXPECTED;
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -1407,10 +1466,10 @@ DEFINE_TEST_CASE(11) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -1444,8 +1503,9 @@ DEFINE_TEST_CASE(11) {
             const AllocTestType  EXPECTED(Z1);
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -1457,10 +1517,10 @@ DEFINE_TEST_CASE(11) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1487,8 +1547,9 @@ DEFINE_TEST_CASE(11) {
             const AllocTestType  EXPECTED(Z1);
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -1500,10 +1561,10 @@ DEFINE_TEST_CASE(11) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1520,6 +1581,11 @@ DEFINE_TEST_CASE(11) {
       }
 
 DEFINE_TEST_CASE(10) {
+
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
@@ -1571,8 +1637,9 @@ DEFINE_TEST_CASE(10) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -1584,10 +1651,10 @@ DEFINE_TEST_CASE(10) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -1605,8 +1672,9 @@ DEFINE_TEST_CASE(10) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -1618,10 +1686,10 @@ DEFINE_TEST_CASE(10) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -1655,8 +1723,9 @@ DEFINE_TEST_CASE(10) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -1668,10 +1737,10 @@ DEFINE_TEST_CASE(10) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -1698,8 +1767,9 @@ DEFINE_TEST_CASE(10) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -1711,10 +1781,10 @@ DEFINE_TEST_CASE(10) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1731,6 +1801,11 @@ DEFINE_TEST_CASE(10) {
 }
 
 DEFINE_TEST_CASE(9) {
+
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
@@ -1790,8 +1865,9 @@ DEFINE_TEST_CASE(9) {
                 const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -1804,10 +1880,10 @@ DEFINE_TEST_CASE(9) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -1825,8 +1901,9 @@ DEFINE_TEST_CASE(9) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -1839,10 +1916,10 @@ DEFINE_TEST_CASE(9) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -1876,8 +1953,9 @@ DEFINE_TEST_CASE(9) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -1890,10 +1968,10 @@ DEFINE_TEST_CASE(9) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -1920,8 +1998,9 @@ DEFINE_TEST_CASE(9) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -1934,10 +2013,10 @@ DEFINE_TEST_CASE(9) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -1955,6 +2034,11 @@ DEFINE_TEST_CASE(9) {
       }
 
 DEFINE_TEST_CASE(8) {
+
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
@@ -1996,8 +2080,9 @@ DEFINE_TEST_CASE(8) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -2010,10 +2095,10 @@ DEFINE_TEST_CASE(8) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -2031,8 +2116,9 @@ DEFINE_TEST_CASE(8) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -2045,10 +2131,10 @@ DEFINE_TEST_CASE(8) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -2082,8 +2168,9 @@ DEFINE_TEST_CASE(8) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -2096,10 +2183,10 @@ DEFINE_TEST_CASE(8) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -2126,8 +2213,9 @@ DEFINE_TEST_CASE(8) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -2140,10 +2228,10 @@ DEFINE_TEST_CASE(8) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -2161,6 +2249,11 @@ DEFINE_TEST_CASE(8) {
       }
 
 DEFINE_TEST_CASE(7) {
+
+    (void)verbose;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
 #if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
@@ -2218,8 +2311,9 @@ DEFINE_TEST_CASE(7) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -2232,10 +2326,10 @@ DEFINE_TEST_CASE(7) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -2253,8 +2347,9 @@ DEFINE_TEST_CASE(7) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             SlotsNoAlloc::resetSlots(N1);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsNoAlloc::verifySlots(
@@ -2267,10 +2362,10 @@ DEFINE_TEST_CASE(7) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
@@ -2304,8 +2399,9 @@ DEFINE_TEST_CASE(7) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -2318,10 +2414,10 @@ DEFINE_TEST_CASE(7) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -2348,8 +2444,9 @@ DEFINE_TEST_CASE(7) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             bdlf::Bind_TestSlotsAlloc::resetSlots(Z0);
             LOOP_ASSERT(PARAMS, bdlf::Bind_TestSlotsAlloc::verifySlots(
@@ -2362,10 +2459,10 @@ DEFINE_TEST_CASE(7) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -2406,6 +2503,8 @@ DEFINE_TEST_CASE(6) {
         //   bdlf::BindUtil::bind(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf("\nTESTING 'bdlf::BindUtil::bind' WITH FUNCTION OBJECT"
                    "\n==================================================\n");
@@ -2425,14 +2524,15 @@ DEFINE_TEST_CASE(6) {
             const NoAllocTestType  EXPECTED;
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                   BBT_K(mX, BBT_phn))(BBT_In));
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2443,14 +2543,15 @@ DEFINE_TEST_CASE(6) {
             const NoAllocTestType  EXPECTED;
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                          BBT_K(mX, BBT_In))());
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2479,18 +2580,19 @@ DEFINE_TEST_CASE(6) {
             const AllocTestType  EXPECTED(Z1);
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE  = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE  = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                   BBT_K(mX, BBT_phn))(BBT_Vn));
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -2513,18 +2615,19 @@ DEFINE_TEST_CASE(6) {
             const AllocTestType& X = mX;
             const AllocTestType  EXPECTED(Z1);
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE  = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE  = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                          BBT_K(mX, BBT_Vn))());
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -2556,6 +2659,8 @@ DEFINE_TEST_CASE(5) {
         //   bdlf::BindUtil::bind(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf(
                 "\nTESTING 'bdlf::BindUtil::bind' WITH FUNCTION OBJECT POINTER"
@@ -2577,14 +2682,15 @@ DEFINE_TEST_CASE(5) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  BBT_K(&mX, BBT_phn))(BBT_In));
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2595,14 +2701,15 @@ DEFINE_TEST_CASE(5) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         BBT_K(&mX, BBT_In))());
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2625,18 +2732,19 @@ DEFINE_TEST_CASE(5) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  BBT_K(&mX, BBT_phn))(BBT_Vn));
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -2655,18 +2763,19 @@ DEFINE_TEST_CASE(5) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         BBT_K(&mX, BBT_Vn))());
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -2701,6 +2810,8 @@ DEFINE_TEST_CASE(4) {
         //   bdlf::BindUtil::bind(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf(
                 "\nTESTING 'bdlf::BindUtil::bind' WITH MEMBER FUNCTION POINTER"
@@ -2729,7 +2840,7 @@ DEFINE_TEST_CASE(4) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  &BBT_TESTFUNCNAn,
@@ -2737,7 +2848,8 @@ DEFINE_TEST_CASE(4) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2748,7 +2860,7 @@ DEFINE_TEST_CASE(4) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         &BBT_TESTFUNCNAn,
@@ -2756,7 +2868,8 @@ DEFINE_TEST_CASE(4) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2779,8 +2892,9 @@ DEFINE_TEST_CASE(4) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  &BBT_TESTFUNCAn,
@@ -2788,10 +2902,10 @@ DEFINE_TEST_CASE(4) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -2810,8 +2924,9 @@ DEFINE_TEST_CASE(4) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         &BBT_TESTFUNCAn,
@@ -2819,10 +2934,10 @@ DEFINE_TEST_CASE(4) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -2845,6 +2960,8 @@ DEFINE_TEST_CASE(3) {
         // Testing:
         //   bdlf::BindUtil::bind(Func const&, ...);
         // --------------------------------------------------------------------
+
+        (void)veryVerbose;
 
         if (verbose)
             printf(
@@ -2874,7 +2991,7 @@ DEFINE_TEST_CASE(3) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  BBT_FUNCNAn,
@@ -2882,7 +2999,8 @@ DEFINE_TEST_CASE(3) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2893,7 +3011,7 @@ DEFINE_TEST_CASE(3) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         BBT_FUNCNAn,
@@ -2901,7 +3019,8 @@ DEFINE_TEST_CASE(3) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2924,8 +3043,9 @@ DEFINE_TEST_CASE(3) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  BBT_FUNCAn,
@@ -2933,10 +3053,10 @@ DEFINE_TEST_CASE(3) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -2955,8 +3075,9 @@ DEFINE_TEST_CASE(3) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         BBT_FUNCAn,
@@ -2964,10 +3085,10 @@ DEFINE_TEST_CASE(3) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -3004,6 +3125,8 @@ DEFINE_TEST_CASE(2) {
         //   bdlf::BindUtil::bind(Func const&, ...);
         // --------------------------------------------------------------------
 
+        (void)veryVerbose;
+
         if (verbose)
             printf(
                   "\nTESTING 'bdlf::BindUtil::bind' WITH FREE FUNCTION POINTER"
@@ -3032,7 +3155,7 @@ DEFINE_TEST_CASE(2) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  &BBT_FUNCNAn,
@@ -3040,7 +3163,8 @@ DEFINE_TEST_CASE(2) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -3051,7 +3175,7 @@ DEFINE_TEST_CASE(2) {
             const NoAllocTestType  BBT_OBJ(EXPECTED, BBT_In);
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_ALLOCS_BEFORE = Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z0->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         &BBT_FUNCNAn,
@@ -3059,7 +3183,8 @@ DEFINE_TEST_CASE(2) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_ALLOCS = Z0->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS = Z0->numAllocations()
+                                                - NUM_ALLOCS_BEFORE;
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -3082,8 +3207,9 @@ DEFINE_TEST_CASE(2) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                  &BBT_FUNCAn,
@@ -3091,10 +3217,10 @@ DEFINE_TEST_CASE(2) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
             LOOP2_ASSERT(PARAMS, NUM_DFLT_ALLOCS, 0 == NUM_DFLT_ALLOCS);
             LOOP2_ASSERT(PARAMS, NUM_ALLOCS, PARAMS == NUM_ALLOCS);
@@ -3113,8 +3239,9 @@ DEFINE_TEST_CASE(2) {
             const AllocTestType  EXPECTED(BBT_K(Z1, BBT_Vn));
             LOOP_ASSERT(PARAMS, (BBT_n > 0) == (EXPECTED != X));
 
-            const int NUM_DFLT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             LOOP_ASSERT(PARAMS, PARAMS == bdlf::BindUtil::bind(
                                                         &BBT_FUNCAn,
@@ -3122,10 +3249,10 @@ DEFINE_TEST_CASE(2) {
 
             LOOP_ASSERT(PARAMS, EXPECTED == X);
 
-            const int NUM_DFLT_ALLOCS = Z0->numAllocations()
-                                      - NUM_DFLT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS      = Z1->numAllocations()
-                                      - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DFLT_ALLOCS = Z0->numAllocations()
+                                                     - NUM_DFLT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS      = Z1->numAllocations()
+                                                     - NUM_ALLOCS_BEFORE;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
             // MSVC 2005 does NOT use the RVO
@@ -3167,7 +3294,7 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) printf("\t\tWith placeholder.\n");
         {
-            const int NA = Z0->numAllocations();
+            const bsls::Types::Int64 NA = Z0->numAllocations();
 
             typedef NoAllocTestType                        *FUNC;
             typedef BBT_BIND_BOUNDTUPLEn(BBT_PHn)           ListType;
@@ -3216,7 +3343,7 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) printf("\t\tWithout placeholder.\n");
         {
-            const int NA = Z0->numAllocations();
+            const bsls::Types::Int64 NA = Z0->numAllocations();
 
             typedef NoAllocTestType                           *FUNC;
             typedef BBT_BIND_BOUNDTUPLEn(BBT_NOALLOCTESTARGn)  ListType;

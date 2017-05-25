@@ -539,7 +539,7 @@ namespace {
     static unsigned char ucharToUpper(unsigned char input)
         // Return the upper-case equivalent to the specified 'input' character.
     {
-        return bsl::toupper(input);
+        return static_cast<unsigned char>(bsl::toupper(input));
     }
 //..
 // Finally, we use the 'transform' algorithm to convert lower-case characters

@@ -237,7 +237,7 @@ struct ThreadInfo {
 
 static bsls::AtomicOperations::AtomicTypes::Int go = { 0 };
 
-static void *threadFunction(void *argument)
+extern "C" void *threadFunction(void *argument)
     // Using the 'ThreadInfo' data specified by 'argument', invoke the set and
     // get callback methods of 'bdlt::CurrentTime'.
 {
