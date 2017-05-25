@@ -870,7 +870,10 @@ struct FilesystemUtil {
         // it will be removed and replaced.  In that case, 'newPath' must refer
         // to the same type of filesystem item as 'oldPath' - that is, they
         // must both be directories or both be files.  Return 0 on success, and
-        // a non-zero value otherwise.
+        // a non-zero value otherwise.  Note that this operation is carried out
+        // via library/system facilities ('rename' in UNIX and 'MoveFile' in
+        // Windows) that usually cannot move files between file systems or
+        // volumes.
 
     static int write(FileDescriptor  descriptor,
                      const void     *buffer,
