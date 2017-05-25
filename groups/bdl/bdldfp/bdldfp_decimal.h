@@ -125,7 +125,7 @@ BSLS_IDENT("$Id$")
 //:   positive zero and negative zero.  Consequently unary - operators change
 //:   the sign of the value 0; therefore leading to surprising results: if
 //:   'f == 0.0' then '0 - f' and '-f' will not result in the same value,
-//:   because '0 - f' will be +0.0' while '-f' will be -0.0. ** HERE WE ARE **
+//:   because '0 - f' will be +0.0' while '-f' will be -0.0.
 //:
 //: 5 Most IEEE floating-point operations (like arithmetic) have implicit input
 //:   parameters and output parameters (that do not show up in function
