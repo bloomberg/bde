@@ -194,15 +194,15 @@ static bool isDigit(char c) {
 }
 
 static bool isXdigit(char c) {
-    return '0' <= c && c <= '9'
-        || 'A' <= c && c <= 'F'
-        || 'a' <= c && c <= 'f';
+    return ('0' <= c && c <= '9')
+        || ('A' <= c && c <= 'F')
+        || ('a' <= c && c <= 'f');
 }
 
 static bool isAlnum(char c) {
-    return '0' <= c && c <= '9'
-        || 'A' <= c && c <= 'Z'
-        || 'a' <= c && c <= 'z';
+    return ('0' <= c && c <= '9')
+        || ('A' <= c && c <= 'Z')
+        || ('a' <= c && c <= 'z');
 }
 
 static bool isSpace(char c) {
@@ -227,7 +227,7 @@ static bool isPunct(char c) {
 }
 
 static bool isCntrl(char c) {
-    return '\0' <= c && c < ' '
+    return ('\0' <= c && c < ' ')
         || '\177' == c;
 }
 
@@ -873,69 +873,72 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 256; ++i) {
                 if (veryVerbose) P(i);
-                LOOP_ASSERT(i, isUpper(i)  == Util::isUpper(i));
-                LOOP_ASSERT(i, isLower(i)  == Util::isLower(i));
-                LOOP_ASSERT(i, isDigit(i)  == Util::isDigit(i));
-                LOOP_ASSERT(i, isXdigit(i) == Util::isXdigit(i));
 
-                LOOP_ASSERT(i, isAlpha(i)  == Util::isAlpha(i));
-                LOOP_ASSERT(i, isAlnum(i)  == Util::isAlnum(i));
-                LOOP_ASSERT(i, isSpace(i)  == Util::isSpace(i));
-                LOOP_ASSERT(i, isPrint(i)  == Util::isPrint(i));
+                char c = static_cast<char>(i);
 
-                LOOP_ASSERT(i, isGraph(i)  == Util::isGraph(i));
-                LOOP_ASSERT(i, isPunct(i)  == Util::isPunct(i));
-                LOOP_ASSERT(i, isCntrl(i)  == Util::isCntrl(i));
-                LOOP_ASSERT(i, isAscii(i)  == Util::isAscii(i));
+                LOOP_ASSERT(i, isUpper(c)  == Util::isUpper(c));
+                LOOP_ASSERT(i, isLower(c)  == Util::isLower(c));
+                LOOP_ASSERT(i, isDigit(c)  == Util::isDigit(c));
+                LOOP_ASSERT(i, isXdigit(c) == Util::isXdigit(c));
 
-                LOOP_ASSERT(i, isIdent(i)  == Util::isIdent(i));
-                LOOP_ASSERT(i, isAlund(i)  == Util::isAlund(i));
-                LOOP_ASSERT(i, isAll(i)    == Util::isAll(i));
-                LOOP_ASSERT(i, isNone(i)   == Util::isNone(i));
-                LOOP_ASSERT(i, isOdigit(i) == Util::isOdigit(i));
+                LOOP_ASSERT(i, isAlpha(c)  == Util::isAlpha(c));
+                LOOP_ASSERT(i, isAlnum(c)  == Util::isAlnum(c));
+                LOOP_ASSERT(i, isSpace(c)  == Util::isSpace(c));
+                LOOP_ASSERT(i, isPrint(c)  == Util::isPrint(c));
+
+                LOOP_ASSERT(i, isGraph(c)  == Util::isGraph(c));
+                LOOP_ASSERT(i, isPunct(c)  == Util::isPunct(c));
+                LOOP_ASSERT(i, isCntrl(c)  == Util::isCntrl(c));
+                LOOP_ASSERT(i, isAscii(c)  == Util::isAscii(c));
+
+                LOOP_ASSERT(i, isIdent(c)  == Util::isIdent(c));
+                LOOP_ASSERT(i, isAlund(c)  == Util::isAlund(c));
+                LOOP_ASSERT(i, isAll(c)    == Util::isAll(c));
+                LOOP_ASSERT(i, isNone(c)   == Util::isNone(c));
+                LOOP_ASSERT(i, isOdigit(c) == Util::isOdigit(c));
 
                 typedef bdlb::CharType U;        // *** Very Short Alias
 
-                LOOP_ASSERT(i, isUpper(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isUpper(c)  == Util::isCategory(i,
                                                                U::e_UPPER));
-                LOOP_ASSERT(i, isLower(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isLower(c)  == Util::isCategory(i,
                                                                U::e_LOWER));
-                LOOP_ASSERT(i, isOdigit(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isOdigit(c)  == Util::isCategory(i,
                                                                U::e_ODIGIT));
-                LOOP_ASSERT(i, isDigit(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isDigit(c)  == Util::isCategory(i,
                                                                U::e_DIGIT));
-                LOOP_ASSERT(i, isXdigit(i) == Util::isCategory(i,
+                LOOP_ASSERT(i, isXdigit(c) == Util::isCategory(i,
                                                                U::e_XDIGIT));
 
-                LOOP_ASSERT(i, isAlpha(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAlpha(c)  == Util::isCategory(i,
                                                                U::e_ALPHA));
-                LOOP_ASSERT(i, isAlnum(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAlnum(c)  == Util::isCategory(i,
                                                                U::e_ALNUM));
-                LOOP_ASSERT(i, isSpace(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isSpace(c)  == Util::isCategory(i,
                                                                U::e_SPACE));
-                LOOP_ASSERT(i, isPrint(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isPrint(c)  == Util::isCategory(i,
                                                                U::e_PRINT));
 
-                LOOP_ASSERT(i, isGraph(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isGraph(c)  == Util::isCategory(i,
                                                                U::e_GRAPH));
-                LOOP_ASSERT(i, isPunct(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isPunct(c)  == Util::isCategory(i,
                                                                U::e_PUNCT));
-                LOOP_ASSERT(i, isCntrl(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isCntrl(c)  == Util::isCategory(i,
                                                                U::e_CNTRL));
-                LOOP_ASSERT(i, isAscii(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAscii(c)  == Util::isCategory(i,
                                                                U::e_ASCII));
 
-                LOOP_ASSERT(i, isIdent(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isIdent(c)  == Util::isCategory(i,
                                                                U::e_IDENT));
-                LOOP_ASSERT(i, isAlund(i)  == Util::isCategory(i,
+                LOOP_ASSERT(i, isAlund(c)  == Util::isCategory(i,
                                                                U::e_ALUND));
-                LOOP_ASSERT(i, isAll(i)    == Util::isCategory(i,
+                LOOP_ASSERT(i, isAll(c)    == Util::isCategory(i,
                                                                U::e_ALL));
-                LOOP_ASSERT(i, isNone(i)   == Util::isCategory(i,
+                LOOP_ASSERT(i, isNone(c)   == Util::isCategory(i,
                                                                U::e_NONE));
 
-                LOOP_ASSERT(i, toLower(i)  == Util::toLower(i));
-                LOOP_ASSERT(i, toUpper(i)  == Util::toUpper(i));
+                LOOP_ASSERT(i, toLower(c)  == Util::toLower(c));
+                LOOP_ASSERT(i, toUpper(c)  == Util::toUpper(c));
             }
         }
 
@@ -1156,26 +1159,29 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 256; ++i) {
                 if (veryVerbose) P(i);
-                LOOP_ASSERT(i, isUpper(i)  == !!isupper(i));
-                LOOP_ASSERT(i, isLower(i)  == !!islower(i));
-                LOOP_ASSERT(i, isDigit(i)  == !!isdigit(i));
-                LOOP_ASSERT(i, isOdigit(i) == !!isoctaldigit(i));
-                LOOP_ASSERT(i, isXdigit(i) == !!isXdigit(i));
 
-                LOOP_ASSERT(i, isAlpha(i)  == !!isalpha(i));
-                LOOP_ASSERT(i, isAlnum(i)  == !!isalnum(i));
-                LOOP_ASSERT(i, isSpace(i)  == !!isspace(i));
-                LOOP_ASSERT(i, isPrint(i)  == !!isprint(i));
+                char c = static_cast<char>(i);
 
-                LOOP_ASSERT(i, isGraph(i)  == !!isgraph(i));
-                LOOP_ASSERT(i, isPunct(i)  == !!ispunct(i));
-                LOOP_ASSERT(i, isCntrl(i)  == !!iscntrl(i));
-                LOOP_ASSERT(i, isAscii(i)  == !!isascii(i));
+                LOOP_ASSERT(i, isUpper(c)  == !!isupper(c));
+                LOOP_ASSERT(i, isLower(c)  == !!islower(c));
+                LOOP_ASSERT(i, isDigit(c)  == !!isdigit(c));
+                LOOP_ASSERT(i, isOdigit(c) == !!isoctaldigit(c));
+                LOOP_ASSERT(i, isXdigit(c) == !!isXdigit(c));
 
-                LOOP_ASSERT(i, isIdent(i)  == (isalnum(i) || i == '_'));
-                LOOP_ASSERT(i, isAlund(i)  == (isalpha(i) || i == '_'));
-                LOOP_ASSERT(i, isAll(i)    == 1);
-                LOOP_ASSERT(i, isNone(i)   == 0);
+                LOOP_ASSERT(i, isAlpha(c)  == !!isalpha(c));
+                LOOP_ASSERT(i, isAlnum(c)  == !!isalnum(c));
+                LOOP_ASSERT(i, isSpace(c)  == !!isspace(c));
+                LOOP_ASSERT(i, isPrint(c)  == !!isprint(c));
+
+                LOOP_ASSERT(i, isGraph(c)  == !!isgraph(c));
+                LOOP_ASSERT(i, isPunct(c)  == !!ispunct(c));
+                LOOP_ASSERT(i, isCntrl(c)  == !!iscntrl(c));
+                LOOP_ASSERT(i, isAscii(c)  == !!isascii(c));
+
+                LOOP_ASSERT(i, isIdent(c)  == (isalnum(c) || i == '_'));
+                LOOP_ASSERT(i, isAlund(c)  == (isalpha(c) || i == '_'));
+                LOOP_ASSERT(i, isAll(c)    == 1);
+                LOOP_ASSERT(i, isNone(c)   == 0);
             }
         }
 
@@ -1185,41 +1191,44 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 128; ++i) {
                 if (veryVerbose) P(i);
-                LOOP_ASSERT(i, isUpper(i)  == DOC_TABLE[i][Util::e_UPPER]);
-                LOOP_ASSERT(i, isLower(i)  == DOC_TABLE[i][Util::e_LOWER]);
-                LOOP_ASSERT(i, isOdigit(i) == DOC_TABLE[i][Util::e_ODIGIT]);
-                LOOP_ASSERT(i, isDigit(i)  == DOC_TABLE[i][Util::e_DIGIT]);
-                LOOP_ASSERT(i, isXdigit(i) == DOC_TABLE[i][Util::e_XDIGIT]);
 
-                LOOP_ASSERT(i, isAlpha(i)  == DOC_TABLE[i][Util::e_ALPHA]);
-                LOOP_ASSERT(i, isAlnum(i)  == DOC_TABLE[i][Util::e_ALNUM]);
-                LOOP_ASSERT(i, isSpace(i)  == DOC_TABLE[i][Util::e_SPACE]);
-                LOOP_ASSERT(i, isPrint(i)  == DOC_TABLE[i][Util::e_PRINT]);
+                char c = static_cast<char>(i);
 
-                LOOP_ASSERT(i, isGraph(i)  == DOC_TABLE[i][Util::e_GRAPH]);
-                LOOP_ASSERT(i, isPunct(i)  == DOC_TABLE[i][Util::e_PUNCT]);
-                LOOP_ASSERT(i, isCntrl(i)  == DOC_TABLE[i][Util::e_CNTRL]);
-                LOOP_ASSERT(i, isAscii(i)  == DOC_TABLE[i][Util::e_ASCII]);
+                LOOP_ASSERT(i, isUpper(c)  == DOC_TABLE[i][Util::e_UPPER]);
+                LOOP_ASSERT(i, isLower(c)  == DOC_TABLE[i][Util::e_LOWER]);
+                LOOP_ASSERT(i, isOdigit(c) == DOC_TABLE[i][Util::e_ODIGIT]);
+                LOOP_ASSERT(i, isDigit(c)  == DOC_TABLE[i][Util::e_DIGIT]);
+                LOOP_ASSERT(i, isXdigit(c) == DOC_TABLE[i][Util::e_XDIGIT]);
 
-                LOOP_ASSERT(i, isIdent(i)  == DOC_TABLE[i][Util::e_IDENT]);
-                LOOP_ASSERT(i, isAlund(i)  == DOC_TABLE[i][Util::e_ALUND]);
-                LOOP_ASSERT(i, isAll(i)    == DOC_TABLE[i][Util::e_ALL]);
-                LOOP_ASSERT(i, isNone(i)   == DOC_TABLE[i][Util::e_NONE]);
+                LOOP_ASSERT(i, isAlpha(c)  == DOC_TABLE[i][Util::e_ALPHA]);
+                LOOP_ASSERT(i, isAlnum(c)  == DOC_TABLE[i][Util::e_ALNUM]);
+                LOOP_ASSERT(i, isSpace(c)  == DOC_TABLE[i][Util::e_SPACE]);
+                LOOP_ASSERT(i, isPrint(c)  == DOC_TABLE[i][Util::e_PRINT]);
+
+                LOOP_ASSERT(i, isGraph(c)  == DOC_TABLE[i][Util::e_GRAPH]);
+                LOOP_ASSERT(i, isPunct(c)  == DOC_TABLE[i][Util::e_PUNCT]);
+                LOOP_ASSERT(i, isCntrl(c)  == DOC_TABLE[i][Util::e_CNTRL]);
+                LOOP_ASSERT(i, isAscii(c)  == DOC_TABLE[i][Util::e_ASCII]);
+
+                LOOP_ASSERT(i, isIdent(c)  == DOC_TABLE[i][Util::e_IDENT]);
+                LOOP_ASSERT(i, isAlund(c)  == DOC_TABLE[i][Util::e_ALUND]);
+                LOOP_ASSERT(i, isAll(c)    == DOC_TABLE[i][Util::e_ALL]);
+                LOOP_ASSERT(i, isNone(c)   == DOC_TABLE[i][Util::e_NONE]);
             }
         }
 
         if (verbose) cout << "\nCompare toLower with <ctype>." << endl;
         {
-            for (int i = 'A'; i <= 'Z'; ++i) {
-                if (veryVerbose) P(char(i));
+            for (char i = 'A'; i <= 'Z'; ++i) {
+                if (veryVerbose) P(i);
                 LOOP_ASSERT(i, toLower(i) == tolower(i));
             }
         }
 
         if (verbose) cout << "\nCompare toUpper with <ctype>." << endl;
         {
-            for (int i = 'a'; i <= 'z'; ++i) {
-                if (veryVerbose) P(char(i));
+            for (char i = 'a'; i <= 'z'; ++i) {
+                if (veryVerbose) P(i);
                 LOOP_ASSERT(i, toUpper(i) == toupper(i));
             }
         }

@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // First, we create an array to provide storage for the stream buffer, and
 // construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
 //..
-//  const unsigned int          STORAGE_SIZE = 64;
+//  const int                   STORAGE_SIZE = 64;
 //  char                        storage[STORAGE_SIZE];
 //  bdlsb::FixedMemOutStreamBuf buffer(storage, STORAGE_SIZE);
 //..
