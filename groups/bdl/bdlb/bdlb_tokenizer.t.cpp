@@ -5,12 +5,12 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_string.h>
-
 #include <bsl_cstdlib.h>                  // 'bsl::atoi'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
+
 
 using namespace BloombergLP;
 using namespace bsl;
