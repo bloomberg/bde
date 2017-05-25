@@ -1162,24 +1162,24 @@ int main(int argc, char *argv[])
 
                 char c = static_cast<char>(i);
 
-                LOOP_ASSERT(i, isUpper(c)  == !!isupper(c));
-                LOOP_ASSERT(i, isLower(c)  == !!islower(c));
-                LOOP_ASSERT(i, isDigit(c)  == !!isdigit(c));
-                LOOP_ASSERT(i, isOdigit(c) == !!isoctaldigit(c));
-                LOOP_ASSERT(i, isXdigit(c) == !!isXdigit(c));
+                LOOP_ASSERT(i, isUpper(c)  == !!isupper(i));
+                LOOP_ASSERT(i, isLower(c)  == !!islower(i));
+                LOOP_ASSERT(i, isDigit(c)  == !!isdigit(i));
+                LOOP_ASSERT(i, isOdigit(c) == !!isoctaldigit(i));
+                LOOP_ASSERT(i, isXdigit(c) == !!isxdigit(i));
 
-                LOOP_ASSERT(i, isAlpha(c)  == !!isalpha(c));
-                LOOP_ASSERT(i, isAlnum(c)  == !!isalnum(c));
-                LOOP_ASSERT(i, isSpace(c)  == !!isspace(c));
-                LOOP_ASSERT(i, isPrint(c)  == !!isprint(c));
+                LOOP_ASSERT(i, isAlpha(c)  == !!isalpha(i));
+                LOOP_ASSERT(i, isAlnum(c)  == !!isalnum(i));
+                LOOP_ASSERT(i, isSpace(c)  == !!isspace(i));
+                LOOP_ASSERT(i, isPrint(c)  == !!isprint(i));
 
-                LOOP_ASSERT(i, isGraph(c)  == !!isgraph(c));
-                LOOP_ASSERT(i, isPunct(c)  == !!ispunct(c));
-                LOOP_ASSERT(i, isCntrl(c)  == !!iscntrl(c));
-                LOOP_ASSERT(i, isAscii(c)  == !!isascii(c));
+                LOOP_ASSERT(i, isGraph(c)  == !!isgraph(i));
+                LOOP_ASSERT(i, isPunct(c)  == !!ispunct(i));
+                LOOP_ASSERT(i, isCntrl(c)  == !!iscntrl(i));
+                LOOP_ASSERT(i, isAscii(c)  == !!isascii(i));
 
-                LOOP_ASSERT(i, isIdent(c)  == (isalnum(c) || i == '_'));
-                LOOP_ASSERT(i, isAlund(c)  == (isalpha(c) || i == '_'));
+                LOOP_ASSERT(i, isIdent(c)  == (isalnum(i) || i == '_'));
+                LOOP_ASSERT(i, isAlund(c)  == (isalpha(i) || i == '_'));
                 LOOP_ASSERT(i, isAll(c)    == 1);
                 LOOP_ASSERT(i, isNone(c)   == 0);
             }
