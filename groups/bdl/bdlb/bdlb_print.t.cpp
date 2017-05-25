@@ -20,6 +20,7 @@
 #include <bsl_string.h>
 
 #include <bsl_cctype.h>      // 'bsl::isspace'
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
 
@@ -683,7 +684,7 @@ int main(int argc, char *argv[])
                                                                            [1];
 
             for (int i=0; i < k_NUM_STATIC_BUFFERS; i++) {
-                staticBuffers[i][0] = 'a' + (i % 26);
+                staticBuffers[i][0] = static_cast<char>('a' + (i % 26));
                 buffers[i]          = bsl::make_pair(&staticBuffers[i][0], 1);
             }
 
@@ -711,7 +712,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < k_NUM_STATIC_BUFFERS; i++) {
                 for (int j = 0; j <= i; j ++ ) {
-                    staticBuffers[i][j] = 'a' + (j % 26);
+                    staticBuffers[i][j] = static_cast<char>('a' + (j % 26));
                 }
                 buffers[i] = bsl::make_pair(&staticBuffers[i][0], i + 1);
             }
@@ -952,12 +953,15 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            const int  SIZE = 128;        // Must be big enough to hold output
-                                          // string.
+            const bsl::size_t SIZE = 128;  // Must be big enough to hold output
+                                           // string.
+
             const char Z1 = static_cast<char>(0xff);
-                                          // Used to represent an unset 'char'.
-            const char Z2 = 0x00;         // Value 2 used to represent an unset
-                                          // 'char'.
+                                           // Used to represent an unset
+                                           // 'char'.
+
+            const char Z2 = 0x00;          // Value 2 used to represent an
+                                           // unset 'char'.
 
             char        mCtrlBuf1[SIZE];  bsl::memset(mCtrlBuf1, Z1, SIZE);
             char        mCtrlBuf2[SIZE];  bsl::memset(mCtrlBuf2, Z2, SIZE);
@@ -986,8 +990,8 @@ int main(int argc, char *argv[])
                     cout << "ACTUAL FORMAT:   '" << out1.str() << '\'' << endl;
                 }
 
-                const int SZ   = bsl::strlen(FMT) + 1;
-                const int REST = SIZE - SZ;
+                const bsl::size_t SZ   = bsl::strlen(FMT) + 1;
+                const bsl::size_t REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(LINE,
                             Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
@@ -1055,12 +1059,15 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            const int  SIZE = 128;   // Must be big enough to hold the output
-                                     // string.
+            const bsl::size_t SIZE = 128;  // Must be big enough to hold the
+                                           // output string.
+
             const char Z1   = static_cast<char>(0xff);
-                                     // Used to represent an unset 'char'.
-            const char Z2   = 0x00;  // Value 2 used to represent an unset
-                                     // 'char'.
+                                           // Used to represent an unset
+                                           // 'char'.
+
+            const char Z2   = 0x00;        // Value 2 used to represent an
+                                           // unset 'char'.
 
             char mCtrlBuf1[SIZE];  bsl::memset(mCtrlBuf1, Z1, SIZE);
             char mCtrlBuf2[SIZE];  bsl::memset(mCtrlBuf2, Z2, SIZE);
@@ -1086,8 +1093,8 @@ int main(int argc, char *argv[])
                     cout << "ACTUAL FORMAT:   '" << out1.str() << '\'' << endl;
                 }
 
-                const int SZ   = bsl::strlen(FMT) + 1;
-                const int REST = SIZE - SZ;
+                const bsl::size_t SZ   = bsl::strlen(FMT) + 1;
+                const bsl::size_t REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
                 LOOP_ASSERT(LINE,
                             Z1 == out1.str()[SIZE - 1]);  // Check for overrun.

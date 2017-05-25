@@ -5634,7 +5634,6 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor dam(&da);
                 bslma::TestAllocatorMonitor oam(&oa);
 
-                typedef char *                          ValueType1;
                 typedef bsl::string                     ValueType2;
 
                 typedef bdlb::NullableValue<ValueType2> ObjType2;

@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      char ch;
 //      do {
-//          ch = buffer.sbumpc();
+//          ch = static_cast<char>(buffer.sbumpc());
 //
 //          if ( (ch >= '0') && (ch <= '9') ) {
 //..

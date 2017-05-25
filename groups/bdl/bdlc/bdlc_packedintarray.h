@@ -1355,7 +1355,7 @@ void hashAppend(HASHALG& hashAlg, const PackedIntArray<TYPE>& input);
 template <class STREAM>
 void PackedIntArrayImp_Signed::bdexGet8(STREAM& stream, bsl::int8_t& variable)
 {
-    char v;
+    char v = 0;
     stream.getInt8(v);
     variable = static_cast<bsl::int8_t>(v);
 }
@@ -1364,7 +1364,7 @@ template <class STREAM>
 void PackedIntArrayImp_Signed::bdexGet16(STREAM& stream,
                                          bsl::int16_t& variable)
 {
-    short v;
+    short v = 0;
     stream.getInt16(v);
     variable = static_cast<bsl::int16_t>(v);
 }
@@ -1373,7 +1373,7 @@ template <class STREAM>
 void PackedIntArrayImp_Signed::bdexGet32(STREAM& stream,
                                          bsl::int32_t& variable)
 {
-    int v;
+    int v = 0;
     stream.getInt32(v);
     variable = static_cast<bsl::int32_t>(v);
 }
@@ -1382,7 +1382,7 @@ template <class STREAM>
 void PackedIntArrayImp_Signed::bdexGet64(STREAM& stream,
                                          bsl::int64_t& variable)
 {
-    bsls::Types::Int64 v;
+    bsls::Types::Int64 v = 0;
     stream.getInt64(v);
     variable = static_cast<bsl::int64_t>(v);
 }
@@ -1536,7 +1536,7 @@ STREAM& PackedIntArrayImp<STORAGE>::bdexStreamIn(STREAM& stream, int version)
           case 1: {
             int tmpBytesPerElement;
             {
-                char v;
+                char v = 0;
                 stream.getInt8(v);
                 tmpBytesPerElement = static_cast<int>(v);
             }

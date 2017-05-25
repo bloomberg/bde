@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -115,6 +114,8 @@ int main(int argc, char *argv[])
         int result = oldFunction();
     #endif
 //..
+
+        (void)result;
       } break;
       case 2: {
         //--------------------------------------------------------------------

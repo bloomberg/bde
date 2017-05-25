@@ -562,6 +562,8 @@ BSLS_IDENT("$Id: $")
 //  struct MyEvent {
 //      // Event data, for illustration purpose here:
 //      int d_value;
+//
+//      MyEvent() : d_value(0) {}
 //  };
 //..
 // and the event dispatcher is defined as follows:

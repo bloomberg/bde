@@ -1263,6 +1263,8 @@ using namespace bdlf::PlaceHolders;
     struct MyEvent {
         // Event data, for illustration purpose here:
         int d_value;
+
+        MyEvent() : d_value(0) {}
     };
 //..
 // and the scheduler is defined as follows:
@@ -1641,6 +1643,8 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
     };                                                                        \
                                                                               \
+    (void)NO_ALLOC_SLOTS;                                                     \
+    (void)NO_ALLOC_SLOTS_DEFAULT;                                             \
     /*
     // Values that do not take an allocator are declared 'static const' above.
 
@@ -1685,6 +1689,8 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
     const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                \
           Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0,         \
     };                                                                        \
+    (void)ALLOC_SLOTS;                                                        \
+    (void)ALLOC_SLOTS_DEFAULT;                                                \
                                                                               \
     /*
     // Values that do take an allocator (default allocator is used, which means
@@ -1732,6 +1738,8 @@ DEFINE_TEST_CASE(7) {
         //   USAGE EXAMPLE FROM TEST DRIVERS
         // ------------------------------------------------------------------
 
+        (void)veryVerbose;
+        
         if (verbose)
             printf("\nTesting Usage Example from Other Test Drivers"
                    "\n=============================================\n");
@@ -1839,6 +1847,8 @@ DEFINE_TEST_CASE(6) {
         //   USAGE EXAMPLES
         // ------------------------------------------------------------------
 
+        (void)veryVerbose;
+        
         if (verbose) printf("\nTesting Usage Examples"
                             "\n======================\n");
 
@@ -1910,6 +1920,8 @@ DEFINE_TEST_CASE(5) {
         //   RESPECTING THE SIGNATURE OF THE INVOCABLE
         // ------------------------------------------------------------------
 
+        (void)veryVerbose;
+        
         if (verbose)
             printf("\nTESTING RESPECTING THE SIGNATURE OF THE INVOCABLE"
                    "\n=================================================\n");
@@ -2453,8 +2465,9 @@ DEFINE_TEST_CASE(4) {
             // temporary copy of 'mX'.  When invoked with V1 up to V14 (which
             // use 'Z0') the allocator slots are set to 'Z0'.
 
-            const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DEFAULT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             ASSERT(14 == bdlf::BindUtil::bindS(Z2, mX,
                              // first bound argument below
@@ -2470,9 +2483,10 @@ DEFINE_TEST_CASE(4) {
 
             ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS_DEFAULT, veryVerbose));
 
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
-                                         - NUM_DEFAULT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DEFAULT_ALLOCS =
+                              Z0->numAllocations() - NUM_DEFAULT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS =
+                              Z1->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 15 == NUM_DEFAULT_ALLOCS);
             LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
@@ -2493,8 +2507,9 @@ DEFINE_TEST_CASE(4) {
             // and another 14 for the temporary copies of the nested binder's
             // bound arguments.
 
-            const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const bsls::Types::Int64 NUM_DEFAULT_ALLOCS_BEFORE =
+                                                          Z0->numAllocations();
+            const bsls::Types::Int64 NUM_ALLOCS_BEFORE = Z1->numAllocations();
 
             ASSERT(14 == bdlf::BindUtil::bindS(Z2, mX,
                               // first bound argument below
@@ -2507,8 +2522,8 @@ DEFINE_TEST_CASE(4) {
                                        // invocation arguments follow
                                        ());
 
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
-                                         - NUM_DEFAULT_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_DEFAULT_ALLOCS =
+                              Z0->numAllocations() - NUM_DEFAULT_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 43 == NUM_DEFAULT_ALLOCS);
 
             const bslma::Allocator *BINDS_ALLOC_SLOTS[NUM_SLOTS] = {
@@ -2518,7 +2533,8 @@ DEFINE_TEST_CASE(4) {
 
             ASSERT(SlotsAlloc::verifySlots(BINDS_ALLOC_SLOTS, veryVerbose));
 
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
+            const bsls::Types::Int64 NUM_ALLOCS =
+                                      Z1->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -2604,6 +2620,8 @@ DEFINE_TEST_CASE(3) {
         //   TESTING MIXING BOUND ARGUMENTS AND PLACEHOLDERS
         // ------------------------------------------------------------------
 
+        (void)veryVerbose;
+        
         if (verbose) printf("\nMIXING BOUND ARGUMENTS AND PLACEHOLDERS"
                             "\n=======================================\n");
 
@@ -3390,6 +3408,8 @@ DEFINE_TEST_CASE(2) {
         //   TESTING BSLALG_DECLARE_NESTED_TRAITS
         // ------------------------------------------------------------------
 
+        (void)veryVerbose;
+        
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============\n");
 
@@ -3425,6 +3445,8 @@ DEFINE_TEST_CASE(1) {
         //   BREATHING TEST
         // ------------------------------------------------------------------
 
+        (void)veryVerbose;
+        
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 

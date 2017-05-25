@@ -18,6 +18,7 @@
 #include <bsl_algorithm.h>   // 'bsl::transform'
 
 #include <ctype.h>           // 'tolower', 'toupper'
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'bsl::atoi'
 #include <bsl_cstdio.h>      // 'bsl::sprintf'
 #include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
@@ -393,8 +394,8 @@ int main(int argc, char *argv[])
 
             bdlb::String::skipLeadingTrailing(&begin, &end);
 
-            const int RESBEGIN = begin - STRING;
-            const int RESEND   = end   - STRING;
+            const bsl::ptrdiff_t RESBEGIN = begin - STRING;
+            const bsl::ptrdiff_t RESEND   = end   - STRING;
 
             LOOP2_ASSERT(RESBEGIN, EXPBEGIN, STRING + EXPBEGIN == begin);
             LOOP2_ASSERT(RESEND,   EXPEND,   STRING + EXPEND   == end);
