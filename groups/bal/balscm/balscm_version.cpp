@@ -1,12 +1,4 @@
 // balscm_version.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <balscm_version.h>
 
 #include <bsls_ident.h>
@@ -14,43 +6,24 @@ BSLS_IDENT_RCSID(balscm_version_cpp,"$Id$ $CSID$")
 
 #include <bslscm_patchversion.h> // BSLSCM_PATCHVERSION_PATCH
 
-#include <balscm_versiontag.h>
-
-#include <bdlscm_versiontag.h>
-
-#include <bslscm_versiontag.h>
-
 namespace BloombergLP {
-
-#define STRINGIFY2(a) #a
-#define STRINGIFY(a) STRINGIFY2(a)
-
-// Required patch versions for dependencies 'bsl' and 'bdl' are independent of
-// whether or not 'bal' versioning tracks 'bsl' versioning.
-
-#define REQUIRED_BSL_PATCH 0
-#define BSLSCM_VERSION_STRING "BLP_LIB_BDE_BSL_" STRINGIFY(BSL_VERSION_MAJOR) \
-                                             "." STRINGIFY(BSL_VERSION_MINOR) \
-                                             "." STRINGIFY(REQUIRED_BSL_PATCH)
-
-#define REQUIRED_BDL_PATCH 0
-#define BDLSCM_VERSION_STRING "BLP_LIB_BDE_BDL_" STRINGIFY(BDL_VERSION_MAJOR) \
-                                             "." STRINGIFY(BDL_VERSION_MINOR) \
-                                             "." STRINGIFY(REQUIRED_BDL_PATCH)
 
 // 'bal' is maintained in sync with 'bsl', so they share a patch version.
 
 #define BAL_VERSION_PATCH BSLSCM_PATCHVERSION_PATCH
+
+#define STRINGIFY2(a) #a
+#define STRINGIFY(a) STRINGIFY2(a)
+
 #define BALSCM_VERSION_STRING "BLP_LIB_BDE_BAL_" STRINGIFY(BAL_VERSION_MAJOR) \
                                              "." STRINGIFY(BAL_VERSION_MINOR) \
                                              "." STRINGIFY(BAL_VERSION_PATCH)
 
 const char *balscm::Version::s_ident = "$Id: " BALSCM_VERSION_STRING " $";
-const char *balscm::Version::s_what  = "@(#)" BALSCM_VERSION_STRING;
+const char *balscm::Version::s_what  = "@(#)"  BALSCM_VERSION_STRING;
 
-const char *balscm::Version::s_version           = BALSCM_VERSION_STRING;
-const char *balscm::Version::s_dependencies      =
-                               BSLSCM_VERSION_STRING " " BDLSCM_VERSION_STRING;
+const char *balscm::Version::BALSCM_S_VERSION    = BALSCM_VERSION_STRING;
+const char *balscm::Version::s_dependencies      = "";
 const char *balscm::Version::s_buildInfo         = "";
 const char *balscm::Version::s_timestamp         = "";
 const char *balscm::Version::s_sourceControlInfo = "";

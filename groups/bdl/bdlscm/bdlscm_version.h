@@ -29,12 +29,46 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// A program can display the version of BDL that was used to build it by
-// printing the version string returned by 'bdlscm::Version::version()' to
-// 'stdout' as follows:
+// This section illustrates intended use of this component.
+//
+///Example 1: Embedding Version Information
+/// - - - - - - - - - - - - - - - - - - - -
+// The version of the 'bdl' package group linked into a program can be
+// obtained at runtime using the 'version' 'static' member function as follows:
 //..
-//  bsl::cout << "BDL version: " <<  bdlscm::Version::version() << bsl::endl;
+//        #include <bdlscm_version.h>
+//
+//        assert(0 != bdlscm::Version::version());
+//
+//        bsl::cout << "BDL version: " << bdlscm::Version::version()
+//                  << bsl::endl;
 //..
+// Output similar to the following will be printed to 'stdout':
+//..
+//        BAL version: BLP_LIB_BDE_BDL_0.01.0
+//..
+// The "0.01.0" portion of the string distinguishes different versions of the
+// 'bal' package group.
+//
+///Example 2: Accessing the Embedded Version information
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The versioning information embedded into a binary file by this component can
+// be examined under UNIX using several well-known utilities.  For example:
+//..
+//        $ ident a.out
+//        a.out:
+//             $Id: BLP_LIB_BDE_BDL_0.01.0 $
+//
+//        $ what a.out | grep BDL
+//                BLP_LIB_BDE_BDL_0.01.0
+//
+//        $ strings a.out | grep BDL
+//        $Id: BLP_LIB_BDE_BDL_0.01.0 $
+//        @(#)BLP_LIB_BDE_BDL_0.01.0
+//        BLP_LIB_BDE_BDL_0.01.0
+//..
+// Note that 'ident' and 'what' typically will display many version strings
+// unrelated to 'bdl' depending on the libraries used by 'a.out'.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -48,46 +82,58 @@ BSLS_IDENT("$Id: $")
 #include <bsls_linkcoercion.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
-
 namespace BloombergLP {
+
 namespace bdlscm {
 
-struct Version {
-    static const char *s_ident;
-    static const char *s_what;
+                         // =======
+                         // Version
+                         // =======
 
-#define BDLSCM_CONCAT2(a,b,c,d,e) a ## b ## c ## d ## e
-#define BDLSCM_CONCAT(a,b,c,d,e)  BDLSCM_CONCAT2(a,b,c,d,e)
+struct Version {
+    // This struct provides a namespace for (1) source control management
+    // (versioning) information that is embedded in binary executable files,
+    // and (2) a facility to query that information at runtime.
+
+    // CLASS DATA
+    static const char *s_ident;              // RCS-style version string
+    static const char *s_what;               // SCCS-style version string
+
+#define BDLSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
+#define BDLSCM_CONCAT(a,b,c,d,e,f)  BDLSCM_CONCAT2(a,b,c,d,e,f
 
 // 'BDLSCM_D_VERSION' is a symbol whose name warns users of version mismatch
 // linking errors.  Note that the exact string "compiled_this_object" must be
 // present in this version coercion symbol.  Tools may look for this pattern to
 // warn users of mismatches.
-#define BDLSCM_D_VERSION BDLSCM_CONCAT(                \
-                       d_version_BDL_,                 \
-                       BDL_VERSION_MAJOR,              \
-                       _,                              \
-                       BDL_VERSION_MINOR,              \
-                       _compiled_this_object)
 
-    static const char *BDLSCM_S_VERSION;
+#define BDLSCM_D_VERSION BDLSCM_CONCAT(s_version_BDL_,       \
+                                       BDL_VERSION_MAJOR, _, \
+                                       BDL_VERSION_MINOR, _, \
+                                       compiled_this_object)
 
-    static const char *s_dependencies;
-    static const char *s_buildInfo;
-    static const char *s_timestamp;
-    static const char *s_sourceControlInfo;
+    static const char *BDLSCM_S_VERSION;     // BDE-style version string
 
+    static const char *s_dependencies;       // available for future use
+    static const char *s_buildInfo;          // available for future use
+    static const char *s_timestamp;          // available for future use
+    static const char *s_sourceControlInfo;  // available for future use
+
+    // CLASS METHODS
     static const char *version();
+        // Return the address of a character string that identifies the version
+        // of the 'bal' package group in use.
 };
 
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                         // --------------
+                         // struct Version
+                         // --------------
+
+// CLASS METHODS
 inline
 const char *Version::version()
 {

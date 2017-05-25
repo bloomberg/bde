@@ -15,15 +15,15 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide versioning information for the 'bae' package group.
+//@PURPOSE: Provide versioning information for the 'bal' package group.
 //
 //@SEE_ALSO: balscm_version
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component provides versioning information for the 'bae'
+//@DESCRIPTION: This component provides versioning information for the 'bal'
 // package group.  The 'BAL_VERSION' macro that is supplied can be used for
-// conditional-compilation based on 'bae' version information.  The following
+// conditional-compilation based on 'bal' version information.  The following
 // usage example illustrates this basic capability.
 //
 // Note that since 'bae' is always released in lock-step with 'bde', they
