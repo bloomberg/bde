@@ -279,7 +279,6 @@ int main(int argc, char *argv[])
                                                               &dispatcher)));
             dispatcher.barrier()->wait();
 
-            int currentTask = 1;
             string currentTaskName;
             vector<string> functionsToAdd;
 
