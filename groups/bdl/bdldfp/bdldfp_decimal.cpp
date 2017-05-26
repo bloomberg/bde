@@ -799,6 +799,7 @@ bsl::basic_ostream<wchar_t>&
 bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
                                         bsl::basic_ostream<wchar_t>& out,
                                         bdldfp::Decimal128           value);
+
 }  // close enterprise namespace
                   // std::numeric_limits<> specializations
 

@@ -6386,7 +6386,6 @@ bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
     return lhs >= Decimal128(rhs);
 }
 
-
 // FREE FUNCTIONS
 template <class HASHALG>
 inline
@@ -6394,12 +6393,12 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal32& object)
 {
     using ::BloombergLP::bslh::hashAppend;
 
-    const char ZERO_P = 1;  // positive zero
-    const char ZERO_N = 2;  // negative zero
-    const char INF_P  = 3;  // positive infinity
-    const char INF_N  = 4;  // negative infinity
-    const char NAN_P  = 5;  // positive NaN
-    const char NAN_N  = 6;  // negative NaN
+    const int ZERO_P = 1;  // positive zero
+    const int ZERO_N = 2;  // negative zero
+    const int INF_P  = 3;  // positive infinity
+    const int INF_N  = 4;  // negative infinity
+    const int NAN_P  = 5;  // positive NaN
+    const int NAN_N  = 6;  // negative NaN
 
     int          sign;
     unsigned int significand;
