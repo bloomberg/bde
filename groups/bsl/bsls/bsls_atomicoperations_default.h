@@ -482,6 +482,242 @@ struct AtomicOperations_DefaultInt64
                                        typename AtomicTypes::Int64 *atomicInt);
 };
 
+                    // ===================================
+                    // struct AtomicOperations_DefaultUint
+                    // ===================================
+
+template <class IMP>
+struct Atomic_TypeTraits;
+
+template <class IMP>
+struct AtomicOperations_DefaultUint
+    // This class provides default implementations of non-essential atomic
+    // operations for the 32-bit unsigned integer type independent on any specific
+    // platform.  It also provides prototypes for the atomic operations for the
+    // 32-bit unsigned integer type that have to be implemented separately for each
+    // specific platform.  These platform-independent and platform-specific
+    // atomic operations together form a full set of atomic operations for the
+    // 32-bit unsigned integer type.
+    //
+    // Note that 'AtomicOperations_DefaultUint' is implemented in
+    // terms of the following atomic operations on the integer type which must
+    // be provided by the 'IMP' template parameter.
+    //..
+    //  static int getInt(typename AtomicTypes::Int const *atomicInt);
+    //  static int getIntRelaxed(typename AtomicTypes::Int const *atomicInt);
+    //  static int getIntAcquire(typename AtomicTypes::Int const *atomicInt);
+    //  static void setInt(typename AtomicTypes::Int *atomicInt, int value);
+    //  static void setIntRelaxed(typename AtomicTypes::Int *atomicInt,
+    //                            int value);
+    //  static void setIntRelease(typename AtomicTypes::Int *atomicInt,
+    //                            int value);
+    //  static int swapInt(typename AtomicTypes::Int *atomicInt,
+    //                     int swapValue);
+    //  static int swapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+    //                           int swapValue);
+    //  static int testAndSwapInt(typename AtomicTypes::Int *atomicInt,
+    //                            int compareValue,
+    //                            int swapValue);
+    //  static int testAndSwapIntAcqRel(typename AtomicTypes::Int *atomicInt,
+    //                                  int compareValue,
+    //                                  int swapValue);
+    //..
+{
+  public:
+    // PUBLIC TYPES
+    typedef Atomic_TypeTraits<IMP> AtomicTypes;
+
+    // CLASS METHODS
+    static unsigned int getUint(typename AtomicTypes::Uint const *atomicUint);
+
+    static void setUint(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static unsigned int swapUint(typename AtomicTypes::Uint *atomicUint, unsigned int swapValue);
+
+    static unsigned int testAndSwapUint(typename AtomicTypes::Uint *atomicUint,
+             unsigned int compareValue,
+             unsigned int swapValue);
+
+    static unsigned int addUintNv(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static unsigned int subUintNv(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static void initUint(typename AtomicTypes::Uint *atomicUint,
+       unsigned int initialValue = 0);
+
+    static unsigned int getUintRelaxed(typename AtomicTypes::Uint const *atomicUint);
+
+    static unsigned int getUintAcquire(typename AtomicTypes::Uint const *atomicUint);
+
+    static void setUintRelaxed(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static void setUintRelease(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static unsigned int swapUintAcqRel(typename AtomicTypes::Uint *atomicUint,
+        unsigned int swapValue);
+
+    static unsigned int testAndSwapUintAcqRel(typename AtomicTypes::Uint *atomicUint,
+               unsigned int compareValue,
+               unsigned int swapValue);
+
+    static unsigned int addUintNvRelaxed(typename AtomicTypes::Uint *atomicUint,
+          unsigned int value);
+
+    static unsigned int addUintNvAcqRel(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static void addUint(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static void addUintRelaxed(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static void addUintAcqRel(typename AtomicTypes::Uint *atomicUint, unsigned int value);
+
+    static unsigned int incrementUintNv(typename AtomicTypes::Uint *atomicUint);
+
+    static unsigned int incrementUintNvAcqRel(typename AtomicTypes::Uint *atomicUint);
+
+    static void incrementUint(typename AtomicTypes::Uint *atomicUint);
+
+    static void incrementUintAcqRel(typename AtomicTypes::Uint *atomicUint);
+
+    static unsigned int decrementUintNv(typename AtomicTypes::Uint *atomicUint);
+
+    static unsigned int decrementUintNvAcqRel(typename AtomicTypes::Uint *atomicUint);
+
+    static void decrementUint(typename AtomicTypes::Uint *atomicUint);
+
+    static void decrementUintAcqRel(typename AtomicTypes::Uint *atomicUint);
+};
+
+                    // =====================================
+                    // struct AtomicOperations_DefaultUint64
+                    // =====================================
+
+template <class IMP>
+struct AtomicOperations_DefaultUint64
+    // This class provides default implementations of non-essential atomic
+    // operations for the 64-bit unsigned integer type independent on any specific
+    // platform.  It also provides prototypes for the atomic operations for the
+    // 64-bit unsigned integer type that have to be implemented separately for each
+    // specific platform.  These platform-independent and platform-specific
+    // atomic operations together form a full set of atomic operations for the
+    // 64-bit unsigned integer type.
+    //
+    // Note that 'AtomicOperations_DefaultUint64' is implemented in
+    // terms of the following atomic operations on the Int64 type which must be
+    // provided by the 'IMP' template parameter.
+    //..
+    //  static Types::Int64 getInt64(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
+    //  static Types::Int64 getInt64Relaxed(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
+    //  static Types::Int64 getInt64Acquire(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
+    //  static void setInt64(typename AtomicTypes::Int64 *atomicInt,
+    //                       Types::Int64 value);
+    //  static void setInt64Relaxed(typename AtomicTypes::Int64 *atomicInt,
+    //                              Types::Int64 value);
+    //  static void setInt64Release(typename AtomicTypes::Int64 *atomicInt,
+    //                              Types::Int64 value);
+    //  static Types::Int64 swapInt64(typename AtomicTypes::Int64 *atomicInt,
+    //                                Types::Int64 swapValue);
+    //  static Types::Int64 swapInt64AcqRel(
+    //                                  typename AtomicTypes::Int64 *atomicInt,
+    //                                  Types::Int64 swapValue);
+    //  static Types::Int64 testAndSwapInt64(
+    //                                  typename AtomicTypes::Int64 *atomicInt,
+    //                                  Types::Int64 compareValue,
+    //                                  Types::Int64 swapValue);
+    //  static Types::Int64 testAndSwapInt64AcqRel(
+    //                                  typename AtomicTypes::Int64 *atomicInt,
+    //                                  Types::Int64 compareValue,
+    //                                  Types::Int64 swapValue);
+    //..
+{
+  public:
+    // PUBLIC TYPES
+    typedef Atomic_TypeTraits<IMP> AtomicTypes;
+
+    // CLASS METHODS
+    static Types::Uint64 getUint64(typename AtomicTypes::Uint64 const *atomicUint);
+
+    static void setUint64(typename AtomicTypes::Uint64 *atomicUint,
+        Types::Uint64 value);
+
+    static Types::Uint64 swapUint64(typename AtomicTypes::Uint64 *atomicUint,
+             Types::Uint64 swapValue);
+
+    static Types::Uint64 testAndSwapUint64(
+                   typename AtomicTypes::Uint64 *atomicUint,
+                   Types::Uint64 compareValue,
+                   Types::Uint64 swapValue);
+
+    static Types::Uint64 addUint64Nv(typename AtomicTypes::Uint64 *atomicUint,
+              Types::Uint64 value);
+
+    static Types::Uint64 subUint64Nv(typename AtomicTypes::Uint64 *atomicUint,
+              Types::Uint64 value);
+
+    static void initUint64(typename AtomicTypes::Uint64  *atomicUint,
+     Types::Uint64  initialValue = 0);
+
+    static Types::Uint64 getUint64Relaxed(
+            typename AtomicTypes::Uint64 const *atomicUint);
+
+    static Types::Uint64 getUint64Acquire(
+            typename AtomicTypes::Uint64 const *atomicUint);
+
+    static void setUint64Relaxed(typename AtomicTypes::Uint64 *atomicUint,
+           Types::Uint64 value);
+
+    static void setUint64Release(typename AtomicTypes::Uint64 *atomicUint,
+           Types::Uint64 value);
+
+    static Types::Uint64 swapUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint,
+                   Types::Uint64 swapValue);
+
+    static Types::Uint64 testAndSwapUint64AcqRel(
+                 typename AtomicTypes::Uint64 *atomicUint,
+                 Types::Uint64 compareValue,
+                 Types::Uint64 swapValue);
+
+    static Types::Uint64 addUint64NvRelaxed(
+                   typename AtomicTypes::Uint64 *atomicUint,
+                   Types::Uint64 value);
+
+    static Types::Uint64 addUint64NvAcqRel(
+                   typename AtomicTypes::Uint64 *atomicUint,
+                   Types::Uint64 value);
+
+    static void addUint64(typename AtomicTypes::Uint64 *atomicUint,
+        Types::Uint64 value);
+
+    static void addUint64Relaxed(typename AtomicTypes::Uint64 *atomicUint,
+           Types::Uint64 value);
+
+    static void addUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint,
+          Types::Uint64 value);
+
+    static void incrementUint64(typename AtomicTypes::Uint64 *atomicUint);
+
+    static void incrementUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint);
+
+    static Types::Uint64 incrementUint64Nv(
+                  typename AtomicTypes::Uint64 *atomicUint);
+
+    static Types::Uint64 incrementUint64NvAcqRel(
+                  typename AtomicTypes::Uint64 *atomicUint);
+
+    static void decrementUint64(typename AtomicTypes::Uint64 *atomicUint);
+
+    static void decrementUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint);
+
+    static Types::Uint64 decrementUint64Nv(
+                  typename AtomicTypes::Uint64 *atomicUint);
+
+    static Types::Uint64 decrementUint64NvAcqRel(
+                  typename AtomicTypes::Uint64 *atomicUint);
+};
+
                   // ========================================
                   // struct AtomicOperations_DefaultPointer32
                   // ========================================
@@ -647,9 +883,12 @@ template <class IMP>
 struct AtomicOperations_Default32
 : AtomicOperations_DefaultInt<IMP>
 , AtomicOperations_DefaultInt64<IMP>
+, AtomicOperations_DefaultUint<IMP>
+, AtomicOperations_DefaultUint64<IMP>
 , AtomicOperations_DefaultPointer32<IMP>
     // This class provides default implementations of non-essential atomic
-    // operations for the 32-bit integer, 64-bit integer and 32-bit pointer
+    // operations for the 32-bit integer, 64-bit integer,
+    // the 32-bit unsigned integer, 64-bit unsigned integer and 32-bit pointer
     // type for a generic 32-bit platform.
 {
 };
@@ -662,9 +901,12 @@ template <class IMP>
 struct AtomicOperations_Default64
 : AtomicOperations_DefaultInt<IMP>
 , AtomicOperations_DefaultInt64<IMP>
+, AtomicOperations_DefaultUint<IMP>
+, AtomicOperations_DefaultUint64<IMP>
 , AtomicOperations_DefaultPointer64<IMP>
     // This class provides default implementations of non-essential atomic
-    // operations for the 32-bit integer, 64-bit integer and 64-bit pointer
+    // operations for the 32-bit integer, 64-bit integer,
+    // the 32-bit unsigned integer, 64-bit unsigned integer and 64-bit pointer
     // type for a generic 64-bit platform.
 {
 };
@@ -1014,6 +1256,438 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     decrementInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt)
 {
     return IMP::addInt64NvAcqRel(atomicInt, -1);
+}
+
+                     // ----------------------------------
+                     // struct AtomicOperations_DefaultUint
+                     // ----------------------------------
+
+// CLASS METHODS
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    getUint(typename AtomicTypes::Uint const *atomicUint)
+{
+    return static_cast<unsigned int>(
+              IMP::getInt(
+                  reinterpret_cast<typename AtomicTypes::Int const *>(
+                      atomicUint)));
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    setUint(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    IMP::setInt(reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+                static_cast<int>(value));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    swapUint(typename AtomicTypes::Uint *atomicUint, unsigned int swapValue)
+{
+    return static_cast<unsigned int>(
+             IMP::swapInt(
+                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+                 static_cast<int>(swapValue)));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    testAndSwapUint(typename AtomicTypes::Uint *atomicUint,
+         unsigned int compareValue,
+         unsigned int swapValue)
+{
+    return static_cast<unsigned int>(
+             IMP::testAndSwapInt(
+                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+				 static_cast<int>(compareValue),
+				 static_cast<int>(swapValue)));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    addUintNv(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    return static_cast<unsigned int>(
+             IMP::addIntNv(
+                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+  	             static_cast<int>(value)));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    subUintNv(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    return static_cast<unsigned int>(
+             IMP::addIntNv(
+                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+  	             -static_cast<int>(value)));
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    initUint(typename AtomicTypes::Uint *atomicUint, unsigned int initialValue)
+{
+    atomicUint->d_value = initialValue;
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    getUintRelaxed(typename AtomicTypes::Uint const *atomicUint)
+{
+    return atomicUint->d_value;
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    getUintAcquire(typename AtomicTypes::Uint const *atomicUint)
+{
+    return static_cast<unsigned int>(
+    		IMP::getIntAcquire(
+    			reinterpret_cast<typename AtomicTypes::Int *>(atomicUint)));
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    setUintRelaxed(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    atomicUint->d_value = value;
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    setUintRelease(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    IMP::setIntRelease(
+    	reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+		static_cast<int>(value));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    swapUintAcqRel(typename AtomicTypes::Uint *atomicUint, unsigned int swapValue)
+{
+    return static_cast<unsigned int>(
+        IMP::swapIntAcqRel(
+        	reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+        	static_cast<int>(swapValue)));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    testAndSwapUintAcqRel(typename AtomicTypes::Uint *atomicUint,
+                         unsigned int compareValue,
+                         unsigned int swapValue)
+{
+    return static_cast<unsigned int>(
+             IMP::testAndSwapIntAcqRel(
+                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+				 static_cast<int>(compareValue),
+				 static_cast<int>(swapValue)));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    addUintNvRelaxed(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    return static_cast<unsigned int>(
+        IMP::addIntNvRelaxed(
+        	reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+        	static_cast<int>(value)));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    addUintNvAcqRel(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    return static_cast<unsigned int>(
+        IMP::addIntNvAcqRel(
+        	reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+        	static_cast<int>(value)));
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    addUint(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+        IMP::addInt(reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+        	        static_cast<int>(value));
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    addUintRelaxed(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    IMP::addIntRelaxed(
+    	reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+    	static_cast<int>(value));
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    addUintAcqRel(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+{
+    IMP::addIntAcqRel(
+    	reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+    	static_cast<int>(value));
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    incrementUintNv(typename AtomicTypes::Uint *atomicUint)
+{
+    return IMP::addUintNv(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    incrementUintNvAcqRel(typename AtomicTypes::Uint *atomicUint)
+{
+    return IMP::addUintNvAcqRel(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    incrementUint(typename AtomicTypes::Uint *atomicUint)
+{
+    IMP::addUint(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    incrementUintAcqRel(typename AtomicTypes::Uint *atomicUint)
+{
+    IMP::addUintAcqRel(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    decrementUintNv(typename AtomicTypes::Uint *atomicUint)
+{
+    return IMP::subUintNv(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+unsigned int AtomicOperations_DefaultUint<IMP>::
+    decrementUintNvAcqRel(typename AtomicTypes::Uint *atomicUint)
+{
+    return IMP::addUintNvAcqRel(atomicUint, -1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    decrementUint(typename AtomicTypes::Uint *atomicUint)
+{
+    IMP::addUint(atomicUint, -1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint<IMP>::
+    decrementUintAcqRel(typename AtomicTypes::Uint *atomicUint)
+{
+    IMP::addUintAcqRel(atomicUint, -1);
+}
+
+                    // ------------------------------------
+                    // struct AtomicOperations_DefaultUint64
+                    // ------------------------------------
+
+// CLASS METHODS
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    initUint64(typename AtomicTypes::Uint64  *atomicUint,
+              Types::Uint64 initialValue)
+{
+    atomicUint->d_value = initialValue;
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    getUint64Relaxed(typename AtomicTypes::Uint64 const *atomicUint)
+{
+    return atomicUint->d_value;
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    getUint64Acquire(typename AtomicTypes::Uint64 const *atomicUint)
+{
+    return IMP::getUint64(atomicUint);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    setUint64Relaxed(typename AtomicTypes::Uint64 *atomicUint,
+                    Types::Uint64 value)
+{
+    atomicUint->d_value = value;
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    setUint64Release(typename AtomicTypes::Uint64 *atomicUint,
+                    Types::Uint64 value)
+{
+    IMP::setUint64(atomicUint, value);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    swapUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint,
+                    Types::Uint64 swapValue)
+{
+    return IMP::swapUint64(atomicUint, swapValue);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    testAndSwapUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint,
+                           Types::Uint64 compareValue,
+                           Types::Uint64 swapValue)
+{
+    return IMP::testAndSwapUint64(atomicUint, compareValue, swapValue);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    addUint64NvRelaxed(typename AtomicTypes::Uint64 *atomicUint,
+                      Types::Uint64 value)
+{
+    return IMP::addUint64NvAcqRel(atomicUint, value);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    addUint64NvAcqRel(typename AtomicTypes::Uint64 *atomicUint,
+                     Types::Uint64 value)
+{
+    return IMP::addUint64Nv(atomicUint, value);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    addUint64(typename AtomicTypes::Uint64 *atomicUint,
+             Types::Uint64 value)
+{
+    IMP::addUint64Nv(atomicUint, value);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    addUint64Relaxed(typename AtomicTypes::Uint64 *atomicUint,
+                    Types::Uint64 value)
+{
+    IMP::addUint64NvRelaxed(atomicUint, value);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    addUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint,
+                   Types::Uint64 value)
+{
+    IMP::addUint64NvAcqRel(atomicUint, value);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    incrementUint64(typename AtomicTypes::Uint64 *atomicUint)
+{
+    IMP::addUint64(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    incrementUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint)
+{
+    IMP::addUint64AcqRel(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    incrementUint64Nv(typename AtomicTypes::Uint64 *atomicUint)
+{
+    return IMP::addUint64Nv(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    incrementUint64NvAcqRel(typename AtomicTypes::Uint64 *atomicUint)
+{
+    return IMP::addUint64NvAcqRel(atomicUint, 1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    decrementUint64(typename AtomicTypes::Uint64 *atomicUint)
+{
+    IMP::addUint64(atomicUint, -1);
+}
+
+template <class IMP>
+inline
+void AtomicOperations_DefaultUint64<IMP>::
+    decrementUint64AcqRel(typename AtomicTypes::Uint64 *atomicUint)
+{
+    IMP::addUint64AcqRel(atomicUint, -1);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    decrementUint64Nv(typename AtomicTypes::Uint64 *atomicUint)
+{
+    return IMP::addUint64Nv(atomicUint, -1);
+}
+
+template <class IMP>
+inline
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
+    decrementUint64NvAcqRel(typename AtomicTypes::Uint64 *atomicUint)
+{
+    return IMP::addUint64NvAcqRel(atomicUint, -1);
 }
 
                   // ----------------------------------------
