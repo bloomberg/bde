@@ -545,6 +545,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -963,6 +967,15 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     //
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Decimal32& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'Decimal32'.  Note that two
+    // objects which have the same value but different representations will
+    // hash to the same value.
 
                             // ====================
                             // class Decimal_Type64
@@ -5139,7 +5152,6 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 }
 
 // FREE OPERATORS
-
 inline
 bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 value)
 {
@@ -6372,6 +6384,78 @@ inline
 bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 {
     return lhs >= Decimal128(rhs);
+}
+
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal32& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    const char ZERO_P = 1;  // positive zero
+    const char ZERO_N = 2;  // negative zero
+    const char INF_P  = 3;  // positive infinity
+    const char INF_N  = 4;  // negative infinity
+    const char NAN_P  = 5;  // positive NaN
+    const char NAN_N  = 6;  // negative NaN
+
+    int          sign;
+    unsigned int significand;
+    int          exponent;
+    int          result;
+
+    result = DecimalImpUtil::decompose(&sign,
+                                       &significand,
+                                       &exponent,
+                                       object.value());
+
+    switch (result) {
+      case FP_ZERO: {
+        if (sign == 1) {
+            hashAppend(hashAlg, ZERO_P);
+        } else {
+            hashAppend(hashAlg, ZERO_N);
+        }
+      } break;
+
+      case FP_INFINITE: {
+        if (sign == 1) {
+            hashAppend(hashAlg, INF_P);
+        } else {
+            hashAppend(hashAlg, INF_N);
+        }
+      } break;
+
+      case FP_NAN: {
+        if (sign == 1) {
+            hashAppend(hashAlg, NAN_P);
+        } else {
+            hashAppend(hashAlg, NAN_N);
+        }
+      } break;
+
+      case FP_NORMAL:
+      case FP_SUBNORMAL: {
+        // Normalization.
+        if (significand) {
+            while ((significand % 10 == 0) && (exponent < 96)) {
+                significand /= 10;
+                ++exponent;
+            }
+        } else {
+            exponent = 0;
+        }
+
+        Decimal32 result = DecimalImpUtil::makeDecimalRaw32(sign*significand,
+                                                            exponent);
+        hashAppend(hashAlg, result);
+      } break;
+
+      default:
+        BSLS_ASSERT(false);
+    }
 }
 
 }  // close enterprise namespace

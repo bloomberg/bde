@@ -270,6 +270,25 @@ class DecimalImpUtil {
 #error Improperly configured decimal floating point platform settings
 
 #endif
+                            // classify
+
+    static int classify(ValueType32  x);
+    static int classify(ValueType64  x);
+    static int classify(ValueType128 x);
+        // Return the integer value that respresents the floating point
+        // classification of the specified 'x' value as follows:
+        //
+        //: o if 'x' is NaN, return FP_NAN;
+        //: o otherwise if 'x' is positive or negative infinity, return
+        //:   'FP_INFINITE';
+        //: o otherwise if 'x' is a subnormal value, return 'FP_SUBNORMAL'
+        //: o otherwise if 'x' is a zero value, return 'FP_ZERO'
+        //: o otherwise return 'FP_NORMAL'
+        //
+        // Note that the mention 'FP_XXX' constants are C99 standard macros and
+        // they are defined in the math.h (cmath) standard header.  On systems
+        // that fail to define those standard macros we define the in this
+        // component as public macros.
 
                         // compose and decompose
 
@@ -281,12 +300,40 @@ class DecimalImpUtil {
         // undefined if the 'significand' has too many decimal digits for
         // 'ValueType', or the 'exponent' is too large for 'ValueType'
 
-    //static DecimalTriple decomposeDecimal(ValueType32  value);
-    //static DecimalTriple decomposeDecimal(ValueType64  value);
-    //static DecimalTriple decomposeDecimal(ValueType128 value);
-        // Return a 'DecimalTriple' object representing the salient attributes
-        // of the specified 'value'.  The behavior is undefined, unless 'value'
-        // is neither 'NaN' nor 'Inf'.
+    static int decompose(int                 *sign,
+                         unsigned  int       *significand,
+                         int                 *exponent,
+                         ValueType32          value);
+    static int decompose(int                 *sign,
+                         bsls::Types::Uint64 *significand,
+                         int                 *exponent,
+                         ValueType64          value);
+    static int decompose(int                 *sign,
+                         Uint128             *significand,
+                         int                 *exponent,
+                         ValueType128         value);
+        // Decompose the specified decimal 'value' into the components of
+        // the decimal floating-point format and load the result into the
+        // specified 'sign', 'significand' and 'exponent' such that
+        // 'value' is equal to 'sign * significand * (10 ** exponent)'.
+        // The special values infinity and NaNs are decomposed to 'sign',
+        // 'exponent' and 'significand' parts, even though they don't have
+        // their normal meaning (except 'sign').  That is those specific values
+        // cannot be restored using these parts, unlike the finite ones.
+        // Return the integer value that represents the floating point
+        // classification of the specified 'value' as follows:
+        //
+        //: o if 'value' is NaN, return FP_NAN;
+        //: o if 'value' is infinity, return 'FP_INFINITE';
+        //: o if 'value' is a subnormal value, return 'FP_SUBNORMAL';
+        //: o if 'value' is a zero value, return 'FP_ZERO';
+        //: o otherwise return 'FP_NORMAL'.
+        //
+        // Note that a decomposed representation may not be unique,
+        // for example 10 can be represented as either '10 * (10 ** 0)'
+        // or '1 * (10 ** 1)'.  The returned 'significand' and 'exponent'
+        // reflect the encoded representation of 'value' (i.e., they
+        // reflect the 'quantum' of 'value').
 
                         // Integer construction
 
