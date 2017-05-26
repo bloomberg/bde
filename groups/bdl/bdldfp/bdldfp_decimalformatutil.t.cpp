@@ -130,16 +130,9 @@ int main(int argc, char *argv[])
 
             const Util::Style e_F = Util::e_FIXED;
             const Util::Style e_S = Util::e_SCIENTIFIC;
+            const Util::Style e_N = Util::e_NATURAL;
 
 #define DEC(X) BDLDFP_DECIMAL_DF(X)
-            // bdldfp::Decimal64 v(-10.123);
-            // bdldfp::Decimal64 v1 = bdldfp::DecimalUtil::multiplyByPowerOf10(v, 2);
-            // bdldfp::Decimal64 v2 = bdldfp::DecimalUtil::quantize(v1, bdldfp::Decimal64(0));
-            // bdldfp::Decimal64 v3 = bdldfp::DecimalUtil::multiplyByPowerOf10(v2, -2);
-
-            if (verbose) {
-                // P_(v) P_(v1) P(v2) P(v3);
-            }
 
             static const struct {
                 const int          d_line;
@@ -201,6 +194,7 @@ int main(int argc, char *argv[])
                 {  L_,                DEC(9.999999e+0),   7  ,  e_F, "9.9999990"  },
                 {  L_,                DEC(0.000134921),   6  ,  e_F, "0.000135"  },
 
+                {  L_,                  DEC(0.0),          0  ,  e_S, "0E-1"    },
                 {  L_,                  DEC(1.0),        0  ,  e_S, "1E+0"    },
                 {  L_,                  DEC(1.2),        1  ,  e_S, "1.2E+0"    },
                 {  L_,                  DEC(12.34),      2  ,  e_S, "1.23E+1"    },
@@ -208,6 +202,21 @@ int main(int argc, char *argv[])
                 {  L_,                  DEC(123.49),        3  ,  e_S, "1.235E+2"    },
                 {  L_,                  DEC(0.0021349),     3  ,  e_S, "2.135E-3"    },
                 {  L_,                DEC(0.000134921),   2  ,  e_S, "1.35E-4"  },
+
+                {  L_,                  DEC(0.0),          0  ,  e_N, "0"    },
+                {  L_,                  DEC(-0.0),         0  ,  e_N, "-0"    },
+                {  L_,                  DEC(0.0),          2  ,  e_N, "0.00"    },
+                {  L_,                  DEC(123.0),        0  ,  e_N, "123"    },
+                {  L_,                  DEC(-123.0),       0  ,  e_N, "-123"    },
+                {  L_,                  DEC(123e+1),       2  ,  e_N, "1.23E+3"   },
+                {  L_,                  DEC(123e+3),       2  ,  e_N, "1.23E+5"   },
+                {  L_,                  DEC(123e-1),       1  ,  e_N, "12.3"   },
+                {  L_,                  DEC(123e-5),       5  ,  e_N, "0.00123"   },
+                {  L_,                  DEC(123e-10),      2  ,  e_N, "1.23E-8"   },
+                {  L_,                  DEC(123e-12),      2  ,  e_N, "1.23E-10"   },
+                {  L_,                  DEC(5e-6),         6  ,  e_N, "0.000005"   },
+                {  L_,                  DEC(50e-7),        7  ,  e_N, "0.0000050"   },
+                {  L_,                  DEC(5e-7),         0  ,  e_N, "5E-7" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

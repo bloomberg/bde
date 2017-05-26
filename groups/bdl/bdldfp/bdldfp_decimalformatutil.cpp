@@ -273,18 +273,43 @@ int formatScientific(char       *buffer,
     return i - buffer;
 }
 
-// Decimal32 round(Decimal32 value, DecimalFormatUtil::Style style, int precision)
-// {
-//     int roundingPos;
-//     if (style == e_SCIENTIFIC) {
-//         rounding
-//     }
-//     Decimal64 v = value;
-//     v = DecimalUtil::multiplyByPowerOf10(v, exponent);
-//     v = DecimalUtil::quantize           (v, Decimal64(exponent));
-//     v = DecimalUtil::multiplyByPowerOf10(v, -exponent);
-//     return Decimal32(v);
-// }
+static
+int formatNatural(char       *buffer,
+                  int         length,
+                  const char *significand,
+                  int         significandLength,
+                  int         exponent,
+                  int         precision,
+                  char        point)
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(length >= 0);
+    BSLS_ASSERT(significand);
+    BSLS_ASSERT(significandLength >= 0);
+    BSLS_ASSERT(precision >= 0);
+
+    int len;
+    int adjustedExponent = exponent + significandLength - 1;
+    if (exponent <= 0 && adjustedExponent >= -6) {
+        len = formatFixed(buffer,
+                          length,
+                          significand,
+                          significandLength,
+                          exponent,
+                          precision,
+                          point);
+    }
+    else {
+        len = formatScientific(buffer,
+                               length,
+                               significand,
+                               significandLength,
+                               exponent,
+                               precision,
+                               point);
+    }
+    return len;
+}
 
 Decimal32 roundByPowerOf10(Decimal32 value, int exponent)
     // Multiply the specified 'value' by ten raised to the specified
@@ -320,12 +345,12 @@ int decompose(char                     *buffer,
               int                       precision,
               DecimalFormatUtil::Style  style,
               DECIMAL                   value)
-    // Decompose the specified decimal 'value' into the 'sign' and 'exponent'
-    // components.  Compose a string from the significand part and load the
-    // result into the specified 'buffer'.  If the length of the fractional
-    // part of the 'value' exceeds the specified 'precision' then the 'value'
-    // is rounded to be as close as possible to the initial value given the
-    // constraints on precision.
+    // Decompose the specified decimal 'value' into the specified 'sign'
+    // significand  and 'exponent' components.  Compose a string from the
+    // significand part and load the result into the specified 'buffer'.  If
+    // the length of the fractional part of the 'value' exceeds the specified
+    // 'precision' then the 'value' is rounded to be as close as possible to
+    // the initial value given the constraints on precision.
 {
     typedef typename DecimalTraits<DECIMAL>::Significand SIGNIFICAND;
 
@@ -399,7 +424,6 @@ int formatImpl(char                       *buffer,
                                                exponent,
                                                precision,
                                                point);
-              // }
           } break;
           case DecimalFormatUtil::e_FIXED: {
 
@@ -410,6 +434,16 @@ int formatImpl(char                       *buffer,
                                           exponent,
                                           precision,
                                           point);
+          } break;
+          case DecimalFormatUtil::e_NATURAL: {
+
+              decimalLength = formatNatural(it,
+                                            bufferLength,
+                                            &significand[0],
+                                            significandLength,
+                                            exponent,
+                                            precision,
+                                            point);
           } break;
           default: {
             BSLS_ASSERT(!"Unexpected format style value");
