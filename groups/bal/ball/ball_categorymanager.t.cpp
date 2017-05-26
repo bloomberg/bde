@@ -21,6 +21,7 @@
 
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
 
@@ -591,6 +592,8 @@ extern "C" void *seqNumUniquenessThread(void *args)
 
         flags[shiftedSeqNum] = true;
     }
+
+    return 0;
 }
 
 }  // close namespace BALL_CATEGORYMANAGER_UNIQUENESS_OF_SEQUENCE_NUMBERS
@@ -803,7 +806,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) { out << ends; cout << buf << endl; }
-        out.seekp(0);  // reset ostrstream
+        out.seekp(0);  // reset ostream
 
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             ball::Category *category = cm.lookupCategory(myCategories[i]);
@@ -825,7 +828,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) { out << ends; cout << buf << endl; }
-        out.seekp(0);  // reset ostrstream
+        out.seekp(0);  // reset ostream
 
         for (int i = 0; i < cm.length(); ++i) {
             ball::Category& category = cm[i];
@@ -888,9 +891,10 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
             for (int i = 0; i < k_NUM_THREADS; ++i) {
-                bslmt::ThreadUtil::create(&threads[i],
-                                          seqNumUniquenessThread,
-                                          (void *)&threadArgs);
+                bslmt::ThreadUtil::create(
+                                        &threads[i],
+                                        seqNumUniquenessThread,
+                                        reinterpret_cast<void *>(&threadArgs));
             }
 
             for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -1506,6 +1510,9 @@ int main(int argc, char *argv[])
         MaskType endMask = ~(static_cast<MaskType>(~0) << NUM_NAMES);
 
         for (MaskType mask = 0; mask <= endMask; ++mask) {
+
+            if (veryVerbose) { T_ P(mask) }
+
             Int64 seqNo = X.ruleSetSequenceNumber();
             ball::RuleSet rules(&ta);
             for (int i= 0; i < NUM_NAMES; ++i) {

@@ -444,7 +444,7 @@ extern "C" void *usageExample2(void *args)
 //..
     ASSERT(context->hasRelevantActiveRules(cat1));
 //..
-// Now, when we call 'determineThresholdLevels'; it will again return the
+// Now, when we call 'determineThresholdLevels', it will again return the
 // maximum threshold level from 'cat1' and 'myRule':
 //..
     context->determineThresholdLevels(&thresholdLevels, cat1);
@@ -455,9 +455,8 @@ extern "C" void *usageExample2(void *args)
 //..
 // We must be careful to remove 'attributes' from the attribute context before
 // it goes out of scope and is destroyed.  Note that the 'ball' package
-// supplies a component, 'ball_scopedattributes', for adding, and
-// automatically removing, attributes from the current thread's attribute
-// context.
+// provides a component, 'ball_scopedattributes', for adding, and automatically
+// removing, attributes from the current thread's attribute context.
 //..
     context->removeAttributes(it);
 //..
@@ -965,7 +964,7 @@ extern "C" void *case4ContextThread(void *args)
     for (int i = 1; i < NUM_CATEGORIES; ++i) {
         LOOP_ASSERT(i, X.hasRelevantActiveRules(CATEGORIES[i]));
 
-        // Forceably clear the rule evaluation cache every few iterations.
+        // Forcibly clear the rule evaluation cache every few iterations.
 
         if (0 == i % 5) {
             mX->clearCache();
@@ -993,7 +992,7 @@ extern "C" void *case4ContextThread(void *args)
         LOOP_ASSERT(i, i == levels.triggerLevel());
         LOOP_ASSERT(i, i == levels.triggerAllLevel());
 
-        // Forceably clear the rule evaluation cache every few iterations.
+        // Forcibly clear the rule evaluation cache every few iterations.
 
         if (0 == i % 3) {
             mX->clearCache();
@@ -1431,9 +1430,6 @@ int main(int argc, char *argv[])
 // package: 'ball::AttributeContext::initialize' is called *internally* as part
 // of the initialization of the 'ball::LoggerManager' singleton.
 //..
-    // NOTE: The following is normally performed when the logger manager
-    // singleton is initialized.
-
     ball::CategoryManager categoryManager;
     ball::AttributeContext::initialize(&categoryManager);
 //..
@@ -1452,8 +1448,11 @@ int main(int argc, char *argv[])
         //   remains in the test driver for completeness.
         //
         // Concerns:
+        //: 1 That the original usage example continues to compile and behave
+        //:   as expected.
         //
         // Plan:
+        //: 1 Retain the original usage example in perpetuity.  (C-1)
         //
         // Testing:
         //   (OLD) USAGE EXAMPLE
@@ -1500,7 +1499,7 @@ int main(int argc, char *argv[])
         //:   the global state of 'AttributeContext' has been reinitialized.
         //:   The basis for this concern is that the logic used by
         //:   'determineThresholdLevels' to determine if the cache needs to be
-        //:   refereshed is the same as that used by 'hasRelevantActiveRules'.
+        //:   refreshed is the same as that used by 'hasRelevantActiveRules'.
         //
         // Plan:
         //: 1 Using ad hoc testing: (C-1..2)
@@ -1856,9 +1855,10 @@ int main(int argc, char *argv[])
                 ruleThreadArgs[j].d_categoryManager_p = &manager;
                 ruleThreadArgs[j].d_seed              = seed;
 
-                bslmt::ThreadUtil::create(&ruleThreads[j],
-                                          case4RuleThread,
-                                          (void *)&ruleThreadArgs[j]);
+                bslmt::ThreadUtil::create(
+                                 &ruleThreads[j],
+                                 case4RuleThread,
+                                 reinterpret_cast<void *>(&ruleThreadArgs[j]));
             }
 
             for (int j = 0; j < NUM_CONTEXTTHREADS; ++j) {
@@ -1867,9 +1867,10 @@ int main(int argc, char *argv[])
                 contextThreadArgs[j].d_categoryManager_p = &manager;
                 contextThreadArgs[j].d_seed              = seed;
 
-                bslmt::ThreadUtil::create(&contextThreads[j],
-                                          case4ContextThread,
-                                          (void *)&contextThreadArgs[j]);
+                bslmt::ThreadUtil::create(
+                              &contextThreads[j],
+                              case4ContextThread,
+                              reinterpret_cast<void *>(&contextThreadArgs[j]));
             }
 
             for (int j = 0; j < NUM_RULETHREADS; ++j) {
@@ -1997,6 +1998,8 @@ int main(int argc, char *argv[])
         for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
 
             const char CONFIG = cfg;  // how we specify the allocator
+
+            if (veryVerbose) { T_ T_ P(CONFIG) }
 
             bslma::TestAllocator *objAllocatorPtr;
 

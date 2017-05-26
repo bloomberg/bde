@@ -273,11 +273,11 @@ class CategoryManager {
         // specified 'categoryName' and the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
         // respectively.  Return the address of the newly-created, modifiable
-        // category.  The behavior is undefined unless 'categoryName' is
-        // null-terminated, a category having 'categoryName' does not already
-        // exist in the registry, and each of the specified threshold values is
-        // in the range '[0 .. 255]'.  Note that the category registry should
-        // be properly synchronized before calling this method.
+        // category.  The behavior is undefined unless a category having
+        // 'categoryName' does not already exist in the registry and each of
+        // the specified threshold values is in the range '[0 .. 255]'.  Note
+        // that the category registry should be properly synchronized before
+        // calling this method.
 
   public:
     // CREATORS
@@ -306,9 +306,10 @@ class CategoryManager {
         // respectively, if there is no category having 'categoryName' and each
         // of the specified threshold values is in the range '[0 .. 255]'.
         // Return the address of the newly-created, modifiable category on
-        // success, and 0 otherwise.  The behavior is undefined unless
-        // 'categoryName' is null-terminated.  Note that if a category having
-        // 'categoryName' already exists in the registry, 0 is returned.
+        // success, and 0 otherwise.  The behavior is undefined unless a lock
+        // is not held by this thread on the mutex returned by 'rulesetMutex'.
+        // Note that if a category having 'categoryName' already exists in the
+        // registry, 0 is returned.
 
     Category *addCategory(CategoryHolder *categoryHolder,
                           const char     *categoryName,
@@ -326,14 +327,14 @@ class CategoryManager {
         // and the specified 'categoryHolder' is non-null, then also load into
         // 'categoryHolder' the returned category and its maximum level and
         // link 'categoryHolder' to the category.  The behavior is undefined
-        // unless 'categoryName' is null-terminated.  Note that if a category
-        // having 'categoryName' already exists in the registry, 0 is returned.
+        // unless a lock is not held by this thread on the mutex returned by
+        // 'rulesetMutex'.  Note that if a category having 'categoryName'
+        // already exists in the registry, 0 is returned.
 
     Category *lookupCategory(const char *categoryName);
         // Return the address of the modifiable category having the specified
         // 'categoryName' in the registry of this category manager, or 0 if no
-        // such category exists.  The behavior is undefined unless
-        // 'categoryName' is null-terminated.
+        // such category exists.
 
     Category *lookupCategory(CategoryHolder *categoryHolder,
                              const char     *categoryName);
@@ -342,8 +343,7 @@ class CategoryManager {
         // such category exists.  If a category is returned and the specified
         // 'categoryHolder' is non-null, then also load into 'categoryHolder'
         // the returned category and its maximum level and link
-        // 'categoryHolder' to the category if it has not yet been linked.  The
-        // behavior is undefined unless 'categoryName' is null-terminated.
+        // 'categoryHolder' to the category if it has not yet been linked.
 
     void resetCategoryHolders();
         // Reset the category holders to which all categories in the registry
@@ -368,40 +368,47 @@ class CategoryManager {
         // 'categoryName' and each of the specified threshold values is in the
         // range '[0 .. 255]'.  Return the address of the (possibly
         // newly-created) modifiable category on success, and 0 otherwise (with
-        // no effect on any category).  The behavior is undefined unless
-        // 'categoryName' is null-terminated.
+        // no effect on any category).  The behavior is undefined unless a lock
+        // is not held by this thread on the mutex returned by 'rulesetMutex'.
 
     int addRule(const Rule& rule);
         // Add the specified 'rule' to the set of (unique) rules maintained by
         // this object.  Return the number of rules added (i.e., 1 on success
-        // and 0 if a rule with the same value is already present).
+        // and 0 if a rule with the same value is already present).  The
+        // behavior is undefined unless a lock is not held by this thread on
+        // the mutex returned by 'rulesetMutex'.
 
     int addRules(const RuleSet& ruleSet);
         // Add each rule in the specified 'ruleSet' to the set of (unique)
         // rules maintained by this object.  Return the number of rules added.
-        // Note that each rule having the same value as an existing rule will
-        // be ignored.
+        // The behavior is undefined unless a lock is not held by this thread
+        // on the mutex returned by 'rulesetMutex'.  Note that each rule having
+        // the same value as an existing rule will be ignored.
 
     int removeRule(const Rule& rule);
         // Remove the specified 'rule' from the set of (unique) rules
         // maintained by this object.  Return the number of rules removed
         // (i.e., 1 on success and 0 if no rule having the same value is
-        // found).
+        // found).  The behavior is undefined unless a lock is not held by this
+        // thread on the mutex returned by 'rulesetMutex'.
 
     int removeRules(const RuleSet& ruleSet);
         // Remove each rule in the specified 'ruleSet' from the set of rules
-        // maintained by this object.  Return the number of rules removed.
+        // maintained by this object.  Return the number of rules removed.  The
+        // behavior is undefined unless a lock is not held by this thread on
+        // the mutex returned by 'rulesetMutex'.
 
     void removeAllRules();
         // Remove every rule from the set of rules maintained by this object.
+        // The behavior is undefined unless a lock is not held by this thread
+        // on the mutex returned by 'rulesetMutex'.
 
     bslmt::Mutex& rulesetMutex();
         // Return a non-'const' reference to the mutex that is used to guard
-        // against concurrent accesses to the rule set.  A lock to the returned
-        // mutex should be acquired before accessing the properties of
-        // 'ruleSet()'.  The behavior is undefined if a lock is acquired and
-        // any of the rule methods on this object (other than 'ruleSet()') are
-        // called.
+        // against concurrent access to the rule set.  A lock on the returned
+        // mutex should be acquired before accessing the properties of the rule
+        // set returned by 'ruleSet'.  The behavior is undefined unless a lock
+        // is acquired solely for the purpose of calling 'ruleSet'.
 
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor);
@@ -426,8 +433,7 @@ class CategoryManager {
     const Category *lookupCategory(const char *categoryName) const;
         // Return the address of the non-modifiable category having the
         // specified 'categoryName' in the registry of this category manager,
-        // or 0 if no such category exists.  The behavior is undefined unless
-        // 'categoryName' is null-terminated.
+        // or 0 if no such category exists.
 
     const RuleSet& ruleSet() const;
         // Return a 'const' reference to the rule set maintained by this

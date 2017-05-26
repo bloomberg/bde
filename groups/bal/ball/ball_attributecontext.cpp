@@ -73,9 +73,9 @@ AttributeContext_RuleEvaluationCache::update(
     // of date.
 
     if (d_sequenceNumber != sequenceNumber) {
-        d_resultMask      = 0;
-        d_evalMask        = 0;
-        d_sequenceNumber  = sequenceNumber;
+        d_resultMask     = 0;
+        d_evalMask       = 0;
+        d_sequenceNumber = sequenceNumber;
     }
 
     RuleSet::MaskType needEvaluations = ~d_evalMask & relevantRulesMask;
@@ -365,7 +365,8 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     if (!d_ruleCache_p.isDataAvailable(
                                   s_categoryManager_p->ruleSetSequenceNumber(),
                                   relevantRulesMask)) {
-          activeAndRelevantRules = relevantRulesMask
+          activeAndRelevantRules =
+                relevantRulesMask
                 & d_ruleCache_p.update(
                                   s_categoryManager_p->ruleSetSequenceNumber(),
                                   relevantRulesMask,

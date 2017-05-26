@@ -155,8 +155,8 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder, int severity)
         || !categoryHolder->category()) {
 
         // If the category is uninitialized (i.e., the category holder is in
-        // its initial state, the logger manager is uninitialized, or the
-        // category is 0), then simply test whether the severity is greater
+        // its initial state, the logger manager singleton is uninitialized, or
+        // the category is 0), then simply test whether the severity is greater
         // than the WARN level.
 
         return Severity::e_WARN >= severity;                          // RETURN

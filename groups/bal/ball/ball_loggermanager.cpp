@@ -507,7 +507,7 @@ void LoggerManager::initSingletonImpl(
                             const LoggerManagerConfiguration&  configuration,
                             bslma::Allocator                  *globalAllocator)
 {
-    bslmt::QLockGuard qLockGuard(&singletonQLock);
+    // !WARNING!: 'singletonQLock' must be acquired before calling this method.
 
     if (0 == s_singleton_p) {
 
@@ -699,6 +699,8 @@ LoggerManager& LoggerManager::initSingleton(
                              bslstl::SharedPtrNilDeleter(),
                              bslma::Default::globalAllocator(globalAllocator));
 
+    bslmt::QLockGuard qLockGuard(&singletonQLock);
+
     initSingletonImpl(configuration, globalAllocator);
 
     // Note that this call can fail if we call 'initSingleton' more than once.
@@ -721,6 +723,8 @@ LoggerManager& LoggerManager::initSingleton(
                             const LoggerManagerConfiguration&  configuration,
                             bslma::Allocator                  *globalAllocator)
 {
+    bslmt::QLockGuard qLockGuard(&singletonQLock);
+
     initSingletonImpl(configuration, globalAllocator);
     return *s_singleton_p;
 }

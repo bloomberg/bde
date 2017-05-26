@@ -113,7 +113,7 @@ using bsl::flush;
 // [ 2] BALL_LOG_CATEGORY
 // [ 2] BALL_LOG_THRESHOLD
 // [ 3] PRINTF-STYLE MACROS
-// [ 4] OSTRSTREAM MACROS
+// [ 4] OSTREAM MACROS
 // [ 5] TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
 // [ 6] TESTING THE C++ MACRO WHEN LOGGING RETURNED VALUE OF A FUNCTION
 // [ 7] TESTING THE DEFAULT LOG ORDER (LIFO)
@@ -125,7 +125,7 @@ using bsl::flush;
 // [13] PRINTF MACRO PERFORMANCE TEST WITH 1 THREAD
 // [14] BALL_IS_ENABLED(SEVERITY) UTILITY MACRO
 // [15] STRESS TEST
-// [16] TESTING OSTRSTREAM MACROS WITH CALLBACK
+// [16] TESTING OSTREAM MACROS WITH CALLBACK
 // [17] TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
 // [18] BALL_LOG_SET_DYNAMIC_CATEGORY
 // [19] ball::Log_Stream
@@ -3253,7 +3253,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING OSTRSTREAM MACROS WITH CALLBACK
+        // TESTING OSTREAM MACROS WITH CALLBACK
         //
         // Concerns:
         // TBD doc
@@ -3271,9 +3271,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing callback 'ostrstream' Macros"
+                               << "Testing callback 'ostream' Macros"
                                << bsl::endl
-                               << "===================================="
+                               << "================================="
                                << bsl::endl;
 
         bsl::function<void(BloombergLP::ball::UserFields *)> callback =
@@ -3471,7 +3471,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //callback.clear();
 
         if (veryVerbose)
-            bsl::cout << "\tTesting Buffer Overflow with 'ostrstream' Macro"
+            bsl::cout << "\tTesting Buffer Overflow with 'ostream' Macro"
                       << bsl::endl;
         {
             const int BUFLEN = messageBufferSize();
@@ -4242,7 +4242,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING OSTRSTREAM MACROS
+        // TESTING OSTREAM MACROS
         //
         // Concerns:
         // TBD doc
@@ -4260,8 +4260,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing 'ostrstream' Macros" << bsl::endl
-                               << "===========================" << bsl::endl;
+                               << "Testing 'ostream' Macros" << bsl::endl
+                               << "========================" << bsl::endl;
 
         const char *MESSAGE = "message:1:2:3";
         const char  SEP     = ':';
@@ -4438,7 +4438,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting Buffer Overflow with 'ostrstream' Macro"
+            bsl::cout << "\tTesting Buffer Overflow with 'ostream' Macro"
                       << bsl::endl;
         {
             const int BUFLEN = messageBufferSize();

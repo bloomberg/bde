@@ -118,7 +118,8 @@ BSLS_IDENT("$Id: $")
 // The 'ball::LoggerManagerCategoryIter' and 'ball::LoggerManagerCategoryManip'
 // classes are *deprecated*.  Clients of 'ball::LoggerManager' should use the
 // 'visitCategories' accessor (the replacement for 'LoggerManagerCategoryIter')
-// or 'visitCategories' manipulator ('LoggerManagerCategoryManip') instead.
+// or 'visitCategories' manipulator (replacing 'LoggerManagerCategoryManip')
+// instead.
 //
 ///Categories, Severities, and Threshold Levels
 ///--------------------------------------------
@@ -1172,10 +1173,10 @@ class LoggerManagerCategoryManip;
                            // ===================
 
 class LoggerManager {
-    // This class is *usually* a singleton.  It provides a factory for
-    // 'Logger' objects and is also a wrapper for category administration
-    // services.  Note that the services provided by this class are available
-    // only after the singleton has been initialized.
+    // This class is *usually* a singleton.  It provides a factory for 'Logger'
+    // objects and is also a wrapper for category administration services.
+    // Note that some services provided by this class are available only after
+    // the singleton has been initialized.
 
   public:
     // TYPES
@@ -1381,10 +1382,10 @@ class LoggerManager {
         // 'LoggerManagerConfiguration' object is used.  Optionally specify a
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
         // the currently installed global allocator is used.  Return a
-        // non-'const' reference to the logger manager singleton.  The behavior
-        // is undefined if 'observer' is 0, goes out of scope, or is otherwise
-        // destroyed.  This method has no effect if the logger manager
-        // singleton already exists.
+        // non-'const' reference to the logger manager singleton.  This method
+        // has no effect if the logger manager singleton already exists.  The
+        // behavior is undefined if 'observer' is 0, goes out of scope, or is
+        // otherwise destroyed.
         //
         // !DEPRECATED!: Use the 'initSingleton' method that does *not* take an
         // 'observer' instead.
@@ -1414,11 +1415,12 @@ class LoggerManager {
         // take ownership of 'singleton'.  This method has no effect if the
         // logger manager singleton already exists, in which case this method
         // does *not* take ownership of 'singleton' regardless of the value of
-        // 'shutDownEnabled'.  Note that a suitable singleton may be obtained
-        // by calling 'createLoggerManager', or from the 'singleton' class
-        // method of an already-initialized 'LoggerManager' system, when this
-        // version of 'initSingleton' is used to initialize another dynamically
-        // loaded copy of the 'LoggerManager' system on Windows.
+        // 'shutDownEnabled'.  Note that this version of 'initSingleton' is
+        // meant for use *only* on Windows to initialize another dynamically
+        // loaded copy of the 'LoggerManager' system.  Also note that a
+        // suitable singleton may be obtained by calling 'createLoggerManager',
+        // or from the 'singleton' class method of an already-initialized
+        // 'LoggerManager' system.
 
     static bool isInitialized();
         // Return 'true' if the logger manager singleton exists, and 'false'
@@ -1886,9 +1888,9 @@ class LoggerManagerScopedGuard {
         // and the specified 'configuration' of defaults and attributes.
         // Optionally specify a 'globalAllocator' used to supply memory.  If
         // 'globalAllocator' is 0, the currently installed global allocator is
-        // used.  The behavior is undefined if 'observer' is 0, goes out of
-        // scope, or is otherwise destroyed.  This method has no effect if the
-        // logger manager singleton already exists.  Note that on destruction,
+        // used.  This method has no effect if the logger manager singleton
+        // already exists.  The behavior is undefined if 'observer' is 0, goes
+        // out of scope, or is otherwise destroyed.  Note that on destruction,
         // this scoped guard will destroy the logger manager singleton, if the
         // singleton exists at that time.
         //

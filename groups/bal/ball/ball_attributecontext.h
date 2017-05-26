@@ -146,13 +146,10 @@ BSLS_IDENT("$Id: $")
 //
 // We start by creating a 'ball::CategoryManager' and use it to initialize the
 // static data members of 'ball::AttributeContext'.  Note that, in practice,
-// this initialization *should* *not* be performed by clients of the 'ball'
+// this initialization should *not* be performed by clients of the 'ball'
 // package: 'ball::AttributeContext::initialize' is called *internally* as part
 // of the initialization of the 'ball::LoggerManager' singleton.
 //..
-//  // NOTE: The following is normally performed when the logger manager
-//  // singleton is initialized.
-//
 //  ball::CategoryManager categoryManager;
 //  ball::AttributeContext::initialize(&categoryManager);
 //..
@@ -279,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(context->hasRelevantActiveRules(cat1));
 //..
-// Now, when we call 'determineThresholdLevels'; it will again return the
+// Now, when we call 'determineThresholdLevels', it will again return the
 // maximum threshold level from 'cat1' and 'myRule':
 //..
 //  context->determineThresholdLevels(&thresholdLevels, cat1);
@@ -290,9 +287,8 @@ BSLS_IDENT("$Id: $")
 //..
 // We must be careful to remove 'attributes' from the attribute context before
 // it goes out of scope and is destroyed.  Note that the 'ball' package
-// supplies a component, 'ball_scopedattributes', for adding, and
-// automatically removing, attributes from the current thread's attribute
-// context.
+// provides a component, 'ball_scopedattributes', for adding, and automatically
+// removing, attributes from the current thread's attribute context.
 //..
 //  context->removeAttributes(it);
 //..
@@ -532,7 +528,7 @@ class AttributeContext {
         // storage in which the 'AttributeContext' object is stored.  This
         // method creates the key on the first invocation; all subsequent
         // invocations return the key created on the initial call.  Note that
-        // it is more efficient to cache the return value of this method, than
+        // it is more efficient to cache the return value of this method than
         // to invoke it repeatedly.
 
     static void removeContext(void *arg);
@@ -615,8 +611,8 @@ class AttributeContext {
     bool hasRelevantActiveRules(const Category *category) const;
         // Return 'true' if there is at least one rule defined for this process
         // that is both "relevant" to the specified 'category' and "active",
-        // and return 'false' otherwise.  A rule is "relevant" to 'category' if
-        // the rule's pattern matches 'category->categoryName()', and a rule is
+        // and 'false' otherwise.  A rule is "relevant" to 'category' if the
+        // rule's pattern matches 'category->categoryName()', and a rule is
         // "active" if all the predicates defined for that rule are satisfied
         // by the current thread's attributes (i.e., 'Rule::evaluate' returns
         // 'true' for the collection of attributes maintained by this object).

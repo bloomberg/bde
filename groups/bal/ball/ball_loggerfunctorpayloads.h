@@ -272,8 +272,8 @@ struct LoggerFunctorPayloads {
         // categories in the registry, if such a parent category exists, or the
         // default thresholds otherwise; use the specified 'delimiter' to
         // define hierarchical category names.  The behavior is undefined
-        // unless the logger manager singleton has been initialized and it is
-        // not in the process of being shut down.
+        // unless the logger manager singleton has been initialized and is not
+        // in the process of being shut down.
 };
 
 }  // close package namespace

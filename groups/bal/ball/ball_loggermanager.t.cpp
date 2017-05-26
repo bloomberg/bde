@@ -1116,6 +1116,49 @@ void logMessageTest(
     }
 }
 
+enum {
+    k_NUM_ITERATIONS = 64,
+    k_NUM_THREADS    =  3
+};
+
+struct ThreadArgs {
+    ball::TestObserver                     *d_to_p;
+    const ball::LoggerManagerConfiguration *d_lmc_p;
+};
+
+extern "C" void *initSingletonThread(void *args)
+{
+    ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
+
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+        ball::LoggerManager::initSingleton(threadArgs->d_to_p,
+                                           *threadArgs->d_lmc_p);
+    }
+
+    return 0;
+}
+
+extern "C" void *shutDownSingletonThread(void *args)
+{
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+        ball::LoggerManager::shutDownSingleton();
+    }
+
+    return 0;
+}
+
+extern "C" void *scopedGuardThread(void *args)
+{
+    ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
+
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+        ball::LoggerManagerScopedGuard guard(threadArgs->d_to_p,
+                                             *threadArgs->d_lmc_p);
+    }
+
+    return 0;
+}
+
 }  // close namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION
 
 // ============================================================================
@@ -1410,8 +1453,8 @@ class PublishCountingObserver : public ball::Observer {
   public:
     // CREATORS
     PublishCountingObserver()
-        // Create a Publish Counting Observer having an initial count of 0.
     : d_publishCount(0)
+        // Create a Publish Counting Observer having an initial count of 0.
     {
     }
 
@@ -1859,10 +1902,36 @@ int main(int argc, char *argv[])
         // TESTING SINGLETON REINITIALIZATION
         //
         // Concerns:
-        //: 1 TBD doc
+        //: 1 The logger manager singleton can be reinitialized by successively
+        //:   creating and destroying 'ball::LoggerManagerScopedGuard' objects.
+        //:
+        //: 2 The logger manager singleton can be reinitialized by successive
+        //:   calls to 'initSingleton' and 'shutDownSingleton'.
+        //:
+        //: 3 'ball::LoggerManagerScopedGuard', 'initSingleton', and
+        //:   'shutDownSingleton' are thread safe.
         //
         // Plan:
-        //: 1 TBD doc
+        //: 1 In a loop, create a 'ball::LoggerManagerScopedGuard' object,
+        //:   letting it go out of scope at the end of each iteration.  Log a
+        //:   message to the singleton while the guard exists.  Also log a
+        //:   'bsls::Log' message both before and after the guard has been
+        //:   constructed.  Verify expected logging behavior.  (C-1)
+        //:
+        //: 2 In a loop, successively call 'initSingleton' and
+        //:   'shutDownSingleton'.  Log a message to the singleton when it
+        //:   exists.  Also log a 'bsls::Log' message both before and after
+        //:   each call to 'initSingleton'.  Verify expected logging behavior.
+        //:   (C-2)
+        //:
+        //: 3 Create three threads, one that calls 'initSingleton' in a loop,
+        //:   one that calls 'shutDownSingleton' in a loop, and one that
+        //:   creates a 'ball::LoggerManagerScopedGuard' object in a loop.
+        //:   If the singleton exists after the three threads are joined, log a
+        //:   message to the singleton and also log a 'bsls::Log' message.  If
+        //:   the singleton does not exist after joining the threads, create it
+        //:   before trying to log.  In either case, verify expected logging
+        //:   behavior.  (C-3)
         //
         // Testing:
         //   SINGLETON REINITIALIZATION
@@ -1883,7 +1952,9 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&da);
         bslma::Default::setGlobalAllocator(&ga);
 
-        // Create 'ball::LoggerManagerScopedGuard' in a loop.
+        if (verbose)
+            cout << "Create 'ball::LoggerManagerScopedGuard' in a loop."
+                 << endl;
         {
             ball::LoggerManagerConfiguration lmc(&oa);
             ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
@@ -1898,6 +1969,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == TO.numPublishedRecords());
 
             for (int i = 0; i < 5; ++i) {
+                if (veryVerbose) { cout << "\titeration: "; P(i) }
+
                 ASSERT(!Obj::isInitialized());
                 bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
@@ -1911,8 +1984,11 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        ASSERT(!Obj::isInitialized());
 
-        // Call 'initSingleton' and 'shutDownSingleton' in a loop.
+        if (verbose)
+            cout << "Call 'initSingleton' and 'shutDownSingleton' in a loop."
+                 << endl;
         {
             ball::LoggerManagerConfiguration lmc(&oa);
             ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
@@ -1927,6 +2003,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == TO.numPublishedRecords());
 
             for (int i = 0; i < 5; ++i) {
+                if (veryVerbose) { cout << "\titeration: "; P(i) }
+
                 ASSERT(!Obj::isInitialized());
                 bslsLogMsgCount = 0;
                 logMessageTest(false, TO, TO.numPublishedRecords());
@@ -1942,8 +2020,11 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        ASSERT(!Obj::isInitialized());
 
-        // Test nested scoped guards (which is a bit funky).
+        if (verbose)
+            cout << "Test nested scoped guards (which is a bit funky)."
+                 << endl;
         {
             ball::LoggerManagerConfiguration lmc(&oa);
             ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
@@ -1982,8 +2063,57 @@ int main(int argc, char *argv[])
             bslsLogMsgCount = 0;
             logMessageTest(false, TO, TO.numPublishedRecords());
         }
+        ASSERT(!Obj::isInitialized());
 
-        // TBD test concurrency of 'initSingleton' and 'shutDownSingleton'
+        if (verbose) cout << "Test thread safety." << endl;
+        {
+            ball::LoggerManagerConfiguration lmc(&oa);
+            ASSERT(0 == lmc.setDefaultThresholdLevelsIfValid(
+                                                       0,
+                                                       ball::Severity::e_TRACE,
+                                                       0,
+                                                       0));
+
+                  ball::TestObserver  mTO(&bsl::cout);
+            const ball::TestObserver& TO = mTO;
+
+            ThreadArgs threadArgs = { &mTO, &lmc };
+
+            for (int i = 0; i < 7; ++i) {
+                if (veryVerbose) { cout << "\titeration: "; P(i) }
+
+                bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
+
+                bslmt::ThreadUtil::create(
+                                        &threads[0],
+                                        initSingletonThread,
+                                        reinterpret_cast<void *>(&threadArgs));
+
+                bslmt::ThreadUtil::create(&threads[1],
+                                          shutDownSingletonThread,
+                                          (void *)0);
+
+                bslmt::ThreadUtil::create(
+                                        &threads[2],
+                                        scopedGuardThread,
+                                        reinterpret_cast<void *>(&threadArgs));
+
+                for (int j = 0; j < k_NUM_THREADS; ++j) {
+                    bslmt::ThreadUtil::join(threads[j], 0);
+                }
+
+                if (!Obj::isInitialized()) {
+                    Obj::initSingleton(&mTO, lmc);
+                }
+
+                bslsLogMsgCount = 0;
+                logMessageTest(true, TO, TO.numPublishedRecords());
+
+                Obj::shutDownSingleton();
+            }
+
+        }
+        ASSERT(!Obj::isInitialized());
 
       } break;
       case 35: {
@@ -3009,6 +3139,8 @@ int main(int argc, char *argv[])
 
         int ti;
         for (ti = 0; ti < k_NUM_THREADS; ++ti) {
+            if (veryVerbose) cout << LC[ti] << endl;
+
             ASSERT(mX.setCategory(LC[ti]));
         }
 
