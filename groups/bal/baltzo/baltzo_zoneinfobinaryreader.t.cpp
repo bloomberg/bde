@@ -13,18 +13,18 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_byteorder.h>
+#include <bsls_types.h>
 #include <bsls_log.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
-
-#include <bsls_byteorder.h>
-#include <bsls_types.h>
 
 using namespace BloombergLP;
 
@@ -1975,7 +1975,8 @@ void ZoneinfoData::populateTransitionIndexBuf()
 {
     unsigned char *buffer = getTransitionIndex();
     for (int i = 0; i < getRawHeader()->numTransitions(); ++i) {
-        buffer[i] = i % getRawHeader()->numLocalTimeTypes();
+        buffer[i] = static_cast<unsigned char>(
+                                      i % getRawHeader()->numLocalTimeTypes());
     }
 }
 
@@ -1983,7 +1984,8 @@ void ZoneinfoData::populateTransitionIndexBuf64()
 {
     unsigned char *buffer = getTransitionIndex64();
     for (int i = 0; i < getRawHeader64()->numTransitions(); ++i) {
-        buffer[i] = i % getRawHeader64()->numLocalTimeTypes();
+        buffer[i] = static_cast<unsigned char>(
+                                    i % getRawHeader64()->numLocalTimeTypes());
     }
 }
 
@@ -2010,10 +2012,11 @@ void ZoneinfoData::populateLocalTimeTypeBuf()
     RawLocalTimeTypes *buffer = getRawLocalTimeTypes();
     for (int i = 0; i < getRawHeader()->numLocalTimeTypes(); ++i) {
         buffer[i].setOffset(i);
-        buffer[i].setIsDst(i % 2);
+        buffer[i].setIsDst(static_cast<unsigned char>(i % 2));
         int abbrevDataSize = getRawHeader()->abbrevDataSize();
         if (abbrevDataSize) {
-            buffer[i].setAbbreviationIndex(i % abbrevDataSize);
+            buffer[i].setAbbreviationIndex(
+                                        static_cast<char>(i % abbrevDataSize));
         }
     }
 }
@@ -2023,10 +2026,11 @@ void ZoneinfoData::populateLocalTimeTypeBuf64()
     RawLocalTimeTypes *buffer = getRawLocalTimeTypes64();
     for (int i = 0; i < getRawHeader64()->numLocalTimeTypes(); ++i) {
         buffer[i].setOffset(i);
-        buffer[i].setIsDst(i % 2);
+        buffer[i].setIsDst(static_cast<unsigned char>(i % 2));
         int abbrevDataSize = getRawHeader64()->abbrevDataSize();
         if (abbrevDataSize) {
-            buffer[i].setAbbreviationIndex(i % abbrevDataSize);
+            buffer[i].setAbbreviationIndex(
+                                        static_cast<char>(i % abbrevDataSize));
         }
     }
 }
@@ -2321,10 +2325,14 @@ static int verifyTimeZone(const ZoneinfoData&     data,
     // An extra transition is created for to handle time earlier than the first
     // transition.
 
-    if (H->numTransitions() != X.numTransitions() - 1) {
+    if (static_cast<bsl::size_t>(H->numTransitions())
+                                                   != X.numTransitions() - 1) {
         if (!expectToFail) {
-            LOOP3_ASSERT(LINE, H->numTransitions(), X.numTransitions() - 1,
-                        H->numTransitions() == X.numTransitions() - 1);
+            LOOP3_ASSERT(LINE,
+                         H->numTransitions(),
+                         X.numTransitions() - 1,
+                         static_cast<bsl::size_t>(H->numTransitions())
+                                                    == X.numTransitions() - 1);
         }
         return 1;                                                     // RETURN
     }
@@ -2400,10 +2408,14 @@ static int verifyTimeZoneVersion2Or3Format(
     // An extra transition is created for to handle time earlier than the first
     // transition.
 
-    if (H->numTransitions() != X.numTransitions() - 1) {
+    if (static_cast<bsl::size_t>(H->numTransitions())
+                                                   != X.numTransitions() - 1) {
         if (!expectToFail) {
-            LOOP3_ASSERT(LINE, H->numTransitions(), X.numTransitions() - 1,
-                        H->numTransitions() == X.numTransitions() - 1);
+            LOOP3_ASSERT(LINE,
+                         H->numTransitions(),
+                         X.numTransitions() - 1,
+                         static_cast<bsl::size_t>(H->numTransitions())
+                                                    == X.numTransitions() - 1);
         }
         return 1;                                                     // RETURN
     }
@@ -2430,8 +2442,8 @@ static int verifyTimeZoneVersion2Or3Format(
         }
 
         bsls::Types::Int64 TT = readBigEndian64(
-                          reinterpret_cast<char *> data.getTransitionTime64() +
-                          i * sizeof(bsls::Types::Int64));
+                           reinterpret_cast<char *>(data.getTransitionTime64())
+                                             + i * sizeof(bsls::Types::Int64));
 
         if (TT != XT->utcTime()) {
             if (!expectToFail) {
@@ -2460,8 +2472,6 @@ static int verifyTimeZoneVersion2Or3Format(
     }
 
     // Verify time zone string.
-
-    int length = data.timeZoneStringLength();
 
     bsl::string zoneInfoString = X.posixExtendedRangeDescription();
     bsl::string zoneInfoDataString(data.getTimeZoneString(),
@@ -4304,7 +4314,8 @@ int main(int argc, char *argv[])
 
             ZoneinfoData ZI(RH);
             unsigned char *index = ZI.getTransitionIndex();
-            index[0] = ZI.getRawHeader()->numLocalTimeTypes();
+            index[0] = static_cast<unsigned char>(
+                                       ZI.getRawHeader()->numLocalTimeTypes());
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -4322,7 +4333,8 @@ int main(int argc, char *argv[])
 
             ZoneinfoData ZI(RH);
             unsigned char *index = ZI.getTransitionIndex64();
-            index[0] = ZI.getRawHeader64()->numLocalTimeTypes();
+            index[0] = static_cast<unsigned char>(
+                                     ZI.getRawHeader64()->numLocalTimeTypes());
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -4379,12 +4391,12 @@ int main(int argc, char *argv[])
         const int UTC_MAX =  4 * 60 * 60 - 1;
 
         static const struct {
-            int         d_line;
-            int         d_offset;
-            int         d_dstFlag;
-            int         d_descIndex;
-            const char *d_abbrevData;
-            int         d_abbrevDataSize;
+            int            d_line;
+            int            d_offset;
+            unsigned char  d_dstFlag;
+            unsigned char  d_descIndex;
+            const char    *d_abbrevData;
+            int            d_abbrevDataSize;
         } DATA[] = {
 
         //LINE   OFFSET  DST  DESC_INDEX  AB_DATA  AB_DATE_SIZE
@@ -4406,12 +4418,12 @@ int main(int argc, char *argv[])
                             "\nTesting version '\0' local time types." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE         = DATA[ti].d_line;
-                const int   OFFSET       = DATA[ti].d_offset;
-                const int   DST          = DATA[ti].d_dstFlag;
-                const int   DESC_IDX     = DATA[ti].d_descIndex;
-                const char *AB_DATA      = DATA[ti].d_abbrevData;
-                const int   AB_DATA_SIZE = DATA[ti].d_abbrevDataSize;
+                const int            LINE         = DATA[ti].d_line;
+                const int            OFFSET       = DATA[ti].d_offset;
+                const unsigned char  DST          = DATA[ti].d_dstFlag;
+                const unsigned char  DESC_IDX     = DATA[ti].d_descIndex;
+                const char          *AB_DATA      = DATA[ti].d_abbrevData;
+                const int            AB_DATA_SIZE = DATA[ti].d_abbrevDataSize;
 
                 RawHeader RH;
                 RH.setAbbrevDataSize(AB_DATA_SIZE);
@@ -4437,12 +4449,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting version '2' local time types." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE         = DATA[ti].d_line;
-                const int   OFFSET       = DATA[ti].d_offset;
-                const int   DST          = DATA[ti].d_dstFlag;
-                const int   DESC_IDX     = DATA[ti].d_descIndex;
-                const char *AB_DATA      = DATA[ti].d_abbrevData;
-                const int   AB_DATA_SIZE = DATA[ti].d_abbrevDataSize;
+                const int            LINE         = DATA[ti].d_line;
+                const int            OFFSET       = DATA[ti].d_offset;
+                const unsigned char  DST          = DATA[ti].d_dstFlag;
+                const unsigned char  DESC_IDX     = DATA[ti].d_descIndex;
+                const char          *AB_DATA      = DATA[ti].d_abbrevData;
+                const int            AB_DATA_SIZE = DATA[ti].d_abbrevDataSize;
 
                 RawHeader RH;
                 RH.setVersion('2');
@@ -4551,7 +4563,8 @@ int main(int argc, char *argv[])
         {
             ZoneinfoData ZI;
             RawLocalTimeTypes& LTT = *ZI.getRawLocalTimeTypes();
-            LTT.setAbbreviationIndex(ZI.getRawHeader()->abbrevDataSize());
+            LTT.setAbbreviationIndex(static_cast<unsigned char>(
+                                         ZI.getRawHeader()->abbrevDataSize()));
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
             bsl::istream inputStream(&isb);
@@ -4723,7 +4736,8 @@ int main(int argc, char *argv[])
 
             RawLocalTimeTypes *localTimeTypes = ZI.getRawLocalTimeTypes();
             for (int i = 0; i < AB_DATA_SIZE; ++i) {
-                localTimeTypes[i].setAbbreviationIndex(AB_DATA_SIZE - 1 - i);
+                localTimeTypes[i].setAbbreviationIndex(
+                             static_cast<unsigned char>(AB_DATA_SIZE - 1 - i));
             }
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
@@ -4768,7 +4782,8 @@ int main(int argc, char *argv[])
 
             RawLocalTimeTypes *localTimeTypes = ZI.getRawLocalTimeTypes64();
             for (int i = 0; i < AB_DATA_SIZE; ++i) {
-                localTimeTypes[i].setAbbreviationIndex(AB_DATA_SIZE - 1 - i);
+                localTimeTypes[i].setAbbreviationIndex(
+                             static_cast<unsigned char>(AB_DATA_SIZE - 1 - i));
             }
 
             bdlsb::FixedMemInStreamBuf isb(ZI.buffer(), ZI.size());
@@ -5319,7 +5334,7 @@ int main(int argc, char *argv[])
 
         int size;
         istream.seekg(0, bsl::ios::end);
-        size = istream.tellg();
+        size = static_cast<int>(istream.tellg());
         istream.seekg(0, bsl::ios::beg);
         char *buffer = new char[size];
         istream.read(buffer, size);

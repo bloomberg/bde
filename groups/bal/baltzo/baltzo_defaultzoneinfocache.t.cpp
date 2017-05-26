@@ -19,8 +19,10 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
@@ -535,10 +537,6 @@ static const char *ETC_UTC_FILE          = "defaultzictest/Etc/UTC";
 static const char *AMERICA_NEW_YORK_FILE = "defaultzictest/America/New_York";
 #endif
 
-static const char *GMT_ID              = "GMT";
-static const char *ETC_UTC_ID          = "Etc/UTC";
-static const char *AMERICA_NEW_YORK_ID = "America/New_York";
-
 void writeData(const char *fileName, const char *data, int numBytes)
 {
     int rc = bdls::FilesystemUtil::createDirectories(fileName, false);
@@ -575,10 +573,9 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose     = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    bslma::TestAllocator         allocator;
-    bslma::TestAllocator        *Z = &allocator;
-    static bslma::TestAllocator  defaultAllocator("dta", veryVeryVerbose);
-    static bslma::TestAllocator  globalAllocator("gta", veryVeryVerbose);;
+    bslma::TestAllocator        allocator;
+    static bslma::TestAllocator defaultAllocator("dta", veryVeryVerbose);
+    static bslma::TestAllocator globalAllocator("gta", veryVeryVerbose);;
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -765,7 +762,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nPassing in a cache object and testing GA"
                           << endl;
         {
-            const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES =
+                                               globalAllocator.numBytesInUse();
             const baltzo::ZoneinfoCache *RESULT = Obj::defaultCache(&cache);
             LOOP2_ASSERT(L_, RESULT, &cache == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES == globalAllocator.numBytesInUse());
@@ -780,7 +778,8 @@ int main(int argc, char *argv[])
             // optimization) in 64-bit mode.  The latter provides a larger
             // bufffer for the SSO.
 
-            const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES =
+                                               globalAllocator.numBytesInUse();
             SYSTEM_DEFAULT = Obj::defaultCache();
             LOOP2_ASSERT(L_, SYSTEM_DEFAULT, 0 != SYSTEM_DEFAULT);
             LOOP3_ASSERT(L_,
@@ -788,7 +787,8 @@ int main(int argc, char *argv[])
                          globalAllocator.numBytesInUse(),
                          GA_NUM_BYTES <= globalAllocator.numBytesInUse());
 
-            const int GA_NUM_BYTES2 = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES2 =
+                                               globalAllocator.numBytesInUse();
             const baltzo::ZoneinfoCache *RESULT = Obj::defaultCache(0);
             LOOP2_ASSERT(L_, RESULT, RESULT == SYSTEM_DEFAULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES2 == globalAllocator.numBytesInUse());
@@ -797,22 +797,26 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting after 'setDefaultCache'"
                           << endl;
         {
-            const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES =
+                                               globalAllocator.numBytesInUse();
             Obj::setDefaultCache(&cache);
             LOOP_ASSERT (L_, GA_NUM_BYTES == globalAllocator.numBytesInUse());
 
-            const int GA_NUM_BYTES2 = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES2 =
+                                               globalAllocator.numBytesInUse();
             const baltzo::ZoneinfoCache *RESULT = Obj::defaultCache();
             LOOP2_ASSERT(L_, RESULT, &cache == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES2 == globalAllocator.numBytesInUse());
 
-            const int GA_NUM_BYTES3 = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES3 =
+                                               globalAllocator.numBytesInUse();
             RESULT = Obj::defaultCache(0);
             LOOP2_ASSERT(L_, RESULT, &cache == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES3 == globalAllocator.numBytesInUse());
 
             baltzo::ZoneinfoCache tempCache(&loader);
-            const int GA_NUM_BYTES4 = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES4 =
+                                               globalAllocator.numBytesInUse();
             RESULT = Obj::defaultCache(&tempCache);
             LOOP2_ASSERT(L_, RESULT, &tempCache == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES4 == globalAllocator.numBytesInUse());
@@ -821,16 +825,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting after 'setDefaultCache(0)'"
                           << endl;
         {
-            const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES =
+                                               globalAllocator.numBytesInUse();
             Obj::setDefaultCache(0);
             LOOP_ASSERT (L_, GA_NUM_BYTES == globalAllocator.numBytesInUse());
 
-            const int GA_NUM_BYTES2 = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES2 =
+                                               globalAllocator.numBytesInUse();
             const baltzo::ZoneinfoCache *RESULT = Obj::defaultCache();
             LOOP2_ASSERT(L_, RESULT, SYSTEM_DEFAULT == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES2 == globalAllocator.numBytesInUse());
 
-            const int GA_NUM_BYTES3 = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES3 =
+                                               globalAllocator.numBytesInUse();
             RESULT = Obj::defaultCache(0);
             LOOP2_ASSERT(L_, RESULT, SYSTEM_DEFAULT == RESULT);
             LOOP_ASSERT (L_, GA_NUM_BYTES3 == globalAllocator.numBytesInUse());
@@ -872,7 +879,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting invoking 'setDefaultCache' and GA."
                           << endl;
         {
-            const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
+            const bsls::Types::Int64 GA_NUM_BYTES =
+                                               globalAllocator.numBytesInUse();
             baltzo::ZoneinfoCache *cachePtr = Obj::setDefaultCache(&cache);
             LOOP2_ASSERT (L_, cachePtr, 0 == cachePtr);
             LOOP_ASSERT (L_, GA_NUM_BYTES == globalAllocator.numBytesInUse());
@@ -958,7 +966,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set"
                           << endl;
         {
-            const int   DA_NUM_BYTES = defaultAllocator.numBytesInUse();
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
             const char *RESULT = Obj::defaultZoneinfoDataLocation();
             LOOP2_ASSERT(L_, RESULT, 0 == strcmp(RESULT, "./defaultzictest"));
             LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
@@ -981,8 +990,11 @@ int main(int argc, char *argv[])
         {
             int rc = unsetenv("BDE_ZONEINFO_ROOT_PATH");
             ASSERT(0 == rc);
-            const int   DA_NUM_BYTES = defaultAllocator.numBytesInUse();
-            const char *RESULT       = Obj::defaultZoneinfoDataLocation();
+
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
+            const char *RESULT = Obj::defaultZoneinfoDataLocation();
 
             // TBD: find a better way to determine which path will be returned
             // on a build machine.
@@ -1002,8 +1014,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set"
                           << endl;
         {
-            const int   DA_NUM_BYTES = defaultAllocator.numBytesInUse();
-            const char *RESULT       = Obj::defaultZoneinfoDataLocation();
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
+            const char *RESULT = Obj::defaultZoneinfoDataLocation();
 
             LOOP2_ASSERT(L_, RESULT,
                          0 == bsl::strcmp(RESULT, ".\\defaultzictest"));
@@ -1017,8 +1031,10 @@ int main(int argc, char *argv[])
         {
             _putenv((char *) "BDE_ZONEINFO_ROOT_PATH=\\C:\\Windows");
 
-            const int   DA_NUM_BYTES = defaultAllocator.numBytesInUse();
-            const char *RESULT       = Obj::defaultZoneinfoDataLocation();
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
+            const char *RESULT = Obj::defaultZoneinfoDataLocation();
 
             LOOP2_ASSERT(L_, RESULT,
                          0 == bsl::strcmp(RESULT, "\\C:\\Windows"));
@@ -1032,8 +1048,10 @@ int main(int argc, char *argv[])
             // TBD
             _putenv((char *) "BDE_ZONEINFO_ROOT_PATH=");
 
-            const int   DA_NUM_BYTES = defaultAllocator.numBytesInUse();
-            const char *RESULT       = Obj::defaultZoneinfoDataLocation();
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
+            const char *RESULT = Obj::defaultZoneinfoDataLocation();
 
             LOOP2_ASSERT(L_, RESULT, 0 == bsl::strcmp(RESULT, "."));
             LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
@@ -1100,7 +1118,10 @@ int main(int argc, char *argv[])
 
            if (verbose) cout <<
                            "\nTest that all allocations are temporary" << endl;
-            const int DA_NUM_BYTES = defaultAllocator.numBytesInUse();
+
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
             Obj::loadDefaultZoneinfoDataLocations(&locations);
             LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());

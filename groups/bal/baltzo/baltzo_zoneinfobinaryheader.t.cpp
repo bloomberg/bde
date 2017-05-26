@@ -1962,8 +1962,8 @@ int main(int argc, char *argv[])
         } DATA[] = {
 #define NL "\n"
 #define SP " "
-        //LINE LVL SPL  VER NISGMT NISSTD NLEAPS NTRANS NLTT ABBRSZ \
-        //---- --- ---  --- ------ ------ ------ ------ ---- ------ \
+        //LINE LVL SPL  VER NISGMT NISSTD NLEAPS NTRANS NLTT ABBRSZ
+        //---- --- ---  --- ------ ------ ------ ------ ---- ------
         //                                          EXPECTED
         //                                          --------
 
@@ -2490,8 +2490,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCreate objects with various values." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const char LINE   = DATA[ti].d_line;
-                const int  VER    = DATA[ti].d_version;
+                const int  LINE   = DATA[ti].d_line;
+                const char VER    = DATA[ti].d_version;
                 const int  NISGMT = DATA[ti].d_numIsGmt;
                 const int  NISSTD = DATA[ti].d_numIsStd;
                 const int  NLEAPS = DATA[ti].d_numLeaps;

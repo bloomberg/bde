@@ -332,7 +332,6 @@ if (veryVerbose)
             const int   LEVEL = DATA[ti].d_level;
             const int   SPL   = DATA[ti].d_spl;
             const Enum  VALUE = DATA[ti].d_value;
-            const char *EXP   = DATA[ti].d_exp;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
@@ -352,6 +351,7 @@ if (veryVerbose)
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
 
             const FuncPtr FP = &Obj::print;
+            (void)FP;
         }
 
       } break;
@@ -442,9 +442,8 @@ if (veryVerbose)
         if (verbose) cout << "\tNothing is written to a bad stream." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE  = DATA[ti].d_lineNum;
-            const Enum  VALUE = DATA[ti].d_value;
-            const char *EXP   = DATA[ti].d_exp;
+            const int  LINE  = DATA[ti].d_lineNum;
+            const Enum VALUE = DATA[ti].d_value;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
@@ -465,6 +464,7 @@ if (veryVerbose)
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum);
 
             const FuncPtr FP = &operator<<;
+            (void)FP;
         }
 
       } break;
@@ -548,6 +548,7 @@ if (veryVerbose)
             typedef const char *(*FuncPtr)(Enum);
 
             const FuncPtr FP = &Obj::toAscii;
+            (void)FP;
         }
 
       } break;
