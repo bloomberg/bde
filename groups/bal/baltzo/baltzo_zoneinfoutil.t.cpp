@@ -21,6 +21,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -265,8 +266,6 @@ int main(int argc, char *argv[])
 
     const bdlt::EpochUtil::TimeT64 MIN_DATETIME =
                                               toTimeT(bdlt::Datetime(1, 1, 1));
-    const bdlt::EpochUtil::TimeT64 MAX_DATETIME =
-                        toTimeT(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999));
 
     const Validity::Enum U = baltzo::LocalTimeValidity::e_VALID_UNIQUE;
     const Validity::Enum A = baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS;
@@ -789,8 +788,8 @@ int main(int argc, char *argv[])
             };
             const int NUM_EPSILONS = sizeof EPSILONS / sizeof *EPSILONS;
 
-            const bdlt::Datetime TRANS_TIME(2000, 1, 1);
-            const int           TRANS_TIME_T = toTimeT(TRANS_TIME);
+            const bdlt::Datetime     TRANS_TIME(2000, 1, 1);
+            const bsls::Types::Int64 TRANS_TIME_T = toTimeT(TRANS_TIME);
 
             for (int i = 0; i < NUM_DIFFERENCES; ++i) {
                 Tz tz(Z); const Tz& TZ = tz;
@@ -1013,7 +1012,7 @@ int main(int argc, char *argv[])
                     TEST_OFFSETS.push_back(currentOffset*MS_PER_MIN + OFFSET);
                 }
 
-                for (int j = 0; j < TEST_OFFSETS.size(); ++j) {
+                for (bsl::size_t j = 0; j < TEST_OFFSETS.size(); ++j) {
                     bdlt::Datetime VALUE(UTC_TRANSITION);
                     VALUE.addMilliseconds(TEST_OFFSETS[j]);
 
@@ -1310,7 +1309,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime expLocal = TIME;
                 expLocal.addMinutes(OFFSET);
-                const int N = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 N = testAllocator.numBytesInUse();
 
                 bdlt::DatetimeTz result;
                 TzIt            resultIt;
@@ -1511,7 +1510,7 @@ int main(int argc, char *argv[])
             }
             Tz tz(Z); const Tz& TZ = tz;
 
-            const int N = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 N = testAllocator.numBytesInUse();
             ASSERT(false == Obj::isWellFormed(TZ));
             ASSERT(N == testAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1574,7 +1573,7 @@ int main(int argc, char *argv[])
             //                                  ,-- range of ambiguous/invalid
             //                                 /         local times
             //                                /___________________
-            //                               /                    \
+            //                               /                    \           .
             //                         @--------O             @--------O
             //
             // Local Time +------------O  -  -  @-------------O  -  -  @------
@@ -1622,10 +1621,10 @@ int main(int argc, char *argv[])
             //                   @< - - - - - -O
             //                T2' \        T2 /
             //                 @< -\- - - -O /
-            //                  \___\       \
-            //                       \\___ / \
-            //                        \   /\  \
-            //                         \_/  \__\
+            //                  \___\       \                                 .
+            //                       \\___ / \                                .
+            //                        \   /\  \                               .
+            //                         \_/  \__\                              .
             // UTC Time   +------------+--------+----------------------------
             //            T0           T1       T2
             //..

@@ -1270,7 +1270,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        const char *NY_ID = "America/New_York";
         {
             if (veryVerbose) {
                 cout << "\tTesting 'construction'." << endl;

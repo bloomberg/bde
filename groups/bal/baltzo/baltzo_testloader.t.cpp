@@ -994,6 +994,9 @@ int main(int argc, char *argv[])
 
             funcPtr     print      = &Obj::print;
             operatorPtr operatorOp = operator<<;
+
+            (void)print;
+            (void)operatorOp;
         }
 
         if (verbose) cout <<
@@ -1004,7 +1007,6 @@ int main(int argc, char *argv[])
             const char *nyId     = "America/New_York";
             const char *londonId = "Europe/London";
             const char *tokyoId  = "Asia/Tokyo";
-            const char *badId    = "BAD";
 
             baltzo::Zoneinfo newYork(Z); newYork.setIdentifier(nyId);
             baltzo::Zoneinfo london(Z);   london.setIdentifier(londonId);

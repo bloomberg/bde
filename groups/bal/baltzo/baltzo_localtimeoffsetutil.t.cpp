@@ -19,14 +19,15 @@
 
 #include <bslmf_assert.h>
 
-#include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>         // 'strcmp'
-#include <bsl_iostream.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_stopwatch.h>      // case -2, -3
 #include <bsls_types.h>
+
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>         // 'strcmp'
+#include <bsl_iostream.h>
 #include <bsl_vector.h>          // case -1
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -1063,9 +1064,9 @@ struct LogVerbosityGuard {
 // ----------------------------------------------------------------------------
 
 struct ThreadArg {
-    int            d_offset;
-    bdlt::Datetime  d_utcDatetime;
-    bslmt::Barrier *d_barrier_p;
+    bsls::Types::Int64  d_offset;
+    bdlt::Datetime      d_utcDatetime;
+    bslmt::Barrier     *d_barrier_p;
 };
 
 typedef bsl::vector<struct ThreadArg> ThreadArgs;
@@ -1192,7 +1193,7 @@ void main1()
 // For example, we can check the time offset in New York for three dates of
 // interest:
 //..
-    int offsetInSeconds =
+    bsls::Types::Int64 offsetInSeconds =
         bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
                                                                .totalSeconds();
     ASSERT(        0 == status);
@@ -1378,7 +1379,7 @@ int main(int argc, char *argv[])
                     status = Util::configure(TIMEZONE, UTC);
                     ASSERT(0 == status);
 
-                    int reportedOffset =
+                    bsls::Types::Int64 reportedOffset =
                                      Util::localTimeOffset(UTC).totalSeconds();
                     ASSERT(expected.descriptor().utcOffsetInSeconds()
                         == reportedOffset);
@@ -1439,7 +1440,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { T_ P(ti) }
                 if (veryVerbose) { T_ P_(LINE) P_(UTC_DATETIME) P(EXP_OFFSET) }
 
-                int reportedOffset =
+                bsls::Types::Int64 reportedOffset =
                             Util::localTimeOffset(UTC_DATETIME).totalSeconds();
                 ASSERT(EXP_OFFSET == reportedOffset);
 
@@ -1469,14 +1470,14 @@ int main(int argc, char *argv[])
             ASSERT(0 <= NUM_DATA - 1);
 
             for (int ti = NUM_DATA - 1; 0 <= ti; --ti) {
-                const int            LINE         = DATA[ti].d_line;
+                const int             LINE         = DATA[ti].d_line;
                 const bdlt::Datetime& UTC_DATETIME = DATA[ti].d_utcDatetime;
-                const int            EXP_OFFSET   = DATA[ti].d_expectedOffset;
+                const int             EXP_OFFSET   = DATA[ti].d_expectedOffset;
 
                 if (veryVeryVerbose) { T_ P(ti) }
                 if (veryVerbose) { T_ P_(LINE) P_(UTC_DATETIME) P(EXP_OFFSET) }
 
-                int reportedOffset =
+                bsls::Types::Int64 reportedOffset =
                             Util::localTimeOffset(UTC_DATETIME).totalSeconds();
                 ASSERT(EXP_OFFSET == reportedOffset);
 
@@ -1587,6 +1588,7 @@ int main(int argc, char *argv[])
 
             int status = Util::configure(LONG_TIMEZONE,
                                          bdlt::Datetime(2013, 1, 1, 12));
+            (void)status;
 
             ASSERT(2 == staticGlobalAllocator.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
@@ -2167,7 +2169,9 @@ int main(int argc, char *argv[])
 
         // Confirm that the callback is working
 
-        int offset = Util::localTimeOffset(newYearsDay).totalSeconds();
+        bsls::Types::Int64 offset =
+                             Util::localTimeOffset(newYearsDay).totalSeconds();
+        (void)offset;
 
         bsls::Stopwatch stopwatch;
         stopwatch.start(true);
@@ -2225,7 +2229,9 @@ int main(int argc, char *argv[])
 
         // Confirm that the callback is working
 
-        int offset = Util::localTimeOffset(newYearsDay).totalSeconds();
+        bsls::Types::Int64 offset =
+                             Util::localTimeOffset(newYearsDay).totalSeconds();
+        (void)offset;
 
         const int numIterations2 = numIterations/2;
 
