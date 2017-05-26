@@ -13,6 +13,7 @@
 
 #include <bdlb_printmethods.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -563,60 +564,60 @@ int main(int argc, char *argv[])
             //          chars      success                     resultLen
             //          -----      -------                     ---------
 
-            { L_,   { { 0                  }  },   true,       {           },
+            { L_,   { { 0,         true    }  },   true,       {           },
                                                                0             },
             { L_,   { { "",        true    },
-                      { 0                  }  },   true,       {           },
+                      { 0,         true    }  },   true,       {           },
                                                                0             },
             { L_,   { { " ",       true    },
-                      { 0                  }  },   true,       {           },
+                      { 0,         true    }  },   true,       {           },
                                                                0             },
             { L_,   { { " ",       true    },
                       { " ",       true    },
-                      { 0                  }  },   true,       {           },
+                      { 0,         true    }  },   true,       {           },
                                                                0             },
             { L_,   { { " ",       true    },
                       { "  ",      true    },
-                      { 0                  }  },   true,       {           },
+                      { 0,         true    }  },   true,       {           },
                                                                0             },
 
             { L_,   { { "123",     true    },
-                      { 0                  }  },   true,       { 123       },
+                      { 0,         true    }  },   true,       { 123       },
                                                                1             },
 
             { L_,   { { "12 3",    true    },
-                      { 0                  }  },   true,       { 12, 3     },
+                      { 0,         true    }  },   true,       { 12, 3     },
                                                                2             },
             { L_,   { { "12 3",    true    },
                       { "5",       true    },
-                      { 0                  }  },   true,       { 12, 35    },
+                      { 0,         true    }  },   true,       { 12, 35    },
                                                                2             },
             { L_,   { { "12 3",    true    },
                       { "5",       true    },
                       { "9",       true    },
-                      { 0                  }  },   true,       { 12, 359   },
+                      { 0,         true    }  },   true,       { 12, 359   },
                                                                2             },
 
             { L_,   { { "12 3",    true    },
                       { "5",       true    },
                       { "9 ",      true    },
-                      { 0                  }  },   true,       { 12, 359   },
+                      { 0,         true    }  },   true,       { 12, 359   },
                                                                2             },
 
             { L_,   { { "12 3",    true    },
                       { "5 ",      true    },
                       { "9 ",      true    },
-                      { 0                  }  },   true,       { 12, 35, 9 },
+                      { 0,         true    }  },   true,       { 12, 35, 9 },
                                                                3             },
 
             { L_,   { { "12 3",    true    },
                       { "5",       true    },
-                      { "A ",      false   }  }                              },
+                      { "A ",      false   }  },   false,      {}, 0         },
 
             { L_,   { { "12 3",    true    },
                       { "5",       true    },
                       { "A",       true    },
-                      { 0                  }  },   false                     },
+                      { 0,         true    }  },   false,      {}, 0         },
 
 
         };
@@ -705,10 +706,12 @@ int main(int argc, char *argv[])
                    P (EXPECTED_RESULT_LENGTH)
             }
 
-            LOOP3_ASSERT(LINE, EXPECTED_RESULT_LENGTH,   X.size(),
-                               EXPECTED_RESULT_LENGTH == X.size());
+            LOOP3_ASSERT(LINE,
+                         EXPECTED_RESULT_LENGTH,
+                         X.size(),
+                         EXPECTED_RESULT_LENGTH == static_cast<int>(X.size()));
 
-            for (int j = 0; j < X.size(); ++j) {
+            for (bsl::size_t j = 0; j < X.size(); ++j) {
                 LOOP4_ASSERT(LINE, j, EXPECTED_RESULT_DATA[j],   X[j],
                                       EXPECTED_RESULT_DATA[j] == X[j]);
             }

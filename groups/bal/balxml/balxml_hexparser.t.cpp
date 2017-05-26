@@ -13,6 +13,7 @@
 
 #include <bdlb_printmethods.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -507,147 +508,147 @@ int main(int argc, char *argv[])
             //          chars           success                      resultLen
             //          -----           -------                      ---------
 
-            { L_,   { { 0                       }   },   true,       "",
+            { L_,   { { 0,                true  }   },   true,       "",
                                                                      0       },
             { L_,   { { "",               true  },
-                      { 0                       }   },   true,       "",
+                      { 0,                true  }   },   true,       "",
                                                                      0       },
             { L_,   { { " ",              true  },
-                      { 0                       }   },   true,       "",
+                      { 0,                true  }   },   true,       "",
                                                                      0       },
             { L_,   { { "  ",             true  },
-                      { 0                       }   },   true,       "",
+                      { 0,                true  }   },   true,       "",
                                                                      0       },
             { L_,   { { " ",              true  },
                       { "  ",             true  },
-                      { 0                       }   },   true,       "",
+                      { 0,                true  }   },   true,       "",
                                                                      0       },
 
             { L_,   { { "00",             true  },
-                      { 0                       }   },   true,       "\x00",
+                      { 0,                true  }   },   true,       "\x00",
                                                                      1       },
             { L_,   { { "11",             true  },
-                      { 0                       }   },   true,       "\x11",
+                      { 0,                true  }   },   true,       "\x11",
                                                                      1       },
             { L_,   { { "22",             true  },
-                      { 0                       }   },   true,       "\x22",
+                      { 0,                true  }   },   true,       "\x22",
                                                                      1       },
             { L_,   { { "33",             true  },
-                      { 0                       }   },   true,       "\x33",
+                      { 0,                true  }   },   true,       "\x33",
                                                                      1       },
             { L_,   { { "44",             true  },
-                      { 0                       }   },   true,       "\x44",
+                      { 0,                true  }   },   true,       "\x44",
                                                                      1       },
             { L_,   { { "55",             true  },
-                      { 0                       }   },   true,       "\x55",
+                      { 0,                true  }   },   true,       "\x55",
                                                                      1       },
             { L_,   { { "66",             true  },
-                      { 0                       }   },   true,       "\x66",
+                      { 0,                true  }   },   true,       "\x66",
                                                                      1       },
             { L_,   { { "77",             true  },
-                      { 0                       }   },   true,       "\x77",
+                      { 0,                true  }   },   true,       "\x77",
                                                                      1       },
             { L_,   { { "88",             true  },
-                      { 0                       }   },   true,       "\x88",
+                      { 0,                true  }   },   true,       "\x88",
                                                                      1       },
             { L_,   { { "99",             true  },
-                      { 0                       }   },   true,       "\x99",
+                      { 0,                true  }   },   true,       "\x99",
                                                                      1       },
             { L_,   { { "aa",             true  },
-                      { 0                       }   },   true,       "\xaa",
+                      { 0,                true  }   },   true,       "\xaa",
                                                                      1       },
             { L_,   { { "bb",             true  },
-                      { 0                       }   },   true,       "\xbb",
+                      { 0,                true  }   },   true,       "\xbb",
                                                                      1       },
             { L_,   { { "cc",             true  },
-                      { 0                       }   },   true,       "\xcc",
+                      { 0,                true  }   },   true,       "\xcc",
                                                                      1       },
             { L_,   { { "dd",             true  },
-                      { 0                       }   },   true,       "\xdd",
+                      { 0,                true  }   },   true,       "\xdd",
                                                                      1       },
             { L_,   { { "ee",             true  },
-                      { 0                       }   },   true,       "\xee",
+                      { 0,                true  }   },   true,       "\xee",
                                                                      1       },
             { L_,   { { "ff",             true  },
-                      { 0                       }   },   true,       "\xff",
+                      { 0,                true  }   },   true,       "\xff",
                                                                      1       },
             { L_,   { { "AA",             true  },
-                      { 0                       }   },   true,       "\xAA",
+                      { 0,                true  }   },   true,       "\xAA",
                                                                      1       },
             { L_,   { { "BB",             true  },
-                      { 0                       }   },   true,       "\xBB",
+                      { 0,                true  }   },   true,       "\xBB",
                                                                      1       },
             { L_,   { { "CC",             true  },
-                      { 0                       }   },   true,       "\xCC",
+                      { 0,                true  }   },   true,       "\xCC",
                                                                      1       },
             { L_,   { { "DD",             true  },
-                      { 0                       }   },   true,       "\xDD",
+                      { 0,                true  }   },   true,       "\xDD",
                                                                      1       },
             { L_,   { { "EE",             true  },
-                      { 0                       }   },   true,       "\xEE",
+                      { 0,                true  }   },   true,       "\xEE",
                                                                      1       },
             { L_,   { { "FF",             true  },
-                      { 0                       }   },   true,       "\xFF",
+                      { 0,                true  }   },   true,       "\xFF",
                                                                      1       },
 
             { L_,   { { "0",              true  },
                       { "0",              true  },
-                      { 0                       }   },   true,       "\x00",
+                      { 0,                true  }   },   true,       "\x00",
                                                                      1       },
             { L_,   { { "F",              true  },
                       { "F",              true  },
-                      { 0                       }   },   true,       "\xFF",
+                      { 0,                true  }   },   true,       "\xFF",
                                                                      1       },
 
             { L_,   { { "1F",             true  },
-                      { 0                       }   },   true,       "\x1F",
+                      { 0,                true  }   },   true,       "\x1F",
                                                                      1       },
             { L_,   { { "F1",             true  },
-                      { 0                       }   },   true,       "\xF1",
+                      { 0,                true  }   },   true,       "\xF1",
                                                                      1       },
 
             { L_,   { { "1 F",            true  },
-                      { 0                       }   },   true,       "\x1F",
+                      { 0,                true  }   },   true,       "\x1F",
                                                                      1       },
             { L_,   { { "F 1",            true  },
-                      { 0                       }   },   true,       "\xF1",
+                      { 0,                true  }   },   true,       "\xF1",
                                                                      1       },
 
             { L_,   { { "2E1F",           true  },
-                      { 0                       }   },   true,       "\x2E"
+                      { 0,                true  }   },   true,       "\x2E"
                                                                      "\x1F",
                                                                      2       },
             { L_,   { { "E2F1",           true  },
-                      { 0                       }   },   true,       "\xE2"
+                      { 0,                true  }   },   true,       "\xE2"
                                                                      "\xF1",
                                                                      2       },
 
             { L_,   { { " 2 E ",          true  },
                       { " 1 F ",          true  },
-                      { 0                       }   },   true,       "\x2E"
+                      { 0,                true  }   },   true,       "\x2E"
                                                                      "\x1F",
                                                                      2       },
             { L_,   { { " E 2 ",          true  },
                       { " F 1 ",          true  },
-                      { 0                       }   },   true,       "\xE2"
+                      { 0,                true  }   },   true,       "\xE2"
                                                                      "\xF1",
                                                                      2       },
 
             // not enough characters
             { L_,   { { " E 2 ",          true  },
                       { " F   ",          true  },
-                      { 0                       }   },   false               },
+                      { 0,                true  }   },   false, "",  0       },
 
             // boundary characters
-            { L_,   { { "/",              false }   }                        },
-            { L_,   { { ":",              false }   }                        },
-            { L_,   { { "@",              false }   }                        },
-            { L_,   { { "G",              false }   }                        },
-            { L_,   { { "`",              false }   }                        },
-            { L_,   { { "{",              false }   }                        },
+            { L_,   { { "/",              false }   },   true,  "",  0       },
+            { L_,   { { ":",              false }   },   true,  "",  0       },
+            { L_,   { { "@",              false }   },   true,  "",  0       },
+            { L_,   { { "G",              false }   },   true,  "",  0       },
+            { L_,   { { "`",              false }   },   true,  "",  0       },
+            { L_,   { { "{",              false }   },   true,  "",  0       },
 
 
-            { L_,   { { "YWJjZA;();",     false }   }                        },
+            { L_,   { { "YWJjZA;();",     false }   },   true,  "",  0       },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
 
@@ -729,10 +730,12 @@ int main(int argc, char *argv[])
                    P (EXPECTED_RESULT_LENGTH)
             }
 
-            LOOP3_ASSERT(LINE, EXPECTED_RESULT_LENGTH,   X.size(),
-                               EXPECTED_RESULT_LENGTH == X.size());
+            LOOP3_ASSERT(LINE,
+                         EXPECTED_RESULT_LENGTH,
+                         X.size(),
+                         EXPECTED_RESULT_LENGTH == static_cast<int>(X.size()));
 
-            for (int j = 0; j < X.size(); ++j) {
+            for (bsl::size_t j = 0; j < X.size(); ++j) {
                 LOOP4_ASSERT(LINE, j, EXPECTED_RESULT_DATA[j],   X[j],
                                       EXPECTED_RESULT_DATA[j] == X[j]);
             }
