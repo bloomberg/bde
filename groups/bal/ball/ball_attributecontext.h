@@ -150,9 +150,6 @@ BSLS_IDENT("$Id: $")
 // package: 'ball::AttributeContext::initialize' is called *internally* as part
 // of the initialization of the 'ball::LoggerManager' singleton.
 //..
-//  // NOTE: The following is normally performed when the logger manager
-//  // singleton is initialized.
-//
 //  ball::CategoryManager categoryManager;
 //  ball::AttributeContext::initialize(&categoryManager);
 //..

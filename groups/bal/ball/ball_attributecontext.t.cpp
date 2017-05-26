@@ -312,14 +312,14 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
 namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE {
 
 struct ThreadArgs {
-    ball::CategoryManager *d_categoryManager_p;
+    CatMngr *d_categoryManager_p;
 };
 
 extern "C" void *usageExample2(void *args)
 {
-    ball::CategoryManager  *manager =
+    CatMngr  *manager =
                      reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
-    ball::CategoryManager&  categoryManager = *manager;
+    CatMngr&  categoryManager = *manager;
 
 // Next, we add a category to the category manager.  Each created category has
 // a name and the logging threshold levels for that category.  The logging
@@ -346,7 +346,7 @@ extern "C" void *usageExample2(void *args)
 // We call 'hasRelevantActiveRules' on 'cat1'.  This will be 'false' because
 // we haven't supplied any rules:
 //..
-    ASSERT(false == context->hasRelevantActiveRules(cat1));
+    ASSERT(!context->hasRelevantActiveRules(cat1));
 //..
 // We call 'determineThresholdLevels' on 'cat1'.  This will simply return the
 // logging threshold levels we defined for 'cat1' when it was created because
@@ -377,7 +377,7 @@ extern "C" void *usageExample2(void *args)
 // that we will discuss the meaning of "active" and the use of predicates later
 // in this example.
 //..
-    ASSERT(true == context->hasRelevantActiveRules(cat1));
+    ASSERT(context->hasRelevantActiveRules(cat1));
 //..
 // Next, we call 'determineThresholdLevels' for 'cat1'.  This method compares
 // the threshold levels defined for a category with those of any active rules
@@ -417,7 +417,7 @@ extern "C" void *usageExample2(void *args)
 // satisfied by the current thread, i.e., the current thread's attribute
 // context does not contain an attribute matching '("uuid", 3938908)'.
 //..
-    ASSERT(false == context->hasRelevantActiveRules(cat1));
+    ASSERT(!context->hasRelevantActiveRules(cat1));
 //..
 // Next, we call 'determineThresholdLevels' on 'cat1' and find that it
 // returns the threshold levels we defined for 'cat1' when we created it:
@@ -442,9 +442,9 @@ extern "C" void *usageExample2(void *args)
 // all of the predicates defined for 'myRule' are satisfied by the attributes
 // held by this thread's attribute context):
 //..
-    ASSERT(true == context->hasRelevantActiveRules(cat1));
+    ASSERT(context->hasRelevantActiveRules(cat1));
 //..
-// Now, when we call 'determineThresholdLevels'; it will again return the
+// Now, when we call 'determineThresholdLevels', it will again return the
 // maximum threshold level from 'cat1' and 'myRule':
 //..
     context->determineThresholdLevels(&thresholdLevels, cat1);
@@ -455,9 +455,8 @@ extern "C" void *usageExample2(void *args)
 //..
 // We must be careful to remove 'attributes' from the attribute context before
 // it goes out of scope and is destroyed.  Note that the 'ball' package
-// supplies a component, 'ball_scopedattributes', for adding, and
-// automatically removing, attributes from the current thread's attribute
-// context.
+// provides a component, 'ball_scopedattributes', for adding, and automatically
+// removing, attributes from the current thread's attribute context.
 //..
     context->removeAttributes(it);
 //..
@@ -1431,9 +1430,6 @@ int main(int argc, char *argv[])
 // package: 'ball::AttributeContext::initialize' is called *internally* as part
 // of the initialization of the 'ball::LoggerManager' singleton.
 //..
-    // NOTE: The following is normally performed when the logger manager
-    // singleton is initialized.
-
     ball::CategoryManager categoryManager;
     ball::AttributeContext::initialize(&categoryManager);
 //..
@@ -1841,10 +1837,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_4;
 
-        bslmt::ThreadUtil::Handle ruleThreads[NUM_RULETHREADS];
-        bslmt::ThreadUtil::Handle contextThreads[NUM_CONTEXTTHREADS];
-
-        ball::CategoryManager manager;
+        CatMngr manager;
         Obj::initialize(&manager);
 
         unsigned int seed = 0;

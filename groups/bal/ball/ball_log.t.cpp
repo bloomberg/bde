@@ -302,7 +302,6 @@ class TempDirectoryGuard {
     }
 };
 
-
 void executeInParallel(
                      int                                            numThreads,
                      BloombergLP::bslmt::ThreadUtil::ThreadFunction func)
@@ -1573,8 +1572,8 @@ int main(int argc, char *argv[])
     int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose             = argc > 2;
     veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;  // not used
-    veryVeryVeryVerbose = argc > 4;  // not used
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
@@ -1607,7 +1606,7 @@ int main(int argc, char *argv[])
         using namespace BloombergLP;  // okay here
 
         {
-            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
             ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   ball::Severity::e_TRACE,  // record level
@@ -2007,7 +2006,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         using namespace BALL_LOG_TEST_CASE_28;
         using namespace BloombergLP;  // okay here
 
-        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         ball::LoggerManagerConfiguration lmc;
         lmc.setDefaultThresholdLevelsIfValid(
                                  ball::Severity::e_OFF,    // record level
@@ -2624,7 +2623,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -2695,7 +2694,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -2763,7 +2762,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -2830,7 +2829,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                BloombergLP::ball::Severity::e_TRACE,  // record level
@@ -3047,8 +3046,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        TestAllocator ta(veryVeryVerbose);
-        TestAllocator da(veryVeryVerbose);
+        TestAllocator ta(veryVeryVeryVerbose);
+        TestAllocator da(veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
         CategoryManager CM(&ta);
@@ -4059,7 +4058,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         configuration.setDefaultRecordBufferSizeIfValid(REC_BUF_LIMIT);
         configuration.setTriggerMarkers(
                BloombergLP::ball::LoggerManagerConfiguration::e_NO_MARKERS);
-        BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
+        BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,
@@ -4621,7 +4620,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "Testing 'printf-style' Macros" << bsl::endl
                                << "=============================" << bsl::endl;
 
-        BloombergLP::bslma::TestAllocator         testAllocator(veryVerbose);
+        BloombergLP::bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         BloombergLP::bslma::DefaultAllocatorGuard taGuard(&testAllocator);
 
         const int MAX_ARGS = 9;
