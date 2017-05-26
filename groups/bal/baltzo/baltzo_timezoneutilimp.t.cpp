@@ -889,11 +889,10 @@ static void addTransitions(baltzo::Zoneinfo            *result,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1300,7 +1299,6 @@ int main(int argc, char *argv[])
             }
 
             baltzo::LocalTimePeriod result;
-            Validity::Enum         resultValidity;
             const int RC = Obj::loadLocalTimePeriodForUtc(&result,
                                                           TIME_ZONE_ID,
                                                           INPUT_TIME,
@@ -1325,7 +1323,6 @@ int main(int argc, char *argv[])
                          "\t'loadLocalTimePeriodForUtc' class method " << endl;
             {
                 baltzo::LocalTimePeriod result;
-                Validity::Enum         resultValidity;
                 bdlt::Datetime VALID_INPUT(2010, 1, 1, 12, 0);
 
                 ASSERT_PASS(Obj::loadLocalTimePeriodForUtc(&result,
@@ -1401,7 +1398,6 @@ int main(int argc, char *argv[])
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
-            const int   LINE         = VALUES[i].d_line;
             const char *TIME_ZONE_ID = VALUES[i].d_timeZoneId;
 
             const baltzo::Zoneinfo *currentTimeZone =
@@ -1747,7 +1743,6 @@ int main(int argc, char *argv[])
             {
                 const bdlt::Datetime   VALID_INPUT(2011, 04, 10);
                 const baltzo::Zoneinfo BAD;
-                const baltzo::Zoneinfo *NYZI = testCache.lookupZoneinfo(NY);
 
                 bdlt::DatetimeTz result;
                 Validity::Enum  resultValidity;

@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 // For example, we can check the time offset in New York for three dates of
 // interest:
 //..
-//  int offsetInSeconds =
+//  bsls::Types::Int64 offsetInSeconds =
 //      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
 //                                                             .totalSeconds();
 //  assert(        0 == status);
