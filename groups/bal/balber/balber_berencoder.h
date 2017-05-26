@@ -143,7 +143,7 @@ BSLS_IDENT("$Id: $")
 //  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
 //  assert(2                                        == tagNumber);
 //
-//  int age;
+//  int age = 0;
 //  rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
 //  assert(0  == rc);
 //  assert(56 == age);
@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 //  assert(balber::BerConstants::e_PRIMITIVE        == tagType);
 //  assert(3                                        == tagNumber);
 //
-//  float salary;
+//  float salary = 0.0;
 //  rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
 //  assert(0       == rc);
 //  assert(1234.00 == salary);
