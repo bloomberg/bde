@@ -1356,11 +1356,11 @@ TcpCbChannel::TcpCbChannel(
 , d_writeBufferOffset(0)
 , d_rrequestPool(sizeof(TcpCbChannel_RReg), basicAllocator)
 , d_wrequestPool(sizeof(TcpCbChannel_WReg), basicAllocator)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_isInvalidReadFlag(0)
 , d_isInvalidWriteFlag(0)
-, d_currentReadRequest_p(NULL)
-, d_currentWriteRequest_p(NULL)
+, d_currentReadRequest_p(0)
+, d_currentWriteRequest_p(0)
 {
     BSLS_ASSERT(d_rManager_p);
     BSLS_ASSERT(d_wManager_p);
@@ -1408,11 +1408,11 @@ TcpCbChannel::TcpCbChannel(
 , d_writeBufferOffset(0)
 , d_rrequestPool(sizeof(TcpCbChannel_RReg), basicAllocator)
 , d_wrequestPool(sizeof(TcpCbChannel_WReg), basicAllocator)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_isInvalidReadFlag(0)
 , d_isInvalidWriteFlag(0)
-, d_currentReadRequest_p(NULL)
-, d_currentWriteRequest_p(NULL)
+, d_currentReadRequest_p(0)
+, d_currentWriteRequest_p(0)
 {
     BSLS_ASSERT(d_rManager_p);
     BSLS_ASSERT(d_wManager_p);

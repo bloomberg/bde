@@ -885,6 +885,31 @@ namespace btlsos {
                          // -----------------------
 
 // PRIVATE MANIPULATORS
+bool TcpTimedCbChannel::handleInterruptedWrite(int status)
+{
+    if (d_currentWriteRequest_p->d_flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
+        if (d_writeTimerId) {
+            d_wManager_p->deregisterTimer(d_writeTimerId);
+            d_writeTimerId = 0;
+        }
+        BSLS_ASSERT(0 == d_writeTimerId);
+
+        // Cancel and erase all but the last write request (which is the
+        // current write request)
+        bsl::deque<TcpTimedCbChannel_WReg *>::iterator end =
+            d_writeRequests.end() - 1;
+        bsl::deque<TcpTimedCbChannel_WReg *> toBeCancelled(
+                                              d_writeRequests.begin(), end);
+        d_writeRequests.erase(d_writeRequests.begin(), end);
+        d_currentWriteRequest_p->invoke(status, e_INTERRUPT);
+        dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
+        BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
+        return true;                                                  // RETURN
+    }
+    d_currentWriteRequest_p = 0;
+    return false;
+}
+    
 
 void TcpTimedCbChannel::initializeReadBuffer(int size)
 {
@@ -1759,34 +1784,12 @@ void TcpTimedCbChannel::writeCb()
               invalidateWrite();
               d_currentWriteRequest_p->invoke(e_CONNECTION_CLOSED, 0);
               break;
-          } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-              if (d_currentWriteRequest_p->d_flags &
-                  btlsc::Flag::k_ASYNC_INTERRUPT)
-              {
-                  if (d_writeTimerId) {
-                      d_wManager_p->deregisterTimer(d_writeTimerId);
-                      d_writeTimerId = NULL;
-                  }
-                  BSLS_ASSERT(NULL == d_writeTimerId);
-                  bsl::deque<TcpTimedCbChannel_WReg *>::iterator end =
-                      d_writeRequests.begin() + d_writeRequests.size() - 1;
-                  bsl::deque<TcpTimedCbChannel_WReg *> toBeCancelled(
-                                              d_writeRequests.begin(), end);
-                  d_writeRequests.erase(d_writeRequests.begin(), end);
-
-                  d_currentWriteRequest_p->invoke(requestLength - numBytes,
-                                                  e_INTERRUPT);
-
-                  dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
-                  BSLS_ASSERT(d_currentWriteRequest_p ==
-                                                       d_writeRequests.back());
-              }
-              else {
-                  d_currentWriteRequest_p = NULL;
+          } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
+              if (!handleInterruptedWrite(requestLength - numBytes)) {
                   return;                                             // RETURN
               }
           }
-          else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
+          else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
               // Fake wake up from the event manager.
               d_currentWriteRequest_p = NULL;
               return;                                                 // RETURN
@@ -1838,33 +1841,12 @@ void TcpTimedCbChannel::writeCb()
               invalidateWrite();
               d_currentWriteRequest_p->invoke(e_CONNECTION_CLOSED, 0);
               break;
-          } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-              if (d_currentWriteRequest_p->d_flags &
-                  btlsc::Flag::k_ASYNC_INTERRUPT)
-              {
-                  if (d_writeTimerId) {
-                      d_wManager_p->deregisterTimer(d_writeTimerId);
-                      d_writeTimerId = NULL;
-                  }
-                  BSLS_ASSERT(NULL == d_writeTimerId);
-
-                  bsl::deque<TcpTimedCbChannel_WReg *>::iterator end =
-                      d_writeRequests.begin() + d_writeRequests.size() - 1;
-                  bsl::deque<TcpTimedCbChannel_WReg *> toBeCancelled(
-                                              d_writeRequests.begin(), end);
-                  d_writeRequests.erase(d_writeRequests.begin(), end);
-                  d_currentWriteRequest_p->invoke(0,
-                                                  e_INTERRUPT);
-                  dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
-                  BSLS_ASSERT(d_currentWriteRequest_p ==
-                                 d_writeRequests.back());
-              }
-              else {
-                  d_currentWriteRequest_p = NULL;
+          } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
+              if (!handleInterruptedWrite(0)) {
                   return;                                             // RETURN
               }
           }
-          else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
+          else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
               // Fake wake up from the event manager.
               d_currentWriteRequest_p = NULL;
               return;                                                 // RETURN
@@ -1873,17 +1855,17 @@ void TcpTimedCbChannel::writeCb()
               BSLS_ASSERT(s < 0);
               BSLS_ASSERT(s != btlso::SocketHandle::e_ERROR_INTERRUPTED);
               BSLS_ASSERT(s != btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-
+              
               if (d_writeTimerId) {
                   d_wManager_p->deregisterTimer(d_writeTimerId);
                   d_writeTimerId = NULL;
               }
               BSLS_ASSERT(NULL == d_writeTimerId);
-        d_writeRequests.pop_back();
-        d_currentWriteRequest_p->invoke(s - 1, 0);
-        dequeue(&d_writeRequests, 0, e_DEQUEUED, &d_wrequestPool);
-        d_writeRequests.push_back(d_currentWriteRequest_p);
-        BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
+              d_writeRequests.pop_back();
+              d_currentWriteRequest_p->invoke(s - 1, 0);
+              dequeue(&d_writeRequests, 0, e_DEQUEUED, &d_wrequestPool);
+              d_writeRequests.push_back(d_currentWriteRequest_p);
+              BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
           }
       } break;
       case TcpTimedCbChannel_WReg::e_VECTORED_O: {
@@ -1892,6 +1874,7 @@ void TcpTimedCbChannel::writeCb()
           int numBuffers = d_currentWriteRequest_p->d_data.d_vo.d_numBuffers;
 
           int s = d_socket_p->writev(buffers, numBuffers);
+
           if (0 < s) {
               // Wrote 's' bytes into the socket.
               --d_currentWriteRequest_p->d_numSysCalls;
@@ -1904,7 +1887,7 @@ void TcpTimedCbChannel::writeCb()
               d_currentWriteRequest_p->invoke(s, 0);
           }
           else if (btlso::SocketHandle::e_ERROR_EOF == s) {
-              // Connection was closed
+              // Connection was closed.
               if (d_writeTimerId) {
                   d_wManager_p->deregisterTimer(d_writeTimerId);
                   d_writeTimerId = NULL;
@@ -1913,33 +1896,12 @@ void TcpTimedCbChannel::writeCb()
               invalidateWrite();
               d_currentWriteRequest_p->invoke(e_CONNECTION_CLOSED, 0);
               break;
-          } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-              if (d_currentWriteRequest_p->d_flags &
-                  btlsc::Flag::k_ASYNC_INTERRUPT)
-              {
-                  if (d_writeTimerId) {
-                      d_wManager_p->deregisterTimer(d_writeTimerId);
-                      d_writeTimerId = NULL;
-                  }
-                  BSLS_ASSERT(NULL == d_writeTimerId);
-                  bsl::deque<TcpTimedCbChannel_WReg *>::iterator end =
-                      d_writeRequests.begin() + d_writeRequests.size() - 1;
-                  bsl::deque<TcpTimedCbChannel_WReg *> toBeCancelled(
-                                              d_writeRequests.begin(), end);
-                  d_writeRequests.erase(d_writeRequests.begin(), end);
-
-                  d_currentWriteRequest_p->invoke(0,
-                                                  e_INTERRUPT);
-                  dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
-                  BSLS_ASSERT(d_currentWriteRequest_p ==
-                                 d_writeRequests.back());
-              }
-              else {
-                  d_currentWriteRequest_p = NULL;
+          } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
+              if (!handleInterruptedWrite(0)) {
                   return;                                             // RETURN
               }
           }
-          else if (s == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
+          else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
               // Fake wake up from the event manager.
               d_currentWriteRequest_p = NULL;
               return;                                                 // RETURN

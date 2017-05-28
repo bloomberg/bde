@@ -144,14 +144,14 @@ BSLS_IDENT("$Id: $")
 //
 //        numBytes = 5;
 //        enum { e_INVALID = -2 };
-//        // Try writing 5 bytes from the channel.
+//        // Try writing 5 bytes to the channel.
 //        len = channel.read(&augStatus, readBuf,
 //                                   numBytes, interruptFlag);
 //        assert(e_INVALID == len);
 //
 //        numBytes = 10;
 //        augStatus = -1;
-//        // Try writing 10 bytes from the channel.
+//        // Try reading 10 bytes from the channel.
 //        len = channel.read(&augStatus, readBuf,
 //                           numBytes, interruptFlag);
 //        assert(e_INVALID == len);

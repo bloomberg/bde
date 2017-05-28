@@ -463,7 +463,7 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
 , d_isInvalidFlag(0)
 , d_timerId(NULL)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_acceptFunctor
         = bsl::function<void()>(
@@ -496,7 +496,7 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
 , d_isInvalidFlag(0)
 , d_timerId(NULL)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < numElements);
     d_acceptFunctor

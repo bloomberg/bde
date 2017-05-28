@@ -365,7 +365,7 @@ TcpCbAcceptor::TcpCbAcceptor(
 , d_serverSocket_p(NULL)
 , d_isInvalidFlag(0)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_acceptFunctor
         = bsl::function<void()>(
@@ -391,7 +391,7 @@ TcpCbAcceptor::TcpCbAcceptor(
 , d_serverSocket_p(NULL)
 , d_isInvalidFlag(0)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < numElements);
     d_acceptFunctor

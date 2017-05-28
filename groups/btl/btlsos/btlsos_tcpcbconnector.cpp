@@ -441,7 +441,7 @@ TcpCbConnector::TcpCbConnector(
 , d_factory_p(factory)
 , d_connectingSocket_p(NULL)
 , d_isInvalidFlag(0)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_connectFunctor
         = bsl::function<void()>(
@@ -463,7 +463,7 @@ TcpCbConnector::TcpCbConnector(
 , d_factory_p(factory)
 , d_connectingSocket_p(NULL)
 , d_isInvalidFlag(0)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_connectFunctor
         = bsl::function<void()>(
