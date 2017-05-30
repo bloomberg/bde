@@ -110,7 +110,8 @@ using namespace std;
 // [ 1] BREATHING TEST
 // [ 7] SEQUENTIAL CONSISTENCY MEMORY ORDERING GUARANTEE TEST
 // [ 8] ACQUIRE/RELEASE MEMORY ORDERING GUARANTEE TEST
-// [ 9] USAGE EXAMPLE
+// [ 9] TESTING MEMORY ORDERING OF ATOMIC OPERATIONS USED IN SHARED POINTER
+// [10] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================

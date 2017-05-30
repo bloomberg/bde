@@ -57,6 +57,16 @@ struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_ClangIntrinsics>
           _Atomic(Types::Int64) d_value;
     };
 
+    struct __attribute__((__aligned__(sizeof(unsigned int)))) Uint
+    {
+          _Atomic(unsigned int) d_value;
+    };
+
+    struct __attribute__((__aligned__(sizeof(Types::Uint64)))) Uint64
+    {
+          _Atomic(Types::Uint64) d_value;
+    };
+
     struct __attribute__((__aligned__(sizeof(void *)))) Pointer
     {
           _Atomic(void *) d_value;

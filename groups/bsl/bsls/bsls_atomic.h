@@ -749,14 +749,14 @@ class AtomicInt {
         // Atomically add the specified 'value' to this object and return the
         // resulting value.
 
-    int addRelaxed(int value);
-        // Atomically add the specified 'value' to this object and return the
-        // resulting value, providing the relaxed memory ordering guarantee.
-
     int addAcqRel(int value);
         // Atomically add the specified 'value' to this object and return the
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
+
+    int addRelaxed(int value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value, providing the relaxed memory ordering guarantee.
 
     void store(int value);
         // Atomically assign the specified 'value' to this object, providing
@@ -803,12 +803,12 @@ class AtomicInt {
     int load() const;
         // Return the current value of this object.
 
-    int loadRelaxed() const;
-        // Return the current value of this object, providing the relaxed
-        // memory ordering guarantee.
-
     int loadAcquire() const;
         // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
+
+    int loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
         // memory ordering guarantee.
 };
 
@@ -878,14 +878,14 @@ class AtomicInt64 {
         // Atomically add the specified 'value' to this object and return the
         // resulting value.
 
-    Types::Int64 addRelaxed(Types::Int64 value);
-        // Atomically add the specified 'value' to this object and return the
-        // resulting value, providing the relaxed memory ordering guarantee.
-
     Types::Int64 addAcqRel(Types::Int64 value);
         // Atomically add the specified 'value' to this object and return the
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
+
+    Types::Int64 addRelaxed(Types::Int64 value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value, providing the relaxed memory ordering guarantee.
 
     void store(Types::Int64 value);
         // Atomically assign the specified 'value' to this object, providing
@@ -934,274 +934,274 @@ class AtomicInt64 {
     Types::Int64 load() const;
         // Return the current value of this object.
 
-    Types::Int64 loadRelaxed() const;
-        // Return the current value of this object, providing the relaxed
-        // memory ordering guarantee.
-
     Types::Int64 loadAcquire() const;
         // Return the current value of this object, providing the acquire
         // memory ordering guarantee.
+
+    Types::Int64 loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
 };
 
-// ================
-// class AtomicUint
-// ================
+                          // ================
+                          // class AtomicUint
+                          // ================
 
 class AtomicUint {
-// This class implements an atomic unsigned integer, which supports common
-// unsigned integer operations in a way that is guaranteed to be atomic.
-// Operations on objects of this class provide the sequential consistency
-// memory ordering guarantee unless explicitly qualified with a less strict
-// consistency guarantee suffix (i.e., Acquire, Release, AcqRel or Relaxed).
+    // This class implements an atomic unsigned integer, which supports common
+    // unsigned integer operations in a way that is guaranteed to be atomic.
+    // Operations on objects of this class provide the sequential consistency
+    // memory ordering guarantee unless explicitly qualified with a less strict
+    // consistency guarantee suffix (i.e., Acquire, Release, AcqRel or Relaxed).
 
-// DATA
-AtomicOperations::AtomicTypes::Uint d_value;
+    // DATA
+    AtomicOperations::AtomicTypes::Uint d_value;
 
-private:
-// NOT IMPLEMENTED
-AtomicUint(const AtomicInt&);               // = delete
-AtomicUint& operator=(const AtomicInt& );   // = delete
-// Note that the copy constructor and the copy-assignment operator
-// are not implemented because they cannot be done atomically.
+  private:
+    // NOT IMPLEMENTED
+    AtomicUint(const AtomicInt&);               // = delete
+    AtomicUint& operator=(const AtomicInt& );   // = delete
+        // Note that the copy constructor and the copy-assignment operator
+        // are not implemented because they cannot be done atomically.
 
-public:
-// CREATORS
-AtomicUint();
-// Create an atomic unsigned integer object having the default value 0.
+  public:
+    // CREATORS
+    AtomicUint();
+        // Create an atomic unsigned integer object having the default value 0.
 
-AtomicUint(unsigned int value);
-// Create an atomic unsigned integer object having the specified 'value'.
+    AtomicUint(unsigned int value);
+        // Create an atomic unsigned integer object having the specified 'value'.
 
-//! ~AtomicUint() = default;
-// Destroy this atomic unsigned integer object.
+    //! ~AtomicUint() = default;
+        // Destroy this atomic unsigned integer object.
 
-// MANIPULATORS
-AtomicUint& operator=(unsigned int value);
-// Atomically assign the specified 'value' to this object, and return a
-// modifiable reference to 'this' object.
+    // MANIPULATORS
+    AtomicUint& operator=(unsigned int value);
+        // Atomically assign the specified 'value' to this object, and return a
+        // modifiable reference to 'this' object.
 
-unsigned int operator+=(unsigned int value);
-// Atomically add the specified 'value' to this object, and return the
-// resulting value.
+    unsigned int operator+=(unsigned int value);
+        // Atomically add the specified 'value' to this object, and return the
+        // resulting value.
 
-unsigned int operator-=(unsigned int value);
-// Atomically subtract the specified 'value' from this object, and
-// return the resulting value.
+    unsigned int operator-=(unsigned int value);
+        // Atomically subtract the specified 'value' from this object, and
+        // return the resulting value.
 
-unsigned int operator++();
-// Atomically increment the value of this object by 1 and return the
-// resulting value.
+    unsigned int operator++();
+        // Atomically increment the value of this object by 1 and return the
+        // resulting value.
 
-unsigned int operator++(int);
-// Atomically increment the value of this object by 1 and return the
-// value prior to being incremented.
+    unsigned int operator++(int);
+        // Atomically increment the value of this object by 1 and return the
+        // value prior to being incremented.
 
-unsigned int operator--();
-// Atomically decrement the value of this object by 1 and return the
-// resulting value.
+    unsigned int operator--();
+        // Atomically decrement the value of this object by 1 and return the
+        // resulting value.
 
-unsigned int operator--(int);
-// Atomically decrement the value of this object by 1 and return the
-// value prior to being decremented.
+    unsigned int operator--(int);
+        // Atomically decrement the value of this object by 1 and return the
+        // value prior to being decremented.
 
-unsigned int add(unsigned int value);
-// Atomically add the specified 'value' to this object and return the
-// resulting value.
+    unsigned int add(unsigned int value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value.
 
-unsigned int addRelaxed(unsigned int value);
-// Atomically add the specified 'value' to this object and return the
-// resulting value, providing the relaxed memory ordering guarantee.
+    unsigned int addAcqRel(unsigned int value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
-unsigned int addAcqRel(unsigned int value);
-// Atomically add the specified 'value' to this object and return the
-// resulting value, providing the acquire/release memory ordering
-// guarantee.
+    unsigned int addRelaxed(unsigned int value);
+    // Atomically add the specified 'value' to this object and return the
+    // resulting value, providing the relaxed memory ordering guarantee.
 
-void store(unsigned int value);
-// Atomically assign the specified 'value' to this object, providing
-// the sequential consistency memory ordering guarantee.
+    void store(unsigned int value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the sequential consistency memory ordering guarantee.
 
-void storeRelaxed(unsigned int value);
-// Atomically assign the specified 'value' to this object, providing
-// the relaxed memory ordering guarantee.
+    void storeRelaxed(unsigned int value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the relaxed memory ordering guarantee.
 
-void storeRelease(unsigned int value);
-// Atomically assign the specified 'value' to this object, providing
-// the release memory ordering guarantee.
+    void storeRelease(unsigned int value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the release memory ordering guarantee.
 
-unsigned int swap(unsigned int swapValue);
-// Atomically set the value of this object to the specified 'swapValue'
-// and return its previous value.
+    unsigned int swap(unsigned int swapValue);
+        // Atomically set the value of this object to the specified 'swapValue'
+        // and return its previous value.
 
-unsigned int swapAcqRel(unsigned int swapValue);
-// Atomically set the value of this object to the specified 'swapValue'
-// and return its previous value, providing the acquire/release memory
-// ordering guarantee.
+    unsigned int swapAcqRel(unsigned int swapValue);
+        // Atomically set the value of this object to the specified 'swapValue'
+        // and return its previous value, providing the acquire/release memory
+        // ordering guarantee.
 
-unsigned int testAndSwap(unsigned int compareValue, unsigned int swapValue);
-// Compare the value of this object to the specified 'compareValue'.
-// If they are equal, set the value of this atomic unsigned integer to the
-// specified 'swapValue', otherwise leave this value unchanged.  Return
-// the previous value of this atomic unsigned integer, whether or not the swap
-// occurred.  Note that the entire test-and-swap operation is performed
-// atomically.
+    unsigned int testAndSwap(unsigned int compareValue, unsigned int swapValue);
+        // Compare the value of this object to the specified 'compareValue'.
+        // If they are equal, set the value of this atomic unsigned integer to the
+        // specified 'swapValue', otherwise leave this value unchanged.  Return
+        // the previous value of this atomic unsigned integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically.
 
-unsigned int testAndSwapAcqRel(unsigned int compareValue,
-                               unsigned int swapValue);
-// Compare the value of this object to the specified 'compareValue'.
-// If they are equal, set the value of this atomic unsigned integer to the
-// specified 'swapValue', otherwise leave this value unchanged.  Return
-// the previous value of this atomic unsigned integer, whether or not the swap
-// occurred.  Note that the entire test-and-swap operation is performed
-// atomically and it provides the acquire/release memory ordering
-// guarantee.
+    unsigned int testAndSwapAcqRel(unsigned int compareValue,
+                                   unsigned int swapValue);
+        // Compare the value of this object to the specified 'compareValue'.
+        // If they are equal, set the value of this atomic unsigned integer to the
+        // specified 'swapValue', otherwise leave this value unchanged.  Return
+        // the previous value of this atomic unsigned integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically and it provides the acquire/release memory ordering
+        // guarantee.
 
-// ACCESSORS
-operator unsigned int() const;
-// Return the current value of this object.
+    // ACCESSORS
+    operator unsigned int() const;
+        // Return the current value of this object.
 
-unsigned int load() const;
-// Return the current value of this object.
+    unsigned int load() const;
+        // Return the current value of this object.
 
-unsigned int loadRelaxed() const;
-// Return the current value of this object, providing the relaxed
-// memory ordering guarantee.
+    unsigned int loadAcquire() const;
+        // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
 
-unsigned int loadAcquire() const;
-// Return the current value of this object, providing the acquire
-// memory ordering guarantee.
+    unsigned int loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
 };
 
-// ==================
-// class AtomicUint64
-// ==================
+                             // ==================
+                             // class AtomicUint64
+                             // ==================
 
 class AtomicUint64 {
-// This class is implements an atomic 64-bit unsigned integer, which supports
-// common unsigned integer operations in a way that is guaranteed to be atomic.
-// Operations on objects of this class provide the sequential consistency
-// memory ordering guarantee unless explicitly qualified with a less strict
-// consistency guarantee suffix (i.e., Acquire, Release, AcqRel or
-// Relaxed).
+    // This class is implements an atomic 64-bit unsigned integer, which supports
+    // common unsigned integer operations in a way that is guaranteed to be atomic.
+    // Operations on objects of this class provide the sequential consistency
+    // memory ordering guarantee unless explicitly qualified with a less strict
+    // consistency guarantee suffix (i.e., Acquire, Release, AcqRel or
+    // Relaxed).
 
-// DATA
-AtomicOperations::AtomicTypes::Uint64 d_value;
+    // DATA
+    AtomicOperations::AtomicTypes::Uint64 d_value;
 
-private:
-// NOT IMPLEMENTED
-AtomicUint64(const AtomicUint64&);              // = delete
-AtomicUint64& operator=(const AtomicUint64&);   // = delete
-// Note that the copy constructor and the copy-assignment operator
-// are not implemented because they cannot be done atomically.
+  private:
+    // NOT IMPLEMENTED
+    AtomicUint64(const AtomicUint64&);              // = delete
+    AtomicUint64& operator=(const AtomicUint64&);   // = delete
+        // Note that the copy constructor and the copy-assignment operator
+        // are not implemented because they cannot be done atomically.
 
-public:
-// CREATORS
-AtomicUint64();
-// Create an atomic 64-bit unsigned integer object having the default value 0.
+  public:
+    // CREATORS
+    AtomicUint64();
+        // Create an atomic 64-bit unsigned integer object having the default value 0.
 
-AtomicUint64(Types::Uint64 value);
-// Create an atomic 64-bit unsigned integer object having the specified
-// 'value'.
+    AtomicUint64(Types::Uint64 value);
+        // Create an atomic 64-bit unsigned integer object having the specified
+        // 'value'.
 
-//! ~AtomicUint64() = default;
-// Destroy this atomic 64-bit unsigned integer object.
+    //! ~AtomicUint64() = default;
+        // Destroy this atomic 64-bit unsigned integer object.
 
-// MANIPULATORS
-AtomicUint64& operator=(Types::Uint64 value);
-// Atomically assign the specified 'value' to this object, and return a
-// modifiable reference to 'this' object.
+    // MANIPULATORS
+    AtomicUint64& operator=(Types::Uint64 value);
+        // Atomically assign the specified 'value' to this object, and return a
+        // modifiable reference to 'this' object.
 
-Types::Uint64 operator+=(Types::Uint64 value);
-// Atomically add the specified 'value' to this object, and return the
-// resulting value.
+    Types::Uint64 operator+=(Types::Uint64 value);
+        // Atomically add the specified 'value' to this object, and return the
+        // resulting value.
 
-Types::Uint64 operator-=(Types::Uint64 value);
-// Atomically subtract the specified 'value' from this object, and
-// return the resulting value.
+    Types::Uint64 operator-=(Types::Uint64 value);
+        // Atomically subtract the specified 'value' from this object, and
+        // return the resulting value.
 
-Types::Uint64 operator++();
-// Atomically increment the value of this object by 1 and return the
-// resulting value.
+    Types::Uint64 operator++();
+        // Atomically increment the value of this object by 1 and return the
+        // resulting value.
 
-Types::Uint64 operator++(int);
-// Atomically increment the value of this object by 1 and return the
-// value prior to being incremented.
+    Types::Uint64 operator++(int);
+        // Atomically increment the value of this object by 1 and return the
+        // value prior to being incremented.
 
-Types::Uint64 operator--();
-// Atomically decrement the value of this object by 1 and return the
-// resulting value.
+    Types::Uint64 operator--();
+        // Atomically decrement the value of this object by 1 and return the
+        // resulting value.
 
-Types::Uint64 operator--(int);
-// Atomically decrement the value of this object by 1 and return the
-// value prior to being decremented.
+    Types::Uint64 operator--(int);
+        // Atomically decrement the value of this object by 1 and return the
+        // value prior to being decremented.
 
-Types::Uint64 add(Types::Uint64 value);
-// Atomically add the specified 'value' to this object and return the
-// resulting value.
+    Types::Uint64 add(Types::Uint64 value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value.
 
-Types::Uint64 addRelaxed(Types::Uint64 value);
-// Atomically add the specified 'value' to this object and return the
-// resulting value, providing the relaxed memory ordering guarantee.
+    Types::Uint64 addRelaxed(Types::Uint64 value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value, providing the relaxed memory ordering guarantee.
 
-Types::Uint64 addAcqRel(Types::Uint64 value);
-// Atomically add the specified 'value' to this object and return the
-// resulting value, providing the acquire/release memory ordering
-// guarantee.
+    Types::Uint64 addAcqRel(Types::Uint64 value);
+        // Atomically add the specified 'value' to this object and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
-void store(Types::Uint64 value);
-// Atomically assign the specified 'value' to this object, providing
-// the sequential consistency memory ordering guarantee.
+    void store(Types::Uint64 value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the sequential consistency memory ordering guarantee.
 
-void storeRelaxed(Types::Uint64 value);
-// Atomically assign the specified 'value' to this object, providing
-// the relaxed memory ordering guarantee.
+    void storeRelaxed(Types::Uint64 value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the relaxed memory ordering guarantee.
 
-void storeRelease(Types::Uint64 value);
-// Atomically assign the specified 'value' to this object, providing
-// the release memory ordering guarantee.
+    void storeRelease(Types::Uint64 value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the release memory ordering guarantee.
 
-Types::Uint64 swap(Types::Uint64 swapValue);
-// Atomically set the value of this object to the specified 'swapValue'
-// and return its previous value.
+    Types::Uint64 swap(Types::Uint64 swapValue);
+        // Atomically set the value of this object to the specified 'swapValue'
+        // and return its previous value.
 
-Types::Uint64 swapAcqRel(Types::Uint64 swapValue);
-// Atomically set the value of this object to the specified 'swapValue'
-// and return its previous value, providing the acquire/release memory
-// ordering guarantee.
+    Types::Uint64 swapAcqRel(Types::Uint64 swapValue);
+        // Atomically set the value of this object to the specified 'swapValue'
+        // and return its previous value, providing the acquire/release memory
+        // ordering guarantee.
 
-Types::Uint64 testAndSwap(Types::Uint64 compareValue,
-Types::Uint64 swapValue);
-// Compare the value of this object to the specified 'compareValue'.
-// If they are equal, set the value of this atomic integer to the
-// specified 'swapValue', otherwise leave this value unchanged.  Return
-// the previous value of this atomic unsigned integer, whether or not the swap
-// occurred.  Note that the entire test-and-swap operation is performed
-// atomically.
+    Types::Uint64 testAndSwap(Types::Uint64 compareValue,
+                              Types::Uint64 swapValue);
+        // Compare the value of this object to the specified 'compareValue'.
+        // If they are equal, set the value of this atomic integer to the
+        // specified 'swapValue', otherwise leave this value unchanged.  Return
+        // the previous value of this atomic unsigned integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically.
 
-Types::Uint64 testAndSwapAcqRel(Types::Uint64 compareValue,
-    Types::Uint64 swapValue);
-// Compare the value of this object to the specified 'compareValue'.
-// If they are equal, set the value of this atomic integer to the
-// specified 'swapValue', otherwise leave this value unchanged.  Return
-// the previous value of this atomic unsigned integer, whether or not the swap
-// occurred.  Note that the entire test-and-swap operation is performed
-// atomically and it provides the acquire/release memory ordering
-// guarantee.
+    Types::Uint64 testAndSwapAcqRel(Types::Uint64 compareValue,
+                                    Types::Uint64 swapValue);
+        // Compare the value of this object to the specified 'compareValue'.
+        // If they are equal, set the value of this atomic integer to the
+        // specified 'swapValue', otherwise leave this value unchanged.  Return
+        // the previous value of this atomic unsigned integer, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically and it provides the acquire/release memory ordering
+        // guarantee.
 
-// ACCESSORS
-operator Types::Uint64() const;
-// Return the current value of this object.
+    // ACCESSORS
+    operator Types::Uint64() const;
+        // Return the current value of this object.
 
-Types::Uint64 load() const;
-// Return the current value of this object.
+    Types::Uint64 load() const;
+        // Return the current value of this object.
 
-Types::Uint64 loadRelaxed() const;
-// Return the current value of this object, providing the relaxed
-// memory ordering guarantee.
+    Types::Uint64 loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
 
-Types::Uint64 loadAcquire() const;
-// Return the current value of this object, providing the acquire
-// memory ordering guarantee.
+    Types::Uint64 loadAcquire() const;
+        // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
 };
 
                              // ===================
@@ -1217,9 +1217,7 @@ class AtomicPointer {
     // a less strict consistency guarantee suffix (i.e., Acquire, Release,
     // AcqRel or Relaxed).
 
-    // DATA
-    AtomicOperations::AtomicTypes::Pointer d_value;
-
+    // PUBLIC TYPES
     typedef char AtomicPointer_PointerSizeCheck[
         sizeof(TYPE *) == sizeof(void *) ? 1 : -1];
         // Static assert that a 'TYPE*' pointer is binary compatible with a
@@ -1229,6 +1227,9 @@ class AtomicPointer {
         // this assert makes sure that such a cast is safe.  Note that
         // 'bslmf_Assert' can't be used here because of package dependency
         // rules.
+
+    // DATA
+    AtomicOperations::AtomicTypes::Pointer d_value;
 
     template <class TYPE1>
     struct RemoveConst              { typedef TYPE1 Type; };
@@ -1492,15 +1493,15 @@ int AtomicInt::add(int value)
 }
 
 inline
-int AtomicInt::addRelaxed(int value)
-{
-    return AtomicOperations_Imp::addIntNvRelaxed(&d_value, value);
-}
-
-inline
 int AtomicInt::addAcqRel(int value)
 {
     return AtomicOperations_Imp::addIntNvAcqRel(&d_value, value);
+}
+
+inline
+int AtomicInt::addRelaxed(int value)
+{
+    return AtomicOperations_Imp::addIntNvRelaxed(&d_value, value);
 }
 
 inline
@@ -1564,15 +1565,15 @@ int AtomicInt::load() const
 }
 
 inline
-int AtomicInt::loadRelaxed() const
-{
-    return AtomicOperations_Imp::getIntRelaxed(&d_value);
-}
-
-inline
 int AtomicInt::loadAcquire() const
 {
     return AtomicOperations_Imp::getIntAcquire(&d_value);
+}
+
+inline
+int AtomicInt::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getIntRelaxed(&d_value);
 }
 
                               // -----------------
@@ -1643,15 +1644,15 @@ Types::Int64 AtomicInt64::add(Types::Int64 value)
 }
 
 inline
-Types::Int64 AtomicInt64::addRelaxed(Types::Int64 value)
-{
-    return AtomicOperations_Imp::addInt64NvRelaxed(&d_value, value);
-}
-
-inline
 Types::Int64 AtomicInt64::addAcqRel(Types::Int64 value)
 {
     return AtomicOperations_Imp::addInt64NvAcqRel(&d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::addRelaxed(Types::Int64 value)
+{
+    return AtomicOperations_Imp::addInt64NvRelaxed(&d_value, value);
 }
 
 inline
@@ -1718,15 +1719,15 @@ Types::Int64 AtomicInt64::load() const
 }
 
 inline
-Types::Int64 AtomicInt64::loadRelaxed() const
-{
-    return AtomicOperations_Imp::getInt64Relaxed(&d_value);
-}
-
-inline
 Types::Int64 AtomicInt64::loadAcquire() const
 {
     return AtomicOperations_Imp::getInt64Acquire(&d_value);
+}
+
+inline
+Types::Int64 AtomicInt64::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getInt64Relaxed(&d_value);
 }
 
                               // ---------------
@@ -1797,15 +1798,15 @@ unsigned int AtomicUint::add(unsigned int value)
 }
 
 inline
-unsigned int AtomicUint::addRelaxed(unsigned int value)
-{
-    return AtomicOperations_Imp::addUintNvRelaxed(&d_value, value);
-}
-
-inline
 unsigned int AtomicUint::addAcqRel(unsigned int value)
 {
     return AtomicOperations_Imp::addUintNvAcqRel(&d_value, value);
+}
+
+inline
+unsigned int AtomicUint::addRelaxed(unsigned int value)
+{
+    return AtomicOperations_Imp::addUintNvRelaxed(&d_value, value);
 }
 
 inline
@@ -1871,15 +1872,15 @@ unsigned int AtomicUint::load() const
 }
 
 inline
-unsigned int AtomicUint::loadRelaxed() const
-{
-    return AtomicOperations_Imp::getUintRelaxed(&d_value);
-}
-
-inline
 unsigned int AtomicUint::loadAcquire() const
 {
     return AtomicOperations_Imp::getUintAcquire(&d_value);
+}
+
+inline
+unsigned int AtomicUint::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getUintRelaxed(&d_value);
 }
 
                               // -----------------
@@ -1950,15 +1951,15 @@ Types::Uint64 AtomicUint64::add(Types::Uint64 value)
 }
 
 inline
-Types::Uint64 AtomicUint64::addRelaxed(Types::Uint64 value)
-{
-    return AtomicOperations_Imp::addUint64NvRelaxed(&d_value, value);
-}
-
-inline
 Types::Uint64 AtomicUint64::addAcqRel(Types::Uint64 value)
 {
     return AtomicOperations_Imp::addUint64NvAcqRel(&d_value, value);
+}
+
+inline
+Types::Uint64 AtomicUint64::addRelaxed(Types::Uint64 value)
+{
+    return AtomicOperations_Imp::addUint64NvRelaxed(&d_value, value);
 }
 
 inline
@@ -2023,15 +2024,15 @@ Types::Uint64 AtomicUint64::load() const
 }
 
 inline
-Types::Uint64 AtomicUint64::loadRelaxed() const
-{
-    return AtomicOperations_Imp::getUint64Relaxed(&d_value);
-}
-
-inline
 Types::Uint64 AtomicUint64::loadAcquire() const
 {
     return AtomicOperations_Imp::getUint64Acquire(&d_value);
+}
+
+inline
+Types::Uint64 AtomicUint64::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getUint64Relaxed(&d_value);
 }
 
                              // -------------------
@@ -2143,7 +2144,21 @@ template <class TYPE>
 inline
 AtomicPointer<TYPE>::operator TYPE*() const
 {
-    return (TYPE *) AtomicOperations_Imp::getPtr(&d_value);
+    return static_cast<TYPE *>(AtomicOperations_Imp::getPtr(&d_value));
+}
+
+template <class TYPE>
+inline
+TYPE& AtomicPointer<TYPE>::operator*() const
+{
+    return *(static_cast<TYPE *>(AtomicOperations_Imp::getPtr(&d_value)));
+}
+
+template <class TYPE>
+inline
+TYPE *AtomicPointer<TYPE>::operator->() const
+{
+    return static_cast<TYPE *>(AtomicOperations_Imp::getPtr(&d_value));
 }
 
 template <class TYPE>
@@ -2155,30 +2170,16 @@ TYPE *AtomicPointer<TYPE>::load() const
 
 template <class TYPE>
 inline
-TYPE& AtomicPointer<TYPE>::operator*() const
+TYPE *AtomicPointer<TYPE>::loadAcquire() const
 {
-    return *((TYPE *) AtomicOperations_Imp::getPtr(&d_value));
-}
-
-template <class TYPE>
-inline
-TYPE *AtomicPointer<TYPE>::operator->() const
-{
-    return (TYPE *) AtomicOperations_Imp::getPtr(&d_value);
+    return static_cast<TYPE *>(AtomicOperations_Imp::getPtrAcquire(&d_value));
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::loadRelaxed() const
 {
-    return (TYPE *) AtomicOperations_Imp::getPtrRelaxed(&d_value);
-}
-
-template <class TYPE>
-inline
-TYPE *AtomicPointer<TYPE>::loadAcquire() const
-{
-    return (TYPE *) AtomicOperations_Imp::getPtrAcquire(&d_value);
+    return static_cast<TYPE *>(AtomicOperations_Imp::getPtrRelaxed(&d_value));
 }
 
                                // ----------------
@@ -2287,15 +2288,15 @@ bool AtomicBool::load() const
 }
 
 inline
-bool AtomicBool::loadRelaxed() const
-{
-    return AtomicOperations_Imp::getIntRelaxed(&d_value) == AtomicBool::e_TRUE;
-}
-
-inline
 bool AtomicBool::loadAcquire() const
 {
     return AtomicOperations_Imp::getIntAcquire(&d_value) == AtomicBool::e_TRUE;
+}
+
+inline
+bool AtomicBool::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getIntRelaxed(&d_value) == AtomicBool::e_TRUE;
 }
 
 }  // close package namespace

@@ -31,34 +31,57 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 //
-// [2 ] initInt(Int *aInt);
-// [2 ] initInt64(Int64 *aInt);
-// [2 ] initPointer(Pointer *aPointer);
-// [3 ] addInt(Int *aInt, int value);
-// [5 ] incrementInt(Int *aInt);
-// [5 ] decrementInt(Int *aInt);
-// [4 ] swapInt64(Int *aInt, int value);
-// [4 ] testAndSwapInt(Int *, int, int);
-// [2 ] setInt(Int *aInt, int value);
-// [2 ] getInt(const Int &aInt);
-// [3 ] addIntNv(Int *aInt, int val);
-// [5 ] incrementIntNv(Int *aInt);
-// [5 ] decrementIntNv(Int *aInt);
-// [3 ] addInt64(Int64 *, bsls::Types::Int64);
-// [5 ] incrementInt64(Int64 *aInt);
-// [5 ] decrementInt64(Int64 *aInt);
-// [4 ] swapInt64(Int64 *, bsls::Types::Int64);
-// [4 ] testAndSwapInt64(Int64 *, bsls::Types::Int64,
+// [ 2] initInt(Int *aInt);
+// [ 2] initInt64(Int64 *aInt);
+// [ 2] initPointer(Pointer *aPointer);
+// [ 3] addInt(Int *aInt, int value);
+// [ 5] incrementInt(Int *aInt);
+// [ 5] decrementInt(Int *aInt);
+// [ 4] swapInt64(Int *aInt, int value);
+// [ 4] testAndSwapInt(Int *, int, int);
+// [ 2] setInt(Int *aInt, int value);
+// [ 2] getInt(const Int &aInt);
+// [ 3] addIntNv(Int *aInt, int val);
+// [ 5] incrementIntNv(Int *aInt);
+// [ 5] decrementIntNv(Int *aInt);
+// [ 3] addInt64(Int64 *, bsls::Types::Int64);
+// [ 5] incrementInt64(Int64 *aInt);
+// [ 5] decrementInt64(Int64 *aInt);
+// [ 4] swapInt64(Int64 *, bsls::Types::Int64);
+// [ 4] testAndSwapInt64(Int64 *, bsls::Types::Int64,
 //                       bsls::Types::Int64);
-// [3 ] addInt64Nv(Int64 *, bsls::Types::Int64);
-// [5 ] incrementInt64Nv(Int64 *);
-// [5 ] decrementInt64Nv(Int64 *);
-// [2 ] setInt64(Int64 *, bsls::Types::Int64);
-// [2 ] getInt64(const Int64 &aInt);
-// [2 ] getPtr(const Pointer &aPointer);
-// [2 ] setPtr(Pointer *aPointer, void *value);
-// [4 ] swapPtr(Pointer *aPointer, void *value);
-// [4 ] testAndSwapPtr(Pointer *, void *, void *);
+// [ 3] addInt64Nv(Int64 *, bsls::Types::Int64);
+// [ 5] incrementInt64Nv(Int64 *);
+// [ 5] decrementInt64Nv(Int64 *);
+// [ 2] setInt64(Int64 *, bsls::Types::Int64);
+// [ 2] getInt64(const Int64 &aInt);
+// [ 2] getPtr(const Pointer &aPointer);
+// [ 2] setPtr(Pointer *aPointer, void *value);
+// [ 4] swapPtr(Pointer *aPointer, void *value);
+// [ 4] testAndSwapPtr(Pointer *, void *, void *);
+// [ 8] getIntRelaxed(AtomicTypes::Int const *aInt);
+// [ 8] getInt64Relaxed(AtomicTypes::Int64 const *aInt);
+// [ 8] getPtrRelaxed(AtomicTypes::Pointer const *aPtr);
+// [ 8] setIntRelaxed(AtomicTypes::Int *aInt, int value);
+// [ 8] setInt64Relaxed(AtomicTypes::Int64 *aInt, Types::Int64 value);
+// [ 8] setPtrRelaxed(AtomicTypes::Pointer *aPtr, void *value);
+// [ 9] getIntAcquire(AtomicTypes::Int const *aInt);
+// [ 9] getInt64Acquire(AtomicTypes::Int64 const *aInt);
+// [ 9] getPtrAcquire(AtomicTypes::Pointer const *aPtr);
+// [ 9] setIntRelease(AtomicTypes::Int *aInt, int value);
+// [ 9] setInt64Release(AtomicTypes::Int64 *aInt, Types::Int64 value);
+// [ 9] setPtrRelease(AtomicTypes::Pointer *aPtr, void *value);
+// [10] swapInt64AcqRel(Obj::Int *aInt, int value);
+// [10] testAndSwapIntAcqRel(Obj::Int *, int, int);
+// [10] swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
+// [10] testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64
+//                             bsls::Types::Int64 );
+// [10] swapPtrAcqRel(Obj::Pointer *aPointer, void *value);
+// [10] testAndSwapPtrAcqRel(Obj::Pointer *, void *, void *);
+// [11] addIntAcqRel(Obj::Int *aInt, int value);
+// [11] addInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
+// [11] addIntNvAcqRel(Obj::Int *aInt, int value);
+// [11] addInt64NvAcqRel(Obj::Int64 *, bsls::Types::Int64);
 // [12] setIntRelease(Obj::Int *aInt, int value);
 // [12] getIntAcquire(const Obj::Int &aInt);
 // [12] setInt64Release(Obj::Int64 *, bsls::Types::Int64);
@@ -66,8 +89,8 @@ using namespace std;
 // [12] getPtrAcquire(const Obj::Pointer &aPointer);
 // [12] setPtrRelease(Obj::Pointer *aPointer, void *value);
 //-----------------------------------------------------------------------------
-// [1 ] Breathing test
-// [7 ] Usage examples
+// [ 1] Breathing test
+// [ 7] Usage examples
 //-----------------------------------------------------------------------------
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -2788,6 +2811,14 @@ int main(int argc, char *argv[]) {
         // Create N threads each of which invokes incrementIntNvAcqRel() M
         // times.  Verify that the final value is NxM, and that each
         // return value is in the range (x, NxM] where x is the prior value.
+        //
+        // Testing:
+        //   getIntAcquire(AtomicTypes::Int const *aInt);
+        //   getInt64Acquire(AtomicTypes::Int64 const *aInt);
+        //   getPtrAcquire(AtomicTypes::Pointer const *aPtr);
+        //   setIntRelease(AtomicTypes::Int *aInt, int value);
+        //   setInt64Release(AtomicTypes::Int64 *aInt, Types::Int64 value);
+        //   setPtrRelease(AtomicTypes::Pointer *aPtr, void *value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Acquire/Release Methods"
@@ -2818,6 +2849,7 @@ int main(int argc, char *argv[]) {
         }
 
         ASSERT(N * M == Obj::getInt(&value));
+        ASSERT(N * M == Obj::getIntAcquire(&value));
 
         Case9_64 args64;
 
@@ -2858,6 +2890,14 @@ int main(int argc, char *argv[]) {
         // Create N threads each of which invokes incrementIntNvRelaxed() M
         // times.  Verify that the final value is NxM, and that each
         // return value is in the range (x, NxM] where x is the prior value.
+        //
+        // Testing:
+        //   getIntRelaxed(AtomicTypes::Int const *aInt);
+        //   getInt64Relaxed(AtomicTypes::Int64 const *aInt);
+        //   getPtrRelaxed(AtomicTypes::Pointer const *aPtr);
+        //   setIntRelaxed(AtomicTypes::Int *aInt, int value);
+        //   setInt64Relaxed(AtomicTypes::Int64 *aInt, Types::Int64 value);
+        //   setPtrRelaxed(AtomicTypes::Pointer *aPtr, void *value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Relaxed Methods"

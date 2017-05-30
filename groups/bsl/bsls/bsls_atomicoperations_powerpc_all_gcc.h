@@ -71,6 +71,16 @@ struct Atomic_TypeTraits<AtomicOperations_POWERPC_ALL_GCC>
           Types::Int64 d_value;
     };
 
+    struct __attribute__((__aligned__(sizeof(unsigned int)))) Uint
+    {
+          unsigned int d_value;
+    };
+
+    struct __attribute__((__aligned__(sizeof(Types::Uint64)))) Uint64
+    {
+          Types::Uint64 d_value;
+    };
+
     struct __attribute__((__aligned__(sizeof(void *)))) Pointer
     {
           void * d_value;
