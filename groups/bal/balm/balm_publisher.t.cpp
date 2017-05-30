@@ -241,15 +241,13 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     bslma::TestAllocator testAllocator, defaultAllocator;
-    bslma::Allocator *Z = &testAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {

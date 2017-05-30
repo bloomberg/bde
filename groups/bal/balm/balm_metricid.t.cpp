@@ -120,21 +120,19 @@ typedef balm::Category          Category;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
+    bslma::TestAllocator testAlloc;
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     Category cat_A("A"); const Category *CAT_A = &cat_A;
     Category cat_B("B"); const Category *CAT_B = &cat_B;
     Category cat_C("C"); const Category *CAT_C = &cat_C;
-    Category cat_D("D"); const Category *CAT_D = &cat_D;
 
     const char *NAME_A = "A";
     const char *NAME_B = "B";

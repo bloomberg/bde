@@ -24,6 +24,7 @@
 #include <bdlf_bind.h>
 
 #include <bsl_c_stdio.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
@@ -1045,7 +1046,7 @@ int main(int argc, char *argv[])
 
                     bsl::vector<const balm::Category *> allCategories;
                     MX.getAllCategories(&allCategories);
-                    for (int i = 0; i < allCategories.size(); ++i) {
+                    for (bsl::size_t i = 0; i < allCategories.size(); ++i) {
                         ASSERT(0 != allCategories[i]);
                     }
                     ASSERT(metrics.size() == MX.numMetrics());
@@ -1078,7 +1079,7 @@ int main(int argc, char *argv[])
 
                     bsl::vector<const balm::Category *> allCategories;
                     MX.getAllCategories(&allCategories);
-                    for (int i = 0; i < allCategories.size(); ++i) {
+                    for (bsl::size_t i = 0; i < allCategories.size(); ++i) {
                         ASSERT(0 != allCategories[i]);
                     }
                     ASSERT(metrics.size() == MX.numMetrics());
@@ -1113,7 +1114,7 @@ int main(int argc, char *argv[])
 
                     bsl::vector<const balm::Category *> allCategories;
                     MX.getAllCategories(&allCategories);
-                    for (int i = 0; i < allCategories.size(); ++i) {
+                    for (bsl::size_t i = 0; i < allCategories.size(); ++i) {
                         ASSERT(0 != allCategories[i]);
                     }
                     ASSERT(categories.size() == MX.numCategories());
@@ -1145,7 +1146,7 @@ int main(int argc, char *argv[])
 
                     bsl::vector<const balm::Category *> allCategories;
                     MX.getAllCategories(&allCategories);
-                    for (int i = 0; i < allCategories.size(); ++i) {
+                    for (bsl::size_t i = 0; i < allCategories.size(); ++i) {
                         ASSERT(0 != allCategories[i]);
                     }
                     ASSERT(categories.size() == MX.numCategories());
@@ -1344,7 +1345,7 @@ int main(int argc, char *argv[])
         }
 
         mX.setAllCategoriesEnabled(false);
-        for (int i = 0; i < categories.size(); ++i) {
+        for (bsl::size_t i = 0; i < categories.size(); ++i) {
             const Cat *category = categories[i];
             ASSERT(!category->enabled());
         }
@@ -1353,7 +1354,7 @@ int main(int argc, char *argv[])
         categories.push_back(newCat1);
 
         mX.setAllCategoriesEnabled(true);
-        for (int i = 0; i < categories.size(); ++i) {
+        for (bsl::size_t i = 0; i < categories.size(); ++i) {
             const Cat *category = categories[i];
             ASSERT(category->enabled());
         }
@@ -1483,7 +1484,9 @@ int main(int argc, char *argv[])
                     ASSERT(initialVector[i] == categories[i]);
                 }
                 // Verify that 'categories' ends with 'exp_categories'.
-                for (int i = INITIAL_SIZE; i < categories.size(); ++i) {
+                for (bsl::size_t i = INITIAL_SIZE;
+                     i < categories.size();
+                     ++i) {
                     ASSERT(exp_categories[i - INITIAL_SIZE] ==
                            categories[i]);
                 }
@@ -1956,9 +1959,7 @@ int main(int argc, char *argv[])
                 ASSERT(i == mX.createUserDataKey());
             }
 
-            const void *VALUE1 = (const void *)1;
             const void *VALUE2 = (const void *)2;
-            const void *VALUE3 = (const void *)3;
 
             // Verify all keys are initially 0
             for (int i = 0; i < NUM_METRICS; ++i) {

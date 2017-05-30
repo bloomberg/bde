@@ -1964,7 +1964,6 @@ int main(int argc, char *argv[])
             BALM::Collector *b_Us = repository.getDefaultCollector("B", "Us");
             BALM::Collector *b_Ns = repository.getDefaultCollector("B", "Ns");
 
-            BALM::Collector *c_D  = repository.getDefaultCollector("C", "D");
             BALM::Collector *c_S  = repository.getDefaultCollector("C", "S");
             BALM::Collector *c_Ms = repository.getDefaultCollector("C", "Ms");
             BALM::Collector *c_Us = repository.getDefaultCollector("C", "Us");
@@ -3435,6 +3434,10 @@ int main(int argc, char *argv[])
             const Id D_ID = registry.getId("D", "D");
             const Id E_ID = registry.getId("E", "E");
             const Id F_ID = registry.getId("F", "F");
+
+            (void)D_ID;
+            (void)E_ID;
+            (void)F_ID;
 
             for (int i = 0; i < 10; ++i) {
                 BALM_METRICS_UPDATE("A", "A", 5);

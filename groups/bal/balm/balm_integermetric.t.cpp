@@ -350,10 +350,9 @@ void MetricConcurrencyTest::runTest()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -602,8 +601,7 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col);
-                const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric mX(col);
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
@@ -706,8 +704,7 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col);
-                const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric mX(col);
 
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
@@ -792,8 +789,7 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col);
-                const balm::IntegerMetric& MX = mX;
+                balm::IntegerMetric mX(col);
 
                 for (int j = 0; j < 10; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));

@@ -17,16 +17,17 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
+#include <bslim_testutil.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-#include <bsl_cstring.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
-
-#include <bslim_testutil.h>
+#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 
@@ -204,7 +205,7 @@ template <class T>
 void CombinationIterator<T>::createCurrentCombination()
 {
     d_currentCombination.clear();
-    for (int i = 0; i < d_values.size(); ++i) {
+    for (bsl::size_t i = 0; i < d_values.size(); ++i) {
         if (d_bits & (1 << i)) {
             d_currentCombination.push_back(d_values[i]);
         }
@@ -218,8 +219,8 @@ CombinationIterator<T>::CombinationIterator(const T          *values,
                                             bslma::Allocator *allocator)
 : d_values(values, values + numValues, allocator)
 , d_currentCombination(allocator)
-, d_maxBits( (1 << numValues) - 1 )
 , d_bits(0)
+, d_maxBits( (1 << numValues) - 1 )
 {
     BSLS_ASSERT(d_values.size() > 0);
     BSLS_ASSERT(d_values.size() < 32);
@@ -232,8 +233,8 @@ CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
                                             bslma::Allocator      *allocator)
 : d_values(values, allocator)
 , d_currentCombination(allocator)
-, d_maxBits( (1 << values.size()) - 1 )
 , d_bits(0)
+, d_maxBits( (1 << values.size()) - 1 )
 {
     BSLS_ASSERT(d_values.size() > 0);
     BSLS_ASSERT(d_values.size() < 32);
@@ -1256,11 +1257,11 @@ int main(int argc, char *argv[])
                 bsl::string result1(Z), result2(Z);
 
                 const bsl::vector<char>& combination = iter.current();
-                for (int j = 0; j < combination.size();++j) {
+                for (bsl::size_t j = 0; j < combination.size();++j) {
                     result1 += combination[j];
                 }
 
-                for (int j = 0; j < bsl::strlen(VALUES); ++j) {
+                for (bsl::size_t j = 0; j < bsl::strlen(VALUES); ++j) {
                     if (iter.includesElement(j)) {
                         result2 += VALUES[j];
                     }

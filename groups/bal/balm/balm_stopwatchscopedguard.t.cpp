@@ -25,8 +25,9 @@
 #include <bsls_assert.h>
 #include <bsls_stopwatch.h>
 
-#include <bsl_cstring.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -420,10 +421,9 @@ bool TestPublisher::contains(const balm::MetricId& id) const
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -753,6 +753,7 @@ int main(int argc, char *argv[])
             balm::MetricId  idA = manager.metricRegistry().getId("A","1");
             balm::MetricId  idB = manager.metricRegistry().getId("B","2");
             balm::MetricId  idC = manager.metricRegistry().getId("C","3");
+            (void)idC;
 
             balm::Metric    metric(idA, &manager);
             {
@@ -802,6 +803,7 @@ int main(int argc, char *argv[])
 
             balm::MetricId  idA = manager.metricRegistry().getId("A","1");
             balm::MetricId  idB = manager.metricRegistry().getId("B","2");
+            (void)idB;
             {
                 Obj mY(idA);     const Obj& MY = mY;
                 Obj mZ("B","2"); const Obj& MZ = mZ;
@@ -1000,7 +1002,7 @@ int main(int argc, char *argv[])
                 const char *RECORD_SPEC = VALUES[i].d_records;
                 bsl::vector<balm::MetricRecord>& records = recordBuffer[i];
 
-                for (int j = 0; j < bsl::strlen(RECORD_SPEC); ++j) {
+                for (bsl::size_t j = 0; j < bsl::strlen(RECORD_SPEC); ++j) {
                     bsl::string value(1, RECORD_SPEC[j], Z);
                     Id id = registry.getId(value.c_str(), value.c_str());
                     records.push_back(balm::MetricRecord(id));
@@ -1035,14 +1037,18 @@ int main(int argc, char *argv[])
 
                 ASSERT(sample.numRecords() == tp1.lastSample().numRecords());
                 ASSERT(sample.numRecords() == tp2.lastSample().numRecords());
-                ASSERT(sample.numRecords() == tp1.lastRecords().size());
-                ASSERT(sample.numRecords() == tp2.lastRecords().size());
+                ASSERT(sample.numRecords() ==
+                                   static_cast<int>(tp1.lastRecords().size()));
+                ASSERT(sample.numRecords() ==
+                                   static_cast<int>(tp2.lastRecords().size()));
 
                 ASSERT(TIME_STAMP == tp1.lastTimeStamp());
                 ASSERT(TIME_STAMP == tp2.lastTimeStamp());
 
-                ASSERT(i + 1 == tp1.lastElapsedTimes().size());
-                ASSERT(i + 1 == tp2.lastElapsedTimes().size());
+                ASSERT(i + 1 ==
+                              static_cast<int>(tp1.lastElapsedTimes().size()));
+                ASSERT(i + 1 ==
+                              static_cast<int>(tp2.lastElapsedTimes().size()));
 
                 for (int j = 0; j < sample.numGroups(); ++j) {
                     ASSERT(sample.sampleGroup(j).elapsedTime() ==
@@ -1198,7 +1204,7 @@ int main(int argc, char *argv[])
             ASSERT(publisher.contains(registry.getId("A", "A")));
             ASSERT(publisher.contains(registry.getId("B", "B")));
             ASSERT(publisher.contains(registry.getId("C", "C")));
-            for (int i = 0; i < publisher.lastRecords().size(); ++i) {
+            for (bsl::size_t i = 0; i < publisher.lastRecords().size(); ++i) {
                 ASSERT(1   == publisher.lastRecords()[i].count());
                 ASSERT(1.0 > publisher.lastRecords()[i].total());
                 ASSERT(1.0 > publisher.lastRecords()[i].min());
@@ -1233,7 +1239,7 @@ int main(int argc, char *argv[])
             ASSERT(2 == publisher.lastRecords().size());
             ASSERT(publisher.contains(registry.getId("A", "A")));
             ASSERT(publisher.contains(registry.getId("B", "B")));
-            for (int i = 0; i < publisher.lastRecords().size(); ++i) {
+            for (bsl::size_t i = 0; i < publisher.lastRecords().size(); ++i) {
                 ASSERT(1   == publisher.lastRecords()[i].count());
                 ASSERT(1.0 > publisher.lastRecords()[i].total());
                 ASSERT(1.0 > publisher.lastRecords()[i].min());
