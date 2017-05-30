@@ -922,9 +922,6 @@ int main(int argc, char *argv[])
                         V1.d_columnNumber,
                         V1.d_source,
                         V1.d_message);
-            const int EMPTY1 = V1.d_severity <= NO_FAULT ||
-                               (0 == V1.d_source.length() &&
-                                0 == V1.d_message.length());
             LOOP_ASSERT(E1, V1.d_isNoError    == E1.isNoError());
             LOOP_ASSERT(E1, V1.d_isWarning    == E1.isWarning());
             LOOP_ASSERT(E1, V1.d_isError      == E1.isError());
@@ -956,8 +953,6 @@ int main(int argc, char *argv[])
                             V2.d_columnNumber,
                             V2.d_source,
                             V2.d_message);
-                const int EMPTY2 = (0 == V2.d_source.length() &&
-                                    0 == V2.d_message.length());
                 LOOP_ASSERT(E2, V2.d_isNoError    == E2.isNoError());
                 LOOP_ASSERT(E2, V2.d_isWarning    == E2.isWarning());
                 LOOP_ASSERT(E2, V2.d_isError      == E2.isError());

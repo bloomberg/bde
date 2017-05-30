@@ -11692,62 +11692,66 @@ struct TestSequence0 {
 
 // MANIPULATORS
 template <class MANIPULATOR>
-int bdlat_sequenceManipulateAttribute(TestSequence0 *object,
-                                      MANIPULATOR&   manipulator,
-                                      const char    *attributeName,
-                                      int            attributeNameLength)
+int bdlat_sequenceManipulateAttribute(
+                                     TestSequence0 * /* object */,
+                                     MANIPULATOR&    /* manipulator */,
+                                     const char    * /* attributeName */,
+                                     int             /* attributeNameLength */)
 {
     return -1;
 }
 
 template <class MANIPULATOR>
-int bdlat_sequenceManipulateAttribute(TestSequence0 *object,
-                                      MANIPULATOR&   manipulator,
-                                      int            attributeId)
+int bdlat_sequenceManipulateAttribute(TestSequence0 * /* object */,
+                                      MANIPULATOR&    /* manipulator */,
+                                      int             /* attributeId */)
 {
     return -1;
 }
 
 template <class MANIPULATOR>
-int bdlat_sequenceManipulateAttributes(TestSequence0 *object,
-                                       MANIPULATOR&   manipulator)
+int bdlat_sequenceManipulateAttributes(TestSequence0 * /* object */,
+                                       MANIPULATOR&    /* manipulator */)
 {
     return -1;
 }
 
 // ACCESSORS
 template <class ACCESSOR>
-int bdlat_sequenceAccessAttribute(const TestSequence0&  object,
-                                  ACCESSOR&             accessor,
-                                  const char           *attributeName,
-                                  int                   attributeNameLength)
+int bdlat_sequenceAccessAttribute(
+                              const TestSequence0&   /* object */,
+                              ACCESSOR&              /* accessor */,
+                              const char           * /* attributeName */,
+                              int                    /* attributeNameLength */)
 {
     return -1;
 }
 
 template <class ACCESSOR>
-int bdlat_sequenceAccessAttribute(const TestSequence0& object,
-                                  ACCESSOR&            accessor,
-                                  int                  attributeId)
+int bdlat_sequenceAccessAttribute(const TestSequence0& /* object */,
+                                  ACCESSOR&            /* accessor */,
+                                  int                  /* attributeId */)
 {
     return -1;
 }
 
 template <class ACCESSOR>
-int bdlat_sequenceAccessAttribute(const TestSequence0& object,
-                                  ACCESSOR&            accessor)
+int bdlat_sequenceAccessAttribute(const TestSequence0& /* object */,
+                                  ACCESSOR&            /* accessor */)
 {
     return -1;
 }
 
-bool bdlat_sequenceHasAttribute(const TestSequence0&  object,
-                                const char           *attributeName,
-                                int                   attributeNameLength)
+bool bdlat_sequenceHasAttribute(
+                              const TestSequence0&   /* object */,
+                              const char           * /* attributeName */,
+                              int                    /* attributeNameLength */)
 {
     return false;
 }
 
-bool bdlat_sequenceHasAttribute(const TestSequence0& object, int attributeId)
+bool bdlat_sequenceHasAttribute(const TestSequence0& /* object */,
+                                int                  /* attributeId */)
 {
     return false;
 }
@@ -11803,7 +11807,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestSequence1& rhs)
 }
 
 bdlat_AttributeInfo TestSequence1::ATTRIBUTE_INFO_ARRAY[] = {
-    { 1, "E1", 2, "Element 1" },
+    { 1, "E1", 2, "Element 1", 0 },
 };
 
 const int TestSequence1::DEFAULT_ELEMENT1 = 0x71DEFA17;
@@ -11894,7 +11898,7 @@ int bdlat_sequenceAccessAttribute(const TestSequence1& object,
     return -1;
 }
 
-bool bdlat_sequenceHasAttribute(const TestSequence1&  object,
+bool bdlat_sequenceHasAttribute(const TestSequence1&,
                                 const char           *attributeName,
                                 int                   attributeNameLength)
 {
@@ -11905,7 +11909,7 @@ bool bdlat_sequenceHasAttribute(const TestSequence1&  object,
     return false;
 }
 
-bool bdlat_sequenceHasAttribute(const TestSequence1& object, int attributeId)
+bool bdlat_sequenceHasAttribute(const TestSequence1&, int attributeId)
 {
     if (attributeId == TestSequence1::ATTRIBUTE_INFO_ARRAY[0].d_id) {
         return true;                                                  // RETURN
@@ -11976,8 +11980,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestSequence2& rhs)
 }
 
 bdlat_AttributeInfo TestSequence2::ATTRIBUTE_INFO_ARRAY[] = {
-    { 1, "E1", 2, "Element 1" },
-    { 2, "E2", 2, "Element 2" },
+    { 1, "E1", 2, "Element 1", 0 },
+    { 2, "E2", 2, "Element 2", 0 },
 };
 
 const int         TestSequence2::DEFAULT_ELEMENT1
@@ -12093,7 +12097,7 @@ int bdlat_sequenceAccessAttribute(const TestSequence2& object,
     return -1;
 }
 
-bool bdlat_sequenceHasAttribute(const TestSequence2&  object,
+bool bdlat_sequenceHasAttribute(const TestSequence2&,
                                 const char           *attributeName,
                                 int                   attributeNameLength)
 {
@@ -12108,7 +12112,7 @@ bool bdlat_sequenceHasAttribute(const TestSequence2&  object,
     return false;
 }
 
-bool bdlat_sequenceHasAttribute(const TestSequence2& object, int attributeId)
+bool bdlat_sequenceHasAttribute(const TestSequence2&, int attributeId)
 {
     if (attributeId == TestSequence2::ATTRIBUTE_INFO_ARRAY[0].d_id) {
         return true;                                                  // RETURN
@@ -12147,45 +12151,48 @@ struct TestChoice0 {
               // ===============================================
 
 // MANIPULATORS
-int bdlat_choiceMakeSelection(TestChoice0 *object, int selectionId)
+int bdlat_choiceMakeSelection(TestChoice0 * /* object */,
+                              int           /* selectionId */)
 {
     return -1;
 }
 
-int bdlat_choiceMakeSelection(TestChoice0 *object,
-                              const char  *name,
-                              int          nameLength)
+int bdlat_choiceMakeSelection(TestChoice0 * /* object */,
+                              const char  * /* name */,
+                              int           /* nameLength */)
 {
     return -1;
 }
 
 template <class MANIPULATOR>
-int bdlat_choiceManipulateSelection(TestChoice0  *object,
-                                    MANIPULATOR&  manipulator)
+int bdlat_choiceManipulateSelection(TestChoice0  * /* object */,
+                                    MANIPULATOR&   /* manipulator */)
 {
     return -1;
 }
 
 // ACCESSORS
 template <class ACCESSOR>
-int bdlat_choiceAccessSelection(const TestChoice0& object, ACCESSOR& accessor)
+int bdlat_choiceAccessSelection(const TestChoice0& /* object */,
+                                ACCESSOR&          /* accessor */)
 {
     return -1;
 }
 
-int bdlat_choiceSelectionId(const TestChoice0& object)
+int bdlat_choiceSelectionId(const TestChoice0& /* object */)
 {
     return -1;
 }
 
-bool bdlat_choiceHasSelection(const TestChoice0&  object,
-                              const char         *name,
-                              int                 length)
+bool bdlat_choiceHasSelection(const TestChoice0&   /* object */,
+                              const char         * /* name */,
+                              int                  /* length */)
 {
     return false;
 }
 
-bool bdlat_choiceHasSelection(const TestChoice0& object, int id)
+bool bdlat_choiceHasSelection(const TestChoice0& /* object */,
+                              int                /* id */)
 {
     return false;
 }
@@ -12265,7 +12272,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestChoice1& rhs)
 }
 
 const bdlat_SelectionInfo TestChoice1::SELECTION_INFO_ARRAY[] = {
-    { 1, "S1", 2, "Selection 1" },
+    { 1, "S1", 2, "Selection 1", 0 },
 };
 
               // ===============================================
@@ -12325,7 +12332,7 @@ int bdlat_choiceSelectionId(const TestChoice1& object)
     return object.d_choice;
 }
 
-bool bdlat_choiceHasSelection(const TestChoice1&  object,
+bool bdlat_choiceHasSelection(const TestChoice1&,
                               const char         *name,
                               int                 nameLength)
 {
@@ -12335,7 +12342,7 @@ bool bdlat_choiceHasSelection(const TestChoice1&  object,
     return false;
 }
 
-bool bdlat_choiceHasSelection(const TestChoice1& object, int id)
+bool bdlat_choiceHasSelection(const TestChoice1&, int id)
 {
     if (0 == id) {
         return true;                                                  // RETURN
@@ -12434,8 +12441,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestChoice2& rhs)
 }
 
 const bdlat_SelectionInfo TestChoice2::SELECTION_INFO_ARRAY[] = {
-    { 1, "S1", 2, "Selection 1" },
-    { 2, "S2", 2, "Selection 2" },
+    { 1, "S1", 2, "Selection 1", 0 },
+    { 2, "S2", 2, "Selection 2", 0 },
 };
 
               // ===============================================
@@ -12509,7 +12516,7 @@ int bdlat_choiceSelectionId(const TestChoice2& object)
     return object.d_choice;
 }
 
-bool bdlat_choiceHasSelection(const TestChoice2&  object,
+bool bdlat_choiceHasSelection(const TestChoice2&,
                               const char         *name,
                               int                 nameLength)
 {
@@ -12522,7 +12529,7 @@ bool bdlat_choiceHasSelection(const TestChoice2&  object,
     return false;
 }
 
-bool bdlat_choiceHasSelection(const TestChoice2& object, int id)
+bool bdlat_choiceHasSelection(const TestChoice2&, int id)
 {
     if (0 == id) {
         return true;                                                  // RETURN
@@ -12651,7 +12658,7 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
 }
 
 bdlat_AttributeInfo TestSequenceWithVector::ATTRIBUTE_INFO_ARRAY[] = {
-    { 1, "Elem", 4, "Vector Element" },
+    { 1, "Elem", 4, "Vector Element", 0 },
 };
 
         // ============================================================
@@ -12854,7 +12861,7 @@ TestContext::~TestContext()
 
 // CALLBACKS
 
-int TestContext::startElement(balxml::Decoder *decoder)
+int TestContext::startElement(balxml::Decoder *)
 {
     ASSERT(!d_isInsideElement);
 
@@ -12869,7 +12876,7 @@ int TestContext::startElement(balxml::Decoder *decoder)
     return 0;
 }
 
-int TestContext::endElement(balxml::Decoder *decoder)
+int TestContext::endElement(balxml::Decoder *)
 {
     ASSERT(d_isInsideElement);
 
@@ -12886,7 +12893,7 @@ int TestContext::endElement(balxml::Decoder *decoder)
 
 int TestContext::addCharacters(const char      *chars,
                                size_t           length,
-                               balxml::Decoder *decoder)
+                               balxml::Decoder *)
 {
     ASSERT(d_isInsideElement);
 
@@ -12905,7 +12912,7 @@ int TestContext::addCharacters(const char      *chars,
 int TestContext::parseAttribute(const char      *name,
                                 const char      *value,
                                 size_t           lenValue,
-                                balxml::Decoder *decoder)
+                                balxml::Decoder *)
 {
     ASSERT(d_isInsideElement);
 
@@ -13029,7 +13036,7 @@ bsl::ostream *TestVectorElemTypeContext::s_loggingStream = 0;
 
 TestVectorElemTypeContext::TestVectorElemTypeContext(
                                             TestVectorElemType *object,
-                                            bslma::Allocator   *basicAllocator)
+                                            bslma::Allocator   *)
 : d_currentDepth(0)
 , d_object_p(object)
 {
@@ -13048,7 +13055,7 @@ void TestVectorElemTypeContext::reassociate(TestVectorElemType *object)
 
 // CALLBACKS
 
-int TestVectorElemTypeContext::startElement(balxml::Decoder *decoder)
+int TestVectorElemTypeContext::startElement(balxml::Decoder *)
 {
     d_object_p->addCall("startElement(...)");
 
@@ -13061,7 +13068,7 @@ int TestVectorElemTypeContext::startElement(balxml::Decoder *decoder)
     return 0;
 }
 
-int TestVectorElemTypeContext::endElement(balxml::Decoder *decoder)
+int TestVectorElemTypeContext::endElement(balxml::Decoder *)
 {
     d_object_p->addCall("endElement(...)");
 
@@ -13076,7 +13083,7 @@ int TestVectorElemTypeContext::endElement(balxml::Decoder *decoder)
 
 int TestVectorElemTypeContext::addCharacters(const char      *chars,
                                              size_t           length,
-                                             balxml::Decoder *decoder)
+                                             balxml::Decoder *)
 {
     bsl::string strChars(chars, length);
 
@@ -13092,7 +13099,7 @@ int TestVectorElemTypeContext::addCharacters(const char      *chars,
 int TestVectorElemTypeContext::parseAttribute(const char      *name,
                                               const char      *value,
                                               size_t           lenValue,
-                                              balxml::Decoder *decoder)
+                                              balxml::Decoder *)
 {
     bsl::string strName (name);
     bsl::string strValue (value, lenValue);
@@ -13107,7 +13114,7 @@ int TestVectorElemTypeContext::parseAttribute(const char      *name,
 }
 
 int TestVectorElemTypeContext::parseSubElement(const char      *elementName,
-                                               balxml::Decoder *decoder)
+                                               balxml::Decoder *)
 {
     bsl::string strElementName (elementName);
 
@@ -13122,7 +13129,7 @@ int TestVectorElemTypeContext::parseSubElement(const char      *elementName,
 
 balxml::Decoder_ElementContext *TestVectorElemTypeContext::createSubContext(
                                                   const char      *elementName,
-                                                  balxml::Decoder *decoder)
+                                                  balxml::Decoder *)
 {
     bsl::string strElementName (elementName);
 
@@ -27996,6 +28003,8 @@ int main(int argc, char *argv[])
         ""
         "</xs:schema>";
 
+        (void)SCHEMA;
+    
         balxml::MiniReader reader;
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -28273,7 +28282,6 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int         LINE        = DATA[i].d_line;
                 const bsl::string XML         = DATA[i].d_xml;
                 const int         NUM_SKIPPED = DATA[i].d_numSkipped;
 
@@ -28413,7 +28421,6 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int         LINE        = DATA[i].d_line;
                 const bsl::string XML         = DATA[i].d_xml;
                 const int         NUM_SKIPPED = DATA[i].d_numSkipped;
 
@@ -29491,7 +29498,7 @@ int main(int argc, char *argv[])
                 //----   -----         -------   ------
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
-                         "</RE>\n",    2                                     },
+                         "</RE>\n",    2,       TC(0)                        },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
@@ -29519,17 +29526,17 @@ int main(int argc, char *argv[])
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S1_Wrong>123</S1_Wrong>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,       TC(0)                        },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S1>blah</S1>\n"
-                         "</RE>\n",    4                                     },
+                         "</RE>\n",    4,       TC(0)                        },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  blah\n"
-                         "</RE>\n",    4                                     },
+                         "</RE>\n",    4,       TC(0)                        },
             };
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
@@ -29631,7 +29638,7 @@ int main(int argc, char *argv[])
                 //----   -----         -------   ------
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
-                         "</RE>\n",    2                                     },
+                         "</RE>\n",    2,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
@@ -29663,13 +29670,13 @@ int main(int argc, char *argv[])
                          "<RE " XSI ">\n"
                          "  <S1>123</S1>\n"
                          "  <S2>abc</S2>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S2>abc</S2>\n"
                          "  <S1>123</S1>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
@@ -29690,34 +29697,34 @@ int main(int argc, char *argv[])
                          "  <S1>123</S1>\n"
                          "  <S2>abc</S2>\n"
                          "  <S1>456</S1>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S2>abc</S2>\n"
                          "  <S1>123</S1>\n"
                          "  <S2>def</S2>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S1_Wrong>123</S1_Wrong>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S2_Wrong>abc</S2_Wrong>\n"
-                         "</RE>\n",    3                                     },
+                         "</RE>\n",    3,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <S1>blah</S1>\n"
-                         "</RE>\n",    4                                     },
+                         "</RE>\n",    4,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  blah\n"
-                         "</RE>\n",    4                                     },
+                         "</RE>\n",    4,        TC(0)                       },
             };
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
@@ -29990,19 +29997,19 @@ int main(int argc, char *argv[])
                          "<RE " XSI ">\n"
                          "  <E1_Wrong>123</E1_Wrong>\n"
                          "</RE>\n",
-                         0,     1,     2                                     },
+                         0,     1,     2,       TS(0)                        },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <E1>blah</E1>\n"
                          "</RE>\n",
-                         0,     1,     4                                     },
+                         0,     1,     4,       TS(0)                        },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  blah\n"
                          "</RE>\n",
-                         0,     0,     2                                     },
+                         0,     0,     2,       TS(0)                        },
             };
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
@@ -30205,25 +30212,25 @@ int main(int argc, char *argv[])
                          "<RE " XSI ">\n"
                          "  <E1_Wrong>123</E1_Wrong>\n"
                          "</RE>\n",
-                         0,    1,    0,    0,    2                           },
+                         0,    1,    0,    0,    2,      TS(0, "")           },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <E2_Wrong>abc</E2_Wrong>\n"
                          "</RE>\n",
-                         0,    0,    0,    1,    2                           },
+                         0,    0,    0,    1,    2,      TS(0, "")           },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  <E1>blah</E1>\n"
                          "</RE>\n",
-                         0,    1,    0,    0,    4                           },
+                         0,    1,    0,    0,    4,      TS(0, "")           },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                          "<RE " XSI ">\n"
                          "  blah\n"
                          "</RE>\n",
-                         0,    0,    0,    0,    2                           },
+                         0,    0,    0,    0,    2,      TS(0, "")           },
             };
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
@@ -30334,7 +30341,6 @@ int main(int argc, char *argv[])
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequenceWithNullables>\n",
                               };
-            const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
 
             for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
                 Type mX;  const Type& X = mX;
@@ -30419,7 +30425,6 @@ int main(int argc, char *argv[])
                                 "    <Attribute3 xsi:nil='true'/>\n"
                                 "</MySequenceWithNillables>\n",
                               };
-            const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
 
             for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
                 Type mX; const Type& X = mX;
@@ -30671,11 +30676,11 @@ int main(int argc, char *argv[])
 
             // invalid input
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value " XSI ">123<Bad></Bad></Value>\n", 3             },
+                    "<Value " XSI ">123<Bad></Bad></Value>\n", 3,  0         },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value " XSI ">123 567</Value>\n",        2             },
+                    "<Value " XSI ">123 567</Value>\n",        2,  0         },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value " XSI ">blah</Value>\n",           2             },
+                    "<Value " XSI ">blah</Value>\n",           2,  0         },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
@@ -30812,7 +30817,7 @@ int main(int argc, char *argv[])
                                                          "A" "\xC3\xA4" "B"  },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value " XSI ">abc<Bad></Bad></Value>\n",   3           },
+                    "<Value " XSI ">abc<Bad></Bad></Value>\n",   3,     ""   },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
@@ -30820,7 +30825,6 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE              = DATA[i].d_lineNum;
             const char *INPUT             = DATA[i].d_input;
-            const int   INPUT_LENGTH      = bsl::strlen(INPUT);
             const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
             const char *EXPECTED_DATA     = DATA[i].d_result;
 

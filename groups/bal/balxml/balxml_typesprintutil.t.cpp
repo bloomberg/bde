@@ -997,10 +997,8 @@ void usageExample2()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -1579,8 +1577,8 @@ int main(int argc, char *argv[])
                 //----    -----            ------
                 { L_,     0,               "0"             },
                 { L_,     1,               "1"             },
-                { L_,     4294967294,      "4294967294"    },
-                { L_,     4294967295,      "4294967295"    },
+                { L_,     4294967294U,     "4294967294"    },
+                { L_,     4294967295U,     "4294967295"    },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1648,12 +1646,12 @@ int main(int argc, char *argv[])
                 { L_,     -1.0f,          "-1"                            },
                 { L_,     -0.1f,          "-0.1"                          },
                 { L_,     -0.1234567f,    "-0.1234567"                    },
-                { L_,     -1.234567e-35,  "-1.234567e-" ZERO "35"         },
+                { L_,     -1.234567e-35f, "-1.234567e-" ZERO "35"         },
                 { L_,     0.0f,           "0"                             },
                 { L_,     0.1f,           "0.1"                           },
                 { L_,     1.0f,           "1"                             },
                 { L_,     1234567.0f,     "1234567"                       },
-                { L_,     1.234567e35,    "1.234567e+" ZERO "35"          },
+                { L_,     1.234567e35f,   "1.234567e+" ZERO "35"          },
                 { L_,     bsl::numeric_limits<float>::infinity(),
                                           "+INF"                          },
                 { L_,    -bsl::numeric_limits<float>::infinity(),
@@ -4971,8 +4969,8 @@ int main(int argc, char *argv[])
                 //----    -----            ------
                 { L_,     0,               "0"             },
                 { L_,     1,               "1"             },
-                { L_,     4294967294,      "4294967294"    },
-                { L_,     4294967295,      "4294967295"    },
+                { L_,     4294967294U,     "4294967294"    },
+                { L_,     4294967295U,     "4294967295"    },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -5010,8 +5008,8 @@ int main(int argc, char *argv[])
                 //----    -----            ------
                 { L_,     0,               "0"             },
                 { L_,     1,               "1"             },
-                { L_,     4294967294,      "4294967294"    },
-                { L_,     4294967295,      "4294967295"    },
+                { L_,     4294967294UL,    "4294967294"    },
+                { L_,     4294967295UL,    "4294967295"    },
 #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;

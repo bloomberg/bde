@@ -387,7 +387,7 @@ BSLS_IDENT("$Id: $")
 //  void processData(int                      uuid,
 //                   int                      luw,
 //                   int                      terminalNumber,
-//                   const bsl::vector<char>& data)
+//                   const bsl::vector<char>& /* data */)
 //      // Process the specified 'data' associated with the specified bloomberg
 //      // 'uuid', 'luw', and 'terminalNumber'.
 //  {

@@ -26,6 +26,7 @@
 #include <bdls_processutil.h>
 
 #include <bslim_testutil.h>
+
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -352,9 +353,9 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             Obj X(VALUES[i], &localTestAllocator);
-            const int memUsage =
-                X.numAllocatedBytes();
-            const int memAlloc = localTestAllocator.numBytesInUse();
+            const bsls::Types::Int64 memUsage = X.numAllocatedBytes();
+            const bsls::Types::Int64 memAlloc =
+                                            localTestAllocator.numBytesInUse();
 
             if (veryVerbose) { P_(memUsage); P(memAlloc); }
             LOOP_ASSERT(i, memUsage == memAlloc);

@@ -292,7 +292,7 @@ void removeFilesByPrefix(const char *prefix)
 #endif
 }
 
-bsl::string tempFileName(bool verboseFlag)
+bsl::string tempFileName(bool /* verboseFlag */)
 {
     bsl::string result;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -366,70 +366,6 @@ int countLoggedRecords(const bsl::string& fileName)
 
     return numLines / 2;
 }
-
-// Removed with bdlpcre_regex removal.
-#if 0
-int countMatchingRecords(const bsl::string&  fileName,
-                         const char         *pattern,
-                         bool                isNegativePattern = false)
-    // Return the number of lines in the specified 'fileName' matching
-    // the specified regex 'pattern'.  If the optionally specified
-    // 'isNegativePattern' flag is 'true', return instead the number of lines
-    // *not* matching 'pattern'.
-{
-    bsl::string line;
-    int numLines = 0;
-    bsl::ifstream fs;
-    fs.open(fileName.c_str(), bsl::ifstream::in);
-
-    ASSERT(fs.is_open());
-    bdlpcre::RegEx regex;
-    int rc = regex.prepare(0, 0, pattern);
-    BSLS_ASSERT_OPT(0 == rc); // test invariant
-
-    while (getline(fs, line)) {
-        bool matches = 0 == regex.match(line.c_str(), line.length());
-        if (!isNegativePattern == matches) {
-            ++numLines;
-        }
-    }
-    fs.close();
-    return numLines;
-}
-
-int accumulateMatchingRecords(const bsl::string&  fileName,
-                              const char         *pattern)
-    // Apply the specified regex 'pattern', which must contain one
-    // integer-matching subpattern, to each line in the specified 'fileName',
-    // and return the sum of all the values of the subpattern for matching
-    // lines.
-{
-    bsl::string line;
-    int sum = 0;
-    bsl::ifstream fs;
-    fs.open(fileName.c_str(), bsl::ifstream::in);
-
-    ASSERT(fs.is_open());
-    bdlpcre::RegEx regex;
-    int rc = regex.prepare(0, 0, pattern);
-    BSLS_ASSERT_OPT(0 == rc); // test invariant
-    BSLS_ASSERT_OPT(1 == regex.numSubpatterns()); //test invariant
-
-    while (getline(fs, line)) {
-        bsl::vector<bsl::pair<int, int> > result;
-        if(0 == regex.match(&result, line.c_str(), line.length())) {
-            bsl::istringstream iss(line.substr(result[1].first,
-                                               result[1].second));
-            int value = 0;
-            iss >> value;
-            sum += value;
-        }
-    }
-    fs.close();
-    return sum;
-}
-#endif
-
 
 class LogRotationCallbackTester {
     // This class can be used as a functor matching the signature of
@@ -756,38 +692,9 @@ int main(int argc, char *argv[])
             // disable publication so we can determine the number of logged
             // records in the file.
 
-            const int queueLength = X.recordQueueLength();
-
             mX.disableFileLogging();
 
-// Removed with bdlpcre_regex removal.
-#if 0
-
-            const int numLoggedRecords =
-                countMatchingRecords(fileName,
-                                     "Dropped \\d+ log records", true);
-#endif
             mX.shutdownPublicationThread();
-
-// Removed with bdlpcre_regex removal.
-#if 0
-            if (veryVeryVerbose) {
-                P_(numLoggedRecords); P_(queueLength);
-                P(MAX_QUEUE_LENGTH - queueLength);
-            }
-
-            // Records may have been logged between assigning 'queueLength'
-            // and disabling publication.  In addition, its possible that 1
-            // record may be discarded (without being logged) as part of
-            // shutting down the publication of logged records.  Therefore:
-            // 'MAX_QUEUE_LENGTH - X.recordQueueLength() - 1 <=
-            //                                             numLoggedRecords
-
-            ASSERTV(MAX_QUEUE_LENGTH, queueLength,
-                    MAX_QUEUE_LENGTH > queueLength);
-            ASSERTV(numLoggedRecords, MAX_QUEUE_LENGTH, queueLength, fileName,
-                    MAX_QUEUE_LENGTH - queueLength - 1 <= numLoggedRecords);
-#endif
 
             // After shutting down the publication thread, the queue should be
             // cleared.
@@ -1204,7 +1111,6 @@ int main(int argc, char *argv[])
 
         int loopCount = 0;
         int fileCount = 0;
-        int linesNum  = 0;
         bsl::string line(&ta);
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
@@ -1628,32 +1534,6 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             multiplexObserver.deregisterObserver(&mX);
 
-// Removed with bdlpcre_regex removal.
-#if 0
-            // We should have got the warning
-            int numRecords = countMatchingRecords(fileName, "will be dropped");
-            int numDroppedRecords = accumulateMatchingRecords(
-                                       fileName,
-                                       "Dropped (\\d+) log records");
-            int numDroppedRecordMessages = countMatchingRecords(
-                                       fileName,
-                                       "Dropped \\d+ log records");
-
-            LOOP2_ASSERT(numRecords, numDroppedRecords,
-                         numTestRecords == numRecords + numDroppedRecords);
-
-            // The dropped records messages are printed only when the queue
-            // is half empty or when there are 5000.  The way we've set up
-            // this test, there should be one printed for every 5000 dropped
-            // messages plus an additional one, with any remainder, printed
-            // while the queue is draining.
-            int expectDroppedRecordMessages = (int)bsl::ceil(
-                                                  numDroppedRecords / 5000.0);
-            LOOP2_ASSERT(
-                     numDroppedRecordMessages, expectDroppedRecordMessages,
-                     numDroppedRecordMessages == expectDroppedRecordMessages);
-#endif
-
             if (0 < test) {
                 removeFilesByPrefix(fileName.c_str());
             }
@@ -1914,7 +1794,8 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-            int beginFileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset beginFileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
             if (verbose)
                 cout << "Begin file offset: " << beginFileOffset << endl;
 
@@ -1930,7 +1811,8 @@ int main(int argc, char *argv[])
             // Verify there are still records left not published
 
             ASSERT(record.use_count() > 1);
-            int afterFileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset afterFileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
             if (verbose)
                 cout << "FileOffset after publish: " << afterFileOffset
                      << endl;
@@ -1939,7 +1821,8 @@ int main(int argc, char *argv[])
             // finished
 
             bslmt::ThreadUtil::microSleep(0, 1);
-            int endFileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset endFileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
             if (verbose) cout << "End file offset: " << endFileOffset << endl;
 
             ASSERT(afterFileOffset < endFileOffset);
@@ -1967,7 +1850,8 @@ int main(int argc, char *argv[])
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            int fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset fileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
 
             // these two lines are a desperate kludge to make windows work --
             // this test driver works everywhere else without them.
@@ -2078,7 +1962,8 @@ int main(int argc, char *argv[])
             mX.startPublicationThread();
             bslmt::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
-            int fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset fileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -2158,7 +2043,8 @@ int main(int argc, char *argv[])
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
 
             bsl::ostringstream os, testOs, dos;
-            int fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset fileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -2267,7 +2153,8 @@ int main(int argc, char *argv[])
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            int fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset fileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
 
             bsl::ostringstream os, testOs, dos;
 
@@ -2417,7 +2304,8 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing file logging." << endl;
         {
             bsl::string fn = tempFileName(veryVerbose);
-            int fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset fileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::e_WARN, &ta);
             const Obj& X = mX;
@@ -2791,7 +2679,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing customized format." << endl;
         {
-            int fileOffset = bdls::FilesystemUtil::getFileSize(fileName);
+            bdls::FilesystemUtil::Offset fileOffset =
+                                   bdls::FilesystemUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::e_WARN, &ta);  const Obj& X = mX;
             mX.startPublicationThread();

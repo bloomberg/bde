@@ -61,52 +61,7 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool condition, const char *message, int line)
-{
-    if (condition) {
-        cout << "Error " __FILE__ "(" << line << "): " << message
-             << "    (failed)" << endl;
-
-        if (0 <= testStatus && testStatus <= 100) {
-            ++testStatus;
-        }
-    }
-}
-
 }  // close unnamed namespace
-
-// ============================================================================
-//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
-
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
-
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                       CONCRETE DERIVED TYPES
@@ -157,12 +112,12 @@ namespace USAGE_EXAMPLE_1 {
     MyOstreamObserver::~MyOstreamObserver()
     {
     }
-//
+
     void MyOstreamObserver::publish(const ball::Record&  record,
-                                    const ball::Context& context)
+                                    const ball::Context&)
     {
         const ball::RecordAttributes& fixedFields = record.fixedFields();
-//
+
         *d_stream << fixedFields.timestamp()               << ' '
                   << fixedFields.processID()               << ' '
                   << fixedFields.threadID()                << ' '
@@ -170,13 +125,13 @@ namespace USAGE_EXAMPLE_1 {
                   << fixedFields.lineNumber()              << ' '
                   << fixedFields.category()                << ' '
                   << fixedFields.message()                 << ' ';
-//
+
         const ball::UserFields& customFields = record.customFields();
         const int numCustomFields = customFields.length();
         for (int i = 0; i < numCustomFields; ++i) {
             *d_stream << customFields[i] << ' ';
         }
-//
+
         *d_stream << '\n' << bsl::flush;
     }
 //..
@@ -232,11 +187,13 @@ namespace USAGE_EXAMPLE_1 {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    (void)veryVerbose;
+    
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);

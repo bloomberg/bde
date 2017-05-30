@@ -9484,6 +9484,8 @@ int main(int argc, char *argv[])
             rc = encoder2.encodeToStream(result2, X);
             rc = encoder3.encodeToStream(result3, X);
 
+            (void)rc;
+
             if (veryVerbose) {
                 P(result1.str());
                 P(result2.str());

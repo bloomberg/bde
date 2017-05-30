@@ -9,15 +9,17 @@
 
 #include <balm_metricsample.h>
 
-#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bdlt_currenttime.h>
 #include <bdlt_dateutil.h>
 
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
@@ -496,7 +498,7 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj mX(Z); const Obj& MX = mX;
             mX.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 mX.appendGroup(groups[j].records(),
                                groups[j].numRecords(),
                                groups[j].elapsedTime());
@@ -561,12 +563,12 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj mX(Z); const Obj& MX = mX;
             mX.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 mX.appendGroup(groups[j]);
             }
 
             Obj::const_iterator it = MX.begin();
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 ASSERT(MX.end()  != it);
                 ASSERT(groups[j] == *it);
                 ++it;
@@ -621,7 +623,7 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj mX(Z); const Obj& MX = mX;
             mX.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 mX.appendGroup(groups[j]);
             }
 
@@ -758,7 +760,7 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj u(Z); const Obj& U = u;
             u.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 u.appendGroup(groups[j]);
             }
 
@@ -773,7 +775,7 @@ int main(int argc, char *argv[])
                 // Create the sample.
                 Obj v(Z); const Obj& V = v;
                 v.setTimeStamp(timeStamp);
-                for (int k = 0; k < groups.size(); ++k) {
+                for (bsl::size_t k = 0; k < groups.size(); ++k) {
                     v.appendGroup(groups[k]);
                 }
 
@@ -800,7 +802,7 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj u(Z); const Obj& U = u;
             u.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 u.appendGroup(groups[j]);
             }
 
@@ -862,13 +864,13 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj mX(Z); const Obj& MX = mX;
             mX.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 mX.appendGroup(groups[j]);
             }
 
             Obj mY(Z); const Obj& MY = mY;
             mY.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 mY.appendGroup(groups[j]);
             }
 
@@ -935,7 +937,7 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj u(Z); const Obj& U = u;
             u.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 u.appendGroup(groups[j]);
             }
 
@@ -950,7 +952,7 @@ int main(int argc, char *argv[])
                 // Create the sample.
                 Obj v(Z); const Obj& V = v;
                 v.setTimeStamp(timeStamp);
-                for (int k = 0; k < groups.size(); ++k) {
+                for (bsl::size_t k = 0; k < groups.size(); ++k) {
                     v.appendGroup(groups[k]);
                 }
 
@@ -1035,7 +1037,7 @@ int main(int argc, char *argv[])
             // Create the sample.
             Obj mX(Z); const Obj& MX = mX;
             mX.setTimeStamp(timeStamp);
-            for (int j = 0; j < groups.size(); ++j) {
+            for (bsl::size_t j = 0; j < groups.size(); ++j) {
                 mX.appendGroup(groups[j]);
             }
 

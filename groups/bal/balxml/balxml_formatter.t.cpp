@@ -23,6 +23,7 @@
 #include <bsl_sstream.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -922,7 +923,6 @@ int main(int argc, char *argv[])
             ss.str(bsl::string());
             formatter.flush();
             int outputColumn3 = formatter.outputColumn();
-            int indentLevel3 = formatter.indentLevel();
             ASSERT(outputColumn3 == 0); // there must be no '>'
             ASSERT(ss.str().empty());
         }
@@ -1327,8 +1327,9 @@ int main(int argc, char *argv[])
 
               formatter.openElement("root");
 
-              int expectedColumn = (INIT_INDENT * SPACES_PERLEVEL) + 1 +
-                  bsl::strlen("root");
+              int expectedColumn = static_cast<int>(
+                                              INIT_INDENT * SPACES_PERLEVEL + 1
+                                                        + bsl::strlen("root"));
 
               if (DOFLUSH) {
                   formatter.flush();
@@ -1549,7 +1550,6 @@ int main(int argc, char *argv[])
               const int   LINE      = DATA[i].d_line;
               const char *NAME      = DATA[i].d_name;
               const char *ORIGINAL  = (const char *) DATA[i].d_originalValue;
-              const char *DISPLAYED = (const char *) DATA[i].d_displayedValue;
               const bool  VALID     = DATA[i].d_isValid;
 
               formatter.openElement(NAME);
@@ -1578,9 +1578,12 @@ int main(int argc, char *argv[])
           }
           static const char *names[] = { A, B, C, D };
           static const char *values[] = { I, J, K, L, M };
-          for (int name = 0; name < sizeof(names) / sizeof(*names); ++name) {
+          for (bsl::size_t name = 0;
+               name < sizeof(names) / sizeof(*names);
+               ++name) {
               const char *NAME = names[name];
-              for (int value = 0; value < sizeof(values) / sizeof(*values);
+              for (bsl::size_t value = 0;
+                   value < sizeof(values) / sizeof(*values);
                    ++value) {
                   const char *VALUE = values[value];
                   Pert pert;
@@ -1589,7 +1592,6 @@ int main(int argc, char *argv[])
                       const int INIT_INDENT = pert.d_initialIndent;
                       const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                       const int WRAP_COLUMN = pert.d_wrapColumn;
-                      const bool DOFLUSH = pert.d_doFlush;
                       bsl::ostringstream ss1, ss2;
                       Obj formatter1(ss1,
                                      INIT_INDENT,
@@ -1681,7 +1683,6 @@ int main(int argc, char *argv[])
                   const int INIT_INDENT = pert.d_initialIndent;
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
-                  const bool DOFLUSH = pert.d_doFlush;
                   Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
 
                   for (int level = 0; level < LEVEL_NESTING; ++level) {
@@ -1788,11 +1789,8 @@ int main(int argc, char *argv[])
                   const int INIT_INDENT = pert.d_initialIndent;
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
-                  const bool DOFLUSH = pert.d_doFlush;
                   Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(NAME, WS);
-                  int expectedColumn = INIT_INDENT * SPACES_PERLEVEL +
-                      1 + bsl::strlen(NAME);
 
                   formatter.addData(VALUE); // if BAEXML_NEWLINE_INDENT, this
                                             // VALUE is added onto a different
@@ -1824,17 +1822,15 @@ int main(int argc, char *argv[])
               }
           }
           for (int i = 0; i < DATA_SIZE; ++i) {
-              const int LINE = DATA[i].d_line;
-              const char *NAME = DATA[i].d_name;
-              const char *VALUE = DATA[i].d_value;
-              const Obj::WhitespaceType WS = DATA[i].d_ws;
+              const int                  LINE = DATA[i].d_line;
+              const char                *NAME = DATA[i].d_name;
+              const Obj::WhitespaceType  WS   = DATA[i].d_ws;
               Pert pert;
               while (pert.next()) {
                   bsl::ostringstream ss;
                   const int INIT_INDENT = pert.d_initialIndent;
                   const int SPACES_PERLEVEL = pert.d_spacesPerLevel;
                   const int WRAP_COLUMN = pert.d_wrapColumn;
-                  const bool DOFLUSH = pert.d_doFlush;
                   Obj formatter(ss, INIT_INDENT, SPACES_PERLEVEL, WRAP_COLUMN);
                   formatter.openElement(NAME, WS);
 
@@ -1941,8 +1937,9 @@ int main(int argc, char *argv[])
                                     SPACES_PERLEVEL,
                                     WRAP_COLUMN);
                       formatter.openElement(rootElemName, WS);
-                      int expectedColumn = INIT_INDENT * SPACES_PERLEVEL +
-                          1 + rootElemName.length();
+                      int expectedColumn = static_cast<int>(
+                                              INIT_INDENT * SPACES_PERLEVEL + 1
+                                                      + rootElemName.length());
                       bool isFirstAtLine = true;
 
                       for (int value = 0; value < NUMVALUES; ++value) {
@@ -1969,10 +1966,10 @@ int main(int argc, char *argv[])
 
                           bool isWrapped = expectedColumn == 0;
                           if (bsl::strlen(VALUE) > 0) {
-                              if (WRAP_COLUMN > 0
-                               && expectedColumn + bsl::strlen(VALUE) >=
-                                                                    WRAP_COLUMN
-                               && Obj::e_PRESERVE_WHITESPACE != WS) {
+                              if (   WRAP_COLUMN > 0
+                                  && expectedColumn + static_cast<int>(
+                                             bsl::strlen(VALUE)) >= WRAP_COLUMN
+                                  && Obj::e_PRESERVE_WHITESPACE != WS) {
                                   isWrapped = true;
                               }
 
@@ -2123,8 +2120,7 @@ int main(int argc, char *argv[])
 
                       bool isFirstData = true; // the first non-empty data
                       for (int value = 0; value < NUMVALUES; ++value) {
-                          const char *VALUE     = VALUES[value];
-                          const int   VALUE_LEN = bsl::strlen(VALUE);
+                          const char *VALUE = VALUES[value];
                           ss.str(bsl::string());
                           bsl::string expected;
                           formatter.addData(VALUE);
@@ -2251,9 +2247,13 @@ int main(int argc, char *argv[])
                       formatter.addAttribute(NAME, VALUE);
 
                       bool isWrapped = false;
-                      if (WRAP_COLUMN > 0
-                       && (expectedColumn + 1 + bsl::strlen(NAME) + 2 +
-                           bsl::strlen(VALUE) + 3 >= WRAP_COLUMN)) {
+                      if (   WRAP_COLUMN > 0
+                          && (static_cast<int>(  expectedColumn
+                                               + 1
+                                               + bsl::strlen(NAME)
+                                               + 2
+                                               + bsl::strlen(VALUE)
+                                               + 3) >= WRAP_COLUMN)) {
                           // these numbers refer to the added characters one
                           // attribute might introduce: ' NAME="VALUE"/>'
                           //                            -1-  -2 -   -3  -
@@ -2397,9 +2397,13 @@ int main(int argc, char *argv[])
                   int expectedColumn = expected.length();
 
                   bool isWrapped = false;
-                  if (WRAP_COLUMN > 0
-                   && (expected.length() + 1 + bsl::strlen(NAME) + 2 +
-                       bsl::strlen(VALUE) + 3 >= WRAP_COLUMN)) {
+                  if (   WRAP_COLUMN > 0
+                      && (static_cast<int>(   expected.length()
+                                           + 1
+                                           + bsl::strlen(NAME)
+                                           + 2
+                                           + bsl::strlen(VALUE)
+                                           + 3) >= WRAP_COLUMN)) {
                       // these numbers refer to the added characters one
                       // attribute might introduce: <tagName NAME="VALUE"/>
                       //                                   -1-  -2 -   -3  -
@@ -2769,19 +2773,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
           Pert pert;
 
-          for (int i0 = 0;
+          for (bsl::size_t i0 = 0;
                i0 < sizeof(Pert::s_doFlush) /
                    sizeof(*Pert::s_doFlush);
                ++i0) {
-              for (int i1 = 0;
+              for (bsl::size_t i1 = 0;
                    i1 < sizeof(Pert::s_initialIndent) /
                        sizeof(*Pert::s_initialIndent);
                    ++i1) {
-                  for (int i2 = 0;
+                  for (bsl::size_t i2 = 0;
                        i2 < sizeof(Pert::s_spacesPerLevel) /
                            sizeof(*Pert::s_spacesPerLevel);
                        ++i2) {
-                      for (int i3 = 0;
+                      for (bsl::size_t i3 = 0;
                            i3 < sizeof(Pert::s_wrapColumn) /
                                sizeof(*Pert::s_wrapColumn);
                            ++i3) {
@@ -3030,10 +3034,11 @@ int main(int argc, char *argv[])
           //        <verbose> is non-empty to dump the messages to stdout
           //  Defaults: <size> = 10000, <reps> = 100
 
-          int msgSize = argc > 2 ? bsl::atoi(argv[2]) : 10000;
-          int reps    = argc > 3 ? bsl::atoi(argv[3]) : 100;
-          verbose     = argc > 4;
-          veryVerbose = veryVeryVerbose = 0;
+          bsl::size_t msgSize = argc > 2 ? bsl::atoi(argv[2]) : 10000;
+          int reps            = argc > 3 ? bsl::atoi(argv[3]) : 100;
+          verbose             = argc > 4;
+          veryVerbose         = 0;
+          veryVeryVerbose     = 0;
 
           bdlsb::MemOutStreamBuf output;
 

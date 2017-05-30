@@ -40,6 +40,7 @@
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>      // 'remove'
@@ -335,23 +336,6 @@ bsl::string readPartialFile(bsl::string&     fileName,
     return result;
 }
 
-void publishRecord(Obj *mX, const char *message)
-{
-    ball::RecordAttributes attr(bdlt::CurrentTime::utc(),
-                               1,
-                               2,
-                               "FILENAME",
-                               3,
-                               "CATEGORY",
-                               32,
-                               message);
-    ball::Record record(attr, ball::UserFields());
-
-    ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
-
-    mX->publish(record, context);
-}
-
 class LogRotationCallbackTester {
     // This class can be used as a functor matching the signature of
     // 'ball::FileObserver2::OnFileRotationCallback'.  This class records every
@@ -596,8 +580,8 @@ void getDatetimeField(bsl::string        *result,
     bsl::vector<bsl::string> lines;
     splitStringIntoLines(&lines, fileContent.c_str());
     int recordIndex = recordNumber  - 1;
-    ASSERT(0            <= recordIndex);
-    ASSERT(lines.size() >  recordIndex);
+    ASSERT(0                              <= recordIndex);
+    ASSERT(static_cast<int>(lines.size()) >  recordIndex);
 
     const bsl::string& s = lines[recordIndex];
     *result = s.substr(0, s.find_first_of(' '));
@@ -797,7 +781,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
-                    int result =
+                    bsls::Types::Int64 result =
                               TestLocalTimeOffsetCallback::loadLocalTimeOffset(
                                   utcDatetime).totalSeconds();
                     ++loadCount;
@@ -830,7 +814,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
-                    int result =
+                    bsls::Types::Int64 result =
                             bdlt::LocalTimeOffset::localTimeOffset(utcDatetime)
                                 .totalSeconds();
                     ++loadCount;

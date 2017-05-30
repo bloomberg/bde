@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  void MyOstreamObserver::publish(const ball::Record&  record,
-//                                  const ball::Context& context)
+//                                  const ball::Context&)
 //  {
 //      const ball::RecordAttributes& fixedFields = record.fixedFields();
 //

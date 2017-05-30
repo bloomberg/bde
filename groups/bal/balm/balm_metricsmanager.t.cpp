@@ -29,6 +29,7 @@
 
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
@@ -791,7 +792,7 @@ template <class T>
 void CombinationIterator<T>::createCurrentCombination()
 {
     d_currentCombination.clear();
-    for (int i = 0; i < d_values.size(); ++i) {
+    for (bsl::size_t i = 0; i < d_values.size(); ++i) {
         if (d_bits & (1 << i)) {
             d_currentCombination.push_back(d_values[i]);
         }
@@ -804,8 +805,8 @@ CombinationIterator<T>::CombinationIterator(const bsl::vector<T>&  values,
                                             bslma::Allocator      *allocator)
 : d_values(values, allocator)
 , d_currentCombination(allocator)
-, d_maxBits( (1 << values.size()) - 1 )
 , d_bits(0)
+, d_maxBits( (1 << values.size()) - 1 )
 {
     BSLS_ASSERT(values.size() > 0);
     BSLS_ASSERT(values.size() < 32);
@@ -919,14 +920,13 @@ void ConcurrencyTest::execute()
 
     typedef bsl::shared_ptr<TestCallback> CbPtr;
     typedef bsl::pair<CbHandle, CbPtr>    CallbackInfo;
-    typedef bsl::map<Id, CallbackInfo>    CallbackMap;
 
     const int NUM_THREADS = d_barrier.numThreads();
 
     bslma::Allocator *Z = d_allocator_p;
     Obj *mX = d_manager_p; const Obj *MX = mX;
     Registry& registry = mX->metricRegistry();
-    for (int i = 0; i < 10; ++i) {
+    for (bsls::Types::Uint64 i = 0; i < 10; ++i) {
 
         // Create 2 strings unique for this iteration.
         bsl::string iterStringA, iterStringB;
@@ -2105,7 +2105,7 @@ int main(int argc, char *argv[])
                     bsl::vector<balm::Publisher *> publishers;
                     ASSERT(generalPublishers.size() ==
                            MX.findGeneralPublishers(&publishers));
-                    for (int j = 0; j < publishers.size(); ++j) {
+                    for (bsl::size_t j = 0; j < publishers.size(); ++j) {
                         ASSERT(0 != publishers[j]);
                     }
 
@@ -2167,7 +2167,6 @@ int main(int argc, char *argv[])
         Obj mX(Z); const Obj& MX = mX;
         Registry& registry = mX.metricRegistry();
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            const char *CATEGORY = CATEGORIES[i];
             for (int j = 0; j < NUM_PUBLISHERS; ++j) {
                 PubPtr pub_p(new (*Z) TestPublisher(Z), Z);
                 mX.addSpecificPublisher(CATEGORIES[i], pub_p);
@@ -2598,7 +2597,7 @@ int main(int argc, char *argv[])
                    sample.numRecords());
 
             // Verify the correct metrics were published.
-            for (int i = 0; i < combIt.current().size(); ++i) {
+            for (bsl::size_t i = 0; i < combIt.current().size(); ++i) {
                 const Category *CATEGORY = combIt.current()[i];
                 bsls::TimeInterval elapsedTime =
                               publicationTime - lastPublicationTimes[CATEGORY];
@@ -3752,7 +3751,7 @@ int main(int argc, char *argv[])
                 const char *RECORD_SPEC = VALUES[i].d_records;
                 bsl::vector<balm::MetricRecord>& records = recordBuffer[i];
 
-                for (int j = 0; j < bsl::strlen(RECORD_SPEC); ++j) {
+                for (bsl::size_t j = 0; j < bsl::strlen(RECORD_SPEC); ++j) {
                     bsl::string value(1, RECORD_SPEC[j], Z);
                     Id id = registry.getId(value.c_str(), value.c_str());
                     records.push_back(balm::MetricRecord(id));
@@ -3787,14 +3786,18 @@ int main(int argc, char *argv[])
 
                 ASSERT(sample.numRecords() == tp1.lastSample().numRecords());
                 ASSERT(sample.numRecords() == tp2.lastSample().numRecords());
-                ASSERT(sample.numRecords() == tp1.lastRecords().size());
-                ASSERT(sample.numRecords() == tp2.lastRecords().size());
+                ASSERT(sample.numRecords() ==
+                                   static_cast<int>(tp1.lastRecords().size()));
+                ASSERT(sample.numRecords() ==
+                                   static_cast<int>(tp2.lastRecords().size()));
 
                 ASSERT(TIME_STAMP == tp1.lastTimeStamp());
                 ASSERT(TIME_STAMP == tp2.lastTimeStamp());
 
-                ASSERT(i + 1 == tp1.lastElapsedTimes().size());
-                ASSERT(i + 1 == tp2.lastElapsedTimes().size());
+                ASSERT(i + 1 ==
+                              static_cast<int>(tp1.lastElapsedTimes().size()));
+                ASSERT(i + 1 ==
+                              static_cast<int>(tp2.lastElapsedTimes().size()));
 
                 for (int j = 0; j < sample.numGroups(); ++j) {
                     ASSERT(sample.sampleGroup(j).elapsedTime() ==
@@ -3870,11 +3873,11 @@ int main(int argc, char *argv[])
                 bsl::string result1(Z), result2(Z);
 
                 const bsl::vector<char>& combination = iter.current();
-                for (int j = 0; j < combination.size();++j) {
+                for (bsl::size_t j = 0; j < combination.size();++j) {
                     result1 += combination[j];
                 }
 
-                for (int j = 0; j < bsl::strlen(VALUES); ++j) {
+                for (bsl::size_t j = 0; j < bsl::strlen(VALUES); ++j) {
                     if (iter.includesElement(j)) {
                         result2 += VALUES[j];
                     }
@@ -3938,6 +3941,10 @@ int main(int argc, char *argv[])
         int handle0 = mX.registerCollectionCallback(CAT_A, CB_A.function());
         int handle1 = mX.registerCollectionCallback(CAT_B, CB_B.function());
         int handle2 = mX.registerCollectionCallback(CAT_C, CB_C.function());
+
+        (void)handle0;
+        (void)handle1;
+        (void)handle2;
 
         ASSERT(CAT_A->enabled());
         ASSERT(CAT_B->enabled());
@@ -4199,6 +4206,13 @@ int main(int argc, char *argv[])
         int handle3 = mX.registerCollectionCallback(CAT_B, tcbb_2.function());
         int handle4 = mX.registerCollectionCallback(CAT_C, tcbc_1.function());
         int handle5 = mX.registerCollectionCallback(CAT_C, tcbc_2.function());
+
+        (void)handle0;
+        (void)handle1;
+        (void)handle2;
+        (void)handle3;
+        (void)handle4;
+        (void)handle5;
 
         if (verbose) {
             cout << "\tVerify publishers can be found\n";

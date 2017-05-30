@@ -251,8 +251,8 @@ bsl::vector<char> loadFromHex(const char *hexData)
             firstDigit = *hexData;
         }
         else {
-            char value = (hexValueTable[firstDigit] << 4)
-                       | (hexValueTable[*hexData]);
+            char value = static_cast<char>(  (hexValueTable[firstDigit] << 4)
+                                           | hexValueTable[*hexData]);
 
             result.push_back(value);
             firstDigit = 0;
@@ -13374,13 +13374,13 @@ int main(int argc, char *argv[])
                                << "\n=========" << bsl::endl;
 
         {
-            const float  XA1 = 99.234;               float  XA2;
-            const float  XB1 = -100.987;             float  XB2;
-            const float  XC1 = -77723.875;           float  XC2;
-            const float  XD1 = 1.4E-45;              float  XD2;
-            const float  XE1 = -1.4E-45;             float  XE2;
-            const float  XF1 = 3.402823466E+38;      float  XF2;
-            const float  XG1 = 1.175494351E-38;      float  XG2;
+            const float  XA1 = 99.234f;              float  XA2;
+            const float  XB1 = -100.987f;            float  XB2;
+            const float  XC1 = -77723.875f;          float  XC2;
+            const float  XD1 = 1.4E-45f;             float  XD2;
+            const float  XE1 = -1.4E-45f;            float  XE2;
+            const float  XF1 = 3.402823466E+38f;     float  XF2;
+            const float  XG1 = 1.175494351E-38f;     float  XG2;
 
             const double XH1 = 19998989.1234;        double  XH2;
             const double XI1 = -7.8752345;           double  XI2;
@@ -13737,9 +13737,9 @@ int main(int argc, char *argv[])
             const bsl::string     XP1("This is a really long line");
             bsl::string           XP2;
 
-            const float        XQ1 = 99.234;           float        XQ2;
-            const float        XR1 = -100.987;         float        XR2;
-            const float        XS1 = -77723.875;       float        XS2;
+            const float        XQ1 = 99.234f;          float        XQ2;
+            const float        XR1 = -100.987f;        float        XR2;
+            const float        XS1 = -77723.875f;      float        XS2;
 
             const double       XT1 = 19998989.1234;    double        XT2;
             const double       XU1 = -7.8752345;       double        XU2;

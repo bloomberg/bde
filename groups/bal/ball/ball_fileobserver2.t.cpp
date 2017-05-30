@@ -49,6 +49,7 @@
 #include <bdlb_tokenizer.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
@@ -652,8 +653,8 @@ void getDatetimeField(bsl::string       *result,
     splitStringIntoLines(&lines, fileContent.c_str());
 
     int recordIndex = recordNumber  - 1;
-    ASSERT(0            <= recordIndex);
-    ASSERT(lines.size() >  recordIndex);
+    ASSERT(0                              <= recordIndex);
+    ASSERT(static_cast<int>(lines.size()) >  recordIndex);
 
     const bsl::string& s = lines[recordIndex];
     *result = s.substr(0, s.find_first_of(' '));
@@ -900,7 +901,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
-                    int result =
+                    bsls::Types::Int64 result =
                         TestLocalTimeOffsetCallback::loadLocalTimeOffset(
                                                                utcDatetime)
                                                                .totalSeconds();
@@ -934,7 +935,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
-                    int result =
+                    bsls::Types::Int64 result =
                         bdlt::LocalTimeOffset::localTimeOffset(utcDatetime)
                                                                .totalSeconds();
                     ++loadCount;
@@ -1773,7 +1774,7 @@ int main(int argc, char *argv[])
                 cb.reset();
             }
 
-            for (int i = 0; i < files.size(); ++i) {
+            for (bsl::size_t i = 0; i < files.size(); ++i) {
                 FileUtil::remove(files[i]);
             }
         }
@@ -1812,7 +1813,7 @@ int main(int argc, char *argv[])
             }
             files.push_back(logName);
 
-            for (int i = 0; i < files.size(); ++i) {
+            for (bsl::size_t i = 0; i < files.size(); ++i) {
                  FileUtil::remove(files[i]);
             }
         }
@@ -1878,7 +1879,7 @@ int main(int argc, char *argv[])
                 cb.reset();
             }
 
-            for (int i = 0; i < files.size(); ++i) {
+            for (bsl::size_t i = 0; i < files.size(); ++i) {
                 FileUtil::remove(files[i]);
             }
         }

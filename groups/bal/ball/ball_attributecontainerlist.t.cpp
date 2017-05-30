@@ -14,10 +14,12 @@
 #include <ball_attribute.h>
 
 #include <bdlb_print.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
@@ -341,8 +343,11 @@ class TestPrintContainer : public ball::AttributeContainer {
         // 'c'.
 
     // ACCESSORS
-    virtual bool hasValue(const ball::Attribute& value) const {return true;}
+    virtual bool hasValue(const ball::Attribute&) const
         // Return 'true'.
+    {
+        return true;
+    }
 
     virtual bsl::ostream& print(bsl::ostream& stream,
                                 int           level = 0,
@@ -514,6 +519,9 @@ int main(int argc, char *argv[])
 //..
 // The resulting output will be the following:
 //..
+
+    (void)s1Iter;
+    (void)s2Iter;
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -577,7 +585,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != testAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            int bytesInUse = testAllocator.numBytesInUse();
+            bsls::Types::Int64 bytesInUse = testAllocator.numBytesInUse();
 
             x.removeAll();
 
@@ -670,8 +678,6 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            int bytesInUse = testAllocator.numBytesInUse();
-
             x.removeAllAndRelease();
 
             ASSERT(0         == X.numContainers());
@@ -680,8 +686,9 @@ int main(int argc, char *argv[])
             ASSERT(0         == defaultAllocator.numBytesInUse());
 
             gg(&x, VALUES[i], containers);
-            ASSERT(bsl::strlen(VALUES[i]) == X.numContainers());
-            ASSERT(0                      == defaultAllocator.numBytesInUse());
+            ASSERT(static_cast<int>(bsl::strlen(VALUES[i]))
+                                                         == X.numContainers());
+            ASSERT(0 == defaultAllocator.numBytesInUse());
             if (*VALUES[i] != 0) {
                 ASSERT(0 != testAllocator.numBytesInUse());
             }
@@ -746,7 +753,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            int bytesInUse = testAllocator.numBytesInUse();
+            bsls::Types::Int64 bytesInUse = testAllocator.numBytesInUse();
 
             x.removeAll();
 
@@ -756,9 +763,10 @@ int main(int argc, char *argv[])
             ASSERT(0          == defaultAllocator.numBytesInUse());
 
             gg(&x, VALUES[i], containers);
-            ASSERT(bsl::strlen(VALUES[i]) == X.numContainers());
-            ASSERT(bytesInUse             == testAllocator.numBytesInUse());
-            ASSERT(0                      == defaultAllocator.numBytesInUse());
+            ASSERT(static_cast<int>(bsl::strlen(VALUES[i]))
+                                                         == X.numContainers());
+            ASSERT(bytesInUse == testAllocator.numBytesInUse());
+            ASSERT(0          == defaultAllocator.numBytesInUse());
 
         }
       } break;
@@ -825,7 +833,8 @@ int main(int argc, char *argv[])
             for (int j = 0; j < 10; ++j) {
                 // Find if 'j' appears in the specification (and therefore
                 // hasValue will return 'true').
-                bool hasValue = spec.find('0' + j) != bsl::string::npos;
+                bool hasValue = spec.find(static_cast<char>('0' + j))
+                                                          != bsl::string::npos;
                 LOOP2_ASSERT(i, j,
                              hasValue == X.hasValue(ball::Attribute("X", j)));
             }
@@ -850,7 +859,8 @@ int main(int argc, char *argv[])
 
         bsl::vector<TestPrintContainer> containers(Z);
         for (int i = 0; i < 10; ++i) {
-            containers.push_back(TestPrintContainer('a' + i));
+            containers.push_back(
+                               TestPrintContainer(static_cast<char>('a' + i)));
         }
 
         {
@@ -1225,10 +1235,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             Node& node = nodes[i];
             node.d_value_p = &containers[i];
-            node.d_next_p  = (i < NUM_ELEMENTS - 1) ?
-                             node.d_next_p = &nodes[i+1] : 0;
-            node.d_prevNextAddr_p = (i > 0) ?
-                             &nodes[i - 1].d_next_p : 0;
+            node.d_next_p  = (i < NUM_ELEMENTS - 1) ? &nodes[i+1] : 0;
+            node.d_prevNextAddr_p = (i > 0) ? &nodes[i - 1].d_next_p : 0;
         }
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
@@ -1278,10 +1286,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             Node& node = nodes[i];
             node.d_value_p = &containers[i];
-            node.d_next_p  = (i < NUM_ELEMENTS - 1) ?
-                             node.d_next_p = &nodes[i+1] : 0;
-            node.d_prevNextAddr_p = (i > 0) ?
-                             &nodes[i - 1].d_next_p : 0;
+            node.d_next_p  = (i < NUM_ELEMENTS - 1) ? &nodes[i+1] : 0;
+            node.d_prevNextAddr_p = (i > 0) ? &nodes[i - 1].d_next_p : 0;
         }
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
@@ -1342,10 +1348,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 Node& node = nodes[i];
                 node.d_value_p = &containers[i];
-                node.d_next_p  = (i < NUM_ELEMENTS - 1) ?
-                                 node.d_next_p = &nodes[i+1] : 0;
-                node.d_prevNextAddr_p = (i > 0) ?
-                                 &nodes[i - 1].d_next_p : 0;
+                node.d_next_p  = (i < NUM_ELEMENTS - 1) ? &nodes[i+1] : 0;
+                node.d_prevNextAddr_p = (i > 0) ? &nodes[i - 1].d_next_p : 0;
             }
 
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
@@ -1395,10 +1399,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             Node& node = nodes[i];
             node.d_value_p = &containers[i];
-            node.d_next_p  = (i < NUM_ELEMENTS - 1) ?
-                             node.d_next_p = &nodes[i+1] : 0;
-            node.d_prevNextAddr_p = (i > 0) ?
-                                    &nodes[i - 1].d_next_p : 0;
+            node.d_next_p  = (i < NUM_ELEMENTS - 1) ? &nodes[i+1] : 0;
+            node.d_prevNextAddr_p = (i > 0) ? &nodes[i - 1].d_next_p : 0;
         }
 
         {
@@ -1472,10 +1474,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 Node& node = nodes[i];
                 node.d_value_p = &containers[i];
-                node.d_next_p  = (i < NUM_ELEMENTS - 1) ?
-                                 node.d_next_p = &nodes[i+1] : 0;
-                node.d_prevNextAddr_p = (i > 0) ?
-                                 &nodes[i - 1].d_next_p : 0;
+                node.d_next_p  = (i < NUM_ELEMENTS - 1) ? &nodes[i+1] : 0;
+                node.d_prevNextAddr_p = (i > 0) ? &nodes[i - 1].d_next_p : 0;
             }
 
             for (int i = 0; i < NUM_ELEMENTS; ++i) {

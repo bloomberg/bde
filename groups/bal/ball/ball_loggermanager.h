@@ -415,7 +415,7 @@ BSLS_IDENT("$Id: $")
 //
 //        buffer->clear();
 //        while (*s) {
-//            buffer->push_back(bsl::tolower(static_cast<unsigned char>(*s)));
+//            buffer->push_back(static_cast<char>(bsl::tolower(*s)));
 //            ++s;
 //        }
 //        buffer->push_back(0);

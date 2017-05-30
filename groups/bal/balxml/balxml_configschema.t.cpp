@@ -36,35 +36,7 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool condition, const char *message, int line)
-{
-    if (condition) {
-        cout << "Error " __FILE__ "(" << line << "): " << message
-             << "    (failed)" << endl;
-
-        if (0 <= testStatus && testStatus <= 100) {
-            ++testStatus;
-        }
-    }
-}
-
 }  // close unnamed namespace
-
-// ============================================================================
-//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
-
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -84,10 +56,8 @@ typedef balxml::ConfigSchema Obj;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -101,9 +71,6 @@ int main(int argc, char *argv[])
                                << "Basic Attribute Test" << bsl::endl
                                << "=====================" << bsl::endl;
 
-        Obj mX1, mY1; const Obj& X1 = mX1; const Obj& Y1 = mY1;
-        Obj mZ1; const Obj& Z1 = mZ1; // Z1 is the control
-        if (verbose) {  P(X1); }
         if (verbose) bsl::cout << "\n Check streaming " << bsl::endl;
         {
             Obj mX;

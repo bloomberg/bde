@@ -398,7 +398,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 //
           buffer->clear();
           while (*s) {
-              buffer->push_back(bsl::tolower(static_cast<unsigned char>(*s)));
+              buffer->push_back(static_cast<char>(bsl::tolower(*s)));
               ++s;
           }
           buffer->push_back(0);
@@ -1374,6 +1374,8 @@ int main(int argc, char *argv[])
             factorial(10);
         }
 
+        (void)cat;
+        
       } break;
       case 28: {
         // --------------------------------------------------------------------

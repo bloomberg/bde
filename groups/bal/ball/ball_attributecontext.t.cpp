@@ -441,6 +441,7 @@ extern "C" void *workerThread3(void *args)
     ball::Attribute attr("uuid", 1);
     attributes.insert(attr);
     Obj::iterator iter = attrContext->addAttributes(&attributes);
+    (void)iter;
 
     ASSERT(true == attrContext->hasRelevantActiveRules(cat1));
     ASSERT(true == attrContext->hasRelevantActiveRules(cat2));
@@ -775,7 +776,7 @@ extern "C" void *case4ContextThread(void *args)
         }
 
         for (int j = 0; j < NUM_CATEGORIES; ++j) {
-            LOOP2_ASSERT(i, j,  j - 1 > i ==
+            LOOP2_ASSERT(i, j,  (j - 1 > i) ==
                               context->hasRelevantActiveRules(CATEGORIES[j]));
 
             context->determineThresholdLevels(&levels, CATEGORIES[j]);
@@ -906,7 +907,7 @@ const ball::Attribute ATTRS[] = { A0, A1, A2, A3, A4, A5, A6, A7, A8 };
 
 const int NUM_ATTRS = sizeof ATTRS / sizeof *ATTRS;
 
-extern "C" void *case3ContextThread(void *arg)
+extern "C" void *case3ContextThread(void *)
 {
     // Creating an empty attribute context.
 
@@ -967,7 +968,7 @@ const int NUM_TESTS   = 10;           // number of tests
 
 bslmt::Barrier barrier(NUM_THREADS);   // synchronizing threads
 
-extern "C" void *case2ContextThread(void *arg)
+extern "C" void *case2ContextThread(void *)
 {
 
     // Creating an empty attribute context.
@@ -1204,9 +1205,8 @@ int main(int argc, char *argv[])
 // automatically removing, attributes from the current thread's attribute
 // context.
 //..
-// context->removeAttributes(it);
+    context->removeAttributes(it);
 //..
-
 
       } break;
 
@@ -1261,6 +1261,7 @@ int main(int argc, char *argv[])
         attributes.insert(attr);
         ball::AttributeContext::iterator it =
                                        attrContext->addAttributes(&attributes);
+        (void)it;
 
         ASSERT(attrContext->hasRelevantActiveRules(cat1));
         ASSERT(attrContext->hasRelevantActiveRules(cat2));
@@ -1480,9 +1481,6 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_4;
 
-        unsigned int ruleThreadSeeds[NUM_RULETHREADS];
-        ContextThreadData contextThreadData[NUM_CONTEXTTHREADS];
-
         bslmt::ThreadUtil::Handle ruleThreads[NUM_RULETHREADS];
         bslmt::ThreadUtil::Handle contextThreads[NUM_CONTEXTTHREADS];
 
@@ -1555,8 +1553,6 @@ int main(int argc, char *argv[])
                                          (void*)0);
             }
 
-            void* contexts[NUM_THREADS];
-
             for (int j = 0; j < NUM_THREADS; ++j) {
                 bslmt::ThreadUtil::join(Threads[j], NULL);
             }
@@ -1593,7 +1589,6 @@ int main(int argc, char *argv[])
         using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_2;
 
         bslmt::ThreadUtil::Handle Threads[NUM_THREADS];
-        Obj* contexts[NUM_THREADS];
 
         if (verbose) cout << "\n\tWithout passing an allocator" << endl;
 

@@ -18,17 +18,20 @@
 #include <ball_transmission.h>                  // for testing only
 
 #include <bdlma_bufferedsequentialallocator.h>
+
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
-
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
 
@@ -203,7 +206,7 @@ static int isNthRecord(const ball::Record& record, int nth)
     if (nth == attr.lineNumber()
      && nth == attr.processID()
      && nth == attr.severity()
-     && nth == attr.threadID()) {
+        && nth == static_cast<int>(attr.threadID())) {
         return 1;                                                     // RETURN
     }
     else {
@@ -335,7 +338,6 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
-    bslma::TestAllocator *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -1258,8 +1260,10 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\tPassing in an allocator." << endl;
-        const int NUM_BLOCKS_IN_USE = testAllocator.numBlocksInUse();
-        const int NUM_BYTES_IN_USE  = testAllocator.numBytesInUse();
+        const bsls::Types::Int64 NUM_BLOCKS_IN_USE =
+                                                testAllocator.numBlocksInUse();
+        const bsls::Types::Int64 NUM_BYTES_IN_USE  =
+                                                 testAllocator.numBytesInUse();
         {
             Obj mX(&testAllocator);  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
@@ -1281,8 +1285,10 @@ int main(int argc, char *argv[])
             // White-box test: 'publish' does not utilize the supplied
             // allocator.
 
-            const int NUM_BLOCKS_TOTAL = testAllocator.numBlocksTotal();
-            const int NUM_BYTES_TOTAL  = testAllocator.numBytesTotal();
+            const bsls::Types::Int64 NUM_BLOCKS_TOTAL =
+                                                testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 NUM_BYTES_TOTAL  =
+                                                 testAllocator.numBytesTotal();
             Rec  mR;  const Rec&  R = mR;
             Ctxt mC;  const Ctxt& C = mC;
             mX.publish(R, C);

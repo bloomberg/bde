@@ -27,6 +27,7 @@
 
 #include <bdlt_datetime.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -1234,10 +1235,9 @@ void usageExample()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -1290,11 +1290,11 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT)-1;
-                const int   RESULT_LENGTH = bsl::strlen(RESULT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT) - 1;
+                const bsl::size_t  RESULT_LENGTH = bsl::strlen(RESULT);
 
                 const Type EXPECTED_RESULT(RESULT, RESULT + RESULT_LENGTH);
 
@@ -1327,10 +1327,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_lineNum;
-                const char *INPUT           = DATA[i].d_input;
-                const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
-                const Type  EXPECTED_RESULT = DATA[i].d_result;
+                const int          LINE            = DATA[i].d_lineNum;
+                const char        *INPUT           = DATA[i].d_input;
+                const bsl::size_t  INPUT_LENGTH    = bsl::strlen(INPUT) - 1;
+                const Type         EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
@@ -1361,10 +1361,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_lineNum;
-                const char *INPUT           = DATA[i].d_input;
-                const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
-                const Type  EXPECTED_RESULT = DATA[i].d_result;
+                const int          LINE            = DATA[i].d_lineNum;
+                const char        *INPUT           = DATA[i].d_input;
+                const bsl::size_t  INPUT_LENGTH    = bsl::strlen(INPUT) - 1;
+                const Type         EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
@@ -1400,10 +1400,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_lineNum;
-                const char *INPUT           = DATA[i].d_input;
-                const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
-                const Type  EXPECTED_RESULT = DATA[i].d_result;
+                const int          LINE            = DATA[i].d_lineNum;
+                const char        *INPUT           = DATA[i].d_input;
+                const bsl::size_t  INPUT_LENGTH    = bsl::strlen(INPUT) - 1;
+                const Type         EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
@@ -1810,11 +1810,11 @@ int main(int argc, char *argv[])
                 Type        d_result;
             } DATA[] = {
                 //line    input            result
-                //----    -----            ------
-                { L_,     "0X",             0,               },
-                { L_,     "1X",             1,               },
-                { L_,     "4294967294X",    4294967294,      },
-                { L_,     "4294967295X",    4294967295,      },
+                //----    -----          -----------
+                { L_,     "0X",          0           },
+                { L_,     "1X",          1           },
+                { L_,     "4294967294X", 4294967294U },
+                { L_,     "4294967295X", 4294967295U },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1872,26 +1872,25 @@ int main(int argc, char *argv[])
 
             Type posInf = bsl::numeric_limits<Type>::infinity();
             Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "-1X",       -1.0,            },
-                { L_,     "-0.1X",     -0.1,            },
-                { L_,     "0X",        0.0,             },
-                { L_,     "0.1X",      0.1,             },
-                { L_,     "1X",        1.0,             },
-                { L_,     "123.4X",    123.4,           },
-                { L_,     "0.005X",    0.005            },
-                { L_,     "9.99E36X",  9.99E36          },
-                { L_,     "+INFX",     posInf,          },
-                { L_,     "-INFX",     -posInf,         },
-                { L_,     "NaNX",      qNaN             },
+                //line    input        result
+                //----    -----       ---------
+                { L_,     "-1X",      -1.0f     },
+                { L_,     "-0.1X",    -0.1f     },
+                { L_,     "0X",        0.0f     },
+                { L_,     "0.1X",      0.1f     },
+                { L_,     "1X",        1.0f     },
+                { L_,     "123.4X",    123.4f   },
+                { L_,     "0.005X",    0.005f   },
+                { L_,     "9.99E36X",  9.99E36f },
+                { L_,     "+INFX",     posInf   },
+                { L_,     "-INFX",    -posInf   },
+                { L_,     "NaNX",      qNaN     },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1922,7 +1921,6 @@ int main(int argc, char *argv[])
 
             Type posInf = bsl::numeric_limits<Type>::infinity();
             Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             static const struct {
                 int         d_lineNum;
@@ -1972,7 +1970,6 @@ int main(int argc, char *argv[])
 
             Type posInf = bsl::numeric_limits<Type>::infinity();
             Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             static const struct {
                 int         d_lineNum;
@@ -3103,7 +3100,7 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
 
-                Type mX;  const Type& X = mX;
+                Type mX;
 
                 int retCode = Util::parseText(&mX, INPUT, INPUT_LENGTH);
 
@@ -3572,8 +3569,8 @@ int main(int argc, char *argv[])
                 //----    -----            ------
                 { L_,     "0X",             0               },
                 { L_,     "1X",             1               },
-                { L_,     "4294967294X",    4294967294      },
-                { L_,     "4294967295X",    4294967295      },
+                { L_,     "4294967294X",    4294967294U     },
+                { L_,     "4294967295X",    4294967295U     },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3679,7 +3676,7 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
 
-                Type mX;  const Type& X = mX;
+                Type mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
@@ -3759,9 +3756,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-            Type posInf = bsl::numeric_limits<Type>::infinity();
             Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             static const struct {
                 int         d_lineNum;
@@ -3770,17 +3765,17 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line    input       result
                 //----    -----       ------
-                { L_,     "-1X",       -1.0,            },
-                { L_,     "-0.1X",     -0.1,            },
-                { L_,     "0X",        0.0,             },
-                { L_,     "0.1X",      0.1,             },
-                { L_,     "1X",        1.0,             },
-                { L_,     "123.4X",    123.4,           },
-                { L_,     "0.005X",    0.005            },
-                { L_,     "9.99E36X",  qNaN,            },
-                { L_,     "+INFX",     qNaN,            },
-                { L_,     "-INFX",     qNaN,            },
-                { L_,     "NaNX",      qNaN,            },
+                { L_,     "-1X",      -1.0f   },
+                { L_,     "-0.1X",    -0.1f   },
+                { L_,     "0X",        0.0f   },
+                { L_,     "0.1X",      0.1f   },
+                { L_,     "1X",        1.0f   },
+                { L_,     "123.4X",    123.4f },
+                { L_,     "0.005X",    0.005f },
+                { L_,     "9.99E36X",  qNaN   },
+                { L_,     "+INFX",     qNaN   },
+                { L_,     "-INFX",     qNaN   },
+                { L_,     "NaNX",      qNaN   },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3809,9 +3804,7 @@ int main(int argc, char *argv[])
         {
             typedef double Type;
 
-            Type posInf = bsl::numeric_limits<Type>::infinity();
             Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
-            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
 
             static const struct {
                 int         d_lineNum;

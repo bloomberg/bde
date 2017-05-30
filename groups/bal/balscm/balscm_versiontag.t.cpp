@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
     #endif
 //..
 
+        (void)result;
       } break;
 
       case 1: {
@@ -157,6 +158,8 @@ int main(int argc, char *argv[])
         int major = (BAL_VERSION / 10000) % 100;
         int minor = (BAL_VERSION / 100) % 100;
         int patch = BAL_VERSION % 100;
+
+        (void)patch;
 
         ASSERT(BAL_VERSION_MAJOR == major);
         ASSERT(BAL_VERSION_MINOR == minor);

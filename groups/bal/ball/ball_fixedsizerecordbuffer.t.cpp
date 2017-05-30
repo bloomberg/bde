@@ -348,7 +348,7 @@ void *pushBackPopRemoveAllThread(void *arg)
     return NULL;
 }
 
-void *beginSequenceEndSequenceThread(void *arg)
+void *beginSequenceEndSequenceThread(void *)
 {
     barrier.wait();
     for (int i=0; i < NUM_ITERATIONS1; ++i) {
@@ -387,7 +387,7 @@ bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
 extern "C" {
-    void *workerThread9(void *arg)
+    void *workerThread9(void *)
     {
         rb.beginSequence();
         ASSERT(state == VALID);
