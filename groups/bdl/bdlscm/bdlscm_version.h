@@ -45,10 +45,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Output similar to the following will be printed to 'stdout':
 //..
-//        BAL version: BLP_LIB_BDE_BDL_0.01.0
+//        BDL version: BLP_LIB_BDE_BDL_0.01.0
 //..
 // The "0.01.0" portion of the string distinguishes different versions of the
-// 'bal' package group.
+// 'bdl' package group.
 //
 ///Example 2: Accessing the Embedded Version information
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -122,7 +122,7 @@ struct Version {
     // CLASS METHODS
     static const char *version();
         // Return the address of a character string that identifies the version
-        // of the 'bal' package group in use.
+        // of the 'bdl' package group in use.
 };
 
 // ============================================================================
