@@ -5,6 +5,7 @@
 
 #include <stdlib.h> // atoi
 #include <iostream>
+#include <cstddef>
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <thread.h>  // thr_setconcurrency
@@ -58,6 +59,12 @@ using namespace std;
 // [2 ] setPtr(Pointer *aPointer, void *value);
 // [4 ] swapPtr(Pointer *aPointer, void *value);
 // [4 ] testAndSwapPtr(Pointer *, void *, void *);
+// [12] setIntRelease(Obj::Int *aInt, int value);
+// [12] getIntAcquire(const Obj::Int &aInt);
+// [12] setInt64Release(Obj::Int64 *, bsls::Types::Int64);
+// [12] getInt64Acquire(const Obj::Int64 &aInt);
+// [12] getPtrAcquire(const Obj::Pointer &aPointer);
+// [12] setPtrRelease(Obj::Pointer *aPointer, void *value);
 //-----------------------------------------------------------------------------
 // [1 ] Breathing test
 // [7 ] Usage examples
@@ -1661,9 +1668,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 Types::Int x;  const Types::Int& X = x;
@@ -1693,9 +1700,9 @@ int main(int argc, char *argv[]) {
                 { L_,  0x100000000LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
@@ -1727,9 +1734,9 @@ int main(int argc, char *argv[]) {
                 { L_,  (void*)0xffffffff }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 void* VAL  = VALUES[i].d_value;
 
                 Types::Pointer x;
@@ -1795,9 +1802,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 Types::Int x;  const Types::Int& X = x;
@@ -1816,7 +1823,7 @@ int main(int argc, char *argv[]) {
                 "\n\t-------------------------------------------------"
                               << endl;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 int       result;
 
@@ -1853,9 +1860,9 @@ int main(int argc, char *argv[]) {
                 { L_,        -2       , -2    , -4         }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int BASE = VALUES[i].d_base;
                 const int AMT  = VALUES[i].d_amount;
                 const int EXP  = VALUES[i].d_expected;
@@ -1875,7 +1882,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int BASE = VALUES[i].d_base;
                 const int AMT  = VALUES[i].d_amount;
                 const int EXP  = VALUES[i].d_expected;
@@ -1915,9 +1922,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
@@ -1931,7 +1938,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, VAL == Obj::getInt64(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
                 bsls::Types::Int64       result;
 
@@ -1965,9 +1972,9 @@ int main(int argc, char *argv[]) {
                 { L_,  0x100000000LL, -2LL    , 0xFFFFFFFELL         }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 BASE = VALUES[i].d_base;
                 const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
@@ -1987,7 +1994,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt64(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 BASE = VALUES[i].d_base;
                 const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
@@ -2159,9 +2166,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   , 16     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL    = VALUES[i].d_value;
                 const int SWPVAL = VALUES[i].d_swapValue;
                 int       result = 0;
@@ -2208,9 +2215,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   , 16         , 0      , -2         , -2      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL    = VALUES[i].d_value;
                 const int CMPVAL = VALUES[i].d_cmpValue;
                 const int SWPVAL = VALUES[i].d_swapValue;
@@ -2251,9 +2258,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2LL , 16LL     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL    = VALUES[i].d_value;
                 const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
                 bsls::Types::Int64       result = 0;
@@ -2293,9 +2300,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2LL  , 16         , 0      , -2LL        , -2LL     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL    = VALUES[i].d_value;
                 const bsls::Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
                 const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
@@ -2335,9 +2342,9 @@ int main(int argc, char *argv[]) {
                 { L_,  (void*)-2   , (void*)16     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 void *VAL    = VALUES[i].d_value;
                 void *SWPVAL = VALUES[i].d_swapValue;
                 void *result = 0;
@@ -2384,9 +2391,9 @@ int main(int argc, char *argv[]) {
                 { L_, (void*)-2   , (void*)16         , (void*)0      ,
                       (void*)-2         , (void*)-2      }
             };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 void *VAL    = VALUES[i].d_value;
                 void *CMPVAL = VALUES[i].d_cmpValue;
                 void *SWPVAL = VALUES[i].d_swapValue;
@@ -2981,9 +2988,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   , -1      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
 
@@ -3000,7 +3007,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -3077,9 +3084,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2     , -1      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
 
@@ -3096,7 +3103,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -3216,9 +3223,9 @@ int main(int argc, char *argv[]) {
                 { L_,  (int) 0xFFFFFFFFFFFFFFFFLL , 0                   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
@@ -3238,7 +3245,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt64(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
                 bsls::Types::Int64       result;
@@ -3391,9 +3398,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   , -1      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
 
@@ -3410,7 +3417,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -3487,9 +3494,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2     , -1      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
 
@@ -3506,7 +3513,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -3625,9 +3632,9 @@ int main(int argc, char *argv[]) {
                 { L_,  (int) 0xFFFFFFFFFFFFFFFFLL , 0                   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
@@ -3647,7 +3654,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt64(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
                 bsls::Types::Int64       result;
@@ -3811,9 +3818,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   , 16     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL    = VALUES[i].d_value;
                 const int SWPVAL = VALUES[i].d_swapValue;
                 int       result = 0;
@@ -3860,9 +3867,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   , 16         , 0      , -2         , -2      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL    = VALUES[i].d_value;
                 const int CMPVAL = VALUES[i].d_cmpValue;
                 const int SWPVAL = VALUES[i].d_swapValue;
@@ -3903,9 +3910,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2LL , 16LL     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL    = VALUES[i].d_value;
                 const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
                 bsls::Types::Int64       result = 0;
@@ -3945,9 +3952,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2LL  , 16         , 0      , -2LL        , -2LL     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL    = VALUES[i].d_value;
                 const bsls::Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
                 const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
@@ -3987,9 +3994,9 @@ int main(int argc, char *argv[]) {
                 { L_,  (void*)-2   , (void*)16     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 void *VAL    = VALUES[i].d_value;
                 void *SWPVAL = VALUES[i].d_swapValue;
                 void *result = 0;
@@ -4036,9 +4043,9 @@ int main(int argc, char *argv[]) {
                 { L_, (void*)-2   , (void*)16         , (void*)0      ,
                       (void*)-2         , (void*)-2      }
             };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 void *VAL    = VALUES[i].d_value;
                 void *CMPVAL = VALUES[i].d_cmpValue;
                 void *SWPVAL = VALUES[i].d_swapValue;
@@ -4470,9 +4477,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 Types::Int x;  const Types::Int& X = x;
@@ -4491,7 +4498,7 @@ int main(int argc, char *argv[]) {
                 "\n\t-------------------------------------------------"
                               << endl;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 int       result;
 
@@ -4528,9 +4535,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2             , -2    , -4         }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int BASE = VALUES[i].d_base;
                 const int AMT  = VALUES[i].d_amount;
                 const int EXP  = VALUES[i].d_expected;
@@ -4550,7 +4557,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int BASE = VALUES[i].d_base;
                 const int AMT  = VALUES[i].d_amount;
                 const int EXP  = VALUES[i].d_expected;
@@ -4590,9 +4597,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
@@ -4606,7 +4613,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, VAL == Obj::getInt64(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
                 bsls::Types::Int64       result;
 
@@ -4640,9 +4647,9 @@ int main(int argc, char *argv[]) {
                 { L_,  0x100000000LL, -2LL    , 0xFFFFFFFELL         }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 BASE = VALUES[i].d_base;
                 const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
@@ -4662,7 +4669,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getInt64(&X));
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 BASE = VALUES[i].d_base;
                 const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
                 const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
@@ -4814,9 +4821,9 @@ int main(int argc, char *argv[]) {
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 Types::Int x;  const Types::Int& X = x;
@@ -4846,9 +4853,9 @@ int main(int argc, char *argv[]) {
                 { L_,  0x100000000LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
@@ -4880,9 +4887,9 @@ int main(int argc, char *argv[]) {
                 { L_,  (void*)0xffffffff }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 void* VAL  = VALUES[i].d_value;
 
                 Types::Pointer x;

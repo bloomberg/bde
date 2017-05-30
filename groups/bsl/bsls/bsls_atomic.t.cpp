@@ -6,6 +6,7 @@
 
 #include <stdlib.h>               // atoi(), rand()
 #include <iostream>
+#include <cstddef>
 
 // For thread support
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -1308,9 +1309,9 @@ int main(int argc, char *argv[])
                 { L_,  -2   , -1      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -1327,7 +1328,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == X);
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -1362,9 +1363,9 @@ int main(int argc, char *argv[])
                 { L_,  -2     , -1      }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -1384,7 +1385,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == X);
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 const int EXP  = VALUES[i].d_expected;
                 int       result;
@@ -1423,9 +1424,9 @@ int main(int argc, char *argv[])
                 { L_,  (Int64) 0xFFFFFFFFFFFFFFFFLL , 0                   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
                 const Int64 EXP = VALUES[i].d_expected;
                 Int64       result;
@@ -1445,7 +1446,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == X);
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
                 const Int64 EXP = VALUES[i].d_expected;
                 Int64       result;
@@ -1484,9 +1485,9 @@ int main(int argc, char *argv[])
                 { L_,  (Int64) 0xFFFFFFFFFFFFFFFFLL , 0                   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
                 const Int64 EXP = VALUES[i].d_expected;
                 Int64       result;
@@ -1506,7 +1507,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == X);
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
                 const Int64 EXP = VALUES[i].d_expected;
                 Int64       result;
@@ -1579,9 +1580,9 @@ int main(int argc, char *argv[])
                 { L_,  -2   , 16     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL    = VALUES[i].d_value;
                 const int SWPVAL = VALUES[i].d_swapValue;
                 int       result = 0;
@@ -1622,9 +1623,9 @@ int main(int argc, char *argv[])
             { L_, -2, 16               , 0      , -2                , -2     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL    = VALUES[i].d_value;
                 const int CMPVAL = VALUES[i].d_compareValue;
                 const int SWPVAL = VALUES[i].d_swapValue;
@@ -1665,9 +1666,9 @@ int main(int argc, char *argv[])
                 { L_,  -2LL , 16LL     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL    = VALUES[i].d_value;
                 const Int64 SWPVAL = VALUES[i].d_swapValue;
                 Int64       result = 0;
@@ -1705,9 +1706,9 @@ int main(int argc, char *argv[])
                 { L_,  -2LL  , 16         , 0      , -2LL        , -2LL     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL    = VALUES[i].d_value;
                 const Int64 CMPVAL = VALUES[i].d_compareValue;
                 const Int64 SWPVAL = VALUES[i].d_swapValue;
@@ -1747,9 +1748,9 @@ int main(int argc, char *argv[])
                 { L_,  (APTestObj*)-2   , (APTestObj*)16     }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 APTestObj *VAL    = VALUES[i].d_value;
                 APTestObj *SWPVAL = VALUES[i].d_swapValue;
                 APTestObj *result = 0;
@@ -1792,9 +1793,9 @@ int main(int argc, char *argv[])
                 { L_, (APTestObj*)-2 , (APTestObj*)16         , (APTestObj*)0,
                       (APTestObj*)-2         , (APTestObj*)-2      }
             };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const APTestObj *VAL    = VALUES[i].d_value;
                 const APTestObj *CMPVAL = VALUES[i].d_compareValue;
                 const APTestObj *SWPVAL = VALUES[i].d_swapValue;
@@ -1833,9 +1834,9 @@ int main(int argc, char *argv[])
                 { L_,   true , true  }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bool VAL    = VALUES[i].d_value;
                 const bool SWPVAL = VALUES[i].d_swapValue;
                 bool       result = 0;
@@ -1876,9 +1877,9 @@ int main(int argc, char *argv[])
             { L_, true , true     , true    , true    , true}
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bool VAL    = VALUES[i].d_value;
                 const bool CMPVAL = VALUES[i].d_compareValue;
                 const bool SWPVAL = VALUES[i].d_swapValue;
@@ -1955,9 +1956,9 @@ int main(int argc, char *argv[])
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 AI x;  const AI& X = x;
@@ -1982,7 +1983,7 @@ int main(int argc, char *argv[])
                << endl
                << "\t-------------------------------------------------"
                << endl;
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 int       result;
 
@@ -2019,9 +2020,9 @@ int main(int argc, char *argv[])
                 { L_,  -2             , -2    , -4         }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int BASE = VALUES[i].d_base;
                 const int AMT  = VALUES[i].d_amount;
                 const int EXP  = VALUES[i].d_expected;
@@ -2048,7 +2049,7 @@ int main(int argc, char *argv[])
 
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int BASE = VALUES[i].d_base;
                 const int AMT  = VALUES[i].d_amount;
                 const int EXP  = VALUES[i].d_expected;
@@ -2088,9 +2089,9 @@ int main(int argc, char *argv[])
                 { L_,  -2LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
 
                 AI64 x;  const AI64& X = x;
@@ -2102,7 +2103,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, VAL == X);
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
                 Int64       result;
 
@@ -2135,9 +2136,9 @@ int main(int argc, char *argv[])
                 { L_,  0x100000000LL, -2LL    , 0xFFFFFFFELL         }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 BASE = VALUES[i].d_base;
                 const Int64 AMT  = VALUES[i].d_amount;
                 const Int64 EXP  = VALUES[i].d_expected;
@@ -2156,7 +2157,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == X);
             }
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 BASE = VALUES[i].d_base;
                 const Int64 AMT  = VALUES[i].d_amount;
                 const Int64 EXP  = VALUES[i].d_expected;
@@ -2232,9 +2233,9 @@ int main(int argc, char *argv[])
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 AI x(VAL);              const AI& X = x;
@@ -2270,9 +2271,9 @@ int main(int argc, char *argv[])
                 { L_,  0x100000000LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
 
                 AI64 x(VAL);                const AI64& X = x;
@@ -2309,9 +2310,9 @@ int main(int argc, char *argv[])
                 { L_,  (APTestObj*)0xffffffff }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 APTestObj* VAL  = VALUES[i].d_value;
 
                 AP x(VAL);              const AP& X = x;
@@ -2346,9 +2347,9 @@ int main(int argc, char *argv[])
                 { L_,   false  }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bool VAL  = VALUES[i].d_value;
 
                 AB x(VAL);              const AB& X = x;
@@ -2426,9 +2427,9 @@ int main(int argc, char *argv[])
                 { L_,  -2   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
 
                 AI x;  const AI& X = x;
@@ -2459,9 +2460,9 @@ int main(int argc, char *argv[])
                 { L_,  0x100000000LL   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const Int64 VAL = VALUES[i].d_value;
 
                 AI64 x;  const AI64& X = x;
@@ -2492,9 +2493,9 @@ int main(int argc, char *argv[])
                 { L_,  (APTestObj*)0xffffffff }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 APTestObj *VAL = VALUES[i].d_value;
 
                 AP x; const AP& X = x;
@@ -2526,9 +2527,9 @@ int main(int argc, char *argv[])
                 { L_,   true   }
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const bool VAL  = VALUES[i].d_value;
 
                 AB x;  const AB& X = x;
