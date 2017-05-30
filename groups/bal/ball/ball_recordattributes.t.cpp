@@ -26,6 +26,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_iostream.h>
@@ -1185,7 +1186,7 @@ int main(int argc, char *argv[])
 
                 const char *p1 = FMT;
                 const char *p2 = buf1;
-                int tj, tk;
+                bsl::size_t tj, tk;
                 for (tj = 0, tk = 0; tj < strlen(FMT); ++tj, ++tk) {
                     if (0 == p2[tk]) {  // Skip '\0' in the middle.
                         ++tk;

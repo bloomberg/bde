@@ -341,10 +341,9 @@ bool isMatch(const char *input, const char *pattern)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -461,7 +460,7 @@ int main(int argc, char *argv[])
         endTime = bsls::SystemTime::nowRealtimeClock();
 
         if (verbose) cout << "\nElapsed time for 'PatternUtil::isMatch': "
-                          << (endTime.totalMicroseconds()
+                          << static_cast<double>(endTime.totalMicroseconds()
                               - startTime.totalMicroseconds()) / 1000000.0
                           << endl;
 
@@ -477,7 +476,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nElapsed time for state-machine-based "
                           << "'isMatch': "
-                          << (endTime.totalMicroseconds()
+                          << static_cast<double>(endTime.totalMicroseconds()
                               - startTime.totalMicroseconds()) / 1000000.0
                           << endl;
 

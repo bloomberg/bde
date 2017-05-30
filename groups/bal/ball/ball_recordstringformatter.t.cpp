@@ -26,9 +26,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bsls_platform.h>
 #include <bsls_types.h>
-
 
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
 
             ossExpected.str(""); ossActual.str("");
 
-            int localTimeOffsetInSeconds =
+            bsls::Types::Int64 localTimeOffsetInSeconds =
                   bdlt::LocalTimeOffset::localTimeOffset(dtUtc).totalSeconds();
             ASSERT(10 * 24 * 60 * 60 != localTimeOffsetInSeconds);
 
@@ -764,8 +764,9 @@ int main(int argc, char *argv[])
             truncatedLocalTime.setMillisecond(0);  // "%i" => no msecs printed
             truncatedLocalTime.setMicrosecond(0);  // "%i" => no usecs printed
 
-            bdlt::DatetimeTz adjustedTimestamp(truncatedLocalTime,
-                                               offset.totalMinutes());
+            bdlt::DatetimeTz adjustedTimestamp(
+                                      truncatedLocalTime,
+                                      static_cast<int>(offset.totalMinutes()));
 
             if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
             ASSERT(0                 == rc);

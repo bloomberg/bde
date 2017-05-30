@@ -452,7 +452,7 @@ int veryVeryVerbose;
   void processData(int                      uuid,
                    int                      luw,
                    int                      terminalNumber,
-                   const bsl::vector<char>& data)
+                   const bsl::vector<char>& /* data */)
       // Process the specified 'data' associated with the specified bloomberg
       // 'uuid', 'luw', and 'terminalNumber'.
   {
@@ -505,7 +505,7 @@ const char *arg2          = 0;
 int         numIterations = 0;
 
 extern "C" {
-void *workerThread24(void *arg)
+void *workerThread24(void *)
 {
     BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
@@ -537,7 +537,7 @@ const char *arg2          = 0;
 int         numIterations = 0;
 
 extern "C" {
-void *workerThread23(void *arg)
+void *workerThread23(void *)
 {
     BALL_LOG_SET_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
@@ -567,7 +567,7 @@ const char *msg           = 0;
 int         numIterations = 0;
 
 extern "C" {
-void *workerThread22(void *arg)
+void *workerThread22(void *)
 {
     BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
@@ -597,7 +597,7 @@ const char *msg           = 0;
 int         numIterations = 0;
 
 extern "C" {
-void *workerThread21(void *arg)
+void *workerThread21(void *)
 {
     BALL_LOG_SET_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
@@ -629,7 +629,7 @@ int randomSizes[NUM_MSGS];
 BloombergLP::bslmt::Mutex categoryMutex;
 
 extern "C" {
-void *workerThread18(void *arg)
+void *workerThread18(void *)
 {
     BALL_LOG_SET_DYNAMIC_CATEGORY("main category");
     for (int i = 0; i < NUM_MSGS; ++i) {
@@ -669,8 +669,8 @@ class my_PublishCountingObserver : public BloombergLP::ball::Observer {
     }
 
     //MANIPULATORS
-    void publish(const BloombergLP::ball::Record&  record,
-                 const BloombergLP::ball::Context& context)
+    void publish(const BloombergLP::ball::Record&,
+                 const BloombergLP::ball::Context&)
     {
         ++d_publishCount;
     }
@@ -699,7 +699,7 @@ int randomSizes[NUM_MSGS];
 BloombergLP::bslmt::Mutex categoryMutex;
 
 extern "C" {
-void *workerThread13(void *arg)
+void *workerThread13(void *)
 {
     categoryMutex.lock();
     BALL_LOG_SET_CATEGORY("main category");
@@ -729,7 +729,7 @@ char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
 BloombergLP::bslmt::Mutex categoryMutex;
 extern "C" {
-void *workerThread12(void *arg)
+void *workerThread12(void *)
 {
     categoryMutex.lock();
     BALL_LOG_SET_CATEGORY("main category");
@@ -759,7 +759,7 @@ char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
 BloombergLP::bslmt::Mutex categoryMutex;
 extern "C" {
-void *workerThread11(void *arg)
+void *workerThread11(void *)
 {
     categoryMutex.lock();
     BALL_LOG_SET_CATEGORY("main category");
@@ -789,7 +789,7 @@ char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
 BloombergLP::bslmt::Mutex categoryMutex;
 extern "C" {
-void *workerThread10(void *arg)
+void *workerThread10(void *)
 {
     categoryMutex.lock();
     BALL_LOG_SET_CATEGORY("main category");
@@ -870,7 +870,7 @@ class my_Observer : public BloombergLP::ball::Observer {
 
     //MANIPULATORS
     void publish(const BloombergLP::ball::Record&  record,
-                 const BloombergLP::ball::Context& context)
+                 const BloombergLP::ball::Context&)
     {
         d_mutex.lock();
         d_publishedMessages.push_back(record.fixedFields().message());
@@ -2094,7 +2094,6 @@ int main(int argc, char *argv[])
             const char   *CAT_NAME    = DATA[i].d_name_p;
             const char   *FILENAME    = DATA[i].d_fileName_p;
             const int     SEVERITY    = DATA[i].d_severity;
-            const int     NUM_BYTES   = DA.numBytesInUse();
 
             const Cat *CATEGORY = CM.addCategory(CAT_NAME,
                                                  RECORD,
@@ -2177,7 +2176,7 @@ int main(int argc, char *argv[])
 #endif
 
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
+            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();  (void)cerrBuf;
             bsl::cerr.rdbuf(os.rdbuf());
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
@@ -2285,7 +2284,7 @@ int main(int argc, char *argv[])
 #endif
 
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
+            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();  (void)cerrBuf;
             bsl::cerr.rdbuf(os.rdbuf());
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");

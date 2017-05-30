@@ -27,6 +27,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_bitset.h>
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -365,7 +366,7 @@ void *case9ThreadW(void *arg)
                    << MTENDL;
         }
 
-        Holder mH; const Holder& H = mH;
+        Holder mH;
         mH.reset();
         void *obj = cm.addCategory(&mH, names[i].c_str(), 12, 34, 56, 78);
 
@@ -411,7 +412,7 @@ void *case9ThreadQ(void *arg)
                    << MTENDL;
         }
 
-        Holder mH; const Holder& H = mH;
+        Holder mH;
         mH.reset();
         void *obj = 0;
         do {
@@ -768,13 +769,13 @@ int main(int argc, char *argv[])
         Obj mX(&ta); const Obj& MX = mX;
 
         const Entry *C = mX.addCategory("C", 255, 255, 255, 255);
-        for (int i = 0; i < holders.size(); ++i) {
+        for (bsl::size_t i = 0; i < holders.size(); ++i) {
             ASSERT(C == mX.lookupCategory(&holders[i], "C"));
             ASSERT(255 == holders[i].threshold());
         }
 
         // Set the threshold levels for the category.
-        for (int i = 0; i < thresholds.size(); ++i) {
+        for (bsl::size_t i = 0; i < thresholds.size(); ++i) {
             ASSERT(0 !=
                    mX.setThresholdLevels("C",
                                          thresholds[i].recordLevel(),
@@ -783,13 +784,13 @@ int main(int argc, char *argv[])
                                          thresholds[i].triggerAllLevel()));
             int catThreshold = Thresholds::maxLevel(thresholds[i]);
 
-            for (int k = 0; k < holders.size(); ++k) {
+            for (bsl::size_t k = 0; k < holders.size(); ++k) {
                 LOOP2_ASSERT(i,k, catThreshold == holders[k].threshold());
             }
 
             // Set a series of rule thresholds for the category.
-            for (int j = 0; j < holders.size(); ++j) {
-                for (int k = 0; k < holders.size(); ++k) {
+            for (bsl::size_t j = 0; j < holders.size(); ++j) {
+                for (bsl::size_t k = 0; k < holders.size(); ++k) {
                     ASSERT(catThreshold == holders[k].threshold());
                 }
 
@@ -802,12 +803,12 @@ int main(int argc, char *argv[])
 
                 int newThreshold = bsl::max(
                             Thresholds::maxLevel(thresholds[j]), catThreshold);
-                for (int k = 0; k < holders.size(); ++k) {
+                for (bsl::size_t k = 0; k < holders.size(); ++k) {
                     ASSERT(newThreshold == holders[k].threshold());
                 }
                 ASSERT(1 == mX.removeRule(rule));
 
-                for (int k = 0; k < holders.size(); ++k) {
+                for (bsl::size_t k = 0; k < holders.size(); ++k) {
                     ASSERT(catThreshold == holders[k].threshold());
                 }
             }
@@ -822,7 +823,7 @@ int main(int argc, char *argv[])
                                VALUES[j]);
                 ASSERT(1 == mX.addRule(rule));
                 currentThreshold = bsl::max(VALUES[j], catThreshold);
-                for (int k = 0; k < holders.size(); ++k) {
+                for (bsl::size_t k = 0; k < holders.size(); ++k) {
                     ASSERT(currentThreshold == holders[k].threshold());
                 }
             }
@@ -861,7 +862,7 @@ int main(int argc, char *argv[])
         TestAllocator da(veryVeryVerbose); const TestAllocator& DA = da;
         TestAllocator ta(veryVeryVerbose); const TestAllocator& TA = ta;
         DefaultAllocGuard guard(&da);
-        int numBytes = TA.numBytesInUse();
+        bsls::Types::Int64 numBytes = TA.numBytesInUse();
 
       BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
         Obj mX(&ta); const Obj& X = mX;
@@ -1190,7 +1191,7 @@ int main(int argc, char *argv[])
                                                         TRIGGER_ALL);
 
             bslma::DefaultAllocatorGuard guard(&testAllocator);
-            const int NUM_BYTES = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
             Holder mX = {
                 Holder::e_DYNAMIC_CATEGORY,

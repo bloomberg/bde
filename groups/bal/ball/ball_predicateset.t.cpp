@@ -1238,18 +1238,20 @@ int main(int argc, char *argv[])
         for (int n = 0; n < NUM_NAMES; ++n) {
             bsl::string spec;
             for (int v = 0; v < n; ++v) {
-                spec += (char)n + 'A';     // add a string predicate
+                spec += static_cast<char>(n + 'A');  // add a string predicate
 
                 // don't use 'I' as the string predicate value
-                spec +=  v >= 'I' - 'A'? (char)v + 'B' : (char)v + 'A' ;
+                spec += v >= 'I' - 'A'
+                      ? static_cast<char>(v + 'B')
+                      : static_cast<char>(v + 'A');
 
-                spec += (char)n + 'A';     // add an int32 predicate
+                spec += static_cast<char>(n + 'A');  // add an int32 predicate
                 spec += 'i';
-                spec += (char)v + '0';
+                spec += static_cast<char>(v + '0');
 
-                spec += (char)n + 'A';     // add an int64 predicate
+                spec += static_cast<char>(n + 'A');  // add an int64 predicate
                 spec += 'I';
-                spec += (char)v + '0';
+                spec += static_cast<char>(v + '0');
             }
 
             Obj mX; const Obj& X = mX;
@@ -1260,7 +1262,9 @@ int main(int argc, char *argv[])
 
             for (int v = 0; v <= '9' - '0'; ++v) {
                 bsl::string sValue;
-                sValue =  v >= 'I' - 'A'? (char)v + 'B' : (char)v + 'A';
+                sValue = v >= 'I' - 'A'
+                       ? static_cast<char>(v + 'B')
+                       : static_cast<char>(v + 'A');
                 LOOP2_ASSERT(n,
                              v,
                              (v < n) == X.isMember(
@@ -1308,18 +1312,20 @@ int main(int argc, char *argv[])
         for (int n = 0; n < NUM_NAMES; ++n) {
             bsl::string spec;
             for (int v = 0; v < n; ++v) {
-                spec += (char)n + 'A';     // add a string predicate
+                spec += static_cast<char>(n + 'A');  // add a string predicate
 
                 // don't use 'I' as the string predicate value
-                spec +=  v >= 'I' - 'A'? (char)v + 'B' : (char)v + 'A' ;
+                spec +=  v >= 'I' - 'A'
+                      ? static_cast<char>(v + 'B')
+                      : static_cast<char>(v + 'A');
 
-                spec += (char)n + 'A';     // add an int32 predicate
+                spec += static_cast<char>(n + 'A');  // add an int32 predicate
                 spec += 'i';
-                spec += (char)v + '0';
+                spec += static_cast<char>(v + '0');
 
-                spec += (char)n + 'A';     // add an int64 predicate
+                spec += static_cast<char>(n + 'A');  // add an int64 predicate
                 spec += 'I';
-                spec += (char)v + '0';
+                spec += static_cast<char>(v + '0');
             }
 
             Obj mX; const Obj& X = mX;
@@ -1330,7 +1336,9 @@ int main(int argc, char *argv[])
 
             for (int v = 0; v <= '9' - '0'; ++v) {
                 bsl::string sValue;
-                sValue =  v >= 'I' - 'A'? (char)v + 'B' : (char)v + 'A';
+                sValue = v >= 'I' - 'A'
+                       ? static_cast<char>(v + 'B')
+                       : static_cast<char>(v + 'A');
                 LOOP2_ASSERT(n,
                              v,
                              (v < n) == X.isMember(
@@ -1355,18 +1363,20 @@ int main(int argc, char *argv[])
         for (int n = 0; n < NUM_NAMES; ++n) {
             bsl::string spec;
             for (int v = 0; v < n; ++v) {
-                spec += (char)n + 'A';     // add a string predicate
+                spec += static_cast<char>(n + 'A');  // add a string predicate
 
                 // don't use 'I' as the string predicate value
-                spec +=  v >= 'I' - 'A'? (char)v + 'B' : (char)v + 'A' ;
+                spec +=  v >= 'I' - 'A'
+                      ? static_cast<char>(v + 'B')
+                      : static_cast<char>(v + 'A');
 
-                spec += (char)n + 'A';     // add an int32 predicate
+                spec += static_cast<char>(n + 'A');  // add an int32 predicate
                 spec += 'i';
-                spec += (char)v + '0';
+                spec += static_cast<char>(v + '0');
 
-                spec += (char)n + 'A';     // add an int64 predicate
+                spec += static_cast<char>(n + 'A');  // add an int64 predicate
                 spec += 'I';
-                spec += (char)v + '0';
+                spec += static_cast<char>(v + '0');
             }
 
             AttributeSet mX; const AttributeSet& X = mX;
@@ -1377,7 +1387,9 @@ int main(int argc, char *argv[])
 
             for (int v = 0; v <= '9' - '0'; ++v) {
                 bsl::string sValue;
-                sValue =  v >= 'I' - 'A'? (char)v + 'B' : (char)v + 'A';
+                sValue =  v >= 'I' - 'A'
+                       ? static_cast<char>(v + 'B')
+                       : static_cast<char>(v + 'A');
                 LOOP2_ASSERT(n,
                              v,
                              (v < n) == X.hasValue(
