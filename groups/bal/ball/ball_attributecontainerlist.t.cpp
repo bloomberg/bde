@@ -343,8 +343,11 @@ class TestPrintContainer : public ball::AttributeContainer {
         // 'c'.
 
     // ACCESSORS
-    virtual bool hasValue(const ball::Attribute&) const { return true; }
+    virtual bool hasValue(const ball::Attribute&) const
         // Return 'true'.
+    {
+        return true;
+    }
 
     virtual bsl::ostream& print(bsl::ostream& stream,
                                 int           level = 0,
