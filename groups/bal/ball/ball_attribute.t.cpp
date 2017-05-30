@@ -20,7 +20,9 @@
 #include <bsls_platform.h>
 
 #include <bslma_default.h>
+
 #include <bslim_printer.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_types.h>
@@ -396,7 +398,7 @@ class MyAttributeValue {
         return d_int32Value;
     }
 
-    int  int64Value() const
+    bsls::Types::Int64 int64Value() const
     {
         return d_int64Value;
     }
@@ -427,6 +429,9 @@ class MyAttributeValue {
                         int           level = 0,
                         int           spacesPerLevel = 4) const
     {
+        (void)level;
+        (void)spacesPerLevel;
+
         switch (d_type) {
           case 0:
             stream << d_int32Value;
@@ -1066,10 +1071,11 @@ int main(int argc, char *argv[])
             int LINE1 = NAMES[i].d_line;
             int LINE2 = VALUES[j].d_line;
 
-            Obj::Value value1 = createValue(VALUES[j].d_type,
-                                            VALUES[j].d_ivalue,
-                                            VALUES[j].d_ivalue,
-                                            VALUES[j].d_svalue);
+            Obj::Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
             Obj v(NAMES[i].d_name, value1);  const Obj& V = v;
 
@@ -1078,10 +1084,11 @@ int main(int argc, char *argv[])
                 int LINE3 = NAMES[k].d_line;
                 int LINE4 = VALUES[l].d_line;
 
-                Obj::Value value2 = createValue(VALUES[l].d_type,
-                                                VALUES[l].d_ivalue,
-                                                VALUES[l].d_ivalue,
-                                                VALUES[l].d_svalue);
+                Obj::Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
 
                 Obj u(NAMES[k].d_name, value2);  const Obj& U = u;
                 if (veryVerbose) {
@@ -1095,7 +1102,7 @@ int main(int argc, char *argv[])
                 Obj mW1(V); const Obj& W1 = mW1;
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == V);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == U == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W1 == U) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W1, 65536) == Obj::hash(V, 65536));
 
@@ -1117,14 +1124,14 @@ int main(int argc, char *argv[])
                              0 == strcmp(W1.name(), U.name()));
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == U);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == V == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W1 == V) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W1, 65536) == Obj::hash(U, 65536));
 
                 Obj mW2(V); const Obj& W2 = mW2;
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == V);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == U == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W2 == U) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W2, 65536) == Obj::hash(V, 65536));
 
@@ -1146,7 +1153,7 @@ int main(int argc, char *argv[])
                              0 == strcmp(W2.name(), U.name()));
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == U);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == V == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W2 == V) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W2, 65536) == Obj::hash(U, 65536));
 
@@ -1183,10 +1190,11 @@ int main(int argc, char *argv[])
             int LINE2 = VALUES[j].d_line;
 
             const char *name = NAMES[i].d_name;
-            Obj::Value value = createValue(VALUES[j].d_type,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_svalue);
+            Obj::Value value = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
             Obj y(name, value); const Obj& Y = y;
 
@@ -1268,10 +1276,11 @@ int main(int argc, char *argv[])
             int LINE1 = NAMES[i].d_line;
             int LINE2 = VALUES[j].d_line;
 
-            Obj::Value value1 = createValue(VALUES[j].d_type,
-                                            VALUES[j].d_ivalue,
-                                            VALUES[j].d_ivalue,
-                                            VALUES[j].d_svalue);
+            Obj::Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
             Obj v(NAMES[i].d_name, value1);  const Obj& V = v;
 
@@ -1280,10 +1289,11 @@ int main(int argc, char *argv[])
                 int LINE3 = NAMES[k].d_line;
                 int LINE4 = VALUES[l].d_line;
 
-                  Obj::Value value2 = createValue(VALUES[l].d_type,
-                                                  VALUES[l].d_ivalue,
-                                                  VALUES[l].d_ivalue,
-                                                  VALUES[l].d_svalue);
+                  Obj::Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
 
                   Obj u(NAMES[k].d_name, value2);  const Obj& U = u;
                   if (veryVerbose) {
@@ -1307,10 +1317,11 @@ int main(int argc, char *argv[])
         for (int j = 0; j < NUM_VALUES; ++j) {
             int LINE1 = NAMES[i].d_line;
             int LINE2 = VALUES[j].d_line;
-            Obj::Value value1 = createValue(VALUES[j].d_type,
-                                            VALUES[j].d_ivalue,
-                                            VALUES[j].d_ivalue,
-                                            VALUES[j].d_svalue);
+            Obj::Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
             Obj u(NAMES[i].d_name, value1);  const Obj& U = u;
             Obj w(U); const Obj& W = w;                         // control
@@ -1355,10 +1366,11 @@ int main(int argc, char *argv[])
             int LINE2 = VALUES[j].d_line;
 
             const char *name = NAMES[i].d_name;
-            Obj::Value value = createValue(VALUES[j].d_type,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_svalue);
+            Obj::Value value = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
             Obj w(name, value); const Obj& W = w;  // control
             Obj x(name, value); const Obj& X = x;
@@ -1406,10 +1418,11 @@ int main(int argc, char *argv[])
                 int LINE1 = NAMES[i].d_line;
                 int LINE2 = VALUES[j].d_line;
 
-                Obj::Value value1 = createValue(VALUES[j].d_type,
-                                                VALUES[j].d_ivalue,
-                                                VALUES[j].d_ivalue,
-                                                VALUES[j].d_svalue);
+                Obj::Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
                 Obj mX(NAMES[i].d_name, value1);  const Obj& X = mX;
 
@@ -1418,10 +1431,11 @@ int main(int argc, char *argv[])
                     int LINE3 = NAMES[k].d_line;
                     int LINE4 = VALUES[l].d_line;
 
-                    Obj::Value value2 = createValue(VALUES[l].d_type,
-                                                    VALUES[l].d_ivalue,
-                                                    VALUES[l].d_ivalue,
-                                                    VALUES[l].d_svalue);
+                    Obj::Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
 
                     Obj mY(NAMES[k].d_name, value2);  const Obj& Y = mY;
                     if (veryVerbose) {
@@ -1450,10 +1464,11 @@ int main(int argc, char *argv[])
                 int LINE1 = NAMES[i].d_line;
                 int LINE2 = VALUES[j].d_line;
 
-                Obj::Value value1 = createValue(VALUES[j].d_type,
-                                                VALUES[j].d_ivalue,
-                                                VALUES[j].d_ivalue,
-                                                VALUES[j].d_svalue);
+                Obj::Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
                 Obj mX(NAMES[i].d_name, value1);  const Obj& X = mX;
 
@@ -1597,10 +1612,11 @@ int main(int argc, char *argv[])
             int LINE1 = NAMES[i].d_line;
             int LINE2 = VALUES[j].d_line;
 
-            Obj::Value value = createValue(VALUES[j].d_type,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_svalue);
+            Obj::Value value = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
             Obj mX(NAMES[i].d_name, value);  const Obj& X = mX;
             if (veryVerbose) {
@@ -1641,10 +1657,11 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             int LINE = VALUES[i].d_line;
 
-            Obj::Value value = createValue(VALUES[i].d_type,
-                                           VALUES[i].d_ivalue,
-                                           VALUES[i].d_ivalue,
-                                           VALUES[i].d_svalue);
+            Obj::Value value = createValue(
+                                          VALUES[i].d_type,
+                                          static_cast<int>(VALUES[i].d_ivalue),
+                                          VALUES[i].d_ivalue,
+                                          VALUES[i].d_svalue);
 
             if (veryVerbose) { cout << "\t"; P(value); }
 

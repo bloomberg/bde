@@ -37489,6 +37489,9 @@ const bdlat_AttributeInfo *HexBinarySequence::lookupAttributeInfo(
                                                         const char *name,
                                                         int         nameLength)
 {
+    if (nameLength < 8) {
+        return 0;                                                     // RETURN
+    }
     if (name[0]=='e'
      && name[1]=='l'
      && name[2]=='e'
@@ -37601,11 +37604,10 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
+    int         test = argc > 1 ? atoi(argv[1]) : 0;
+    bool     verbose = argc > 2;
     bool veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.

@@ -118,6 +118,8 @@ int main(int argc, char *argv[])
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
+    (void)veryVerbose;
+    
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator(veryVeryVerbose);

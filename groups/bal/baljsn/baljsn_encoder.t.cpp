@@ -46,6 +46,7 @@
 #include <bslmf_assert.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
@@ -30283,10 +30284,13 @@ void testNumber()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
+
+    (void)veryVerbose;
+    
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -31415,7 +31419,7 @@ int main(int argc, char *argv[])
                 const bsl::string EXP    = DATA[ti].d_result_p;
 
                 bsl::vector<int> value;
-                for (int i = 0; i < INPUT.size(); ++i) {
+                for (bsl::size_t i = 0; i < INPUT.size(); ++i) {
                     value.push_back(INPUT[i] - '0');
                 }
 

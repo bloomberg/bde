@@ -16,6 +16,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
@@ -597,6 +599,8 @@ void readDepth(Obj& reader, int currentDepth, int depth) {
     // information.
 
     int rc = advancePastWhiteSpace(reader);
+    (void)rc;
+
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     checkNodeName(reader, "Depth", currentDepth % 10);
 
@@ -655,6 +659,8 @@ void readNodes(Obj& reader,
     }
 
     int rc = advancePastWhiteSpace(reader);
+    (void)rc;
+
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     checkNodeName(reader, "Node", currentNode % 10);
 
@@ -704,6 +710,8 @@ void readNodes(Obj& reader,
 void readHeader(Obj& reader)
 {
     int rc = advancePastWhiteSpace(reader);
+    (void)rc;
+
     //TBD: Mini Reader needs to be fix to pass back the correct encoding.
     //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
     ASSERT( reader.nodeType() ==
@@ -2124,8 +2132,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\tPassing in an allocator." << bsl::endl;
         if (verbose) bsl::cout << "\t\tWith no exceptions." << bsl::endl;
         {
-          const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-          const int NUM_BYTES  = testAllocator.numBytesInUse();
+          const bsls::Types::Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+          const bsls::Types::Int64 NUM_BYTES  = testAllocator.numBytesInUse();
           {
             Obj mX(&testAllocator);
 
@@ -2138,8 +2146,8 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\t\tWith exceptions." << bsl::endl;
         {
-          const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-          const int NUM_BYTES  = testAllocator.numBytesInUse();
+          const bsls::Types::Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+          const bsls::Types::Int64 NUM_BYTES  = testAllocator.numBytesInUse();
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(&testAllocator);
 
@@ -2157,8 +2165,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\tPassing in an allocator." << bsl::endl;
         if (verbose) bsl::cout << "\t\tWith no exceptions." << bsl::endl;
         {
-          const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-          const int NUM_BYTES  = testAllocator.numBytesInUse();
+          const bsls::Types::Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+          const bsls::Types::Int64 NUM_BYTES  = testAllocator.numBytesInUse();
           {
             Obj mX(1024, &testAllocator);
 
@@ -2179,8 +2187,8 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\t\tWith exceptions." << bsl::endl;
         {
-          const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-          const int NUM_BYTES  = testAllocator.numBytesInUse();
+          const bsls::Types::Int64 NUM_BLOCKS = testAllocator.numBlocksInUse();
+          const bsls::Types::Int64 NUM_BYTES  = testAllocator.numBytesInUse();
           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(1024, &testAllocator);
 

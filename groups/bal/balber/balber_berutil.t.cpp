@@ -129,7 +129,7 @@ int getIntValue(char c)
     if (c >= '0' && c <= '9') {
         return c - '0';                                               // RETURN
     }
-    c = toupper(c);
+    c = static_cast<char>(toupper(c));
     if (c >= 'A' && c <= 'F') {
         return c - 'A' + 10;                                          // RETURN
     }
@@ -146,9 +146,9 @@ int compareBuffers(const char *stream, const char *buffer)
             ++buffer;
             continue;
         }
-        char temp = (char) getIntValue(*buffer) << 4;
+        char temp = static_cast<char>(getIntValue(*buffer) << 4);
         ++buffer;
-        temp |= (char) getIntValue(*buffer);
+        temp = static_cast<char>(temp | getIntValue(*buffer));
         if (*stream != temp) {
            return -1;                                                 // RETURN
         }
@@ -336,7 +336,6 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int                LINE  = DATA[i].d_lineNum;
             const bdldfp::Decimal64  VALUE = DATA[i]. d_value;
             const char              *EXP   = DATA[i].d_exp;
             const int                LEN   = numOctets(EXP);
@@ -350,8 +349,11 @@ int main(int argc, char *argv[])
                 printBuffer(osb.data(), osb.length());
             }
 
-            LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
-            LOOP2_ASSERT(osb.data(), EXP,
+            LOOP2_ASSERT(LEN,
+                         osb.length(),
+                         LEN == static_cast<int>(osb.length()));
+            LOOP2_ASSERT(osb.data(),
+                         EXP,
                          0 == compareBuffers(osb.data(), EXP));
             {
                 bdldfp::Decimal64 value;
@@ -5859,7 +5861,7 @@ int main(int argc, char *argv[])
                     const unsigned char  C    = (unsigned char)DATA[i].d_value;
                     const int            LEN  = DATA[i].d_length;
                     const char          *EXP  = DATA[i].d_exp;
-                          unsigned char  c;
+                          unsigned char  c    = 0;
 
                     if (veryVerbose) { P_(i) P_(C) P_(LEN) P(EXP) }
 
@@ -6108,7 +6110,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { P_(i) P_(C) P_(LEN) P(EXP) }
 
-                    char     c;
+                    char     c = 0;
 
                     bdlsb::MemOutStreamBuf osb;
                     LOOP_ASSERT(LINE, SUCCESS ==
@@ -6405,7 +6407,7 @@ int main(int argc, char *argv[])
                 const int          LEN  = numOctets(EXP);
 
                 char          c;
-                signed char  sc;
+                signed char  sc = 0;
 
                 if (veryVerbose) { cout << "\nTesting char values" << endl; }
                 {
@@ -6570,7 +6572,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < maxIter; ++i) {
             osb.pubseekpos(0);           // avoid creating streambuf every time
             isb.pubseekpos(0);           // avoid creating streambuf every time
-            const char C = '0' + i % 64;
+            const char C = static_cast<char>('0' + i % 64);
             Util::putValue(&osb, C);
 
             int   numBytesConsumed = 0;

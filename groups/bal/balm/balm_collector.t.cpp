@@ -226,10 +226,8 @@ void ConcurrencyTest::runTest()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -245,9 +243,6 @@ int main(int argc, char *argv[])
 
     Id metric_A(DESC_A); const Id& METRIC_A = metric_A;
     Id metric_B(DESC_B); const Id& METRIC_B = metric_B;
-    Id metric_C(DESC_C); const Id& METRIC_C = metric_C;
-    Id metric_D(DESC_D); const Id& METRIC_D = metric_D;
-    Id metric_E(DESC_E); const Id& METRIC_E = metric_E;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {

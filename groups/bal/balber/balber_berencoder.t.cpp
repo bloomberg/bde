@@ -128,7 +128,7 @@ int getIntValue(char c)
     if (c >= '0' && c <= '9') {
         return c - '0';                                               // RETURN
     }
-    c = toupper(c);
+    c = static_cast<char>(toupper(c));
     if (c >= 'A' && c <= 'F') {
         return c - 'A' + 10;                                          // RETURN
     }
@@ -145,9 +145,9 @@ int compareBuffers(const char *stream, const char *buffer)
             ++buffer;
             continue;
         }
-        char temp = (char) getIntValue(*buffer) << 4;
+        char temp = static_cast<char>(getIntValue(*buffer) << 4);
         ++buffer;
-        temp |= (char) getIntValue(*buffer);
+        temp = static_cast<char>(temp | getIntValue(*buffer));
         if (*stream != temp) {
            return -1;                                                 // RETURN
         }
@@ -9305,7 +9305,7 @@ static void usageExample()
     ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
     ASSERT(2                                        == tagNumber);
 
-    int age;
+    int age = 0;
     rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
     ASSERT(0  == rc);
     ASSERT(56 == age);
@@ -9320,7 +9320,7 @@ static void usageExample()
     ASSERT(balber::BerConstants::e_PRIMITIVE        == tagType);
     ASSERT(3                                        == tagNumber);
 
-    float salary;
+    float salary = 0.0;
     rc = balber::BerUtil::getValue(&isb, &salary, &accumNumBytesConsumed);
     ASSERT(0       == rc);
     ASSERT(1234.00 == salary);
@@ -11811,9 +11811,9 @@ int main(int argc, char *argv[])
             const bsl::string     XP1("This is a really long line");
                   bsl::string     XP2;
 
-            const float        XQ1 = 99.234;
-            const float        XR1 = -100.987;
-            const float        XS1 = -77723.875;
+            const float        XQ1 = 99.234f;
+            const float        XR1 = -100.987f;
+            const float        XS1 = -77723.875f;
 
             const double       XT1 = 19998989.1234;
             const double       XU1 = 100;
@@ -11877,6 +11877,17 @@ int main(int argc, char *argv[])
                 bdlsb::MemOutStreamBuf osb;
 
                 ASSERT(0 == encoder.encode(&osb, XF1));
+                printDiagnostic(encoder);
+
+                if (veryVerbose) {
+                      P(osb.length())
+                      printBuffer(osb.data(), osb.length());
+                }
+            }
+            {
+                bdlsb::MemOutStreamBuf osb;
+
+                ASSERT(0 == encoder.encode(&osb, XG1));
                 printDiagnostic(encoder);
 
                 if (veryVerbose) {

@@ -161,10 +161,9 @@ static int veryVeryVerbose = 0;
         balxml::PrefixStack prefixes(&registry);
         int cal = prefixes.pushPrefix("cal",
                                   "http://www.bloomberg.com/schemas/calendar");
-        int math = prefixes.pushPrefix("math",
-                                      "http://www.bloomberg.com/schemas/math");
-        int app = prefixes.pushPrefix("",  // Default namespace
-                                      "http://www.bloomberg.com/schemas/app");
+        prefixes.pushPrefix("math", "http://www.bloomberg.com/schemas/math");
+        prefixes.pushPrefix("",  // Default namespace
+                            "http://www.bloomberg.com/schemas/app");
 //..
 // Now we can parse an attribute string and the 'balxml::ElementAttribute'
 // object will provide detailed information about it.
@@ -172,7 +171,7 @@ static int veryVeryVerbose = 0;
         char attrStr1[] = "cal:date='12-07-2006'";
         balxml::ElementAttribute attribute1;
         ASSERT(attribute1.isNull());
-        int ret = parseAttribute(&attribute1, attrStr1, &prefixes);
+        parseAttribute(&attribute1, attrStr1, &prefixes);
 
         ASSERT(! attribute1.isNull());
         ASSERT(0 == bsl::strcmp("cal:date", attribute1.qualifiedName()));
@@ -189,7 +188,7 @@ static int veryVeryVerbose = 0;
         char attrStr2[] = "name=\"Bloomberg, L.P.\"";
         balxml::ElementAttribute attribute2;
         ASSERT(attribute2.isNull());
-        ret = parseAttribute(&attribute2, attrStr2, &prefixes);
+        parseAttribute(&attribute2, attrStr2, &prefixes);
 
         ASSERT(! attribute2.isNull());
         ASSERT(0 == bsl::strcmp("name", attribute2.qualifiedName()));

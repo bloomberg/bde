@@ -14,6 +14,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>  // for bsl::strcpy
 #include <bsl_iostream.h>
@@ -377,7 +379,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp("http://bloomberg.com/schemas/bdem", s));
 
             // Copy construct and compare for equality
-            const int aAllocs = ta.numBlocksTotal();
+            const bsls::Types::Int64 aAllocs = ta.numBlocksTotal();
             Obj y(x, &tb); const Obj& Y = y;
             ASSERT(aAllocs == ta.numBlocksTotal());
             ASSERT(0 == da.numBlocksInUse());

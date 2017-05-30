@@ -125,42 +125,53 @@ static const char *XmlValue = "version='1.0' encoding='UTF-8'";
 static const TestNode fakeDocument[] = {
     // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
     // 'TestReader' to traverse and describe the user directory XML above.
-    { Obj::e_NODE_TYPE_NONE },
+    { Obj::e_NODE_TYPE_NONE,
+      0                , 0             ,  0,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_XML_DECLARATION,
-      "xml"          , XmlValue      , +1   },
+      "xml"            , XmlValue      , +1,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_ELEMENT,
-      "directory-entry" , 0             ,  0,
+      "directory-entry" , 0            ,  0,
       false, { "xmlns:dir"    , "http://bloomberg.com/schemas/directory" } },
 
     { Obj::e_NODE_TYPE_ELEMENT,
-      "name"           , 0             , +1,  },
+      "name"           , 0             , +1,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_TEXT,
-      0                , "John Smith"  , +1   },
+      0                , "John Smith"  , +1,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_END_ELEMENT,
-      "name"           , 0             , -1   },
+      "name"           , 0             , -1,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_ELEMENT,
       "phone"          , 0             ,  0,
       false, { "dir:phonetype", "cell"                                   } },
 
     { Obj::e_NODE_TYPE_TEXT,
-      0                , "212-318-2000", +1   },
+      0                , "212-318-2000", +1,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_END_ELEMENT,
-      "phone"          , 0             , -1   },
+      "phone"          , 0             , -1,
+      false, {}                                                            },
 
     { Obj::e_NODE_TYPE_ELEMENT,
-       "address"        , 0             ,  0,
-       true                                                                 },
+      "address"       , 0             ,  0,
+      true,  {}                                                            },
 
     { Obj::e_NODE_TYPE_END_ELEMENT,
-      "directory-entry", 0             , -1   },
+      "directory-entry", 0             , -1,
+      false, {}                                                            },
 
-    { Obj::e_NODE_TYPE_NONE }
+    { Obj::e_NODE_TYPE_NONE,
+      0                , 0             ,  0,
+      false, {}                                                            },
 };
 
 // Start of usage example, extract to the 'balxml::Reader' header file.
@@ -534,7 +545,7 @@ void TestReader::setPrefixStack(balxml::PrefixStack *prefixes) {
 }
 
 // MANIPULATORS - OPEN/CLOSE AND NAVIGATION METHODS
-int TestReader::open(const char *filename, const char *encoding)
+int TestReader::open(const char * /* filename */, const char *encoding)
 {
     if (d_isOpen) {
         return false;                                                 // RETURN
@@ -548,9 +559,9 @@ int TestReader::open(const char *filename, const char *encoding)
     return 0;
 }
 
-int TestReader::open(const char *buffer,
-                     size_t      size,
-                     const char *url,
+int TestReader::open(const char * /* buffer */,
+                     size_t       /* size */,
+                     const char * /* url */,
                      const char *encoding) {
     if (d_isOpen) {
         return false;                                                 // RETURN
@@ -564,8 +575,8 @@ int TestReader::open(const char *buffer,
     return 0;
 }
 
-int TestReader::open(bsl::streambuf *stream,
-                     const char     *url,
+int TestReader::open(bsl::streambuf * /* stream */,
+                     const char     * /* url */,
                      const char     *encoding) {
     if (d_isOpen) {
         return false;                                                 // RETURN
@@ -714,7 +725,7 @@ int TestReader::lookupAttribute(balxml::ElementAttribute *attribute,
     return 1;
 }
 
-void TestReader::setOptions(unsigned int flags) { }
+void TestReader::setOptions(unsigned int /* flags */) { }
 
 // ACCESSORS
 const char *TestReader::documentEncoding() const {
@@ -844,10 +855,9 @@ unsigned int TestReader::options() const {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 

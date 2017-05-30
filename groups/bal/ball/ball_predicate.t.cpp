@@ -491,7 +491,7 @@ int main(int argc, char *argv[])
             int LINE2 = VALUES[j].d_line;
 
             Value value1 = createValue(VALUES[j].d_type,
-                                       VALUES[j].d_ivalue,
+                                       static_cast<int>(VALUES[j].d_ivalue),
                                        VALUES[j].d_ivalue,
                                        VALUES[j].d_svalue);
 
@@ -502,10 +502,11 @@ int main(int argc, char *argv[])
                 int LINE3 = NAMES[k].d_line;
                 int LINE4 = VALUES[l].d_line;
 
-                Value value2 = createValue(VALUES[l].d_type,
-                                           VALUES[l].d_ivalue,
-                                           VALUES[l].d_ivalue,
-                                           VALUES[l].d_svalue);
+                Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
 
                 Obj u(NAMES[k].d_name, value2);  const Obj& U = u;
                 if (veryVerbose) {
@@ -519,7 +520,7 @@ int main(int argc, char *argv[])
                 Obj mW1(V); const Obj& W1 = mW1;
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == V);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == U == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W1 == U) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W1, 65536) == Obj::hash(V, 65536));
 
@@ -541,14 +542,14 @@ int main(int argc, char *argv[])
                              0 == strcmp(W1.name(), U.name()));
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == U);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == V == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W1 == V) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W1, 65536) == Obj::hash(U, 65536));
 
                 Obj mW2(V); const Obj& W2 = mW2;
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == V);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == U == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W2 == U) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W2, 65536) == Obj::hash(V, 65536));
 
@@ -570,7 +571,7 @@ int main(int argc, char *argv[])
                              0 == strcmp(W2.name(), U.name()));
 
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == U);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == V == isSame);
+                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W2 == V) == isSame);
                 LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
                              Obj::hash(W2, 65536) == Obj::hash(U, 65536));
 
@@ -608,7 +609,7 @@ int main(int argc, char *argv[])
 
             const char *name = NAMES[i].d_name;
             Value value = createValue(VALUES[j].d_type,
-                                      VALUES[j].d_ivalue,
+                                      static_cast<int>(VALUES[j].d_ivalue),
                                       VALUES[j].d_ivalue,
                                       VALUES[j].d_svalue);
 
@@ -684,7 +685,7 @@ int main(int argc, char *argv[])
             int LINE2 = VALUES[j].d_line;
 
             Value value1 = createValue(VALUES[j].d_type,
-                                       VALUES[j].d_ivalue,
+                                       static_cast<int>(VALUES[j].d_ivalue),
                                        VALUES[j].d_ivalue,
                                        VALUES[j].d_svalue);
 
@@ -695,10 +696,11 @@ int main(int argc, char *argv[])
                 int LINE3 = NAMES[k].d_line;
                 int LINE4 = VALUES[l].d_line;
 
-                  Value value2 = createValue(VALUES[l].d_type,
-                                             VALUES[l].d_ivalue,
-                                             VALUES[l].d_ivalue,
-                                             VALUES[l].d_svalue);
+                  Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
 
                   Obj u(NAMES[k].d_name, value2);  const Obj& U = u;
                   if (veryVerbose) {
@@ -723,7 +725,7 @@ int main(int argc, char *argv[])
             int LINE1 = NAMES[i].d_line;
             int LINE2 = VALUES[j].d_line;
             Value value1 = createValue(VALUES[j].d_type,
-                                       VALUES[j].d_ivalue,
+                                       static_cast<int>(VALUES[j].d_ivalue),
                                        VALUES[j].d_ivalue,
                                        VALUES[j].d_svalue);
 
@@ -771,7 +773,7 @@ int main(int argc, char *argv[])
 
             const char *name = NAMES[i].d_name;
             Value value = createValue(VALUES[j].d_type,
-                                      VALUES[j].d_ivalue,
+                                      static_cast<int>(VALUES[j].d_ivalue),
                                       VALUES[j].d_ivalue,
                                       VALUES[j].d_svalue);
 
@@ -820,10 +822,11 @@ int main(int argc, char *argv[])
                 int LINE1 = NAMES[i].d_line;
                 int LINE2 = VALUES[j].d_line;
 
-                Value value1 = createValue(VALUES[j].d_type,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_svalue);
+                Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
                 Obj mX(NAMES[i].d_name, value1);  const Obj& X = mX;
 
@@ -832,10 +835,11 @@ int main(int argc, char *argv[])
                     int LINE3 = NAMES[k].d_line;
                     int LINE4 = VALUES[l].d_line;
 
-                    Value value2 = createValue(VALUES[l].d_type,
-                                               VALUES[l].d_ivalue,
-                                               VALUES[l].d_ivalue,
-                                               VALUES[l].d_svalue);
+                    Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
 
                     Obj mY(NAMES[k].d_name, value2);  const Obj& Y = mY;
                     if (veryVerbose) {
@@ -864,10 +868,11 @@ int main(int argc, char *argv[])
                 int LINE1 = NAMES[i].d_line;
                 int LINE2 = VALUES[j].d_line;
 
-                Value value1 = createValue(VALUES[j].d_type,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_ivalue,
-                                           VALUES[j].d_svalue);
+                Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
 
                 Obj mX(NAMES[i].d_name, value1);  const Obj& X = mX;
 
@@ -1008,7 +1013,7 @@ int main(int argc, char *argv[])
             int LINE2 = VALUES[j].d_line;
 
             Value value = createValue(VALUES[j].d_type,
-                                      VALUES[j].d_ivalue,
+                                      static_cast<int>(VALUES[j].d_ivalue),
                                       VALUES[j].d_ivalue,
                                       VALUES[j].d_svalue);
 
@@ -1051,7 +1056,7 @@ int main(int argc, char *argv[])
             int LINE = VALUES[i].d_line;
 
             Value value = createValue(VALUES[i].d_type,
-                                      VALUES[i].d_ivalue,
+                                      static_cast<int>(VALUES[i].d_ivalue),
                                       VALUES[i].d_ivalue,
                                       VALUES[i].d_svalue);
 

@@ -16,6 +16,7 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 
+#include <bsl_cstddef.h>
 #include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
@@ -192,8 +193,8 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
         int SZ1 = 3;
         int SZ2 = 8;
-        int EFF_SZ1 = effectiveSize(SZ1);
-        int EFF_SZ2 = effectiveSize(SZ2);
+        bsl::size_t EFF_SZ1 = effectiveSize(SZ1);
+        bsl::size_t EFF_SZ2 = effectiveSize(SZ2);
         if (verbose) {
             P(SZ1);
             P(SZ2);

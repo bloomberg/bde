@@ -348,10 +348,9 @@ void MetricConcurrencyTest::runTest()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -597,7 +596,7 @@ int main(int argc, char *argv[])
                                repository.getDefaultCollector(IDS[i], IDS[i]);
                 balm::Collector  expValue(col->metricId());
 
-                balm::Metric  mX(col); const balm::Metric& MX = mX;
+                balm::Metric mX(col);
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
                     mX.accumulateCountTotalMinMax(VALUES[j].d_count,
@@ -697,7 +696,7 @@ int main(int argc, char *argv[])
                                repository.getDefaultCollector(IDS[i], IDS[i]);
                 balm::Collector  expValue(col->metricId());
 
-                balm::Metric  mX(col); const balm::Metric& MX = mX;
+                balm::Metric mX(col);
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
                     mX.update(UPDATES[j]);
@@ -779,7 +778,7 @@ int main(int argc, char *argv[])
                                repository.getDefaultCollector(IDS[i], IDS[i]);
                 balm::Collector  expValue(col->metricId());
 
-                balm::Metric  mX(col); const balm::Metric& MX = mX;
+                balm::Metric mX(col);
                 for (int j = 0; j < 10; ++j) {
                     ASSERT(recordVal(&expValue) == recordVal(col));
                     mX.increment();
