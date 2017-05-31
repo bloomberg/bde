@@ -30,6 +30,9 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_threadutil.h>
 
@@ -423,10 +426,21 @@ class LogRotationCallbackTester {
 
     // PRIVATE TYPES
     struct Rep {
+      private:
+        // NOT IMPLEMENTED
+        Rep(const Rep&);
+        Rep& operator=(const Rep&);
+
+      public:
+        // DATA
         int         d_invocations;
         int         d_status;
         bsl::string d_rotatedFileName;
 
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(Rep, bslma::UsesBslmaAllocator);
+
+        // CREATORS
         explicit Rep(bslma::Allocator *basicAllocator)
             // Create an object with default attribute values.  Use the
             // specified 'basicAllocator' to supply memory.
@@ -435,35 +449,28 @@ class LogRotationCallbackTester {
         , d_rotatedFileName(basicAllocator)
         {
         }
+    };
 
-      private:
-        // NOT IMPLEMENTED
-        Rep(const Rep&);
-        Rep& operator=(const Rep&);
+    enum {
+        k_UNINITIALIZED = INT_MIN
     };
 
     // DATA
     bsl::shared_ptr<Rep> d_rep;
 
   public:
-    // PUBLIC CONSTANTS
-    enum {
-        k_UNINITIALIZED = INT_MIN
-    };
 
     // CREATORS
     explicit LogRotationCallbackTester(bslma::Allocator *basicAllocator)
         // Create a callback tester object with default attribute values.  Use
         // the specified 'basicAllocator' to supply memory.
-    : d_rep()
     {
         d_rep.createInplace(basicAllocator, basicAllocator);
         reset();
     }
 
     // MANIPULATORS
-    void operator()(int                status,
-                    const bsl::string& rotatedFileName)
+    void operator()(int status, const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
         // supplied at construction to the specified 'rotateFileName'.
@@ -478,7 +485,7 @@ class LogRotationCallbackTester {
     {
         d_rep->d_invocations     = 0;
         d_rep->d_status          = k_UNINITIALIZED;
-        d_rep->d_rotatedFileName = "";
+        d_rep->d_rotatedFileName.clear();
     }
 
     // ACCESSORS
@@ -1958,7 +1965,7 @@ int main(int argc, char *argv[])
             cout << "\tTest a rotation that fails with a callback." << endl;
         {
             bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-            bslma::TestAllocator         ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
             Obj mX(&ta); const Obj& X = mX;
