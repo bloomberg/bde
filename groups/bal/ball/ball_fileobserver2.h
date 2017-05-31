@@ -87,9 +87,9 @@ BSLS_IDENT("$Id: $")
 //..
 // The above statement will cause subsequent records to be logged in a format
 // that is almost identical to the default format except that the timestamp
-// attribute will be written in ISO 8601 format.  (See the component-level
-// documentation of 'ball_recordstringformatter' for information on how format
-// specifications are defined and interpreted.)
+// attribute will be written in ISO 8601 format.  (See
+// {'ball_recordstringformatter'} for information on how format specifications
+// are defined and interpreted.)
 //
 ///Log Record Timestamps
 ///---------------------
@@ -543,10 +543,9 @@ class FileObserver2 : public Observer {
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
         // the current log file, rename the log file if necessary, and open a
-        // new log file.  See the "Rotated File Naming" section under
-        // @DESCRIPTION in the component-level documentation for details on
-        // filenames of the rotated log files.  This method has no effect if
-        // file logging is not enabled.
+        // new log file.  See {Rotated File Naming} for details on filenames of
+        // the rotated log files.  This method has no effect if file logging is
+        // not enabled.
 
     void rotateOnSize(int size);
         // Set this file observer to perform log file rotation when the size of
@@ -556,9 +555,9 @@ class FileObserver2 : public Observer {
 
     void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
         // Set this file observer to perform a periodic log-file rotation at
-        // multiples of the specified 'timeInterval'.  The behavior is
-        // undefined unless '0 < timeInterval.totalMilliseconds()'.  This rule
-        // replaces any rotation-on-time-interval rule currently in effect.
+        // multiples of the specified 'timeInterval'.  This rule replaces any
+        // rotation-on-time-interval rule currently in effect.  The behavior is
+        // undefined unless '0 < timeInterval.totalMilliseconds()'.
         //
         // !DEPRECATED!: Use 'rotateOnTimeInterval' instead.
 
@@ -571,11 +570,11 @@ class FileObserver2 : public Observer {
         // point for computing the periodic rotation schedule.  'startTime' is
         // interpreted using the local-time offset at the time this object was
         // constructed.  If 'startTime' is unspecified, the current time is
-        // used.  The behavior is undefined unless
-        // '0 < interval.totalMilliseconds()'.  This rule replaces any
-        // rotation-on-time-interval rule currently in effect.  Note that
-        // 'startTime' may be a fixed time in the past.  E.g., a reference time
-        // of 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
+        // used.  This rule replaces any rotation-on-time-interval rule
+        // currently in effect.  The behavior is undefined unless
+        // '0 < interval.totalMilliseconds()'.  Note that 'startTime' may be a
+        // fixed time in the past.  E.g., a reference time of
+        // 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
         // configure a periodic rotation at midnight each day.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);

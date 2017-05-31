@@ -436,7 +436,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     if (0 != d_logStreamBuf.clear()) {
         fprintf(stderr, "%s Unable to close old log file: %s\n",
                 warnMsgPrefix, d_logFileName.c_str());
-        returnStatus = k_ROTATE_RENAME_ERROR;                         // RETURN
+        returnStatus = k_ROTATE_RENAME_ERROR;
     }
 
     *rotatedLogFileName = d_logFileName;
@@ -535,7 +535,9 @@ FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationInterval(0)
-, d_onRotationCb()
+, d_onRotationCb(bsl::allocator_arg_t(),
+                 bsl::allocator<FileObserver2::OnFileRotationCallback>(
+                                                               basicAllocator))
 , d_rotationCbMutex()
 {
 }

@@ -35,6 +35,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bslmt_condition.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>

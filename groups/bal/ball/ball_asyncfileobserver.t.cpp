@@ -1892,13 +1892,14 @@ int main(int argc, char *argv[])
 
                 ball::LoggerManagerScopedGuard guard(configuration);
 
-                ball::LoggerManager& manager = ball::LoggerManager::singleton();
+                ball::LoggerManager& manager =
+                                              ball::LoggerManager::singleton();
 
                 ASSERT(0 == manager.registerObserver(mX, "asyncObserver"));
 
                 BALL_LOG_SET_CATEGORY("TestCategory");
 
-                // Throw fair large amount of logs into the queue.
+                // Throw a fairly large amount of logs into the queue.
 
                 for (int i = 0; i < logCount; ++i)
                 {
@@ -2312,7 +2313,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "Begin file offset: " << beginFileOffset << endl;
 
-            // Throw fair large amount of logs into the queue.
+            // Throw a fairly large amount of logs into the queue.
 
             int logCount = 8000;
             for (int i = 0; i < logCount; ++i)

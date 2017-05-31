@@ -647,8 +647,7 @@ class AsyncFileObserver : public Observer {
     void forceRotation();
         // Forcefully perform a log file rotation by this async file observer.
         // Close the current log file, rename the log file if necessary, and
-        // open a new log file.  See the "Rotated File Naming" section under
-        // @DESCRIPTION in the component-level documentation for details on
+        // open a new log file.  See {Rotated File Naming} for details on
         // filenames of the rotated log files.  This method has no effect if
         // file logging is not enabled.
 
@@ -676,28 +675,27 @@ class AsyncFileObserver : public Observer {
         // The behavior is undefined unless 'size > 0'.
 
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
-    void rotateOnTimeInterval(
-                             const bdlt::DatetimeInterval& interval,
-                             const bdlt::Datetime&         referenceStartTime);
+    void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval,
+                              const bdlt::Datetime&         startTime);
         // Set this async file observer to perform a periodic log-file rotation
         // at multiples of the specified 'interval'.  Optionally, specify
-        // 'referenceStartTime' indicating the *local* datetime to use as the
-        // starting point for computing the periodic rotation schedule.
-        // 'referenceStartTime' is interpreted using the local-time offset at
-        // the time this object was constructed.  If 'referenceStartTime' is
-        // unspecified, the current time is used.  The behavior is undefined
-        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
+        // 'startTime' indicating the *local* datetime to use as the starting
+        // point for computing the periodic rotation schedule.  'startTime' is
+        // interpreted using the local-time offset at the time this object was
+        // constructed.  If 'startTime' is unspecified, the current time is
+        // used.  The behavior is undefined unless
+        // '0 < interval.totalMilliseconds()'.  This rule replaces any
         // rotation-on-time-interval rule currently in effect.  Note that
-        // 'referenceStartTime' may be a fixed time in the past.  E.g., a
-        // reference time of 'bdlt::Datetime(1, 1, 1)' and an interval of 24
-        // hours would configure a periodic rotation at midnight each day.
+        // 'startTime' may be a fixed time in the past.  E.g., a reference time
+        // of 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
+        // configure a periodic rotation at midnight each day.
 
     void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
         // Set the format of log records written to the log file and to
         // 'stdout' to the specified 'logFileFormat' and 'stdoutFormat',
         // respectively.  If this method is not called, default formats are
-        // used when publishing log records.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
+        // used when publishing log records.  See {Log Record Formatting} for
+        // details of formatting syntax.
 
     void setOnFileRotationCallback(
               const FileObserver2::OnFileRotationCallback& onRotationCallback);
@@ -738,8 +736,8 @@ class AsyncFileObserver : public Observer {
         // Load the format of log records written by this async file observer
         // to the log file into the specified '*logFileFormat' address and the
         // format of log records written to 'stdout' into the specified
-        // '*stdoutFormat' address.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
+        // '*stdoutFormat' address.  See {Log Record Formatting} for details of
+        // formatting syntax.
 
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
@@ -874,10 +872,10 @@ void AsyncFileObserver::rotateOnTimeInterval(
 
 inline
 void AsyncFileObserver::rotateOnTimeInterval(
-                              const bdlt::DatetimeInterval& interval,
-                              const bdlt::Datetime&         referenceStartTime)
+                                       const bdlt::DatetimeInterval& interval,
+                                       const bdlt::Datetime&         startTime)
 {
-    d_fileObserver.rotateOnTimeInterval(interval, referenceStartTime);
+    d_fileObserver.rotateOnTimeInterval(interval, startTime);
 }
 
 inline

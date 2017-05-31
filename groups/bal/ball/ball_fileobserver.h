@@ -94,12 +94,12 @@ BSLS_IDENT("$Id: $")
 // configure the format of published records.  This method takes two arguments:
 // one specifies the format of records logged to 'stdout' and the other applies
 // to records that are logged to a file.  The respective formats are specified
-// using 'printf'-style ('%'-prefixed) conversion specifications.  (See the
-// component-level documentation of 'ball_recordstringformatter' for
-// information on how format specifications are defined and interpreted.)  For
-// example, the following statement will force subsequent records to be logged
-// in a format that is almost identical to the default (long) format except
-// that the timestamp attribute will be written in ISO 8601 format:
+// using 'printf'-style ('%'-prefixed) conversion specifications.  (See
+// {'ball_recordstringformatter'} for information on how format specifications
+// are defined and interpreted.)  For example, the following statement will
+// force subsequent records to be logged in a format that is almost identical
+// to the default (long) format except that the timestamp attribute will be
+// written in ISO 8601 format:
 //..
 //   fileObserver.setLogFormat("%i %p:%t %s %f:%l %c %m %u",
 //                             "%i %p:%t %s %f:%l %c %m %u");
@@ -371,11 +371,11 @@ class FileObserver : public Observer {
                           bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally specified
-        // 'stdoutThreshold' level.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  If 'stdoutThreshold' is not specified,
-        // log records are published to 'stdout' if their severity is at least
-        // as severe as 'Severity::e_WARN'.  The timestamp attribute of
+        // 'stdoutThreshold' level.  If 'stdoutThreshold' is not specified, log
+        // records are published to 'stdout' if their severity is at least as
+        // severe as 'Severity::e_WARN'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The timestamp attribute of
         // published records is written in UTC time by default.  Note that
         // user-defined fields are published to 'stdout' by default.  Also note
         // that file logging is initially disabled.
@@ -385,14 +385,14 @@ class FileObserver : public Observer {
                  bslma::Allocator *basicAllocator = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the specified
-        // 'stdoutThreshold' level.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  If the specified 'publishInLocalTime'
-        // flag is 'true', the timestamp attribute of published records is
-        // written in local time; otherwise the timestamp attribute of
-        // published records is written in UTC time.  The offset between the
-        // local time and UTC time is computed at construction and remains
-        // unchanged during the lifetime of this object.  Note that
+        // 'stdoutThreshold' level.  If the specified 'publishInLocalTime' flag
+        // is 'true', the timestamp attribute of published records is written
+        // in local time; otherwise the timestamp attribute of published
+        // records is written in UTC time.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The offset
+        // between the local time and UTC time is computed at construction and
+        // remains unchanged during the lifetime of this object.  Note that
         // user-defined fields are published to 'stdout' by default.  Also note
         // that file logging is initially disabled.
 
@@ -523,10 +523,9 @@ class FileObserver : public Observer {
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
         // the current log file, rename the log file if necessary, and open a
-        // new log file.  See the "Rotated File Naming" section under
-        // @DESCRIPTION in the component-level documentation for details on
-        // filenames of the rotated log files.  This method has no effect if
-        // file logging is not enabled.
+        // new log file.  See {Rotated File Naming} for details on filenames of
+        // the rotated log files.  This method has no effect if file logging is
+        // not enabled.
 
     void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
         // Set this file observer to perform a periodic log-file rotation at
@@ -577,8 +576,8 @@ class FileObserver : public Observer {
         // Set the format of log records written to the log file and to
         // 'stdout' to the specified 'logFileFormat' and 'stdoutFormat',
         // respectively.  If this method is not called, default formats are
-        // used when publishing log records.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
+        // used when publishing log records.  See {Log Record Formatting} for
+        // details of formatting syntax.
 
     // ACCESSORS
     void getLogFormat(const char **logFileFormat,
@@ -586,8 +585,8 @@ class FileObserver : public Observer {
         // Load the format of log records written by this file observer to the
         // log file into the specified '*logFileFormat' address and the format
         // of log records written to 'stdout' into the specified
-        // '*stdoutFormat' address.  See "Log Record Formatting" under
-        // @DESCRIPTION for details of formatting syntax.
+        // '*stdoutFormat' address.  See {Log Record Formatting} for details of
+        // formatting syntax.
 
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;

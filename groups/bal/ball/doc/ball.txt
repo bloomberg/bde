@@ -49,8 +49,7 @@
       ball_multiplexobserver                             !DEPRECATED!
       ball_broadcastobserver
 
-   6. ball_defaultobserver
-      ball_observeradapter
+   6. ball_observeradapter
       ball_ruleset
       ball_testobserver
 
@@ -122,9 +121,6 @@
 :
 : 'ball_defaultattributecontainer':
 :      Provide a default container for storing attribute name/value pairs.
-:
-: 'ball_defaultobserver':
-:      Provide a default observer that emits log records to 'stdout'.
 :
 : 'ball_fileobserver':
 :      Provide a thread-safe observer that logs to a file and to 'stdout'.
@@ -760,7 +756,7 @@
 : o Instantiating a 'ball::LoggerManagerConfiguration' and passing it to the
 :   logger manager scoped guard constructor.
 :
-: o Instantiating a 'ball::DefaultObserver' and registering it with the logger
+: o Instantiating a 'ball::StreamObserver' and registering it with the logger
 :   manager singleton.
 :
 : o Invoking the 'BALL_LOG_SET_CATEGORY' macro to set a category (named "main
@@ -786,10 +782,10 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
+  #include <ball_streamobserver.h>
 
   #include <bslma_allocator.h>
   #include <bslma_default.h>
@@ -817,9 +813,9 @@
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
-                               alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
           // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
@@ -919,11 +915,11 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
 
   #include <bslma_allocator.h>
   #include <bslma_default.h>
@@ -957,9 +953,9 @@
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
-                               alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
           // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
@@ -1040,11 +1036,11 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
 
   #include <bslma_allocator.h>
   #include <bslma_default.h>
@@ -1075,9 +1071,9 @@
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
-                               alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
           // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
@@ -1199,11 +1195,11 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
 
   #include <bslma_allocator.h>
   #include <bslma_default.h>
@@ -1237,9 +1233,9 @@
                     ball::Severity::e_ERROR,   // sets "Trigger" threshold
                     ball::Severity::e_FATAL);  // sets "Trigger-All" threshold
 
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
-                               alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
           // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
@@ -1337,11 +1333,11 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
 
   #include <bslma_allocator.h>
   #include <bslma_default.h>
@@ -1421,9 +1417,9 @@
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                               new(*alloc_p) ball::DefaultObserver(&bsl::cout),
-                               alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
           // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
@@ -1582,7 +1578,7 @@
  published) when the thread function returned.
 
  In this example we also made a trivial change that has nothing to do with
- threading, but illustrates a useful feature of 'ball::DefaultObserver', namely
+ threading, but illustrates a useful feature of 'ball::StreamObserver', namely
  that an instance can write to a file as easily as to 'stdout'.  The three
  lines in 'main':
 ..
@@ -1590,9 +1586,9 @@
       // Instantiate the logger manager singleton.
 
   bsl::ofstream outFile("outFile");
-  bsl::shared_ptr<ball::DefaultObserver> observer(
-                                 new(*alloc_p) ball::DefaultObserver(&outFile),
-                                 alloc_p);
+  bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc_p) ball::StreamObserver(&outFile),
+                                  alloc_p);
       // Create simple observer; writes to 'outFile".
 
   ball::LoggerManager& manager = ball::LoggerManager::singleton();
@@ -1609,12 +1605,12 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_fixedsizerecordbuffer.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
 
   #include <bslma_allocator.h>
   #include <bslma_default.h>
@@ -1698,9 +1694,9 @@
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
       bsl::ofstream outFile("outFile");
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                                 new(*alloc_p) ball::DefaultObserver(&outFile),
-                                 alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc_p) ball::StreamObserver(&outFile),
+                                  alloc_p);
           // Create simple observer; writes to 'outFile".
 
       manager.registerObserver(observer, "default");
@@ -1849,9 +1845,9 @@
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
       bsl::ofstream outFile("outFile");
-      bsl::shared_ptr<ball::DefaultObserver> observer(
-                                 new(*alloc_p) ball::DefaultObserver(&outFile),
-                                 alloc_p);
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc_p) ball::StreamObserver(&outFile),
+                                  alloc_p);
           // Create simple observer; writes to 'outFile".
 
       manager.registerObserver(observer, "default");

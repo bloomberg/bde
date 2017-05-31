@@ -54,6 +54,7 @@
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -113,7 +114,7 @@ using bsl::flush;
 // [ 2] BALL_LOG_CATEGORY
 // [ 2] BALL_LOG_THRESHOLD
 // [ 3] PRINTF-STYLE MACROS
-// [ 4] OSTREAM MACROS
+// [ 4] OSTREAM MACROS (WITHOUT CALLBACK)
 // [ 5] TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
 // [ 6] TESTING THE C++ MACRO WHEN LOGGING RETURNED VALUE OF A FUNCTION
 // [ 7] TESTING THE DEFAULT LOG ORDER (LIFO)
@@ -125,7 +126,7 @@ using bsl::flush;
 // [13] PRINTF MACRO PERFORMANCE TEST WITH 1 THREAD
 // [14] BALL_IS_ENABLED(SEVERITY) UTILITY MACRO
 // [15] STRESS TEST
-// [16] TESTING OSTREAM MACROS WITH CALLBACK
+// [16] OSTREAM MACROS WITH CALLBACK
 // [17] TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
 // [18] BALL_LOG_SET_DYNAMIC_CATEGORY
 // [19] ball::Log_Stream
@@ -203,13 +204,17 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef BloombergLP::ball::Log                Obj;
-typedef BloombergLP::ball::Severity           Sev;
+typedef BloombergLP::ball::Log_Stream         LogStream;
+
 typedef BloombergLP::ball::Category           Cat;
 typedef BloombergLP::ball::CategoryHolder     Holder;
-typedef BloombergLP::ball::Log_Stream         LogStream;
-typedef BloombergLP::bslma::TestAllocator     TestAllocator;
 typedef BloombergLP::ball::CategoryManager    CategoryManager;
+typedef BloombergLP::ball::LoggerManager      LoggerManager;
+typedef BloombergLP::ball::Severity           Sev;
 typedef BloombergLP::ball::ThresholdAggregate Thresholds;
+
+typedef BloombergLP::bslma::TestAllocator     TestAllocator;
+
 typedef BloombergLP::bsls::Types::IntPtr      IntPtr;
 typedef BloombergLP::bsls::Types::Int64       Int64;
 
@@ -1659,8 +1664,8 @@ int main(int argc, char *argv[])
 // logging) for a particular user when calling the 'processData' function
 // above.
 //
-// We start by creating the singleton logger manager which we configure with
-// the default observer and default configuration.  We then call the
+// We start by creating the singleton logger manager that we configure with
+// the stream observer and default configuration.  We then call the
 // 'processData' function.  This first call to 'processData' will not result in
 // any logged messages because the 'processData' function logs its message at
 // the 'ball::Severity::DEBUG' level, which is below the default configured
@@ -3309,6 +3314,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         using namespace BALL_LOG_TEST_CASE_17;
 
+        bsl::shared_ptr<BloombergLP::ball::Observer> observerWrapper(
+                                    TO,
+                                    BloombergLP::bslstl::SharedPtrNilDeleter(),
+                                    &ta);
+
         ASSERT(0 == TO->numPublishedRecords());
 
         for (int i = 0; i < 5; ++i) {
@@ -3321,7 +3331,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                                                   0,
                                                                   0));
 
-                 BloombergLP::ball::LoggerManagerScopedGuard guard(TO, lmc);
+                 BloombergLP::ball::LoggerManagerScopedGuard guard(lmc);
+
+                 LoggerManager::singleton().registerObserver(observerWrapper,
+                                                             "default");
 
                  macrosTest(true, *TO, TO->numPublishedRecords());
             }
@@ -3339,18 +3352,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TBD doc
         //
         // Testing:
-        //   BALL_LOGCB_TRACE
-        //   BALL_LOGCB_DEBUG
-        //   BALL_LOGCB_INFO
-        //   BALL_LOGCB_WARN
-        //   BALL_LOGCB_ERROR
-        //   BALL_LOGCB_FATAL
+        //   OSTREAM MACROS WITH CALLBACK
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing callback 'ostream' Macros"
+                               << "TESTING OSTREAM MACROS WITH CALLBACK"
                                << bsl::endl
-                               << "================================="
+                               << "===================================="
                                << bsl::endl;
 
         bsl::function<void(BloombergLP::ball::UserFields *)> callback =
@@ -4298,6 +4306,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         using namespace BALL_LOG_TEST_CASE_5;
 
+        bsl::shared_ptr<BloombergLP::ball::Observer> observerWrapper(
+                                    TO,
+                                    BloombergLP::bslstl::SharedPtrNilDeleter(),
+                                    &ta);
+
         ASSERT(0 == TO->numPublishedRecords());
 
         for (int i = 0; i < 5; ++i) {
@@ -4310,7 +4323,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                                                   0,
                                                                   0));
 
-                 BloombergLP::ball::LoggerManagerScopedGuard guard(TO, lmc);
+                 BloombergLP::ball::LoggerManagerScopedGuard guard(lmc);
+
+                 LoggerManager::singleton().registerObserver(observerWrapper,
+                                                             "default");
 
                  macrosTest(true, *TO, TO->numPublishedRecords());
             }
@@ -4328,17 +4344,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TBD doc
         //
         // Testing:
-        //   BALL_LOG_TRACE
-        //   BALL_LOG_DEBUG
-        //   BALL_LOG_INFO
-        //   BALL_LOG_WARN
-        //   BALL_LOG_ERROR
-        //   BALL_LOG_FATAL
+        //   OSTREAM MACROS (WITHOUT CALLBACK)
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing 'ostream' Macros" << bsl::endl
-                               << "========================" << bsl::endl;
+                               << "TESTING OSTREAM MACROS" << bsl::endl
+                               << "======================" << bsl::endl;
 
         const char *MESSAGE = "message:1:2:3";
         const char  SEP     = ':';

@@ -531,8 +531,8 @@ BSLS_IDENT("$Id: $")
 // for a particular user when calling the 'processData' function defined
 // above.
 //
-// We start by creating the singleton logger manager, which we configure with
-// the default observer and a default configuration.  We then call the
+// We start by creating the singleton logger manager that we configure with
+// the stream observer and a default configuration.  We then call the
 // 'processData' function: This first call to 'processData' will not result in
 // any logged messages because 'processData' logs its message at the
 // 'ball::Severity::DEBUG' level, which is below the default configured logging
@@ -1038,7 +1038,7 @@ struct Log {
         // supplied by the allocator held by the logger manager singleton if
         // the specified 'category' is non-null, or by the currently installed
         // default allocator otherwise.  The behavior is undefined unless the
-        // logger manager singleton is initialized if 'category' is non-null.
+        // logger manager singleton is initialized when 'category' is non-null.
 
     static void logMessage(const Category *category,
                            int             severity,
@@ -1062,7 +1062,7 @@ struct Log {
         // This method has no effect if 'category' is 0 or 'severity' is less
         // severe than each of the threshold levels of 'category'.  The
         // behavior is undefined unless 'severity' is in the range '[1 .. 255]'
-        // and the logger manager singleton is initialized if 'category' is
+        // and the logger manager singleton is initialized when 'category' is
         // non-null.
 
     static void logMessage(const Category *category,
