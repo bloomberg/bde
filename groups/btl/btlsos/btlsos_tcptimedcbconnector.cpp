@@ -790,12 +790,12 @@ int TcpTimedCbConnector::allocateTimed(const TimedCallback& timedCallback,
 void TcpTimedCbConnector::cancelAll() {
     if (d_currentRequest_p) {
         // A callback is active -- can't destroy current request.
+        bsl::deque<TcpTimedCbConnector_Reg *>::iterator end =
+            d_callbacks.begin() + d_callbacks.size() - 1;
+        
         bsl::deque<TcpTimedCbConnector_Reg *> toBeCancelled(
-                                  d_callbacks.begin(),
-                                  d_callbacks.begin() + d_callbacks.size() - 1,
-                                  d_allocator_p);
-        d_callbacks.erase(d_callbacks.begin(),
-                          d_callbacks.begin() + d_callbacks.size() - 1);
+                                                 d_callbacks.begin(), end);
+        d_callbacks.erase(d_callbacks.begin(), end);
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
         int numToCancel = static_cast<int>(toBeCancelled.size());
         while (--numToCancel >= 0) {
@@ -808,8 +808,7 @@ void TcpTimedCbConnector::cancelAll() {
         // This part is reached when 'cancelAll' is invoked not from a
         // callback.
 
-        bsl::deque<TcpTimedCbConnector_Reg *> toBeCancelled(
-                                                   d_callbacks, d_allocator_p);
+        bsl::deque<TcpTimedCbConnector_Reg *> toBeCancelled(d_callbacks);
         d_callbacks.clear();
         int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {

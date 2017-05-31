@@ -164,6 +164,13 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
     TcpTimedCbChannel_WReg      *d_currentWriteRequest_p;
 
   private:
+    bool handleInterruptedWrite(int status);
+        // If the current write request allows async interruption, deregister
+        // the write timer; cancel and erase all other write requests; invoke
+        // the current write request callback with the specified 'status' and 
+        // an 'augStatus' of 'e_INTERRUPT'; and return 'true'. Otherwise, set
+        // the current write request to 0 and return 'false'.
+    
     void initializeReadBuffer(int size = -1);
     void initializeWriteBuffer(int size = -1);
         // Initialize internal read/write buffers with the optionally specified
