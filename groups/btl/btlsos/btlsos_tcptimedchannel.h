@@ -244,7 +244,11 @@ class TcpTimedChannel : public btlsc::TimedChannel {
     int                                    d_readBufferOffset;
     int                                    d_readBufferedStartPointer;
         // the index of the first unconsumed data in 'd_readBuffer'
-    bslma::Allocator                      *d_allocator_p;
+
+    bsl::vector<btls::Iovec>               d_readBuffers;  // working array
+    bsl::vector<btls::Ovec>                d_writeBuffers; // working array
+    bsl::vector<btls::Ovec>                d_ovecBuffers;  // initial working
+                                                           // array for write
 
   private: // not implemented
     TcpTimedChannel(const TcpTimedChannel&);
@@ -256,6 +260,42 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
+    template <typename VECTYPE>
+    int setupWritev(const VECTYPE *buffers, int numBuffers);
+        // Populate 'd_ovecBuffers' with the specified 'buffers', of the
+        // specified 'numBuffers' size; return the total length of 'buffers'.
+    
+    int writev(int *augStatus, int length, int flags);
+        // Write to this channel from 'd_ovecBuffers', collectively of the
+        // specified 'length'.  If the specified 'flags' incorporates
+        // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 'length' on success, a negative value on error,
+        // and the number of bytes newly written from 'buffers' (indicating a
+        // partial result) otherwise.  On partial result, load the specified
+        // 'augStatus' with a positive value, indicating that an asynchronous
+        // event caused the interruption; otherwise, 'augStatus' is unmodified.
+        // The behavior is undefined unless 'd_ovecBuffers' is not empty.
+
+    int timedWritev(int                       *augStatus,
+                    int                        length,
+                    int                        flags,
+                    const bsls::TimeInterval&  timeout);
+        // Write to this channel from 'd_ovecBuffers', collectively of the
+        // specified 'length', or interrupt after the specified absolute
+        // 'timeout' is reached.  If the specified 'flags' incorporates
+        // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 'length' on success, a negative value on error,
+        // and the number of bytes newly written from 'buffers' (indicating a
+        // partial result) otherwise.  On partial result, load the specified
+        // 'augStatus' with 0 if 'timeout' interrupted this operation or a
+        // positive value if the interruption was due to an asynchronous
+        // event; otherwise, 'augStatus' is unmodified.  The behavior is
+        // undefined unless 'd_ovecBuffers' is not empty.  Note that if the
+        // 'timeout' time has already passed, the "write" operation will still
+        // be attempted, but the attempt will not block.
+    
   public:
     // CREATORS
     TcpTimedChannel(
@@ -388,21 +428,15 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    int readRaw(char *buffer, int numBytes, int flags = 0);
+    int readRaw(char *buffer, int numBytes, int flags);
     int readRaw(int *augStatus, char *buffer, int numBytes, int flags = 0);
+        // DEPRECATED.  Invoke 'readRaw(char*, int)'.
+
+    int readRaw(char *buffer, int numBytes);
         // *Atomically* read from this channel into the specified 'buffer' *at*
-        // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btlsc::TimedChannel::ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt this operation; by
-        // default, such events are ignored.  Optionally specify (as a
-        // *leading* argument) 'augStatus' to receive status specific to a
-        // "partial result".  Return 'numBytes' on success, a negative value on
-        // error, and the number of bytes newly read into 'buffer' (indicating
-        // a partial result) otherwise.  On a partial result, load 'augStatus',
-        // if supplied, with a positive value if an asynchronous event
-        // interrupted this operation and a negative value if the atomic
-        // OS-level operation transmitted at least one byte, but less than
-        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
+        // *most* the specified 'numBytes'.  Return 'numBytes' on success, a
+        // negative value on error, and the number of bytes newly read into
+        // 'buffer' (indicating a partial result) otherwise.  A partial result
         // typically does not invalidate this channel; hence, this (or another)
         // operation may be retried (with arguments suitably adjusted) with
         // some reasonable hope of success.  A negative "status", however,
@@ -410,10 +444,8 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and '0 < numBytes'.  Note that if the specified 'timeout' value has
-        // already passed, the "read" operation will still be attempted, but
-        // the attempt will not block.
-
+        // and '0 < numBytes'.  
+    
     int timedReadRaw(char                      *buffer,
                      int                        numBytes,
                      const bsls::TimeInterval&  timeout,
@@ -767,22 +799,23 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // Write to this channel from the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec' (or
-        // 'btls::Iovec') structure.  If the optionally specified 'flags'
-        // incorporates 'btlsc::TimedChannel::ASYNC_INTERRUPT', "asynchronous
+        // 'btls::Iovec') buffer.  If the optionally specified 'flags'
+        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a partial result.  Return
-        // 'numBytes' on success, a negative value on error, and the number of
-        // bytes newly written from 'buffers' (indicating a partial result)
-        // otherwise.  On a partial result, load 'augStatus', if supplied, with
-        // a positive value, indicating that an asynchronous event caused the
-        // interruption; otherwise, 'augStatus' is unmodified.  A partial
-        // result typically does not invalidate this channel; hence, this (or
-        // another) operation may be retried (with arguments suitably adjusted)
-        // with some reasonable hope of success.  A negative "status", however,
-        // indicates a permanent error; -1 implies that the connection was
-        // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // the total number of bytes in 'buffers' on success, a negative value
+        // on error, and the number of bytes newly written from 'buffers'
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // 'augStatus', if supplied, with a positive value, indicating that an
+        // asynchronous event caused the interruption; otherwise, 'augStatus'
+        // is unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted, see 'btls::IovecUtil::pivot') with some
+        // reasonable hope of success.  A negative "status", however, indicates
+        // a permanent error; -1 implies that the connection was closed by the
+        // peer (but the converse is not guaranteed).  The behavior is
+        // undefined unless '0 < numBuffers'.
 
     int timedWritev(const btls::Ovec          *buffers,
                     int                        numBuffers,
@@ -805,24 +838,25 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // Write to this channel from the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec' (or
-        // 'btls::Iovec') structure, or interrupt after the specified absolute
-        // 'timeout' time is reached.  If the optionally specified 'flags'
-        // incorporates 'btlsc::TimedChannel::ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
-        // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly written from 'buffer' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with 0 if 'timeout' interrupted this operation or a
-        // positive value if the interruption was due to an asynchronous event;
-        // otherwise, 'augStatus' is unmodified.  A partial result typically
-        // does not invalidate this channel; hence, this (or another) operation
-        // may be retried (with arguments suitably adjusted) with some
+        // 'btls::Iovec') buffer, or interrupt after the specified
+        // absolute 'timeout' time is reached.  If the optionally specified
+        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
+        // "asynchronous events" are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) 'augStatus' to receive status specific to a
+        // partial result.  Return the total number of bytes in 'buffers' on
+        // success, a negative value on error, and the number of bytes newly
+        // written from 'buffers' (indicating a partial result) otherwise.  On
+        // a partial result, load 'augStatus', if supplied, with 0 if 'timeout'
+        // interrupted this operation or a positive value if the interruption
+        // was due to an asynchronous event; otherwise, 'augStatus' is
+        // unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted, see 'btls::IovecUtil::pivot') with some
         // reasonable hope of success.  A negative "status", however, indicates
         // a permanent error; -1 implies that the connection was closed by the
         // peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless '0 < numBytes'.  Note that if the 'timeout' value
+        // undefined unless '0 < numBuffers'.  Note that if the 'timeout' time
         // has already passed, the "write" operation will still be attempted,
         // but the attempt will not block.
 
@@ -944,6 +978,128 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 // ----------------------------------------------------------------------------
 //                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
+
+inline
+int TcpTimedChannel::readv(const btls::Iovec *buffers,
+                           int                numBuffers,
+                           int                flags)
+{
+    int unused;
+    return readv(&unused, buffers, numBuffers, flags);
+}
+
+inline
+int TcpTimedChannel::readRaw(int *, char* buffer, int numBytes, int)
+{
+    return readRaw(buffer, numBytes);
+}
+
+inline
+int TcpTimedChannel::readRaw(char* buffer, int numBytes, int)
+{
+    return readRaw(buffer, numBytes);
+}
+
+inline
+int TcpTimedChannel::timedReadv(const btls::Iovec         *buffers,
+                                int                        numBuffers,
+                                const bsls::TimeInterval&  timeout,
+                                int                        flags)
+{
+    int unused;
+    return timedReadv(&unused, buffers, numBuffers, timeout, flags);
+}
+
+inline
+int TcpTimedChannel::writev(const btls::Ovec *buffers,
+                            int numBuffers, int flags)
+{
+    int unused;
+    return writev(&unused, buffers, numBuffers, flags);
+}
+
+inline
+int TcpTimedChannel::writev(const btls::Iovec *buffers,
+                            int numBuffers, int flags)
+{
+    int unused;
+    return writev(&unused, buffers, numBuffers, flags);
+}
+
+inline
+int TcpTimedChannel::writev(int *augStatus, const btls::Ovec *buffers,
+                            int numBuffers, int flags)
+{
+    int length = setupWritev(buffers, numBuffers);
+    return writev(augStatus, length, flags);
+}
+
+inline
+int TcpTimedChannel::writev(int *augStatus, const btls::Iovec *buffers,
+                       int numBuffers, int flags)
+{
+    int length = setupWritev(buffers, numBuffers);
+    return writev(augStatus, length, flags);
+}
+
+inline
+int TcpTimedChannel::timedWritev(const btls::Ovec          *buffers,
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
+{
+    int unused;
+    return timedWritev(&unused, buffers, numBuffers, timeout, flags);
+}
+
+inline
+int TcpTimedChannel::timedWritev(const btls::Iovec         *buffers,
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
+{
+    int unused;
+    return timedWritev(&unused, buffers, numBuffers, timeout, flags);
+}
+
+inline
+int TcpTimedChannel::timedWritev(int                       *augStatus,
+                                 const btls::Ovec          *buffers,
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
+{
+    int length = setupWritev(buffers, numBuffers);
+    return timedWritev(augStatus, length, flags, timeout);
+}
+
+inline
+int TcpTimedChannel::timedWritev(int                       *augStatus,
+                                 const btls::Iovec         *buffers,
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 int                        flags)
+{
+    int length = setupWritev(buffers, numBuffers);
+    return timedWritev(augStatus, length, flags, timeout);
+}
+    
+template <typename VECTYPE>
+inline
+int TcpTimedChannel::setupWritev(const VECTYPE *buffers, int numBuffers)
+{
+    BSLS_ASSERT(buffers);
+    BSLS_ASSERT(0 < numBuffers);
+
+    int length = 0;
+    d_ovecBuffers.resize(numBuffers);
+    for (int i = 0; i < numBuffers; ++i) {
+        int thisBufferLength = buffers[i].length();
+        length += thisBufferLength;
+        d_ovecBuffers[i].setBuffer(buffers[i].buffer(), thisBufferLength);
+    }
+    return length;
+}
 
 inline
 void TcpTimedChannel::invalidate()

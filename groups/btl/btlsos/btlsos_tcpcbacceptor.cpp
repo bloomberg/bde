@@ -365,7 +365,7 @@ TcpCbAcceptor::TcpCbAcceptor(
 , d_serverSocket_p(NULL)
 , d_isInvalidFlag(0)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_acceptFunctor
         = bsl::function<void()>(
@@ -391,7 +391,7 @@ TcpCbAcceptor::TcpCbAcceptor(
 , d_serverSocket_p(NULL)
 , d_isInvalidFlag(0)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < numElements);
     d_acceptFunctor
@@ -490,7 +490,7 @@ void TcpCbAcceptor::cancelAll()
 {
     if (d_currentRequest_p) {
         // A callback is active -- can't destroy current request.
-        bsl::deque<TcpCbAcceptor_Reg *> toBeCancelled(d_allocator_p);
+        bsl::deque<TcpCbAcceptor_Reg *> toBeCancelled;
         toBeCancelled.insert(toBeCancelled.begin(), d_callbacks.begin(),
                              d_callbacks.begin() + d_callbacks.size() - 1);
 
@@ -508,8 +508,7 @@ void TcpCbAcceptor::cancelAll()
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
     }
     else {
-        bsl::deque<TcpCbAcceptor_Reg *>
-                                     toBeCancelled(d_callbacks, d_allocator_p);
+        bsl::deque<TcpCbAcceptor_Reg *> toBeCancelled(d_callbacks);
         d_callbacks.clear();
         int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {

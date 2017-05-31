@@ -463,7 +463,7 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
 , d_isInvalidFlag(0)
 , d_timerId(NULL)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_acceptFunctor
         = bsl::function<void()>(
@@ -496,7 +496,7 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
 , d_isInvalidFlag(0)
 , d_timerId(NULL)
 , d_currentRequest_p(NULL)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < numElements);
     d_acceptFunctor
@@ -605,8 +605,7 @@ void TcpTimedCbAcceptor::cancelAll()
 
         bsl::deque<TcpTimedCbAcceptor_Reg *> toBeCancelled(
                 d_callbacks.begin(),
-                d_callbacks.begin() + d_callbacks.size() - 1,
-                d_allocator_p);
+                d_callbacks.begin() + d_callbacks.size() - 1);
 
         d_callbacks.erase(d_callbacks.begin(),
                           d_callbacks.begin() + d_callbacks.size() - 1);
@@ -622,8 +621,7 @@ void TcpTimedCbAcceptor::cancelAll()
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
     }
     else {
-        bsl::deque<TcpTimedCbAcceptor_Reg *>
-                                     toBeCancelled(d_callbacks, d_allocator_p);
+        bsl::deque<TcpTimedCbAcceptor_Reg *> toBeCancelled(d_callbacks);
         d_callbacks.clear();
         int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {

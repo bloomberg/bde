@@ -22,8 +22,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlso_socketoptutil
 //
 //@DESCRIPTION: This component provides concrete implementation of the blocking
-// communication channel ('btlsc_channel') over TCP/IPv4 sockets.  Both
-// non-timed operations are supported (as mandated by the protocol).
+// communication channel ('btlsc_channel') over TCP/IPv4 sockets.  
 // Additionally, operations to set various socket options and to get local and
 // remote addresses are provided.
 //
@@ -36,14 +35,6 @@ BSLS_IDENT("$Id: $")
 // instance* without external synchronization).  The channel is not
 // *async-safe*, meaning that one or more functions cannot be invoked safely
 // from a signal handler.
-//
-///Performance
-///-----------
-// This channel is optimized for operations with the timeout.  Non-timed
-// operations will have worse performance than their respective counterparts in
-// the non-timed version of the channel (i.e., 'btlsos_tcpchannel').  If only
-// non-timed operations are required, 'btlsos::TcpChannel' should be used
-// instead.
 //
 ///Usage
 ///-----
@@ -139,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //
 //        numBytes = 10;
 //        augStatus = -1;
-//        // Try writing 10 bytes to the channel with a timeout value.
+//        // Try writing 10 bytes to the channel.
 //        len = channel.writeRaw(&augStatus, writeBuf,
 //                               numBytes, interruptFlag);
 //        if (len != numBytes) {
@@ -151,14 +142,14 @@ BSLS_IDENT("$Id: $")
 //
 //        numBytes = 5;
 //        enum { e_INVALID = -2 };
-//        // Try writing 5 bytes from the channel.
+//        // Try writing 5 bytes to the channel.
 //        len = channel.read(&augStatus, readBuf,
 //                                   numBytes, interruptFlag);
 //        assert(e_INVALID == len);
 //
 //        numBytes = 10;
 //        augStatus = -1;
-//        // Try writing 10 bytes from the channel with a timeout value.
+//        // Try reading 10 bytes from the channel.
 //        len = channel.read(&augStatus, readBuf,
 //                           numBytes, interruptFlag);
 //        assert(e_INVALID == len);
@@ -171,7 +162,7 @@ BSLS_IDENT("$Id: $")
 //
 //        numBytes = 10;
 //        augStatus = -1;
-//        // Try writing 10 bytes to the channel with a timeout value.
+//        // Try writing 10 bytes to the channel.
 //        len = channel.writeRaw(&augStatus, writeBuf,
 //                               numBytes, interruptFlag);
 //        assert(e_INVALID == len);
@@ -223,7 +214,11 @@ class TcpChannel : public btlsc::Channel {
     int                                    d_readBufferOffset;
     int                                    d_readBufferedStartPointer;
         // the index of the first unconsumed data in 'd_readBuffer'
-    bslma::Allocator                      *d_allocator_p;
+
+    bsl::vector<btls::Iovec>               d_readBuffers;  // working array
+    bsl::vector<btls::Ovec>                d_writeBuffers; // working array
+    bsl::vector<btls::Ovec>                d_ovecBuffers;  // initial working
+                                                           // array for write
 
   private:  // not implemented
     TcpChannel(const TcpChannel&);
@@ -235,6 +230,36 @@ class TcpChannel : public btlsc::Channel {
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
+    template <typename VECTYPE>
+    int writevImpl(int *augStatus, const VECTYPE *buffers,
+                   int numBuffers, int flags);
+        // Write to this channel from the specified sequence of 'buffers' of
+        // specified sequence length 'numBuffers' the respective numbers of
+        // bytes as specified in each corresponding 'btls::Ovec' (or
+        // 'btls::Iovec') buffer.  If the optionally specified 'flags'
+        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt this operation; by default, such
+        // events are ignored.  Optionally specify (as a *leading* argument)
+        // 'augStatus' to receive status specific to a partial result.  Return
+        // the total number of bytes in 'buffers' on success, a negative value
+        // on error, and the number of bytes newly written from 'buffers'
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // 'augStatus', if supplied, with a positive value, indicating that an
+        // asynchronous event caused the interruption; otherwise, 'augStatus'
+        // is unmodified.  The behavior is undefined unless '0 < numBuffers'.
+    
+    int writev(int *augStatus, int length, int flags);
+        // Write to this channel from 'd_ovecBuffers', collectively of the
+        // specified 'length'.  If the specified 'flags' incorporates
+        // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 'length' on success, a negative value on error,
+        // and the number of bytes newly written from 'buffers' (indicating a
+        // partial result) otherwise.  On partial result, load the specified
+        // 'augStatus' with a positive value, indicating that an asynchronous
+        // event caused the interruption; otherwise, 'augStatus' is unmodified.
+        // The behavior is undefined unless 'd_ovecBuffers' is not empty.
+    
   public:
     // CREATORS
     TcpChannel(btlso::StreamSocket<btlso::IPv4Address> *socket,
@@ -282,38 +307,30 @@ class TcpChannel : public btlsc::Channel {
         // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
-        // to receive status specific to a partial result.  Return 'numBytes'
-        // on success, a negative value on error, and the number of bytes newly
-        // read into 'buffers' (indicating a partial result) otherwise.  On a
-        // partial result, load 'augStatus', if supplied, with a positive
-        // value, indicating that an asynchronous event caused the
-        // interruption; otherwise, 'augStatus' is unmodified.  A partial
-        // result typically does not invalidate this channel; hence, this (or
-        // another) operation may be retried (with arguments suitably adjusted)
-        // with some reasonable hope of success.  A negative "status", however,
-        // indicates a permanent error (leaving the contents of 'buffers'
-        // undefined); -1 implies that the connection was closed by the peer
-        // (but the converse is not guaranteed).  The behavior is undefined
-        // unless 'buffers' have sufficient capacity to hold the requested data
-        // and 0 < 'numBuffers'.
+        // to receive status specific to a partial result.  Return the total
+        // number of bytes in 'buffers' on success, a negative value on error,
+        // and the number of bytes newly read into 'buffers' (indicating a
+        // partial result) otherwise.  On a partial result, load 'augStatus',
+        // if supplied, with a positive value, indicating that an
+        // asynchronous event caused the interruption; otherwise, 'augStatus'
+        // is unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted) with some reasonable hope of success.
+        // A negative "status", however, indicates a permanent error (leaving
+        // the contents of 'buffers' undefined); -1 implies that the
+        // connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless 'buffers' have
+        // sufficient capacity to hold the requested data and 0 < 'numBuffers'.
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    int readRaw(char *buffer, int numBytes, int flags = 0);
+    int readRaw(char *buffer, int numBytes, int flags);
     int readRaw(int *augStatus, char *buffer, int numBytes, int flags = 0);
+        // DEPRECATED.  Invoke 'readRaw(char*, int)'.
+
+    int readRaw(char *buffer, int numBytes);
         // *Atomically* read from this channel into the specified 'buffer' *at*
-        // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt this operation; by
-        // default, such events are ignored.  Optionally specify (as a
-        // *leading* argument) 'augStatus' to receive status specific to a
-        // "partial result".  Return 'numBytes' on success, a negative value on
-        // error, and the number of bytes newly read into 'buffer' (indicating
-        // a partial result) otherwise.  On a partial result, load 'augStatus',
-        // if supplied, with a positive value if an asynchronous event
-        // interrupted this operation and a negative value if the atomic
-        // OS-level operation transmitted at least one byte, but less than
-        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
+        // *most* the specified 'numBytes'.  Return 'numBytes' on success, a
+        // negative value on error, and the number of bytes newly read into
+        // 'buffer' (indicating a partial result) otherwise.  A partial result
         // typically does not invalidate this channel; hence, this (or another)
         // operation may be retried (with arguments suitably adjusted) with
         // some reasonable hope of success.  A negative "status", however,
@@ -321,40 +338,31 @@ class TcpChannel : public btlsc::Channel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and '0 < numBytes'.  Note that if the specified 'timeout' value has
-        // already passed, the "read" operation will still be attempted, but
-        // the attempt will not block.
+        // and '0 < numBytes'.  
 
-    int readvRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int readvRaw(const btls::Iovec *buffers, int numBuffers, int flags);
     int readvRaw(int               *augStatus,
                  const btls::Iovec *buffers,
                  int                numBuffers,
                  int                flags = 0);
+        // DEPRECATED. Invoke 'readvRaw(const btls::Iovec*, int);
+
+    int readvRaw(const btls::Iovec *buffers,
+                 int                numBuffers);    
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // respective numbers of bytes as specified in each corresponding
-        // 'btls::Iovec' buffer.  If the optionally specified 'flags'
-        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
-        // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly read into 'buffers' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with a positive value if an asynchronous event interrupted
-        // this operation and a negative value if the atomic OS-level operation
-        // transmitted at least one byte, but less than 'numBytes'; otherwise,
-        // 'augStatus' is unmodified.  A partial result typically does not
-        // invalidate this channel; hence, this (or another) operation may be
-        // retried (with arguments suitably adjusted) with some reasonable hope
-        // of success.  A negative "status", however, indicates a permanent
-        // error (leaving the contents of 'buffers' undefined); -1 implies that
-        // the connection was closed by the peer (but the converse is not
+        // 'btls::Iovec' buffer.  Return the total number of bytes in
+        // 'buffers' on success, a negative value on error, and the number of
+        // bytes newly read into 'buffers' (indicating a partial result)
+        // otherwise.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted) with some reasonable hope of success.
+        // A negative "status", however, indicates a permanent error (leaving
+        // the contents of 'buffers' undefined); -1 implies that the
+        // connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless 'buffers' have
-        // sufficient capacity to hold the requested data and 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "read" operation will still be attempted, but the attempt will not
-        // block.
+        // sufficient capacity to hold the requested data and 0 < 'numBuffers'.
 
     int bufferedRead(const char **buffer, int numBytes, int flags = 0 );
     int bufferedRead(int         *augStatus,
@@ -411,8 +419,6 @@ class TcpChannel : public btlsc::Channel {
         // that the connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless '0 < numBytes'.
 
-    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-
     int write(const char *buffer, int numBytes, int flags = 0);
     int write(int *augStatus, const char *buffer, int numBytes, int flags = 0);
         // Write to this channel from the specified 'buffer' the specified
@@ -433,32 +439,22 @@ class TcpChannel : public btlsc::Channel {
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless '0 < numBytes'.
 
-    int writeRaw(const char *buffer, int numBytes, int flags = 0);
     int writeRaw(int        *augStatus,
                  const char *buffer,
                  int         numBytes,
                  int         flags = 0);
+    int writeRaw(const char *buffer, int numBytes, int flags);
+        // DEPRECATED.  Invoke 'writeRaw(const char*, int)'.
+    
+    int writeRaw(const char *buffer, int numBytes);
         // *Atomically* write to this channel from the specified 'buffer' *at*
-        // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt this operation; by
-        // default, such events are ignored.  Optionally specify (as a
-        // *leading* argument) 'augStatus' to receive status specific to a
-        // "partial result".  Return 'numBytes' on success, a negative value on
-        // error, and the number of bytes newly written from 'buffer'
-        // (indicating a partial result) otherwise.  On a partial result, load
-        // 'augStatus', if supplied, with a positive value if an asynchronous
-        // event interrupted this operation and a negative value if the atomic
-        // OS-level operation transmitted at least one byte, but less than
-        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
-        // typically does not invalidate this channel; hence, this (or another)
-        // operation may be retried (with arguments suitably adjusted) with
-        // some reasonable hope of success.  A negative "status", however,
-        // indicates a permanent error; -1 implies that the connection was
-        // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless '0 < numBytes'.  Note that if the
-        // specified 'timeout' value has already passed, the "write" operation
-        // will still be attempted, but the attempt will not block.
+        // *most* the specified 'numBytes'.  Return 'numBytes' on success, 
+        // a negative value on error, and the number of bytes newly written
+        // from 'buffer' (indicating a partial result) otherwise.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  The behavior is undefined
+        // unless '0 < numBytes'.  
 
     int writev(const btls::Ovec *buffers, int numBuffers, int flags = 0);
     int writev(const btls::Iovec *buffers, int numBuffers, int flags = 0);
@@ -478,17 +474,18 @@ class TcpChannel : public btlsc::Channel {
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a partial result.  Return
-        // 'numBytes' on success, a negative value on error, and the number of
-        // bytes newly written from 'buffers' (indicating a partial result)
-        // otherwise.  On a partial result, load 'augStatus', if supplied, with
-        // a positive value, indicating that an asynchronous event caused the
-        // interruption; otherwise, 'augStatus' is unmodified.  A partial
-        // result typically does not invalidate this channel; hence, this (or
-        // another) operation may be retried (with arguments suitably adjusted)
-        // with some reasonable hope of success.  A negative "status", however,
-        // indicates a permanent error; -1 implies that the connection was
-        // closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes.
+        // the total number of bytes in 'buffers' on success, a negative value
+        // on error, and the number of bytes newly written from 'buffers'
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // 'augStatus', if supplied, with a positive value, indicating that an
+        // asynchronous event caused the interruption; otherwise, 'augStatus'
+        // is unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted, see 'btls::IovecUtil::pivot') with some
+        // reasonable hope of success.  A negative "status", however, indicates
+        // a permanent error; -1 implies that the connection was closed by the
+        // peer (but the converse is not guaranteed).  The behavior is
+        // undefined unless '0 < numBuffers'.
 
     int writevRaw(const btls::Ovec *buffers, int numBuffers, int flags = 0);
     int writevRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
@@ -583,6 +580,113 @@ int TcpChannel::isInvalid() const
 {
     return d_isInvalidFlag;
 }
+
+inline
+int TcpChannel::read(char *buffer, int numBytes, int flags)
+{
+    int unused;
+    return read(&unused, buffer, numBytes, flags);
+}
+
+inline
+int TcpChannel::readv(const btls::Iovec *buffers, int numBuffers, int flags)
+{
+    int unused;
+    return readv(&unused, buffers, numBuffers, flags);
+}
+
+inline
+int TcpChannel::readRaw(int *, char* buffer, int numBytes, int)
+{
+    return readRaw(buffer, numBytes);
+}
+
+inline
+int TcpChannel::readRaw(char* buffer, int numBytes, int)
+{
+    return readRaw(buffer, numBytes);
+}
+
+inline
+int TcpChannel::readvRaw(const btls::Iovec *buffers, int numBuffers, int)
+{
+    return readvRaw(buffers, numBuffers);
+}
+
+inline
+int TcpChannel::readvRaw(int               *,
+                         const btls::Iovec *buffers,
+                         int                numBuffers,
+                         int)
+{
+    return readvRaw(buffers, numBuffers);
+}
+    
+inline
+int TcpChannel::write(const char* buffer, int numBytes, int flags)
+{
+    int unused;
+    return write(&unused, buffer, numBytes, flags);
+}
+
+inline
+int TcpChannel::writeRaw(int *, const char* buffer, int numBytes, int)
+{
+    return writeRaw(buffer, numBytes);
+}
+
+inline
+int TcpChannel::writeRaw(const char* buffer, int numBytes, int)
+{
+    return writeRaw(buffer, numBytes);
+}
+
+inline
+int TcpChannel::writev(const btls::Ovec *buffers, int numBuffers, int flags)
+{
+    int unused;
+    return writev(&unused, buffers, numBuffers, flags);
+}
+
+inline
+int TcpChannel::writev(const btls::Iovec *buffers, int numBuffers, int flags)
+{
+    int unused;
+    return writev(&unused, buffers, numBuffers, flags);
+}
+
+inline
+int TcpChannel::writev(int *augStatus, const btls::Ovec *buffers,
+                       int numBuffers, int flags)
+{
+    return writevImpl(augStatus, buffers, numBuffers, flags);
+}
+
+inline
+int TcpChannel::writev(int *augStatus, const btls::Iovec *buffers,
+                       int numBuffers, int flags)
+{
+    return writevImpl(augStatus, buffers, numBuffers, flags);
+}
+
+template <typename VECTYPE>
+inline
+int TcpChannel::writevImpl(int *augStatus, const VECTYPE *buffers,
+                           int numBuffers, int flags)
+{
+    BSLS_ASSERT(buffers);
+    BSLS_ASSERT(0 < numBuffers);
+
+    int length = 0;
+    d_ovecBuffers.resize(numBuffers);
+    for (int i = 0; i < numBuffers; ++i) {
+        int thisBufferLength = buffers[i].length();
+        length += thisBufferLength;
+        d_ovecBuffers[i].setBuffer(buffers[i].buffer(), thisBufferLength);
+    }
+    return writev(augStatus, length, flags);
+}
+    
 }  // close package namespace
 
 }  // close enterprise namespace
