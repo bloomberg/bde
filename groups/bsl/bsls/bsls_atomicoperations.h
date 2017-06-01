@@ -1174,7 +1174,7 @@ struct AtomicOperations {
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
-    static unsigned int subUintNv(typename AtomicTypes::Uint *atomicUint,
+    static unsigned int subUintNv(AtomicTypes::Uint *atomicUint,
                                   unsigned int                value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
@@ -1319,6 +1319,12 @@ struct AtomicOperations {
         // Atomically increment the specified 'atomicUint' by 1 and return the
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
+
+    static Types::Uint64 subUint64Nv(AtomicTypes::Uint64 *atomicUint,
+                                     Types::Uint64                 value);
+        // Atomically subtract from the specified 'atomicUint' the specified
+        // 'value' and return the resulting value, providing the sequential
+        // consistency memory ordering guarantee.
 
         // *** atomic functions for pointer ***
 
