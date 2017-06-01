@@ -72,7 +72,7 @@ int adjustVecBuffer(const VECTYPE        *buffers,
                 (char*) const_cast<void *>(buffers[i].buffer()),
                 buffers[i].length()));
     }
-    return vector->size();
+    return static_cast<int>(vector->size());
 }
 
 namespace btlsos {
@@ -847,7 +847,7 @@ int TcpChannel::writev(int *augStatus, int length, int flags)
 
     int rc = 0;
     int numBytesWritten = 0;
-    int originalNumBuffers = d_ovecBuffers.size();
+    int originalNumBuffers = static_cast<int>(d_ovecBuffers.size());
     int numBuffers = originalNumBuffers;
     bsl::vector<btls::Ovec> *writeBuffers = &d_ovecBuffers;
     
