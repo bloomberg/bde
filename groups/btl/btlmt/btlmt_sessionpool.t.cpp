@@ -193,6 +193,9 @@ typedef btlso::IPv4Address                         IPAddress;
 typedef btlso::IPv4Address                         IPAddress;
 typedef btlso::InetStreamSocketFactory<IPAddress>  InetStreamSocketFactory;
 typedef btlso::StreamSocket<IPAddress>             StreamSocket;
+typedef Obj::SessionStateCallback                  SessionStateCallback;
+typedef btlmt::SessionFactory                      SessionFactory;
+typedef btlso::StreamSocketFactory<IPAddress>      SocketFactory;
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -1726,13 +1729,13 @@ namespace BTLMT_SESSION_POOL_BUSY_METRICS {
 
 using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
-void runTestFunction(Obj                  *mX,
-                     SessionStateCallback *scb,
-                     SessionFactory       *sessionFactory,
-                     SocketFactory        *socketFactory,
-                     bslmt::Barrier       *barrier,
-                     bool                  expZeroBusyMetrics,
-                     int                   numIters)
+void runTestFunction(Obj                     *mX,
+                     SessionStateCallback    *scb,
+                     SessionFactory          *sessionFactory,
+                     InetStreamSocketFactory *socketFactory,
+                     bslmt::Barrier          *barrier,
+                     bool                     expZeroBusyMetrics,
+                     int                      numIters)
 {
     btlso::SocketHandle::Handle handles[2];
 
