@@ -24,6 +24,7 @@
 #include <btlso_flag.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
+#include <btlso_sockethandle.h>
 #include <btlso_socketoptions.h>
 #include <btlso_streamsocket.h>
 
@@ -45,6 +46,7 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
@@ -94,6 +96,7 @@ using namespace bdlf::PlaceHolders;
 //
 // ACCESSORS
 // [  ] const btlmt::ChannelPoolConfiguration& config() const;
+// [18] int busyMetrics() const;
 // [  ] void getChannelHandleStatistics(*handleInfo) const;
 // [ 6] int numSessions() const;
 // [ 4] int portNumber(int handle) const;
@@ -1736,6 +1739,12 @@ void runTestFunction(Obj                     *mX,
                      bslmt::Barrier          *barrier,
                      bool                     expZeroBusyMetrics,
                      int                      numIters)
+    // Create a socket pair and import the server socket created using the
+    // specified 'socketFactory' into the specified 'mX' session pool using as
+    // arguments the specified 'scb' and 'sessionFactory'.  Write data into the
+    // client end of the socket pair the specified 'numIters' times and confirm
+    // that the value returned by the 'busyMetrics' method matches the
+    // specified 'expZeroBusyMetrics'.
 {
     btlso::SocketHandle::Handle handles[2];
 
@@ -1771,7 +1780,7 @@ void runTestFunction(Obj                     *mX,
             if (expZeroBusyMetrics) {
                 ASSERT(false);
             }
-            return;
+            return;                                                   // RETURN
         }
         if (rc <= 0) {
             bslmt::ThreadUtil::microSleep(10, 0);
@@ -1780,7 +1789,7 @@ void runTestFunction(Obj                     *mX,
     ASSERT(expZeroBusyMetrics);
 }
 
-}  // end namespace BTLMT_SESSION_POOL_BUSY_METRICS
+}  // close namespace BTLMT_SESSION_POOL_BUSY_METRICS
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -2256,7 +2265,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING: 'busyMetrics'
+        // Testing 'busyMetrics'
         //
         // Concerns:
         //: 1 The 'busyMetrics' method returns 0 if the session pool object has
@@ -2293,8 +2302,8 @@ int main(int argc, char *argv[])
         //    int busyMetrics() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: busyMetrics()" << endl
-                          << "======================" << endl;
+        if (verbose) cout << "Testing 'busyMetrics'" << endl
+                          << "=====================" << endl;
 
         using namespace BTLMT_SESSION_POOL_BUSY_METRICS;
 
