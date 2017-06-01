@@ -33,30 +33,40 @@ using namespace std;
 //
 // [ 2] initInt(Int *aInt);
 // [ 2] initInt64(Int64 *aInt);
+// [ 2] initUint(unsigned int *aInt);
+// [ 2] initUint64(Uint64 *aInt);
 // [ 2] initPointer(Pointer *aPointer);
+// [ 2] setInt(Int *aInt, int value);
+// [ 2] getInt(const Int &aInt);
+// [ 2] setInt64(Int64 *, bsls::Types::Int64);
+// [ 2] getInt64(const Int64 &aInt);
+// [ 2] setUint(unsigned int *aInt, unsigned int value);
+// [ 2] getUint(const unsiged int &aInt);
+// [ 2] setUint64(Uint64 *, bsls::Types::Uint64);
+// [ 2] getUint64(const Uint64 &aInt);
+// [ 2] getPtr(const Pointer &aPointer);
+// [ 2] setPtr(Pointer *aPointer, void *value);
 // [ 3] addInt(Int *aInt, int value);
+// [ 3] addIntNv(Int *aInt, int val);
+// [ 3] addInt64(Int64 *, bsls::Types::Int64);
+// [ 3] addInt64Nv(Int64 *, bsls::Types::Int64);
+// [ 3] addUint(Obj::Uint *aUint, unsigned int value);
+// [ 3] addUint64(Obj::Uint64 *, bsls::Types::Uint64);
+// [ 3] addUintNv(Obj::Uint *aUint, unsigned int value);
+// [ 3] addUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
 // [ 5] incrementInt(Int *aInt);
 // [ 5] decrementInt(Int *aInt);
 // [ 4] swapInt64(Int *aInt, int value);
 // [ 4] testAndSwapInt(Int *, int, int);
-// [ 2] setInt(Int *aInt, int value);
-// [ 2] getInt(const Int &aInt);
-// [ 3] addIntNv(Int *aInt, int val);
 // [ 5] incrementIntNv(Int *aInt);
 // [ 5] decrementIntNv(Int *aInt);
-// [ 3] addInt64(Int64 *, bsls::Types::Int64);
 // [ 5] incrementInt64(Int64 *aInt);
 // [ 5] decrementInt64(Int64 *aInt);
 // [ 4] swapInt64(Int64 *, bsls::Types::Int64);
 // [ 4] testAndSwapInt64(Int64 *, bsls::Types::Int64,
 //                       bsls::Types::Int64);
-// [ 3] addInt64Nv(Int64 *, bsls::Types::Int64);
 // [ 5] incrementInt64Nv(Int64 *);
 // [ 5] decrementInt64Nv(Int64 *);
-// [ 2] setInt64(Int64 *, bsls::Types::Int64);
-// [ 2] getInt64(const Int64 &aInt);
-// [ 2] getPtr(const Pointer &aPointer);
-// [ 2] setPtr(Pointer *aPointer, void *value);
 // [ 4] swapPtr(Pointer *aPointer, void *value);
 // [ 4] testAndSwapPtr(Pointer *, void *, void *);
 // [ 8] getIntRelaxed(AtomicTypes::Int const *aInt);
@@ -65,12 +75,6 @@ using namespace std;
 // [ 8] setIntRelaxed(AtomicTypes::Int *aInt, int value);
 // [ 8] setInt64Relaxed(AtomicTypes::Int64 *aInt, Types::Int64 value);
 // [ 8] setPtrRelaxed(AtomicTypes::Pointer *aPtr, void *value);
-// [ 9] getIntAcquire(AtomicTypes::Int const *aInt);
-// [ 9] getInt64Acquire(AtomicTypes::Int64 const *aInt);
-// [ 9] getPtrAcquire(AtomicTypes::Pointer const *aPtr);
-// [ 9] setIntRelease(AtomicTypes::Int *aInt, int value);
-// [ 9] setInt64Release(AtomicTypes::Int64 *aInt, Types::Int64 value);
-// [ 9] setPtrRelease(AtomicTypes::Pointer *aPtr, void *value);
 // [10] swapInt64AcqRel(Obj::Int *aInt, int value);
 // [10] testAndSwapIntAcqRel(Obj::Int *, int, int);
 // [10] swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
@@ -90,6 +94,7 @@ using namespace std;
 // [12] setPtrRelease(Obj::Pointer *aPointer, void *value);
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
+// [ 9] Alternative for other acquire/release tests.
 // [ 7] Usage examples
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -255,6 +260,26 @@ struct Int64TestThreadArgs {
     int            d_iterations;
     bsls::Types::Int64 d_addVal;
     Types::Int64    *d_int_p;
+};
+
+struct UintTestThreadArgs {
+    my_Conditional d_barrier;
+    my_Conditional d_startSig;
+    my_Mutex       d_mutex;
+    volatile int   d_countStarted;
+    int            d_iterations;
+    unsigned int   d_addVal;
+    Types::Uint   *d_uint_p;
+};
+
+struct Uint64TestThreadArgs {
+    my_Conditional d_barrier;
+    my_Conditional d_startSig;
+    my_Mutex       d_mutex;
+    volatile int   d_countStarted;
+    int            d_iterations;
+    bsls::Types::Uint64 d_addVal;
+    Types::Uint64 *d_uint_p;
 };
 
 struct IntSwapTestThreadArgs {
@@ -558,6 +583,27 @@ static void* incrementIntTestThread(void *ptr)
     return ptr;
 }
 
+static void* incrementUintTestThread(void *ptr)
+    // This function is used to test the 'incrementUint' and 'incrementUintNv'
+    // functions.  It atomically increments the specified atomic unsigned
+    // integer object for the specified number of iterations.
+{
+    UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
+
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::incrementUint(args->d_uint_p);
+        Obj::incrementUintNv(args->d_uint_p);
+    }
+    return ptr;
+}
+
 static void* decrementIntTestThread(void *ptr)
     // This function is used to test the 'decrementInt' and 'decrementIntNv'
     // functions.  It atomically decrements the specified atomic integer object
@@ -716,9 +762,9 @@ static void* decrementInt64AcqRelTestThread(void *ptr)
 
 
 static void* addIntTestThread(void *ptr)
-    // This function is used to test the 'addInt' function.  It atomically
-    // adds the specified 'd_addVal' to the specified atomic integer object
-    // for the specified number of iterations.
+    // This function is used to test the 'addInt' and 'addIntNv' functions.
+    // It atomically adds the specified 'd_addVal' to the specified atomic
+    // integer object for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -735,6 +781,30 @@ static void* addIntTestThread(void *ptr)
 
     for(int i=0; i < args->d_iterations; ++i) {
         Obj::addIntNv(args->d_int_p,args->d_addVal);
+    }
+    return ptr;
+}
+
+static void* addUintTestThread(void *ptr)
+    // This function is used to test the 'addUint' and 'addUintNv' functions.
+    // It atomically adds the specified 'd_addVal' to the specified atomic
+    // unsigned integer object for the specified number of iterations.
+{
+    UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
+
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::addUint(args->d_uint_p,args->d_addVal);
+    }
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::addUintNv(args->d_uint_p,args->d_addVal);
     }
     return ptr;
 }
@@ -759,6 +829,31 @@ static void* addInt64TestThread(void *ptr)
 
     for(int i=0; i < args->d_iterations; ++i) {
         Obj::addInt64Nv(args->d_int_p,args->d_addVal);
+    }
+    return ptr;
+}
+
+static void* addUint64TestThread(void *ptr)
+    // This function is used to test the 'addUint64' and 'addUint64Nv'
+    // functions.  It atomically adds the specified 'd_addVal' to the specified
+    // 64 bit atomic unsigned integer object, for the specified number of
+    // iterations.
+{
+    Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
+
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::addUint64(args->d_uint_p,args->d_addVal);
+    }
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::addUint64Nv(args->d_uint_p,args->d_addVal);
     }
     return ptr;
 }
@@ -2813,12 +2908,7 @@ int main(int argc, char *argv[]) {
         // return value is in the range (x, NxM] where x is the prior value.
         //
         // Testing:
-        //   getIntAcquire(AtomicTypes::Int const *aInt);
-        //   getInt64Acquire(AtomicTypes::Int64 const *aInt);
-        //   getPtrAcquire(AtomicTypes::Pointer const *aPtr);
-        //   setIntRelease(AtomicTypes::Int *aInt, int value);
-        //   setInt64Release(AtomicTypes::Int64 *aInt, Types::Int64 value);
-        //   setPtrRelease(AtomicTypes::Pointer *aPtr, void *value);
+        //   alternative for other acquire/release tests.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Acquire/Release Methods"
@@ -4473,7 +4563,8 @@ int main(int argc, char *argv[]) {
       case 3: {
         // --------------------------------------------------------------------
         // TESTING ARITHMETIC MANIPULATORS
-        //   Test that the 32/64 bit integer add functions work as expected.
+        //   Test that the 32/64 bit integer and unsigned interger add
+        //   functions work as expected.
         // Plan:
         //   For each atomic type('Int', and 'Int64') using a sequence of
         //   independent values, begin by initializing the value to 0
@@ -4496,6 +4587,10 @@ int main(int argc, char *argv[]) {
         //   addInt64(Obj::Int64 *, bsls::Types::Int64);
         //   addIntNv(Obj::Int *aInt, int value);
         //   addInt64Nv(Obj::Int64 *, bsls::Types::Int64);
+        //   addUint(Obj::Uint *aUint, unsigned int value);
+        //   addUint64(Obj::Uint64 *, bsls::Types::Uint64);
+        //   addUintNv(Obj::Uint *aUint, unsigned int value);
+        //   addUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Arithmetic Manipulators"
@@ -4732,6 +4827,7 @@ int main(int argc, char *argv[]) {
             }
 
         }
+
         if (verbose) cout << "\nTesting 'Int' add Thread Safeness"
                           << endl;
         {
@@ -4814,6 +4910,319 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        if (verbose) cout << "\nTesting 'Uint' Arithmetic Manipulators" << endl;
+        {
+            static const struct {
+                int          d_lineNum;     // Source line number
+                unsigned int d_value;       // Input value
+            } VALUES[] = {
+                //line d_x
+                //---- -----
+                { L_,      0 },
+                { L_,      1 },
+                { L_,   1000 },
+                { L_,      2 },
+                { L_, 200000 }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::addUint(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+            }
+
+            if (verbose) cout <<
+                "\n\tTesting 'Uint' Arithmetic(and values) Manipulators\n" <<
+                "\n\t-------------------------------------------------"
+                              << endl;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                unsigned int       result;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                result = Obj::addUintNv(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+                LOOP_ASSERT(i, VAL == result);
+            }
+
+        }
+
+        if (verbose) cout << "\n\tTesting 'Uint' Arith(with base) Manip"
+                          << endl;
+
+        {
+            static const struct {
+                int          d_lineNum;    // Source line number
+                unsigned int d_base;        // Base value
+                unsigned int d_amount;      // Amount to add
+                unsigned int d_expected;    // Expected value
+            } VALUES[] = {
+                //line d_base          d_amount d_expected
+                //---- --------        -------- ----------
+                { L_,   0             , 9    ,  9         },
+                { L_,   1             , 0     , 1          },
+                { L_,  11             , 1     , 12         },
+                { L_, (unsigned int) 0xFFFFFFFF, 1     , 0          },
+                { L_,  22             , 22    , 44         }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int BASE = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int EXP  = VALUES[i].d_expected;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,BASE);
+                ASSERT(BASE == Obj::getUint(&X));
+
+                Obj::addUint(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X));
+                    P_(BASE); P_(AMT); P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int BASE = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,BASE);
+                ASSERT(BASE == Obj::getUint(&X));
+
+                result = Obj::addUintNv(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X));
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' Arithmetic Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int                 d_lineNum;     // Source line number
+                bsls::Types::Uint64 d_value;       // Input value
+            } VALUES[] = {
+                //line d_x
+                //---- ----
+                { L_,   0LL },
+                { L_,   1LL },
+                { L_, 100LL },
+                { L_,   2LL },
+                { L_, 202LL }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL = VALUES[i].d_value;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::addUint64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL = VALUES[i].d_value;
+                bsls::Types::Uint64       result;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                result = Obj::addUint64Nv(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X));
+                    P_(VAL); P_(result); NL();
+                }
+                LOOP_ASSERT(i, VAL == result);
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
+            }
+
+        }
+        {
+            static const struct {
+                int                 d_lineNum;      // Source line number
+                bsls::Types::Uint64 d_base;    // Base value
+                bsls::Types::Uint64 d_amount;  // Amount to add
+                bsls::Types::Uint64 d_expected; // Expected value
+            } VALUES[] = {
+                //line d_base        d_amount d_expected
+                //---- ------------- -------- ----------
+                { L_,  1LL          , 10     , 11               },
+                { L_,  1            , 22LL   , 23LL             },
+                { L_,  11LL         , 2LL    , 13LL             },
+                { L_,  0xFFFFFFFFLL , 1LL    , 0x100000000LL    },
+                { L_,  0x100000000LL, 2LL    , 0x100000002LL    }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 BASE = VALUES[i].d_base;
+                const bsls::Types::Uint64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_expected;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,BASE);
+                ASSERT(BASE == Obj::getUint64(&X));
+
+                Obj::addUint64(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P(BASE);
+                    T_(); P_(AMT); P(EXP);
+                }
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 BASE = VALUES[i].d_base;
+                const bsls::Types::Uint64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Uint64       result;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,BASE);
+                ASSERT(BASE == Obj::getUint64(&X));
+
+                result = Obj::addUint64Nv(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+
+        }
+
+        if (verbose) cout << "\nTesting 'Uint' add Thread Safeness"
+                          << endl;
+        {
+            const int          NTHREADS=4;
+            const int          NITERATIONS=10000;
+            const unsigned int ADDVAL = 3;
+            const int          EXPTOTAL=NTHREADS*NITERATIONS*ADDVAL*2;
+            const unsigned int STARTVALUE=0;
+
+            Types::Uint mUint;
+
+            Obj::initUint(&mUint,STARTVALUE);
+            UintTestThreadArgs args;
+            args.d_uint_p = &mUint;
+            args.d_iterations = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_addVal = ADDVAL;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread( &threadHandles[i],addUintTestThread, &args);
+                args.d_startSig.wait();
+            }
+
+            ASSERT(STARTVALUE == Obj::getUint(&mUint));
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            for (int i=0; i< NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            ASSERT(EXPTOTAL == Obj::getUint(&mUint));
+            if (veryVerbose) {
+                T_(); P_(Obj::getUint(&mUint)); P(EXPTOTAL);
+                T_(); P(STARTVALUE); NL();
+            }
+        }
+        if (verbose) cout << "\nTesting 'Uint64' add Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const bsls::Types::Uint64 ADDVAL = 33;
+            const bsls::Types::Uint64 STARTVALUE=0xfffff000;
+            const bsls::Types::Uint64 EXPTOTAL=(NTHREADS*NITERATIONS*
+                                                     ADDVAL * 2) + STARTVALUE;
+            Types::Uint64 mUint;
+
+            Uint64TestThreadArgs args;
+            Obj::initUint64(&mUint,STARTVALUE);
+
+            args.d_uint_p = &mUint;
+            args.d_iterations = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_addVal = ADDVAL;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread( &threadHandles[i], addUint64TestThread,
+                                &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(STARTVALUE == Obj::getUint64(&mUint));
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            for (int i=0; i< NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            ASSERT(EXPTOTAL == Obj::getUint64(&mUint));
+            if (veryVerbose) {
+                T_(); P_(Obj::getUint64(&mUint)); P(EXPTOTAL);
+                T_(); P(STARTVALUE);
+            }
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -4823,21 +5232,28 @@ int main(int argc, char *argv[]) {
         //   First, verify the initialization functions by initializing each
         //   atomic type and testing the resulting value.
         //
-        //   Next, for the Int,Int64, and Pointer atomic types, for a sequence
-        //   of independent test values, use the initialization functions to
-        //   initialize each type and use the primary manipulator(i.e.,
-        //   'setInt', 'setInt64', 'setPtr') to set its value.  Verify the
-        //   value using the respective direct accessor(i.e.,'getInt',
-        //   'getInt64', 'getPtr').
-        //
+        //   Next, for the Int,Int64, Uint, Uint64, and Pointer atomic types,
+        //   for a sequence of independent test values, use the initialization
+        //   functions to initialize each type and use the primary manipulator
+        //   (i.e., 'setInt', 'setInt64', 'setUint', 'setUint64', 'setPtr') to
+        //   set its value.  Verify the value using the respective direct
+        //   accessor (i.e.,'getInt', 'getInt64', 'getUint', 'getUint64',
+        //   'getPtr').
+    	//
         // Testing:
         //   initInt(Obj::Int *aInt, int initialValue);
         //   initInt64(Obj::Int64 *aInt);
+   	    //   initUint(unsigned int *aInt);
+        //   initUint64(Uint64 *aInt);
         //   initPointer(Obj::Pointer *aPointer);
         //   setInt(Obj::Int *aInt, int value);
         //   getInt(const Obj::Int &aInt);
         //   setInt64(Obj::Int64 *, bsls::Types::Int64);
         //   getInt64(const Obj::Int64 &aInt);
+        //   setUint(unsigned int *aInt, unsigned int value);
+        //   getUint(const unsiged int &aInt);
+        //   setUint64(Uint64 *, bsls::Types::Uint64);
+        //   getUint64(const Uint64 &aInt);
         //   getPtr(const Obj::Pointer &aPointer);
         //   setPtr(Obj::Pointer *aPointer, void *value);
         //
@@ -4907,6 +5323,71 @@ int main(int argc, char *argv[]) {
                     T_(); P_(Obj::getInt64(&X)); P_(VAL); NL();
                 }
                 LOOP_ASSERT(i, VAL == Obj::getInt64(&X));
+            }
+        }
+
+
+        if (verbose) cout << "\nTesting 'Uint' Primary Manipulators" << endl;
+        {
+            static const struct {
+                int          d_lineNum;     // Source line number
+                unsigned int d_value;       // Input value
+            } VALUES[] = {
+                //line value
+                //---- -----
+                { L_,      0 },
+                { L_,      1 },
+                { L_,   1000 },
+                { L_,      2 },
+                { L_, 200000 }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' Primary Manipulators" << endl;
+        {
+            static const struct {
+                int                 d_lineNum;     // Source line number
+                bsls::Types::Uint64 d_value;       // Input value
+            } VALUES[] = {
+                //line value
+                //---- -----
+                { L_,   0              },
+                { L_,   1              },
+                { L_,   2              },
+                { L_,  0xFFFFFFFFLL    },
+                { L_,  0x100000000LL   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL  = VALUES[i].d_value;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
             }
         }
 
