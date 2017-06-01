@@ -14,13 +14,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha), Alexei Zakharov (azakhar1)
 //
-//@DESCRIPTION: This utility provides a set of platform-independent atomic
-// operations for fundamental data types, such as 32-bit and 64-bit integer and
-// pointer.  The examples of provided atomic operations include loading,
-// storing, exchanging, incrementing and decrementing the data of fundamental
-// types.  Atomic operations are useful for manipulating certain types of
-// shared data without the need for high level synchronization mechanisms
-// (e.g., "mutexes" or "critical sections").
+//@DESCRIPTION: This utility, 'bsls::AtomicOperations', provides a set of
+// platform-independent atomic operations for fundamental data types, such as
+// 32-bit and 64-bit integer and pointer.  The examples of provided atomic
+// operations include loading, storing, exchanging, incrementing and
+// decrementing the data of fundamental types.  Atomic operations are useful
+// for manipulating certain types of shared data without the need for high
+// level synchronization mechanisms (e.g., "mutexes" or "critical sections").
 //
 // Integer atomic operations allow for thread-safe manipulation of a single 32
 // or 64-bit integer value, without the use of other synchronization
@@ -113,8 +113,8 @@ BSLS_IDENT("$Id: $")
 //:
 //: o sequential consistency - the operation has both acquire and release
 //:   guarantees, and further guarantees that all sequentially consistent
-//:   operations performed by the process will be observed to occur in a
-//:   single global total order (regardless of the thread from which they are
+//:   operations performed by the process will be observed to occur in a single
+//:   global total order (regardless of the thread from which they are
 //:   observed).
 //
 ///Acquire and Release Memory Consistency Guarantees
@@ -131,8 +131,8 @@ BSLS_IDENT("$Id: $")
 //
 // However, stores in thread A can be ordered with loads in thread B using a
 // combination of store-release and load-acquire operations.  A store-release
-// operation in thread A followed by a load-acquire operation in thread B
-// to the *same* *memory* *location* guarantees that thread B sees all other
+// operation in thread A followed by a load-acquire operation in thread B to
+// the *same* *memory* *location* guarantees that thread B sees all other
 // stores done in thread A prior to the store-release operation.  The
 // store-release in thread A effectively synchronizes the memory state with the
 // load-acquire in thread B.
@@ -173,8 +173,8 @@ BSLS_IDENT("$Id: $")
 // Where 'threadN' functions are executed concurrently by different threads
 // (note that values 'x' and 'y' are written by independent threads).
 // Sequential consistency guarantees that if 'thread3' observes values 'x' and
-// 'y' as 'r1 == 1 && r2 == 0', then 'thread4' can't observe values 'x' and
-// 'y' in a different order, i.e., 'r3 == 1 && r4 == 0'.
+// 'y' as 'r1 == 1 && r2 == 0', then 'thread4' can't observe values 'x' and 'y'
+// in a different order, i.e., 'r3 == 1 && r4 == 0'.
 //
 ///Atomic Integer Operations
 ///-------------------------
@@ -473,7 +473,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Next, we define the destructor which decrements the "rep" object's reference
+// Next, we define the destructor that decrements the "rep" object's reference
 // count using the 'decrement' method.  The 'decrement' method returns the
 // object's reference count after the decrement is completed, and
 // 'my_CountedHandle' uses this value to determine whether the "rep" object
@@ -661,9 +661,9 @@ BSLS_IDENT("$Id: $")
 //                                                    node)!= node->d_next_p);
 //  }
 //..
-// Finally, we define the 'pop' method which removes the node from the top
-// of active node list, 'd_list_p', adds it to the free-node list, and returns
-// the data item contained in the node to the caller:
+// Finally, we define the 'pop' method that removes the node from the top of
+// active node list, 'd_list_p', adds it to the free-node list, and returns the
+// data item contained in the node to the caller:
 //..
 //  template <class TYPE>
 //  inline TYPE *my_PtrStack<TYPE>::pop()
@@ -699,11 +699,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_ATOMICOPERATIONS_CLANG_ATOMICS)
-    //  clang 3.1+
+    // clang 3.1+
 #   include <bsls_atomicoperations_all_all_clangintrinsics.h>
 
 #elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700
-    //  GCC 4.7+
+    // GCC 4.7+
 #   include <bsls_atomicoperations_all_all_gccintrinsics.h>
 
 #elif defined(BSLS_PLATFORM_CPU_X86)
@@ -773,10 +773,10 @@ namespace bsls {
                            // =======================
 
 struct AtomicOperations {
-    // 'AtomicOperations' provides a namespace for a suite of atomic
-    // operations on the following types as defined by the 'AtomicTypes'
-    // typedef: integer - 'AtomicTypes::Int', 64bit integer -
-    // 'AtomicTypes::Int64', pointer - 'AtomicTypes::Pointer'.
+    // 'AtomicOperations' provides a namespace for a suite of atomic operations
+    // on the following types as defined by the 'AtomicTypes' typedef:
+    // integer - 'AtomicTypes::Int', 64bit integer - 'AtomicTypes::Int64',
+    // pointer - 'AtomicTypes::Pointer'.
 
     // TYPES
     typedef AtomicOperations_Imp   Imp;
@@ -785,21 +785,21 @@ struct AtomicOperations {
         // *** atomic functions for int ***
 
     // CLASS METHODS
-    static void initInt(AtomicTypes::Int *atomicInt, int initialValue = 0);
-        // Initialize the specified 'atomicInt' and set its value to the
-        // specified 'initialValue'.
-
     static int getInt(AtomicTypes::Int const *atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt',
         // providing the sequential consistency memory ordering guarantee.
+
+    static int getIntAcquire(AtomicTypes::Int const *atomicInt);
+        // Atomically retrieve the value of the specified 'atomicInt',
+        // providing the acquire memory ordering guarantee.
 
     static int getIntRelaxed(AtomicTypes::Int const *atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt', without
         // providing any memory ordering guarantees.
 
-    static int getIntAcquire(AtomicTypes::Int const *atomicInt);
-        // Atomically retrieve the value of the specified 'atomicInt',
-        // providing the acquire memory ordering guarantee.
+    static void initInt(AtomicTypes::Int *atomicInt, int initialValue = 0);
+        // Initialize the specified 'atomicInt' and set its value to the
+        // optionally specified 'initialValue'.
 
     static void setInt(AtomicTypes::Int *atomicInt, int value);
         // Atomically set the value of the specified 'atomicInt' to the
@@ -808,8 +808,7 @@ struct AtomicOperations {
 
     static void setIntRelaxed(AtomicTypes::Int *atomicInt, int value);
         // Atomically set the value of the specified 'atomicInt' to the
-        // specified 'value', without providing any memory ordering
-        // guarantees.
+        // specified 'value', without providing any memory ordering guarantees.
 
     static void setIntRelease(AtomicTypes::Int *atomicInt, int value);
         // Atomically set the value of the specified 'atomicInt' to the
@@ -817,12 +816,12 @@ struct AtomicOperations {
 
     static int swapInt(AtomicTypes::Int *atomicInt, int swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
-        // specified 'value', and return its previous value, providing the
+        // specified 'swapValue', and return its previous value, providing the
         // sequential consistency memory ordering guarantee.
 
     static int swapIntAcqRel(AtomicTypes::Int *atomicInt, int swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
-        // specified 'value', and return its previous value, providing the
+        // specified 'swapValue', and return its previous value, providing the
         // acquire/release memory ordering guarantee.
 
     static int testAndSwapInt(AtomicTypes::Int *atomicInt,
@@ -843,49 +842,39 @@ struct AtomicOperations {
         // value of 'atomicInt', providing the acquire/release memory ordering
         // guarantee.  The whole operation is performed atomically.
 
+    static void addInt(AtomicTypes::Int *atomicInt, int value);
+        // Atomically add to the specified 'atomicInt' the specified 'value',
+        // providing the sequential consistency memory ordering guarantee.
+
+    static void addIntAcqRel(AtomicTypes::Int *atomicInt, int value);
+        // Atomically add to the specified 'atomicInt' the specified 'value',
+        // providing the acquire/release memory ordering guarantee.
+
+    static void addIntRelaxed(AtomicTypes::Int *atomicInt, int value);
+        // Atomically add to the specified 'atomicInt' the specified 'value',
+        // without providing any memory ordering guarantees.
+
     static int addIntNv(AtomicTypes::Int *atomicInt, int value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, providing the sequential consistency
         // memory ordering guarantee.
-
-    static int addIntNvRelaxed(AtomicTypes::Int *atomicInt, int value);
-        // Atomically add to the specified 'atomicInt' the specified 'value'
-        // and return the resulting value, without providing any memory
-        // ordering guarantees.
 
     static int addIntNvAcqRel(AtomicTypes::Int *atomicInt, int value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, providing the acquire/release memory
         // ordering guarantee.
 
-    static void addInt(AtomicTypes::Int *atomicInt, int value);
-        // Atomically add to the specified 'atomicInt' the specified 'value',
+    static int addIntNvRelaxed(AtomicTypes::Int *atomicInt, int value);
+        // Atomically add to the specified 'atomicInt' the specified 'value'
+        // and return the resulting value, without providing any memory
+        // ordering guarantees.
+
+    static void decrementInt(AtomicTypes::Int *atomicInt);
+        // Atomically decrement the value of the specified 'atomicInt' by 1,
         // providing the sequential consistency memory ordering guarantee.
 
-    static void addIntRelaxed(AtomicTypes::Int *atomicInt, int value);
-        // Atomically add to the specified 'atomicInt' the specified 'value',
-        // without providing any memory ordering guarantees.
-
-    static void addIntAcqRel(AtomicTypes::Int *atomicInt, int value);
-        // Atomically add to the specified 'atomicInt' the specified 'value',
-        // providing the acquire/release memory ordering guarantee.
-
-    static int incrementIntNv(AtomicTypes::Int *atomicInt);
-        // Atomically increment the specified 'atomicInt' by 1 and return the
-        // resulting value, providing the sequential consistency memory
-        // ordering guarantee.
-
-    static int incrementIntNvAcqRel(AtomicTypes::Int *atomicInt);
-        // Atomically increment the specified 'atomicInt' by 1 and return the
-        // resulting value, providing the acquire/release memory ordering
-        // guarantee.
-
-    static void incrementInt(AtomicTypes::Int *atomicInt);
-        // Atomically increment the value of the specified 'atomicInt' by 1,
-        // providing the sequential consistency memory ordering guarantee.
-
-    static void incrementIntAcqRel(AtomicTypes::Int *atomicInt);
-        // Atomically increment the value of the specified 'atomicInt' by 1,
+    static void decrementIntAcqRel(AtomicTypes::Int *atomicInt);
+        // Atomically decrement the value of the specified 'atomicInt' by 1,
         // providing the acquire/release memory ordering guarantee.
 
     static int decrementIntNv(AtomicTypes::Int *atomicInt);
@@ -898,35 +887,45 @@ struct AtomicOperations {
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
-    static void decrementInt(AtomicTypes::Int *atomicInt);
-        // Atomically decrement the value of the specified 'atomicInt' by 1,
+    static void incrementInt(AtomicTypes::Int *atomicInt);
+        // Atomically increment the value of the specified 'atomicInt' by 1,
         // providing the sequential consistency memory ordering guarantee.
 
-    static void decrementIntAcqRel(AtomicTypes::Int *atomicInt);
-        // Atomically decrement the value of the specified 'atomicInt' by 1,
+    static void incrementIntAcqRel(AtomicTypes::Int *atomicInt);
+        // Atomically increment the value of the specified 'atomicInt' by 1,
         // providing the acquire/release memory ordering guarantee.
 
-        // *** atomic functions for Int64 ***
+    static int incrementIntNv(AtomicTypes::Int *atomicInt);
+        // Atomically increment the specified 'atomicInt' by 1 and return the
+        // resulting value, providing the sequential consistency memory
+        // ordering guarantee.
 
-    static void initInt64(AtomicTypes::Int64 *atomicInt,
-                          Types::Int64        initialValue = 0);
-        // Initialize the specified 'atomicInt' and set its value to the
-        // specified 'initialValue'.
+    static int incrementIntNvAcqRel(AtomicTypes::Int *atomicInt);
+        // Atomically increment the specified 'atomicInt' by 1 and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
+
+        // *** atomic functions for Int64 ***
 
     static Types::Int64 getInt64(AtomicTypes::Int64 const *atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt',
         // providing the sequential consistency memory ordering guarantee.
 
-    static Types::Int64 getInt64Relaxed(AtomicTypes::Int64 const *atomicInt);
-        // Atomically retrieve the value of the specified 'atomicInt',
-        // without providing any memory ordering guarantees.
-
     static Types::Int64 getInt64Acquire(AtomicTypes::Int64 const *atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt',
         // providing the acquire memory ordering guarantee.
 
+    static Types::Int64 getInt64Relaxed(AtomicTypes::Int64 const *atomicInt);
+        // Atomically retrieve the value of the specified 'atomicInt', without
+        // providing any memory ordering guarantees.
+
+    static void initInt64(AtomicTypes::Int64 *atomicInt,
+                          Types::Int64        initialValue = 0);
+        // Initialize the specified 'atomicInt' and set its value to the
+        // optionally specified 'initialValue'.
+
     static void setInt64(AtomicTypes::Int64 *atomicInt,
-                         Types::Int64 value);
+                         Types::Int64        value);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value', providing the sequential consistency memory
         // ordering guarantee.
@@ -944,13 +943,13 @@ struct AtomicOperations {
     static Types::Int64 swapInt64(AtomicTypes::Int64 *atomicInt,
                                   Types::Int64        swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
-        // specified 'value' and return its previous value, providing the
+        // specified 'swapValue' and return its previous value, providing the
         // sequential consistency memory ordering guarantee.
 
     static Types::Int64 swapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
                                         Types::Int64        swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
-        // specified 'value' and return its previous value, providing the
+        // specified 'swapValue' and return its previous value, providing the
         // acquire/release memory ordering guarantee.
 
     static Types::Int64 testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
@@ -972,17 +971,26 @@ struct AtomicOperations {
         // value of 'atomicInt', providing the acquire/release memory ordering
         // guarantee.  The whole operation is performed atomically.
 
+    static void addInt64(AtomicTypes::Int64 *atomicInt,
+                         Types::Int64        value);
+        // Atomically add to the specified 'atomicInt' the specified 'value',
+        // providing the sequential consistency memory ordering guarantee.
+
+    static void addInt64AcqRel(AtomicTypes::Int64 *atomicInt,
+                               Types::Int64        value);
+        // Atomically add to the specified 'atomicInt' the specified 'value',
+        // providing the acquire/release memory ordering guarantee.
+
+    static void addInt64Relaxed(AtomicTypes::Int64 *atomicInt,
+                                Types::Int64        value);
+        // Atomically add to the specified 'atomicInt' the specified 'value',
+        // without providing any memory ordering guarantees.
+
     static Types::Int64 addInt64Nv(AtomicTypes::Int64 *atomicInt,
                                    Types::Int64        value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, providing the sequential consistency
         // memory ordering guarantee.
-
-    static Types::Int64 addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64         value);
-        // Atomically add to the specified 'atomicInt' the specified 'value'
-        // and return the resulting value, without providing any memory
-        // ordering guarantees.
 
     static Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
                                          Types::Int64        value);
@@ -990,38 +998,11 @@ struct AtomicOperations {
         // and return the resulting value, providing the acquire/release memory
         // ordering guarantee.
 
-    static void addInt64(AtomicTypes::Int64 *atomicInt,
-                         Types::Int64        value);
-        // Atomically add to the specified 'atomicInt' the specified 'value',
-        // providing the sequential consistency memory ordering guarantee.
-
-    static void addInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64        value);
-        // Atomically add to the specified 'atomicInt' the specified 'value',
-        // without providing any memory ordering guarantees.
-
-    static void addInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                               Types::Int64        value);
-        // Atomically add to the specified 'atomicInt' the specified 'value',
-        // providing the acquire/release memory ordering guarantee.
-
-    static void incrementInt64(AtomicTypes::Int64 *atomicInt);
-        // Atomically increment the value of the specified 'atomicInt' by 1,
-        // providing the sequential consistency memory ordering guarantee.
-
-    static void incrementInt64AcqRel(AtomicTypes::Int64 *atomicInt);
-        // Atomically increment the value of the specified 'atomicInt' by 1,
-        // providing the acquire/release memory ordering guarantee.
-
-    static Types::Int64 incrementInt64Nv(AtomicTypes::Int64 *atomicInt);
-        // Atomically increment the specified 'atomicInt' by 1 and return the
-        // resulting value, providing the sequential consistency memory
-        // ordering guarantee.
-
-    static Types::Int64 incrementInt64NvAcqRel(AtomicTypes::Int64 *atomicInt);
-        // Atomically increment the specified 'atomicInt' by 1 and return the
-        // resulting value, providing the acquire/release memory ordering
-        // guarantee.
+    static Types::Int64 addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
+                                          Types::Int64        value);
+        // Atomically add to the specified 'atomicInt' the specified 'value'
+        // and return the resulting value, without providing any memory
+        // ordering guarantees.
 
     static void decrementInt64(AtomicTypes::Int64 *atomicInt);
         // Atomically decrement the specified 'atomicInt' by 1, providing the
@@ -1041,289 +1022,322 @@ struct AtomicOperations {
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
-    // *** atomic functions for unsigned int ***
+    static void incrementInt64(AtomicTypes::Int64 *atomicInt);
+        // Atomically increment the value of the specified 'atomicInt' by 1,
+        // providing the sequential consistency memory ordering guarantee.
 
-// CLASS METHODS
-static void initUint(AtomicTypes::Uint *atomicUint,
-                     unsigned int       initialValue = 0);
-    // Initialize the specified 'atomicUint' and set its value to the
-    // specified 'initialValue'.
+    static void incrementInt64AcqRel(AtomicTypes::Int64 *atomicInt);
+        // Atomically increment the value of the specified 'atomicInt' by 1,
+        // providing the acquire/release memory ordering guarantee.
 
-static unsigned int getUint(AtomicTypes::Uint const *atomicUint);
-    // Atomically retrieve the value of the specified 'atomicUint',
-    // providing the sequential consistency memory ordering guarantee.
+    static Types::Int64 incrementInt64Nv(AtomicTypes::Int64 *atomicInt);
+        // Atomically increment the specified 'atomicInt' by 1 and return the
+        // resulting value, providing the sequential consistency memory
+        // ordering guarantee.
 
-static unsigned int getUintRelaxed(AtomicTypes::Uint const *atomicUint);
-    // Atomically retrieve the value of the specified 'atomicUint', without
-    // providing any memory ordering guarantees.
+    static Types::Int64 incrementInt64NvAcqRel(AtomicTypes::Int64 *atomicInt);
+        // Atomically increment the specified 'atomicInt' by 1 and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
-static unsigned int getUintAcquire(AtomicTypes::Uint const *atomicUint);
-    // Atomically retrieve the value of the specified 'atomicUint',
-    // providing the acquire memory ordering guarantee.
+       // *** atomic functions for unsigned int ***
 
-static void setUint(AtomicTypes::Uint *atomicUint, unsigned int value);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', providing the sequential consistency memory
-    // ordering guarantee.
+    // CLASS METHODS
+    static unsigned int getUint(AtomicTypes::Uint const *atomicUint);
+        // Atomically retrieve the value of the specified 'atomicUint',
+        // providing the sequential consistency memory ordering guarantee.
 
-static void setUintRelaxed(AtomicTypes::Uint *atomicUint, unsigned int value);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', without providing any memory ordering
-    // guarantees.
+    static unsigned int getUintAcquire(AtomicTypes::Uint const *atomicUint);
+        // Atomically retrieve the value of the specified 'atomicUint',
+        // providing the acquire memory ordering guarantee.
 
-static void setUintRelease(AtomicTypes::Uint *atomicUint, unsigned int value);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', providing the release memory ordering guarantee.
+    static unsigned int getUintRelaxed(AtomicTypes::Uint const *atomicUint);
+        // Atomically retrieve the value of the specified 'atomicUint', without
+        // providing any memory ordering guarantees.
 
-static unsigned int swapUint(AtomicTypes::Uint *atomicUint,
-                             unsigned int       swapValue);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', and return its previous value, providing the
-    // sequential consistency memory ordering guarantee.
+    static void initUint(AtomicTypes::Uint *atomicUint,
+                         unsigned int       initialValue = 0);
+        // Initialize the specified 'atomicUint' and set its value to the
+        // optionally specified 'initialValue'.
 
-static unsigned int swapUintAcqRel(AtomicTypes::Uint *atomicUint,
-                                   unsigned int       swapValue);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', and return its previous value, providing the
-    // acquire/release memory ordering guarantee.
+    static void setUint(AtomicTypes::Uint *atomicUint, unsigned int value);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'value', providing the sequential consistency memory
+        // ordering guarantee.
 
-static unsigned int testAndSwapUint(AtomicTypes::Uint *atomicUint,
-                                    unsigned int       compareValue,
-                                    unsigned int       swapValue);
-    // Conditionally set the value of the specified 'atomicUint' to the
-    // specified 'swapValue' if and only if the value of 'atomicUint' equals
-    // the value of the specified 'compareValue', and return the initial
-    // value of 'atomicUint', providing the sequential consistency memory
-    // ordering guarantee.  The whole operation is performed atomically.
+    static void setUintRelaxed(AtomicTypes::Uint *atomicUint,
+                               unsigned int       value);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'value', without providing any memory ordering guarantees.
 
-static unsigned int testAndSwapUintAcqRel(AtomicTypes::Uint *atomicUint,
-                                          unsigned int       compareValue,
-                                          unsigned int       swapValue);
-    // Conditionally set the value of the specified 'atomicUint' to the
-    // specified 'swapValue' if and only if the value of 'atomicInt' equals
-    // the value of the specified 'compareValue', and return the initial
-    // value of 'atomicUint', providing the acquire/release memory ordering
-    // guarantee.  The whole operation is performed atomically.
+    static void setUintRelease(AtomicTypes::Uint *atomicUint,
+                               unsigned int       value);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'value', providing the release memory ordering guarantee.
 
-static unsigned int addUintNv(AtomicTypes::Uint *atomicUint,
+    static unsigned int swapUint(AtomicTypes::Uint *atomicUint,
+                                 unsigned int       swapValue);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'swapValue', and return its previous value, providing the
+        // sequential consistency memory ordering guarantee.
+
+    static unsigned int swapUintAcqRel(AtomicTypes::Uint *atomicUint,
+                                       unsigned int       swapValue);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'swapValue', and return its previous value, providing the
+        // acquire/release memory ordering guarantee.
+
+    static unsigned int testAndSwapUint(AtomicTypes::Uint *atomicUint,
+                                        unsigned int       compareValue,
+                                        unsigned int       swapValue);
+        // Conditionally set the value of the specified 'atomicUint' to the
+        // specified 'swapValue' if and only if the value of 'atomicUint'
+        // equals the value of the specified 'compareValue', and return the
+        // initial value of 'atomicUint', providing the sequential consistency
+        // memory ordering guarantee.  The whole operation is performed
+        // atomically.
+
+    static unsigned int testAndSwapUintAcqRel(AtomicTypes::Uint *atomicUint,
+                                              unsigned int       compareValue,
+                                              unsigned int       swapValue);
+        // Conditionally set the value of the specified 'atomicUint' to the
+        // specified 'swapValue' if and only if the value of 'atomicInt' equals
+        // the value of the specified 'compareValue', and return the initial
+        // value of 'atomicUint', providing the acquire/release memory ordering
+        // guarantee.  The whole operation is performed atomically.
+
+    static void addUint(AtomicTypes::Uint *atomicUint, unsigned int value);
+        // Atomically add to the specified 'atomicUint' the specified 'value',
+        // providing the sequential consistency memory ordering guarantee.
+
+    static void addUintAcqRel(AtomicTypes::Uint *atomicUint,
                               unsigned int       value);
-    // Atomically add to the specified 'atomicUint' the specified 'value'
-    // and return the resulting value, providing the sequential consistency
-    // memory ordering guarantee.
+        // Atomically add to the specified 'atomicUint' the specified 'value',
+        // providing the acquire/release memory ordering guarantee.
 
-static unsigned int addUintNvRelaxed(AtomicTypes::Uint *atomicUint,
-                                     unsigned int value);
-    // Atomically add to the specified 'atomicUint' the specified 'value'
-    // and return the resulting value, without providing any memory
-    // ordering guarantees.
+    static void addUintRelaxed(AtomicTypes::Uint *atomicUint,
+                               unsigned int       value);
+        // Atomically add to the specified 'atomicUint' the specified 'value',
+        // without providing any memory ordering guarantees.
 
-static unsigned int addUintNvAcqRel(AtomicTypes::Uint *atomicUint,
-                                    unsigned int       value);
-    // Atomically add to the specified 'atomicUint' the specified 'value'
-    // and return the resulting value, providing the acquire/release memory
-    // ordering guarantee.
+    static unsigned int addUintNv(AtomicTypes::Uint *atomicUint,
+                                  unsigned int       value);
+        // Atomically add to the specified 'atomicUint' the specified 'value'
+        // and return the resulting value, providing the sequential consistency
+        // memory ordering guarantee.
 
-static void addUint(AtomicTypes::Uint *atomicUint, unsigned int value);
-    // Atomically add to the specified 'atomicUint' the specified 'value',
-    // providing the sequential consistency memory ordering guarantee.
+    static unsigned int addUintNvAcqRel(AtomicTypes::Uint *atomicUint,
+                                        unsigned int       value);
+        // Atomically add to the specified 'atomicUint' the specified 'value'
+        // and return the resulting value, providing the acquire/release memory
+        // ordering guarantee.
 
-static void addUintRelaxed(AtomicTypes::Uint *atomicUint, unsigned int value);
-    // Atomically add to the specified 'atomicUint' the specified 'value',
-    // without providing any memory ordering guarantees.
+    static unsigned int addUintNvRelaxed(AtomicTypes::Uint *atomicUint,
+                                         unsigned int       value);
+        // Atomically add to the specified 'atomicUint' the specified 'value'
+        // and return the resulting value, without providing any memory
+        // ordering guarantees.
 
-static void addUintAcqRel(AtomicTypes::Uint *atomicUint, unsigned int value);
-    // Atomically add to the specified 'atomicUint' the specified 'value',
-    // providing the acquire/release memory ordering guarantee.
+    static void decrementUint(AtomicTypes::Uint *atomicUint);
+        // Atomically decrement the value of the specified 'atomicUint' by 1,
+        // providing the sequential consistency memory ordering guarantee.
 
-static unsigned int incrementUintNv(AtomicTypes::Uint *atomicUint);
-    // Atomically increment the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the sequential consistency memory
-    // ordering guarantee.
+    static void decrementUintAcqRel(AtomicTypes::Uint *atomicUint);
+        // Atomically decrement the value of the specified 'atomicUint' by 1,
+        // providing the acquire/release memory ordering guarantee.
 
-static unsigned int incrementUintNvAcqRel(AtomicTypes::Uint *atomicUint);
-    // Atomically increment the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the acquire/release memory ordering
-    // guarantee.
+    static unsigned int decrementUintNv(AtomicTypes::Uint *atomicUint);
+        // Atomically decrement the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the sequential consistency memory
+        // ordering guarantee.
 
-static void incrementUint(AtomicTypes::Uint *atomicUint);
-    // Atomically increment the value of the specified 'atomicUint' by 1,
-    // providing the sequential consistency memory ordering guarantee.
+    static unsigned int decrementUintNvAcqRel(AtomicTypes::Uint *atomicUint);
+        // Atomically decrement the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
-static void incrementUintAcqRel(AtomicTypes::Uint *atomicUint);
-    // Atomically increment the value of the specified 'atomicUint' by 1,
-    // providing the acquire/release memory ordering guarantee.
+    static void incrementUint(AtomicTypes::Uint *atomicUint);
+        // Atomically increment the value of the specified 'atomicUint' by 1,
+        // providing the sequential consistency memory ordering guarantee.
 
-static unsigned int decrementUintNv(AtomicTypes::Uint *atomicUint);
-    // Atomically decrement the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the sequential consistency memory
-    // ordering guarantee.
+    static void incrementUintAcqRel(AtomicTypes::Uint *atomicUint);
+        // Atomically increment the value of the specified 'atomicUint' by 1,
+        // providing the acquire/release memory ordering guarantee.
 
-static unsigned int decrementUintNvAcqRel(AtomicTypes::Uint *atomicUint);
-    // Atomically decrement the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the acquire/release memory ordering
-    // guarantee.
+    static unsigned int incrementUintNv(AtomicTypes::Uint *atomicUint);
+        // Atomically increment the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the sequential consistency memory
+        // ordering guarantee.
 
-static void decrementUint(AtomicTypes::Uint *atomicUint);
-    // Atomically decrement the value of the specified 'atomicUint' by 1,
-    // providing the sequential consistency memory ordering guarantee.
+    static unsigned int incrementUintNvAcqRel(AtomicTypes::Uint *atomicUint);
+        // Atomically increment the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
-static void decrementUintAcqRel(AtomicTypes::Uint *atomicUint);
-    // Atomically decrement the value of the specified 'atomicUint' by 1,
-    // providing the acquire/release memory ordering guarantee.
+    static unsigned int subUintNv(typename AtomicTypes::Uint *atomicUint,
+                                  unsigned int                value);
+        // Atomically subtract from the specified 'atomicUint' the specified
+        // 'value' and return the resulting value, providing the sequential
+        // consistency memory ordering guarantee.
 
-    // *** atomic functions for Uint64 ***
+        // *** atomic functions for Uint64 ***
 
-static void initUint64(AtomicTypes::Uint64 *atomicUint,
-                      Types::Uint64        initialValue = 0);
-    // Initialize the specified 'atomicUint' and set its value to the
-    // specified 'initialValue'.
+    static Types::Uint64 getUint64(AtomicTypes::Uint64 const *atomicUint);
+        // Atomically retrieve the value of the specified 'atomicUint',
+        // providing the sequential consistency memory ordering guarantee.
 
-static Types::Uint64 getUint64(AtomicTypes::Uint64 const *atomicUint);
-    // Atomically retrieve the value of the specified 'atomicUint',
-    // providing the sequential consistency memory ordering guarantee.
+    static Types::Uint64 getUint64Acquire(
+                                        AtomicTypes::Uint64 const *atomicUint);
+        // Atomically retrieve the value of the specified 'atomicUint',
+        // providing the acquire memory ordering guarantee.
 
-static Types::Uint64 getUint64Relaxed(AtomicTypes::Uint64 const *atomicUint);
-    // Atomically retrieve the value of the specified 'atomicUint',
-    // without providing any memory ordering guarantees.
+    static Types::Uint64 getUint64Relaxed(
+                                        AtomicTypes::Uint64 const *atomicUint);
+        // Atomically retrieve the value of the specified 'atomicUint', without
+        // providing any memory ordering guarantees.
 
-static Types::Uint64 getUint64Acquire(AtomicTypes::Uint64 const *atomicUint);
-    // Atomically retrieve the value of the specified 'atomicUint',
-    // providing the acquire memory ordering guarantee.
+    static void initUint64(AtomicTypes::Uint64 *atomicUint,
+                           Types::Uint64        initialValue = 0);
+        // Initialize the specified 'atomicUint' and set its value to the
+        // optionally specified 'initialValue'.
 
-static void setUint64(AtomicTypes::Uint64 *atomicUint,
-                     Types::Uint64 value);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', providing the sequential consistency memory
-    // ordering guarantee.
+    static void setUint64(AtomicTypes::Uint64 *atomicUint,
+                          Types::Uint64        value);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'value', providing the sequential consistency memory
+        // ordering guarantee.
 
-static void setUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
-                            Types::Uint64        value);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', without providing any memory ordering guarantees.
+    static void setUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
+                                 Types::Uint64        value);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'value', without providing any memory ordering guarantees.
 
-static void setUint64Release(AtomicTypes::Uint64 *atomicUint,
-                            Types::Uint64        value);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value', providing the release memory ordering guarantee.
+    static void setUint64Release(AtomicTypes::Uint64 *atomicUint,
+                                 Types::Uint64        value);
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'value', providing the release memory ordering guarantee.
 
-static Types::Uint64 swapUint64(AtomicTypes::Uint64 *atomicUint,
-                              Types::Uint64        swapValue);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value' and return its previous value, providing the
-    // sequential consistency memory ordering guarantee.
-
-static Types::Uint64 swapUint64AcqRel(AtomicTypes::Uint64 *atomicUint,
+    static Types::Uint64 swapUint64(AtomicTypes::Uint64 *atomicUint,
                                     Types::Uint64        swapValue);
-    // Atomically set the value of the specified 'atomicUint' to the
-    // specified 'value' and return its previous value, providing the
-    // acquire/release memory ordering guarantee.
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'swapValue' and return its previous value, providing the
+        // sequential consistency memory ordering guarantee.
 
-static Types::Uint64 testAndSwapUint64(AtomicTypes::Uint64 *atomicUint,
-                                     Types::Uint64        compareValue,
-                                     Types::Uint64        swapValue);
-    // Conditionally set the value of the specified 'atomicUint' to the
-    // specified 'swapValue' if and only if the value of 'atomicUint' equals
-    // the value of the specified 'compareValue', and return the initial
-    // value of 'atomicUint', providing the sequential consistency memory
-    // ordering guarantee.  The whole operation is performed atomically.
-
-static Types::Uint64 testAndSwapUint64AcqRel(
-                                          AtomicTypes::Uint64 *atomicUint,
-                                          Types::Uint64        compareValue,
+    static Types::Uint64 swapUint64AcqRel(AtomicTypes::Uint64 *atomicUint,
                                           Types::Uint64        swapValue);
-    // Conditionally set the value of the specified 'atomicUint' to the
-    // specified 'swapValue' if and only if the value of 'atomicUint' equals
-    // the value of the specified 'compareValue', and return the initial
-    // value of 'atomicUint', providing the acquire/release memory ordering
-    // guarantee.  The whole operation is performed atomically.
+        // Atomically set the value of the specified 'atomicUint' to the
+        // specified 'swapValue' and return its previous value, providing the
+        // acquire/release memory ordering guarantee.
 
-static Types::Uint64 addUint64Nv(AtomicTypes::Uint64 *atomicUint,
-                               Types::Uint64        value);
-    // Atomically add to the specified 'atomicUint' the specified 'value'
-    // and return the resulting value, providing the sequential consistency
-    // memory ordering guarantee.
+    static Types::Uint64 testAndSwapUint64(AtomicTypes::Uint64 *atomicUint,
+                                           Types::Uint64        compareValue,
+                                           Types::Uint64        swapValue);
+        // Conditionally set the value of the specified 'atomicUint' to the
+        // specified 'swapValue' if and only if the value of 'atomicUint'
+        // equals the value of the specified 'compareValue', and return the
+        // initial value of 'atomicUint', providing the sequential consistency
+        // memory ordering guarantee.  The whole operation is performed
+        // atomically.
 
-static Types::Uint64 addUint64NvRelaxed(AtomicTypes::Uint64 *atomicUint,
-                                     Types::Uint64         value);
-    // Atomically add to the specified 'atomicUint' the specified 'value'
-    // and return the resulting value, without providing any memory
-    // ordering guarantees.
+    static Types::Uint64 testAndSwapUint64AcqRel(
+                                             AtomicTypes::Uint64 *atomicUint,
+                                             Types::Uint64        compareValue,
+                                             Types::Uint64        swapValue);
+        // Conditionally set the value of the specified 'atomicUint' to the
+        // specified 'swapValue' if and only if the value of 'atomicUint'
+        // equals the value of the specified 'compareValue', and return the
+        // initial value of 'atomicUint', providing the acquire/release memory
+        // ordering guarantee.  The whole operation is performed atomically.
 
-static Types::Uint64 addUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint,
+    static void addUint64(AtomicTypes::Uint64 *atomicUint,
+                          Types::Uint64        value);
+        // Atomically add to the specified 'atomicUint' the specified 'value',
+        // providing the sequential consistency memory ordering guarantee.
+
+    static void addUint64AcqRel(AtomicTypes::Uint64 *atomicUint,
+                                Types::Uint64        value);
+        // Atomically add to the specified 'atomicUint' the specified 'value',
+        // providing the acquire/release memory ordering guarantee.
+
+    static void addUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
+                                 Types::Uint64        value);
+        // Atomically add to the specified 'atomicUint' the specified 'value',
+        // without providing any memory ordering guarantees.
+
+    static Types::Uint64 addUint64Nv(AtomicTypes::Uint64 *atomicUint,
                                      Types::Uint64        value);
-    // Atomically add to the specified 'atomicUint' the specified 'value'
-    // and return the resulting value, providing the acquire/release memory
-    // ordering guarantee.
+        // Atomically add to the specified 'atomicUint' the specified 'value'
+        // and return the resulting value, providing the sequential consistency
+        // memory ordering guarantee.
 
-static void addUint64(AtomicTypes::Uint64 *atomicUint,
-                     Types::Uint64        value);
-    // Atomically add to the specified 'atomicUint' the specified 'value',
-    // providing the sequential consistency memory ordering guarantee.
+    static Types::Uint64 addUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint,
+                                           Types::Uint64        value);
+        // Atomically add to the specified 'atomicUint' the specified 'value'
+        // and return the resulting value, providing the acquire/release memory
+        // ordering guarantee.
 
-static void addUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
-                            Types::Uint64        value);
-    // Atomically add to the specified 'atomicUint' the specified 'value',
-    // without providing any memory ordering guarantees.
+    static Types::Uint64 addUint64NvRelaxed(AtomicTypes::Uint64 *atomicUint,
+                                            Types::Uint64        value);
+        // Atomically add to the specified 'atomicUint' the specified 'value'
+        // and return the resulting value, without providing any memory
+        // ordering guarantees.
 
-static void addUint64AcqRel(AtomicTypes::Uint64 *atomicUint,
-                           Types::Uint64        value);
-    // Atomically add to the specified 'atomicUint' the specified 'value',
-    // providing the acquire/release memory ordering guarantee.
+    static void decrementUint64(AtomicTypes::Uint64 *atomicUint);
+        // Atomically decrement the specified 'atomicUint' by 1, providing the
+        // sequential consistency memory ordering guarantee.
 
-static void incrementUint64(AtomicTypes::Uint64 *atomicUint);
-    // Atomically increment the value of the specified 'atomicUint' by 1,
-    // providing the sequential consistency memory ordering guarantee.
+    static void decrementUint64AcqRel(AtomicTypes::Uint64 *atomicUint);
+        // Atomically decrement the specified 'atomicUint' by 1, providing the
+        // acquire/release memory ordering guarantee.
 
-static void incrementUint64AcqRel(AtomicTypes::Uint64 *atomicUint);
-    // Atomically increment the value of the specified 'atomicUint' by 1,
-    // providing the acquire/release memory ordering guarantee.
+    static Types::Uint64 decrementUint64Nv(AtomicTypes::Uint64 *atomicUint);
+        // Atomically decrement the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the sequential consistency memory
+        // ordering guarantee.
 
-static Types::Uint64 incrementUint64Nv(AtomicTypes::Uint64 *atomicUint);
-    // Atomically increment the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the sequential consistency memory
-    // ordering guarantee.
+    static Types::Uint64 decrementUint64NvAcqRel(
+                                              AtomicTypes::Uint64 *atomicUint);
+        // Atomically decrement the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
-static Types::Uint64 incrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint);
-    // Atomically increment the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the acquire/release memory ordering
-    // guarantee.
+    static void incrementUint64(AtomicTypes::Uint64 *atomicUint);
+        // Atomically increment the value of the specified 'atomicUint' by 1,
+        // providing the sequential consistency memory ordering guarantee.
 
-static void decrementUint64(AtomicTypes::Uint64 *atomicUint);
-    // Atomically decrement the specified 'atomicUint' by 1, providing the
-    // sequential consistency memory ordering guarantee.
+    static void incrementUint64AcqRel(AtomicTypes::Uint64 *atomicUint);
+        // Atomically increment the value of the specified 'atomicUint' by 1,
+        // providing the acquire/release memory ordering guarantee.
 
-static void decrementUint64AcqRel(AtomicTypes::Uint64 *atomicUint);
-    // Atomically decrement the specified 'atomicUint' by 1, providing the
-    // acquire/release memory ordering guarantee.
+    static Types::Uint64 incrementUint64Nv(AtomicTypes::Uint64 *atomicUint);
+        // Atomically increment the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the sequential consistency memory
+        // ordering guarantee.
 
-static Types::Uint64 decrementUint64Nv(AtomicTypes::Uint64 *atomicUint);
-    // Atomically decrement the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the sequential consistency memory
-    // ordering guarantee.
-
-static Types::Uint64 decrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint);
-    // Atomically decrement the specified 'atomicUint' by 1 and return the
-    // resulting value, providing the acquire/release memory ordering
-    // guarantee.
+    static Types::Uint64 incrementUint64NvAcqRel(
+                                              AtomicTypes::Uint64 *atomicUint);
+        // Atomically increment the specified 'atomicUint' by 1 and return the
+        // resulting value, providing the acquire/release memory ordering
+        // guarantee.
 
         // *** atomic functions for pointer ***
-
-    static void initPointer(AtomicTypes::Pointer *atomicPtr,
-                            void                 *initialValue = 0);
-        // Initialize the specified 'atomicPtr' and set its value to the
-        // specified 'initialValue'.
 
     static void *getPtr(AtomicTypes::Pointer const *atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr',
         // providing the sequential consistency memory ordering guarantee.
 
-    static void *getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr);
-        // Atomically retrieve the value of the specified 'atomicPtr',
-        // without providing any memory ordering guarantees.
-
     static void *getPtrAcquire(AtomicTypes::Pointer const *atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr',
         // providing the acquire memory ordering guarantee.
+
+    static void *getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr);
+        // Atomically retrieve the value of the specified 'atomicPtr', without
+        // providing any memory ordering guarantees.
+
+    static void initPointer(AtomicTypes::Pointer *atomicPtr,
+                            void                 *initialValue = 0);
+        // Initialize the specified 'atomicPtr' and set its value to the
+        // optionally specified 'initialValue'.
 
     static void setPtr(AtomicTypes::Pointer *atomicPtr,
                        void                 *value);
@@ -1344,13 +1358,13 @@ static Types::Uint64 decrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint);
     static void *swapPtr(AtomicTypes::Pointer *atomicPtr,
                          void                 *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
-        // specified 'value', and return its previous value, providing the
+        // specified 'swapValue', and return its previous value, providing the
         // sequential consistency memory ordering guarantee.
 
     static void *swapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
                                void                 *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
-        // specified 'value', and return its previous value, providing the
+        // specified 'swapValue', and return its previous value, providing the
         // acquire/release memory ordering guarantee.
 
     static void *testAndSwapPtr(AtomicTypes::Pointer *atomicPtr,
@@ -1383,15 +1397,15 @@ static Types::Uint64 decrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint);
 // *** atomic functions for int ***
 
 inline
-void AtomicOperations::initInt(AtomicTypes::Int *atomicInt, int initialValue)
-{
-    Imp::initInt(atomicInt, initialValue);
-}
-
-inline
 int AtomicOperations::getInt(AtomicTypes::Int const *atomicInt)
 {
     return Imp::getInt(atomicInt);
+}
+
+inline
+int AtomicOperations::getIntAcquire(AtomicTypes::Int const *atomicInt)
+{
+    return Imp::getIntAcquire(atomicInt);
 }
 
 inline
@@ -1401,9 +1415,9 @@ int AtomicOperations::getIntRelaxed(AtomicTypes::Int const *atomicInt)
 }
 
 inline
-int AtomicOperations::getIntAcquire(AtomicTypes::Int const *atomicInt)
+void AtomicOperations::initInt(AtomicTypes::Int *atomicInt, int initialValue)
 {
-    return Imp::getIntAcquire(atomicInt);
+    Imp::initInt(atomicInt, initialValue);
 }
 
 inline
@@ -1452,34 +1466,12 @@ int AtomicOperations::testAndSwapIntAcqRel(AtomicTypes::Int *atomicInt,
     return Imp::testAndSwapIntAcqRel(atomicInt, compareValue, swapValue);
 }
 
-inline
-int AtomicOperations::addIntNv(AtomicTypes::Int *atomicInt, int value)
-{
-    return Imp::addIntNv(atomicInt, value);
-}
-
-inline
-int AtomicOperations::addIntNvRelaxed(AtomicTypes::Int *atomicInt, int value)
-{
-    return Imp::addIntNvRelaxed(atomicInt, value);
-}
-
-inline
-int AtomicOperations::addIntNvAcqRel(AtomicTypes::Int *atomicInt, int value)
-{
-    return Imp::addIntNvAcqRel(atomicInt, value);
-}
+// *** atomic arithmetic functions for int ***
 
 inline
 void AtomicOperations::addInt(AtomicTypes::Int *atomicInt, int value)
 {
     Imp::addInt(atomicInt, value);
-}
-
-inline
-void AtomicOperations::addIntRelaxed(AtomicTypes::Int *atomicInt, int value)
-{
-    Imp::addIntRelaxed(atomicInt, value);
 }
 
 inline
@@ -1489,27 +1481,39 @@ void AtomicOperations::addIntAcqRel(AtomicTypes::Int *atomicInt, int value)
 }
 
 inline
-int AtomicOperations::incrementIntNv(AtomicTypes::Int *atomicInt)
+void AtomicOperations::addIntRelaxed(AtomicTypes::Int *atomicInt, int value)
 {
-    return Imp::incrementIntNv(atomicInt);
+    Imp::addIntRelaxed(atomicInt, value);
 }
 
 inline
-int AtomicOperations::incrementIntNvAcqRel(AtomicTypes::Int *atomicInt)
+int AtomicOperations::addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
-    return Imp::incrementIntNvAcqRel(atomicInt);
+    return Imp::addIntNv(atomicInt, value);
 }
 
 inline
-void AtomicOperations::incrementInt(AtomicTypes::Int *atomicInt)
+int AtomicOperations::addIntNvAcqRel(AtomicTypes::Int *atomicInt, int value)
 {
-    Imp::incrementInt(atomicInt);
+    return Imp::addIntNvAcqRel(atomicInt, value);
 }
 
 inline
-void AtomicOperations::incrementIntAcqRel(AtomicTypes::Int *atomicInt)
+int AtomicOperations::addIntNvRelaxed(AtomicTypes::Int *atomicInt, int value)
 {
-    Imp::incrementIntAcqRel(atomicInt);
+    return Imp::addIntNvRelaxed(atomicInt, value);
+}
+
+inline
+void AtomicOperations::decrementInt(AtomicTypes::Int *atomicInt)
+{
+    Imp::decrementInt(atomicInt);
+}
+
+inline
+void AtomicOperations::decrementIntAcqRel(AtomicTypes::Int *atomicInt)
+{
+    Imp::decrementIntAcqRel(atomicInt);
 }
 
 inline
@@ -1525,25 +1529,30 @@ int AtomicOperations::decrementIntNvAcqRel(AtomicTypes::Int *atomicInt)
 }
 
 inline
-void AtomicOperations::decrementInt(AtomicTypes::Int *atomicInt)
+void AtomicOperations::incrementInt(AtomicTypes::Int *atomicInt)
 {
-    Imp::decrementInt(atomicInt);
+    Imp::incrementInt(atomicInt);
 }
 
 inline
-void AtomicOperations::decrementIntAcqRel(AtomicTypes::Int *atomicInt)
+void AtomicOperations::incrementIntAcqRel(AtomicTypes::Int *atomicInt)
 {
-    Imp::decrementIntAcqRel(atomicInt);
+    Imp::incrementIntAcqRel(atomicInt);
+}
+
+inline
+int AtomicOperations::incrementIntNv(AtomicTypes::Int *atomicInt)
+{
+    return Imp::incrementIntNv(atomicInt);
+}
+
+inline
+int AtomicOperations::incrementIntNvAcqRel(AtomicTypes::Int *atomicInt)
+{
+    return Imp::incrementIntNvAcqRel(atomicInt);
 }
 
 // *** atomic functions for Int64 ***
-
-inline
-void AtomicOperations::initInt64(AtomicTypes::Int64 *atomicInt,
-                                 Types::Int64        initialValue)
-{
-    Imp::initInt64(atomicInt, initialValue);
-}
 
 inline
 Types::Int64
@@ -1554,16 +1563,23 @@ Types::Int64
 
 inline
 Types::Int64
+    AtomicOperations::getInt64Acquire(AtomicTypes::Int64 const *atomicInt)
+{
+    return Imp::getInt64Acquire(atomicInt);
+}
+
+inline
+Types::Int64
     AtomicOperations::getInt64Relaxed(AtomicTypes::Int64 const *atomicInt)
 {
     return Imp::getInt64Relaxed(atomicInt);
 }
 
 inline
-Types::Int64
-    AtomicOperations::getInt64Acquire(AtomicTypes::Int64 const *atomicInt)
+void AtomicOperations::initInt64(AtomicTypes::Int64 *atomicInt,
+                                 Types::Int64        initialValue)
 {
-    return Imp::getInt64Acquire(atomicInt);
+    Imp::initInt64(atomicInt, initialValue);
 }
 
 inline
@@ -1619,39 +1635,13 @@ Types::Int64 AtomicOperations::testAndSwapInt64AcqRel(
     return Imp::testAndSwapInt64AcqRel(atomicInt, compareValue, swapValue);
 }
 
-inline
-Types::Int64 AtomicOperations::addInt64Nv(AtomicTypes::Int64 *atomicInt,
-                                          Types::Int64        value)
-{
-    return Imp::addInt64Nv(atomicInt, value);
-}
-
-inline
-Types::Int64 AtomicOperations::addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
-                                                 Types::Int64        value)
-{
-    return Imp::addInt64NvRelaxed(atomicInt, value);
-}
-
-inline
-Types::Int64 AtomicOperations::addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
-                                                Types::Int64        value)
-{
-    return Imp::addInt64NvAcqRel(atomicInt, value);
-}
+// *** atomic arithmetic functions for Int64 ***
 
 inline
 void AtomicOperations::addInt64(AtomicTypes::Int64 *atomicInt,
                                 Types::Int64        value)
 {
     Imp::addInt64(atomicInt, value);
-}
-
-inline
-void AtomicOperations::addInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                       Types::Int64        value)
-{
-    Imp::addInt64Relaxed(atomicInt, value);
 }
 
 inline
@@ -1662,29 +1652,31 @@ void AtomicOperations::addInt64AcqRel(AtomicTypes::Int64 *atomicInt,
 }
 
 inline
-void AtomicOperations::incrementInt64(AtomicTypes::Int64 *atomicInt)
+void AtomicOperations::addInt64Relaxed(AtomicTypes::Int64 *atomicInt,
+                                       Types::Int64        value)
 {
-    Imp::incrementInt64(atomicInt);
+    Imp::addInt64Relaxed(atomicInt, value);
 }
 
 inline
-void AtomicOperations::incrementInt64AcqRel(AtomicTypes::Int64 *atomicInt)
+Types::Int64 AtomicOperations::addInt64Nv(AtomicTypes::Int64 *atomicInt,
+                                          Types::Int64        value)
 {
-    Imp::incrementInt64AcqRel(atomicInt);
+    return Imp::addInt64Nv(atomicInt, value);
 }
 
 inline
-Types::Int64
-    AtomicOperations::incrementInt64Nv(AtomicTypes::Int64 *atomicInt)
+Types::Int64 AtomicOperations::addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
+                                                Types::Int64        value)
 {
-    return Imp::incrementInt64Nv(atomicInt);
+    return Imp::addInt64NvAcqRel(atomicInt, value);
 }
 
 inline
-Types::Int64
-    AtomicOperations::incrementInt64NvAcqRel(AtomicTypes::Int64 *atomicInt)
+Types::Int64 AtomicOperations::addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
+                                                 Types::Int64        value)
 {
-    return Imp::incrementInt64NvAcqRel(atomicInt);
+    return Imp::addInt64NvRelaxed(atomicInt, value);
 }
 
 inline
@@ -1713,19 +1705,45 @@ Types::Int64
     return Imp::decrementInt64NvAcqRel(atomicInt);
 }
 
-// *** atomic functions for unsigned int ***
+inline
+void AtomicOperations::incrementInt64(AtomicTypes::Int64 *atomicInt)
+{
+    Imp::incrementInt64(atomicInt);
+}
 
 inline
-void AtomicOperations::initUint(AtomicTypes::Uint *atomicUint,
-                                unsigned int       initialValue)
+void AtomicOperations::incrementInt64AcqRel(AtomicTypes::Int64 *atomicInt)
 {
-    Imp::initUint(atomicUint, initialValue);
+    Imp::incrementInt64AcqRel(atomicInt);
 }
+
+inline
+Types::Int64
+    AtomicOperations::incrementInt64Nv(AtomicTypes::Int64 *atomicInt)
+{
+    return Imp::incrementInt64Nv(atomicInt);
+}
+
+inline
+Types::Int64
+    AtomicOperations::incrementInt64NvAcqRel(AtomicTypes::Int64 *atomicInt)
+{
+    return Imp::incrementInt64NvAcqRel(atomicInt);
+}
+
+// *** atomic functions for unsigned int ***
 
 inline
 unsigned int AtomicOperations::getUint(AtomicTypes::Uint const *atomicUint)
 {
     return Imp::getUint(atomicUint);
+}
+
+inline
+unsigned int AtomicOperations::getUintAcquire(
+                                           AtomicTypes::Uint const *atomicUint)
+{
+    return Imp::getUintAcquire(atomicUint);
 }
 
 inline
@@ -1736,10 +1754,10 @@ unsigned int AtomicOperations::getUintRelaxed(
 }
 
 inline
-unsigned int AtomicOperations::getUintAcquire(
-                                           AtomicTypes::Uint const *atomicUint)
+void AtomicOperations::initUint(AtomicTypes::Uint *atomicUint,
+                                unsigned int       initialValue)
 {
-    return Imp::getUintAcquire(atomicUint);
+    Imp::initUint(atomicUint, initialValue);
 }
 
 inline
@@ -1794,39 +1812,13 @@ unsigned int AtomicOperations::testAndSwapUintAcqRel(
     return Imp::testAndSwapUintAcqRel(atomicUint, compareValue, swapValue);
 }
 
-inline
-unsigned int AtomicOperations::addUintNv(AtomicTypes::Uint *atomicUint,
-                                         unsigned int       value)
-{
-    return Imp::addUintNv(atomicUint, value);
-}
-
-inline
-unsigned int AtomicOperations::addUintNvRelaxed(AtomicTypes::Uint *atomicUint,
-                                                unsigned int       value)
-{
-    return Imp::addUintNvRelaxed(atomicUint, value);
-}
-
-inline
-unsigned int AtomicOperations::addUintNvAcqRel(AtomicTypes::Uint *atomicUint,
-                                               unsigned int       value)
-{
-    return Imp::addUintNvAcqRel(atomicUint, value);
-}
+// *** atomic arithmetic functions for unsigned int ***
 
 inline
 void AtomicOperations::addUint(AtomicTypes::Uint *atomicUint,
                                unsigned int       value)
 {
     Imp::addUint(atomicUint, value);
-}
-
-inline
-void AtomicOperations::addUintRelaxed(AtomicTypes::Uint *atomicUint,
-                                      unsigned int       value)
-{
-    Imp::addUintRelaxed(atomicUint, value);
 }
 
 inline
@@ -1837,28 +1829,43 @@ void AtomicOperations::addUintAcqRel(AtomicTypes::Uint *atomicUint,
 }
 
 inline
-unsigned int AtomicOperations::incrementUintNv(AtomicTypes::Uint *atomicUint)
+void AtomicOperations::addUintRelaxed(AtomicTypes::Uint *atomicUint,
+                                      unsigned int       value)
 {
-    return Imp::incrementUintNv(atomicUint);
+    Imp::addUintRelaxed(atomicUint, value);
 }
 
 inline
-unsigned int AtomicOperations::incrementUintNvAcqRel(
-                                                 AtomicTypes::Uint *atomicUint)
+unsigned int AtomicOperations::addUintNv(AtomicTypes::Uint *atomicUint,
+                                         unsigned int       value)
 {
-    return Imp::incrementUintNvAcqRel(atomicUint);
+    return Imp::addUintNv(atomicUint, value);
 }
 
 inline
-void AtomicOperations::incrementUint(AtomicTypes::Uint *atomicUint)
+unsigned int AtomicOperations::addUintNvAcqRel(AtomicTypes::Uint *atomicUint,
+                                               unsigned int       value)
 {
-    Imp::incrementUint(atomicUint);
+    return Imp::addUintNvAcqRel(atomicUint, value);
 }
 
 inline
-void AtomicOperations::incrementUintAcqRel(AtomicTypes::Uint *atomicUint)
+unsigned int AtomicOperations::addUintNvRelaxed(AtomicTypes::Uint *atomicUint,
+                                                unsigned int       value)
 {
-    Imp::incrementUintAcqRel(atomicUint);
+    return Imp::addUintNvRelaxed(atomicUint, value);
+}
+
+inline
+void AtomicOperations::decrementUint(AtomicTypes::Uint *atomicUint)
+{
+    Imp::decrementUint(atomicUint);
+}
+
+inline
+void AtomicOperations::decrementUintAcqRel(AtomicTypes::Uint *atomicUint)
+{
+    Imp::decrementUintAcqRel(atomicUint);
 }
 
 inline
@@ -1875,25 +1882,31 @@ unsigned int AtomicOperations::decrementUintNvAcqRel(
 }
 
 inline
-void AtomicOperations::decrementUint(AtomicTypes::Uint *atomicUint)
+void AtomicOperations::incrementUint(AtomicTypes::Uint *atomicUint)
 {
-    Imp::decrementUint(atomicUint);
+    Imp::incrementUint(atomicUint);
 }
 
 inline
-void AtomicOperations::decrementUintAcqRel(AtomicTypes::Uint *atomicUint)
+void AtomicOperations::incrementUintAcqRel(AtomicTypes::Uint *atomicUint)
 {
-    Imp::decrementUintAcqRel(atomicUint);
+    Imp::incrementUintAcqRel(atomicUint);
+}
+
+inline
+unsigned int AtomicOperations::incrementUintNv(AtomicTypes::Uint *atomicUint)
+{
+    return Imp::incrementUintNv(atomicUint);
+}
+
+inline
+unsigned int AtomicOperations::incrementUintNvAcqRel(
+                                                 AtomicTypes::Uint *atomicUint)
+{
+    return Imp::incrementUintNvAcqRel(atomicUint);
 }
 
 // *** atomic functions for Uint64 ***
-
-inline
-void AtomicOperations::initUint64(AtomicTypes::Uint64 *atomicUint,
-                                 Types::Uint64        initialValue)
-{
-    Imp::initUint64(atomicUint, initialValue);
-}
 
 inline
 Types::Uint64
@@ -1904,49 +1917,56 @@ Types::Uint64
 
 inline
 Types::Uint64
-    AtomicOperations::getUint64Relaxed(AtomicTypes::Uint64 const *atomicUint)
-{
-    return Imp::getUint64Relaxed(atomicUint);
-}
-
-inline
-Types::Uint64
     AtomicOperations::getUint64Acquire(AtomicTypes::Uint64 const *atomicUint)
 {
     return Imp::getUint64Acquire(atomicUint);
 }
 
 inline
+Types::Uint64
+    AtomicOperations::getUint64Relaxed(AtomicTypes::Uint64 const *atomicUint)
+{
+    return Imp::getUint64Relaxed(atomicUint);
+}
+
+inline
+void AtomicOperations::initUint64(AtomicTypes::Uint64 *atomicUint,
+                                  Types::Uint64        initialValue)
+{
+    Imp::initUint64(atomicUint, initialValue);
+}
+
+inline
 void AtomicOperations::setUint64(AtomicTypes::Uint64 *atomicUint,
-                                Types::Uint64        value)
+                                 Types::Uint64        value)
 {
     Imp::setUint64(atomicUint, value);
 }
 
 inline
 void AtomicOperations::setUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
-                                       Types::Uint64        value)
+                                        Types::Uint64        value)
 {
     Imp::setUint64Relaxed(atomicUint, value);
 }
 
 inline
 void AtomicOperations::setUint64Release(AtomicTypes::Uint64 *atomicUint,
-                                       Types::Uint64        value)
+                                        Types::Uint64        value)
 {
     Imp::setUint64Release(atomicUint, value);
 }
 
 inline
 Types::Uint64 AtomicOperations::swapUint64(AtomicTypes::Uint64 *atomicUint,
-                                         Types::Uint64        swapValue)
+                                           Types::Uint64        swapValue)
 {
     return Imp::swapUint64(atomicUint, swapValue);
 }
 
 inline
 Types::Uint64 AtomicOperations::swapUint64AcqRel(
-		                                       AtomicTypes::Uint64 *atomicUint,
+                                               AtomicTypes::Uint64 *atomicUint,
                                                Types::Uint64        swapValue)
 {
     return Imp::swapUint64AcqRel(atomicUint, swapValue);
@@ -1970,19 +1990,34 @@ Types::Uint64 AtomicOperations::testAndSwapUint64AcqRel(
     return Imp::testAndSwapUint64AcqRel(atomicUint, compareValue, swapValue);
 }
 
+// *** atomic arithmetic functions for Uint64 ***
+
 inline
-Types::Uint64 AtomicOperations::addUint64Nv(AtomicTypes::Uint64 *atomicUint,
-                                          Types::Uint64        value)
+void AtomicOperations::addUint64(AtomicTypes::Uint64 *atomicUint,
+                                 Types::Uint64        value)
 {
-    return Imp::addUint64Nv(atomicUint, value);
+    Imp::addUint64(atomicUint, value);
 }
 
 inline
-Types::Uint64 AtomicOperations::addUint64NvRelaxed(
-                                               AtomicTypes::Uint64 *atomicUint,
-                                               Types::Uint64        value)
+void AtomicOperations::addUint64AcqRel(AtomicTypes::Uint64 *atomicUint,
+                                       Types::Uint64        value)
 {
-    return Imp::addUint64NvRelaxed(atomicUint, value);
+    Imp::addUint64AcqRel(atomicUint, value);
+}
+
+inline
+void AtomicOperations::addUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
+                                        Types::Uint64        value)
+{
+    Imp::addUint64Relaxed(atomicUint, value);
+}
+
+inline
+Types::Uint64 AtomicOperations::addUint64Nv(AtomicTypes::Uint64 *atomicUint,
+                                            Types::Uint64        value)
+{
+    return Imp::addUint64Nv(atomicUint, value);
 }
 
 inline
@@ -1994,50 +2029,11 @@ Types::Uint64 AtomicOperations::addUint64NvAcqRel(
 }
 
 inline
-void AtomicOperations::addUint64(AtomicTypes::Uint64 *atomicUint,
-                                 Types::Uint64        value)
+Types::Uint64 AtomicOperations::addUint64NvRelaxed(
+                                               AtomicTypes::Uint64 *atomicUint,
+                                               Types::Uint64        value)
 {
-    Imp::addUint64(atomicUint, value);
-}
-
-inline
-void AtomicOperations::addUint64Relaxed(AtomicTypes::Uint64 *atomicUint,
-                                        Types::Uint64        value)
-{
-    Imp::addUint64Relaxed(atomicUint, value);
-}
-
-inline
-void AtomicOperations::addUint64AcqRel(AtomicTypes::Uint64 *atomicUint,
-                                       Types::Uint64        value)
-{
-    Imp::addUint64AcqRel(atomicUint, value);
-}
-
-inline
-void AtomicOperations::incrementUint64(AtomicTypes::Uint64 *atomicUint)
-{
-    Imp::incrementUint64(atomicUint);
-}
-
-inline
-void AtomicOperations::incrementUint64AcqRel(AtomicTypes::Uint64 *atomicUint)
-{
-    Imp::incrementUint64AcqRel(atomicUint);
-}
-
-inline
-Types::Uint64
-    AtomicOperations::incrementUint64Nv(AtomicTypes::Uint64 *atomicUint)
-{
-    return Imp::incrementUint64Nv(atomicUint);
-}
-
-inline
-Types::Uint64
-    AtomicOperations::incrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint)
-{
-    return Imp::incrementUint64NvAcqRel(atomicUint);
+    return Imp::addUint64NvRelaxed(atomicUint, value);
 }
 
 inline
@@ -2066,19 +2062,44 @@ Types::Uint64
     return Imp::decrementUint64NvAcqRel(atomicUint);
 }
 
-// *** atomic functions for pointer ***
+inline
+void AtomicOperations::incrementUint64(AtomicTypes::Uint64 *atomicUint)
+{
+    Imp::incrementUint64(atomicUint);
+}
 
 inline
-void AtomicOperations::initPointer(AtomicTypes::Pointer *atomicPtr,
-                                   void                 *initialValue)
+void AtomicOperations::incrementUint64AcqRel(AtomicTypes::Uint64 *atomicUint)
 {
-    Imp::initPointer(atomicPtr, initialValue);
+    Imp::incrementUint64AcqRel(atomicUint);
 }
+
+inline
+Types::Uint64
+    AtomicOperations::incrementUint64Nv(AtomicTypes::Uint64 *atomicUint)
+{
+    return Imp::incrementUint64Nv(atomicUint);
+}
+
+inline
+Types::Uint64
+    AtomicOperations::incrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint)
+{
+    return Imp::incrementUint64NvAcqRel(atomicUint);
+}
+
+// *** atomic functions for pointer ***
 
 inline
 void *AtomicOperations::getPtr(AtomicTypes::Pointer const *atomicPtr)
 {
     return Imp::getPtr(atomicPtr);
+}
+
+inline
+void * AtomicOperations::getPtrAcquire(AtomicTypes::Pointer const *atomicPtr)
+{
+    return Imp::getPtrAcquire(atomicPtr);
 }
 
 inline
@@ -2088,9 +2109,10 @@ void * AtomicOperations::getPtrRelaxed(AtomicTypes::Pointer const *atomicPtr)
 }
 
 inline
-void * AtomicOperations::getPtrAcquire(AtomicTypes::Pointer const *atomicPtr)
+void AtomicOperations::initPointer(AtomicTypes::Pointer *atomicPtr,
+                                   void                 *initialValue)
 {
-    return Imp::getPtrAcquire(atomicPtr);
+    Imp::initPointer(atomicPtr, initialValue);
 }
 
 inline
