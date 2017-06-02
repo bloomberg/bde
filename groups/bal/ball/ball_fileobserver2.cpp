@@ -30,6 +30,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -55,16 +56,14 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
 namespace BloombergLP {
 namespace ball {
 
 namespace {
-
-// Messages written to 'stderr' are prefixed with a unique string to allow
-// them to be easily identified.
-
-static const char errorMsgPrefix[] = { "ERROR: ball::FileObserver2:" };
-static const char warnMsgPrefix[]  = { "WARN: ball::FileObserver2:" };
 
 enum {
     // status code for the call back function.
@@ -89,11 +88,7 @@ static int getErrorCode(void)
 static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
     // Return the specified 'timestamp' in the 'YYYYMMDD_hhmmss' format.
 {
-    char buffer[20];
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
+    char buffer[16];
 
     snprintf(buffer,
              sizeof buffer,
@@ -104,10 +99,6 @@ static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
              timestamp.hour(),
              timestamp.minute(),
              timestamp.second());
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
 
     return bsl::string(buffer);
 }
@@ -244,10 +235,18 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
                                                   FileUtil::e_KEEP);
 
     if (fd == FileUtil::k_INVALID_FD) {
-        fprintf(
-           stderr,
-           "%s Cannot open log file %s: %s.  File logging will be disabled!\n",
-           errorMsgPrefix, filename, bsl::strerror(getErrorCode()));
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Cannot open log file %s: %s. "
+                 "File logging will be disabled!",
+                 filename,
+                 bsl::strerror(getErrorCode()));
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_ERROR,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
         return -1;                                                    // RETURN
     }
 
@@ -256,11 +255,18 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(streamBuf);
 
     if (0 != streamBuf->reset(fd, true, true, true)) {
-        fprintf(
-              stderr,
-              "%s Cannot close previous log file %s: %s.  "
-              "File logging will be disabled!\n",
-              warnMsgPrefix, filename, bsl::strerror(getErrorCode()));
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Cannot close previous log file %s: %s. "
+                 "File logging will be disabled!",
+                 filename,
+                 bsl::strerror(getErrorCode()));
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
         return -1;                                                    // RETURN
     }
 
@@ -385,10 +391,6 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
 
     ptr += length;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
-
     snprintf(ptr,
              sizeof(buffer) - length - 1,
              " %d:%llu %s %s:%d ",
@@ -397,10 +399,6 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
              Severity::toAscii((Severity::Level)fixedFields.severity()),
              fixedFields.fileName(),
              fixedFields.lineNumber());
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
 
     stream << buffer;
     stream << fixedFields.category();
@@ -434,8 +432,16 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     int returnStatus = k_ROTATE_SUCCESS;
 
     if (0 != d_logStreamBuf.clear()) {
-        fprintf(stderr, "%s Unable to close old log file: %s\n",
-                warnMsgPrefix, d_logFileName.c_str());
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Unable to close old log file: %s.",
+                 d_logFileName.c_str());
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
         returnStatus = k_ROTATE_RENAME_ERROR;
     }
 
@@ -463,9 +469,18 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
             *rotatedLogFileName = newFileName;
         }
         else {
-            fprintf(stderr, "%s Cannot rename %s to %s: %s\n",
-                    warnMsgPrefix, d_logFileName.c_str(), newFileName.c_str(),
-                    bsl::strerror(getErrorCode()));
+            char errorBuffer[256];
+
+            snprintf(errorBuffer,
+                     sizeof errorBuffer,
+                     "Cannot rename %s to %s: %s.",
+                     d_logFileName.c_str(),
+                     newFileName.c_str(),
+                     bsl::strerror(getErrorCode()));
+            bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                     __FILE__,
+                                                     __LINE__,
+                                                     errorBuffer);
             returnStatus = k_ROTATE_RENAME_ERROR;
         }
     }
@@ -478,8 +493,17 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     }
 
     if (0 != openLogFile(&d_logOutStream, d_logFileName.c_str())) {
-        fprintf(stderr, "%s Cannot open new log file: %s\n",
-                errorMsgPrefix, d_logFileName.c_str());
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Cannot open new log file: %s. "
+                 "File logging will be disabled!",
+                 d_logFileName.c_str());
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_ERROR,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
         return k_ROTATE_SUCCESS != returnStatus
                ? k_ROTATE_RENAME_AND_NEW_LOG_ERROR
                : k_ROTATE_NEW_LOG_ERROR;                              // RETURN
@@ -674,9 +698,18 @@ void FileObserver2::publish(const Record& record, const Context&)
             d_logFileFunctor(d_logOutStream, record);
 
             if (!d_logOutStream) {
-                fprintf(stderr, "%s Error on file stream for %s: %s\n",
-                        errorMsgPrefix,
-                        d_logFileName.c_str(), bsl::strerror(getErrorCode()));
+                char errorBuffer[256];
+
+                snprintf(errorBuffer,
+                         sizeof errorBuffer,
+                         "Error on file stream for %s: %s.",
+                         d_logFileName.c_str(),
+                         bsl::strerror(getErrorCode()));
+                bsls::Log::platformDefaultMessageHandler(
+                                                    bsls::LogSeverity::e_ERROR,
+                                                    __FILE__,
+                                                    __LINE__,
+                                                    errorBuffer);
 
                 d_logStreamBuf.clear();
             }
@@ -806,6 +839,10 @@ int FileObserver2::rotationSize() const
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#undef snprintf
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

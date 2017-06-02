@@ -2596,9 +2596,10 @@ int main(int argc, char *argv[])
             ASSERT2(getline(stderrFs, line));  // caught an error message
 
             const bool fail = (bsl::string::npos ==
-                                     line.find("ERROR: ball::FileObserver2:"));
+                                            line.find("Error on file stream"));
             ASSERT(!fail);
             if (fail) cout << "line: " << line << endl;
+
 #ifndef BSLS_PLATFORM_CMP_IBM
             // On native IBM, after the error, even when the stream fails,
             // logging will be attempted over and over again, which results in

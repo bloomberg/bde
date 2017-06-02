@@ -528,10 +528,11 @@ class AsyncFileObserver : public Observer {
         // published records is written in UTC time.  Published records are
         // added onto the end of a queue having a maximum length of 8192
         // records, and then later published by an independent publication
-        // thread.  If 'publish' is called when the record queue is full, the
-        // published record is discarded (and a warning may be written to
-        // 'stderr').  Note that user-defined fields are published to 'stdout'
-        // by default.  Also note that file logging is initially disabled.
+        // thread.  All records published when the queue is full are discarded
+        // (and a warning message is syncronously published that indicates the
+        // number of records being dropped).  Note that user-defined fields are
+        // published to 'stdout' by default.  Also note that file logging is
+        // initially disabled.
 
     AsyncFileObserver(Severity::Level   stdoutThreshold,
                       bool              publishInLocalTime,
@@ -545,11 +546,12 @@ class AsyncFileObserver : public Observer {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  Published records are added onto the end
         // of a queue having a maximum length of 8192 records, and then later
-        // published by an independent publication thread.  If 'publish' is
-        // called when the record queue is full, the published record is
-        // discarded (and a warning may be written to 'stderr').  Note that
-        // user-defined fields are published to 'stdout' by default.  Also note
-        // that file logging is initially disabled.
+        // published by an independent publication thread.  All records
+        // published when the queue is full are discarded (and a warning
+        // message is syncronously published that indicates the number of
+        // records being dropped).  Note that user-defined fields are published
+        // to 'stdout' by default.  Also note that file logging is initially
+        // disabled.
 
     AsyncFileObserver(Severity::Level   stdoutThreshold,
                       bool              publishInLocalTime,
@@ -573,11 +575,13 @@ class AsyncFileObserver : public Observer {
         // be discarded (records published above this severity will block the
         // calling thread if the queue is full, until space is available in the
         // queue).  If 'dropRecordsOnFullQueueThreshold' is not specified, all
-        // records published when the queue is full will be discarded.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that user-defined fields are published to 'stdout' by
-        // default.  Also note that file logging is initially disabled.
+        // records published when the queue is full are discarded (and a
+        // warning message is syncronously published that indicates the number
+        // of records being dropped).  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  Note that user-defined fields
+        // are published to 'stdout' by default.  Also note that file logging
+        // is initially disabled.
 
     ~AsyncFileObserver();
         // Close the log file of this async file observer if file logging is

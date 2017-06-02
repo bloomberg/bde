@@ -221,10 +221,10 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
         // Don't call 'bsls::Log::logMessage' because this function is set as
         // the 'bsls::Log' message handler!
 
-        (bsls::Log::platformDefaultMessageHandler)(severity,
-                                                   fileName,
-                                                   lineNumber,
-                                                   message);
+        bsls::Log::platformDefaultMessageHandler(severity,
+                                                 fileName,
+                                                 lineNumber,
+                                                 message);
     }
 }
 
@@ -767,20 +767,37 @@ void LoggerManager::logMessage(int severity, Record *record)
 
     Severity::Level severityLevel = (Severity::Level)severity;
 
-    bsl::fprintf(stderr,
-                 "\n%s %d %llu %s %s %d %s ",
-                 datetimeStream.str().c_str(),
-                 pid,
-                 bslmt::ThreadUtil::selfIdAsUint64(),
-                 Severity::toAscii(severityLevel),
-                 record->fixedFields().fileName(),
-                 record->fixedFields().lineNumber(),
-                 "UNINITIALIZED_LOGGER_MANAGER");
+    char errorBuffer[256];
 
-    bslstl::StringRef message = record->fixedFields().messageRef();
-    bsl::fwrite(message.data(), 1, message.length(), stderr);
+    // Note that dumping log messages via 'platformDefaultMessageHandler' is
+    // not normal ball operation mode.  In particular,
+    // 'platformDefaultMessageHandler' is not capable of handling messages with
+    // embedded '\0'.  This implementation does not try to work around this
+    // issue.
 
-    bsl::fprintf(stderr, "\n");
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    snprintf(errorBuffer,
+             sizeof errorBuffer,
+             "%s %d %llu %s %s %d UNINITIALIZED_LOGGER_MANAGER %s",
+             datetimeStream.str().c_str(),
+             pid,
+             bslmt::ThreadUtil::selfIdAsUint64(),
+             Severity::toAscii(severityLevel),
+             record->fixedFields().fileName(),
+             record->fixedFields().lineNumber(),
+             record->fixedFields().message());
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#undef snprintf
+#endif
+
+    bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                             __FILE__,
+                                             __LINE__,
+                                             errorBuffer);
 
     // This static method is called to log a message when the logger manager
     // singleton is not available (either has not been initialized or has been

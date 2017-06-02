@@ -87,7 +87,7 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
 #define snprintf _snprintf
 #endif
 
-    snprintf(buffer, sizeof(buffer), "%llu", value);
+    snprintf(buffer, sizeof buffer, "%llu", value);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
@@ -230,10 +230,6 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
                                                       BUFFER_SIZE);
     bsl::string output(&stringAllocator);
     output.reserve(STRING_RESERVATION);
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
 
     while (iter != end) {
         switch (*iter) {
@@ -401,10 +397,6 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
           }
         }
     }
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
 
     stream.write(output.c_str(), output.size());
     stream.flush();

@@ -626,11 +626,11 @@ namespace BloombergLP {
   void processData(int                      uuid,
                    int                      luw,
                    int                      terminalNumber,
-                   const bsl::vector<char>& /* data */)
-      // Process the specified 'data' associated with the specified bloomberg
+                   const bsl::vector<char>& data)
+      // Process the specified 'data' associated with the specified Bloomberg
       // 'uuid', 'luw', and 'terminalNumber'.
   {
-      (void) data;    // suppress 'unused' warnings
+      (void)data;  // suppress "unused" warning
 //..
 // We add our attributes to the generic "default" attribute container.  In
 // practice we could create a more efficient attribute container
@@ -1086,7 +1086,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         ASSERT(0 == numLines);
     }
     else {
-        ASSERT(6 == numLines);
+        ASSERT(3 == numLines);
     }
     fs.close();
 #endif
@@ -1530,7 +1530,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         ASSERT( 0 == numLines);
     }
     else {
-        ASSERT(26 == numLines);
+        ASSERT(13 == numLines);
     }
     fs.close();
 #endif
@@ -3172,7 +3172,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     bsl::cout << "\t>>" << line << "<<" << bsl::endl;
             }
             fs.close();
-            ASSERT(6 == numLines);
+
+            // Only FATAL, ERROR, and WARN messages are published in this test.
+            ASSERT(3 == numLines);
 #endif
         }
 
@@ -3282,7 +3284,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     bsl::cout << "\t>>" << line << "<<" << bsl::endl;
             }
             fs.close();
-            ASSERT(6 == numLines);
+
+            // Only FATAL, ERROR, and WARN messages are published in this test.
+            ASSERT(3 == numLines);
 #endif
         }
 

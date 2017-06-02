@@ -22,6 +22,9 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 #include <bslmt_once.h>
 #include <bslmt_threadlocalvariable.h>
 
+#include <bsls_assert.h>
+#include <bsls_log.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_ostream.h>
 
@@ -222,11 +225,11 @@ AttributeContext *AttributeContext::getContext()
     AttributeContext *context = new (*allocator) AttributeContext(allocator);
 
     if (0 != bslmt::ThreadUtil::setSpecific(contextKey(), context)) {
-        bsl::fprintf(stderr,
-                     "Failed to add 'AttributeContext' to thread "
-                     "specific storage. %s : %d\n",
-                     __FILE__,
-                     __LINE__);
+        bsls::Log::platformDefaultMessageHandler(
+               bsls::LogSeverity::e_ERROR,
+               __FILE__,
+               __LINE__,
+               "Failed to add 'AttributeContext' to thread specific storage.");
         BSLS_ASSERT(false);
     }
     g_threadLocalContext = context;
@@ -241,11 +244,11 @@ AttributeContext *AttributeContext::getContext()
                           bslma::Default::globalAllocator(s_globalAllocator_p);
         context = new (*allocator) AttributeContext(allocator);
         if (0 != bslmt::ThreadUtil::setSpecific(key, context)) {
-            bsl::fprintf(stderr,
-                         "Failed to add 'AttributeContext' to thread "
-                         "specific storage. %s:%d\n",
-                         __FILE__,
-                         __LINE__);
+            bsls::Log::platformDefaultMessageHandler(
+               bsls::LogSeverity::e_ERROR,
+               __FILE__,
+               __LINE__,
+               "Failed to add 'AttributeContext' to thread specific storage.");
             BSLS_ASSERT(false);
         }
     }
@@ -259,10 +262,12 @@ void AttributeContext::initialize(CategoryManager  *categoryManager,
     BSLS_ASSERT_OPT(categoryManager);
 
     if (s_categoryManager_p) {
-        bsl::fprintf(stderr,
-                     "Attempt to re-initialize 'AttributeContext'. %s:%d.\n",
-                     __FILE__,
-                     __LINE__);
+        bsls::Log::platformDefaultMessageHandler(
+                               bsls::LogSeverity::e_ERROR,
+                               __FILE__,
+                               __LINE__,
+                               "Attempt to re-initialize 'AttributeContext'.");
+
         return;                                                       // RETURN
     }
 

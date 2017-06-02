@@ -1869,8 +1869,6 @@ int main(int argc, char *argv[])
         factorial(-1);
         factorial(15);
 
-        (void)cat;
-
       } break;
       case 39: {
         // --------------------------------------------------------------------
@@ -3109,17 +3107,19 @@ int main(int argc, char *argv[])
         record3->fixedFields().setMessage("No Logger Manager!");
 
         // The next three messages are set to strings with embedded '\0'.
+        // Note (if later more carefull check of stderr output will be
+        // performed ) that messages with embedded '\0' will be truncated.
 
         record4->fixedFields().messageStreamBuf().pubseekpos(0);
         record4->fixedFields().messageStreamBuf().sputn(
                                                "No Logger\0 Manager\0 4!", 22);
 
-        record4->fixedFields().messageStreamBuf().pubseekpos(0);
-        record4->fixedFields().messageStreamBuf().sputn(
+        record5->fixedFields().messageStreamBuf().pubseekpos(0);
+        record5->fixedFields().messageStreamBuf().sputn(
                                                "No Logger\0 Manager\0 5!", 22);
 
-        record4->fixedFields().messageStreamBuf().pubseekpos(0);
-        record4->fixedFields().messageStreamBuf().sputn(
+        record6->fixedFields().messageStreamBuf().pubseekpos(0);
+        record6->fixedFields().messageStreamBuf().sputn(
                                                "No Logger\0 Manager\0 6!", 22);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -3159,7 +3159,8 @@ int main(int argc, char *argv[])
         }
 
         fs.close();
-        ASSERT(12 == numLines);
+
+        ASSERT(6 == numLines);
 #endif
 
         ASSERT("" == os.str());

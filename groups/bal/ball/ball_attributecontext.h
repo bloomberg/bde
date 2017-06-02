@@ -566,10 +566,11 @@ class AttributeContext {
         // used to supply memory.  If 'globalAllocator' is 0, the currently
         // installed global allocator is used.  Unless 'reset' is subsequently
         // called, invoking this method more than once will log an error
-        // message to 'stderr', but will have no other effect.  Note that in
-        // practice this method will be called *automatically* when the
-        // 'LoggerManager' singleton is initialized -- i.e., it is not intended
-        // to be called directly by clients of the 'ball' package.
+        // message using 'bsls::Log::platformDefaultMessageHandler', but will
+        // have no other effect.  Note that in practice this method will be
+        // called *automatically* when the 'LoggerManager' singleton is
+        // initialized -- i.e., it is not intended to be called directly by
+        // clients of the 'ball' package.
 
     static AttributeContext *lookupContext();
         // Return the address of the modifiable 'AttributeContext' object

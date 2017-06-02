@@ -491,10 +491,11 @@ BSLS_IDENT("$Id: $")
 //  void processData(int                      uuid,
 //                   int                      luw,
 //                   int                      terminalNumber,
-//                   const bsl::vector<char>& /* data */)
-//      // Process the specified 'data' associated with the specified bloomberg
+//                   const bsl::vector<char>& data)
+//      // Process the specified 'data' associated with the specified Bloomberg
 //      // 'uuid', 'luw', and 'terminalNumber'.
 //  {
+//      (void)data;  // suppress "unused" warning
 //..
 // We create a generic "default" attribute container to hold our attributes.
 // Note that, in practice, we might choose to define a more efficient

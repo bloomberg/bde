@@ -1427,7 +1427,8 @@ class LoggerManager {
         // otherwise.
 
     static void logMessage(int severity, Record *record);
-        // Publish the specified 'record' to 'stderr' after setting its
+        // Publish the specified 'record' using
+        // 'bsls::Log::platformDefaultMessageHandler' after setting its
         // severity attribute to the specified 'severity'.  The behavior is
         // undefined unless 'record' was obtained by a call to the
         // 'LoggerManager::getRecord' method.
