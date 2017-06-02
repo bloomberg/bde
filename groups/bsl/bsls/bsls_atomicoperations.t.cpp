@@ -74,6 +74,14 @@ using namespace std;
 // [ 5] decrementInt64(Int64 *aInt);
 // [ 5] incrementInt64Nv(Int64 *);
 // [ 5] decrementInt64Nv(Int64 *);
+// [ 5] incrementUint(Obj::Uint *aUint);
+// [ 5] decrementUint(Obj::Uint *aUint);
+// [ 5] incrementUintNv(Obj::Uint *aUint);
+// [ 5] decrementUintNv(Obj::Uint *aUint);
+// [ 5] incrementUint64(Obj::Uint64 *aUint);
+// [ 5] decrementUint64(Obj::Uint64 *aUint);
+// [ 5] incrementUint64Nv(Obj::Uint64 *);
+// [ 5] decrementUint64Nv(Obj::Uint64 *);
 // [ 6] incrementIntAcqRel(Obj::Int *aInt);
 // [ 6] decrementIntAcqRel(Obj::Int *aInt);
 // [ 6] incrementIntNvAcqRel(Obj::Int *aInt);
@@ -676,6 +684,27 @@ static void* decrementIntTestThread(void *ptr)
     return ptr;
 }
 
+static void* decrementUintTestThread(void *ptr)
+    // This function is used to test the 'decrementUint' and 'decrementUintNv'
+    // functions.  It atomically decrements the specified atomic unsigned
+    // integer object for the specified number of iterations.
+{
+    UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
+
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::decrementUint(args->d_uint_p);
+        Obj::decrementUintNv(args->d_uint_p);
+    }
+    return ptr;
+}
+
 static void* incrementInt64TestThread(void *ptr)
     // This function is used to test the 'incrementInt64' function.  It
     // atomically increments the specified 64bit atomic integer object for the
@@ -699,6 +728,30 @@ static void* incrementInt64TestThread(void *ptr)
     return ptr;
 }
 
+static void* incrementUint64TestThread(void *ptr)
+    // This function is used to test the 'incrementUint64' and
+    // 'incrementInt64Nv' functions.  It atomically increments the specified
+    // 64bit atomic unsigned integer object for the specified number of
+    // iterations.  When executed by multiple threads concurrently, final
+    // value of the specified int should have been incremented by exactly
+    // NTHREADS * NITERATIONS.
+{
+    Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
+
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::incrementUint64(args->d_uint_p);
+        Obj::incrementUint64Nv(args->d_uint_p);
+    }
+    return ptr;
+}
+
 static void* decrementInt64TestThread(void *ptr)
     // This function is used to test the 'decrementInt64' function.  It
     // atomically decrements the specified 64bit atomic integer object for the
@@ -718,6 +771,30 @@ static void* decrementInt64TestThread(void *ptr)
     for(int i=0; i < args->d_iterations; ++i) {
         Obj::decrementInt64(args->d_int_p);
         Obj::decrementInt64Nv(args->d_int_p);
+    }
+    return ptr;
+}
+
+static void* decrementUint64TestThread(void *ptr)
+    // This function is used to test the 'decrementInt64' and
+    // 'decrementInt64Nv' functions.  It atomically decrements the specified
+    // 64bit atomic unsigned integer object for the specified number of
+    // iterations.  When executed by multiple threads concurrently, final value
+    // of the specified unsigned int should have been decremented by exactly
+    // NTHREADS * NITERATIONS.
+{
+    Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
+
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        Obj::decrementUint64(args->d_uint_p);
+        Obj::decrementUint64Nv(args->d_uint_p);
     }
     return ptr;
 }
@@ -3663,18 +3740,18 @@ int main(int argc, char *argv[]) {
       case 5: {
         // --------------------------------------------------------------------
         // TESTING INCREMENT/DECREMENT MANIPULATORS
-        //   Test the atomic increment and decrement functions for the Int and
-        //   Int64 atomic types.
+        //   Test the atomic increment and decrement functions for the Int,
+        //   Int64, Uint, and Uint64 atomic types.
         // Plan:
-        //   For each atomic type(Int,Int64), using a sequence of
-        //   independent values, begin by initializing the atomic Int/Int64 to
-        //   a base value and increment the value by 1.  Next assert
-        //   that the value is the expected value.  Then repeat the
-        //   same operation using the "Nv" operation.  Assert that the
+        //   For each atomic type(Int, Int64, Uint, Uint64), using a sequence
+        //   of independent values, begin by initializing the atomic
+        //   Int/Int64/Uint/Uint64 to a base value and increment the value by
+        //   1.  Next assert that the value is the expected value.  Then repeat
+        //   the same operation using the "Nv" operation.  Assert that the
         //   value is the expected value, and that the returned value
         //   is also the expected value.  Finally create a series of
         //   threads to concurrently increment/decrement the same
-        //   atomic Int/Int64 value for a specific number of
+        //   atomic Int/Int64/Uint/Uint64 value for a specific number of
         //   iterations.  If the final value is the expected value,
         //   then it is assumed that the operations behave correctly
         //   in a multi-threaded environment.
@@ -3688,6 +3765,14 @@ int main(int argc, char *argv[]) {
         //   decrementInt64(Obj::Int64 *aInt);
         //   incrementInt64Nv(Obj::Int64 *);
         //   decrementInt64Nv(Obj::Int64 *);
+        //   incrementUint(Obj::Uint *aUint);
+        //   decrementUint(Obj::Uint *aUint);
+        //   incrementUintNv(Obj::Uint *aUint);
+        //   decrementUintNv(Obj::Uint *aUint);
+        //   incrementUint64(Obj::Uint64 *aUint);
+        //   decrementUint64(Obj::Uint64 *aUint);
+        //   incrementUint64Nv(Obj::Uint64 *);
+        //   decrementUint64Nv(Obj::Uint64 *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Increment/Decrement Manipulators"
@@ -3747,46 +3832,6 @@ int main(int argc, char *argv[]) {
                 result = Obj::incrementIntNv(&x);
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == Obj::getInt(&X));
-            }
-        }
-
-        if (verbose) cout << "\nTesting 'Int' Increment Thread Safeness"
-                          << endl;
-        {
-            const int NTHREADS=4;
-            const int NITERATIONS=10000;
-            const int EXPTOTAL=NTHREADS*NITERATIONS*2;
-            const int STARTVALUE=0;
-
-            Types::Int mInt;
-
-            Obj::initInt(&mInt,STARTVALUE);
-            IntTestThreadArgs args;
-            args.d_int_p = &mInt;
-            args.d_iterations = NITERATIONS;
-            args.d_countStarted = 0;
-            args.d_addVal = 0;
-
-            my_thread_t threadHandles[NTHREADS];
-
-            args.d_barrier.reset();
-            for (int i=0; i < NTHREADS; ++i) {
-                args.d_startSig.reset();
-                myCreateThread( &threadHandles[i],incrementIntTestThread,
-                                &args);
-                args.d_startSig.wait();
-            }
-
-            ASSERT(STARTVALUE == Obj::getInt(&mInt));
-            ASSERT(NTHREADS == args.d_countStarted);
-            args.d_barrier.signal();
-
-            for (int i=0; i< NTHREADS; ++i) {
-                myJoinThread(threadHandles[i]);
-            }
-            ASSERT(EXPTOTAL == Obj::getInt(&mInt));
-            if (veryVerbose) {
-                T_(); P_(Obj::getInt(&mInt)); P_(EXPTOTAL); P(STARTVALUE);
             }
         }
 
@@ -3931,6 +3976,67 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
+                bsls::Types::Int64 d_value; // Input value
+                bsls::Types::Int64 d_expected; // Expected resulting
+                                                     // value of decrement
+
+            } VALUES[] = {
+                //line value                      expected
+                //---- -------------------        ---------------------
+                { L_,         0                  , 1                    },
+                { L_,         1                  , 2                    },
+                { L_,        -1LL                , 0                    },
+                { L_,         0xFFFFFFFFLL       , 0x100000000LL        },
+                { L_,  (int) 0xFFFFFFFFFFFFFFFFLL , 0                   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+
+                Types::Int64 x;  const Types::Int64& X = x;
+                Obj::initInt64(&x,0);
+                ASSERT(0 == Obj::getInt64(&X));
+
+                Obj::setInt64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getInt64(&X)); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getInt64(&X));
+                Obj::incrementInt64(&x);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getInt64(&X)); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == Obj::getInt64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
+
+                Types::Int64 x;  const Types::Int64& X = x;
+                Obj::initInt64(&x,0);
+                ASSERT(0 == Obj::getInt64(&X));
+
+                Obj::setInt64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getInt64(&x)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getInt64(&X));
+                result = Obj::incrementInt64Nv(&x);
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getInt64(&X));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Int64' Dencrement Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int       d_lineNum;     // Source line number
                 bsls::Types::Int64 d_expected; // Expected resulting
                                                      // value of decrement
                 bsls::Types::Int64 d_value; // Input value
@@ -4063,6 +4169,399 @@ int main(int argc, char *argv[]) {
             ASSERT(EXPTOTAL == Obj::getInt64(&mInt));
             if (veryVerbose) {
                 T_(); P_(Obj::getInt64(&mInt)); P_(EXPTOTAL); P(STARTVALUE);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint' Increment Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int          d_lineNum;     // Source line number
+                unsigned int d_value;       // Input value
+                unsigned int d_expected;    // Expected resulting value
+            } VALUES[] = {
+                //line value expected
+                //---- ----- --------
+                { L_,   0        , 1         },
+                { L_,   1        , 2         },
+                { L_,  0xFFFFFFFF, 0         },
+                { L_,   2        , 3         },
+                { L_,  0xFFFFFFFE, 0xFFFFFFFF}
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+                Obj::incrementUint(&x);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+                result = Obj::incrementUintNv(&x);
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint' Decrement Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int          d_lineNum;      // Source line number
+                unsigned int d_expected;     // Expected result of decrement
+                unsigned int d_value;        // Base value to be decremented
+            } VALUES[] = {
+                //line expected  value
+                //---- --------- -----------
+                { L_,   0       , 1          },
+                { L_,   1       , 2          },
+                { L_, 0xFFFFFFFF, 0          },
+                { L_,   2       , 3          },
+                { L_, 0xFFFFFFFE, 0xFFFFFFFF }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+                Obj::decrementUint(&x);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint(&X));
+                result = Obj::decrementUintNv(&x);
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint' Increment Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const unsigned int EXPTOTAL=NTHREADS*NITERATIONS*2;
+            const unsigned int STARTVALUE=0;
+
+            Types::Uint mUint;
+
+            Obj::initUint(&mUint,STARTVALUE);
+            UintTestThreadArgs args;
+            args.d_uint_p = &mUint;
+            args.d_iterations = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_addVal = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread( &threadHandles[i],incrementUintTestThread,
+                                &args);
+                args.d_startSig.wait();
+            }
+
+            ASSERT(STARTVALUE == Obj::getUint(&mUint));
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            for (int i=0; i< NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            ASSERT(EXPTOTAL == Obj::getUint(&mUint));
+            if (veryVerbose) {
+                T_(); P_(Obj::getUint(&mUint)); P_(EXPTOTAL); P(STARTVALUE);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint' decrement Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const unsigned int EXPTOTAL=33;
+            const unsigned int STARTVALUE=(NTHREADS*NITERATIONS*2)+EXPTOTAL;
+            Types::Uint mUint;
+
+            UintTestThreadArgs args;
+            Obj::initUint(&mUint,STARTVALUE);
+
+            args.d_uint_p = &mUint;
+            args.d_iterations = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_addVal = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread( &threadHandles[i], decrementUintTestThread,
+                                &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(STARTVALUE == Obj::getUint(&mUint));
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            for (int i=0; i< NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            ASSERT(EXPTOTAL == Obj::getUint(&mUint));
+            if (veryVerbose) {
+                T_(); P_(Obj::getUint(&mUint)); P_(EXPTOTAL); P(STARTVALUE);
+            }
+        }
+
+
+        if (verbose) cout << "\nTesting 'Uint64' Increment Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int                 d_lineNum;  // Source line number
+                bsls::Types::Uint64 d_value;    // Input value
+                bsls::Types::Uint64 d_expected; // Expected resulting
+                                                // value of decrement
+
+            } VALUES[] = {
+                //line value                      expected
+                //---- -------------------    ---------------------
+                { L_,         0             , 1                    },
+                { L_,         1             , 2                    },
+                { L_,        11LL           , 12                   },
+                { L_,          0xFFFFFFFFLL , 0x100000000LL        },
+                { L_,  0xFFFFFFFFFFFFFFFFLL , 0                    }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_expected;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
+                Obj::incrementUint64(&x);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Uint64       result;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&x)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
+                result = Obj::incrementUint64Nv(&x);
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' Dencrement Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int                 d_lineNum;  // Source line number
+                bsls::Types::Uint64 d_expected; // Expected resulting
+                                                // value of decrement
+                bsls::Types::Uint64 d_value;    // Input value
+
+            } VALUES[] = {
+                //line expected                   value
+                //---- -------------------        ---------------------
+                { L_,          0           , 1                    },
+                { L_,          1           , 2                    },
+                { L_,         11LL         , 12                   },
+                { L_,          0xFFFFFFFFLL, 0x100000000LL        },
+                { L_,  0xFFFFFFFFFFFFFFFFLL, 0                    }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_expected;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
+                Obj::decrementUint64(&x);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Uint64       result;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&x)); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == Obj::getUint64(&X));
+                result = Obj::decrementUint64Nv(&x);
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' Increment Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const bsls::Types::Uint64 STARTVALUE=0xfffffff0LL;
+            const bsls::Types::Uint64 EXPTOTAL=NTHREADS*NITERATIONS*2+
+                                           STARTVALUE;
+            Types::Uint64 mUint;
+
+            Obj::initUint64(&mUint,STARTVALUE);
+            Uint64TestThreadArgs args;
+            args.d_uint_p = &mUint;
+            args.d_iterations = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_addVal = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread( &threadHandles[i], incrementUint64TestThread,
+                                &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(STARTVALUE == Obj::getUint64(&mUint));
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            for (int i=0; i< NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            ASSERT(EXPTOTAL == Obj::getUint64(&mUint));
+            if (veryVerbose) {
+                T_(); P_(Obj::getUint64(&mUint)); P_(EXPTOTAL); P(STARTVALUE);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' decrement Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const bsls::Types::Uint64 EXPTOTAL=0xfffffff0;
+            const bsls::Types::Uint64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
+                                           EXPTOTAL;
+            Types::Uint64 mUint;
+
+            Uint64TestThreadArgs args;
+            Obj::initUint64(&mUint,STARTVALUE);
+
+            args.d_uint_p = &mUint;
+            args.d_iterations = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_addVal = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread( &threadHandles[i], decrementUint64TestThread,
+                                &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(STARTVALUE == Obj::getUint64(&mUint));
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            for (int i=0; i< NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            ASSERT(EXPTOTAL == Obj::getUint64(&mUint));
+            if (veryVerbose) {
+                T_(); P_(Obj::getUint64(&mUint)); P_(EXPTOTAL); P(STARTVALUE);
             }
         }
 
