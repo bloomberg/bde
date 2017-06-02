@@ -104,11 +104,24 @@ using namespace std;
 // [ 8] setIntRelaxed(AtomicTypes::Int *aInt, int value);
 // [ 8] setInt64Relaxed(AtomicTypes::Int64 *aInt, Types::Int64 value);
 // [ 8] setPtrRelaxed(AtomicTypes::Pointer *aPtr, void *value);
+// [ 8] getUintRelaxed(AtomicTypes::Uint const *aUint);
+// [ 8] getUint64Relaxed(AtomicTypes::Uint64 const *aUint);
+// [ 8] setUintRelaxed(AtomicTypes::Uint *aInt, unsigned int value);
+// [ 8] setUint64Relaxed(AtomicTypes::Uint64 *aInt, Types::Uint64 value);
+// [ 8] incrementIntNvRelaxed(AtomicTypes::Int const *aInt);
+// [ 8] incrementInt64NvRelaxed(AtomicTypes::Int64 const *aInt);
+// [ 8] incrementUintNvRelaxed(AtomicTypes::Uint const *aUint);
+// [ 8] incrementUint64NvRelaxed(AtomicTypes::Uint64 const *aUint);
 // [10] swapInt64AcqRel(Obj::Int *aInt, int value);
 // [10] testAndSwapIntAcqRel(Obj::Int *, int, int);
 // [10] swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
 // [10] testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64
 //                             bsls::Types::Int64 );
+// [10] swapUintAcqRel(Obj::Uint *aUint, unsigned int value);
+// [10] testAndSwapUintAcqRel(Obj::Uint *, undigned int, unsigned int);
+// [10] swapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
+// [10] testAndSwapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64
+//                             bsls::Types::Uint64 );
 // [10] swapPtrAcqRel(Obj::Pointer *aPointer, void *value);
 // [10] testAndSwapPtrAcqRel(Obj::Pointer *, void *, void *);
 // [11] addIntAcqRel(Obj::Int *aInt, int value);
@@ -584,6 +597,20 @@ struct Case8_64
     int             d_m;
 };
 
+struct Case8U
+{
+    Types::Uint *d_value_p;
+    int          d_n;
+    int          d_m;
+};
+
+struct Case8U_64
+{
+    Types::Uint64 *d_value_p;
+    int            d_n;
+    int            d_m;
+};
+
 extern "C" {
 
 static void* case8Thread(void* ptr)
@@ -613,6 +640,38 @@ static void* case8Thread64(void* ptr)
             Obj::getInt64Relaxed(args->d_value_p);
         bsls::Types::Int64 newValue =
             Obj::addInt64NvRelaxed(args->d_value_p, 1);
+        LOOP3_ASSERT(value, newValue, limit,
+                     newValue > value && value <= limit);
+    }
+
+    return ptr;
+}
+
+static void* case8ThreadU(void* ptr)
+{
+    Case8U *args = (Case8U*) ptr;
+
+    for (int i = 0; i < args->d_m; ++i) {
+        unsigned int value = Obj::getUintRelaxed(args->d_value_p);
+        unsigned int newValue = Obj::addUintNvRelaxed(args->d_value_p, 1);
+        LOOP2_ASSERT(value, newValue,
+                    newValue > value &&
+					newValue <= static_cast<unsigned>(args->d_m * args->d_n));
+    }
+    return ptr;
+}
+
+static void* case8ThreadU64(void* ptr)
+{
+    Case8U_64 *args = (Case8U_64*) ptr;
+
+    bsls::Types::Uint64 limit = args->d_m * args->d_n + OFFSET_64;
+
+    for (int i = 0; i < args->d_m; ++i) {
+        bsls::Types::Uint64 value =
+            Obj::getUint64Relaxed(args->d_value_p);
+        bsls::Types::Uint64 newValue =
+            Obj::addUint64NvRelaxed(args->d_value_p, 1);
         LOOP3_ASSERT(value, newValue, limit,
                      newValue > value && value <= limit);
     }
@@ -1437,7 +1496,7 @@ static void* testAndSwapPtrTestThread(void *ptr)
 
 
 static void* swapIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapInt' function.  It atomically
+    // This function is used to test the 'swapIntAcqRel' function.
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1467,8 +1526,39 @@ static void* swapIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+static void* swapUintAcqRelTestThread(void *ptr)
+    // This function is used to test the 'swapUintAcqRel' function.
+{
+    UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
+    int value1Count=0;
+    int value2Count=0;
+    int errorCount=0;
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        unsigned int oldValue =
+            Obj::swapUintAcqRel(args->d_uint_p,UINT_SWAPTEST_VALUE2);
+        ASSERT(oldValue == UINT_SWAPTEST_VALUE1 ||
+               oldValue == UINT_SWAPTEST_VALUE2);
+        if (oldValue == UINT_SWAPTEST_VALUE1) value1Count++;
+        else if(oldValue == UINT_SWAPTEST_VALUE2) value2Count++;
+        else errorCount++;
+    }
+    args->d_mutex.lock();
+    args->d_value1Count += value1Count;
+    args->d_value2Count += value2Count;
+    args->d_errorCount  += errorCount;
+    args->d_mutex.unlock();
+    return ptr;
+}
+
 static void* swapInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapInt' function.  It atomically
+    // This function is used to test the 'swapInt64AcqRel' function.
 {
     Int64SwapTestThreadArgs *args=(Int64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1496,9 +1586,38 @@ static void* swapInt64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+static void* swapUint64AcqRelTestThread(void *ptr)
+    // This function is used to test the 'swapUint64AcqRel' function.
+{
+    Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
+    int value1Count=0;
+    int value2Count=0;
+    int errorCount=0;
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        bsls::Types::Uint64 oldValue=
+            Obj::swapUint64AcqRel(args->d_uint_p,UINT64_SWAPTEST_VALUE2);
+        if (oldValue == UINT64_SWAPTEST_VALUE1) ++value1Count;
+        else if (oldValue == UINT64_SWAPTEST_VALUE2) ++value2Count;
+        else ++errorCount;
+    }
+    args->d_mutex.lock();
+    args->d_value1Count += value1Count;
+    args->d_value2Count += value2Count;
+    args->d_errorCount  += errorCount;
+    args->d_mutex.unlock();
+    return ptr;
+}
+
 
 static void* testAndSwapIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapInt' function.
+    // This function is used to test the 'testAndSwapIntAcqRel' function.
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1529,6 +1648,38 @@ static void* testAndSwapIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+static void* testAndSwapUintAcqRelTestThread(void *ptr)
+    // This function is used to test the 'testAndSwapUintAcqRel' function.
+{
+    UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
+    int value1Count=0;
+    int value2Count=0;
+    int errorCount=0;
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        unsigned int oldValue =
+            Obj::testAndSwapUintAcqRel(args->d_uint_p,UINT_SWAPTEST_VALUE1,
+                                UINT_SWAPTEST_VALUE2);
+        ASSERT(oldValue == UINT_SWAPTEST_VALUE1 ||
+               oldValue == UINT_SWAPTEST_VALUE2);
+        if (oldValue == UINT_SWAPTEST_VALUE1) value1Count++;
+        else if(oldValue == UINT_SWAPTEST_VALUE2) value2Count++;
+        else errorCount++;
+    }
+    args->d_mutex.lock();
+    args->d_value1Count += value1Count;
+    args->d_value2Count += value2Count;
+    args->d_errorCount  += errorCount;
+    args->d_mutex.unlock();
+    return ptr;
+}
+
 static void* testAndSwapInt64AcqRelTestThread(void *ptr)
     // This function is used to test the 'testAndSwapInt64' function.
 {
@@ -1549,6 +1700,36 @@ static void* testAndSwapInt64AcqRelTestThread(void *ptr)
                                   INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
         else if (oldValue == INT64_SWAPTEST_VALUE2) ++value2Count;
+        else ++errorCount;
+    }
+    args->d_mutex.lock();
+    args->d_value1Count += value1Count;
+    args->d_value2Count += value2Count;
+    args->d_errorCount  += errorCount;
+    args->d_mutex.unlock();
+    return ptr;
+}
+
+static void* testAndSwapUint64AcqRelTestThread(void *ptr)
+    // This function is used to test the 'testAndSwapUint64' function.
+{
+    Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
+    int value1Count=0;
+    int value2Count=0;
+    int errorCount=0;
+    args->d_mutex.lock();
+    args->d_countStarted++;
+    args->d_startSig.signal();
+    args->d_mutex.unlock();
+
+    args->d_barrier.wait();
+
+    for(int i=0; i < args->d_iterations; ++i) {
+        bsls::Types::Uint64 oldValue=
+            Obj::testAndSwapUint64AcqRel(args->d_uint_p,UINT64_SWAPTEST_VALUE1,
+                                  UINT64_SWAPTEST_VALUE2);
+        if (oldValue == UINT64_SWAPTEST_VALUE1) ++value1Count;
+        else if (oldValue == UINT64_SWAPTEST_VALUE2) ++value2Count;
         else ++errorCount;
     }
     args->d_mutex.lock();
@@ -2571,8 +2752,9 @@ int main(int argc, char *argv[]) {
         //   Int,Int64, and Pointer atomic types.
         //
         // Plan:
-        //   For each atomic type("Int", "Int64", "Pointer"), perform the
-        //   following tests to test the swap, and testAndSwap manipulators.
+        //   For each atomic type("Int", "Int64", "Uint", "Uint64", "Pointer"),
+        //   perform the following tests to test the swap, and testAndSwap
+        //   manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
         //   set its value to a base value.  Next 'swap' it with a second test
@@ -2600,11 +2782,16 @@ int main(int argc, char *argv[]) {
         //   have been seen.
         //
         // Testing:
-        //   swapInt64AcqRel(Obj::Int *aInt, int value);
+        //   swapIntAcqRel(Obj::Int *aInt, int value);
         //   testAndSwapIntAcqRel(Obj::Int *, int, int);
         //   swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
-        //   testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int6
+        //   testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64
         //                          bsls::Types::Int64 );
+        //   swapUintAcqRel(Obj::Uint *aUint, unsigned int value);
+        //   testAndSwapUintAcqRel(Obj::Uint *, undigned int, unsigned int);
+        //   swapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
+        //   testAndSwapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64
+        //                          bsls::Types::Uint64 );
         //   swapPtrAcqRel(Obj::Pointer *aPointer, void *value);
         //   testAndSwapPtrAcqRel(Obj::Pointer *, void *, void *);
         // --------------------------------------------------------------------
@@ -2650,9 +2837,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapInt'" << endl
-                          << "\t------------------------" << endl;
+        if (verbose) cout << endl << "\tTesting 'testAndSwapInt'" << endl
+                                  << "\t------------------------" << endl;
         {
             static const struct {
                 int  d_lineNum;    // Source line number
@@ -2743,6 +2929,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        if (verbose) cout << endl << "\tTesting 'testAndSwapInt64'" << endl
+                                  << "\t--------------------------" << endl;
         {
             static const struct {
                 int       d_lineNum;     // Source line number
@@ -2788,6 +2976,179 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXPRES == result );
             }
         }
+
+        if (verbose) cout << "\nTesting 'Uint' SWAP Manipulators" << endl;
+        {
+            static const struct {
+                int          d_lineNum;   // Source line number
+                unsigned int d_value;     // Initial value
+                unsigned int d_swapValue; // Swap value
+            } VALUES[] = {
+                //line value swap
+                //---- ----- -------
+                { L_,   0   , 11     },
+                { L_,   1   , 19     },
+                { L_,  11   , 4      },
+                { L_,   2   , 44     },
+                { L_,  22   , 16     }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL    = VALUES[i].d_value;
+                const unsigned int SWPVAL = VALUES[i].d_swapValue;
+                unsigned int       result = 0;
+
+                Types::Uint x; const Types::Uint& X = x;
+                Obj::initUint(&x);
+                ASSERT(0 == Obj::getUint(&x));
+
+                Obj::setUint(&x,VAL);
+                result = Obj::swapUintAcqRel(&x,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&x)); P_(VAL);P_(SWPVAL);NL();
+                }
+                LOOP_ASSERT(i, SWPVAL == Obj::getUint(&X));
+                LOOP_ASSERT(i, VAL    == result );
+            }
+        }
+
+        if (verbose) cout << endl << "\tTesting 'testAndSwapUint'" << endl
+                                  << "\t-------------------------" << endl;
+        {
+            static const struct {
+                int          d_lineNum;    // Source line number
+                unsigned int d_value;       // Initial value
+                unsigned int d_swapValue;   // Swap value
+                unsigned int d_cmpValue;    // Compare value
+                unsigned int d_expValue;    // Expected value after operations
+                unsigned int d_expResult;   // Expected result
+            } VALUES[] = {
+                //line value    swapVal      cmpVal  expValue    expResult
+                //---- -----    ----------- ------- ----------- -----------
+                { L_,  0        , 11        , 33   , 0         , 0          },
+                { L_,  1        , 19        , 1    , 19        , 1          },
+                { L_, 11        , 4         , 1    , 11        , 11         },
+                { L_,  2        , 0xFFFFFFFF, 2    , 0xFFFFFFFF, 2          },
+                { L_, 0xFFFFFFFE, 16        , 0    , 0xFFFFFFFE, 0xFFFFFFFE }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL    = VALUES[i].d_value;
+                const unsigned int CMPVAL = VALUES[i].d_cmpValue;
+                const unsigned int SWPVAL = VALUES[i].d_swapValue;
+                const unsigned int EXPVAL = VALUES[i].d_expValue;
+                const unsigned int EXPRES = VALUES[i].d_expResult;
+                unsigned int       result = 0;
+
+                Types::Uint x; const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&x));
+
+                Obj::setUint(&x,VAL);
+                result = Obj::testAndSwapUintAcqRel(&x,CMPVAL,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X));
+                    P_(VAL);P_(CMPVAL);P_(SWPVAL); P_(result);
+                    P_(EXPVAL);P_(EXPRES); NL();
+                }
+                LOOP_ASSERT(i, EXPVAL == Obj::getUint(&X));
+                LOOP_ASSERT(i, EXPRES == result );
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' SWAP Manipulators" << endl;
+        {
+            static const struct {
+                int                 d_lineNum;   // Source line number
+                bsls::Types::Uint64 d_value;     // Initial value
+                bsls::Types::Uint64 d_swapValue; // Swap value
+            } VALUES[] = {
+                //line value swap
+                //---- ----- -------
+                { L_,   0LL , 11LL     },
+                { L_,   1LL , 19LL     },
+                { L_,  11LL ,  4LL     },
+                { L_,   2LL , 44LL     },
+                { L_,  22LL , 16LL     }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Uint64 SWPVAL = VALUES[i].d_swapValue;
+                bsls::Types::Uint64       result = 0;
+
+                Types::Uint64 x; const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                result = Obj::swapUint64AcqRel(&x,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P_(VAL);
+                    P_(SWPVAL); NL();
+                }
+                LOOP_ASSERT(i, SWPVAL == Obj::getUint64(&X));
+                LOOP_ASSERT(i, VAL    == result );
+            }
+        }
+
+        if (verbose) cout << endl << "\tTesting 'testAndSwapUint64'" << endl
+                                  << "\t---------------------------" << endl;
+        {
+            static const struct {
+                int                 d_lineNum;   // Source line number
+                bsls::Types::Uint64 d_value;     // Initial value
+                bsls::Types::Uint64 d_swapValue; // Swap value
+                bsls::Types::Uint64 d_cmpValue;  // Compare value
+                bsls::Types::Uint64 d_expValue;  // Expected value
+                                                 // after the operation
+                bsls::Types::Int64 d_expResult;  // Expected result
+            } VALUES[] = {
+                //line value swapVal      cmpVal  expValue      expResult
+                //---- ----- ------------ ------- ------------- ---------
+                { L_,   0LL  , 11         , 33     , 0          , 0       },
+                { L_,   1LL  , 19         , 1      , 19         , 1       },
+                { L_,  11LL  , 4          , 1      , 11LL        , 11LL     },
+                { L_,   2LL  , 0xFFFFFFFFFLL, 2    , 0xFFFFFFFFFLL, 2       },
+                { L_,  22LL  , 16         , 0      , 22LL        , 22LL     }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Uint64 CMPVAL = VALUES[i].d_cmpValue;
+                const bsls::Types::Uint64 SWPVAL = VALUES[i].d_swapValue;
+                const bsls::Types::Uint64 EXPVAL = VALUES[i].d_expValue;
+                const bsls::Types::Uint64 EXPRES = VALUES[i].d_expResult;
+                bsls::Types::Uint64       result = 0;
+
+                Types::Uint64 x; const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,VAL);
+                result = Obj::testAndSwapUint64AcqRel(&x,CMPVAL,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X));
+                    P_(VAL);P_(CMPVAL);P_(SWPVAL); P_(result);
+                    P_(EXPVAL);P_(EXPRES);NL();
+                }
+                LOOP_ASSERT(i, EXPVAL == Obj::getUint64(&X));
+                LOOP_ASSERT(i, EXPRES == result );
+            }
+        }
+
         if (verbose) cout << "\nTesting 'Pointer' SWAP Manipulators" << endl;
         {
             static const struct {
@@ -3123,6 +3484,248 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        if (verbose) cout << "\nTesting 'Uint' swap Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const int EXPTOTAL=NTHREADS*NITERATIONS + NITERATIONS;
+
+            Types::Uint mUint;
+
+            UintSwapTestThreadArgs args;
+            Obj::initUint(&mUint,UINT_SWAPTEST_VALUE1);
+
+            args.d_uint_p       = &mUint;
+            args.d_iterations   = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_value1Count  = 0;
+            args.d_value2Count  = 0;
+            args.d_errorCount   = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread(&threadHandles[i], swapUintAcqRelTestThread,
+                               &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            int errorCount=0;
+            int value1Count=0;
+            int value2Count=0;
+
+            for (int i=0; i < NITERATIONS; ++i) {
+                unsigned int oldValue = Obj::swapUintAcqRel( &mUint,
+                                                         UINT_SWAPTEST_VALUE1);
+                if (oldValue == UINT_SWAPTEST_VALUE1) ++value1Count;
+                else if(oldValue == UINT_SWAPTEST_VALUE2) ++value2Count;
+                else ++errorCount;
+
+            }
+            for (int i=0; i < NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+
+            args.d_errorCount += errorCount;
+            args.d_value1Count += value1Count;
+            args.d_value2Count += value2Count;
+
+            ASSERT(0 == args.d_errorCount);
+            int total = args.d_value1Count + args.d_value2Count;
+            ASSERT(EXPTOTAL == total);
+
+            if (veryVerbose) {
+                T_(); P_(EXPTOTAL); P(total); P(args.d_value1Count);
+                T_(); P_(args.d_value2Count); P(args.d_errorCount);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' swap Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const int EXPTOTAL=NTHREADS*NITERATIONS+NITERATIONS;
+            Types::Uint64 mUint;
+
+            Uint64SwapTestThreadArgs args;
+            Obj::initUint64(&mUint,UINT64_SWAPTEST_VALUE1);
+
+            args.d_uint_p       = &mUint;
+            args.d_iterations   = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_value1Count  = 0;
+            args.d_value2Count  = 0;
+            args.d_errorCount   = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread(&threadHandles[i], swapUint64AcqRelTestThread,
+                               &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            int errorCount=0;
+            int value1Count=0;
+            int value2Count=0;
+            for (int i=0; i < NITERATIONS; ++i) {
+                bsls::Types::Uint64 oldValue =
+                    Obj::swapUint64AcqRel( &mUint,
+                                                UINT64_SWAPTEST_VALUE1);
+                if (oldValue == UINT64_SWAPTEST_VALUE1) ++value1Count;
+                else if(oldValue == UINT64_SWAPTEST_VALUE2) ++value2Count;
+                else ++errorCount;
+
+            }
+            for (int i=0; i < NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            args.d_errorCount += errorCount;
+            args.d_value1Count += value1Count;
+            args.d_value2Count += value2Count;
+
+            ASSERT(0 == args.d_errorCount);
+            int total = args.d_value1Count + args.d_value2Count;
+            ASSERT(EXPTOTAL == total);
+
+            if (veryVerbose) {
+                T_(); P_(EXPTOTAL); P(total);
+                T_(); P_(args.d_value1Count); P_(args.d_value2Count);
+                P(args.d_errorCount);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint' testAndSwap Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const int EXPTOTAL=NTHREADS*NITERATIONS+NITERATIONS;
+            Types::Uint mUint;
+
+            UintSwapTestThreadArgs args;
+            Obj::initUint(&mUint,UINT_SWAPTEST_VALUE1);
+
+            args.d_uint_p       = &mUint;
+            args.d_iterations   = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_value1Count  = 0;
+            args.d_value2Count  = 0;
+            args.d_errorCount   = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread(&threadHandles[i],
+                               testAndSwapUintAcqRelTestThread,
+                               &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            int errorCount=0;
+            int value1Count=0;
+            int value2Count=0;
+            for (int i=0; i < NITERATIONS; ++i) {
+                unsigned int oldValue = Obj::swapUintAcqRel(&mUint,
+                                                        UINT_SWAPTEST_VALUE1);
+                if (oldValue == UINT_SWAPTEST_VALUE1) ++value1Count;
+                else if(oldValue == UINT_SWAPTEST_VALUE2) ++value2Count;
+                else ++errorCount;
+
+            }
+            for (int i=0; i < NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            args.d_errorCount += errorCount;
+            args.d_value1Count += value1Count;
+            args.d_value2Count += value2Count;
+
+            ASSERT(0 == args.d_errorCount);
+            int total = args.d_value1Count + args.d_value2Count;
+            ASSERT(EXPTOTAL == total);
+
+
+            if (veryVerbose) {
+                T_(); P_(EXPTOTAL); P(total); P(args.d_value1Count);
+                T_(); P_(args.d_value2Count); P(args.d_errorCount);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'Uint64' testAndSwap Thread Safeness"
+                          << endl;
+        {
+            const int NTHREADS=4;
+            const int NITERATIONS=10000;
+            const int EXPTOTAL=NTHREADS*NITERATIONS+NITERATIONS;
+            Types::Uint64 mUint;
+
+            Uint64SwapTestThreadArgs args;
+            Obj::initUint64(&mUint,UINT64_SWAPTEST_VALUE1);
+
+            args.d_uint_p       = &mUint;
+            args.d_iterations   = NITERATIONS;
+            args.d_countStarted = 0;
+            args.d_value1Count  = 0;
+            args.d_value2Count  = 0;
+            args.d_errorCount   = 0;
+
+            my_thread_t threadHandles[NTHREADS];
+
+            args.d_barrier.reset();
+            for (int i=0; i < NTHREADS; ++i) {
+                args.d_startSig.reset();
+                myCreateThread(&threadHandles[i],
+                               testAndSwapUint64AcqRelTestThread,
+                               &args);
+                args.d_startSig.wait();
+            }
+            ASSERT(NTHREADS == args.d_countStarted);
+            args.d_barrier.signal();
+
+            int errorCount=0;
+            int value1Count=0;
+            int value2Count=0;
+            for (int i=0; i < NITERATIONS; ++i) {
+                bsls::Types::Uint64 oldValue =
+                    Obj::swapUint64AcqRel( &mUint,
+                                                UINT64_SWAPTEST_VALUE1);
+                if (oldValue == UINT64_SWAPTEST_VALUE1) ++value1Count;
+                else if(oldValue == UINT64_SWAPTEST_VALUE2) ++value2Count;
+                else ++errorCount;
+
+            }
+            for (int i=0; i < NTHREADS; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+            args.d_errorCount += errorCount;
+            args.d_value1Count += value1Count;
+            args.d_value2Count += value2Count;
+
+            ASSERT(0 == args.d_errorCount);
+            int total = args.d_value1Count + args.d_value2Count;
+            ASSERT(EXPTOTAL == total);
+
+            if (veryVerbose) {
+                T_(); P_(EXPTOTAL); P(total);
+                T_(); P_(args.d_value1Count); P_(args.d_value2Count);
+                P(args.d_errorCount);
+            }
+        }
+
         if (verbose) cout << "\nTesting 'Pointer' swap Thread Safeness"
                           << endl;
         {
@@ -3332,6 +3935,14 @@ int main(int argc, char *argv[]) {
         //   setIntRelaxed(AtomicTypes::Int *aInt, int value);
         //   setInt64Relaxed(AtomicTypes::Int64 *aInt, Types::Int64 value);
         //   setPtrRelaxed(AtomicTypes::Pointer *aPtr, void *value);
+        //   getUintRelaxed(AtomicTypes::Uint const *aUint);
+        //   getUint64Relaxed(AtomicTypes::Uint64 const *aUint);
+        //   setUintRelaxed(AtomicTypes::Uint *aInt, unsigned int value);
+        //   setUint64Relaxed(AtomicTypes::Uint64 *aInt, Types::Uint64 value);
+      	//   incrementIntNvRelaxed(AtomicTypes::Int const *aInt);
+      	//   incrementInt64NvRelaxed(AtomicTypes::Int64 const *aInt);
+      	//   incrementUintNvRelaxed(AtomicTypes::Uint const *aUint);
+      	//   incrementUint64NvRelaxed(AtomicTypes::Uint64 const *aUint);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Relaxed Methods"
@@ -3393,6 +4004,54 @@ int main(int argc, char *argv[]) {
 
         LOOP2_ASSERT(expected, Obj::getInt64Relaxed(&value64),
                      expected == Obj::getInt64Relaxed(&value64));
+
+        // Uint
+        {
+            Types::Uint value;
+            Obj::initUint(&value, 0);
+
+            Case8U args;
+            args.d_value_p = &value;
+            args.d_n = N;
+            args.d_m = M;
+
+            my_thread_t threadHandles[N];
+            for (int i = 0; i < N; ++i) {
+                myCreateThread(&threadHandles[i],
+                           case8ThreadU,
+                           &args);
+            }
+
+            for (int i = 0; i < N; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+
+           ASSERT(N * M == Obj::getUint(&value));
+        }
+
+        // Uint64
+        {
+            Types::Uint64 value;
+            Obj::initUint64(&value, 0);
+
+            Case8U_64 args;
+            args.d_value_p = &value;
+            args.d_n = N;
+            args.d_m = M;
+
+            my_thread_t threadHandles[N];
+            for (int i = 0; i < N; ++i) {
+                myCreateThread(&threadHandles[i],
+                           case8ThreadU64,
+                           &args);
+            }
+
+            for (int i = 0; i < N; ++i) {
+                myJoinThread(threadHandles[i]);
+            }
+
+           ASSERT(N * M == Obj::getUint64(&value));
+        }
 
       } break;
 
