@@ -78,6 +78,47 @@ using namespace std;
 // [ 2] operator bsls::Types::Int64() const;
 // [ 3] void bsls::AtomicInt64::store(Int64 value);
 //
+// bsls::AtomicUint
+// ---------------
+// [ 2] bsls::AtomicUint();
+// [ 3] bsls::AtomicUint(const bsls::AtomicUint& rhs);
+// [ 3] bsls::AtomicUint(unsigned int value);
+// [ 2] ~bsls::AtomicUint();
+// [ 5] unsigned int swap(unsigned int swapValue);
+// [ 5] unsigned int testAndSwap(unsigned int compareValue,
+///                              unsigned int swapValue);
+// [ 4] unsigned int add(unsigned int value);
+// [ 6] unsigned int operator ++();
+// [ 6] unsigned int operator ++(int);
+// [ 6] unsigned int operator --();
+// [ 6] unsigned int operator --(int);
+// [ 3] bsls::AtomicUint& operator= (const bsls::AtomicUint& rhs);
+// [ 2] bsls::AtomicUint& operator= (unsigned int value);
+// [ 4] void operator +=(unsigned int value);
+// [ 4] void operator -=(unsigned int value);
+// [ 2] operator unsigned int() const;
+// [ 3] void bsls::AtomicUint::store(unsigned int value);
+//
+// bsls::AtomicUint64
+// -----------------
+// [ 2] bsls::AtomicUint64();
+// [ 3] bsls::AtomicUint64(const bsls::AtomicUint64& original);
+// [ 3] bsls::AtomicUint64(bsls::Types::Uint64 value);
+// [ 2] ~bsls::AtomicUint64();
+// [ 4] bsls::Types::Uint64 add(bsls::Types::Uint64 value);
+// [ 5] bsls::Types::Uint64 swap(bsls::Types::Uint64 swapValue);
+// [ 5] bsls::Types::Uint64 testAndSwap(bsls::Types::Uint64 ...
+// [ 6] bsls::Types::Uint64 operator ++();
+// [ 6] bsls::Types::Uint64 operator ++(int);
+// [ 6] bsls::Types::Uint64 operator --();
+// [ 6] bsls::Types::Uint64 operator --(int);
+// [ 3] bsls::AtomicUint64& operator= (const bsls::AtomicUint64& rhs);
+// [ 2] bsls::AtomicUint64& operator= (bsls::Types::Uint64 value);
+// [ 4] void operator +=(bsls::Types::Uint64 value);
+// [ 4] void operator -=(bsls::Types::Uint64 value);
+// [ 2] operator bsls::Types::Uint64() const;
+// [ 3] void bsls::AtomicUint64::store(Uint64 value);
+//
 // bsls::AtomicPointer
 // -------------------
 // [ 2] bsls::AtomicPointer();
@@ -177,11 +218,17 @@ struct APTestObj
 
 typedef bsls::AtomicInt                      AI;
 typedef bsls::AtomicInt64                    AI64;
+typedef bsls::AtomicUint                     AUI;
+typedef bsls::AtomicUint64                   AUI64;
 typedef bsls::AtomicPointer<APTestObj>       AP;
 typedef bsls::AtomicPointer<const APTestObj> CAP;
 typedef bsls::AtomicBool                     AB;
 
 typedef bsls::Types::Int64            Int64;
+typedef bsls::Types::Uint64           Uint64;
+
+#define UINT64_M1 0xFFFFFFFFFFFFFFFFLL
+#define UINT64_M2 0xFFFFFFFFFFFFFFFELL
 
 //=============================================================================
 //                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -483,7 +530,7 @@ int getTestCaseIterations(TestLoopParameters::TestFunc testFunc)
     thread_t loopThr = createThread(&runTestingLoop, &params);
     thread_t obsvThr = createThread(&runObserverLoop, &params);
 
-    sleepSeconds(5);  // this makes the real test run for a couple of minutes
+    sleepSeconds(3);  // this makes the real test run for a couple of minutes
 
     params.d_cancel = 1;
     joinThread(loopThr);
@@ -1533,12 +1580,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING SWAP MANIPULATORS:
         //   Test the "swap" and "test and swap" functions for the Int, Int64,
-        //   Pointer, and Bool atomic types.
+        //   Uint, Uint64, Pointer, and Bool atomic types.
         //
         // Plan:
-        //   For each atomic type("AtomicInt", "AtomicInt64", "AtomicPointer",
-        //   "AtomicBool"), perform the following tests to verify the swap and
-        //   testAndSwap manipulators.
+        //   For each atomic type("AtomicInt", "AtomicInt64", "AtomicUint",
+        //   "AtomicUint64", "AtomicPointer", "AtomicBool"), perform the
+        //   following tests to verify the swap and testAndSwap manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
         //   set its value to a base value.  Next 'swap' it with a second test
@@ -1555,6 +1602,11 @@ int main(int argc, char *argv[])
         //   int testAndSwap(int compareValue,int swapValue);
         //   bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
         //   bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
+        //   unsigned int swap(unsigned int swapValue);
+        //   unsigned int testAndSwap(unsigned int compareValue,
+        //                            unsigned int swapValue);
+        //   bsls::Types::Uint64 swap(bsls::Types::Uint64 swapValue);
+        //   bsls::Types::Uint64 testAndSwap(bsls::Types::Uint64 ...
         //   T* swap(const T* swapValue);
         //   T* testAndSwap(const T* compareValue, const T* swapValue);
         //   bool swap(bool swapValue);
@@ -1603,9 +1655,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapInt'" << endl
-                          << "\t------------------------" << endl;
+        if (verbose) cout << "\nTesting 'AtomicInt' testAndSwap" << endl;
         {
             static const struct {
                 int d_lineNum;       // source line number
@@ -1689,6 +1739,7 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nTesting 'AtomicInt64' testAndSwap" << endl;
         {
             static const struct {
                 int   d_lineNum;       // source line number
@@ -1733,6 +1784,175 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXPRES == result );
             }
         }
+
+        if (verbose) cout << "\nTesting 'AtomicUint' SWAP Manipulators" << endl;
+        {
+            static const struct {
+                int          d_lineNum;   // source line number
+                unsigned int d_value;     // initial value
+                unsigned int d_swapValue; // swap value
+            } VALUES[] = {
+                //line value swap
+                //---- ----- -------
+                { L_,   0   , 11     },
+                { L_,   1   , 19     },
+                { L_,  11   , 4      },
+                { L_,   2   , 44     },
+                { L_,  22   , 16     }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL    = VALUES[i].d_value;
+                const unsigned int SWPVAL = VALUES[i].d_swapValue;
+                unsigned int       result = 0;
+
+                AUI x; const AUI& X = x;
+
+                x = VAL;
+                LOOP_ASSERT(i, VAL  == X);
+
+                result = x.swap(SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); P(SWPVAL);
+                }
+                LOOP_ASSERT(i, SWPVAL == X);
+                LOOP_ASSERT(i, VAL    == result );
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint' testAndSwap" << endl;
+        {
+            static const struct {
+                int          d_lineNum;      // source line number
+                unsigned int d_value;        // initial value
+                unsigned int d_swapValue;    // swap value
+                unsigned int d_compareValue; // compare value
+                unsigned int d_expValue;     // expected value after operations
+                unsigned int d_expResult;    // expected result
+            } VALUES[] = {
+            //ln  val         swapValue  cmpValue expValue    expResult
+            //--- ---       ------------ -------- ----------- -----------
+            { L_,  0        , 11        , 33     ,  0        ,  0         },
+            { L_,  1        , 19        , 1      , 19        ,  1         },
+            { L_, 0xFFFFFFFF, 4         , 1      , 0xFFFFFFFF, 0xFFFFFFFF },
+            { L_,  2        , 0xFFFFFFFF, 2      , 0xFFFFFFFF,  2         },
+            { L_, 0xFFFFFFFE, 16        , 0      , 0xFFFFFFFE, 0xFFFFFFFE }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL    = VALUES[i].d_value;
+                const unsigned int CMPVAL = VALUES[i].d_compareValue;
+                const unsigned int SWPVAL = VALUES[i].d_swapValue;
+                const unsigned int EXPVAL = VALUES[i].d_expValue;
+                const unsigned int EXPRES = VALUES[i].d_expResult;
+                unsigned int       result = 0;
+
+                AUI x; const AUI& X = x;
+
+                x = VAL;
+                LOOP_ASSERT(i, VAL == X);
+                result = x.testAndSwap(CMPVAL,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(VAL);P_(CMPVAL);P_(SWPVAL); P_(result);
+                    P_(EXPVAL);P_(EXPRES); NL();
+                }
+                LOOP_ASSERT(i, EXPVAL == X);
+                LOOP_ASSERT(i, EXPRES == result );
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint64' SWAP Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int   d_lineNum;    // source line number
+                Int64 d_value;      // initial value
+                Int64 d_swapValue;  // swap value
+            } VALUES[] = {
+                //line value swap
+                //---- ----- -------
+                { L_,   0LL , 11LL     },
+                { L_,   1LL , 19LL     },
+                { L_,  -1LL ,  4LL     },
+                { L_,   2LL , -4LL     },
+                { L_,  -2LL , 16LL     }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Int64 VAL    = VALUES[i].d_value;
+                const Int64 SWPVAL = VALUES[i].d_swapValue;
+                Int64       result = 0;
+
+                AI64 x; const AI64& X = x;
+
+                x = VAL;
+                LOOP_ASSERT(i, VAL == X);
+                result = x.swap(SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);
+                    P_(SWPVAL); NL();
+                }
+                LOOP_ASSERT(i, SWPVAL == X);
+                LOOP_ASSERT(i, VAL    == result );
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint64' testAndSwap" << endl;
+        {
+            static const struct {
+                int    d_lineNum;       // source line number
+                Uint64 d_value;         // initial value
+                Uint64 d_swapValue;     // swap value
+                Uint64 d_compareValue;  // compare value
+                Uint64 d_expValue;      // expected value after the operation
+                Uint64  d_expResult;    // expected result
+            } VALUES[] = {
+                //line value    swapValue    cmpValue  expValue    expResult
+                //---- -------- ------------ --------- ----------- ---------
+                { L_,   0LL    , 11           , 33 , 0            , 0        },
+                { L_,   1LL    , 19           , 1  , 19           , 1        },
+                { L_, UINT64_M1, 4            , 1  , UINT64_M1    , UINT64_M1},
+                { L_,   2LL    , 0xFFFFFFFFFLL, 2  , 0xFFFFFFFFFLL, 2        },
+                { L_, UINT64_M2, 16           , 0  , UINT64_M2    , UINT64_M2}
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL    = VALUES[i].d_value;
+                const Uint64 CMPVAL = VALUES[i].d_compareValue;
+                const Uint64 SWPVAL = VALUES[i].d_swapValue;
+                const Uint64 EXPVAL = VALUES[i].d_expValue;
+                const Uint64 EXPRES = VALUES[i].d_expResult;
+                Uint64       result = 0;
+
+                AUI64 x; const AUI64& X = x;
+
+                x = VAL;
+                LOOP_ASSERT(i, VAL == X);
+
+                result = x.testAndSwap(CMPVAL,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(VAL);P_(CMPVAL);P_(SWPVAL); P_(result);
+                    P_(EXPVAL);P_(EXPRES);NL();
+                }
+                LOOP_ASSERT(i, EXPVAL == X);
+                LOOP_ASSERT(i, EXPRES == result );
+            }
+        }
+
         if (verbose) cout << "\nTesting 'Pointer' SWAP Manipulators" << endl;
         {
             static const struct {
@@ -1770,6 +1990,7 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nTesting 'AtomicPointer' testAndSwap" << endl;
         {
             static const struct {
                 int        d_lineNum;       // source line number
@@ -1857,6 +2078,7 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nTesting 'AtomicBool' testAndSwap" << endl;
         {
             static const struct {
                 int  d_lineNum;       // source line number
@@ -1907,8 +2129,8 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING ARITHMETIC MANIPULATORS
-        //   Test that the 32/64 bit integer arithmetic functions work as
-        //   expected.
+        //   Test that the 32/64 bit signed/unsigned integer arithmetic
+        //   functions work as expected.
         //
         // Plan:
         //   For each atomic type('AtomicInt', and 'AtomicInt64') using a
@@ -1933,6 +2155,12 @@ int main(int argc, char *argv[])
         //   bsls::Types::Int64 add(bsls::Types::Int64 value);
         //   void operator +=(bsls::Types::Int64 value);
         //   void operator -=(bsls::Types::Int64 value);
+        //   unsigned int add(unsigned int value);
+        //   void operator +=(unsigned int value);
+        //   void operator -=(unsigned int value);
+        //   bsls::Types::Uint64 add(bsls::Types::Uint64 value);
+        //   void operator +=(bsls::Types::Uint64 value);
+        //   void operator -=(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1979,11 +2207,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 0 == X);
             }
 
-            if (verbose) cout << endl
-               << "\tTesting 'AtomicInt' Arithmetic(and values) Manipulators"
-               << endl
-               << "\t-------------------------------------------------"
-               << endl;
             for (std::size_t i = 0; i < NUM_VALUES; ++i) {
                 const int VAL  = VALUES[i].d_value;
                 int       result;
@@ -2002,9 +2225,6 @@ int main(int argc, char *argv[])
 
         }
 
-        if (verbose) cout << endl
-                          << "\tTesting 'AtomicInt' Arith(with base) Manip"
-                          << endl;
         {
             static const struct {
                 int d_lineNum;   // source line number
@@ -2179,6 +2399,238 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == X);
             }
         }
+
+        if (verbose) cout << endl
+                          << "Testing 'AtomicUint' Arithmetic Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int          d_lineNum;  // source line number
+                unsigned int d_value;    // input value
+            } VALUES[] = {
+                //line d_x
+                //---- ----
+                { L_,   0         },
+                { L_,   1         },
+                { L_,  0xFFFFFFFF },
+                { L_,   2         },
+                { L_,  0xFFFFFFFE }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+
+                AUI x;  const AUI& X = x;
+                ASSERT(0 == X);
+
+                x += VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+
+                x -= VAL;
+
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, 0 == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                ASSERT(0 == X);
+
+                result = x.add(VAL);
+                if (veryVerbose) {
+                    T_(); P_(X); P_(result); P(VAL);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                LOOP_ASSERT(i, VAL == result);
+            }
+
+        }
+
+        {
+            static const struct {
+                int          d_lineNum;   // source line number
+                unsigned int d_base;      // base value
+                unsigned int d_amount;    // amount to add
+                unsigned int d_expected;  // expected value
+            } VALUES[] = {
+                //line d_base          d_amount d_expected
+                //---- --------        -------- ----------
+                { L_,   0             , 9      , 9        },
+                { L_,   1             , 0      , 1        },
+                { L_,  11             , 1      , 12       },
+                { L_, 0xFFFFFFFF      , 1      , 0        },
+                { L_,  22             , 22     , 44       }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int BASE = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int EXP  = VALUES[i].d_expected;
+
+                AUI x;  const AUI& X = x;
+
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                x += AMT;
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == X);
+
+                x -= AMT;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(BASE); P_(AMT); P(EXP);
+                }
+                LOOP_ASSERT(i, BASE == X);
+
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int BASE = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.add(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint64' Arithmetic Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int    d_lineNum;  // source line number
+                Uint64 d_value;    // input value
+            } VALUES[] = {
+                //line d_x
+                //---- -------------------
+                { L_,   0                  },
+                { L_,   1                  },
+                { L_, 0xFFFFFFFFFFFFFFFFLL },
+                { L_,   2                  },
+                { L_, 0xFFFFFFFFFFFFFFFELL }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+
+                AUI64 x;  const AUI64& X = x;
+                ASSERT(0 == X);
+                x += VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+
+                ASSERT(0 == X);
+                result = x.add(VAL);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(VAL); P_(result); NL();
+                }
+                LOOP_ASSERT(i, VAL == result);
+                LOOP_ASSERT(i, VAL == X);
+            }
+
+        }
+        {
+            static const struct {
+                int   d_lineNum;   // source line number
+                Uint64 d_base;      // base value
+                Uint64 d_amount;    // amount to add
+                Uint64 d_expected;  // expected value
+            } VALUES[] = {
+                //line d_base        d_amount   d_expected
+                //---- ------------- --------   ----------
+                { L_,  UINT64_M1    , 10       , 9             },
+                { L_,  1            , UINT64_M2, UINT64_M1     },
+                { L_,  UINT64_M1    , 2LL      , 1LL           },
+                { L_,  0xFFFFFFFFLL , 1LL      , 0x100000000LL },
+                { L_,  0x100000000LL, UINT64_M2, 0xFFFFFFFELL  }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 BASE = VALUES[i].d_base;
+                const Uint64 AMT  = VALUES[i].d_amount;
+                const Uint64 EXP  = VALUES[i].d_expected;
+
+                AUI64 x;  const AUI64& X = x;
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                x += AMT;
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP);
+                }
+                LOOP_ASSERT(i, EXP == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 BASE = VALUES[i].d_base;
+                const Uint64 AMT  = VALUES[i].d_amount;
+                const Uint64 EXP  = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.add(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2188,13 +2640,14 @@ int main(int argc, char *argv[])
         //   First, verify the initialization functions by initializing each
         //   atomic type and testing the resulting value.
         //
-        //   Next, for the AtomicInt, AtomicInt64, AtomicPointer, and
-        //   AtomicBool types, for a sequence of independent test values, use
-        //   the initialization constructor to construct an object 'x' of each
-        //   type.  Then using the copy constructor, construct an object 'y'
-        //   from 'x'.  Next construct a third object 'z'.  Using the
-        //   assignment operator, assign the value of 'x' to 'z'.  Finally
-        //   Verify that the value of 'x', 'y', and 'z' are correct.
+        //   Next, for the AtomicInt, AtomicInt64, AtomicUint, AtomicUint64,
+        //   AtomicPointer, and AtomicBool types, for a sequence of independent
+        //   test values, use the initialization constructor to construct an
+        //   object 'x' of each type.  Then using the copy constructor,
+        //   construct an object 'y' from 'x'.  Next construct a third object
+        //   'z'.  Using the assignment operator, assign the value of 'x' to
+        //   'z'.  Finally Verify that the value of 'x', 'y', and 'z' are
+        //   correct.
         //
         // Testing:
         //   bsls::AtomicInt(const bsls::AtomicInt& rhs);
@@ -2205,6 +2658,14 @@ int main(int argc, char *argv[])
         //   bsls::AtomicInt64(bsls::Types::Int64 value);
         //   bsls::AtomicInt64& operator= (const bsls::AtomicInt64& rhs);
         //   void bsls::AtomicInt64::store(Int64 value);
+        //   bsls::AtomicUint(const bsls::AtomicUint& rhs);
+        //   bsls::AtomicUint(unsigned int value);
+        //   bsls::AtomicUint& operator= (const bsls::AtomicUint& rhs);
+        //   void bsls::AtomicUint::store(unsigned int value);
+        //   bsls::AtomicUint64(const bsls::AtomicUint64& original);
+        //   bsls::AtomicUint64(bsls::Types::Uint64 value);
+        //   bsls::AtomicUint64& operator= (const bsls::AtomicUint64& rhs);
+        //   void bsls::AtomicUint64::store(Uint64 value);
         //   bsls::AtomicPointer(const bsls::AtomicPointer<T>& original);
         //   bsls::AtomicPointer(const T* value);
         //   bsls::AtomicPointer<T>& operator=(const bsls::AtomicPointer<T>&);
@@ -2281,6 +2742,82 @@ int main(int argc, char *argv[])
                 AI64 y(X.loadRelaxed());    const AI64& Y = y;
                 AI64 z;                     const AI64& Z = z;
                 AI64 w;                     const AI64& W = w;
+
+                z = X.loadRelaxed();
+                w.store(VAL);
+                if (veryVerbose) {
+                    T_(); P_(X); P_(Y); P_(Z); P_(W); P(VAL);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                LOOP_ASSERT(i, VAL == Y);
+                LOOP_ASSERT(i, VAL == Z);
+                LOOP_ASSERT(i, VAL == W);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint' Primary Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int          d_lineNum;  // source line number
+                unsigned int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   0         },
+                { L_,   1         },
+                { L_,  0xFFFFFFFF },
+                { L_,   2         },
+                { L_,  0xFFFFFFFE }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+
+                AUI x(VAL);              const AUI& X = x;
+                AUI y(X.loadRelaxed());  const AUI& Y = y;
+                AUI z;                   const AUI& Z = z;
+                AUI w;                   const AUI& W = w;
+
+                z = X.loadRelaxed();
+                w.store(VAL);
+                if (veryVerbose) {
+                    T_(); P_(X); P_(Y); P_(Z); P_(W); P(VAL);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                LOOP_ASSERT(i, VAL == Y);
+                LOOP_ASSERT(i, VAL == Z);
+                LOOP_ASSERT(i, VAL == W);
+            }
+        }
+
+        if (verbose) cout <<"\nTesting 'AtomicUint64' Primary Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int    d_lineNum;  // source line number
+                Uint64 d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- -------------------
+                { L_,  0                   },
+                { L_,  1                   },
+                { L_, 0xFFFFFFFFFFFFFFFFLL },
+                { L_, 0xFFFFFFFFLL         },
+                { L_, 0x100000000LL        }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+
+                AUI64 x(VAL);                const AUI64& X = x;
+                AUI64 y(X.loadRelaxed());    const AUI64& Y = y;
+                AUI64 z;                     const AUI64& Z = z;
+                AUI64 w;                     const AUI64& W = w;
 
                 z = X.loadRelaxed();
                 w.store(VAL);
@@ -2379,14 +2916,15 @@ int main(int argc, char *argv[])
         //   work correctly.
         //
         // Plan:
-        //   For each atomic type(AtomicInt, AtomicInt64, AtomicPointer,
-        //   AtomicBool),
+        //   For each atomic type(AtomicInt, AtomicInt64, AtomicUint,
+        //   AtomicUint64, AtomicPointer, AtomicBool),
         //   Begin by constructing an object using the default constructor
         //   and verify that it is the expected default value.  Then for a
         //   sequence independent test values, set the value using the basic
         //   manipulator('operator=').  Verify that the value is correct using
         //   the respective direct accessor('operator int',
-        //   'operator bsls::Types::Int64', 'operator T*', 'operator bool').
+        //   'operator bsls::Types::Int64', 'operator unsigned int',
+        //   'operator bsls::Types::Uint64', 'operator T*', 'operator bool').
         //
         // Testing:
         //   bsls::AtomicInt();
@@ -2397,6 +2935,14 @@ int main(int argc, char *argv[])
         //   ~bsls::AtomicInt64();
         //   bsls::AtomicInt64& operator= (bsls::Types::Int64 value);
         //   operator bsls::Types::Int64() const;
+        //   bsls::AtomicUint();
+        //   ~bsls::AtomicUint()
+        //   bsls::AtomicUint& operator= (unsigned int value);
+        //   operator unsigned int() const;
+        //   bsls::AtomicUiInt64();
+        //   ~bsls::AtomicUint64();
+        //   bsls::AtomicUint64& operator= (bsls::Types::Uint64 value);
+        //   operator bsls::Types::Uint64() const;
         //   bsls::AtomicPointer();
         //   bsls::AtomicPointer<T>& operator= (const T *value);
         //   ~bsls::AtomicPointer();
@@ -2467,6 +3013,72 @@ int main(int argc, char *argv[])
                 const Int64 VAL = VALUES[i].d_value;
 
                 AI64 x;  const AI64& X = x;
+                ASSERT(0 == X);
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+            }
+        }
+
+        if (verbose)
+            cout << "\nTesting 'bsls::AtomicUint' Primary Manipulators"
+                 << endl;
+        {
+            static const struct {
+                int          d_lineNum;  // source line number
+                unsigned int d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- ----------
+                { L_,   0         },
+                { L_,   1         },
+                { L_,  0xFFFFFFFF },
+                { L_,   2         },
+                { L_,  0xFFFFFFFE }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+
+                AUI x;  const AUI& X = x;
+                ASSERT(0 == X);
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+            }
+        }
+
+        if (verbose)
+            cout << "\nTesting 'bsls::AtomicUint64' Primary Manipulators"
+                 << endl;
+        {
+            static const struct {
+                int    d_lineNum;  // source line number
+                Uint64 d_value;    // input value
+            } VALUES[] = {
+                //line value
+                //---- -------------------
+                { L_,  0                   },
+                { L_,  1                   },
+                { L_, 0xFFFFFFFFFFFFFFFFLL },
+                { L_, 0xFFFFFFFFLL         },
+                { L_, 0x100000000LL        }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+
+                AUI64 x;  const AUI64& X = x;
                 ASSERT(0 == X);
 
                 x = VAL;
