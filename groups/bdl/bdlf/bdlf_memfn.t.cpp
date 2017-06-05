@@ -14,6 +14,7 @@
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>    // bsl::find_if, bsl::for_each
 #include <bsl_iostream.h>     // bsl::cout
@@ -41,7 +42,6 @@ using namespace bsl;  // automatically added by script
 // 'const'-correctness is respected, i.e., a non-'const' member function cannot
 // be involved on a non-modifiable instance.
 //-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
 // [ 2] 'bdlf::MemFn' INVOCATION WITH POINTER TO MODIFIABLE OBJECT
 // [ 3] 'bdlf::MemFn' INVOCATION WITH POINTER TO NON-MODIFIABLE OBJECT
 // [ 4] 'bdlf::MemFn' INVOCATION WITH REFERENCE TO MODIFIABLE OBJECT
@@ -50,7 +50,10 @@ using namespace bsl;  // automatically added by script
 // [ 7] 'bdlf::MemFnInstance' INVOCATION WITH NON-MODIFIABLE INSTANCE
 // [ 8] INSTANCES WITH POINTER SEMANTICS
 // [ 9] IMPLICIT CONVERSION FROM POINTER-TO-TYPE (DRQS 13973002)
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -155,6 +158,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+typedef bsls::Types::Int64 Int64;
+
 // ============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
@@ -162,7 +167,7 @@ void aSsErT(bool condition, const char *message, int line)
 struct TestObject {
     int test1 (int a1) { return a1; }
     int test1Const (int a1) const { return a1; }
-    int test2 (int a1, const char* a2) { return a1; }
+    int test2 (int a1, const char* a2) { (void) a2; return a1; }
 };
 
 #undef M
@@ -360,6 +365,19 @@ struct ConstructibleFromPointerToSelf {
     }
 };
 
+                        // =======================
+                        // class NotBitwiseMovable
+                        // =======================
+
+struct NotBitwiseMovable {
+    int d_data;
+
+    bool memberFunction() const
+    {
+        return !d_data;
+    }
+};
+
 // ============================================================================
 //                    USAGE EXAMPLE CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -512,7 +530,7 @@ int globalVerbose = 0;
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
-DEFINE_TEST_CASE(10) {
+DEFINE_TEST_CASE(11) {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -541,6 +559,67 @@ DEFINE_TEST_CASE(10) {
             ASSERT(manager.nextAvailable());
 
             manager.disconnectAll();
+        }
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
+      }
+
+DEFINE_TEST_CASE(10) {
+        // --------------------------------------------------------------------
+        // TESTING TRAITS
+        //
+        // Concern: That the type traits associated with 'MemFn' and
+        // 'MemFnInstance' are correct.
+        //
+        // Plan:
+        //   Typedef some 'MemFn' and 'MemFnInstance' types and observe the
+        //   traits.  Note: test with 'ASSERT', not 'BSLMF_ASSERT' because we
+        //   want failures to show up at run time, not compile time.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Check class 'bdlf::MemFn':" << endl;
+        {
+            TestObject x;
+
+            typedef bdlf::MemFn<int (TestObject::*)(int)> MF;
+            MF f1(&TestObject::test1);
+            f1(x,10);
+
+            ASSERT(true  == bslmf::IsBitwiseMoveable<MF>::value);
+            ASSERT(true  == bsl::is_trivially_copyable<MF>::value);
+            ASSERT(false == bslma::UsesBslmaAllocator<MF>::value);
+        }
+
+        if (verbose) cout << "Check bw movable 'bdlf::MemFnInstance':\n";
+        {
+            typedef bdlf::MemFnInstance<
+                        bool (ConstructibleFromPointerToSelf::*)(),
+                                  ConstructibleFromPointerToSelf *>  MFIType;
+
+            ASSERT(true  == bslma::UsesBslmaAllocator<MFIType>::value);
+            ASSERT(true  == bslmf::IsBitwiseMoveable<MFIType>::value);
+            ASSERT(false == bsl::is_trivially_copyable<MFIType>::value);
+
+            ConstructibleFromPointerToSelf mX(0); mX.d_instance_p = &mX;
+            MFIType func(&ConstructibleFromPointerToSelf::memberFunction,
+                         &mX);
+
+            ASSERT(func());
+        }
+
+        if (verbose) cout << "Check !bw movable 'bdlf::MemFnInstance':\n";
+        {
+            typedef bdlf::MemFnInstance<bool (NotBitwiseMovable::*)() const,
+                                                   NotBitwiseMovable> MFITypeB;
+
+            ASSERT(true  == bslma::UsesBslmaAllocator<MFITypeB>::value);
+            ASSERT(false == bslmf::IsBitwiseMoveable<MFITypeB>::value);
+            ASSERT(false == bsl::is_trivially_copyable<MFITypeB>::value);
+
+            NotBitwiseMovable nbm;    nbm.d_data = 0;
+            MFITypeB func(&NotBitwiseMovable::memberFunction, nbm);
+
+            ASSERT(func());
         }
       }
 
@@ -591,12 +670,18 @@ DEFINE_TEST_CASE(9) {
                         bool (ConstructibleFromPointerToSelf::*)(),
                                   ConstructibleFromPointerToSelf *>  MemFnType;
 
+            ASSERT(true  == bslma::UsesBslmaAllocator<MemFnType>::value);
+            ASSERT(true  == bslmf::IsBitwiseMoveable<MemFnType>::value);
+            ASSERT(false == bsl::is_trivially_copyable<MemFnType>::value);
+
             ConstructibleFromPointerToSelf mX(0); mX.d_instance_p = &mX;
             MemFnType func(&ConstructibleFromPointerToSelf::memberFunction,
                            &mX);
 
             ASSERT(func());
         }
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(8) {
@@ -692,8 +777,8 @@ DEFINE_TEST_CASE(8) {
             MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testFunc1,
                                                smartPtr));
 
-            const int NUM_DEFAULT_ALLOCS = da.numAllocations();
-            const int NUM_ALLOCS         = ta.numAllocations();
+            const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
+            const Int64 NUM_ALLOCS         = ta.numAllocations();
 
             MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
             ASSERT(1 == G(V1));
@@ -720,8 +805,8 @@ DEFINE_TEST_CASE(8) {
             MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc1,
                                                smartPtr));
 
-            const int NUM_DEFAULT_ALLOCS = da.numAllocations();
-            const int NUM_ALLOCS         = ta.numAllocations();
+            const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
+            const Int64 NUM_ALLOCS         = ta.numAllocations();
 
             MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
             ASSERT(1 == G(V1));
@@ -751,8 +836,8 @@ DEFINE_TEST_CASE(8) {
             MemFnType mF(bdlf::MemFnUtil::memFn(&InplaceTestObj::testCFunc1,
                                                smartPtr));
 
-            const int NUM_DEFAULT_ALLOCS = da.numAllocations();
-            const int NUM_ALLOCS         = ta.numAllocations();
+            const Int64 NUM_DEFAULT_ALLOCS = da.numAllocations();
+            const Int64 NUM_ALLOCS         = ta.numAllocations();
 
             MemFnType mG(mF, (bslma::Allocator*)&ta);  const MemFnType& G = mG;
             ASSERT(1 == G(V1));
@@ -764,6 +849,8 @@ DEFINE_TEST_CASE(8) {
             LOOP_ASSERT(InplaceTestObj::statics(),
                         EXP == InplaceTestObj::statics());
         }
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(7) {
@@ -855,6 +942,8 @@ DEFINE_TEST_CASE(7) {
                         EXP == InplaceTestObj::statics());                    \
         }
         L14(M)
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(6) {
@@ -944,6 +1033,8 @@ DEFINE_TEST_CASE(6) {
             LOOP_ASSERT(X, EXP == X);                                         \
         }
         L14(M)
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(5) {
@@ -1035,6 +1126,8 @@ DEFINE_TEST_CASE(5) {
                         EXP == InplaceTestObj::statics());                    \
         }
         L14(M)
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(4) {
@@ -1122,6 +1215,8 @@ DEFINE_TEST_CASE(4) {
             LOOP_ASSERT(X, EXP == X);                                         \
         }
         L14(M)
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(3) {
@@ -1214,6 +1309,8 @@ DEFINE_TEST_CASE(3) {
                         EXP == InplaceTestObj::statics());                    \
         }
         L14(M)
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(2) {
@@ -1302,6 +1399,8 @@ DEFINE_TEST_CASE(2) {
             LOOP_ASSERT(X, EXP == X);                                         \
         }
         L14(M)
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 DEFINE_TEST_CASE(1) {
@@ -1320,8 +1419,13 @@ DEFINE_TEST_CASE(1) {
         TestObject x;
         TestObject const &X=x;
 
-        bdlf::MemFn<int (TestObject::*)(int)> f1(&TestObject::test1);
+        typedef bdlf::MemFn<int (TestObject::*)(int)> MF;
+        MF f1(&TestObject::test1);
         f1(x,10);
+
+        ASSERT(true  == bslmf::IsBitwiseMoveable<MF>::value);
+        ASSERT(true  == bsl::is_trivially_copyable<MF>::value);
+        ASSERT(false == bslma::UsesBslmaAllocator<MF>::value);
 
         typedef bslmf::MemberFunctionPointerTraits<int (TestObject::*)(int)>
                                                                         Traits;
@@ -1345,6 +1449,8 @@ DEFINE_TEST_CASE(1) {
 
         f2(w,10);
         f2(W,10);
+
+        (void) veryVerbose;    (void) veryVeryVerbose;
       }
 
 // ============================================================================
@@ -1369,6 +1475,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+      CASE(11);
       CASE(10);
       CASE(9);
       CASE(8);

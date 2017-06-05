@@ -744,6 +744,15 @@ struct UsesBslmaAllocator<bslalg::ConstructorProxy<OBJECT_TYPE> >
 
 }  // close namespace bslma
 
+namespace bslmf {
+
+template <class OBJECT_TYPE>
+struct IsBitwiseMoveable<bslalg::ConstructorProxy<OBJECT_TYPE> > :
+                                                 IsBitwiseMoveable<OBJECT_TYPE>
+{};
+
+}  // close namespace bslmf
+
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================
 //                           BACKWARD COMPATIBILITY
