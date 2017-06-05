@@ -206,10 +206,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
@@ -354,10 +350,6 @@ class MemFn {
     PROTOTYPE d_func_p;  // pointer to member function
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFn, bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFn, bslmf::IsBitwiseMoveable);
-
     // CREATORS
     explicit
     MemFn(PROTOTYPE func);
@@ -777,14 +769,15 @@ template <class PROTOTYPE, class INSTANCE>
 class MemFnInstance {
     // This class encapsulates a member function pointer having the
     // parameterized 'PROTOTYPE' and a value of the parameterized 'INSTANCE'
-    // type, which can be either a pointer or reference to an associated
-    // instance of the object type referred to by the 'PROTOTYPE', such that
-    // the member function pointer can be invoked on the wrapped instance in
-    // syntactically the same manner as a free function pointer.  Zero to
-    // fourteen additional arguments may be specified depending on the
-    // 'PROTOTYPE'.  Note that whether 'INSTANCE' is a pointer or a reference
-    // is determined by whether it has pointer semantics or not (as determined
-    // by the 'bslmf::HasPointerSemantics' type trait).
+    // type, which can be either be the type of object referred to by the
+    // 'PROTOTYPE', or a pointer to one, such that the member function pointer
+    // can be invoked on the wrapped instance in syntactically the same manner
+    // as a free function pointer.  Zero to fourteen additional arguments may
+    // be specified depending on the 'PROTOTYPE'.  Note that whether 'INSTANCE'
+    // is a pointer or an object is determined by whether it has pointer
+    // semantics or not (as determined by the 'bslmf::HasPointerSemantics' type
+    // trait).  Also note that if 'INSTANCE' is an object that does not have
+    // pointer semantics, 'PROTOTYPE' must be const-qualified.
 
     // PRIVATE TYPES
     typedef bslmf::MemberFunctionPointerTraits<PROTOTYPE> Traits;
@@ -857,10 +850,6 @@ class MemFnInstance {
 
     // PRIVATE ACCESSORS
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFnInstance, bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(MemFnInstance, bslmf::IsBitwiseMoveable);
-
     // CREATORS
     MemFnInstance(PROTOTYPE         func,
                   const INSTANCE&   object,
@@ -1184,9 +1173,49 @@ MemFnUtil::memFn(PROTOTYPE func, const INSTANCE& object)
 {
     return MemFnInstance<PROTOTYPE, INSTANCE>(func, object);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class PROTOTYPE, class INSTANCE>
+struct UsesBslmaAllocator<bdlf::MemFnInstance<PROTOTYPE, INSTANCE> > :
+                                                                 bsl::true_type
+{};
+
+}  // close namespace bslma
+namespace bslmf {
+
+template <class PROTOTYPE, class INSTANCE>
+struct IsBitwiseMoveable<bdlf::MemFnInstance<PROTOTYPE, INSTANCE> > :
+                                                    IsBitwiseMoveable<INSTANCE>
+{};
+
+template <class PROTOTYPE>
+struct IsBitwiseMoveable<bdlf::MemFn<PROTOTYPE> > : bsl::true_type
+{
+    // This bitwise moveable trait is redundant as it is already implied by the
+    // 'is_trivially_copyable' trait below.  We retain this definition,
+    // however, as it can potentially save a level of template instantiation.
+};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+namespace bsl {
+
+template <class PROTOTYPE>
+struct is_trivially_copyable<BloombergLP::bdlf::MemFn<PROTOTYPE> > :
+                                                                 bsl::true_type
+{};
+
+}  // close namespace bsl
 
 #endif
 
