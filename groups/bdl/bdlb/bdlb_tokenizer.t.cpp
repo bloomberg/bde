@@ -8,6 +8,7 @@
 #include <bsl_cstdlib.h>                  // 'bsl::atoi'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -167,7 +168,7 @@ using namespace bsl;
 // [  ] TOKENIZER IS NOT COPYABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
-// [ 9] DRQS 101217017
+// [ 9] CONCERN: PROVIDES STANDARD ITERATOR INTERFACE (DRQS 101217017)
 // [10] USAGE EXAMPLE
 
 // ============================================================================
@@ -519,7 +520,7 @@ int main(int argc, char **argv)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // DRQS 101217017
+        // CONCERN: PROVIDES STANDARD ITERATOR INTERFACE (DRQS 101217017)
         //   Test the fix for DRQS 101217017.
         //
         // Concerns:
@@ -537,20 +538,23 @@ int main(int argc, char **argv)
                           << "TESTING DRQS 101217017" << endl
                           << "======================" << endl;
 
-        bsl::string data = "foo bar baz";
+        bsl::string              data = "foo bar baz";
         bsl::vector<bsl::string> tokens;
-        bdlb::Tokenizer tokenizer(data, " ");
+        bdlb::Tokenizer          tokenizer(data, " ");
 
         tokens.assign(tokenizer.begin(), tokenizer.end()); // DOESN'T COMPILE
 
+        bsl::stringstream ss;
         bsl::copy(tokens.begin(), tokens.end(),
-            bsl::ostream_iterator<bsl::string>(bsl::cout, "\n"));
+                  bsl::ostream_iterator<bsl::string>(ss, "\n"));
+        if (verbose)
+            bsl::cout << ss.str();
 
-        // This fails with error: no type named 'iterator_category' in 'struct 
-        // std::iterator_traits<BloombergLP::bdlb::TokenizerIterator>'. Alternative test 
-        // case:
+        // This fails with error: no type named 'iterator_category' in 'struct
+        // std::iterator_traits<BloombergLP::bdlb::TokenizerIterator>'.
+        // Alternative test case:
         bsl::copy(tokenizer.begin(), tokenizer.end(),
-            bsl::back_inserter(tokens)); // DOESN'T COMPILE EITHER
+                  bsl::back_inserter(tokens)); // DOESN'T COMPILE EITHER
 
       } break;
       case 8: {
