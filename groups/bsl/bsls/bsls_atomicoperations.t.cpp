@@ -3169,7 +3169,7 @@ int main(int argc, char *argv[]) {
             args.d_barrier.reset();
             for (int i=0; i < NTHREADS; ++i) {
                 args.d_startSig.reset();
-                myCreateThread( &threadHandles[i], addInt64AcqRelTestThread,
+                myCreateThread( &threadHandles[i], addUint64AcqRelTestThread,
                                 &args);
                 args.d_startSig.wait();
             }
