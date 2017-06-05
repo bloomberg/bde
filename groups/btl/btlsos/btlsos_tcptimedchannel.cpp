@@ -23,6 +23,7 @@ BSLS_IDENT_RCSID(btlsos_tcptimedchannel_cpp,"$Id$ $CSID$")
 #include <bsls_timeinterval.h>
 #include <bsls_assert.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_vector.h>
 
@@ -2365,6 +2366,11 @@ int TcpTimedChannel::timedWriteRaw(int                       *augStatus,
 int TcpTimedChannel::writev(int *augStatus, int length, int flags)
 {
     BSLS_ASSERT(!d_ovecBuffers.empty());
+
+    // While not an invariant of the class, the following is a requirement of
+    // this particular implementation.
+
+    BSLS_ASSERT(INT_MAX >= d_ovecBuffers.size());
     
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
@@ -2424,6 +2430,11 @@ int TcpTimedChannel::timedWritev(int                       *augStatus,
                                  const bsls::TimeInterval&  timeout)
 {
     BSLS_ASSERT(!d_ovecBuffers.empty());
+
+    // While not an invariant of the class, the following is a requirement of
+    // this particular implementation.
+
+    BSLS_ASSERT(INT_MAX >= d_ovecBuffers.size());
     
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
