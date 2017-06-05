@@ -530,7 +530,7 @@ int getTestCaseIterations(TestLoopParameters::TestFunc testFunc)
     thread_t loopThr = createThread(&runTestingLoop, &params);
     thread_t obsvThr = createThread(&runObserverLoop, &params);
 
-    sleepSeconds(3);  // this makes the real test run for a couple of minutes
+    sleepSeconds(2);  // this makes the real test run for a couple of minutes
 
     params.d_cancel = 1;
     joinThread(loopThr);
@@ -1272,6 +1272,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
         testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>(iterations);
+
+        if (verbose) cout << "\t\twith bsls::AtomicUint" << endl;
+        testCaseMemOrder<PetersonsLock, bsls::AtomicUint>(iterations);
+
+        if (verbose) cout << "\t\twith bsls::AtomicUint64" << endl;
+        testCaseMemOrder<PetersonsLock, bsls::AtomicUint64>(iterations);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1306,24 +1312,30 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
         testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>(iterations);
+
+        if (verbose) cout << "\t\twith bsls::AtomicUint" << endl;
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicUint>(iterations);
+
+        if (verbose) cout << "\t\twith bsls::AtomicUint64" << endl;
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicUint64>(iterations);
       } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING INCREMENT/DECREMENT MANIPULATORS
         //   Test the atomic increment and decrement operators for the
-        //   AtomicInt and  AtomicInt64 types.
+        //   AtomicInt, AtomicInt64, AtomicUint, and AtomicUint64 types.
         //
         // Plan:
-        //   For each atomic type(AtomicInt,AtomicInt64), using a sequence of
-        //   independent test values, begin by initializing each object to a
-        //   base value.  Then increment the value by 1 using to prefix
-        //   'operator ++'.  Verify that both the return value and the
-        //   resulting object value are equal to the expected result.  Repeat
-        //   using the "postfix" 'operator ++' and verify that the return
-        //   is equal to the base value and that the resulting object value is
-        //   the expected value.  Finally perform similar tests for the
-        //   prefix and postfix 'operator --' and verify that the results are
-        //   correct.
+        //   For each atomic type(AtomicInt, AtomicInt64, AtomicUint,
+        //   AtomicUint64), using a sequence of independent test values, begin
+        //   by initializing each object to a base value.  Then increment the
+        //   value by 1 using to prefix 'operator ++'.  Verify that both the
+        //   return value and the resulting object value are equal to the
+        //   expected result.  Repeat using the "postfix" 'operator ++' and
+        //   verify that the return is equal to the base value and that the
+        //   resulting object value is the expected value.  Finally perform
+        //   similar tests for the prefix and postfix 'operator --' and verify
+        //   that the results are correct.
         //
         // Testing:
         //  int operator ++();
@@ -1334,6 +1346,14 @@ int main(int argc, char *argv[])
         //  bsls::Types::Int64 operator ++(int);
         //  bsls::Types::Int64 operator --();
         //  bsls::Types::Int64 operator --(int);
+        //  unsigned int operator ++();
+        //  unsigned int operator ++(int);
+        //  unsigned int operator --();
+        //  unsigned int operator --(int);
+        //  bsls::Types::Uint64 operator ++();
+        //  bsls::Types::Uint64 operator ++(int);
+        //  bsls::Types::Uint64 operator --();
+        //  bsls::Types::Uint64 operator --(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Increment/Decrement Manipulators"
@@ -1561,6 +1581,242 @@ int main(int argc, char *argv[])
                 Int64       result;
 
                 AI64 x;  const AI64& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = x--;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); P(result);
+                }
+                LOOP_ASSERT(i, VAL == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint' Increment Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int          d_lineNum;   // source line number
+                unsigned int d_value;     // input value
+                unsigned int d_expected;  // expected resulting value
+            } VALUES[] = {
+                //line value     expected
+                //---- --------- --------
+                { L_,   0       , 1         },
+                { L_,   1       , 2         },
+                { L_, 0xFFFFFFFF, 0         },
+                { L_,   2       , 3         },
+                { L_, 0xFFFFFFFE, 0xFFFFFFFF}
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P(EXP);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = ++x;
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                x =VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = x++;
+                LOOP_ASSERT(i, VAL == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint' Decrement Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int          d_lineNum;   // source line number
+                unsigned int d_expected;  // expected result of decrement
+                unsigned int d_value;     // base value to be decremented
+            } VALUES[] = {
+                //line expected  value
+                //---- --------- --------
+                { L_,   0       , 1         },
+                { L_,   1       , 2         },
+                { L_, 0xFFFFFFFF, 0         },
+                { L_,   2       , 3         },
+                { L_, 0xFFFFFFFE, 0xFFFFFFFF}
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P(EXP);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = --x;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); P(result);
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int VAL  = VALUES[i].d_value;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P(EXP);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = x--;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); P(result);
+                }
+                LOOP_ASSERT(i, VAL == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicUint64' increment Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int    d_lineNum;   // source line number
+                Uint64 d_value;     // expected resulting value of decrement
+                Uint64 d_expected;  // input value
+
+            } VALUES[] = {
+                //line value                   expected
+                //---- -------------------     ---------------------
+                { L_,   0                    , 1                    },
+                { L_,   1                    , 2                    },
+                { L_,  11LL                  , 12                   },
+                { L_,   0xFFFFFFFFLL         , 0x100000000LL        },
+                { L_,   0xFFFFFFFFFFFFFFFFLL , 0                    }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+                const Uint64 EXP = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = ++x;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); P(result);
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+                const Uint64 EXP = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP);NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = x++;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); P(result);
+                }
+                LOOP_ASSERT(i, VAL == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'AtomicInt64' decrement Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int    d_lineNum;   // source line number
+                Uint64 d_expected;  // expected resulting value of decrement
+                Uint64 d_value;     // input value
+
+            } VALUES[] = {
+                //line expected                value
+                //---- -------------------    --------------------
+                { L_,   0                   , 1                   },
+                { L_,   1                   , 2                   },
+                { L_,  11LL                 , 12                  },
+                { L_,  0xFFFFFFFFLL         , 0x100000000LL       },
+                { L_,  0xFFFFFFFFFFFFFFFFLL , 0                   }
+            };
+
+            const std::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+                const Uint64 EXP = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+                result = --x;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL);P_(EXP); P(result);
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 VAL = VALUES[i].d_value;
+                const Uint64 EXP = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
 
                 x = VAL;
                 if (veryVerbose) {
