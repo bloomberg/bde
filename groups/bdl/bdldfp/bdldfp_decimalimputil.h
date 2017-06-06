@@ -548,28 +548,6 @@ class DecimalImpUtil {
         //: o Otherwise return the result of dividing the value of 'lhs' with
         //:   the value of 'rhs'.
 
-                        // Notation functions
-
-    static ValueType64  uantize(ValueType64  value, ValueType64  exponent);
-    static ValueType128 quantize(ValueType128 value, ValueType128 exponent);
-        // Return a number that is equal in value (except for any rounding) and
-        // sign to the specified 'value', and which has the exponent of the
-        // specified 'exponent'.  If the exponent needs to be increased, round
-        // the value according to the current decimal floating point rounding
-        // mode; and if the result of the rounding is not equal to the value of
-        // 'value'.  If the exponent needs to be decreased and the significant
-        // of the result has more digits than the type would allow, return NaN.
-        // The returned value is unspecified if either operand is NaN or
-        // infinity of either sign.  Note that the 'invalid' and 'inexact'
-        // floating-point exception may be raised.  Also note that the AIX
-        // hardware function of '__d64_quantize' and '__d128_quantize',
-        // produces some results contrary to N1312 on operands of infinity and
-        // Nan.  Note that this function does not guarantee behavior consistent
-        // with Decimal TR N1312 for infinity and NaN because the XLC compiler
-        // intrinsics ('__d6_quantize' and '__d128_quantize') are
-        // non-conformant.
-
-
                         // Negation functions
 
     static ValueType32  negate(ValueType32  value);
