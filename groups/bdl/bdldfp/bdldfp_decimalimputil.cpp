@@ -443,6 +443,441 @@ int DecimalImpUtil::decompose(int          *sign,
     return cl;
 }
 
+DecimalImpUtil::ValueType32 DecimalImpUtil::min32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1e-95df;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "1e-95",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw32(1, -95);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::max32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 9.999999e96df;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                       "9.999999e96",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse32("9.999999e96");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::epsilon32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1e-6df;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "1e-6",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw32(1, -6);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::roundError32() BSLS_NOTHROW_SPEC
+{ // TBD TODO - determine the real value from the round mode!
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1.0df;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "1.0",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw32(1, 0);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::denormMin32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 0.000001E-95df;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "0.000001E-95",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse32("0.000001E-95");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::infinity32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return HUGE_VAL_D32;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "INF",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse32("INF");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::quietNaN32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return BDLDFP_DECIMALPLATFORM_C99_QNAN32;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "NaN",
+                         DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse32("NaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType32 DecimalImpUtil::signalingNaN32() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return BDLDFP_DECIMALPLATFORM_C99_SNAN32;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decSingle (endianness!)
+    decSingle rv;
+    decSingleFromString(&rv,
+                        "sNaN",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse32("sNaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::min64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1e-383dd;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "1e-383",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw64(1, -383);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::max64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 9.999999999999999e384dd;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "9.999999999999999e384",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse64("9.999999999999999e384");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::epsilon64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1e-15dd;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "1e-15",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse64("1e-15");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::roundError64() BSLS_NOTHROW_SPEC
+{  // TBD TODO - determine the real value from the round mode!
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1.0dd;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "1.0",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw64(1, 0);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::denormMin64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 0.000000000000001e-383dd;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "0.000000000000001e-383",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse64("0.000000000000001e-383");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::infinity64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return HUGE_VAL_D64;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "INF",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse64("INF");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::quietNaN64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return BDLDFP_DECIMALPLATFORM_C99_QNAN64;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "qNaN",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv) != 0);
+    decDouble rv2 = rv;
+    BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv2) != 0);
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse64("NaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::signalingNaN64() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return BDLDFP_DECIMALPLATFORM_C99_SNAN64;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decDouble (endianness!)
+    decDouble rv;
+    decDoubleFromString(&rv,
+                        "sNaN",
+                        DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse64("sNaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::min128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1e-6143dl;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "1e-6143",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw128(1, -6143);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::max128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 9.999999999999999999999999999999999e6144dl;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "9.999999999999999999999999999999999e6144",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse128("9.999999999999999999999999999999999e6144");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::epsilon128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1e-33dl;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "1e-33",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw128(1, -33);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::roundError128() BSLS_NOTHROW_SPEC
+{  // TBD TODO - determine the real value from the round mode setting!
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 1.0dl;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "1.0",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return makeDecimalRaw128(1, 0);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::denormMin128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return 0.000000000000000000000000000000001e-6143dl;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "0.000000000000000000000000000000001e-6143",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse128("0.000000000000000000000000000000001e-6143");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::infinity128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return HUGE_VAL_D128;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "INF",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse128("INF");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::quietNaN128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return BDLDFP_DECIMALPLATFORM_C99_QNAN128;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "NaN",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse128("NaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::signalingNaN128() BSLS_NOTHROW_SPEC
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return BDLDFP_DECIMALPLATFORM_C99_QNAN128;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    // TBD TODO - just return a statically initialized decQuad (endianness!)
+    decQuad rv;
+    decQuadFromString(&rv,
+                      "sNaN",
+                      DecimalImpUtil_DecNumber::getDecNumberContext());
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return parse128("sNaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
+#endif
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 

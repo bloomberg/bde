@@ -548,6 +548,28 @@ class DecimalImpUtil {
         //: o Otherwise return the result of dividing the value of 'lhs' with
         //:   the value of 'rhs'.
 
+                        // Notation functions
+
+    static ValueType64  uantize(ValueType64  value, ValueType64  exponent);
+    static ValueType128 quantize(ValueType128 value, ValueType128 exponent);
+        // Return a number that is equal in value (except for any rounding) and
+        // sign to the specified 'value', and which has the exponent of the
+        // specified 'exponent'.  If the exponent needs to be increased, round
+        // the value according to the current decimal floating point rounding
+        // mode; and if the result of the rounding is not equal to the value of
+        // 'value'.  If the exponent needs to be decreased and the significant
+        // of the result has more digits than the type would allow, return NaN.
+        // The returned value is unspecified if either operand is NaN or
+        // infinity of either sign.  Note that the 'invalid' and 'inexact'
+        // floating-point exception may be raised.  Also note that the AIX
+        // hardware function of '__d64_quantize' and '__d128_quantize',
+        // produces some results contrary to N1312 on operands of infinity and
+        // Nan.  Note that this function does not guarantee behavior consistent
+        // with Decimal TR N1312 for infinity and NaN because the XLC compiler
+        // intrinsics ('__d6_quantize' and '__d128_quantize') are
+        // non-conformant.
+
+
                         // Negation functions
 
     static ValueType32  negate(ValueType32  value);
@@ -953,6 +975,132 @@ class DecimalImpUtil {
         // Return a 'BinaryIntegralDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Binary Integral Decimal (BID) format.  This
         // format is compatible with the Intel DFP implementation type.
+
+
+                       // Boundary values functions
+
+    static
+    ValueType32 min32() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number 'ValueType32'
+        // can represent (IEEE-754: +1e-95).
+
+    static
+    ValueType32 max32() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'ValueType32' can represent (IEEE-754:
+        // +9.999999e+96).
+
+    static
+    ValueType32 epsilon32() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the 'ValueType32' type.  (IEEE-754: +1e-6)
+
+    static
+    ValueType32 roundError32() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the 'ValueType32' type.  The
+        // actual value returned depends on the current decimal floating point
+        // rounding setting.
+
+    static
+    ValueType32 denormMin32() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'ValueType32' type.  (IEEE-754: +0.000001E-95)
+
+    static
+    ValueType32 infinity32() BSLS_NOTHROW_SPEC;
+        // Return the value that represents positive infinity for the
+        // 'ValueType32' type.
+
+    static
+    ValueType32 quietNaN32() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType32' type.
+
+    static
+    ValueType32 signalingNaN32() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the 'ValueType32'
+        // type.
+
+    static
+    ValueType64 min64() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number 'ValueType64'
+        // can represent (IEEE-754: +1e-95).
+
+    static
+    ValueType64 max64() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'ValueType64' can represent (IEEE-754:
+        // +9.999999e+96).
+
+    static
+    ValueType64 epsilon64() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the 'ValueType64' type.  (IEEE-754: +1e-6)
+
+    static
+    ValueType64 roundError64() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the 'ValueType64' type.  The
+        // actual value returned depends on the current decimal floating point
+        // rounding setting.
+
+    static
+    ValueType64 denormMin64() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'ValueType64' type.  (IEEE-754: +0.000001E-95)
+
+    static
+    ValueType64 infinity64() BSLS_NOTHROW_SPEC;
+        // Return the value that represents positive infinity for the
+        // 'ValueType64' type.
+
+    static
+    ValueType64 quietNaN64() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType64' type.
+
+    static
+    ValueType64 signalingNaN64() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the 'ValueType64'
+        // type.
+
+    static
+    ValueType128 min128() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number 'ValueType128'
+        // can represent (IEEE-754: +1e-95).
+
+    static
+    ValueType128 max128() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'ValueType128' can represent (IEEE-754:
+        // +9.999999e+96).
+
+    static
+    ValueType128 epsilon128() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the 'ValueType128' type.  (IEEE-754: +1e-6)
+
+    static
+    ValueType128 roundError128() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the 'ValueType128' type.  The
+        // actual value returned depends on the current decimal floating point
+        // rounding setting.
+
+    static
+    ValueType128 denormMin128() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'ValueType128' type.  (IEEE-754: +0.000001E-95)
+
+    static
+    ValueType128 infinity128() BSLS_NOTHROW_SPEC;
+        // Return the value that represents positive infinity for the
+        // 'ValueType128' type.
+
+    static
+    ValueType128 quietNaN128() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType128' type.
+
+    static
+    ValueType128 signalingNaN128() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the 'ValueType128'
+        // type.
 };
 
 // ============================================================================
