@@ -19,6 +19,7 @@ BSLS_IDENT_RCSID(btlsos_tcpchannel_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_vector.h>
 
@@ -72,7 +73,7 @@ int adjustVecBuffer(const VECTYPE        *buffers,
                 (char*) const_cast<void *>(buffers[i].buffer()),
                 buffers[i].length()));
     }
-    return vector->size();
+    return static_cast<int>(vector->size());
 }
 
 namespace btlsos {
@@ -840,6 +841,11 @@ int TcpChannel::writeRaw(const char *buffer, int numBytes)
 int TcpChannel::writev(int *augStatus, int length, int flags)
 {
     BSLS_ASSERT(!d_ovecBuffers.empty());
+
+    // While not an invariant of the class, the following is a requirement of
+    // this particular implementation.
+
+    BSLS_ASSERT(INT_MAX >= d_ovecBuffers.size());
     
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
@@ -847,7 +853,7 @@ int TcpChannel::writev(int *augStatus, int length, int flags)
 
     int rc = 0;
     int numBytesWritten = 0;
-    int originalNumBuffers = d_ovecBuffers.size();
+    int originalNumBuffers = static_cast<int>(d_ovecBuffers.size());
     int numBuffers = originalNumBuffers;
     bsl::vector<btls::Ovec> *writeBuffers = &d_ovecBuffers;
     
