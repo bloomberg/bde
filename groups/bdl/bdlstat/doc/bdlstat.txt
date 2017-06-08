@@ -1,0 +1,21 @@
+ bdlstat.txt
+
+@PURPOSE: Provide basic statistical computations.
+
+@MNEMONIC: Basic Development Library STATistics (bdlstat)
+
+@DESCRIPTION: The 'bdlstat' package provides basic statisticalcomputations.  At
+ the moment, this package contains a component, 'bdlstat_moment', for
+ calculating mean, variance, skew, and kurtosis.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlstat' package currently has 1 component.
+..
+  1. bdlstat_moment
+..
+
+/Component Synopsis
+/------------------
+: 'bdlstat_moment':
+:      Provide functions for calculating mean, variance, skew, and kurtosis.

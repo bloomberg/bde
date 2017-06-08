@@ -38,6 +38,7 @@
 
   2. bdlf
      bdlsb
+     bdlstat
 
   1. bdlscm
 ..
@@ -85,6 +86,9 @@
 :
 : 'bdlscm':
 :      Provide versioning information for BDE library components.
+:
+: 'bdlstat':
+:      Provide basic statistics tools.
 :
 : 'bdlt':
 :      Provide date and time vocabulary types, and related utilities.
