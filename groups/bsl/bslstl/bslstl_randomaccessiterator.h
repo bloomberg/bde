@@ -75,7 +75,10 @@ BSLS_IDENT("$Id: $")
 //          // array.
 //
 //      void operator+=(std::ptrdiff_t n);
-//          // Move this object by the specified 'n' element in the array.
+//          // Move this object forward by the specified 'n' elements in the array.
+//
+//      void operator-=(std::ptrdiff_t n);
+//          // Move this object backward by the specified 'n' elements in the array.
 //
 //      // ACCESSORS
 //      VALUE& operator*() const;
@@ -150,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //          // Return a random access iterator providing modifiable access to
 //          // the last valid element of this object.
 //
-//      VALUE& operator[](int position);
+//      VALUE& operator[](std::ptrdiff_t position);
 //          // Return a reference providing modifiable access to the element at
 //          // the specified 'position'.
 //
@@ -163,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //          // Return a random access iterator providing non-modifiable access
 //          // to the last valid element of this object.
 //
-//      const VALUE& operator[](int position) const;
+//      const VALUE& operator[](std::ptrdiff_t position) const;
 //          // Return a reference providing non-modifiable access to the
 //          // specified 'i'th element in this object.
 //  };
@@ -251,6 +254,7 @@ class RandomAccessIterator
     //     ++i                                  increment to next element
     //     --i                                  decrement to previous element
     //     i += n                               increment by n elements
+    //     i -= n                               decrement by n elements
     //     j - i   // convertible to ptrdiff_t  distance from i to j
     //     i == j  // convertible to bool       equality comparison
     //     i < j   // convertible to bool       less-than comparison
