@@ -121,8 +121,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BSL_CMATH
+#include <bsl_cmath.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_LIMITS
+#include <limits>           // 'std::numeric_limits'
 #endif
 
 namespace BloombergLP {
@@ -135,7 +143,7 @@ const double DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
 enum MomentLevel {MEAN, VARIANCE, KURTOSIS};
 
 template <MomentLevel ML>
-struct Moment_Data<ML>;
+struct Moment_Data;
 
 template<>
 struct Moment_Data<MEAN> {
@@ -173,16 +181,28 @@ class Moment {
 	struct Moment_Data<ML> d_data;
 
   public:
-	Moment();
+	Moment() {};
 	void add(double value);
-	int getCount() const;
-	double getMean() const;
-	double getVariance() const;
+	int getCount() const
+	{
+		return d_data.d_count;
+	}
+	double getMean() const
+	{
+		if (d_data.d_count < 1)
+			return DBL_NAN;
+		return d_data.d_mean;
+	}
+	//bsl::enable_if<ML != MEAN>
+	double getVariance() const
+	{
+		return d_data.d_M2 / (d_data.d_count - 1);
+	}
 	double getSkew() const;
 	double getKurtosis() const;
 };
 
-template <MomentLevel ML>
+/*template <MomentLevel ML>
 inline int Moment<ML>::getCount()
 {
 	return d_data.d_count;
@@ -194,14 +214,30 @@ inline double Moment<ML>::getMean()
 	if (d_count < 1)
 		return DBL_NAN;
 	return d_data.d_mean;
+}*/
+
+template<>
+inline double Moment<MEAN>::getMean() const
+{
+	if (d_data.d_count < 1)
+		return DBL_NAN;
+	return d_data.d_sum / static_cast<double>(d_data.d_count);
 }
 
 template<>
-inline double Moment<MEAN>::getMean()
+inline double Moment<KURTOSIS>::getSkew() const
 {
-	if (d_count < 1)
+	if (d_data.d_count < 2)
 		return DBL_NAN;
-	return d_sum / static_cast<double>(d_count);
+	return bsl::sqrt(static_cast<double>(d_data.d_count)) * d_data.d_M3 / bsl::pow(d_data.d_M2, 1.5);
+}
+
+template<>
+inline double Moment<KURTOSIS>::getKurtosis() const
+{
+	if (d_data.d_count < 2)
+		return DBL_NAN;
+	return static_cast<double>(d_data.d_count) * d_data.d_M4 / d_data.d_M2 * d_data.d_M2 - 3.0;
 }
 
 template<>
@@ -228,9 +264,9 @@ inline void Moment<KURTOSIS>::add(double value)
 {
 	// Welford algorithm for variance
 	const double delta = value - d_data.d_mean;
-	count double nm1 = d_data.d_count;
+	const double nm1 = d_data.d_count;
 	++d_data.d_count;
-	count double n = d_data.d_count;
+	const double n = d_data.d_count;
 	d_data.d_mean += delta / n;
 	const double deltaN = value - d_data.d_mean;
 	d_data.d_M2 += delta * deltaN;
