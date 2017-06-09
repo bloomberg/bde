@@ -1359,7 +1359,7 @@ int main(int argc, char *argv[])
               expected += COMMENT;
               expected += " -->";
 
-              expectedColumn += 5 + bsl::strlen(COMMENT) + 4;
+              expectedColumn += 5 + static_cast<int>(bsl::strlen(COMMENT)) + 4;
               if (FORCENEWLINE) {
                   expected += '\n';
                   expectedColumn = 0;
@@ -2001,7 +2001,8 @@ int main(int argc, char *argv[])
                               }
 
                               expected += VALUE;
-                              expectedColumn += bsl::strlen(VALUE);
+                              expectedColumn +=
+                                          static_cast<int>(bsl::strlen(VALUE));
                               isFirstAtLine = false;
                           } // else: (f)
                           else if (WRAP_COLUMN <= 0) {
@@ -2115,8 +2116,8 @@ int main(int argc, char *argv[])
                                     SPACES_PERLEVEL,
                                     WRAP_COLUMN);
                       formatter.openElement(rootElemName, WS);
-                      int expectedColumn = INIT_INDENT * SPACES_PERLEVEL +
-                                                     1 + rootElemName.length();
+                      int expectedColumn = INIT_INDENT * SPACES_PERLEVEL + 1
+                                     + static_cast<int>(rootElemName.length());
 
                       bool isFirstData = true; // the first non-empty data
                       for (int value = 0; value < NUMVALUES; ++value) {
@@ -2152,7 +2153,8 @@ int main(int argc, char *argv[])
                               isFirstData = false;
                           }
                           expected += VALUE; // (b) (c) (d)
-                          expectedColumn += bsl::strlen(VALUE);
+                          expectedColumn +=
+                                          static_cast<int>(bsl::strlen(VALUE));
 
                           LOOP6_ASSERT(LINE, WS, WRAP_COLUMN, value,
                                        expected, ss.str(),
@@ -2239,7 +2241,7 @@ int main(int argc, char *argv[])
                   bsl::string expected(INIT_INDENT * SPACES_PERLEVEL, ' ');
                   expected += "<" + rootElemName;
 
-                  int expectedColumn = expected.length();
+                  int expectedColumn = static_cast<int>(expected.length());
 
                   for (int attr = 0; attr < NUMPAIRS; ++attr) {
                       const char *NAME = PAIRS[attr * 2];
@@ -2265,15 +2267,15 @@ int main(int argc, char *argv[])
                           expected.append((INIT_INDENT + 1) * SPACES_PERLEVEL,
                                           ' ');
                           expectedColumn = (INIT_INDENT + 1) * SPACES_PERLEVEL
-                                         + bsl::strlen(NAME) + 2 +
-                                         + bsl::strlen(VALUE) + 1;
+                                    + static_cast<int>(bsl::strlen(NAME)) + 2
+                                    + static_cast<int>(bsl::strlen(VALUE)) + 1;
                           // + 1 to account for only: ", but not: "/>
                       }
                       else {
                           expected += ' ';
-                          expectedColumn +=
-                              1 + bsl::strlen(NAME) + 2 +
-                              bsl::strlen(VALUE) + 1;
+                          expectedColumn += 1
+                                    + static_cast<int>(bsl::strlen(NAME)) + 2
+                                    + static_cast<int>(bsl::strlen(VALUE)) + 1;
                       }
 
                       expected += bsl::string(NAME) + "=\"" + VALUE + "\"";
@@ -2394,7 +2396,7 @@ int main(int argc, char *argv[])
                   bsl::string expected(INIT_INDENT * SPACES_PERLEVEL, ' ');
                   expected += "<" + rootElemName;
 
-                  int expectedColumn = expected.length();
+                  int expectedColumn = static_cast<int>(expected.length());
 
                   bool isWrapped = false;
                   if (   WRAP_COLUMN > 0
@@ -2422,8 +2424,8 @@ int main(int argc, char *argv[])
                   }
 
                   expected += bsl::string(NAME) + "=\"" + VALUE + "\"";
-                  expectedColumn +=
-                               bsl::strlen(NAME) + 2 + bsl::strlen(VALUE) + 1;
+                  expectedColumn += static_cast<int>(bsl::strlen(NAME )) + 2
+                                  + static_cast<int>(bsl::strlen(VALUE)) + 1;
                   if (DOFLUSH) {
                       expected += '>';
                       ++expectedColumn;
@@ -2551,8 +2553,9 @@ int main(int argc, char *argv[])
 
                       expectedDoc += expected;
 
-                      int expectedColumn = DOFLUSH ?
-                          expected.length() - 1 : expected.length() - 2;
+                      int expectedColumn = DOFLUSH
+                                     ? static_cast<int>(expected.length()) - 1
+                                     : static_cast<int>(expected.length()) - 2;
                           // -1 to offset "\n", -2 to offset ">\n"
                       LOOP6_ASSERT(LINE, INIT_INDENT, SPACES_PERLEVEL,
                                    WRAP_COLUMN, DOFLUSH, level,
@@ -2649,7 +2652,7 @@ int main(int argc, char *argv[])
                   bsl::string expected(INIT_INDENT * SPACES_PERLEVEL, ' ');
                   expected.append("<");
                   expected.append(NAME);
-                  expectedColumn = expected.length();
+                  expectedColumn = static_cast<int>(expected.length());
 
                   if (DOFLUSH) {
                       expected.append(">");

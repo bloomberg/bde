@@ -517,9 +517,9 @@ int veryVeryVeryVerbose;
 bool compareEqual(const bsl::string& lhs, const bsl::string& rhs)
 {
     LOOP2_ASSERT(lhs.size(), rhs.size(), lhs.size() == rhs.size());
-    const int LEN  = lhs.size();
-    int       line = 1;
-    for (int k = 0; k < LEN; ++k) {
+    const bsl::size_t LEN  = lhs.size();
+    int               line = 1;
+    for (bsl::size_t k = 0; k < LEN; ++k) {
         if (lhs[k] != rhs[k]) {
             LOOP4_ASSERT(line, k, lhs[k], rhs[k], lhs[k] == rhs[k]);
             return false;                                             // RETURN
@@ -3682,7 +3682,9 @@ const bsl::string& CustomString::toString() const
 inline
 int Enumerated::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), string.length());
+    return fromString(result,
+                      string.c_str(),
+                      static_cast<int>(string.length()));
 }
 
 inline
@@ -30890,7 +30892,7 @@ int main(int argc, char *argv[])
                 }
 
                 if (0 == EXPECTED_RET_CODE) {
-                    const int EXPECTED_DATA_LENGTH = bsl::strlen(
+                    const bsl::size_t EXPECTED_DATA_LENGTH = bsl::strlen(
                                                                 EXPECTED_DATA);
 
                     Type EXPECTED_RESULT(EXPECTED_DATA,
@@ -30944,7 +30946,7 @@ int main(int argc, char *argv[])
                 }
 
                 if (0 == EXPECTED_RET_CODE) {
-                    const int EXPECTED_DATA_LENGTH = bsl::strlen(
+                    const bsl::size_t EXPECTED_DATA_LENGTH = bsl::strlen(
                                                                 EXPECTED_DATA);
 
                     Type EXPECTED_RESULT(EXPECTED_DATA,
