@@ -747,7 +747,8 @@ class EventScheduler {
         // documentation).  The behavior is undefined if 'interval' is exactly
         // 0 seconds.  Note that if 'startEpochTime' is in the past, the first
         // event is dispatched immediately, and additional
-        // ('now - startEpochTime) / interval' will be submitted serially.
+        // '(now - startEpochTime) / interval' events will be submitted
+        // serially.
 
     void scheduleRecurringEventRaw(
              RecurringEvent               **event,
@@ -768,7 +769,8 @@ class EventScheduler {
         // it is no longer needed.  The behavior is undefined if 'interval' is
         // exactly 0 seconds.  Note that if 'startEpochTime' is in the past,
         // the first event is dispatched immediately, and additional
-        // ('now - startEpochTime) / interval' will be submitted serially.
+        // '(now - startEpochTime) / interval' events will be submitted
+        // serially.
 
     int start();
         // Begin dispatching events on this scheduler using default attributes
