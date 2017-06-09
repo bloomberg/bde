@@ -168,8 +168,9 @@ using namespace bsl;
 // [  ] TOKENIZER IS NOT COPYABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
-// [ 9] CONCERN: PROVIDES STANDARD ITERATOR INTERFACE (DRQS 101217017)
-// [10] USAGE EXAMPLE
+// [ 9] DRQS 101217017
+// [10] STANDARD INPUT ITERATOR INTERFACE
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -375,7 +376,7 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -518,9 +519,95 @@ int main(int argc, char **argv)
     ASSERT(EXPECTED3 == result3);
 //..
       } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // Provides standard input iterator interface
+        //
+        // Concerns:
+        //: 1 iterator_traits<Tokenizer::iterator> has 5 typedefs:
+    	//:   difference_type, value_type, pointer, reference, and
+    	//:   iterator_category.
+        //
+        //: 2 Tokenizer::iterator> ids copy constructible, copy assignable,
+      	//:   destructible.
+        //
+        //: 3 Two iterators, 'X' and 'Y', compare equal if and only if each of
+        //:   their corresponding salient attributes respectively compares
+        //:   equal.
+        //:
+        //: 4 Comparison is symmetric.
+        //:
+        //: 5 a != b iff !(a == b).
+        //:
+        //: 6 prefix ++ operator works correctly.
+        //:
+        //: 7 postfix operator ++ works correctly.
+        //:
+        //  8 Dereferencing an iterator should refer to the expected element
+        //:
+        // Plan:
+        //: 1 iterator_traits instantiates for Tokenizer::iterator.
+        //:   (C-1)
+        //
+        //: 2 iterator_traits find difference_type, value_type, pointer,
+    	//:   reference, and iterator_category.
+        //:   (C-1)
+        //
+        //: 3 Copy constructor and destructor are tested in case 7.
+        //:   (C-2)
+        //
+        //: 4 Assignment operator is tested in case 8.
+        //:   (C-2)
+        //
+        //: 5 Equality operator is tested in case 8.
+        //:   (C-3, C-4)
+        //
+        //: 6 Inequality operator is tested in case 8.
+        //:   (C-5)
+        //
+        //: 7 Prefix operator ++ is tested in case 7.
+        //:   (C-6)
+        //
+        //: 8 Postfix operator ++ is tested in case 8.
+        //:   (C-7)
+        //
+        //  9 Perform initial validation against an array of ints, that can be
+        //    directly manipulated to confirm iterators are operating correctly.
+        //:   (C-8)
+        //
+        // Testing:
+        //   STANDARD INPUT ITERATOR INTEFACE
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING STANDARD INPUT OPERATOR INTEFACE" << endl
+                          << "========================================" << endl;
+
+        //  Assert iterator_traits instantiates for Tokenizer::iterator
+        //  Assert iterator_traits finds the expected typedefs
+        typedef bsl::iterator_traits<ObjIt>  IterTraits;
+        ASSERT((bsl::is_same<IterTraits::difference_type, int>::value));
+        ASSERT((bsl::is_same<IterTraits::value_type,
+                bslstl::StringRef>::value));
+        ASSERT((bsl::is_same<IterTraits::pointer, bslstl::StringRef *>::value));
+        ASSERT((bsl::is_same<IterTraits::reference,
+                bslstl::StringRef>::value));
+        ASSERT((bsl::is_same<IterTraits::iterator_category,
+                std::input_iterator_tag>::value));
+
+        if (verbose) cout << "\nTest operator*\n";
+        {
+            //  Declare test data and types
+            bsl::string data = "foo bar baz";
+            Obj         testData(data, " ");
+
+            const ObjIt it = testData.begin();
+            ASSERT("foo" == *it);
+        }
+
+      } break;
       case 9: {
         // --------------------------------------------------------------------
-        // CONCERN: PROVIDES STANDARD ITERATOR INTERFACE (DRQS 101217017)
+        // DRQS 101217017
         //   Test the fix for DRQS 101217017.
         //
         // Concerns:
