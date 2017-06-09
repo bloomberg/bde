@@ -745,7 +745,9 @@ class EventScheduler {
         // some epoch, which is determined by the clock indicated at
         // construction (see {Supported Clock-Types} in the component
         // documentation).  The behavior is undefined if 'interval' is exactly
-        // 0 seconds.
+        // 0 seconds.  Note that if 'startEpochTime' is in the past, the first
+        // event is dispatched immediately, and additional
+        // ('now - startEpochTime) / interval' will be submitted serially.
 
     void scheduleRecurringEventRaw(
              RecurringEvent               **event,
@@ -764,7 +766,9 @@ class EventScheduler {
         // {Supported Clock-Types} in the component documentation).  The
         // 'event' pointer must be released by invoking 'releaseEventRaw' when
         // it is no longer needed.  The behavior is undefined if 'interval' is
-        // exactly 0 seconds.
+        // exactly 0 seconds.  Note that if 'startEpochTime' is in the past,
+        // the first event is dispatched immediately, and additional
+        // ('now - startEpochTime) / interval' will be submitted serially.
 
     int start();
         // Begin dispatching events on this scheduler using default attributes
