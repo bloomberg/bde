@@ -521,15 +521,15 @@ int main(int argc, char **argv)
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // Provides standard input iterator interface
+        // Testing standard input iterator interface
         //
         // Concerns:
         //: 1 iterator_traits<Tokenizer::iterator> has 5 typedefs:
-    	//:   difference_type, value_type, pointer, reference, and
-    	//:   iterator_category.
+        //:   difference_type, value_type, pointer, reference, and
+        //:   iterator_category.
         //
         //: 2 Tokenizer::iterator> ids copy constructible, copy assignable,
-      	//:   destructible.
+        //:   destructible.
         //
         //: 3 Two iterators, 'X' and 'Y', compare equal if and only if each of
         //:   their corresponding salient attributes respectively compares
@@ -550,7 +550,7 @@ int main(int argc, char **argv)
         //:   (C-1)
         //
         //: 2 iterator_traits find difference_type, value_type, pointer,
-    	//:   reference, and iterator_category.
+        //:   reference, and iterator_category.
         //:   (C-1)
         //
         //: 3 Copy constructor and destructor are tested in case 7.
@@ -572,15 +572,17 @@ int main(int argc, char **argv)
         //:   (C-7)
         //
         //  9 Perform initial validation against an array of ints, that can be
-        //    directly manipulated to confirm iterators are operating correctly.
+        //    directly manipulated to confirm iterators are operating
+        //    correctly.
         //:   (C-8)
         //
         // Testing:
-        //   STANDARD INPUT ITERATOR INTEFACE
+        //   STANDARD INPUT ITERATOR INTERFACE
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING STANDARD INPUT OPERATOR INTEFACE" << endl
-                          << "========================================" << endl;
+        if (verbose) 
+            cout << endl
+                 << "TESTING STANDARD INPUT OPERATOR INTEFACE" << endl
+                 << "========================================" << endl;
 
         //  Assert iterator_traits instantiates for Tokenizer::iterator
         //  Assert iterator_traits finds the expected typedefs
@@ -588,7 +590,8 @@ int main(int argc, char **argv)
         ASSERT((bsl::is_same<IterTraits::difference_type, int>::value));
         ASSERT((bsl::is_same<IterTraits::value_type,
                 bslstl::StringRef>::value));
-        ASSERT((bsl::is_same<IterTraits::pointer, bslstl::StringRef *>::value));
+        ASSERT((bsl::is_same<IterTraits::pointer,
+                bslstl::StringRef *>::value));
         ASSERT((bsl::is_same<IterTraits::reference,
                 bslstl::StringRef>::value));
         ASSERT((bsl::is_same<IterTraits::iterator_category,
@@ -622,8 +625,8 @@ int main(int argc, char **argv)
         //   DRQS 101217017
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING DRQS 101217017" << endl
-                          << "======================" << endl;
+                          << "DRQS 101217017" << endl
+                          << "==============" << endl;
 
         bsl::string              data = "foo bar baz";
         bsl::vector<bsl::string> tokens;
