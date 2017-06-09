@@ -426,7 +426,17 @@ struct TypesPrintUtil_Imp {
                         typename bsl::enable_if<
                               bsl::is_class<TYPE>::value
                                                    && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0);
+                              bslstl::StringRef>::value>::type * = 0)
+    {
+        // Function templates using 'enable_if' must be defined inline inside
+        // the class definition, as VC 2010 does not recognise a defintion
+        // outside the class as matching the same signature.
+
+        return printBase64(stream,
+                           static_cast<const bslstl::StringRef&>(object),
+                           encoderOptions,
+                           bdlat_TypeCategory::Simple());
+    }
     static bsl::ostream& printBase64(bsl::ostream&              stream,
                                      const bsl::vector<char>&   object,
                                      const EncoderOptions      *encoderOptions,
@@ -650,7 +660,17 @@ struct TypesPrintUtil_Imp {
                         typename bsl::enable_if<
                               bsl::is_class<TYPE>::value
                                                    && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0);
+                              bslstl::StringRef>::value>::type * = 0)
+    {
+        // Function templates using 'enable_if' must be defined inline inside
+        // the class definition, as VC 2010 does not recognise a defintion
+        // outside the class as matching the same signature.
+
+        return printDefault(stream,
+                            static_cast<const bslstl::StringRef&>(object),
+                            encoderOptions,
+                            bdlat_TypeCategory::Simple());
+    }
     static bsl::ostream& printDefault(
                                     bsl::ostream&               stream,
                                     const bdlt::Date&           object,
@@ -718,7 +738,17 @@ struct TypesPrintUtil_Imp {
                         typename bsl::enable_if<
                               bsl::is_class<TYPE>::value
                                                    && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0);
+                              bslstl::StringRef>::value>::type * = 0)
+    {
+        // Function templates using 'enable_if' must be defined inline inside
+        // the class definition, as VC 2010 does not recognise a defintion
+        // outside the class as matching the same signature.
+
+        return printHex(stream,
+                        static_cast<const bslstl::StringRef&>(object),
+                        encoderOptions,
+                        bdlat_TypeCategory::Simple());
+    }
     static bsl::ostream& printHex(bsl::ostream&              stream,
                                   const bsl::vector<char>&   object,
                                   const EncoderOptions      *encoderOptions,
@@ -801,7 +831,17 @@ struct TypesPrintUtil_Imp {
                         typename bsl::enable_if<
                               bsl::is_class<TYPE>::value
                                                    && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0);
+                              bslstl::StringRef>::value>::type * = 0)
+    {
+        // Function templates using 'enable_if' must be defined inline inside
+        // the class definition, as VC 2010 does not recognise a defintion
+        // outside the class as matching the same signature.
+
+        return printText(stream,
+                         static_cast<const bslstl::StringRef&>(object),
+                         encoderOptions,
+                         bdlat_TypeCategory::Simple());
+    }
     static bsl::ostream& printText(bsl::ostream&              stream,
                                    const bsl::vector<char>&   object,
                                    const EncoderOptions      *encoderOptions,
@@ -1181,22 +1221,6 @@ bsl::ostream& TypesPrintUtil::printHex(bsl::ostream&         stream,
                                         encoderOptions,
                                         Tag());
 }
-template <typename TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printHex(
-       bsl::ostream&                                           stream,
-       const TYPE&                                             object,
-       const EncoderOptions                                   *encoderOptions,
-       bdlat_TypeCategory::Simple,
-       typename bsl::enable_if<bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                             bslstl::StringRef>::value>::type *)
-{
-    return printHex(stream,
-                    static_cast<const bslstl::StringRef&>(object),
-                    encoderOptions,
-                    bdlat_TypeCategory::Simple());
-}
 
 template <class TYPE>
 inline
@@ -1260,23 +1284,6 @@ bsl::ostream& TypesPrintUtil_Imp::printBase64(bsl::ostream&         stream,
     //       the CPP file.
 
     return stream;
-}
-
-template <typename TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printBase64(
-       bsl::ostream&                                           stream,
-       const TYPE&                                             object,
-       const EncoderOptions                                   *encoderOptions,
-       bdlat_TypeCategory::Simple,
-       typename bsl::enable_if<bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                             bslstl::StringRef>::value>::type *)
-{
-    return printBase64(stream,
-                       static_cast<const bslstl::StringRef&>(object),
-                       encoderOptions,
-                       bdlat_TypeCategory::Simple());
 }
 
 // DECIMAL FUNCTIONS
@@ -1692,23 +1699,6 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                      bdlat_TypeCategory::Simple());
 }
 
-template <typename TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-       bsl::ostream&                                           stream,
-       const TYPE&                                             object,
-       const EncoderOptions                                   *encoderOptions,
-       bdlat_TypeCategory::Simple,
-       typename bsl::enable_if<bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                             bslstl::StringRef>::value>::type *)
-{
-    return printDefault(stream,
-                        static_cast<const bslstl::StringRef&>(object),
-                        encoderOptions,
-                        bdlat_TypeCategory::Simple());
-}
-
 template <class TYPE>
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDateAndTime(
@@ -1945,23 +1935,6 @@ bsl::ostream& TypesPrintUtil_Imp::printText(bsl::ostream&         stream,
     stream.setstate(bsl::ios_base::failbit);
 
     return stream;
-}
-
-template <typename TYPE>
-inline
-bsl::ostream& TypesPrintUtil_Imp::printText(
-       bsl::ostream&                                           stream,
-       const TYPE&                                             object,
-       const EncoderOptions                                   *encoderOptions,
-       bdlat_TypeCategory::Simple,
-       typename bsl::enable_if<bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                             bslstl::StringRef>::value>::type *)
-{
-    return printText(stream,
-                     static_cast<const bslstl::StringRef&>(object),
-                     encoderOptions,
-                     bdlat_TypeCategory::Simple());
 }
 
 inline
