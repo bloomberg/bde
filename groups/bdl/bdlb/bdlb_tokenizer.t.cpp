@@ -527,10 +527,10 @@ int main(int argc, char **argv)
         //: 1 iterator_traits<Tokenizer::iterator> has 5 typedefs:
         //:   difference_type, value_type, pointer, reference, and
         //:   iterator_category.
-        //
+        //:
         //: 2 Tokenizer::iterator> ids copy constructible, copy assignable,
         //:   destructible.
-        //
+        //:
         //: 3 Two iterators, 'X' and 'Y', compare equal if and only if each of
         //:   their corresponding salient attributes respectively compares
         //:   equal.
@@ -543,37 +543,37 @@ int main(int argc, char **argv)
         //:
         //: 7 postfix operator ++ works correctly.
         //:
-        //  8 Dereferencing an iterator should refer to the expected element
-        //:
+        //: 8 Dereferencing an iterator should refer to the expected element
+        //
         // Plan:
         //: 1 iterator_traits instantiates for Tokenizer::iterator.
         //:   (C-1)
-        //
+        //:
         //: 2 iterator_traits find difference_type, value_type, pointer,
         //:   reference, and iterator_category.
         //:   (C-1)
-        //
+        //:
         //: 3 Copy constructor and destructor are tested in case 7.
         //:   (C-2)
-        //
+        //:
         //: 4 Assignment operator is tested in case 8.
         //:   (C-2)
-        //
+        //:
         //: 5 Equality operator is tested in case 8.
         //:   (C-3, C-4)
-        //
+        //:
         //: 6 Inequality operator is tested in case 8.
         //:   (C-5)
-        //
+        //:
         //: 7 Prefix operator ++ is tested in case 7.
         //:   (C-6)
-        //
+        //:
         //: 8 Postfix operator ++ is tested in case 8.
         //:   (C-7)
-        //
-        //  9 Perform initial validation against an array of ints, that can be
-        //    directly manipulated to confirm iterators are operating
-        //    correctly.
+        //:
+        //: 9 Assert that operator* dereferences correctly for the string
+        //:   value, and that a stringref function is called correctly on
+        //:   the the referenced iterator.
         //:   (C-8)
         //
         // Testing:
@@ -605,7 +605,19 @@ int main(int argc, char **argv)
 
             const ObjIt it = testData.begin();
             ASSERT("foo" == *it);
+            ASSERT(false == (*it).empty());
         }
+
+        // This is waiting implementation of operator->
+//        if (verbose) cout << "\nTest operator->\n";
+//        {
+//            //  Declare test data and types
+//            bsl::string data = "foo bar baz";
+//            Obj         testData(data, " ");
+
+//            const ObjIt it = testData.begin();
+//            ASSERT(false == it->empty());
+//        }
 
       } break;
       case 9: {
