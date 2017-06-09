@@ -135,20 +135,42 @@ const double DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
 enum MomentLevel {MEAN, VARIANCE, KURTOSIS};
 
 template <MomentLevel ML>
-class Moment_Imp<ML>;
+struct Moment_Data<ML>;
+
+template<>
+struct Moment_Data<MEAN> {
+  // Data members for Mean only
+	int    d_count; // Number of entries
+	double d_sum;   // Sum of entries
+	Moment_Data() : d_count(0), d_sum(0.0) {}
+};
+
+template<>
+struct Moment_Data<VARIANCE> {
+	  // Data members for Variance and below
+		int    d_count; // Number of entries
+		double d_mean;   // Sum of entries
+		double d_M2; // 2nd moment, for variance
+		Moment_Data() : d_count(0), d_mean(0.0), d_M2(0.0) {}
+};
+
+template<>
+struct Moment_Data<KURTOSIS> {
+  // Data members for Kurtosis and below
+	int    d_count; // Number of entries
+	double d_mean;   // Sum of entries
+	double d_M2; // 2nd moment, for variance
+	double d_M3; // 3rd moment, for skew
+	double d_M4; // 4th moment, for kurtosis
+	Moment_Data() : d_count(0), d_mean(0.0), d_M2(0.0), d_M3(0.0), d_M4(0.0) {}
+};
 
 template <MomentLevel ML>
 class Moment {
   // How to calculate stable skew and kurtosis
   // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
   private:
-	Moment_Imp<ML> &d_imp;
-	int    d_count; // Number of entries
-	double d_sum;   // Sum of entries
-	double d_mean;   // Sum of entries
-	double d_M2; // 2nd moment, for variance
-	double d_M3; // 3rd moment, for skew
-	double d_M4; // 4th moment, for kurtosis
+	struct Moment_Data<ML> d_data;
 
   public:
 	Moment();
@@ -160,94 +182,66 @@ class Moment {
 	double getKurtosis() const;
 };
 
-template<>
-class Moment_Imp<MEAN> {
-  // How to calculate stable skew and kurtosis
-  // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
-  private:
-	int    d_count; // Number of entries
-	double d_sum;   // Sum of entries
-
-  public:
-	Moment_Imp();
-	void add(double value);
-	int getCount() const;
-	double getMean() const;
-};
-
-template<>
-inline Moment_Imp<MEAN>::Moment_Imp()
-: d_count(0)
-, d_sum(0.0)
-{
-}
-
-template<>
-inline void Moment<MEAN>::add(double value)
-{
-	++d_count;
-	d_sum += value;
-}
-
 template <MomentLevel ML>
 inline int Moment<ML>::getCount()
 {
-	return d_imp.d_count;
+	return d_data.d_count;
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getMean()
+{
+	if (d_count < 1)
+		return DBL_NAN;
+	return d_data.d_mean;
 }
 
 template<>
-inline double Moment_Imp<MEAN>::getMean()
+inline double Moment<MEAN>::getMean()
 {
 	if (d_count < 1)
 		return DBL_NAN;
 	return d_sum / static_cast<double>(d_count);
 }
 
-inline Moment::Moment()
-: d_count(0)
-, d_sum(0.0)
-, d_mean(0.0)
-, d_M2(0.0)
-, d_M3(0.0)
-, d_M4(0.0)
+template<>
+inline void Moment<MEAN>::add(double value)
 {
+	++d_data.d_count;
+	d_data.d_sum += value;
 }
 
-inline void Moment::add1(double value)
-{
-	++d_count;
-	d_sum += value;
-}
-
-inline void Moment::add2(double value)
+template<>
+inline void Moment<VARIANCE>::add(double value)
 {
 	// Welford algorithm for variance
-	const double delta = value - d_mean;
-	++d_count;
-	d_mean += delta / d_count;
-	const double delta2 = value - d_mean;
-	d_M2 += delta * delta2;
+	const double delta = value - d_data.d_mean;
+	++d_data.d_count;
+	d_data.d_mean += delta / d_data.d_count;
+	const double delta2 = value - d_data.d_mean;
+	d_data.d_M2 += delta * delta2;
 	// variance = d_M2 / (d_count - 1)
 }
 
-inline void Moment::add4(double value)
+template<>
+inline void Moment<KURTOSIS>::add(double value)
 {
 	// Welford algorithm for variance
-	const double delta = value - d_mean;
-	count double nm1 = d_count;
-	++d_count;
-	count double n = d_count;
-	d_mean += delta / n;
-	const double deltaN = value - d_mean;
-	d_M2 += delta * deltaN;
+	const double delta = value - d_data.d_mean;
+	count double nm1 = d_data.d_count;
+	++d_data.d_count;
+	count double n = d_data.d_count;
+	d_data.d_mean += delta / n;
+	const double deltaN = value - d_data.d_mean;
+	d_data.d_M2 += delta * deltaN;
 	const double delta2 = delta * delta;
 	const double delta3 = delta * delta2;
 	const double delta4 = delta * delta3;
 	const double n2 = n * n;
 	const double n3 = n * n2;
-	d_M3 += delta3 * nm1 * (nm1 - 1.0) / n2 - 3.0 * delta * d_M2 / n;
-	d_M4 += delta4 * nm1 * (n2 - 3.0 * n + 3.0) / n3 + 6.0 * delta2 * d_M2 / n2;
-	d_M4 -= 4.0 * delta * d_M3 / n;
+	d_data.d_M3 += delta3 * nm1 * (nm1 - 1.0) / n2 - 3.0 * delta * d_data.d_M2 / n;
+	d_data.d_M4 += delta4 * nm1 * (n2 - 3.0 * n + 3.0) / n3 + 6.0 * delta2 * d_data.d_M2 / n2;
+	d_data.d_M4 -= 4.0 * delta * d_data.d_M3 / n;
 	// variance = d_M2 / (d_count - 1)
 	// skew = sqrt(d_count) * d_M3 / pow(d_M2, 1.5)
 	// kurtosis = d_count * d_M4 / d_M2^2 - 3
