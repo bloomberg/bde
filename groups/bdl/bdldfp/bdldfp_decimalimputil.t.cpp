@@ -127,10 +127,40 @@ using bsl::atoi;
 // [21] convertToBID(ValueType32)
 // [21] convertToBID(ValueType64)
 // [21] convertToBID(ValueType128)
+// [25] static int classify(ValueType32  x);
+// [25] static int classify(ValueType64  x);
+// [25] static int classify(ValueType128 x);
+// [24] int decompose(int *, unsigned int *, int *, ValueType32);
+// [24] int decompose(int *, bsls::Types::Uint64 *, int *, ValueType64);
+// [24] int decompose(int *, Uint128 *, int *, ValueType128);
+// [23] ValueType32 min32();
+// [23] ValueType32 max32();
+// [23] ValueType32 epsilon32();
+// [23] ValueType32 roundError32();
+// [23] ValueType32 denormMin32();
+// [23] ValueType32 infinity32();
+// [23] ValueType32 quietNaN32();
+// [23] ValueType32 signalingNaN32();
+// [23] ValueType64 min64();
+// [23] ValueType64 max64();
+// [23] ValueType64 epsilon64();
+// [23] ValueType64 roundError64();
+// [23] ValueType64 denormMin64();
+// [23] ValueType64 infinity64();
+// [23] ValueType64 quietNaN64();
+// [23] ValueType64 signalingNaN64();
+// [23] ValueType128 min128();
+// [23] ValueType128 max128();
+// [23] ValueType128 epsilon128();
+// [23] ValueType128 roundError128();
+// [23] ValueType128 denormMin128();
+// [23] ValueType128 infinity128();
+// [23] ValueType128 quietNaN128();
+// [23] ValueType128 signalingNaN128();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [23] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 //=============================================================================
@@ -172,6 +202,17 @@ void aSsErT(bool b, const char *s, int i)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -788,6 +829,9 @@ static int veryVeryVeryVerbose;
 
 struct TestDriver {
     typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
+    static void testCase26();
+    static void testCase25();
+    static void testCase24();
     static void testCase23();
     static void testCase22();
     static void testCase21();
@@ -813,7 +857,7 @@ struct TestDriver {
     static void testCase1();
 };
 
-void TestDriver::testCase23()
+void TestDriver::testCase26()
 {
     // ------------------------------------------------------------------------
     // TESTING USAGE EXAMPLE
@@ -913,6 +957,1011 @@ void TestDriver::testCase23()
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+}
+
+void TestDriver::testCase25()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'classify'
+    //
+    // Concerns:
+    //: 1 The 'classify' function correctly determines type of any Decimal
+    //:   object.
+    //
+    // Plan:
+    //: 1 Use 'classify' to determine class of Decimal objects having different
+    //:   valid values including minimum and maximum values and special values
+    //:   such as 'NaN' and 'Inf'.  Verify returned results.  (C-1)
+    //
+    // Testing:
+    //   static int classify(ValueType32  x);
+    //   static int classify(ValueType64  x);
+    //   static int classify(ValueType128 x);
+    // --------------------------------------------------------------------
+    if (verbose) bsl::cout << "\nTESTING 'classify'"
+                           << "\n=================="
+                           << bsl::endl;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+    {
+        if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+
+        typedef Util::ValueType32 Type;
+
+        Type SUBN_P  =              Util::denormMin32();
+        Type SUBN_N  = Util::negate(Util::denormMin32());
+        Type INF_P   =              Util::infinity32();
+        Type INF_N   = Util::negate(Util::infinity32());
+        Type NAN_Q_P =              Util::quietNaN32();
+        Type NAN_Q_N = Util::negate(Util::quietNaN32());
+        Type NAN_S_P =              Util::signalingNaN32();
+        Type NAN_S_N = Util::negate(Util::signalingNaN32());
+        Type MAX_P   =              Util::max32();
+        Type MAX_N   = Util::negate(Util::max32());
+        Type MIN_P   =              Util::min32();
+        Type MIN_N   = Util::negate(Util::min32());
+
+        // the most left 4 bits of the significand are in the range 8 to 9.
+        Type SPE_8_P = DEC( 8.999999e+0);
+        Type SPE_8_N = DEC(-8.999999e+0);
+        Type SPE_9_P = DEC( 9.000001e+10);
+        Type SPE_9_N = DEC(-9.000001e+10);
+
+        static const struct {
+            int          d_line;          // line
+            Type         d_decimalValue;  // value to classify
+            int          d_class;         // expected value's class
+        } DATA[] = {
+            // LINE  VALUE       CLASS
+            // ----  ----------  ------------
+
+            // Test zero values
+            {  L_,   DEC( 0.0),  FP_ZERO      },
+            {  L_,   DEC(-0.0),  FP_ZERO      },
+
+            // Test special encoding values
+            {  L_,   INF_P,      FP_INFINITE  },
+            {  L_,   INF_N,      FP_INFINITE  },
+            {  L_,   NAN_Q_P,    FP_NAN       },
+            {  L_,   NAN_Q_N,    FP_NAN       },
+            {  L_,   NAN_S_P,    FP_NAN       },
+            {  L_,   NAN_S_N,    FP_NAN       },
+            {  L_,   SUBN_P,     FP_SUBNORMAL },
+            {  L_,   SUBN_N,     FP_SUBNORMAL },
+            {  L_,   SPE_8_P,    FP_NORMAL    },
+            {  L_,   SPE_8_N,    FP_NORMAL    },
+            {  L_,   SPE_9_P,    FP_NORMAL    },
+            {  L_,   SPE_9_N,    FP_NORMAL    },
+
+            // Test boundary values
+            {  L_,   MIN_P,      FP_NORMAL    },
+            {  L_,   MIN_N,      FP_NORMAL    },
+            {  L_,   MAX_P,      FP_NORMAL    },
+            {  L_,   MAX_N,      FP_NORMAL    },
+
+            // Test arbitrary values
+            {  L_,   DEC( 1.0),  FP_NORMAL    },
+            {  L_,   DEC(-1.0),  FP_NORMAL    },
+            {  L_,   DEC( 0.1),  FP_NORMAL    },
+            {  L_,   DEC(-0.1),  FP_NORMAL    },
+            {  L_,   DEC( 4.25), FP_NORMAL    },
+            {  L_,   DEC(-4.25), FP_NORMAL    },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE  = DATA[ti].d_line;
+            const Type VALUE = DATA[ti].d_decimalValue;
+            const int  CLASS = DATA[ti].d_class;
+
+            if (veryVerbose) {
+                P_(LINE); P(CLASS);
+            }
+
+            int  cl = Util::classify(VALUE);
+            ASSERTV(LINE, CLASS, cl, CLASS ==  cl);
+        }
+    }
+#undef DEC
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+    {
+        if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+
+        typedef Util::ValueType64 Type;
+
+        Type SUBN_P  =              Util::denormMin64();
+        Type SUBN_N  = Util::negate(Util::denormMin64());
+        Type INF_P   =              Util::infinity64();
+        Type INF_N   = Util::negate(Util::infinity64());
+        Type NAN_Q_P =              Util::quietNaN64();
+        Type NAN_Q_N = Util::negate(Util::quietNaN64());
+        Type NAN_S_P =              Util::signalingNaN64();
+        Type NAN_S_N = Util::negate(Util::signalingNaN64());
+        Type MAX_P   =              Util::max64();
+        Type MAX_N   = Util::negate(Util::max64());
+        Type MIN_P   =              Util::min64();
+        Type MIN_N   = Util::negate(Util::min64());
+
+        // the most left 4 bits of the significand are in the range 8 to 9.
+        Type SPE_8_P = DEC( 8.999999999999999e+0);
+        Type SPE_8_N = DEC(-8.999999999999999e+0);
+        Type SPE_9_P = DEC( 9.000000000000001e+10);
+        Type SPE_9_N = DEC(-9.000000000000001e+10);
+
+        static const struct {
+            int          d_line;          // line
+            Type         d_decimalValue;  // value to classify
+            int          d_class;         // expected value's class
+        } DATA[] = {
+            // LINE  VALUE       CLASS
+            // ----  ----------  -----------
+
+            // Test zero values
+            {  L_,   DEC( 0.0),  FP_ZERO      },
+            {  L_,   DEC(-0.0),  FP_ZERO      },
+
+            // Test special encoding values
+            {  L_,   INF_P,      FP_INFINITE  },
+            {  L_,   INF_N,      FP_INFINITE  },
+            {  L_,   NAN_Q_P,    FP_NAN       },
+            {  L_,   NAN_Q_N,    FP_NAN       },
+            {  L_,   NAN_S_P,    FP_NAN       },
+            {  L_,   NAN_S_N,    FP_NAN       },
+            {  L_,   SUBN_P,     FP_SUBNORMAL },
+            {  L_,   SUBN_N,     FP_SUBNORMAL },
+            {  L_,   SPE_8_P,    FP_NORMAL    },
+            {  L_,   SPE_8_N,    FP_NORMAL    },
+            {  L_,   SPE_9_P,    FP_NORMAL    },
+            {  L_,   SPE_9_N,    FP_NORMAL    },
+
+            // Test boundary values
+            {  L_,   MIN_P,      FP_NORMAL    },
+            {  L_,   MIN_N,      FP_NORMAL    },
+            {  L_,   MAX_P,      FP_NORMAL    },
+            {  L_,   MAX_N,      FP_NORMAL    },
+
+            // Test arbitrary values
+            {  L_,   DEC( 1.0),  FP_NORMAL    },
+            {  L_,   DEC(-1.0),  FP_NORMAL    },
+            {  L_,   DEC( 0.1),  FP_NORMAL    },
+            {  L_,   DEC(-0.1),  FP_NORMAL    },
+            {  L_,   DEC( 4.25), FP_NORMAL    },
+            {  L_,   DEC(-4.25), FP_NORMAL    },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE  = DATA[ti].d_line;
+            const Type VALUE = DATA[ti].d_decimalValue;
+            const int  CLASS = DATA[ti].d_class;
+
+            if (veryVerbose) {
+                P_(LINE); P(CLASS);
+            }
+
+            int  cl = Util::classify(VALUE);
+            ASSERTV(LINE, CLASS, cl, CLASS ==  cl);
+        }
+    }
+#undef DEC
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+    {
+        if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+
+        typedef Util::ValueType128 Type;
+
+        Type SUBN_P  =              Util::denormMin128();
+        Type SUBN_N  = Util::negate(Util::denormMin128());
+        Type INF_P   =              Util::infinity128();
+        Type INF_N   = Util::negate(Util::infinity128());
+        Type NAN_Q_P =              Util::quietNaN128();
+        Type NAN_Q_N = Util::negate(Util::quietNaN128());
+        Type NAN_S_P =              Util::signalingNaN128();
+        Type NAN_S_N = Util::negate(Util::signalingNaN128());
+        Type MAX_P   =              Util::max128();
+        Type MAX_N   = Util::negate(Util::max128());
+        Type MIN_P   =              Util::min128();
+        Type MIN_N   = Util::negate(Util::min128());
+        Type V1_P    = Util::add(
+                               Util::uint64ToDecimal128(0xFFFFFFFFFFFFFFFFull),
+                               Util::uint64ToDecimal128( 1));
+        Type V1_N    = Util::negate(V1_P);
+        Type V2_P    = Util::add(
+                          Util::multiply(V1_P, Util::uint64ToDecimal128(0x10)),
+                          Util::uint64ToDecimal128(0x50));
+        Type V2_N    = Util::negate(V2_P);
+
+        static const struct {
+            int          d_line;          // line
+            Type         d_decimalValue;  // value to classify
+            int          d_class;         // expected value's class
+        } DATA[] = {
+        // LINE  VALUE       CLASS
+        // ----  ----------  ------------
+
+        // Test zero values
+        {  L_,   DEC( 0.0),  FP_ZERO      },
+        {  L_,   DEC(-0.0),  FP_ZERO      },
+
+        // Test special encoding values
+        {  L_,   INF_P,      FP_INFINITE  },
+        {  L_,   INF_N,      FP_INFINITE  },
+        {  L_,   NAN_Q_P,    FP_NAN       },
+        {  L_,   NAN_Q_N,    FP_NAN       },
+        {  L_,   NAN_S_P,    FP_NAN       },
+        {  L_,   NAN_S_N,    FP_NAN       },
+        {  L_,   SUBN_P,     FP_SUBNORMAL },
+        {  L_,   SUBN_N,     FP_SUBNORMAL },
+
+        // Test boundary values
+        {  L_,   MIN_P,      FP_NORMAL    },
+        {  L_,   MIN_N,      FP_NORMAL    },
+        {  L_,   MAX_P,      FP_NORMAL    },
+        {  L_,   MAX_N,      FP_NORMAL    },
+        // Test arbitrary values
+        {  L_,   DEC( 1.0),  FP_NORMAL    },
+        {  L_,   DEC(-1.0),  FP_NORMAL    },
+        {  L_,   DEC( 0.1),  FP_NORMAL    },
+        {  L_,   DEC(-0.1),  FP_NORMAL    },
+        {  L_,   DEC( 4.25), FP_NORMAL    },
+        {  L_,   DEC(-4.25), FP_NORMAL    },
+        {  L_,   V1_P,       FP_NORMAL    },
+        {  L_,   V1_N,       FP_NORMAL    },
+        {  L_,   V2_P,       FP_NORMAL    },
+        {  L_,   V2_N,       FP_NORMAL    },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE  = DATA[ti].d_line;
+            const Type VALUE = DATA[ti].d_decimalValue;
+            const int  CLASS = DATA[ti].d_class;
+
+            if (veryVerbose) {
+                P_(LINE); P(CLASS);
+            }
+
+            int  cl = Util::classify(VALUE);
+            ASSERTV(LINE, CLASS, cl, CLASS ==  cl);
+        }
+    }
+#undef DEC
+}
+
+void TestDriver::testCase24()
+{
+    // ------------------------------------------------------------------------
+    // TESTING decompose
+    //
+    // Concerns:
+    //: 1 Finite decimal value decomposed using 'decompose' functions can be
+    //:   reconstructed to the value equal to the original one using
+    //:   'sign', 'significand' and 'exponent' values.
+    //:
+    //: 2 Special encoding values having the 2 bits after the sign set to '11'
+    //:   are decomposed either into finite value if at least one of the next
+    //:   two bits are set to '0' or decomposed into 'Inf' or 'NaN' type
+    //:   values otherwise.
+    //:
+    //: 3 QoI: asserted precondition violations are detected when enabled.
+    //
+    // Plan:
+    //: 1 Try decomposing a variety of different valid values including minimum
+    //:   and maximum values and special values such as 'NaN' and 'Inf' into
+    //:   sign, significand and exponent compartments.  Verify returned values.
+    //:   Restore the value using 'sign', significand' and 'exponent' parts and
+    //:   check that if the value is not a special (infinity or NaNs), it is
+    //:   restored into the value equal to the original one.  (C-1..2)
+    //:
+    //: 2 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones.  (C-3)
+    //
+    // Testing:
+    //   int decompose(int *, unsigned int *, int *, ValueType32);
+    //   int decompose(int *, bsls::Types::Uint64 *, int *, ValueType64);
+    //   int decompose(int *, Uint128 *, int *, ValueType128);
+    // --------------------------------------------------------------------
+    if (verbose) bsl::cout << "\nTESTING DECOMPOSE METHODS"
+                           << "\n========================="
+                           << bsl::endl;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+    {
+        if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+
+        typedef Util::ValueType32 Type;
+
+        Type SUBN_P  =              Util::denormMin32();
+        Type SUBN_N  = Util::negate(Util::denormMin32());
+        Type INF_P   =              Util::infinity32();
+        Type INF_N   = Util::negate(Util::infinity32());
+        Type NAN_Q_P =              Util::quietNaN32();
+        Type NAN_Q_N = Util::negate(Util::quietNaN32());
+        Type NAN_S_P =              Util::signalingNaN32();
+        Type NAN_S_N = Util::negate(Util::signalingNaN32());
+        Type MAX_P   =              Util::max32();
+        Type MAX_N   = Util::negate(Util::max32());
+        Type MIN_P   =              Util::min32();
+        Type MIN_N   = Util::negate(Util::min32());
+
+        // the most left 4 bits of the significand are in the range 8 to 9.
+        Type SPE_8_P = DEC( 8.999999e+0);
+        Type SPE_8_N = DEC(-8.999999e+0);
+        Type SPE_9_P = DEC( 9.000001e+10);
+        Type SPE_9_N = DEC(-9.000001e+10);
+
+        static const struct {
+            int          d_line;
+            Type         d_decimalValue;
+            int          d_class;         // classification
+            int          d_sign;
+            unsigned int d_significand;
+            int          d_exponent;
+        } DATA[] = {
+            // LINE  VALUE       CLASS         SIGN  SIGNIFICAND    EXP
+            // ----  ----------  -------       ----  -----------    ----
+
+            // Test zero values
+            {  L_,   DEC( 0.0),  FP_ZERO,       1,             0,    -1 },
+            {  L_,   DEC(-0.0),  FP_ZERO,      -1,             0,    -1 },
+
+            // Test special encoding values
+            {  L_,   INF_P,      FP_INFINITE,   1,      0x800000,  0xc0 },
+            {  L_,   INF_N,      FP_INFINITE,  -1,      0x800000,  0xc0 },
+            {  L_,   NAN_Q_P,    FP_NAN,        1,      0x800000,  0xe0 },
+            {  L_,   NAN_Q_N,    FP_NAN,       -1,      0x800000,  0xe0 },
+            {  L_,   NAN_S_P,    FP_NAN,        1,      0x800000,  0xf0 },
+            {  L_,   NAN_S_N,    FP_NAN,       -1,      0x800000,  0xf0 },
+            {  L_,   SUBN_P,     FP_SUBNORMAL,  1,             1,  -101 },
+            {  L_,   SUBN_N,     FP_SUBNORMAL, -1,             1,  -101 },
+            {  L_,   SPE_8_P,    FP_NORMAL,     1,       8999999,    -6 },
+            {  L_,   SPE_8_N,    FP_NORMAL,    -1,       8999999,    -6 },
+            {  L_,   SPE_9_P,    FP_NORMAL,     1,       9000001,     4 },
+            {  L_,   SPE_9_N,    FP_NORMAL,    -1,       9000001,     4 },
+
+            // Test boundary values
+            {  L_,   MIN_P,      FP_NORMAL,     1,             1,   -95 },
+            {  L_,   MIN_N,      FP_NORMAL,    -1,             1,   -95 },
+            {  L_,   MAX_P,      FP_NORMAL,     1,       9999999,    90 },
+            {  L_,   MAX_N,      FP_NORMAL,    -1,       9999999,    90 },
+
+            // Test arbitrary values
+            {  L_,   DEC( 1.0),  FP_NORMAL,     1,            10,    -1 },
+            {  L_,   DEC(-1.0),  FP_NORMAL,    -1,            10,    -1 },
+            {  L_,   DEC( 0.1),  FP_NORMAL,     1,             1,    -1 },
+            {  L_,   DEC(-0.1),  FP_NORMAL,    -1,             1,    -1 },
+            {  L_,   DEC( 4.25), FP_NORMAL,     1,           425,    -2 },
+            {  L_,   DEC(-4.25), FP_NORMAL,    -1,           425,    -2 },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "\tTesting behavior." << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int           LINE        = DATA[ti].d_line;
+            const Type          VALUE       = DATA[ti].d_decimalValue;
+            const int           CLASS       = DATA[ti].d_class;
+            const int           SIGN        = DATA[ti].d_sign;
+            const unsigned int  SIGNIFICAND = DATA[ti].d_significand;
+            const int           EXPONENT    = DATA[ti].d_exponent;
+
+            if (veryVerbose) {
+                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P(EXPONENT);
+            }
+
+            int          sign;
+            unsigned int significand;
+            int          exponent;
+            int          cl = Util::decompose(&sign,
+                                              &significand,
+                                              &exponent,
+                                              VALUE);
+
+            ASSERTV(LINE, CLASS, cl,   CLASS ==  cl);
+            ASSERTV(LINE, SIGN,  sign, SIGN  == sign);
+            ASSERTV(LINE,
+                    significand,
+                    SIGNIFICAND,
+                    SIGNIFICAND == significand);
+            ASSERTV(LINE,
+                    exponent,
+                    EXPONENT,
+                    EXPONENT == exponent);
+
+            if ((CLASS != FP_NAN) && (CLASS != FP_INFINITE)) {
+                Type input = Util::makeDecimalRaw32(sign * significand,
+                                                    exponent);
+                ASSERTV(LINE, Util::equal(VALUE, input));
+            }
+        }
+
+        if (verbose) cout << "\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Type    TEMP = DEC( 0.0);
+            int           SIGN;
+            unsigned int  SIGNIFICAND;
+            int           EXPONENT;
+            int           *VALID_SIGN(&SIGN);
+            unsigned int  *VALID_SIGNIFICAND(&SIGNIFICAND);
+            int           *VALID_EXPONENT(&EXPONENT);
+            int           *INVALID_SIGN(0);
+            unsigned int  *INVALID_SIGNIFICAND(0);
+            int           *INVALID_EXPONENT(0);
+
+            ASSERT_PASS(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        INVALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        INVALID_EXPONENT,
+                                        TEMP));
+        }
+    }
+#undef DEC
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+    {
+        if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+
+        typedef Util::ValueType64 Type;
+
+        Type SUBN_P  =              Util::denormMin64();
+        Type SUBN_N  = Util::negate(Util::denormMin64());
+        Type INF_P   =              Util::infinity64();
+        Type INF_N   = Util::negate(Util::infinity64());
+        Type NAN_Q_P =              Util::quietNaN64();
+        Type NAN_Q_N = Util::negate(Util::quietNaN64());
+        Type NAN_S_P =              Util::signalingNaN64();
+        Type NAN_S_N = Util::negate(Util::signalingNaN64());
+        Type MAX_P   =              Util::max64();
+        Type MAX_N   = Util::negate(Util::max64());
+        Type MIN_P   =              Util::min64();
+        Type MIN_N   = Util::negate(Util::min64());
+
+        // the most left 4 bits of the significand are in the range 8 to 9.
+        Type SPE_8_P = DEC( 8.999999999999999e+0);
+        Type SPE_8_N = DEC(-8.999999999999999e+0);
+        Type SPE_9_P = DEC( 9.000000000000001e+10);
+        Type SPE_9_N = DEC(-9.000000000000001e+10);
+
+        static const struct {
+            int                 d_line;
+            Type                d_decimalValue;
+            int                 d_class;         // classification
+            int                 d_sign;
+            bsls::Types::Uint64 d_significand;
+            int                 d_exponent;
+        } DATA[] = {
+            // L   VALUE       CLASS       SIGN  SIGNIFICAND          EXPONENT
+            // --- ----------  ----------- ----  -------------------- --------
+
+            // Test zero values
+            {  L_, DEC( 0.0),  FP_ZERO,       1,                   0,     -1 },
+            {  L_, DEC(-0.0),  FP_ZERO,      -1,                   0,     -1 },
+
+            // Test special encoding values
+            {  L_, INF_P,      FP_INFINITE,   1, 0x20000000000000ull,  0x300 },
+            {  L_, INF_N,      FP_INFINITE,  -1, 0x20000000000000ull,  0x300 },
+            {  L_, NAN_Q_P,    FP_NAN,        1, 0x20000000000000ull,  0x380 },
+            {  L_, NAN_Q_N,    FP_NAN,       -1, 0x20000000000000ull,  0x380 },
+            {  L_, NAN_S_P,    FP_NAN,        1, 0x20000000000000ull,  0x3c0 },
+            {  L_, NAN_S_N,    FP_NAN,       -1, 0x20000000000000ull,  0x3c0 },
+            {  L_, SUBN_P,     FP_SUBNORMAL,  1,                   1,   -398 },
+            {  L_, SUBN_N,     FP_SUBNORMAL, -1,                   1,   -398 },
+            {  L_, SPE_8_P,    FP_NORMAL,     1, 8999999999999999ull,    -15 },
+            {  L_, SPE_8_N,    FP_NORMAL,    -1, 8999999999999999ull,    -15 },
+            {  L_, SPE_9_P,    FP_NORMAL,     1, 9000000000000001ull,     -5 },
+            {  L_, SPE_9_N,    FP_NORMAL,    -1, 9000000000000001ull,     -5 },
+
+            // Test boundary values
+            {  L_, MIN_P,      FP_NORMAL,     1,                   1,   -383 },
+            {  L_, MIN_N,      FP_NORMAL,    -1,                   1,   -383 },
+            {  L_, MAX_P,      FP_NORMAL,     1, 9999999999999999ull,    369 },
+            {  L_, MAX_N,      FP_NORMAL,    -1, 9999999999999999ull,    369 },
+
+            // Test arbitrary values
+            {  L_, DEC( 1.0),  FP_NORMAL,     1,                  10,     -1 },
+            {  L_, DEC(-1.0),  FP_NORMAL,    -1,                  10,     -1 },
+            {  L_, DEC( 0.1),  FP_NORMAL,     1,                   1,     -1 },
+            {  L_, DEC(-0.1),  FP_NORMAL,    -1,                   1,     -1 },
+            {  L_, DEC( 4.25), FP_NORMAL,     1,                 425,     -2 },
+            {  L_, DEC(-4.25), FP_NORMAL,    -1,                 425,     -2 },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "\tTesting behavior." << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                 LINE        = DATA[ti].d_line;
+            const Type                VALUE       = DATA[ti].d_decimalValue;
+            const int                 CLASS       = DATA[ti].d_class;
+            const int                 SIGN        = DATA[ti].d_sign;
+            const bsls::Types::Uint64 SIGNIFICAND = DATA[ti].d_significand;
+            const int                 EXPONENT    = DATA[ti].d_exponent;
+
+            if (veryVerbose) {
+                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P(EXPONENT);
+            }
+
+            int                 sign;
+            bsls::Types::Uint64 significand;
+            int                 exponent;
+            int                 cl = Util::decompose(&sign,
+                                                     &significand,
+                                                     &exponent,
+                                                     VALUE);
+
+            ASSERTV(LINE, CLASS, cl,   CLASS ==  cl);
+            ASSERTV(LINE, SIGN,  sign, SIGN  == sign);
+            ASSERTV(LINE,
+                    significand,
+                    SIGNIFICAND,
+                    SIGNIFICAND == significand);
+            ASSERTV(LINE,
+                    exponent,
+                    EXPONENT,
+                    EXPONENT == exponent);
+
+            if ((CLASS != FP_NAN) && (CLASS != FP_INFINITE)) {
+                Type input = Util::makeDecimalRaw64(significand, exponent);
+                input = (sign == 1) ? input : Util::negate(input);
+
+                ASSERTV(LINE, Util::equal(VALUE, input));
+            }
+        }
+
+        if (verbose) cout << "\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Type           TEMP = DEC( 0.0);
+            int                  SIGN;
+            bsls::Types::Uint64  SIGNIFICAND;
+            int                  EXPONENT;
+            int                 *VALID_SIGN(&SIGN);
+            bsls::Types::Uint64 *VALID_SIGNIFICAND(&SIGNIFICAND);
+            int                 *VALID_EXPONENT(&EXPONENT);
+            int                 *INVALID_SIGN(0);
+            bsls::Types::Uint64 *INVALID_SIGNIFICAND(0);
+            int                 *INVALID_EXPONENT(0);
+
+            ASSERT_PASS(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        INVALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        INVALID_EXPONENT,
+                                        TEMP));
+        }
+    }
+#undef DEC
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+    {
+        if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+
+        typedef Util::ValueType128 Type;
+
+        Type SUBN_P  =              Util::denormMin128();
+        Type SUBN_N  = Util::negate(Util::denormMin128());
+        Type INF_P   =              Util::infinity128();
+        Type INF_N   = Util::negate(Util::infinity128());
+        Type NAN_Q_P =              Util::quietNaN128();
+        Type NAN_Q_N = Util::negate(Util::quietNaN128());
+        Type NAN_S_P =              Util::signalingNaN128();
+        Type NAN_S_N = Util::negate(Util::signalingNaN128());
+        Type MAX_P   =              Util::max128();
+        Type MAX_N   = Util::negate(Util::max128());
+        Type MIN_P   =              Util::min128();
+        Type MIN_N   = Util::negate(Util::min128());
+        Type V1_P    = Util::add(
+                               Util::uint64ToDecimal128(0xFFFFFFFFFFFFFFFFull),
+                               Util::uint64ToDecimal128( 1));
+        Type V1_N    = Util::negate(V1_P);
+        Type V2_P    = Util::add(
+                          Util::multiply(V1_P, Util::uint64ToDecimal128(0x10)),
+                          Util::uint64ToDecimal128(0x50));
+        Type V2_N    = Util::negate(V2_P);
+
+        static const struct {
+            int                 d_line;
+            Type                d_decimalValue;
+            int                 d_class;         // classification
+            int                 d_sign;
+            bsls::Types::Uint64 d_significandH;
+            bsls::Types::Uint64 d_significandL;
+            int                 d_exponent;
+        } DATA[] = {
+        // L   VALUE       CLASS        SIGN  SIGNIFICAND HIGH,    EXPONENT
+        //                                    SIGNIFICAND LOW
+        // --- ----------  -------      ----  -------------------  ---------
+
+        // Test zero values
+        {  L_, DEC( 0.0),  FP_ZERO,       1,                     0,
+                                                                 0,       -1 },
+        {  L_, DEC(-0.0),  FP_ZERO,      -1,                     0,
+                                                                 0,       -1 },
+
+        // Test special encoding values
+        {  L_, INF_P,      FP_INFINITE,   1,   0x20000000000000ull,
+                                                                 0,   0x3000 },
+        {  L_, INF_N,      FP_INFINITE,  -1,   0x20000000000000ull,
+                                                                 0,   0x3000 },
+        {  L_, NAN_Q_P,    FP_NAN,        1,   0x20000000000000ull,
+                                                                 0,   0x3800 },
+        {  L_, NAN_Q_N,    FP_NAN,       -1,   0x20000000000000ull,
+                                                                 0,   0x3800 },
+        {  L_, NAN_S_P,    FP_NAN,        1,   0x20000000000000ull,
+                                                                 0,   0x3c00 },
+        {  L_, NAN_S_N,    FP_NAN,       -1,   0x20000000000000ull,
+                                                                 0,   0x3c00 },
+        {  L_, SUBN_P,     FP_SUBNORMAL,  1,                     0,
+                                                                 1,    -6176 },
+        {  L_, SUBN_N,     FP_SUBNORMAL, -1,                     0,
+                                                                 1,    -6176 },
+
+            // // Test boundary values
+        {  L_, MIN_P,      FP_NORMAL,     1,                     0,
+                                                                 1,    -6143 },
+        {  L_, MIN_N,      FP_NORMAL,    -1,                     0,
+                                                                 1,    -6143 },
+        {  L_, MAX_P,      FP_NORMAL,     1,    0x1ED09BEAD87C0ull,
+                                             0x378D8E63FFFFFFFFull,     6111 },
+        {  L_, MAX_N,      FP_NORMAL,    -1,    0x1ED09BEAD87C0ull,
+                                             0x378D8E63FFFFFFFFull,     6111 },
+            // // Test arbitrary values
+        {  L_, DEC( 1.0),  FP_NORMAL,     1,                     0,
+                                                                10,       -1 },
+        {  L_, DEC(-1.0),  FP_NORMAL,    -1,                     0,
+                                                                10,       -1 },
+        {  L_, DEC( 0.1),  FP_NORMAL,     1,                     0,
+                                                                 1,       -1 },
+        {  L_, DEC(-0.1),  FP_NORMAL,    -1,                     0,
+                                                                 1,       -1 },
+        {  L_, DEC( 4.25), FP_NORMAL,     1,                     0,
+                                                               425,       -2 },
+        {  L_, DEC(-4.25), FP_NORMAL,    -1,                     0,
+                                                               425,       -2 },
+        {  L_, V1_P,       FP_NORMAL,     1,                     1,
+                                                                 0,        0 },
+        {  L_, V1_N,       FP_NORMAL,    -1,                     1,
+                                                                 0,        0 },
+        {  L_, V2_P,       FP_NORMAL,     1,                  0x10,
+                                                              0x50,        0 },
+        {  L_, V2_N,       FP_NORMAL,    -1,                  0x10,
+                                                              0x50,        0 },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose) cout << "\tTesting behavior." << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                 LINE          = DATA[ti].d_line;
+            const Type                VALUE         = DATA[ti].d_decimalValue;
+            const int                 CLASS         = DATA[ti].d_class;
+            const int                 SIGN          = DATA[ti].d_sign;
+            const bsls::Types::Uint64 SIGNIFICAND_H = DATA[ti].d_significandH;
+            const bsls::Types::Uint64 SIGNIFICAND_L = DATA[ti].d_significandL;
+            const int                 EXPONENT      = DATA[ti].d_exponent;
+
+            if (veryVerbose) {
+                P_(LINE); P_(CLASS); P_(SIGN);
+                P_(SIGNIFICAND_H); P_(SIGNIFICAND_L);
+                P(EXPONENT);
+            }
+
+            int           sign;
+            BDEC::Uint128 significand;
+            int           exponent;
+            int           cl = Util::decompose(&sign,
+                                               &significand,
+                                               &exponent,
+                                               VALUE);
+
+            ASSERTV(LINE, CLASS, cl,   CLASS ==  cl);
+            ASSERTV(LINE, SIGN,  sign, SIGN  == sign);
+            ASSERTV(LINE,
+                    SIGNIFICAND_H,
+                    significand.high(),
+                    SIGNIFICAND_H == significand.high());
+            ASSERTV(LINE,
+                    SIGNIFICAND_L,
+                    significand.low(),
+                    SIGNIFICAND_L == significand.low());
+            ASSERTV(LINE,
+                    exponent,
+                    EXPONENT,
+                    EXPONENT == exponent);
+
+            if ((CLASS != FP_NAN) && (CLASS != FP_INFINITE)) {
+                const Type MOVE_LEFT_64 = Util::add(
+                               Util::uint64ToDecimal128(0xFFFFFFFFFFFFFFFFull),
+                               Util::uint64ToDecimal128(1));
+                const Type SIGNIFICAND = Util::add(
+                               Util::multiply(
+                                  Util::uint64ToDecimal128(significand.high()),
+                                  MOVE_LEFT_64),
+                               Util::uint64ToDecimal128(significand.low()));
+                Type       input = Util::scaleB(SIGNIFICAND, exponent);
+
+                input = (sign == 1) ? input : Util::negate(input);
+                ASSERTV(LINE, Util::equal(VALUE, input));
+            }
+        }
+
+        if (verbose) cout << "\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            const Type     TEMP = DEC( 0.0);
+            int            SIGN;
+            BDEC::Uint128  SIGNIFICAND;
+            int            EXPONENT;
+            int           *VALID_SIGN(&SIGN);
+            BDEC::Uint128 *VALID_SIGNIFICAND(&SIGNIFICAND);
+            int           *VALID_EXPONENT(&EXPONENT);
+            int           *INVALID_SIGN(0);
+            BDEC::Uint128 *INVALID_SIGNIFICAND(0);
+            int           *INVALID_EXPONENT(0);
+
+            ASSERT_PASS(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        INVALID_SIGNIFICAND,
+                                        VALID_EXPONENT,
+                                        TEMP));
+            ASSERT_FAIL(Util::decompose(VALID_SIGN,
+                                        VALID_SIGNIFICAND,
+                                        INVALID_EXPONENT,
+                                        TEMP));
+        }
+    }
+#undef DEC
+}
+
+void TestDriver::testCase23()
+{
+    // ------------------------------------------------------------------------
+    // TESTING BOUNDARY VALUES FUNCTIONS
+    //
+    // Concerns:
+    //: 1 All functions return expected values.
+    //
+    // Plan:
+    //: 1 Use the 'parseXX' function to reate model objects, having special
+    //:   values excluding NaN.  Call appropriate function and compare returned
+    //:   result with model object.
+    //:
+    //: 2 As NaN can't be compared with any object, create a mask to verify
+    //:   representation of returned results for 'signalingNaN' and 'quietNaN'.
+    //:   (C-1)
+    //
+    // Testing:
+    //   ValueType32 min32();
+    //   ValueType32 max32();
+    //   ValueType32 epsilon32();
+    //   ValueType32 roundError32();
+    //   ValueType32 denormMin32();
+    //   ValueType32 infinity32();
+    //   ValueType32 quietNaN32();
+    //   ValueType32 signalingNaN32();
+    //   ValueType64 min64();
+    //   ValueType64 max64();
+    //   ValueType64 epsilon64();
+    //   ValueType64 roundError64();
+    //   ValueType64 denormMin64();
+    //   ValueType64 infinity64();
+    //   ValueType64 quietNaN64();
+    //   ValueType64 signalingNaN64();
+    //   ValueType128 min128();
+    //   ValueType128 max128();
+    //   ValueType128 epsilon128();
+    //   ValueType128 roundError128();
+    //   ValueType128 denormMin128();
+    //   ValueType128 infinity128();
+    //   ValueType128 quietNaN128();
+    //   ValueType128 signalingNaN128();
+    // --------------------------------------------------------------------
+    if (verbose) bsl::cout << "\nTESTING BOUNDARY VALUES FUNCTIONS"
+                           << "\n================================="
+                           << bsl::endl;
+
+    if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+    {
+        typedef Util::ValueType32 Type;
+
+        const Type MIN         = Util::parse32("+1e-95");
+        const Type MAX         = Util::parse32("+9.999999e+96");
+        const Type EPSILON     = Util::parse32("+1e-6");
+        const Type ROUND_ERROR = Util::parse32("1.0");
+        const Type DENORM_MIN  = Util::parse32("+0.000001E-95");
+        const Type INF         = Util::parse32("Inf");
+
+        Type value;
+
+        value = Util::min32();
+        ASSERTV(Util::equal(MIN, value));
+
+        value = Util::max32();
+        ASSERTV(Util::equal(MAX, value));
+
+        value = Util::epsilon32();
+        ASSERTV(Util::equal(EPSILON, value));
+
+        value = Util::roundError32();
+        ASSERTV(Util::equal(ROUND_ERROR, value));
+
+        value = Util::denormMin32();
+        ASSERTV(Util::equal(DENORM_MIN, value));
+
+        value = Util::infinity32();
+        ASSERTV(Util::equal(INF, value));
+
+        // As we can't compare NaNs, we will check combination field and the
+        // most significant bit of exponent continuation field.
+
+        unsigned int QNAN_MASK = 0x7C000000;  // 01111100 00...0
+        unsigned int SNAN_MASK = 0x7E000000;  // 01111110 00...0
+
+        value = Util::signalingNaN32();
+        ASSERT(SNAN_MASK == (value.d_raw & SNAN_MASK));
+
+        value = Util::quietNaN32();
+        ASSERT(QNAN_MASK == (value.d_raw & QNAN_MASK));
+    }
+
+    if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+    {
+        typedef Util::ValueType64 Type;
+
+        const Type MIN         = Util::parse64("+1e-383");
+        const Type MAX         = Util::parse64("+9.999999999999999e+384");
+        const Type EPSILON     = Util::parse64("+1e-15");
+        const Type ROUND_ERROR = Util::parse64("1.0");
+        const Type DENORM_MIN  = Util::parse64("+0.000000000000001e-383");
+        const Type INF         = Util::parse64("Inf");
+
+        Type value;
+
+        value = Util::min64();
+        ASSERTV(Util::equal(MIN, value));
+
+        value = Util::max64();
+        ASSERTV(Util::equal(MAX, value));
+
+        value = Util::epsilon64();
+        ASSERTV(Util::equal(EPSILON, value));
+
+        value = Util::roundError64();
+        ASSERTV(Util::equal(ROUND_ERROR, value));
+
+        value = Util::denormMin64();
+        ASSERTV(Util::equal(DENORM_MIN, value));
+
+        value = Util::infinity64();
+        ASSERTV(Util::equal(INF, value));
+
+        // As we can't compare NaNs, we will check combination field and the
+        // most significant bit of exponent continuation field.
+
+        bsls::Types::Uint64 QNAN_MASK = 0x7C00000000000000;  // 01111100 00...0
+        bsls::Types::Uint64 SNAN_MASK = 0x7E00000000000000;  // 01111110 00...0
+
+        value = Util::signalingNaN64();
+        bsls::Types::Uint64 raw;
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+        raw = value.d_raw;
+#else
+        raw = *value.longs;
+#endif
+        ASSERT(SNAN_MASK == (raw & SNAN_MASK));
+
+        value = Util::quietNaN64();
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+        raw = value.d_raw;
+#else
+        raw = *value.longs;
+#endif
+        ASSERT(QNAN_MASK == (raw & QNAN_MASK));
+    }
+
+    if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+    {
+        typedef Util::ValueType128 Type;
+
+        const Type MIN         = Util::parse128("+1e-6143");
+        const Type MAX         = Util::parse128(
+                                 "+9.999999999999999999999999999999999e+6144");
+        const Type EPSILON     = Util::parse128("+1e-33");
+        const Type ROUND_ERROR = Util::parse128("1.0");
+        const Type DENORM_MIN  = Util::parse128(
+                                 "+0.000000000000000000000000000000001e-6143");
+        const Type INF         = Util::parse128("Inf");
+
+        Type value;
+
+        value = Util::min128();
+        ASSERTV(Util::equal(MIN, value));
+
+        value = Util::max128();
+        ASSERTV(Util::equal(MAX, value));
+
+        value = Util::epsilon128();
+        ASSERTV(Util::equal(EPSILON, value));
+
+        value = Util::roundError128();
+        ASSERTV(Util::equal(ROUND_ERROR, value));
+
+        value = Util::denormMin128();
+        ASSERTV(Util::equal(DENORM_MIN, value));
+
+        value = Util::infinity128();
+        ASSERTV(Util::equal(INF, value));
+
+        // As we can't compare NaNs, we will check combination field and the
+        // most significant bit of exponent continuation field.
+
+        bsls::Types::Uint64 QNAN_MASK = 0x7C00000000000000;  // 01111100 00...0
+        bsls::Types::Uint64 SNAN_MASK = 0x7E00000000000000;  // 01111110 00...0
+
+        value = Util::signalingNaN128();
+        bsls::Types::Uint64 raw;
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        raw = value.d_raw.w[0];
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+        raw = value.d_raw.w[1];
+    #endif
+#else
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        raw = *value.longs[0];
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+        raw = *value.longs[1];
+    #endif
+#endif
+        ASSERT(SNAN_MASK == (raw & SNAN_MASK));
+
+        value = Util::quietNaN128();
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        raw = value.d_raw.w[0];
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+        raw = value.d_raw.w[1];
+    #endif
+#else
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        raw = *value.longs[0];
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+        raw = *value.longs[1];
+    #endif
+#endif
+        ASSERT(QNAN_MASK == (raw & QNAN_MASK));
+    }
 }
 
 void TestDriver::testCase22()
@@ -7896,6 +8945,15 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+      case 26: {
+        TestDriver::testCase26();
+      } break;
+      case 25: {
+        TestDriver::testCase25();
+      } break;
+      case 24: {
+        TestDriver::testCase24();
+      } break;
       case 23: {
         TestDriver::testCase23();
       } break;
