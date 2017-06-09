@@ -186,7 +186,9 @@ int main(int argc, char *argv[])
                 const char *STR       = DATA[ti].d_inputStr;
 
                 Enum value;
-                int rc = Obj::fromString(&value, STR, strlen(STR));
+                int rc = Obj::fromString(&value,
+                                         STR,
+                                         static_cast<int>(strlen(STR)));
 
                 if (veryVerbose) { T_; P_(ti); P_(value); P_(STR); P(rc); }
 

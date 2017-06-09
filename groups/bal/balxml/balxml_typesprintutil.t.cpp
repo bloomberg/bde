@@ -24,6 +24,7 @@
 
 #include <bdlt_datetime.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
@@ -890,13 +891,13 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 
 bool testFloatPointResult(const char *result, const char *expected)
 {
-    int lenRes = bsl::strlen(result);
-    int lenExp = bsl::strlen(expected);
+    bsl::size_t lenRes = bsl::strlen(result);
+    bsl::size_t lenExp = bsl::strlen(expected);
     if (lenRes != lenExp) {
         return false;                                                 // RETURN
     }
 
-    for (int i=0; i < lenExp; ++i) {
+    for (bsl::size_t i = 0; i < lenExp; ++i) {
         if (expected[i] == 'X') {
             continue;
         }
@@ -1053,10 +1054,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -1187,10 +1188,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -2737,10 +2738,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -3870,12 +3871,12 @@ int main(int argc, char *argv[])
                 typedef bsl::vector<char> Type;
 
                 for (int i = 0; i < NUM_DATA; ++i) {
-                    const int LENGTH = bsl::strlen(VALID_DATA[i].d_input);
-
-                    const int         LINE   = VALID_DATA[i].d_lineNum;
-                    const char       *CINPUT = VALID_DATA[i].d_input;
-                    const Type        INPUT  ( CINPUT, CINPUT+LENGTH );
-                    const bsl::string RESULT = VALID_DATA[i].d_result;
+                    const bsl::size_t  LENGTH =
+                                            bsl::strlen(VALID_DATA[i].d_input);
+                    const int          LINE   = VALID_DATA[i].d_lineNum;
+                    const char        *CINPUT = VALID_DATA[i].d_input;
+                    const Type         INPUT(CINPUT, CINPUT + LENGTH);
+                    const bsl::string  RESULT = VALID_DATA[i].d_result;
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
@@ -4395,12 +4396,12 @@ int main(int argc, char *argv[])
                 typedef bsl::vector<char> Type;
 
                 for (int i = 0; i < NUM_DATA; ++i) {
-                    const int LENGTH = bsl::strlen(INVALID_DATA[i].d_input);
-
-                    const int         LINE   = INVALID_DATA[i].d_lineNum;
-                    const char       *CINPUT = INVALID_DATA[i].d_input;
-                    const Type        INPUT  ( CINPUT, CINPUT+LENGTH );
-                    const bsl::string RESULT;
+                    const bsl::size_t  LENGTH =
+                                          bsl::strlen(INVALID_DATA[i].d_input);
+                    const int          LINE   = INVALID_DATA[i].d_lineNum;
+                    const char        *CINPUT = INVALID_DATA[i].d_input;
+                    const Type         INPUT(CINPUT, CINPUT + LENGTH);
+                    const bsl::string  RESULT;
 
                     bsl::stringstream ss;
                     Util::printText(ss, INPUT);
@@ -4596,10 +4597,10 @@ int main(int argc, char *argv[])
             typedef bsl::string Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -4615,10 +4616,10 @@ int main(int argc, char *argv[])
             typedef bslstl::StringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -4634,10 +4635,10 @@ int main(int argc, char *argv[])
             typedef MyStringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -4653,10 +4654,10 @@ int main(int argc, char *argv[])
             typedef bsl::vector<char> Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -5503,10 +5504,10 @@ int main(int argc, char *argv[])
             typedef bsl::string Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -5522,10 +5523,10 @@ int main(int argc, char *argv[])
             typedef bslstl::StringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -5541,10 +5542,10 @@ int main(int argc, char *argv[])
             typedef MyStringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
@@ -5560,10 +5561,10 @@ int main(int argc, char *argv[])
             typedef bsl::vector<char> Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE          = DATA[i].d_lineNum;
-                const char *INPUT         = DATA[i].d_input;
-                const char *RESULT        = DATA[i].d_result;
-                const int   INPUT_LENGTH  = bsl::strlen(INPUT);
+                const int          LINE          = DATA[i].d_lineNum;
+                const char        *INPUT         = DATA[i].d_input;
+                const char        *RESULT        = DATA[i].d_result;
+                const bsl::size_t  INPUT_LENGTH  = bsl::strlen(INPUT);
 
                 Type mX(INPUT, INPUT + INPUT_LENGTH); const Type& X = mX;
                 bsl::stringstream ss;
