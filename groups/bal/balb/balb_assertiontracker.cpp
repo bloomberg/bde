@@ -3,6 +3,8 @@
 #include <balb_assertiontracker.h>
 #include <bsls_ident.h>
 
+#include <bdlf_bind.h>
+
 #include <bslma_default.h>
 
 #include <bslmt_lockguard.h>
@@ -100,17 +102,30 @@ AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallbackHandler,
 , d_maxStackTracesPerLocation(-1)
 , d_assertionCount(0)
 , d_trackingData(basicAllocator)
+, d_callback(bdlf::BindUtil::bindS(d_allocator_p,
+                                   &reportAssertion,
+                                   &bsl::cout,
+                                   bdlf::PlaceHolders::_1,
+                                   bdlf::PlaceHolders::_2,
+                                   bdlf::PlaceHolders::_3,
+                                   bdlf::PlaceHolders::_4,
+                                   bdlf::PlaceHolders::_5))
+, d_onEachAssertion(false)
+, d_onNewLocation(false)
+, d_onNewStackTrace(true)
 {
     if (bslmt::ThreadUtil::createKey(&d_recursionCheck, 0) != 0) {
         d_fallbackHandler("Cannot get thread-local key", __FILE__, __LINE__);
     }
 }
 
-AssertionTracker::~AssertionTracker()
+// MANIPULATORS
+void AssertionTracker::callback(Callback cb)
 {
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    d_callback = cb;
 }
 
-// MANIPULATORS
 void AssertionTracker::failTrackerImpl(const char *text,
                                        const char *file,
                                        int         line)
@@ -173,25 +188,27 @@ void AssertionTracker::failTrackerImpl(const char *text,
         newStack = true;
     }
     ++counts_iterator->second;
-    if (newStack) {
-        onNewStackTrace(counts_iterator->second,
-                        location_iterator->first.first,
-                        location_iterator->first.second.first,
-                        location_iterator->first.second.second,
-                        counts_iterator->first);
+    if (newStack && d_onNewStackTrace) {
+        d_callback(counts_iterator->second,
+                   location_iterator->first.first,
+                   location_iterator->first.second.first,
+                   location_iterator->first.second.second,
+                   counts_iterator->first);
     }
-    if (newLocation) {
-        onNewLocation(counts_iterator->second,
-                      location_iterator->first.first,
-                      location_iterator->first.second.first,
-                      location_iterator->first.second.second,
-                      counts_iterator->first);
+    if (newLocation && d_onNewLocation) {
+        d_callback(counts_iterator->second,
+                   location_iterator->first.first,
+                   location_iterator->first.second.first,
+                   location_iterator->first.second.second,
+                   counts_iterator->first);
     }
-    onEachAssertion(counts_iterator->second,
-                    location_iterator->first.first,
-                    location_iterator->first.second.first,
-                    location_iterator->first.second.second,
-                    counts_iterator->first);
+    if (d_onEachAssertion) {
+        d_callback(counts_iterator->second,
+                   location_iterator->first.first,
+                   location_iterator->first.second.first,
+                   location_iterator->first.second.second,
+                   counts_iterator->first);
+    }
 }
 
 void AssertionTracker::maxAssertions(int value)
@@ -208,6 +225,22 @@ void AssertionTracker::maxStackTracesPerLocation(int value)
 {
     d_maxStackTracesPerLocation = bsl::max(value, -1);
 }
+
+void AssertionTracker::onEachAssertion(bool value)
+{
+    d_onEachAssertion = value;
+}
+
+void AssertionTracker::onNewLocation(bool value)
+{
+    d_onNewLocation = value;
+}
+
+void AssertionTracker::onNewStackTrace(bool value)
+{
+    d_onNewStackTrace = value;
+}
+
 
 // ACCESSORS
 bslma::Allocator *AssertionTracker::allocator() const
@@ -230,11 +263,11 @@ void AssertionTracker::iterateAll() const
         AssertionCounts::const_iterator cb = tb->second.begin();
         AssertionCounts::const_iterator ce = tb->second.end();
         for (; cb != ce; ++cb) {
-            onNewStackTrace(cb->second,
-                            tb->first.first,
-                            tb->first.second.first,
-                            tb->first.second.second,
-                            cb->first);
+            d_callback(cb->second,
+                       tb->first.first,
+                       tb->first.second.first,
+                       tb->first.second.second,
+                       cb->first);
         }
     }
 }
@@ -254,35 +287,41 @@ int AssertionTracker::maxStackTracesPerLocation() const
     return d_maxStackTracesPerLocation;
 }
 
-void AssertionTracker::onEachAssertion(int,
-                                       const char *,
-                                       const char *,
-                                       int,
-                                       const bsl::vector<void *>&) const
+bool AssertionTracker::onEachAssertion() const
 {
+    return d_onEachAssertion;
 }
 
-void AssertionTracker::onNewLocation(int,
-                                     const char *,
-                                     const char *,
-                                     int,
-                                     const bsl::vector<void *>&) const
+bool AssertionTracker::onNewLocation() const
 {
+    return d_onNewLocation;
 }
 
-void AssertionTracker::onNewStackTrace(int                         count,
+bool AssertionTracker::onNewStackTrace() const
+{
+    return d_onNewStackTrace;
+}
+
+AssertionTracker::Callback AssertionTracker::callback() const
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    return d_callback;
+}
+
+void AssertionTracker::reportAssertion(bsl::ostream               *out,
+                                       int                         count,
                                        const char                 *text,
                                        const char                 *file,
                                        int                         line,
-                                       const bsl::vector<void *>&  stack) const
+                                       const bsl::vector<void *>&  stack)
 {
-    bsl::cout << count << " " << file << ":" << line << ":" << text << " [";
+    (*out) << count << " " << file << ":" << line << ":" << text << " [";
     bsl::vector<void *>::const_iterator b = stack.begin();
     bsl::vector<void *>::const_iterator e = stack.end();
     for (; b != e; b++) {
-        bsl::cout << " " << b;
+        (*out) << " " << b;
     }
-    bsl::cout << " ]\n";
+    (*out) << " ]\n";
 }
 
 }  // close package namespace

@@ -35,6 +35,10 @@
 #include <balscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLF_BIND
+#include <bdlf_bind.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -57,6 +61,10 @@
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSTREAM
+#include <bsl_ostream.h>
 #endif
 
 #ifndef INCLUDED_BSL_UTILITY
@@ -89,8 +97,15 @@ class AssertionTracker {
     typedef bsl::vector<Address>                     StackTrace;
     typedef bsl::unordered_map<StackTrace, int>      AssertionCounts;
     typedef bsl::unordered_map<AssertionLocation, AssertionCounts>
-                                                     TrackingData;
+        TrackingData;
 
+  public:
+    // PUBLIC TYPES
+    typedef bsl::function<
+        void(int, const char *, const char *, int, const bsl::vector<void *>&)>
+        Callback;
+
+  private:
     // PRIVATE DATA
     bsls::Assert::Handler   d_fallbackHandler;  // handler when limits exceeded
     bslma::Allocator       *d_allocator_p;      // allocator
@@ -102,6 +117,10 @@ class AssertionTracker {
     bslmt::ThreadUtil::Key  d_recursionCheck;   // thread-local data key to
                                                 // prevent recursive invocation
     mutable bslmt::Mutex    d_mutex;            // mutual exclusion lock
+    Callback                d_callback;
+    bsls::AtomicBool        d_onEachAssertion;
+    bsls::AtomicBool        d_onNewLocation;
+    bsls::AtomicBool        d_onNewStackTrace;
 
     // PRIVATE CREATORS
     AssertionTracker(const AssertionTracker&);             // = delete
@@ -110,38 +129,6 @@ class AssertionTracker {
     // PRIVATE MANIPULATORS
     AssertionTracker& operator=(const AssertionTracker&);  // = delete
         // Elided copy assignment operator.
-
-    // PRIVATE ACCESSORS
-    virtual void onEachAssertion(int                         count,
-                                 const char                 *text,
-                                 const char                 *file,
-                                 int                         line,
-                                 const bsl::vector<void *>&  stack) const;
-        // This method is called each time an assertion occurs with the
-        // specified accumulated 'count', assertion 'text', 'file' and 'line'
-        // location, and the 'stack' trace.  The default implementation does
-        // nothing.
-
-    virtual void onNewLocation(int                         count,
-                               const char                 *text,
-                               const char                 *file,
-                               int                         line,
-                               const bsl::vector<void *>&  stack) const;
-        // This method is called each time an assertion occurs with a location
-        // that has not yet been seen with the specified accumulated 'count',
-        // assertion 'text', 'file' and 'line' location, and the 'stack'
-        // trace.  The default implementation does nothing.
-
-    virtual void onNewStackTrace(int                         count,
-                                 const char                 *text,
-                                 const char                 *file,
-                                 int                         line,
-                                 const bsl::vector<void *>&  stack) const;
-        // This method is called each time an assertion occurs with a stack
-        // trace that has not yet been seen with the specified accumulated
-        // 'count', assertion 'text', 'file' and 'line' location, and the
-        // 'stack' trace.  The default implementation prints the assertion
-        // information to 'cout'.
 
   public:
     // CLASS METHODS
@@ -155,6 +142,16 @@ class AssertionTracker {
         // function for 'bsls::Assert'.  Note that unlike proper handlers, this
         // handler returns to its caller and may trigger warnings on such
         // behavior within 'bsls::Assert'.
+
+    static void reportAssertion(bsl::ostream               *out,
+                                int                         count,
+                                const char                 *text,
+                                const char                 *file,
+                                int                         line,
+                                const bsl::vector<void *>&  stack);
+        // Report the specified 'count', 'text', 'file', 'line', and 'stack' to
+        // the specified stream 'out'.  This function, with 'out' bound to
+        // 'bsl::cout', is the default callback function for reporting.
 
     static AssertionTracker *
     singleton(bsls::Assert::Handler  fallbackHandler = bsls::Assert::failAbort,
@@ -182,10 +179,11 @@ class AssertionTracker {
         // specified 'basicAllocator' is used to supply memory.  Note that the
         // 'singleton' class method creates a special instance of this class.
 
-    virtual ~AssertionTracker();
-        // Destroy this object.
-
     // MANIPULATORS
+    void callback(Callback cb);
+        // Set the callback function invoked when an assertion occurs and a
+        // callback invocation is requested to the specified 'cb'.
+
     void failTrackerImpl(const char *text, const char *file, int line);
         // Implement the required tracking behavior for the specified 'text',
         // 'file', and 'line', that will have been passed to this method of the
@@ -211,9 +209,24 @@ class AssertionTracker {
         // there is an assertion failure beyond the limit, the assertion will
         // be passed to the saved handler.
 
+    void onEachAssertion(bool value);
+        // Set whether the callback is invoked on each assertion occurrence to
+        // the specified 'value'.
+
+    void onNewLocation(bool value);
+        // Set whether the callback is invoked on each new assertion location
+        // to the specified 'value'.
+
+    void onNewStackTrace(bool value);
+        // Set whether the callback is invoked on each new assertion stack
+        // trace to the specified 'value'.
+
     // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.
+
+    Callback callback() const;
+        // Return the callback functor used to report assertions.
 
     virtual void iterateAll() const;
         // This method calls 'onNewStackTrace' for each saved stack trace.
@@ -229,6 +242,17 @@ class AssertionTracker {
     int maxStackTracesPerLocation() const;
         // Return the maximum number of stack traces for a given location that
         // this object will handle or -1 if the number is unlimited.
+
+    bool onEachAssertion() const;
+        // Return whether the callback is invoked on each assertion occurrence.
+
+    bool onNewLocation() const;
+        // Return whether the callback is invoked on each new assertion
+        // location.
+
+    bool onNewStackTrace() const;
+        // Return whether the callback is invoked on each new assertion stack
+        // trace;
 };
 
 }  // close package namespace
