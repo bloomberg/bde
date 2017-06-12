@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 
 #include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
 #include <bslma_default.h>
 
@@ -248,6 +249,12 @@ bslma::Allocator *AssertionTracker::allocator() const
     return d_allocator_p;
 }
 
+AssertionTracker::Callback AssertionTracker::callback() const
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    return d_callback;
+}
+
 void AssertionTracker::iterateAll() const
 {
     if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
@@ -300,12 +307,6 @@ bool AssertionTracker::onNewLocation() const
 bool AssertionTracker::onNewStackTrace() const
 {
     return d_onNewStackTrace;
-}
-
-AssertionTracker::Callback AssertionTracker::callback() const
-{
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
-    return d_callback;
 }
 
 void AssertionTracker::reportAssertion(bsl::ostream               *out,
