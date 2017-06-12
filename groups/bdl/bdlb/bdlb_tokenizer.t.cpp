@@ -543,9 +543,9 @@ int main(int argc, char **argv)
         //:   point to the next token.
         //:
         //: 7 postfix operator ++ return the iterator before any changes, and
-        //:   then behaves likr prefix ++ operator.
+        //:   then behaves like prefix ++ operator.
         //:
-        //: 8 Dereferencing an iterator should refer to the expected element
+        //: 8 Dereferencing an iterator should refer to the expected element.
         //
         // Plan:
         //: 1 iterator_traits instantiates for Tokenizer::iterator.
@@ -573,9 +573,9 @@ int main(int argc, char **argv)
         //: 8 Postfix operator ++ is tested in case 8.
         //:   (C-7)
         //:
-        //: 9 Assert that operator* dereferences correctly for the string
-        //:   value, and that a stringref function is called correctly on
-        //:   the the referenced iterator.
+        //: 9 Assert that 'operator*' dereferences correctly for the string
+        //:   value, and that a 'bslstl::StringRef' function is called
+        //:   correctly on the the referenced iterator.
         //:   (C-8)
         //
         // Testing:
@@ -593,9 +593,9 @@ int main(int argc, char **argv)
         ASSERT((bsl::is_same<IterTraits::value_type,
                 bslstl::StringRef>::value));
         ASSERT((bsl::is_same<IterTraits::pointer,
-                bslstl::StringRef *>::value));
+        		bdlb::Tokenizer_Proxy>::value));
         ASSERT((bsl::is_same<IterTraits::reference,
-                bslstl::StringRef>::value));
+                const bslstl::StringRef>::value));
         ASSERT((bsl::is_same<IterTraits::iterator_category,
                 std::input_iterator_tag>::value));
 
@@ -608,6 +608,12 @@ int main(int argc, char **argv)
             const ObjIt it = testData.begin();
             ASSERT("foo" == *it);
             ASSERT(false == (*it).empty());
+
+            // Test the assert
+            ObjIt itw = testData.begin();
+            ++itw; ++itw; ++itw;
+            ASSERT_SAFE_FAIL("foo" == *itw);
+            ASSERT_SAFE_FAIL(false == (*itw).empty());
         }
 
         if (verbose) cout << "\nTest operator->\n";
@@ -618,6 +624,11 @@ int main(int argc, char **argv)
 
             const ObjIt it = testData.begin();
             ASSERT(false == it->empty());
+
+            // Test the assert
+            ObjIt itw = testData.begin();
+            ++itw; ++itw; ++itw;
+            ASSERT_SAFE_FAIL(false == itw->empty());
         }
 
       } break;
