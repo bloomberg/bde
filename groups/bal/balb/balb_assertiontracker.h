@@ -35,10 +35,6 @@
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_BIND
-#include <bdlf_bind.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -63,7 +59,7 @@
 #include <bsl_functional.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOSTREAM
+#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
 
