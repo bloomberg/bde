@@ -539,9 +539,11 @@ int main(int argc, char **argv)
         //:
         //: 5 a != b iff !(a == b).
         //:
-        //: 6 prefix ++ operator works correctly.
+        //: 6 prefix ++ operator advances the iteration state of this object to
+        //:   point to the next token.
         //:
-        //: 7 postfix operator ++ works correctly.
+        //: 7 postfix operator ++ return the iterator before any changes, and
+        //:   then behaves likr prefix ++ operator.
         //:
         //: 8 Dereferencing an iterator should refer to the expected element
         //
@@ -608,16 +610,15 @@ int main(int argc, char **argv)
             ASSERT(false == (*it).empty());
         }
 
-        // This is waiting implementation of operator->
-//        if (verbose) cout << "\nTest operator->\n";
-//        {
-//            //  Declare test data and types
-//            bsl::string data = "foo bar baz";
-//            Obj         testData(data, " ");
+        if (verbose) cout << "\nTest operator->\n";
+        {
+            //  Declare test data and types
+            bsl::string data = "foo bar baz";
+            Obj         testData(data, " ");
 
-//            const ObjIt it = testData.begin();
-//            ASSERT(false == it->empty());
-//        }
+            const ObjIt it = testData.begin();
+            ASSERT(false == it->empty());
+        }
 
       } break;
       case 9: {

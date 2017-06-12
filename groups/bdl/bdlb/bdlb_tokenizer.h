@@ -594,6 +594,35 @@ class Tokenizer_Data {
         // 1 for soft delimiter, 2 for hard delimiter.
 };
 
+                        // =================
+                        // class ProxyHolder
+                        // =================
+
+template <typename TYPE>
+class ProxyHolder {
+    // This class provides a proxy holder of a reference to an object, allowing
+    // correct return of operator->. The object is templated.
+
+    // DATA
+    TYPE d_obj; // The object
+
+  private:
+    // NOT IMPLEMENTED
+    ProxyHolder& operator=(const ProxyHolder&);
+
+  public:
+    // CREATORS
+    ProxyHolder(const TYPE &obj);
+        // Create a 'ProxyHolder' object bound to the specified 'obj'.
+
+    ~ProxyHolder();
+        // Destroy this object.
+
+    // OPERATORS
+    const TYPE *operator->() const;
+        // Return a pointer to the ibject contained by this 'ProxyHolder'.
+};
+
                         // =======================
                         // class TokenizerIterator
                         // =======================
@@ -665,6 +694,16 @@ class TokenizerIterator {
         // maximal sequence of non-delimiter characters) in the input string.
         // The returned reference remains valid so long as the underlying input
         // is not modified or destroyed -- irrespective of the state (or
+        // existence) of this object.  The behavior is undefined unless the
+        // iteration state of this object is initially valid, or if the
+        // underlying input has been modified or destroyed since this object
+        // was created.
+
+    ProxyHolder<bslstl::StringRef> operator->() const;
+        // Return a proxy object containing the non-modifiable current token
+        // (i.e., maximal sequence of non-delimiter characters) in the input
+        // string.  The returned proxy remains valid so long as the underlying
+        // input is not modified or destroyed -- irrespective of the state (or
         // existence) of this object.  The behavior is undefined unless the
         // iteration state of this object is initially valid, or if the
         // underlying input has been modified or destroyed since this object
@@ -897,6 +936,31 @@ int Tokenizer_Data::inputType(char character) const
     return d_charTypes[static_cast<unsigned char>(character)];
 }
 
+                        // -----------------------
+                        // class bdlb::ProxyHolder
+                        // -----------------------
+// CREATORS
+template <typename TYPE>
+inline
+bdlb::ProxyHolder<TYPE>::ProxyHolder(const TYPE &obj)
+: d_obj(obj)
+{
+}
+
+template <typename TYPE>
+inline
+bdlb::ProxyHolder<TYPE>::~ProxyHolder()
+{
+}
+
+// OPERATORS
+template <typename TYPE>
+inline
+const TYPE *bdlb::ProxyHolder<TYPE>::operator->() const
+{
+    return &d_obj;
+}
+
                         // -----------------------------
                         // class bdlb::TokenizerIterator
                         // -----------------------------
@@ -907,6 +971,13 @@ bslstl::StringRef TokenizerIterator::operator*() const
     // Called on invalid iterator
     BSLS_ASSERT_SAFE(!d_endFlag);
     return bslstl::StringRef(d_token_p, d_postDelim_p);
+}
+
+inline
+ProxyHolder<bslstl::StringRef> TokenizerIterator::operator->() const
+{
+    // Called on invalid iterator
+    return ProxyHolder<bslstl::StringRef>(this->operator*());
 }
 
                         // ---------------------
