@@ -12,6 +12,7 @@ ball_countingallocator
 ball_defaultattributecontainer
 ball_fileobserver
 ball_fileobserver2
+ball_filteringobserver
 ball_fixedsizerecordbuffer
 ball_log
 ball_loggercategoryutil
