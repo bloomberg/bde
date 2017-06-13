@@ -128,17 +128,6 @@ class AssertionTracker {
 
   public:
     // CLASS METHODS
-    static void failTracker(const char *text, const char *file, int line);
-        // Track the failed assertion described by the specified 'text' that
-        // occurred at the specified 'file' and 'line'.  The behavior is
-        // undefined unless the lifetime of the pointers 'text' and 'file'
-        // exceeds that of the 'AssertionTracker' singleton.  (In normal usage
-        // those pointers will be string literals, trivially satisfying this.)
-        // This function is intended to be installed as the assertion-handler
-        // function for 'bsls::Assert'.  Note that unlike proper handlers, this
-        // handler returns to its caller and may trigger warnings on such
-        // behavior within 'bsls::Assert'.
-
     static void reportAssertion(bsl::ostream               *out,
                                 int                         count,
                                 const char                 *text,
@@ -148,24 +137,6 @@ class AssertionTracker {
         // Report the specified 'count', 'text', 'file', 'line', and 'stack' to
         // the specified stream 'out'.  This function, with 'out' bound to
         // 'bsl::cout', is the default callback function for reporting.
-
-    static AssertionTracker *
-    singleton(bsls::Assert::Handler  fallbackHandler = bsls::Assert::failAbort,
-              bslma::Allocator      *basicAllocator  = 0);
-        // Return a pointer to the 'AssertionTracker' singleton object that
-        // will be used to track assertion failures.  When the singleton is
-        // created, 'failTracker' will be installed as the assertion-handler
-        // function for 'bsls::Assert'.  If 'failTracker' could not be
-        // installed, return a null pointer instead.  Optionally specify a
-        // 'fallbackHandler' to be used if assertions beyond configured limits
-        // occur.  On the first call when the singleton is created, the
-        // behavior is undefined unless 'fallbackHandler' is specified and not
-        // null.  On subsequent calls 'fallbackHandler' has no effect.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The allocator used by this object is set on the first call
-        // when the singleton is created.  On subsequent calls 'basicAllocator'
-        // has no effect.
 
     // CREATORS
     AssertionTracker(bsls::Assert::Handler  fallbackHandler,
@@ -180,10 +151,11 @@ class AssertionTracker {
         // Set the callback function invoked when an assertion occurs and a
         // callback invocation is requested to the specified 'cb'.
 
-    void failTrackerImpl(const char *text, const char *file, int line);
+    void operator()(const char *text, const char *file, int line);
         // Implement the required tracking behavior for the specified 'text',
-        // 'file', and 'line', that will have been passed to this method of the
-        // singleton by the installed 'failTracker' handler.
+        // 'file', and 'line'.  In typical use, this method will be invoked on
+        // a singleton object of this type by an installed assertion failure
+        // handler.
 
     void maxAssertions(int value);
         // Set the maximum number of assertions that this object will handle to
@@ -224,7 +196,7 @@ class AssertionTracker {
     Callback callback() const;
         // Return the callback functor used to report assertions.
 
-    virtual void iterateAll() const;
+    void iterateAll() const;
         // This method calls 'onNewStackTrace' for each saved stack trace.
 
     int maxAssertions() const;

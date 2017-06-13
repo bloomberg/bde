@@ -1,17 +1,9 @@
-// balb_assertiontracker.t.cpp                                        -*-C++-*-
+// balb_assertiontrackersingleton.t.cpp                               -*-C++-*-
 
+#include <balb_assertiontrackersingleton.h>
 #include <balb_assertiontracker.h>
 
 #include <bslim_testutil.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-
-#include <bslmt_barrier.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>
 
@@ -86,7 +78,7 @@ void aSsErT(bool condition, const char *message, int line)
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef balb::AssertionTracker Obj;
+typedef balb::AssertionTrackerSingleton<balb::AssertionTracker> Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -101,7 +93,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 1: {
@@ -122,14 +115,14 @@ int main(int argc, char *argv[])
             cout << "BREATHING TEST\n"
                     "==============\n";
         {
-            Obj Z(bsls::Assert::failureHandler(), &ta);
+            ASSERT(Obj::singleton());
             for (int i = 0; i < 10; ++i) {
-                Z("assertion 1", __FILE__, __LINE__);
+                BSLS_ASSERT(0 && "assert 1");
                 for (int j = 0; j < 10; ++j) {
-                    Z("assertion 2", __FILE__, __LINE__);
+                    BSLS_ASSERT(0 && "assert 2");
                 }
             }
-            Z.iterateAll();
+            Obj::singleton()->iterateAll();
         }
       } break;
       default: {
@@ -137,6 +130,9 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
