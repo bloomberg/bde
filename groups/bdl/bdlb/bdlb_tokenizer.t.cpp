@@ -610,6 +610,8 @@ int main(int argc, char **argv)
             ASSERT(false == (*it).empty());
 
             // Test the assert
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
             ASSERT_SAFE_FAIL("foo" == *itw);
@@ -626,6 +628,8 @@ int main(int argc, char **argv)
             ASSERT(false == it->empty());
 
             // Test the assert
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
             ASSERT_SAFE_FAIL(false == itw->empty());
