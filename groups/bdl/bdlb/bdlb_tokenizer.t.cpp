@@ -5,12 +5,13 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_string.h>
-
 #include <bsl_cstdlib.h>                  // 'bsl::atoi'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
+
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -167,7 +168,9 @@ using namespace bsl;
 // [  ] TOKENIZER IS NOT COPYABLE OR ASSIGNABLE
 // [  ] CONSTRUCTOR OF TOKENIZER_DATA HANDLES DUPLICATE CHARACTERS
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
-// [ 9] USAGE EXAMPLE
+// [ 9] DRQS 101217017
+// [10] STANDARD INPUT ITERATOR INTERFACE
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -373,7 +376,7 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -515,6 +518,162 @@ int main(int argc, char **argv)
     const string EXPECTED3("This is a test.");
     ASSERT(EXPECTED3 == result3);
 //..
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // Testing standard input iterator interface
+        //
+        // Concerns:
+        //: 1 iterator_traits<Tokenizer::iterator> has 5 typedefs:
+        //:   difference_type, value_type, pointer, reference, and
+        //:   iterator_category.
+        //:
+        //: 2 Tokenizer::iterator> ids copy constructible, copy assignable,
+        //:   destructible.
+        //:
+        //: 3 Two iterators, 'X' and 'Y', compare equal if and only if each of
+        //:   their corresponding salient attributes respectively compares
+        //:   equal.
+        //:
+        //: 4 Comparison is symmetric.
+        //:
+        //: 5 a != b iff !(a == b).
+        //:
+        //: 6 prefix ++ operator advances the iteration state of this object to
+        //:   point to the next token.
+        //:
+        //: 7 postfix operator ++ return the iterator before any changes, and
+        //:   then behaves like prefix ++ operator.
+        //:
+        //: 8 Dereferencing an iterator should refer to the expected element.
+        //
+        // Plan:
+        //: 1 iterator_traits instantiates for Tokenizer::iterator.
+        //:   (C-1)
+        //:
+        //: 2 iterator_traits find difference_type, value_type, pointer,
+        //:   reference, and iterator_category.
+        //:   (C-1)
+        //:
+        //: 3 Copy constructor and destructor are tested in case 7.
+        //:   (C-2)
+        //:
+        //: 4 Assignment operator is tested in case 8.
+        //:   (C-2)
+        //:
+        //: 5 Equality operator is tested in case 8.
+        //:   (C-3, C-4)
+        //:
+        //: 6 Inequality operator is tested in case 8.
+        //:   (C-5)
+        //:
+        //: 7 Prefix operator ++ is tested in case 7.
+        //:   (C-6)
+        //:
+        //: 8 Postfix operator ++ is tested in case 8.
+        //:   (C-7)
+        //:
+        //: 9 Assert that 'operator*' dereferences correctly for the string
+        //:   value, and that a 'bslstl::StringRef' function is called
+        //:   correctly on the the referenced iterator.
+        //:   (C-8)
+        //
+        // Testing:
+        //   STANDARD INPUT ITERATOR INTERFACE
+        // --------------------------------------------------------------------
+        if (verbose) 
+            cout << endl
+                 << "TESTING STANDARD INPUT OPERATOR INTEFACE" << endl
+                 << "========================================" << endl;
+
+        //  Assert iterator_traits instantiates for Tokenizer::iterator
+        //  Assert iterator_traits finds the expected typedefs
+        typedef bsl::iterator_traits<ObjIt>  IterTraits;
+        ASSERT((bsl::is_same<IterTraits::difference_type, int>::value));
+        ASSERT((bsl::is_same<IterTraits::value_type,
+                bslstl::StringRef>::value));
+        ASSERT((bsl::is_same<IterTraits::pointer,
+        		bdlb::Tokenizer_Proxy>::value));
+        ASSERT((bsl::is_same<IterTraits::reference,
+                const bslstl::StringRef>::value));
+        ASSERT((bsl::is_same<IterTraits::iterator_category,
+                std::input_iterator_tag>::value));
+
+        if (verbose) cout << "\nTest operator*\n";
+        {
+            //  Declare test data and types
+            bsl::string data = "foo bar baz";
+            Obj         testData(data, " ");
+
+            const ObjIt it = testData.begin();
+            ASSERT("foo" == *it);
+            ASSERT(false == (*it).empty());
+
+            // Test the assert
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+            ObjIt itw = testData.begin();
+            ++itw; ++itw; ++itw;
+            ASSERT_SAFE_FAIL("foo" == *itw);
+            ASSERT_SAFE_FAIL(false == (*itw).empty());
+        }
+
+        if (verbose) cout << "\nTest operator->\n";
+        {
+            //  Declare test data and types
+            bsl::string data = "foo bar baz";
+            Obj         testData(data, " ");
+
+            const ObjIt it = testData.begin();
+            ASSERT(false == it->empty());
+
+            // Test the assert
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+            ObjIt itw = testData.begin();
+            ++itw; ++itw; ++itw;
+            ASSERT_SAFE_FAIL(false == itw->empty());
+        }
+
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // DRQS 101217017
+        //   Test the fix for DRQS 101217017.
+        //
+        // Concerns:
+        //: 1 The code below did not compile prior to adding the missing
+        //:   traits.
+        //
+        // Plan:
+        //: 1 Verify that the code compiles.
+        //:   (C-1)
+        //
+        // Testing:
+        //   DRQS 101217017
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "DRQS 101217017" << endl
+                          << "==============" << endl;
+
+        bsl::string              data = "foo bar baz";
+        bsl::vector<bsl::string> tokens;
+        bdlb::Tokenizer          tokenizer(data, " ");
+
+        tokens.assign(tokenizer.begin(), tokenizer.end()); // DOESN'T COMPILE
+
+        bsl::stringstream ss;
+        bsl::copy(tokens.begin(), tokens.end(),
+                  bsl::ostream_iterator<bsl::string>(ss, "\n"));
+        if (verbose)
+            bsl::cout << ss.str();
+
+        // This fails with error: no type named 'iterator_category' in 'struct
+        // std::iterator_traits<BloombergLP::bdlb::TokenizerIterator>'.
+        // Alternative test case:
+        bsl::copy(tokenizer.begin(), tokenizer.end(),
+                  bsl::back_inserter(tokens)); // DOESN'T COMPILE EITHER
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
