@@ -66,31 +66,20 @@ ThreadLocalDataGuard::~ThreadLocalDataGuard()
                             // ----------------------
 
 // CLASS METHODS
-void AssertionTracker::failTracker(const char *text,
-                                   const char *file,
-                                   int         line)
+void AssertionTracker::reportAssertion(bsl::ostream               *out,
+                                       int                         count,
+                                       const char                 *text,
+                                       const char                 *file,
+                                       int                         line,
+                                       const bsl::vector<void *>&  stack)
 {
-    singleton()->failTrackerImpl(text, file, line);
-}
-
-AssertionTracker *
-AssertionTracker::singleton(bsls::Assert::Handler  fallbackHandler,
-                            bslma::Allocator      *basicAllocator)
-{
-    static AssertionTracker *theSingleton_p;
-
-    BSLMT_ONCE_DO
-    {
-        BSLS_ASSERT_OPT(fallbackHandler);
-        bsls::Assert::setFailureHandler(&failTracker);
-        if (bsls::Assert::failureHandler() == &failTracker) {
-            static AssertionTracker theSingleton(
-                   fallbackHandler, bslma::Default::allocator(basicAllocator));
-            theSingleton_p = &theSingleton;
-        }
+    (*out) << count << " " << file << ":" << line << ":" << text << " [";
+    bsl::vector<void *>::const_iterator b = stack.begin();
+    bsl::vector<void *>::const_iterator e = stack.end();
+    for (; b != e; b++) {
+        (*out) << " " << b;
     }
-
-    return theSingleton_p;
+    (*out) << " ]\n";
 }
 
 // CREATORS
@@ -127,9 +116,7 @@ void AssertionTracker::callback(Callback cb)
     d_callback = cb;
 }
 
-void AssertionTracker::failTrackerImpl(const char *text,
-                                       const char *file,
-                                       int         line)
+void AssertionTracker::operator()(const char *text, const char *file, int line)
 {
     if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
         d_fallbackHandler(text, file, line);
@@ -307,22 +294,6 @@ bool AssertionTracker::onNewLocation() const
 bool AssertionTracker::onNewStackTrace() const
 {
     return d_onNewStackTrace;
-}
-
-void AssertionTracker::reportAssertion(bsl::ostream               *out,
-                                       int                         count,
-                                       const char                 *text,
-                                       const char                 *file,
-                                       int                         line,
-                                       const bsl::vector<void *>&  stack)
-{
-    (*out) << count << " " << file << ":" << line << ":" << text << " [";
-    bsl::vector<void *>::const_iterator b = stack.begin();
-    bsl::vector<void *>::const_iterator e = stack.end();
-    for (; b != e; b++) {
-        (*out) << " " << b;
-    }
-    (*out) << " ]\n";
 }
 
 }  // close package namespace
