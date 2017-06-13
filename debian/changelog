@@ -1,3 +1,11 @@
+bsl-internal (3.1.15.0) unstable; urgency=low
+
+  * 2d5af6846 Merge pull request #1181 from bde/review/bump-patchversion-to-3.1.5
+  * 3d751724e bump patchversion to 3.1.5 for bdl/bal/btl/bbl
+  * 20cea7235 fixed version number
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 13 Jun 2017 11:55:09 -0400
+
 bsl-internal (3.1.4.0) unstable; urgency=low
 
   * 1bc6e4ca6 Merge pull request #1151 from bde/review/bump-version-numbers-for-3.1.4
