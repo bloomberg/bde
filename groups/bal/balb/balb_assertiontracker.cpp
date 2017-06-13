@@ -250,7 +250,6 @@ void AssertionTracker::iterateAll() const
     ThreadLocalDataGuard           recursionGuard(d_recursionCheck);
     bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
 
-    bsl::cout << d_assertionCount << " total assertions seen\n";
     TrackingData::const_iterator tb = d_trackingData.begin();
     TrackingData::const_iterator te = d_trackingData.end();
     for (; tb != te; ++tb) {
