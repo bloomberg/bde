@@ -27,8 +27,71 @@
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-/// - - - - -
+///Example 1: Count Number of Assertions Triggered
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// We wish to count how many times assertions trigger, doing no other handling
+// and allowing the program to continue running (note that this is normally
+// forbidden in production).  We can use 'AssertionTrackerSingleton' to set up
+// an assertion handler to do this.
+//
+// First, we create a class to do the counting.
+//..
+//  class AssertionCounter {
+//      // PRIVATE DATA
+//      int d_assertion_counter;  // Number of assertions seen.
+//
+//    public:
+//      // PUBLIC CREATORS
+//      explicit AssertionCounter(bsls::Assert::Handler   = 0,
+//                                bslma::Allocator      * = 0);
+//          // Create an 'AssertionCounter' object.  We ignore the fallback
+//          // handler and optional allocator parameters.
+//
+//      // PUBLIC MANIPULATORS
+//      void operator()(const char *, const char *, int);
+//          // Function called when assertion failure occurs.  We ignore the
+//          // text, file, and line parameters.
+//
+//      // PUBLIC ACCESSORS
+//      int getAssertionCount() const;
+//          // Return the number of assertions we have seen.
+//  };
+//..
+// Then, we implement the member functions of the 'AssertionCounter' class.
+//..
+//  AssertionCounter::AssertionCounter(bsls::Assert::Handler,
+//                                     bslma::Allocator *)
+//  : d_assertion_counter(0)
+//  {
+//  }
+//
+//  void AssertionCounter::operator()(const char *, const char *, int)
+//  {
+//      ++d_assertion_counter;
+//  }
+//
+//  int AssertionCounter::getAssertionCount() const
+//  {
+//      return d_assertion_counter;
+//  }
+//..
+// Next, we set up an instance of this class to be the installed assertion
+// using 'AssertionTrackerSingleton'.  Note that this needs to be done early in
+// 'main()' before any other handlers are installed.  If another handler has
+// already been installed, a null pointer will be returned, and we assert that
+// this does not happen.
+//..
+//  AssertionCounter *ac_p =
+//      balb::AssertionTrackerSingleton<AssertionCounter>::singleton();
+//  assert(ac_p);
+//..
+// Finally, we will trigger some assertions and verify that we are counting
+// them correctly.
+//..
+//  BSLS_ASSERT(0 && "assertion 1");
+//  BSLS_ASSERT(0 && "assertion 2");
+//  assert(ac_p->getAssertionCount() == 2);
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
