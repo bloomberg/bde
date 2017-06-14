@@ -396,8 +396,10 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < AL[2][2]; ++i)
                     trigger3(Z, "assertion 2", __FILE__ "3", LINE);
 
-                ASSERTV(handledAssertionCount, EXP_H == handledAssertionCount);
-                ASSERTV(defaultAssertionCount, EXP_D == defaultAssertionCount);
+                ASSERTV(LINE, EXP_H, handledAssertionCount,
+                        EXP_H == handledAssertionCount);
+                ASSERTV(LINE, EXP_D, defaultAssertionCount,
+                        EXP_D == defaultAssertionCount);
             }
         }
       } break;
