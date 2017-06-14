@@ -61,7 +61,8 @@ struct Atomic_TypeTraits<AtomicOperations_X86_ALL_GCC>
 
     struct Uint
     {
-        volatile unsigned int d_value __attribute__((__aligned__(sizeof(unsigned int))));
+        volatile unsigned int d_value
+                            __attribute__((__aligned__(sizeof(unsigned int))));
     };
 
     struct Uint64

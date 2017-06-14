@@ -75,7 +75,7 @@ struct Atomic_TypeTraits<AtomicOperations_IA64_HP_ACC>
     struct Uint
     {
         volatile unsigned int d_value
-		                    __attribute__((__aligned__(sizeof(unsigned int))));
+                            __attribute__((__aligned__(sizeof(unsigned int))));
     };
 
     struct Uint64

@@ -118,7 +118,7 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC32_SUN_CC>
     {
 #ifdef BSLS_PLATFORM_CMP_GNU
         volatile unsigned int d_value
-		    __attribute__((__aligned__(sizeof(unsigned int))));
+            __attribute__((__aligned__(sizeof(unsigned int))));
 #else
 #       pragma align 4 (d_value)
         volatile unsigned int d_value;

@@ -57,13 +57,11 @@ using namespace std;
 // [ 4] swapInt(Obj::Int *aInt, int value);
 // [ 4] testAndSwapInt(Obj::Int *, int, int);
 // [ 4] swapInt64(Obj::Int64 *, bsls::Types::Int64);
-// [ 4] testAndSwapInt64(Obj::Int64 *, bsls::Types::Int64
-//                    bsls::Types::Int64 );
+// [ 4] testAndSwapInt64(Int64 *, Int64, Int64 );
 // [ 4] swapUint(Obj::Uint *aUint, unsigned int value);
 // [ 4] testAndSwapUint(Obj::Uint *, unsigned int, unsigned int);
 // [ 4] swapUint64(Obj::Uint64 *, bsls::Types::Uint64);
-// [ 4] testAndSwapUint64(Obj::Uint64 *, bsls::Types::Uint64
-//                    bsls::Types::Uint64);
+// [ 4] testAndSwapUint64(Uint64 *, Uint64, Uint64);
 // [ 4] swapPtr(Obj::Pointer *aPointer, void *value);
 // [ 4] testAndSwapPtr(Obj::Pointer *, void *, void *);
 // [ 5] incrementInt(Int *aInt);
@@ -115,13 +113,11 @@ using namespace std;
 // [10] swapInt64AcqRel(Obj::Int *aInt, int value);
 // [10] testAndSwapIntAcqRel(Obj::Int *, int, int);
 // [10] swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
-// [10] testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64
-//                             bsls::Types::Int64 );
+// [10] testAndSwapInt64AcqRel(Int64 *, Int64, Int64 );
 // [10] swapUintAcqRel(Obj::Uint *aUint, unsigned int value);
 // [10] testAndSwapUintAcqRel(Obj::Uint *, undigned int, unsigned int);
 // [10] swapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
-// [10] testAndSwapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64
-//                             bsls::Types::Uint64 );
+// [10] testAndSwapUint64AcqRel(Uint64 *, Uint64, Uint64 );
 // [10] swapPtrAcqRel(Obj::Pointer *aPointer, void *value);
 // [10] testAndSwapPtrAcqRel(Obj::Pointer *, void *, void *);
 // [11] addIntAcqRel(Obj::Int *aInt, int value);
@@ -797,8 +793,8 @@ static void* incrementInt64TestThread(void *ptr)
 
 static void* incrementUint64TestThread(void *ptr)
     // This function is used to test the 'incrementUint64' and
-    // 'incrementInt64Nv' functions.  It atomically increments the specified
-    // 64bit atomic unsigned integer object for the specified number of
+    // 'incrementUint64Nv' functions.  It atomically increments the specified
+    // 64-bit atomic unsigned integer object for the specified number of
     // iterations.  When executed by multiple threads concurrently, final
     // value of the specified int should have been incremented by exactly
     // NTHREADS * NITERATIONS.
@@ -843,9 +839,9 @@ static void* decrementInt64TestThread(void *ptr)
 }
 
 static void* decrementUint64TestThread(void *ptr)
-    // This function is used to test the 'decrementInt64' and
-    // 'decrementInt64Nv' functions.  It atomically decrements the specified
-    // 64bit atomic unsigned integer object for the specified number of
+    // This function is used to test the 'decrementUint64' and
+    // 'decrementUint64Nv' functions.  It atomically decrements the specified
+    // 64-bit atomic unsigned integer object for the specified number of
     // iterations.  When executed by multiple threads concurrently, final value
     // of the specified unsigned int should have been decremented by exactly
     // NTHREADS * NITERATIONS.
@@ -853,8 +849,8 @@ static void* decrementUint64TestThread(void *ptr)
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
     args->d_mutex.lock();
-    args->d_countStarted++;
     args->d_startSig.signal();
+    args->d_countStarted++;
     args->d_mutex.unlock();
 
     args->d_barrier.wait();
@@ -1367,7 +1363,7 @@ static void* swapUint64TestThread(void *ptr)
 
 
 static void* testAndSwapIntTestThread(void *ptr)
-    // This function is used to test the 'swapInt' function.
+    // This function is used to test the 'testAndSwapInt' function.
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1430,7 +1426,7 @@ static void* testAndSwapInt64TestThread(void *ptr)
 
 
 static void* testAndSwapUintTestThread(void *ptr)
-    // This function is used to test the 'swapUint' function.
+    // This function is used to test the 'testAndWwapUint' function.
 {
     UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1738,7 +1734,7 @@ static void* testAndSwapUintAcqRelTestThread(void *ptr)
 }
 
 static void* testAndSwapInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapInt64' function.
+    // This function is used to test the 'testAndSwapInt64AckRel' function.
 {
     Int64SwapTestThreadArgs *args=(Int64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1768,7 +1764,7 @@ static void* testAndSwapInt64AcqRelTestThread(void *ptr)
 }
 
 static void* testAndSwapUint64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapUint64' function.
+    // This function is used to test the 'testAndSwapUint64AckRel' function.
 {
     Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1799,7 +1795,7 @@ static void* testAndSwapUint64AcqRelTestThread(void *ptr)
 
 
 static void* swapPtrAcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapPtr' function.
+    // This function is used to test the 'swapPtrAckRel' function.
 {
     PointerTestThreadArgs *args=(PointerTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1828,7 +1824,7 @@ static void* swapPtrAcqRelTestThread(void *ptr)
 }
 
 static void* testAndSwapPtrAcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwap' function.
+    // This function is used to test the 'testAndSwapPtrAckRel' function.
 {
     PointerTestThreadArgs *args=(PointerTestThreadArgs*)ptr;
     int value1Count=0;
@@ -3228,13 +3224,11 @@ int main(int argc, char *argv[]) {
         //   swapIntAcqRel(Obj::Int *aInt, int value);
         //   testAndSwapIntAcqRel(Obj::Int *, int, int);
         //   swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
-        //   testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64
-        //                          bsls::Types::Int64 );
+        //   testAndSwapInt64AcqRel(Int64 *, Int64, Int64 );
         //   swapUintAcqRel(Obj::Uint *aUint, unsigned int value);
         //   testAndSwapUintAcqRel(Obj::Uint *, undigned int, unsigned int);
         //   swapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
-        //   testAndSwapUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64
-        //                          bsls::Types::Uint64 );
+        //   testAndSwapUint64AcqRel(Uint64 *, Types::Uint64, Uint64 );
         //   swapPtrAcqRel(Obj::Pointer *aPointer, void *value);
         //   testAndSwapPtrAcqRel(Obj::Pointer *, void *, void *);
         // --------------------------------------------------------------------
@@ -6217,13 +6211,11 @@ int main(int argc, char *argv[]) {
         //   swapInt(Obj::Int *aInt, int value);
         //   testAndSwapInt(Obj::Int *, int, int);
         //   swapInt64(Obj::Int64 *, bsls::Types::Int64);
-        //   testAndSwapInt64(Obj::Int64 *, bsls::Types::Int64
-        //                    bsls::Types::Int64 );
+        //   testAndSwapInt64(Int64 *, Int64, Int64 );
         //   swapUint(Obj::Uint *aUint, unsigned int value);
         //   testAndSwapUint(Obj::Uint *, unsigned int, unsigned int);
         //   swapUint64(Obj::Uint64 *, bsls::Types::Uint64);
-        //   testAndSwapUint64(Obj::Uint64 *, bsls::Types::Uint64
-        //                    bsls::Types::Uint64);
+        //   testAndSwapUint64(Uint64 *, Uint64, Uint64);
         //   swapPtr(Obj::Pointer *aPointer, void *value);
         //   testAndSwapPtr(Obj::Pointer *, void *, void *);
         // --------------------------------------------------------------------
@@ -7634,7 +7626,8 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Arithmetic Manipulators" << endl;
+        if (verbose)
+            cout << "\nTesting 'Uint' Arithmetic Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number

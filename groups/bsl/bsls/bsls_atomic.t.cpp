@@ -4,9 +4,9 @@
 #include <bsls_types.h>
 #include <bsls_platform.h>
 
-#include <stdlib.h>               // atoi(), rand()
-#include <iostream>
 #include <cstddef>
+#include <iostream>
+#include <stdlib.h>               // atoi(), rand()
 
 // For thread support
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -65,8 +65,8 @@ using namespace std;
 // [ 3] bsls::AtomicInt64(bsls::Types::Int64 value);
 // [ 2] ~bsls::AtomicInt64();
 // [ 4] bsls::Types::Int64 add(bsls::Types::Int64 value);
-// [ 5] bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
-// [ 5] bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
+// [ 5] Int64 swap(Int64 swapValue);
+// [ 5] Int64 testAndSwap(Int64 compareValue, Int64 swapValue);
 // [ 6] bsls::Types::Int64 operator ++();
 // [ 6] bsls::Types::Int64 operator ++(int);
 // [ 6] bsls::Types::Int64 operator --();
@@ -79,7 +79,7 @@ using namespace std;
 // [ 3] void bsls::AtomicInt64::store(Int64 value);
 //
 // bsls::AtomicUint
-// ---------------
+// ----------------
 // [ 2] bsls::AtomicUint();
 // [ 3] bsls::AtomicUint(const bsls::AtomicUint& rhs);
 // [ 3] bsls::AtomicUint(unsigned int value);
@@ -100,14 +100,14 @@ using namespace std;
 // [ 3] void bsls::AtomicUint::store(unsigned int value);
 //
 // bsls::AtomicUint64
-// -----------------
+// ------------------
 // [ 2] bsls::AtomicUint64();
 // [ 3] bsls::AtomicUint64(const bsls::AtomicUint64& original);
 // [ 3] bsls::AtomicUint64(bsls::Types::Uint64 value);
 // [ 2] ~bsls::AtomicUint64();
 // [ 4] bsls::Types::Uint64 add(bsls::Types::Uint64 value);
-// [ 5] bsls::Types::Uint64 swap(bsls::Types::Uint64 swapValue);
-// [ 5] bsls::Types::Uint64 testAndSwap(bsls::Types::Uint64 ...
+// [ 5] Uint64 swap(Uint64 swapValue);
+// [ 5] Uint64 testAndSwap(Uint64 compareValue, Uint64 swapValue);
 // [ 6] bsls::Types::Uint64 operator ++();
 // [ 6] bsls::Types::Uint64 operator ++(int);
 // [ 6] bsls::Types::Uint64 operator --();
@@ -1856,13 +1856,13 @@ int main(int argc, char *argv[])
         // Testing:
         //   int swap(int swapValue);
         //   int testAndSwap(int compareValue,int swapValue);
-        //   bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
-        //   bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
+        //   Int64 swap(Int64 swapValue);
+        //   Int64 testAndSwap(Int64 compareValue, Int64 swapValue);
         //   unsigned int swap(unsigned int swapValue);
         //   unsigned int testAndSwap(unsigned int compareValue,
         //                            unsigned int swapValue);
-        //   bsls::Types::Uint64 swap(bsls::Types::Uint64 swapValue);
-        //   bsls::Types::Uint64 testAndSwap(bsls::Types::Uint64 ...
+        //   Uint64 swap(Uint64 swapValue);
+        //   Uint64 testAndSwap(Uint64 compareValue, Uint64 swapValue);
         //   T* swap(const T* swapValue);
         //   T* testAndSwap(const T* compareValue, const T* swapValue);
         //   bool swap(bool swapValue);
@@ -2041,7 +2041,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint' SWAP Manipulators" << endl;
+        if (verbose)
+            cout << "\nTesting 'AtomicUint' SWAP Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;   // source line number
@@ -3195,7 +3196,7 @@ int main(int argc, char *argv[])
         //   ~bsls::AtomicUint()
         //   bsls::AtomicUint& operator= (unsigned int value);
         //   operator unsigned int() const;
-        //   bsls::AtomicUiInt64();
+        //   bsls::AtomicUint64();
         //   ~bsls::AtomicUint64();
         //   bsls::AtomicUint64& operator= (bsls::Types::Uint64 value);
         //   operator bsls::Types::Uint64() const;

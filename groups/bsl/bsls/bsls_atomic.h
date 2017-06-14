@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicBool: atomic boolean type
 //  bsls::AtomicInt: atomic 32-bit integer type
-//  bsls::AtomicInt64: atomic 64-bit integer types
+//  bsls::AtomicInt64: atomic 64-bit integer type
 //  bsls::AtomicUint: atomic 32-bit unsigned integer type
-//  bsls::AtomicUint64: atomic 64-bit unsigned integer types
+//  bsls::AtomicUint64: atomic 64-bit unsigned integer type
 //  bsls::AtomicPointer: parameterized atomic pointer type
 //
 //@SEE_ALSO: bsls_atomicoperations
@@ -22,15 +22,15 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1), Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides classes with atomic operations for
-// 'int', 'Int64', pointer, and 'bool' types.  These classes are based on
-// atomic operations supplied by the 'bsls_atomicoperations' component.  The
-// 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the
-// corresponding atomic integer types, and provide overloaded operators and
-// functions for common arithmetic operations.  The 'bsls::AtomicPointer' class
-// represents the atomic pointer type, and provides atomic operations to
-// manipulate and dereference a pointer.  The 'bsls::AtomicBool' class
-// represents an atomic boolean type and provides operations to set and
-// retrieve its value.
+// 'int', 'Int64', 'unsigned int', 'Uint64', 'pointer', and 'bool' types.
+// These classes are based on atomic operations supplied by the
+// 'bsls_atomicoperations' component.  The 'bsls::AtomicInt' and
+// 'bsls::AtomicInt64' classes represent the corresponding atomic integer
+// types, and provide overloaded operators and functions for common arithmetic
+// operations.  The 'bsls::AtomicPointer' class represents the atomic pointer
+// type, and provides atomic operations to manipulate and dereference a
+// pointer.  The 'bsls::AtomicBool' class represents an atomic boolean type and
+// provides operations to set and retrieve its value.
 //
 ///Memory Order and Consistency Guarantees of Atomic Operations
 ///------------------------------------------------------------
@@ -1176,21 +1176,21 @@ class AtomicUint64 {
     Types::Uint64 testAndSwap(Types::Uint64 compareValue,
                               Types::Uint64 swapValue);
         // Compare the value of this object to the specified 'compareValue'.
-        // If they are equal, set the value of this atomic integer to the
-        // specified 'swapValue', otherwise leave this value unchanged.  Return
-        // the previous value of this atomic unsigned integer, whether or not
-        // the swap occurred.  Note that the entire test-and-swap operation is
-        // performed atomically.
+        // If they are equal, set the value of this atomic 64-bit unsigned
+        // integer to the specified 'swapValue', otherwise leave this value
+        // unchanged.  Return the previous value of this atomic unsigned
+        // integer, whether or not the swap occurred.  Note that the entire
+        // test-and-swap operation is performed atomically.
 
     Types::Uint64 testAndSwapAcqRel(Types::Uint64 compareValue,
                                     Types::Uint64 swapValue);
         // Compare the value of this object to the specified 'compareValue'.
-        // If they are equal, set the value of this atomic integer to the
-        // specified 'swapValue', otherwise leave this value unchanged.  Return
-        // the previous value of this atomic unsigned integer, whether or not
-        // the swap occurred.  Note that the entire test-and-swap operation is
-        // performed atomically and it provides the acquire/release memory
-        // ordering guarantee.
+        // If they are equal, set the value of this atomic 64-bit unsigned
+        // integer to the specified 'swapValue', otherwise leave this value
+        // unchanged.  Return the previous value of this atomic unsigned
+        // integer, whether or not the swap occurred.  Note that the entire
+        // test-and-swap operation is performed atomically and it provides the
+        // acquire/release memory ordering guarantee.
 
     // ACCESSORS
     operator Types::Uint64() const;
@@ -1232,15 +1232,15 @@ class AtomicPointer {
         // 'bslmf_Assert' can't be used here because of package dependency
         // rules.
 
-    // DATA
-    AtomicOperations::AtomicTypes::Pointer d_value;
-
     template <class TYPE1>
     struct RemoveConst              { typedef TYPE1 Type; };
     template <class TYPE1>
     struct RemoveConst<TYPE1 const> { typedef TYPE1 Type; };
 
     typedef typename RemoveConst<TYPE>::Type NcType;
+
+    // DATA
+    AtomicOperations::AtomicTypes::Pointer d_value;
 
   private:
     // NOT IMPLEMENTED

@@ -16,11 +16,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This utility, 'bsls::AtomicOperations', provides a set of
 // platform-independent atomic operations for fundamental data types, such as
-// 32-bit and 64-bit integer and pointer.  The examples of provided atomic
-// operations include loading, storing, exchanging, incrementing and
-// decrementing the data of fundamental types.  Atomic operations are useful
-// for manipulating certain types of shared data without the need for high
-// level synchronization mechanisms (e.g., "mutexes" or "critical sections").
+// 32-bit integer, 64-bit integer, 32-bit unsigned integer, 64-bit unsigned
+// integer, pointer, and bool.  The examples of provided atomic operations
+// include loading, storing, exchanging, incrementing and decrementing the
+// data of fundamental types.  Atomic operations are useful for manipulating
+// certain types of shared data without the need for high level synchronization
+// mechanisms (e.g., "mutexes" or "critical sections").
 //
 // Integer atomic operations allow for thread-safe manipulation of a single 32
 // or 64-bit integer value, without the use of other synchronization
@@ -1175,7 +1176,7 @@ struct AtomicOperations {
         // guarantee.
 
     static unsigned int subUintNv(AtomicTypes::Uint *atomicUint,
-                                  unsigned int                value);
+                                  unsigned int       value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
@@ -1321,7 +1322,7 @@ struct AtomicOperations {
         // guarantee.
 
     static Types::Uint64 subUint64Nv(AtomicTypes::Uint64 *atomicUint,
-                                     Types::Uint64                 value);
+                                     Types::Uint64        value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.

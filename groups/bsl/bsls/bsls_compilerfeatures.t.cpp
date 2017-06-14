@@ -298,7 +298,7 @@ namespace {
 
 void OverloadForNullptr(int)
 {
-	(void)OverloadForNullptr;
+    (void)OverloadForNullptr;
 }
 void OverloadForNullptr(void *) {}
 
