@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
             cout << "BREATHING TEST\n"
                     "==============\n";
         {
-            bsl::ostringstream            os;
-            balb::AssertionTracker       *at_p = Obj::singleton();
+            bsl::ostringstream      os;
+            balb::AssertionTracker *at_p = Obj::singleton();
 
             ASSERT(at_p);
             at_p->callback(
@@ -225,19 +225,19 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_4,
                                      bdlf::PlaceHolders::_5));
             os << "\n";
-            for (int i = 0; i < 10; ++i) {
+            for (volatile int i = 0; i < 10; ++i) {
                 if (veryVeryVerbose) {
                     P_(i) Q("assert 1")
                 }
                 BSLS_ASSERT(0 && "assert 1");
-                for (int j = 0; j < 10; ++j) {
+                for (volatile int j = 0; j < 10; ++j) {
                     if (veryVeryVerbose) {
                         P_(i) Q("assert 2")
                     }
                     BSLS_ASSERT(0 && "assert 2");
                 }
             }
-            for (int i = 0; i < 2; ++i) {
+            for (volatile int i = 0; i < 2; ++i) {
                 if (veryVeryVerbose) {
                     P_(i) Q("assert 3")
                 }
