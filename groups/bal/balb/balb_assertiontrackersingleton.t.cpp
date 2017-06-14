@@ -183,8 +183,8 @@ int main(int argc, char *argv[])
 // Finally, we will trigger some assertions and verify that we are counting
 // them correctly.
 //..
-    BSLS_ASSERT(0 && "assertion 1");
-    BSLS_ASSERT(0 && "assertion 2");
+    BSLS_ASSERT_ASSERT(0 && "assertion 1");
+    BSLS_ASSERT_ASSERT(0 && "assertion 2");
     ASSERT(ac_p->getAssertionCount() == 2);
 //..
       } break;
@@ -229,12 +229,12 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) {
                     P_(i) Q("assert 1")
                 }
-                BSLS_ASSERT(0 && "assert 1");
+                BSLS_ASSERT_ASSERT(0 && "assert 1");
                 for (volatile int j = 0; j < 10; ++j) {
                     if (veryVeryVerbose) {
                         P_(i) Q("assert 2")
                     }
-                    BSLS_ASSERT(0 && "assert 2");
+                    BSLS_ASSERT_ASSERT(0 && "assert 2");
                 }
             }
             for (volatile int i = 0; i < 2; ++i) {
