@@ -31,7 +31,8 @@ using namespace bsl;  // automatically added by script
 // MANIPULATORS
 // ACCESSORS
 // ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
+// [ 1] void failTracker(const char *, const char *, int);
+// [ 1] TRACKER *singleton(bslma::Allocator * = 0);
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
@@ -203,7 +204,8 @@ int main(int argc, char *argv[])
         //:   examining the contents of the stream.
         //
         // Testing:
-        //   BREATHING TEST
+        //   void failTracker(const char *, const char *, int);
+        //   TRACKER *singleton(bslma::Allocator * = 0);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -224,45 +226,65 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_5));
             os << "\n";
             for (int i = 0; i < 10; ++i) {
+                if (veryVeryVerbose) {
+                    P_(i) Q("assert 1")
+                }
                 BSLS_ASSERT(0 && "assert 1");
                 for (int j = 0; j < 10; ++j) {
+                    if (veryVeryVerbose) {
+                        P_(i) Q("assert 2")
+                    }
                     BSLS_ASSERT(0 && "assert 2");
                 }
             }
+            for (int i = 0; i < 2; ++i) {
+                if (veryVeryVerbose) {
+                    P_(i) Q("assert 3")
+                }
+                Obj::failTracker("0 && \"assert 3\"", __FILE__, __LINE__);
+            }
+
+            bsl::string::size_type p1, p2;
 
             bsl::string s = os.str();
 
-            bsl::string::size_type p0 = s.find(__FILE__);
-            ASSERTV(s, s.npos != p0);
-
-            bsl::string::size_type p1 = s.find("\n1 ");
+            p1 = s.find(__FILE__);
             ASSERTV(s, s.npos != p1);
-            bsl::string::size_type p2 = s.find("0 && \"assert 1\"");
-            ASSERTV(s, s.npos != p2);
-            ASSERTV(s, p1 < p2);
 
-            bsl::string::size_type p3 = s.find("\n1 ");
-            ASSERTV(s, s.npos != p3);
-            bsl::string::size_type p4 = s.find("0 && \"assert 2\"");
-            ASSERTV(s, s.npos != p4);
-            ASSERTV(s, p3 < p4);
+            p1 = s.find("\n1 ");
+            ASSERTV(s, s.npos != p1);
+            p2 = s.find("0 && \"assert 1\"", p1);
+            ASSERTV(s, s.npos != p2);
+
+            p1 = s.find("\n1 ", p2);
+            ASSERTV(s, s.npos != p1);
+            p2 = s.find("0 && \"assert 2\"", p1);
+            ASSERTV(s, s.npos != p2);
+
+            p1 = s.find("\n1 ", p2);
+            ASSERTV(s, s.npos != p1);
+            p2 = s.find("0 && \"assert 3\"", p1);
+            ASSERTV(s, s.npos != p2);
 
             os.str("");
             os << "\n";
             at_p->iterateAll();
             s = os.str();
 
-            bsl::string::size_type p5 = s.find("\n10 ");
-            ASSERTV(s, s.npos != p5);
-            bsl::string::size_type p6 = s.find("0 && \"assert 1\"");
-            ASSERTV(s, s.npos != p6);
-            ASSERTV(s, p5 < p6);
+            p1 = s.find("\n10 ");
+            ASSERTV(s, s.npos != p1);
+            p2 = s.find("0 && \"assert 1\"", p1);
+            ASSERTV(s, s.npos != p2);
 
-            bsl::string::size_type p7 = s.find("\n100 ");
-            ASSERTV(s, s.npos != p7);
-            bsl::string::size_type p8 = s.find("0 && \"assert 2\"");
-            ASSERTV(s, s.npos != p8);
-            ASSERTV(s, p7 < p8);
+            p1 = s.find("\n100 ");
+            ASSERTV(s, s.npos != p1);
+            p2 = s.find("0 && \"assert 2\"", p1);
+            ASSERTV(s, s.npos != p2);
+
+            p1 = s.find("\n2 ");
+            ASSERTV(s, s.npos != p1);
+            p2 = s.find("0 && \"assert 3\"", p1);
+            ASSERTV(s, s.npos != p2);
         }
       } break;
       default: {
