@@ -255,24 +255,31 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_4,
                                      bdlf::PlaceHolders::_5));
             os << "\n";
-            for (volatile int i = id_p(0); id_p(i) < id_p(10); ++i) {
+            volatile int i, j;
+            i = id_p(0);
+            do {
                 if (veryVeryVerbose) {
                     P_(i) Q("assert 1")
                 }
                 trigger1_p();
-                for (volatile int j = id_p(0); id_p(j) < id_p(10); ++j) {
+                j = id_p(0);
+                do {
                     if (veryVeryVerbose) {
                         P_(i) P_(j) Q("assert 2")
                     }
                     trigger2_p();
-                }
-            }
-            for (volatile int i = id_p(0); id_p(i) < id_p(2); ++i) {
+                    j = id_p(j) + id_p(1);
+                } while (id_p(j) < id_p(10));
+                i = id_p(i) + id_p(1);
+            } while (id_p(i) < id_p(10));
+            i = id_p(0);
+            do {
                 if (veryVeryVerbose) {
                     P_(i) Q("assert 3")
                 }
                 trigger3_p();
-            }
+                i = id_p(i) + id_p(1);
+            } while (id_p(i) < id_p(2));
 
             bsl::string::size_type p1, p2;
 
