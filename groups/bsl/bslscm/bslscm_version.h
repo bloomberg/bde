@@ -98,7 +98,7 @@ struct Version {
     // CLASS METHODS
     static const char *version();
         // Return the address of a character string that identifies the version
-        // of the 'bal' package group in use.
+        // of the 'bsl' package group in use.
 };
 
 // ============================================================================
