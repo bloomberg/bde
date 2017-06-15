@@ -151,9 +151,9 @@ class AssertionTracker {
         // the specified stream 'out'.
 
     // CREATORS
-    AssertionTracker(
-        bsls::Assert::Handler fallbackHandler = bsls::Assert::failureHandler(),
-        bslma::Allocator *basicAllocator      = 0);
+    explicit AssertionTracker(bsls::Assert::Handler  fallbackHandler =
+                                                bsls::Assert::failureHandler(),
+                              bslma::Allocator      *basicAllocator  = 0);
         // Create an object of this type.  Optionally specify a
         // 'fallbackHandler' used to handle assertions that exceed configured
         // limits.  If 'fallbackHandler' is not given, the currently installed
@@ -167,9 +167,6 @@ class AssertionTracker {
         // 'file', and 'line'.  In typical use, this method will be invoked on
         // a singleton object of this type by an installed assertion failure
         // handler.
-
-    void setReportingCallback(ReportingCallback cb);
-        // Set the callback function invoked when an assertion occurs.
 
     void setMaxAssertions(int value);
         // Set the maximum number of assertions that this object will handle to
@@ -202,6 +199,10 @@ class AssertionTracker {
     void setOnNewStackTrace(bool value);
         // Set whether the callback is invoked on each new assertion stack
         // trace to the specified 'value'.
+
+    void setReportingCallback(ReportingCallback cb);
+        // Set the callback function invoked when an assertion occurs to the
+        // specified 'cb'.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
