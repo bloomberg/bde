@@ -108,6 +108,8 @@ template <typename IMP>
 struct AtomicOperations_POWERPC_AIX_XLC_Default32
     : AtomicOperations_POWERPC_AIX_XLC_DefaultInt<IMP>
     , AtomicOperations_DefaultInt64<IMP>
+    , AtomicOperations_DefaultUint<IMP>
+    , AtomicOperations_DefaultUint64<IMP>
     , AtomicOperations_DefaultPointer32<IMP>
 {};
 
@@ -119,6 +121,8 @@ template <typename IMP>
 struct AtomicOperations_POWERPC_AIX_XLC_Default64
     : AtomicOperations_POWERPC_AIX_XLC_DefaultInt<IMP>
     , AtomicOperations_DefaultInt64<IMP>
+    , AtomicOperations_DefaultUint<IMP>
+    , AtomicOperations_DefaultUint64<IMP>
     , AtomicOperations_DefaultPointer64<IMP>
 {};
 

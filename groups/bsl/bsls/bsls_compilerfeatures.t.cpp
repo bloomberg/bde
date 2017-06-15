@@ -139,7 +139,9 @@ constexpr OracleMiscompile::OracleMiscompile()
 
 namespace {
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 char testFuncForDecltype(int);
+#endif
 
 template <class T, class U>
 auto my_max(T t, U u) -> decltype(t > u ? t : u)
@@ -193,6 +195,8 @@ struct SmartPtrWithSfinaeConstructor {
 
 void test_default_template_args() {
     SmartPtrWithSfinaeConstructor<int> x = 0;  // Oracle CC 12.4 asserts
+    (void)x;
+    (void)test_default_template_args;
 }
 
 }
@@ -292,7 +296,10 @@ void notNoexceptTest2() noexcept(noexcept(notNoexceptTest1())) {
 
 namespace {
 
-void OverloadForNullptr(int) {}
+void OverloadForNullptr(int)
+{
+    (void)OverloadForNullptr;
+}
 void OverloadForNullptr(void *) {}
 
 }  // close unnamed namespace
@@ -490,6 +497,7 @@ void func(TYPE *, const ARG1&, const TAIL&...) {
 void test_func() {
     int x = 0;
     func(&x, 0);  // This line will be ambiguous on buggy compilers
+    (void)test_func;
 }
 
 }  // close unnamed namespace
@@ -540,7 +548,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing 'alignas' specifier\n"
                             "====================================\n");
 
-        alignas(8) int foo;
+        alignas(8) int foo; (void) foo;
 #endif
       } break;
       case 16: {
@@ -809,7 +817,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("Testing generalized initializers\n"
                             "================================\n");
-        std::initializer_list<int> il = {10,20,30,40,50};
+        std::initializer_list<int> il = {10,20,30,40,50}; (void) il;
 
         using namespace initializer_feature_test;
         coupling<object, couple<object, object> > mX;
@@ -901,7 +909,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("Testing deleted functions template\n"
                             "==================================\n");
-        ClassWithDeletedOps* p;
+        ClassWithDeletedOps* p; (void)p;
 #endif
       }break;
       case 4: {
