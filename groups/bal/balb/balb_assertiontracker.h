@@ -55,6 +55,10 @@
 #include <bsls_atomic.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LOG
+#include <bsls_log.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -99,7 +103,7 @@ class AssertionTracker {
     // PUBLIC TYPES
     typedef bsl::function<
         void(int, const char *, const char *, int, const bsl::vector<void *>&)>
-        Callback;
+        ReportingCallback;
 
   private:
     // PRIVATE DATA
@@ -113,7 +117,7 @@ class AssertionTracker {
     bslmt::ThreadUtil::Key  d_recursionCheck;   // thread-local data key to
                                                 // prevent recursive invocation
     mutable bslmt::Mutex    d_mutex;            // mutual exclusion lock
-    Callback                d_callback;
+    ReportingCallback       d_reportingCallback;
     bsls::AtomicBool        d_onEachAssertion;
     bsls::AtomicBool        d_onNewLocation;
     bsls::AtomicBool        d_onNewStackTrace;
@@ -128,6 +132,15 @@ class AssertionTracker {
 
   public:
     // CLASS METHODS
+    static void logAssertion(int                         count,
+                             const char                 *text,
+                             const char                 *file,
+                             int                         line,
+                             const bsl::vector<void *>&  stack);
+        // Log the specified 'count', 'text', 'file', 'line', and 'stack'
+        // through the 'bsls::Log' facility.  This function is the default
+        // callback function for reporting.
+
     static void reportAssertion(bsl::ostream               *out,
                                 int                         count,
                                 const char                 *text,
@@ -135,57 +148,58 @@ class AssertionTracker {
                                 int                         line,
                                 const bsl::vector<void *>&  stack);
         // Report the specified 'count', 'text', 'file', 'line', and 'stack' to
-        // the specified stream 'out'.  This function, with 'out' bound to
-        // 'bsl::cout', is the default callback function for reporting.
+        // the specified stream 'out'.
 
     // CREATORS
-    AssertionTracker(bsls::Assert::Handler  fallbackHandler,
-                     bslma::Allocator      *basicAllocator);
-        // Create an object of this type.  The specified 'fallbackHandler' is
-        // used to handle assertions that exceed configured limits.  The
-        // specified 'basicAllocator' is used to supply memory.  Note that the
-        // 'singleton' class method creates a special instance of this class.
+    AssertionTracker(
+        bsls::Assert::Handler fallbackHandler = bsls::Assert::failureHandler(),
+        bslma::Allocator *basicAllocator      = 0);
+        // Create an object of this type.  Optionally specify a
+        // 'fallbackHandler' used to handle assertions that exceed configured
+        // limits.  If 'fallbackHandler' is not given, the currently installed
+        // failure handler is used.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     // MANIPULATORS
-    void callback(Callback cb);
-        // Set the callback function invoked when an assertion occurs and a
-        // callback invocation is requested to the specified 'cb'.
-
     void operator()(const char *text, const char *file, int line);
         // Implement the required tracking behavior for the specified 'text',
         // 'file', and 'line'.  In typical use, this method will be invoked on
         // a singleton object of this type by an installed assertion failure
         // handler.
 
-    void maxAssertions(int value);
+    void setReportingCallback(ReportingCallback cb);
+        // Set the callback function invoked when an assertion occurs.
+
+    void setMaxAssertions(int value);
         // Set the maximum number of assertions that this object will handle to
         // the specified 'value'.  If 'value' is negative, an unlimited number
         // of assertions can be handled.  If there is an assertion failure
         // beyond the limit, the assertion will be passed to the saved handler.
 
-    void maxLocations(int value);
+    void setMaxLocations(int value);
         // Set the maximum number of assertion locations that this object will
         // handle to the specified 'value'.  If 'value' is negative, an
         // unlimited number of locations can be handled.  If there is an
         // assertion failure beyond the limit, the assertion will be passed to
         // the saved handler.
 
-    void maxStackTracesPerLocation(int value);
+    void setMaxStackTracesPerLocation(int value);
         // Set the maximum number of stack traces for a given location that
         // this object will handle to the specified 'value'.  If 'value' is
         // negative, an unlimited number of stack traces can be handled.  If
         // there is an assertion failure beyond the limit, the assertion will
         // be passed to the saved handler.
 
-    void onEachAssertion(bool value);
+    void setOnEachAssertion(bool value);
         // Set whether the callback is invoked on each assertion occurrence to
         // the specified 'value'.
 
-    void onNewLocation(bool value);
+    void setOnNewLocation(bool value);
         // Set whether the callback is invoked on each new assertion location
         // to the specified 'value'.
 
-    void onNewStackTrace(bool value);
+    void setOnNewStackTrace(bool value);
         // Set whether the callback is invoked on each new assertion stack
         // trace to the specified 'value'.
 
@@ -193,11 +207,8 @@ class AssertionTracker {
     bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.
 
-    Callback callback() const;
+    ReportingCallback reportingCallback() const;
         // Return the callback functor used to report assertions.
-
-    void iterateAll() const;
-        // This method calls 'onNewStackTrace' for each saved stack trace.
 
     int maxAssertions() const;
         // Return the maximum number of assertions that this object will handle
@@ -221,6 +232,9 @@ class AssertionTracker {
     bool onNewStackTrace() const;
         // Return whether the callback is invoked on each new assertion stack
         // trace;
+
+    void reportAllStackTraces() const;
+        // This method invokes the callback for each saved stack trace.
 };
 
 }  // close package namespace

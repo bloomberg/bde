@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
             balb::AssertionTracker *at_p = Obj::singleton();
 
             ASSERT(at_p);
-            at_p->callback(
+            at_p->setReportingCallback(
                 bdlf::BindUtil::bind(&balb::AssertionTracker::reportAssertion,
                                      &os,
                                      bdlf::PlaceHolders::_1,
@@ -281,47 +281,21 @@ int main(int argc, char *argv[])
                 i = id_p(i) + id_p(1);
             } while (id_p(i) < id_p(2));
 
-            bsl::string::size_type p1, p2;
-
             bsl::string s = os.str();
 
-            p1 = s.find(__FILE__);
-            ASSERTV(s, s.npos != p1);
+            ASSERTV(s, s.npos != s.find(__FILE__));
 
-            p1 = s.find("\n1 ");
-            ASSERTV(s, s.npos != p1);
-            p2 = s.find("0 && \"assert 1\"", p1);
-            ASSERTV(s, s.npos != p2);
-
-            p1 = s.find("\n1 ", p2);
-            ASSERTV(s, s.npos != p1);
-            p2 = s.find("0 && \"assert 2\"", p1);
-            ASSERTV(s, s.npos != p2);
-
-            p1 = s.find("\n1 ", p2);
-            ASSERTV(s, s.npos != p1);
-            p2 = s.find("0 && \"assert 3\"", p1);
-            ASSERTV(s, s.npos != p2);
+            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 1\":"))
+            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 2\":"))
+            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 3\":"))
 
             os.str("");
-            os << "\n";
-            at_p->iterateAll();
+            at_p->reportAllStackTraces();
             s = os.str();
 
-            p1 = s.find("\n10 ");
-            ASSERTV(s, s.npos != p1);
-            p2 = s.find("0 && \"assert 1\"", p1);
-            ASSERTV(s, s.npos != p2);
-
-            p1 = s.find("\n100 ");
-            ASSERTV(s, s.npos != p1);
-            p2 = s.find("0 && \"assert 2\"", p1);
-            ASSERTV(s, s.npos != p2);
-
-            p1 = s.find("\n2 ");
-            ASSERTV(s, s.npos != p1);
-            p2 = s.find("0 && \"assert 3\"", p1);
-            ASSERTV(s, s.npos != p2);
+            ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"))
+            ASSERTV(s, s.npos != s.find(":100:0 && \"assert 2\":"))
+            ASSERTV(s, s.npos != s.find(":2:0 && \"assert 3\":"))
         }
       } break;
       default: {
