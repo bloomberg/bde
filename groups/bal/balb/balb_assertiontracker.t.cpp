@@ -356,24 +356,27 @@ int main(int argc, char *argv[])
                 Z.setMaxStackTracesPerLocation(MAX_S);
                 ASSERT(MAX_S == Z.maxStackTracesPerLocation());
 
+                const char *a0 = "assertion 0", *f0 = __FILE__ "0";
+                const char *a1 = "assertion 1", *f1 = __FILE__ "1";
+                const char *a2 = "assertion 2", *f2 = __FILE__ "2";
                 for (int i = 0; i < AL[0][0]; ++i)
-                    trigger1(Z, "assertion 0", __FILE__ "1", LINE);
+                    trigger1(Z, a0, f0, LINE);
                 for (int i = 0; i < AL[0][1]; ++i)
-                    trigger2(Z, "assertion 0", __FILE__ "1", LINE);
+                    trigger2(Z, a0, f0, LINE);
                 for (int i = 0; i < AL[0][2]; ++i)
-                    trigger3(Z, "assertion 0", __FILE__ "1", LINE);
+                    trigger3(Z, a0, f0, LINE);
                 for (int i = 0; i < AL[1][0]; ++i)
-                    trigger1(Z, "assertion 1", __FILE__ "2", LINE);
+                    trigger1(Z, a1, f1, LINE);
                 for (int i = 0; i < AL[1][1]; ++i)
-                    trigger2(Z, "assertion 1", __FILE__ "2", LINE);
+                    trigger2(Z, a1, f1, LINE);
                 for (int i = 0; i < AL[1][2]; ++i)
-                    trigger3(Z, "assertion 1", __FILE__ "2", LINE);
+                    trigger3(Z, a1, f1, LINE);
                 for (int i = 0; i < AL[2][0]; ++i)
-                    trigger1(Z, "assertion 2", __FILE__ "3", LINE);
+                    trigger1(Z, a2, f2, LINE);
                 for (int i = 0; i < AL[2][1]; ++i)
-                    trigger2(Z, "assertion 2", __FILE__ "3", LINE);
+                    trigger2(Z, a2, f2, LINE);
                 for (int i = 0; i < AL[2][2]; ++i)
-                    trigger3(Z, "assertion 2", __FILE__ "3", LINE);
+                    trigger3(Z, a2, f2, LINE);
 
                 ASSERTV(LINE, EXP_H, handledAssertionCount,
                         EXP_H == handledAssertionCount);
