@@ -1426,7 +1426,7 @@ static void* testAndSwapInt64TestThread(void *ptr)
 
 
 static void* testAndSwapUintTestThread(void *ptr)
-    // This function is used to test the 'testAndWwapUint' function.
+    // This function is used to test the 'testAndSwapUint' function.
 {
     UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
     int value1Count=0;
