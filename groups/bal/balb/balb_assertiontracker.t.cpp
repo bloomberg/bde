@@ -281,14 +281,14 @@ int main(int argc, char *argv[])
                              "\n===============\n";
         {
             static const struct {
-                int  d_line;                       // line number
-                bool d_frequency;                  // reporting frequency
-                int  d_maxAssertions;              // max assertions handled
-                int  d_maxLocations;               // max locations handled
-                int  d_maxStackTracesPerLocation;  // max stacks handled
-                int  d_assertion_location[3][3];   // assertions to trigger1
-                int  d_expected_handled;
-                int  d_expected_default;
+                int d_line;                       // line number
+                int d_frequency;                  // reporting frequency
+                int d_maxAssertions;              // max assertions handled
+                int d_maxLocations;               // max locations handled
+                int d_maxStackTracesPerLocation;  // max stacks handled
+                int d_assertion_location[3][3];   // assertions to trigger1
+                int d_expected_handled;
+                int d_expected_default;
             } DATA[] = {
                 {L_, 2, -1, -1, -1, {1, 1, 1, 1, 1, 1, 1, 1, 1},  9,  0},
                 {L_, 1, -1, -1, -1, {2, 2, 2, 2, 2, 2, 2, 2, 2},  9,  0},
