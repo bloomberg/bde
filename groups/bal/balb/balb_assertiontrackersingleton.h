@@ -118,6 +118,22 @@ namespace balb {
 
 template <class TRACKER>
 class AssertionTrackerSingleton {
+    // This class template implements the management of a 'TRACKER' singleton
+    // object that is used to monitor and report assertion failures.  Note that
+    // this is meant to be used in an environment that has freshly inserted or
+    // exposed assertions that are not yet known to be assuredly correct and
+    // triggered only on "real" errors.  In such a case, using an assertion
+    // monitor prevents programs from dying on triggered assertions while data
+    // about them is being gathered.
+    //
+    // The requirements on the 'TRACKER" class are
+    //: 1 A 'TRACKER' object is constructible given two arguments, the first of
+    //:   type 'bsls::Assert::Handler', and the second of type
+    //:   'bslma::Allocator*'.
+    //:
+    //: 2 A 'TRACKER' object may be invoked as a function and passed three
+    //:   arguments, the first two of type 'const char *' and the third of type
+    //:   'int'.
   public:
     // PUBLIC CLASS METHODS
     static void failTracker(const char *text, const char *file, int line);
