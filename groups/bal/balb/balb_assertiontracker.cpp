@@ -124,9 +124,7 @@ AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallbackHandler,
 , d_assertionCount(0)
 , d_trackingData(basicAllocator)
 , d_reportingCallback(logAssertion)
-, d_onEachAssertion(false)
-, d_onNewLocation(false)
-, d_onNewStackTrace(true)
+, d_reportingFrequency(e_onNewStackTrace)
 {
     if (bslmt::ThreadUtil::createKey(&d_recursionCheck, 0) != 0) {
         d_fallbackHandler("Cannot get thread-local key", __FILE__, __LINE__);
@@ -194,21 +192,9 @@ void AssertionTracker::operator()(const char *text, const char *file, int line)
         newStack = true;
     }
     ++counts_iterator->second;
-    if (newStack && d_onNewStackTrace) {
-        d_reportingCallback(counts_iterator->second,
-                            location_iterator->first.first,
-                            location_iterator->first.second.first,
-                            location_iterator->first.second.second,
-                            counts_iterator->first);
-    }
-    if (newLocation && d_onNewLocation) {
-        d_reportingCallback(counts_iterator->second,
-                            location_iterator->first.first,
-                            location_iterator->first.second.first,
-                            location_iterator->first.second.second,
-                            counts_iterator->first);
-    }
-    if (d_onEachAssertion) {
+    if ((d_reportingFrequency == e_onEachAssertion               ) ||
+        (d_reportingFrequency == e_onNewStackTrace && newStack   ) ||
+        (d_reportingFrequency == e_onNewLocation   && newLocation)) {
         d_reportingCallback(counts_iterator->second,
                             location_iterator->first.first,
                             location_iterator->first.second.first,
@@ -232,25 +218,15 @@ void AssertionTracker::setMaxStackTracesPerLocation(int value)
     d_maxStackTracesPerLocation = bsl::max(value, -1);
 }
 
-void AssertionTracker::setOnEachAssertion(bool value)
-{
-    d_onEachAssertion = value;
-}
-
-void AssertionTracker::setOnNewLocation(bool value)
-{
-    d_onNewLocation = value;
-}
-
-void AssertionTracker::setOnNewStackTrace(bool value)
-{
-    d_onNewStackTrace = value;
-}
-
 void AssertionTracker::setReportingCallback(ReportingCallback cb)
 {
     bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
     d_reportingCallback = cb;
+}
+
+void AssertionTracker::setReportingFrequency(ReportingFrequency value)
+{
+    d_reportingFrequency = value;
 }
 
 // ACCESSORS
@@ -272,21 +248,6 @@ int AssertionTracker::maxLocations() const
 int AssertionTracker::maxStackTracesPerLocation() const
 {
     return d_maxStackTracesPerLocation;
-}
-
-bool AssertionTracker::onEachAssertion() const
-{
-    return d_onEachAssertion;
-}
-
-bool AssertionTracker::onNewLocation() const
-{
-    return d_onNewLocation;
-}
-
-bool AssertionTracker::onNewStackTrace() const
-{
-    return d_onNewStackTrace;
 }
 
 void AssertionTracker::reportAllStackTraces() const
@@ -316,6 +277,12 @@ AssertionTracker::ReportingCallback AssertionTracker::reportingCallback() const
 {
     bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
     return d_reportingCallback;
+}
+
+AssertionTracker::ReportingFrequency
+AssertionTracker::reportingFrequency() const
+{
+    return ReportingFrequency(int(d_reportingFrequency));
 }
 
 }  // close package namespace

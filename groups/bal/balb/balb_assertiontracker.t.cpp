@@ -43,16 +43,12 @@ using namespace bsl;  // automatically added by script
 // [ 2] void setMaxAssertions(int value);
 // [ 2] void setMaxLocations(int value);
 // [ 2] void setMaxStackTracesPerLocation(int value);
-// [ 2] void setOnEachAssertion(bool value);
-// [ 2] void setOnNewLocation(bool value);
-// [ 2] void setOnNewStackTrace(bool value);
+// [ 2] void setReportingFrequency(ReportingFrequency value);
 // [ 2] ReportingCallback reportingCallback() const;
 // [ 2] int maxAssertions() const;
 // [ 2] int maxLocations() const;
 // [ 2] int maxStackTracesPerLocation() const;
-// [ 2] bool onEachAssertion() const;
-// [ 2] bool onNewLocation() const;
-// [ 2] bool onNewStackTrace() const;
+// [ 2] ReportingFrequency reportingFrequency() const;
 // [ 2] void logAssertion(...);
 // [ 3] void reportAssertion(...);
 // [ 3] void reportAllStackTraces() const;
@@ -269,6 +265,7 @@ int main(int argc, char *argv[])
         //   void setMaxAssertions(int value);
         //   void setMaxLocations(int value);
         //   void setMaxStackTracesPerLocation(int value);
+        //   void setReportingFrequency(ReportingFrequency value);
         //   void setOnEachAssertion(bool value);
         //   void setOnNewLocation(bool value);
         //   void setOnNewStackTrace(bool value);
@@ -276,9 +273,7 @@ int main(int argc, char *argv[])
         //   int maxAssertions() const;
         //   int maxLocations() const;
         //   int maxStackTracesPerLocation() const;
-        //   bool onEachAssertion() const;
-        //   bool onNewLocation() const;
-        //   bool onNewStackTrace() const;
+        //   ReportingFrequency reportingFrequency() const;
         //   void logAssertion(...);
         // --------------------------------------------------------------------
 
@@ -287,9 +282,7 @@ int main(int argc, char *argv[])
         {
             static const struct {
                 int  d_line;                       // line number
-                bool d_onEachAssertion;            // report each assertion
-                bool d_onNewLocation;              // report each new location
-                bool d_onNewStackTrace;            // report each new stack
+                bool d_frequency;                  // reporting frequency
                 int  d_maxAssertions;              // max assertions handled
                 int  d_maxLocations;               // max locations handled
                 int  d_maxStackTracesPerLocation;  // max stacks handled
@@ -297,17 +290,15 @@ int main(int argc, char *argv[])
                 int  d_expected_handled;
                 int  d_expected_default;
             } DATA[] = {
-                {L_, 1, 0, 0, -1, -1, -1, {1, 1, 1, 1, 1, 1, 1, 1, 1},  9,  0},
-                {L_, 0, 1, 0, -1, -1, -1, {2, 2, 2, 2, 2, 2, 2, 2, 2},  3,  0},
-                {L_, 0, 0, 1, -1, -1, -1, {2, 2, 2, 2, 2, 2, 2, 2, 2},  9,  0},
-                {L_, 1, 1, 1,  0,  0,  0, {1, 1, 1, 1, 1, 1, 1, 1, 1},  0,  9},
+                {L_, 2, -1, -1, -1, {1, 1, 1, 1, 1, 1, 1, 1, 1},  9,  0},
+                {L_, 1, -1, -1, -1, {2, 2, 2, 2, 2, 2, 2, 2, 2},  9,  0},
+                {L_, 0, -1, -1, -1, {2, 2, 2, 2, 2, 2, 2, 2, 2},  3,  0},
+                {L_, 2,  0,  0,  0, {1, 1, 1, 1, 1, 1, 1, 1, 1},  0,  9},
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int  LINE      = DATA[ti].d_line;
-                const bool EACH      = DATA[ti].d_onEachAssertion;
-                const bool LOC       = DATA[ti].d_onNewLocation;
-                const bool STACK     = DATA[ti].d_onNewStackTrace;
+                const int  FREQ      = DATA[ti].d_frequency;
                 const int  MAX_A     = DATA[ti].d_maxAssertions;
                 const int  MAX_L     = DATA[ti].d_maxLocations;
                 const int  MAX_S     = DATA[ti].d_maxStackTracesPerLocation;
@@ -316,10 +307,9 @@ int main(int argc, char *argv[])
                 const int(&AL)[3][3] = DATA[ti].d_assertion_location;
 
                 if (veryVerbose) {
+                    const char *const when[] = { "STACK ", "LOC ", "EACH " };
                     cout << LINE << " "
-                         << &"!Each "    [EACH]
-                         << &"!NewLoc "  [LOC]
-                         << &"!NewStack "[STACK]
+                         << when[FREQ]
                          << "MAXA " << MAX_A << " "
                          << "MAXL " << MAX_L << " "
                          << "MAXS " << MAX_S << "\n"
@@ -348,12 +338,8 @@ int main(int argc, char *argv[])
                 ASSERT(1 == handledAssertionCount);
                 handledAssertionCount = 0;
 
-                Z.setOnEachAssertion(EACH);
-                ASSERT(EACH == Z.onEachAssertion());
-                Z.setOnNewLocation(LOC);
-                ASSERT(LOC == Z.onNewLocation());
-                Z.setOnNewStackTrace(STACK);
-                ASSERT(STACK == Z.onNewStackTrace());
+                Z.setReportingFrequency(Obj::ReportingFrequency(FREQ));
+                ASSERT(FREQ == Z.reportingFrequency());
                 Z.setMaxAssertions(MAX_A);
                 ASSERT(MAX_A == Z.maxAssertions());
                 Z.setMaxLocations(MAX_L);
