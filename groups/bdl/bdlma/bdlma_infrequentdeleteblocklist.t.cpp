@@ -244,7 +244,7 @@ bsls::Types::size_type roundUp(bsls::Types::size_type x,
     my_StrPool::~my_StrPool()
     {
         ASSERT(k_INITIAL_SIZE <= d_blockSize);
-        ASSERT(d_block_p || (0 <= d_cursor && d_cursor <=
+        ASSERT(!d_block_p || (0 <= d_cursor && d_cursor <=
                                static_cast<bsls::Types::IntPtr>(d_blockSize)));
     }
 

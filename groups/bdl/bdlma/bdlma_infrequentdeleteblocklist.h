@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 //  my_StrPool::~my_StrPool()
 //  {
 //      assert(k_INITIAL_SIZE <= d_blockSize);
-//      assert(d_block_p || (0 <= d_cursor && d_cursor <=
+//      assert(!d_block_p || (0 <= d_cursor && d_cursor <=
 //                             static_cast<bsls::Types::IntPtr>(d_blockSize)));
 //  }
 //
