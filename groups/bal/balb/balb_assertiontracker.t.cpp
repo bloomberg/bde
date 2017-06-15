@@ -53,6 +53,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] bool onEachAssertion() const;
 // [ 2] bool onNewLocation() const;
 // [ 2] bool onNewStackTrace() const;
+// [ 2] void logAssertion(...);
 // [ 3] void reportAssertion(...);
 // [ 3] void reportAllStackTraces() const;
 
@@ -120,22 +121,25 @@ void reporter(int, const char *, const char *, int, const bsl::vector<void *>&)
     ++handledAssertionCount;
 }
 
-void trigger1(Obj& t, const char *a, const char *f, int l)
+void trigger1(Obj& t, const char *a, const char *f, int l, ...)
     // Invoke the specified 't' with the specified 'a', 'f', and 'l';
 {
-    t(a, f, l);
+    volatile int n = l;
+    t(a, f, n);
 }
 
-void trigger2(Obj& t, const char *a, const char *f, int l)
+void trigger2(Obj& t, const char *a, const char *f, int l, ...)
     // Invoke 'trigger1' with the specified 't', 'a', 'f', and 'l';
 {
-    trigger1(t, a, f, l);
+    volatile int n = l;
+    trigger1(t, a, f, n);
 }
 
-void trigger3(Obj& t, const char *a, const char *f, int l)
+void trigger3(Obj& t, const char *a, const char *f, int l, ...)
     // Invoke 'trigger1' with the specified 't', 'a', 'f', and 'l';
 {
-    trigger1(t, a, f, l);
+    volatile int n = l;
+    trigger1(t, a, f, n);
 }
 
 // ============================================================================
@@ -275,6 +279,7 @@ int main(int argc, char *argv[])
         //   bool onEachAssertion() const;
         //   bool onNewLocation() const;
         //   bool onNewStackTrace() const;
+        //   void logAssertion(...);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nINVOCATION TEST"
@@ -382,6 +387,11 @@ int main(int argc, char *argv[])
                         EXP_H == handledAssertionCount);
                 ASSERTV(LINE, EXP_D, defaultAssertionCount,
                         EXP_D == defaultAssertionCount);
+
+                if (veryVeryVerbose) {
+                    Z.setReportingCallback(Obj::logAssertion);
+                    Z.reportAllStackTraces();
+                }
             }
         }
       } break;
