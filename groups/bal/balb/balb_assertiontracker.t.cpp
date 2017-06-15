@@ -38,15 +38,15 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 2] AssertionTracker(bsls::Assert::Handler, bslma::Allocator *);
 // [ 2] bslma::Allocator *allocator() const;
-// [ 2] void callback(Callback cb);
 // [ 2] void operator()(const char *text, const char *file, int line);
-// [ 2] void maxAssertions(int value);
-// [ 2] void maxLocations(int value);
-// [ 2] void maxStackTracesPerLocation(int value);
-// [ 2] void onEachAssertion(bool value);
-// [ 2] void onNewLocation(bool value);
-// [ 2] void onNewStackTrace(bool value);
-// [ 2] Callback callback() const;
+// [ 2] void setReportingCallback(ReportingCallback cb);
+// [ 2] void setMaxAssertions(int value);
+// [ 2] void setMaxLocations(int value);
+// [ 2] void setMaxStackTracesPerLocation(int value);
+// [ 2] void setOnEachAssertion(bool value);
+// [ 2] void setOnNewLocation(bool value);
+// [ 2] void setOnNewStackTrace(bool value);
+// [ 2] ReportingCallback reportingCallback() const;
 // [ 2] int maxAssertions() const;
 // [ 2] int maxLocations() const;
 // [ 2] int maxStackTracesPerLocation() const;
@@ -54,7 +54,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] bool onNewLocation() const;
 // [ 2] bool onNewStackTrace() const;
 // [ 3] void reportAssertion(...);
-// [ 3] void iterateAll() const;
+// [ 3] void reportAllStackTraces() const;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void reportAssertion(...);
-        //   void iterateAll() const;
+        //   void reportAllStackTraces() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nREPORTER TEST"
                              "\n=============\n";
@@ -183,16 +183,14 @@ int main(int argc, char *argv[])
 
         Obj Z(bsls::Assert::failureHandler(), &ta);
 
-        Z.callback(bdlf::BindUtil::bind(&Obj::reportAssertion,
-                                        &os,
-                                        bdlf::PlaceHolders::_1,
-                                        bdlf::PlaceHolders::_2,
-                                        bdlf::PlaceHolders::_3,
-                                        bdlf::PlaceHolders::_4,
-                                        bdlf::PlaceHolders::_5));
+        Z.setReportingCallback(bdlf::BindUtil::bind(&Obj::reportAssertion,
+                                                    &os,
+                                                    bdlf::PlaceHolders::_1,
+                                                    bdlf::PlaceHolders::_2,
+                                                    bdlf::PlaceHolders::_3,
+                                                    bdlf::PlaceHolders::_4,
+                                                    bdlf::PlaceHolders::_5));
 
-
-        os << "\n";
         for (int i = 0; i < 10; ++i) {
             Z("0 && \"assert 1\"", __FILE__, __LINE__);
             for (int j = 0; j < 10; ++j) {
@@ -200,37 +198,18 @@ int main(int argc, char *argv[])
             }
         }
 
-        bsl::string::size_type p1, p2;
-
         bsl::string s = os.str();
 
-        p1 = s.find(__FILE__);
-        ASSERTV(s, s.npos != p1);
-
-        p1 = s.find("\n1 ");
-        ASSERTV(s, s.npos != p1);
-        p2 = s.find("0 && \"assert 1\"", p1);
-        ASSERTV(s, s.npos != p2);
-
-        p1 = s.find("\n1 ", p2);
-        ASSERTV(s, s.npos != p1);
-        p2 = s.find("0 && \"assert 2\"", p1);
-        ASSERTV(s, s.npos != p2);
+        ASSERTV(s, s.npos != s.find(__FILE__));
+        ASSERTV(s, s.npos != s.find(":1:0 && \"assert 1\":"));
+        ASSERTV(s, s.npos != s.find(":1:0 && \"assert 2\":"));
 
         os.str("");
-        os << "\n";
-        Z.iterateAll();
+        Z.reportAllStackTraces();
         s = os.str();
 
-        p1 = s.find("\n10 ");
-        ASSERTV(s, s.npos != p1);
-        p2 = s.find("0 && \"assert 1\"", p1);
-        ASSERTV(s, s.npos != p2);
-
-        p1 = s.find("\n100 ");
-        ASSERTV(s, s.npos != p1);
-        p2 = s.find("0 && \"assert 2\"", p1);
-        ASSERTV(s, s.npos != p2);
+        ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"));
+        ASSERTV(s, s.npos != s.find(":100:0 && \"assert 2\":"));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -281,15 +260,15 @@ int main(int argc, char *argv[])
         // Testing:
         //   AssertionTracker(bsls::Assert::Handler, bslma::Allocator *);
         //   bslma::Allocator *allocator() const;
-        //   void callback(Callback cb);
         //   void operator()(const char *text, const char *file, int line);
-        //   void maxAssertions(int value);
-        //   void maxLocations(int value);
-        //   void maxStackTracesPerLocation(int value);
-        //   void onEachAssertion(bool value);
-        //   void onNewLocation(bool value);
-        //   void onNewStackTrace(bool value);
-        //   Callback callback() const;
+        //   void setReportingCallback(ReportingCallback cb);
+        //   void setMaxAssertions(int value);
+        //   void setMaxLocations(int value);
+        //   void setMaxStackTracesPerLocation(int value);
+        //   void setOnEachAssertion(bool value);
+        //   void setOnNewLocation(bool value);
+        //   void setOnNewStackTrace(bool value);
+        //   ReportingCallback reportingCallback() const;
         //   int maxAssertions() const;
         //   int maxLocations() const;
         //   int maxStackTracesPerLocation() const;
@@ -356,25 +335,25 @@ int main(int argc, char *argv[])
 
                 Obj Z(defaultHandler, &ta);
                 ASSERT(&ta == Z.allocator());
-                Z.callback(reporter);
+                Z.setReportingCallback(reporter);
                 handledAssertionCount = 0;
                 defaultAssertionCount = 0;
 
-                Z.callback()(0, 0, 0, 0, bsl::vector<void *>());
+                Z.reportingCallback()(0, 0, 0, 0, bsl::vector<void *>());
                 ASSERT(1 == handledAssertionCount);
                 handledAssertionCount = 0;
 
-                Z.onEachAssertion(EACH);
+                Z.setOnEachAssertion(EACH);
                 ASSERT(EACH == Z.onEachAssertion());
-                Z.onNewLocation(LOC);
+                Z.setOnNewLocation(LOC);
                 ASSERT(LOC == Z.onNewLocation());
-                Z.onNewStackTrace(STACK);
+                Z.setOnNewStackTrace(STACK);
                 ASSERT(STACK == Z.onNewStackTrace());
-                Z.maxAssertions(MAX_A);
+                Z.setMaxAssertions(MAX_A);
                 ASSERT(MAX_A == Z.maxAssertions());
-                Z.maxLocations(MAX_L);
+                Z.setMaxLocations(MAX_L);
                 ASSERT(MAX_L == Z.maxLocations());
-                Z.maxStackTracesPerLocation(MAX_S);
+                Z.setMaxStackTracesPerLocation(MAX_S);
                 ASSERT(MAX_S == Z.maxStackTracesPerLocation());
 
                 for (int i = 0; i < AL[0][0]; ++i)
@@ -430,7 +409,7 @@ int main(int argc, char *argv[])
                     Z("assertion 2", __FILE__, __LINE__);
                 }
             }
-            Z.iterateAll();
+            Z.reportAllStackTraces();
         }
       } break;
       default: {
