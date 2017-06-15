@@ -19,6 +19,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace balb {
@@ -65,6 +66,8 @@ bsl::string formatAssertion(int                         count,
                             const char                 *file,
                             int                         line,
                             const bsl::vector<void *>&  stack)
+    // Return a string containing a printable version of the specified 'count',
+    // 'text', 'file', 'line', and 'stack'.
 {
     bsl::ostringstream out;
     out << file << ":" << line << ":" << count << ":" << text << ":[";
@@ -90,9 +93,9 @@ void AssertionTracker::logAssertion(int                         count,
                                     int                         line,
                                     const bsl::vector<void *>&  stack)
 {
-    char buffer[1024];
+    char                               buffer[1024];
     bdlma::BufferedSequentialAllocator allocator(buffer, sizeof(buffer));
-    bslma::DefaultAllocatorGuard guard(&allocator);
+    bslma::DefaultAllocatorGuard       guard(&allocator);
     BSLS_LOG_FATAL("%s",
                    formatAssertion(count, text, file, line, stack).data());
 }
@@ -104,9 +107,9 @@ void AssertionTracker::reportAssertion(bsl::ostream               *out,
                                        int                         line,
                                        const bsl::vector<void *>&  stack)
 {
-    char buffer[1024];
+    char                               buffer[1024];
     bdlma::BufferedSequentialAllocator allocator(buffer, sizeof(buffer));
-    bslma::DefaultAllocatorGuard guard(&allocator);
+    bslma::DefaultAllocatorGuard       guard(&allocator);
     *out << formatAssertion(count, text, file, line, stack);
 }
 
@@ -214,12 +217,6 @@ void AssertionTracker::operator()(const char *text, const char *file, int line)
     }
 }
 
-void AssertionTracker::setReportingCallback(ReportingCallback cb)
-{
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
-    d_reportingCallback = cb;
-}
-
 void AssertionTracker::setMaxAssertions(int value)
 {
     d_maxAssertions = bsl::max(value, -1);
@@ -250,40 +247,16 @@ void AssertionTracker::setOnNewStackTrace(bool value)
     d_onNewStackTrace = value;
 }
 
+void AssertionTracker::setReportingCallback(ReportingCallback cb)
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    d_reportingCallback = cb;
+}
 
 // ACCESSORS
 bslma::Allocator *AssertionTracker::allocator() const
 {
     return d_allocator_p;
-}
-
-AssertionTracker::ReportingCallback AssertionTracker::reportingCallback() const
-{
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
-    return d_reportingCallback;
-}
-
-void AssertionTracker::reportAllStackTraces() const
-{
-    if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
-        return;                                                       // RETURN
-    }
-    ThreadLocalDataGuard           recursionGuard(d_recursionCheck);
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
-
-    TrackingData::const_iterator tb = d_trackingData.begin();
-    TrackingData::const_iterator te = d_trackingData.end();
-    for (; tb != te; ++tb) {
-        AssertionCounts::const_iterator cb = tb->second.begin();
-        AssertionCounts::const_iterator ce = tb->second.end();
-        for (; cb != ce; ++cb) {
-            d_reportingCallback(cb->second,
-                                tb->first.first,
-                                tb->first.second.first,
-                                tb->first.second.second,
-                                cb->first);
-        }
-    }
 }
 
 int AssertionTracker::maxAssertions() const
@@ -314,6 +287,35 @@ bool AssertionTracker::onNewLocation() const
 bool AssertionTracker::onNewStackTrace() const
 {
     return d_onNewStackTrace;
+}
+
+void AssertionTracker::reportAllStackTraces() const
+{
+    if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
+        return;                                                       // RETURN
+    }
+    ThreadLocalDataGuard           recursionGuard(d_recursionCheck);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+
+    TrackingData::const_iterator tb = d_trackingData.begin();
+    TrackingData::const_iterator te = d_trackingData.end();
+    for (; tb != te; ++tb) {
+        AssertionCounts::const_iterator cb = tb->second.begin();
+        AssertionCounts::const_iterator ce = tb->second.end();
+        for (; cb != ce; ++cb) {
+            d_reportingCallback(cb->second,
+                                tb->first.first,
+                                tb->first.second.first,
+                                tb->first.second.second,
+                                cb->first);
+        }
+    }
+}
+
+AssertionTracker::ReportingCallback AssertionTracker::reportingCallback() const
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    return d_reportingCallback;
 }
 
 }  // close package namespace
