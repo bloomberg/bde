@@ -85,36 +85,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef balb::AssertionTrackerSingleton<balb::AssertionTracker> Obj;
 
-int id(int i)
-    // Return the specified 'i'.
-{
-    return i;
-}
-
-void trigger1()
-    // Invoke assertion type 1.
-{
-    BSLS_ASSERT_ASSERT(0 && "assert 1");
-}
-
-void trigger2()
-    // Invoke assertion type 2.
-{
-    BSLS_ASSERT_ASSERT(0 && "assert 2");
-}
-
-void trigger3()
-    // Report assertion type 3.
-{
-    Obj::failTracker("0 && \"assert 3\"", __FILE__, __LINE__);
-}
-
-// Try to scotch inlining and loop unrolling
-int  (*volatile id_p)(int)    = id;
-void (*volatile trigger1_p)() = trigger1;
-void (*volatile trigger2_p)() = trigger2;
-void (*volatile trigger3_p)() = trigger3;
-
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -254,32 +224,20 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_3,
                                      bdlf::PlaceHolders::_4,
                                      bdlf::PlaceHolders::_5));
-            os << "\n";
-            volatile int i, j;
-            i = id_p(0);
-            do {
-                if (veryVeryVerbose) {
-                    P_(i) Q("assert 1")
+
+            for (int i = 0; i < 10; ++i) {
+                if (veryVeryVerbose) { P_(i) Q("assert 1") }
+                BSLS_ASSERT_ASSERT(0 && "assert 1");
+                for (int j = 0; j < 10; ++j) {
+                    if (veryVeryVerbose) { P_(i) P_(j) Q("assert 2") }
+                    BSLS_ASSERT_ASSERT(0 && "assert 2");
                 }
-                trigger1_p();
-                j = id_p(0);
-                do {
-                    if (veryVeryVerbose) {
-                        P_(i) P_(j) Q("assert 2")
-                    }
-                    trigger2_p();
-                    j = id_p(j) + id_p(1);
-                } while (id_p(j) < id_p(10));
-                i = id_p(i) + id_p(1);
-            } while (id_p(i) < id_p(10));
-            i = id_p(0);
-            do {
-                if (veryVeryVerbose) {
-                    P_(i) Q("assert 3")
-                }
-                trigger3_p();
-                i = id_p(i) + id_p(1);
-            } while (id_p(i) < id_p(2));
+            }
+
+            for (int i = 0; i < 2; ++i) {
+                if (veryVeryVerbose) { P_(i) Q("assert 3") }
+                Obj::failTracker("0 && \"assert 3\"", __FILE__, __LINE__);
+            }
 
             bsl::string s = os.str();
 
