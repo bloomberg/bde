@@ -100,6 +100,18 @@ struct Atomic_TypeTraits<AtomicOperations_POWERPC64_AIX_XLC>
               __attribute__((__aligned__(sizeof(Types::Int64))));
     };
 
+    struct Uint
+    {
+        volatile unsigned int d_value
+              __attribute__((__aligned__(sizeof(unsigned int))));
+    };
+
+    struct Uint64
+    {
+        volatile Types::Uint64 d_value
+              __attribute__((__aligned__(sizeof(Types::Uint64))));
+    };
+
     struct Pointer
     {
         void * volatile d_value __attribute__((__aligned__(sizeof(void *))));

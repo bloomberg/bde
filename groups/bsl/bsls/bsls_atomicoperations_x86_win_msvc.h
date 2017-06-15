@@ -74,6 +74,18 @@ struct Atomic_TypeTraits<AtomicOperations_X86_WIN_MSVC>
         volatile Types::Int64 d_value;
     };
 
+    struct Uint
+    {
+        __declspec(align(4))
+        volatile unsigned int d_value;
+    };
+
+    struct Uint64
+    {
+        __declspec(align(8))
+        volatile Types::Uint64 d_value;
+    };
+
     struct Pointer
     {
         __declspec(align(4))

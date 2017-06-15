@@ -50,9 +50,19 @@ struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCIntrinsics>
           int d_value;
     };
 
+    struct __attribute__((__aligned__(sizeof(unsigned int)))) Uint
+    {
+          unsigned int d_value;
+    };
+
     struct __attribute__((__aligned__(sizeof(Types::Int64)))) Int64
     {
           Types::Int64 d_value;
+    };
+
+    struct __attribute__((__aligned__(sizeof(Types::Uint64)))) Uint64
+    {
+          Types::Uint64 d_value;
     };
 
     struct __attribute__((__aligned__(sizeof(void *)))) Pointer

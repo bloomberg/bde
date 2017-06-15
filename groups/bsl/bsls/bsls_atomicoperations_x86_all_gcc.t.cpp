@@ -227,8 +227,10 @@ void test_atomics(bsls::Types::Int64 iterations) {
         totalReadTime += readerArgs[i].d_runtimeMs;
     }
     static const double MS_PER_SEC = 1000;
-    double readPerSec = (double)totalReadIter / totalReadTime * MS_PER_SEC;
-    double writePerSec = (double)iterations / args.d_runtimeMs * MS_PER_SEC;
+    double readPerSec = (double)totalReadIter /
+                        (double)totalReadTime * MS_PER_SEC;
+    double writePerSec = (double)iterations /
+                         (double)args.d_runtimeMs * MS_PER_SEC;
 
     printf(" %f" " / %f\n", readPerSec, writePerSec);
 

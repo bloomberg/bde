@@ -109,6 +109,28 @@ struct Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC>
 #endif
     };
 
+    struct Uint
+    {
+#ifdef BSLS_PLATFORM_CMP_GNU
+        volatile unsigned int d_value
+            __attribute__((__aligned__(sizeof(unsigned int))));
+#else
+#       pragma align 4 (d_value)
+        volatile unsigned int d_value;
+#endif
+    };
+
+    struct Uint64
+    {
+#ifdef BSLS_PLATFORM_CMP_GNU
+        volatile Types::Uint64 d_value
+                       __attribute__((__aligned__(sizeof(Types::Uint64))));
+#else
+#       pragma align 8 (d_value)
+        volatile Types::Uint64 d_value;
+#endif
+    };
+
     struct Pointer
     {
 #ifdef BSLS_PLATFORM_CMP_GNU

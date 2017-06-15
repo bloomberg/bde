@@ -182,7 +182,7 @@ static int            usageExampleThreadCount = 0;
 static int            usageExampleMaxThreads = 0;
 static bsls::SpinLock usageExampleThreadLock = BSLS_SPINLOCK_UNLOCKED;
 
-extern "C" void *usageExampleFn(void *arg) {
+extern "C" void *usageExampleFn(void *) {
     // Next, by creating a 'MaxConcurrencyCounter' object, each thread
     // entering the block of code uses the 'SpinLock' to synchronize
     // manipulation of the static count variables:
