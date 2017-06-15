@@ -105,6 +105,12 @@ class AssertionTracker {
         void(int, const char *, const char *, int, const bsl::vector<void *>&)>
         ReportingCallback;
 
+    enum ReportingFrequency {
+        e_onNewLocation,    // Report once per distinct file/line pair
+        e_onNewStackTrace,  // Report once per distinct stack trace
+        e_onEachAssertion   // Report every assertion occurrence
+    };
+
   private:
     // PRIVATE DATA
     bsls::Assert::Handler   d_fallbackHandler;  // handler when limits exceeded
@@ -118,9 +124,7 @@ class AssertionTracker {
                                                 // prevent recursive invocation
     mutable bslmt::Mutex    d_mutex;            // mutual exclusion lock
     ReportingCallback       d_reportingCallback;
-    bsls::AtomicBool        d_onEachAssertion;
-    bsls::AtomicBool        d_onNewLocation;
-    bsls::AtomicBool        d_onNewStackTrace;
+    bsls::AtomicInt         d_reportingFrequency;
 
     // PRIVATE CREATORS
     AssertionTracker(const AssertionTracker&);             // = delete
@@ -188,17 +192,18 @@ class AssertionTracker {
         // there is an assertion failure beyond the limit, the assertion will
         // be passed to the saved handler.
 
-    void setOnEachAssertion(bool value);
-        // Set whether the callback is invoked on each assertion occurrence to
-        // the specified 'value'.
-
-    void setOnNewLocation(bool value);
-        // Set whether the callback is invoked on each new assertion location
-        // to the specified 'value'.
-
-    void setOnNewStackTrace(bool value);
-        // Set whether the callback is invoked on each new assertion stack
-        // trace to the specified 'value'.
+    void setReportingFrequency(ReportingFrequency frequency);
+        // Set the frequency with which assertions are reported to the
+        // specified 'frequency'.  If 'frequency' is 'e_onNewLocation', an
+        // assertion will be reported if it is the first time that file/line
+        // assertion location has been seen.  If 'frequency' is
+        // 'e_onNewStackTrace', an assertion will be reported if it is the
+        // first time a particular stack trace has been seen (that is, an
+        // assertion at a particular file/line location may have multiple stack
+        // traces because the function in which it appears is called from a
+        // variety of call paths).  Finally, if 'frequency' is
+        // 'e_onEachAssertion', every assertion occurrence will be reported.
+        // This reporting frequency is initially 'e_onNewStackTrace'.
 
     void setReportingCallback(ReportingCallback cb);
         // Set the callback function invoked when an assertion occurs to the
@@ -223,8 +228,8 @@ class AssertionTracker {
         // Return the maximum number of stack traces for a given location that
         // this object will handle or -1 if the number is unlimited.
 
-    bool onEachAssertion() const;
-        // Return whether the callback is invoked on each assertion occurrence.
+    ReportingFrequency reportingFrequency() const;
+        // Return the frequency with which assertions are reported.
 
     bool onNewLocation() const;
         // Return whether the callback is invoked on each new assertion
