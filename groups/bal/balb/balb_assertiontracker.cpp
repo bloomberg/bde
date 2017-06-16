@@ -21,6 +21,10 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
+// MSVC optimizations (like omitting frame pointers) can interfere with the
+// gathering of stack traces.  With optimization enabled, the test driver is
+// observed to fail some of its stack-trace based tests unless this pragma is
+// specified.
 #ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma optimize("gsty", off)
 #endif
