@@ -2567,12 +2567,17 @@ void ChannelPool::init()
     // explicitly requested those metrics (i.e.
     // 'd_config.requireTimeMetrics() == false').
 
-    bsls::AtomicOperations::initInt(&d_capacity, 0);
+    d_capacity = 0;
 
     d_metricsFunctor = bdlf::BindUtil::bind(&ChannelPool::metricsCb, this);
 
     int maxThread = d_config.maxThreads();
     BSLS_ASSERT(0 < maxThread);
+
+    // 'init' is only called from the constructor, so the channel pool should
+    // not yet be started.
+
+    BSLS_ASSERT(false == d_startFlag);
 
     // Statically allocate all the requested managers from the get-go.  This
     // makes dynamic allocation code in allocateEventManager useless (the test
@@ -2585,14 +2590,7 @@ void ChannelPool::init()
                 new (*d_allocator_p) TcpTimerEventManager(d_collectTimeMetrics,
                                                           d_allocator_p);
 
-        if (d_startFlag) {
-            bslmt::ThreadAttributes attr;
-            attr.setStackSize(d_config.threadStackSize());
-            manager->enable(attr);
-        }
-        else {
-            manager->disable();
-        }
+        manager->disable();
         d_managers.push_back(manager);
     }
 
@@ -3509,7 +3507,7 @@ void ChannelPool::metricsCb()
     BSLS_ASSERT(0 <= d);
     BSLS_ASSERT(100 >= d);
 
-    bsls::AtomicOperations::setInt(&d_capacity, (int)d);
+    d_capacity.storeRelaxed(static_cast<int>(d));
 
     d_metricsTimerId.makeValue(
         d_managers[0]->registerTimer(
@@ -3693,13 +3691,6 @@ int ChannelPool::connectImp(int                    clientId,
 {
     BSLS_ASSERT(bsls::TimeInterval(0) < connectOptions.timeout()
              || 1 == connectOptions.numAttempts());
-
-    if (!d_startFlag) {
-        if (platformErrorCode) {
-            *platformErrorCode = 0;
-        }
-        return e_NOT_RUNNING;                                         // RETURN
-    }
 
     if (0 != connectOptions.socketPtr()
      && 0 != (*connectOptions.socketPtr())->setBlockingMode(
@@ -4036,20 +4027,22 @@ int ChannelPool::start()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
 
-    int numManagers = static_cast<int>(d_managers.size());
-    for (int i = 0; i < numManagers; ++i) {
-        bslmt::ThreadAttributes attr;
-        attr.setStackSize(d_config.threadStackSize());
-        int ret = d_managers[i]->enable(attr);
-        if (0 != ret) {
-           while(--i >= 0) {
-               int rc = d_managers[i]->disable();
-               (void)rc; BSLS_ASSERT(0 == rc);
-           }
-           return ret;                                                // RETURN
+    if (!d_startFlag) {
+        int numManagers = static_cast<int>(d_managers.size());
+        for (int i = 0; i < numManagers; ++i) {
+            bslmt::ThreadAttributes attr;
+            attr.setStackSize(d_config.threadStackSize());
+            int ret = d_managers[i]->enable(attr);
+            if (0 != ret) {
+                while(--i >= 0) {
+                    int rc = d_managers[i]->disable();
+                    (void)rc; BSLS_ASSERT(0 == rc);
+                }
+                return ret;                                           // RETURN
+            }
         }
+        d_startFlag = 1;
     }
-    d_startFlag = 1;
     return 0;
 }
 
@@ -4057,20 +4050,18 @@ int ChannelPool::stop()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
 
-    if (!isRunning()) {
-        return 0;                                                     // RETURN
-    }
-
-    int numManagers = static_cast<int>(d_managers.size());
-    for (int i = 0; i < numManagers; ++i) {
-        if (d_managers[i]->disable()) {
-           while(--i >= 0) {
-               bslmt::ThreadAttributes attr;
-               attr.setStackSize(d_config.threadStackSize());
-               int rc = d_managers[i]->enable(attr);
-               (void)rc; BSLS_ASSERT(0 == rc);
-           }
-           return -1;                                                 // RETURN
+    if (d_startFlag) {
+        int numManagers = static_cast<int>(d_managers.size());
+        for (int i = 0; i < numManagers; ++i) {
+            if (d_managers[i]->disable()) {
+                while(--i >= 0) {
+                    bslmt::ThreadAttributes attr;
+                    attr.setStackSize(d_config.threadStackSize());
+                    int rc = d_managers[i]->enable(attr);
+                    (void)rc; BSLS_ASSERT(0 == rc);
+                }
+                return -1;                                            // RETURN
+            }
         }
     }
     d_startFlag = 0;

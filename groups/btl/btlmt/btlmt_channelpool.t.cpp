@@ -137,6 +137,7 @@ using namespace bdlf::PlaceHolders;
 // [13]  double btlmt::ChannelPool::reportWeightedAverageReset();
 // [28]  int btlmt::ChannelPool::busyMetrics() const;
 // [14]  int btlmt::ChannelPool::getChannelStatistics*(...);
+// [40]  bool btlmt::ChannelPool::isRunning() const;
 // [14]  int btlmt::ChannelPool::numBytes*(...);
 // [14]  int btlmt::ChannelPool::totalBytes*(...);
 // [  ]  const btlso::IPv4Address *ChannelPool::serverAddress(...) const;
@@ -166,7 +167,7 @@ using namespace bdlf::PlaceHolders;
 // [28] TESTING: 'busyMetrics' and time metrics collection.
 // [28] CONCERN: Event Manager Allocation
 // [30] Implementing a QueueProcessor
-// [37] USAGE EXAMPLE
+// [41] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -2826,10 +2827,10 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(d_coutMutex);
-        bsl::cout << "Channel state callback called with"
+        MTCOUT << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
-                  << " State: " << state << bsl::endl;
+                  << " State: " << state << MTENDL;
     }
 
     switch (state) {
@@ -2872,9 +2873,9 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     if (citer == d_channelMap.end()) {
         if (!createNew) {
             bslmt::LockGuard<bslmt::Mutex> guard(d_coutMutex);
-            bsl::cout << "Channel up callback called with"
+            MTCOUT << "Channel up callback called with"
                       << " Channel Id: " << channelId
-                      << " which does not exist" << bsl::endl;
+                      << " which does not exist" << MTENDL;
             return 0;                                                 // RETURN
         }
         else {
@@ -2885,9 +2886,9 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     else {
         if (createNew) {
             bslmt::LockGuard<bslmt::Mutex> guard(d_coutMutex);
-            bsl::cout << "Channel up callback called with"
+            MTCOUT << "Channel up callback called with"
                       << " Channel Id: " << channelId
-                      << " which is already up" << bsl::endl;
+                      << " which is already up" << MTENDL;
             return 0;                                                 // RETURN
         }
         else {
@@ -2902,9 +2903,9 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     if (iter == d_dataMap.end()) {
         if (!createNew) {
             bslmt::LockGuard<bslmt::Mutex> guard(d_coutMutex);
-            bsl::cout << "Channel up callback called with"
+            MTCOUT << "Channel up callback called with"
                       << " Channel Id: " << channelId
-                      << " which does not exist" << bsl::endl;
+                      << " which does not exist" << MTENDL;
             return 0;                                                 // RETURN
         }
         else {
@@ -2915,9 +2916,9 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     else {
         if (createNew) {
             bslmt::LockGuard<bslmt::Mutex> guard(d_coutMutex);
-            bsl::cout << "Channel up callback called with"
+            MTCOUT << "Channel up callback called with"
                       << " Channel Id: " << channelId
-                      << " which is already up" << bsl::endl;
+                      << " which is already up" << MTENDL;
             return 0;                                                 // RETURN
         }
         else {
@@ -3111,7 +3112,6 @@ void TestData::run()
     offset += sizeof(int);
 
     const int TOTAL_SIZE = DATA_SIZE + offset;
-
     bsl::memcpy(data + offset, d_expData.data(), DATA_SIZE);
 
     int incr = 1, written = 0;
@@ -3120,7 +3120,7 @@ void TestData::run()
         LOOP2_ASSERT(d_threadIntId, incr,
                      incr == d_socket_p->write(data + offset, incr));
         written += incr;
-        offset  += incr;
+        offset += incr;
         if (written + incr + 1 > TOTAL_SIZE) {
             incr = TOTAL_SIZE - written;
         }
@@ -8103,8 +8103,11 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase40();
+    static void testCase41();
         // Test usage example.
+
+    static void testCase40();
+        // Test the 'isRunning' accessor.
 
     static void testCase39();
         // Ensuring that enqueued write data is flushed on shutdown.
@@ -8241,7 +8244,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase40()
+void TestDriver::testCase41()
 {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -8276,6 +8279,61 @@ void TestDriver::testCase40()
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
+}
+
+void TestDriver::testCase40()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'isRunning'
+    //
+    // Concerns:
+    //: 1 'isRunning' returns 'false' for a channel pool object on which
+    //:   'start' has either never been called or has not been called following
+    //:   a 'stop' call.
+    //:
+    //: 2 'isRunning' returns 'true' for a channel pool object on which
+    //:   'start' has been called without a subsequent 'stop' call.
+    //
+    // Plan:
+    //: 1 Create a channel pool object. Confirm that 'isRunning' returns
+    //:   'false'.
+    //:
+    //: 2 Call 'start' on that object and confirm that 'isRunning' returns
+    //:   'true'.
+    //:
+    //: 3 Call 'start' and 'stop' alternately and confirm that 'isRunning'
+    //:   returns the correct value.
+    //
+    // Testing:
+    //   bool isRunning() const;
+    // --------------------------------------------------------------------
+
+    if (verbose) cout << "TESTING 'isRunning'" << endl
+                      << "===================" << endl;
+
+    btlmt::ChannelPoolConfiguration config;
+    config.setMaxThreads(3);
+
+    btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
+    btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
+    btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
+
+    btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config);
+    const btlmt::ChannelPool& X = mX;
+
+    ASSERT(false == X.isRunning());
+
+    mX.start();
+    ASSERT(true == X.isRunning());
+
+    mX.stop();
+    ASSERT(false == X.isRunning());
+
+    mX.start();
+    ASSERT(true == X.isRunning());
+
+    mX.stopAndRemoveAllChannels();
+    ASSERT(false == X.isRunning());
 }
 
 void TestDriver::testCase39()
@@ -10177,8 +10235,8 @@ void TestDriver::testCase28()
             // Cannot be changed on Linux and not specified on Sun
             {   L_,   "C0",         0 },
             {   L_,   "C1",         0 },
-#ifndef BSLS_PLATFORM_OS_DARWIN
-            // Darwin assigns a maximum value of 2K
+#if !defined(BSLS_PLATFORM_OS_DARWIN)
+            // Darwin does not allow setting this over 2K
             {   L_,   "C2",         0 },
 #endif
 #else
@@ -10193,7 +10251,8 @@ void TestDriver::testCase28()
             {   L_,   "D0",        -1 },
             {   L_,   "D1",        -1 },
             {   L_,   "D2",        -1 },
-#elif !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_DARWIN)
+#elif !defined(BSLS_PLATFORM_OS_AIX)            \
+   && !defined(BSLS_PLATFORM_OS_DARWIN)
             {   L_,   "D0",         0 },
             {   L_,   "D1",         0 },
             {   L_,   "D2",         0 },
@@ -11017,56 +11076,54 @@ void TestDriver::testCase26()
         typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> IPv4Factory;
 
         {
-            for (int type = 0; type < 2; ++type) {
-                bslmt::Mutex  coutMutex;
-                bslma::TestAllocator ta(veryVeryVerbose);
-                ReadServer server(&coutMutex, 0, &ta);
-                ASSERT(0 == server.start());
-                const int PORT = server.portNumber();
-                btlso::IPv4Address address(getLocalAddress());
-                address.setPortNumber(PORT);
+            bslmt::Mutex         coutMutex;
+            bslma::TestAllocator ta(veryVeryVerbose);
+            ReadServer           server(&coutMutex, 0, &ta);
+            ASSERT(0 == server.start());
+            const int PORT = server.portNumber();
+            btlso::IPv4Address address(getLocalAddress());
+            address.setPortNumber(PORT);
 
-                IPv4Factory               factory;
-                bslmt::ThreadUtil::Handle handles[NUM_DATA];
-                bsl::vector<TestData>     tests(NUM_DATA);
-                bslmt::Barrier            barrier(NUM_DATA);
+            IPv4Factory               factory;
+            bslmt::ThreadUtil::Handle handles[NUM_DATA];
+            bsl::vector<TestData>     tests(NUM_DATA);
+            bslmt::Barrier            barrier(NUM_DATA);
 
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    const string& TEXT = DATA[i].d_text;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const string& TEXT = DATA[i].d_text;
+                MTCOUT << "i: " << TEXT.size() << MTENDL;
+                TestData& testData      = tests[i];
+                testData.d_threadIntId  = i;
+                testData.d_expData      = TEXT;
+                testData.d_address      = address;
+                testData.d_socket_p     = factory.allocate();
+                testData.d_barrier_p    = &barrier;
 
-                    TestData& testData      = tests[i];
-                    testData.d_threadIntId  = i;
-                    testData.d_expData      = TEXT;
-                    testData.d_address      = address;
-                    testData.d_socket_p     = factory.allocate();
-                    testData.d_barrier_p    = &barrier;
-
-                    bslmt::ThreadUtil::create(&handles[i],
-                                              threadFunction,
-                                              &testData);
-                }
-
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
-                }
-
-                while (NUM_DATA != server.numCompletedMsgs()) {
-                    bslmt::ThreadUtil::yield();
-                }
-
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    DataReader        *READER = server.dataReader(i);
-                    const int          MSG_ID = READER->msgId();
-                    const string       MSG    = READER->data();
-
-                    const int          LINE      = DATA[MSG_ID].d_line;
-                    const string       EXP_MSG   = DATA[MSG_ID].d_text;
-
-                    LOOP3_ASSERT(LINE, MSG, EXP_MSG, MSG == EXP_MSG);
-                }
-
-                ASSERT(0 == server.stop());
+                bslmt::ThreadUtil::create(&handles[i],
+                                            threadFunction,
+                                            &testData);
             }
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
+            }
+
+            while (NUM_DATA != server.numCompletedMsgs()) {
+                bslmt::ThreadUtil::yield();
+            }
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                DataReader        *READER = server.dataReader(i);
+                const int          MSG_ID = READER->msgId();
+                const string       MSG    = READER->data();
+
+                const int          LINE      = DATA[MSG_ID].d_line;
+                const string       EXP_MSG   = DATA[MSG_ID].d_text;
+
+                LOOP3_ASSERT(LINE, MSG, EXP_MSG, MSG == EXP_MSG);
+            }
+
+            ASSERT(0 == server.stop());
         }
 }
 
@@ -12793,7 +12850,6 @@ void TestDriver::testCase18()
 
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
-
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_DARWIN)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
@@ -12826,14 +12882,14 @@ void TestDriver::testCase18()
                 cout << "Reset FD limit to max available" << endl;
 
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
-#ifdef BSLS_PLATFORM_OS_DARWIN
+#if defined(BSLS_PLATFORM_OS_DARWIN)
             rlim.rlim_cur = 100;
 #else
             rlim.rlim_cur = rlim.rlim_max;
 #endif
-            ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
+            int r = setrlimit(RLIMIT_NOFILE, &rlim);
+            LOOP2_ASSERT(r, errno, 0 == r);
             if (veryVerbose) { P(rlim.rlim_cur); }
-
             acceptErrors = 0;
 
             if (verbose)
@@ -15709,7 +15765,7 @@ void TestDriver::testCase4()
             // One server -- system specified port numbers.
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-            ASSERT(0 == mX.stop());
+            ASSERT(0 == mX.start());
 
             btlmt::ListenOptions options;
             options.setServerAddress(btlso::IPv4Address());
@@ -15732,6 +15788,8 @@ void TestDriver::testCase4()
             LOOP_ASSERT(retCode, DUPLICATE_ID == retCode);
             retCode = mX.close(0);
             LOOP_ASSERT(retCode, 0 == retCode);
+
+            ASSERT(0 == mX.stop());
         }
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
@@ -15741,7 +15799,7 @@ void TestDriver::testCase4()
             // Two servers -- system specified port numbers.
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-            ASSERT(0 == mX.stop());
+            ASSERT(0 == mX.start());
 
             btlmt::ListenOptions options;
             options.setServerAddress(btlso::IPv4Address());
@@ -15762,6 +15820,8 @@ void TestDriver::testCase4()
             LOOP_ASSERT(retCode, 0 == retCode);
             retCode = mX.close(0);
             LOOP_ASSERT(retCode, 0 == retCode);
+
+            ASSERT(0 == mX.stop());
         }
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
@@ -15771,7 +15831,7 @@ void TestDriver::testCase4()
             // Two servers - duplicate IDs.
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config);
-            ASSERT(0 == mX.stop());
+            ASSERT(0 == mX.start());
 
             btlmt::ListenOptions options;
             options.setServerAddress(btlso::IPv4Address());
@@ -15801,6 +15861,8 @@ void TestDriver::testCase4()
             LOOP_ASSERT(retCode, 1 == retCode);
             retCode = mX.close(0);
             LOOP_ASSERT(retCode, 0 == retCode);
+
+            ASSERT(0 == mX.stop());
         }
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
@@ -16013,8 +16075,8 @@ void TestDriver::testCase3()
                     options.setNumAttempts(j + 1);
 
                     LOOP2_ASSERT(i, j,
-                                 -1 == mX.connect(DATA[i].d_sourceId,
-                                                  options));
+                                 0 == mX.connect(DATA[i].d_sourceId,
+                                                 options));
                     LOOP2_ASSERT(i, j, 0 == isInvoked);
                 }
             }
@@ -16103,6 +16165,7 @@ void TestDriver::testCase1()
             btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
+            ASSERT(0 == mX.start());
 
             enum {
                 BACKLOG = 10
@@ -16121,6 +16184,8 @@ void TestDriver::testCase1()
                 LOOP_ASSERT(i, 0 == s);
                 btlso::IPv4Address result = getServerLocalAddress(&mX, i);
             }
+
+            ASSERT(0 == mX.stop());
 
             for (int i = 0; i < 10; ++i) {
                 LOOP_ASSERT(i, 0 == mX.start());
@@ -16541,6 +16606,9 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(41);
+      CASE(40);
+      CASE(39);
       CASE(38);
       CASE(37);
       CASE(36);

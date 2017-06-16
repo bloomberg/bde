@@ -894,12 +894,6 @@ int SessionPool::connect(
 {
     BSLS_ASSERT(d_channelPool_p);
 
-    if (0 == d_channelPool_p->numThreads()) {
-        // Going down.
-
-        return -1;                                                    // RETURN
-    }
-
     int handleId = makeConnectHandle(callback,
                                      options.numAttempts(),
                                      userData,
