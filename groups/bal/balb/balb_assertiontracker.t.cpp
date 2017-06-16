@@ -103,6 +103,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef balb::AssertionTracker Obj;
 
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma optimize("gsty", off)
+#endif
+
 int defaultAssertionCount;
 void defaultHandler(const char *, const char *, int)
     // Function to be installed as the default handler.

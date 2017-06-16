@@ -21,6 +21,10 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma optimize("gsty", off)
+#endif
+
 namespace BloombergLP {
 namespace balb {
 
