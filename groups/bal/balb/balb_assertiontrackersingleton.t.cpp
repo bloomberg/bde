@@ -17,7 +17,8 @@
 #include <bsl_utility.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
+using namespace bdlf::PlaceHolders;
 
 // ============================================================================
 //                             TEST PLAN
@@ -218,12 +219,7 @@ int main(int argc, char *argv[])
             ASSERT(at_p);
             at_p->setReportingCallback(
                 bdlf::BindUtil::bind(&balb::AssertionTracker::reportAssertion,
-                                     &os,
-                                     bdlf::PlaceHolders::_1,
-                                     bdlf::PlaceHolders::_2,
-                                     bdlf::PlaceHolders::_3,
-                                     bdlf::PlaceHolders::_4,
-                                     bdlf::PlaceHolders::_5));
+                                     &os, _1, _2, _3, _4, _5));
 
             for (int i = 0; i < 10; ++i) {
                 if (veryVeryVerbose) { P_(i) Q("assert 1") }
@@ -251,19 +247,9 @@ int main(int argc, char *argv[])
             at_p->reportAllStackTraces();
             s = os.str();
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            // In some Windows builds the stack traces appear to be split, with
-            // a each assertion appearing twice with different stack traces. I
-            // have seen this with cl-18, while cl-19 seems to work properly.
-            // For now, just test that the assertions show up at all.
-            ASSERTV(s, s.npos != s.find(":0 && \"assert 1\":"))
-            ASSERTV(s, s.npos != s.find(":0 && \"assert 2\":"))
-            ASSERTV(s, s.npos != s.find(":0 && \"assert 3\":"))
-#else
             ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"))
             ASSERTV(s, s.npos != s.find(":100:0 && \"assert 2\":"))
             ASSERTV(s, s.npos != s.find(":2:0 && \"assert 3\":"))
-#endif
         }
       } break;
       default: {

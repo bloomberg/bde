@@ -21,7 +21,8 @@
 #include <bsl_utility.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
+using namespace bdlf::PlaceHolders;
 
 // ============================================================================
 //                             TEST PLAN
@@ -35,7 +36,6 @@ using namespace bsl;  // automatically added by script
 // MANIPULATORS
 // ACCESSORS
 // ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
 // [ 2] AssertionTracker(bsls::Assert::Handler, bslma::Allocator *);
 // [ 2] bslma::Allocator *allocator() const;
 // [ 2] void operator()(const char *text, const char *file, int line);
@@ -52,6 +52,9 @@ using namespace bsl;  // automatically added by script
 // [ 2] void logAssertion(...);
 // [ 3] void reportAssertion(...);
 // [ 3] void reportAllStackTraces() const;
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 4] RECURSION
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -142,6 +145,14 @@ void trigger3(Obj& t, const char *a, const char *f, int l, ...)
     trigger1(t, a, f, n);
 }
 
+void assertingReporter(
+  Obj *t, int, const char *a, const char *f, int l, const bsl::vector<void *>&)
+    // A reporter which itself triggers an assertion, invoking the specified
+    // 't' with the specified 'a', 'f', and 'l'.
+{
+    (*t)(a, f, l);
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -158,6 +169,37 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // RECURSION TEST
+        //   This case tests that the fallback handler is called if reporting
+        //   an assertion itselfs asserts.
+        //
+        // Concerns:
+        //: 1 If the installed reporting callback itself triggers an assertion,
+        //:   we expect the fallback handler to be invoked (and not have the
+        //:   tracking subsystem die a recursive death).
+        //
+        // Plans:
+        //: 2 Install a handler which has the tracker as a bound aragument, and
+        //:   have it invoke the assertion handle rof the tracker.  Verify that
+        //:   the fallback handler is called.
+        //
+        // Testing:
+        //   RECURSION
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nRECURSION TEST"
+                             "\n==============\n";
+
+        Obj Z(defaultHandler, &ta);
+        Z.setReportingCallback(
+            bdlf::BindUtil::bind(assertingReporter, &Z, _1, _2, _3, _4, _5));
+        handledAssertionCount = 0;
+        defaultAssertionCount = 0;
+        Z("recursion", __FILE__, __LINE__);
+        ASSERTV(handledAssertionCount, 0 == handledAssertionCount);
+        ASSERTV(defaultAssertionCount, 1 == defaultAssertionCount);
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // REPORTER TEST
@@ -187,13 +229,8 @@ int main(int argc, char *argv[])
 
         Obj Z(bsls::Assert::failureHandler(), &ta);
 
-        Z.setReportingCallback(bdlf::BindUtil::bind(&Obj::reportAssertion,
-                                                    &os,
-                                                    bdlf::PlaceHolders::_1,
-                                                    bdlf::PlaceHolders::_2,
-                                                    bdlf::PlaceHolders::_3,
-                                                    bdlf::PlaceHolders::_4,
-                                                    bdlf::PlaceHolders::_5));
+        Z.setReportingCallback(bdlf::BindUtil::bind(
+            &Obj::reportAssertion, &os, _1, _2, _3, _4, _5));
 
         for (int i = 0; i < 10; ++i) {
             Z("0 && \"assert 1\"", __FILE__, __LINE__);
