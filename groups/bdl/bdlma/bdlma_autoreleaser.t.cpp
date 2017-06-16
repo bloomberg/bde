@@ -258,7 +258,7 @@ my_StrPool::my_StrPool()
 my_StrPool::~my_StrPool()
 {
     ASSERT(k_INITIAL_SIZE <= d_blockSize);
-    ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
+    ASSERT(!d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
