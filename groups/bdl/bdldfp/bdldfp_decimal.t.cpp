@@ -451,7 +451,7 @@ void TestDriver::testCase7()
     // Plan:
     //: 1 Brute force test of a several hand picked and randomly generated
     //:   values, ensuring that hashes of equivalent objects match and hashes
-    //:   of unequal objects do not.
+    //:   of unequal objects do not.  (C-1..3)
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const Decimal32& object);
@@ -556,9 +556,9 @@ void TestDriver::testCase7()
 
         const int RANDOM_VALUES_NUM = 100;
         for (int i = 0; i < RANDOM_VALUES_NUM; ++i) {
-            const Obj RANDOM_VALUE = randomDecimal32();
-            testData.push_back(TestDataPair(RANDOM_VALUE,
-                                            hasher(RANDOM_VALUE)));
+            Obj randomValue = randomDecimal32();
+            testData.push_back(TestDataPair(randomValue,
+                                            hasher(randomValue)));
         }
 
         if (veryVerbose) {
@@ -682,9 +682,9 @@ void TestDriver::testCase7()
 
         const int RANDOM_VALUES_NUM = 100;
         for (int i = 0; i < RANDOM_VALUES_NUM; ++i) {
-            const Obj RANDOM_VALUE = randomDecimal64();
-            testData.push_back(TestDataPair(RANDOM_VALUE,
-                                            hasher(RANDOM_VALUE)));
+            const Obj randomValue = randomDecimal64();
+            testData.push_back(TestDataPair(randomValue,
+                                            hasher(randomValue)));
         }
 
         if (veryVerbose) {
@@ -810,9 +810,9 @@ void TestDriver::testCase7()
 
         const int RANDOM_VALUES_NUM = 100;
         for (int i = 0; i < RANDOM_VALUES_NUM; ++i) {
-            const Obj RANDOM_VALUE = randomDecimal128();
-            testData.push_back(TestDataPair(RANDOM_VALUE,
-                                            hasher(RANDOM_VALUE)));
+            const Obj randomValue = randomDecimal128();
+            testData.push_back(TestDataPair(randomValue,
+                                            hasher(randomValue)));
         }
 
         if (veryVerbose) {
