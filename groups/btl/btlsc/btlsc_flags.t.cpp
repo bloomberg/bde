@@ -188,7 +188,7 @@ if (verbose) {  // added in test driver
                                   << "==========" << endl;
 
         static const struct {
-            Flag        d_Flag;   // enumerated value
+            Flag        d_enum;   // enumerated value
             const char *d_ascii;  // string representation
         } DATA[] = {
             // Enumerated Value              String Representation

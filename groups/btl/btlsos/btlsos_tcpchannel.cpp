@@ -875,7 +875,7 @@ int TcpChannel::writev(int *augStatus, int length, int flags)
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {
                 // interruptible
 
                 *augStatus = e_ERROR_INTERRUPTED;

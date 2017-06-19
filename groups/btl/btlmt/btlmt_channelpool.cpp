@@ -830,7 +830,7 @@ class Channel {
     void *userData() const;
         // Return the opaque user data associated to this channel.
 
-    ChannelDownMask getChannelDownMask(btlso::Flag::ShutdownType type);
+    ChannelDownMask getChannelDownMask(btlso::Flags::ShutdownType type);
         // Return the 'ChannelDownMask' corresponding to the specified
         // shutdown 'type' for this channel.
 };
@@ -946,18 +946,18 @@ void *Channel::userData() const
     return d_userData;
 }
 
-ChannelDownMask Channel::getChannelDownMask(btlso::Flag::ShutdownType type)
+ChannelDownMask Channel::getChannelDownMask(btlso::Flags::ShutdownType type)
 {
     ChannelDownMask channelDownMask;
 
     switch (type) {
-      case btlso::Flag::e_SHUTDOWN_RECEIVE: {
+      case btlso::Flags::e_SHUTDOWN_RECEIVE: {
         channelDownMask = e_CLOSED_RECEIVE_MASK;
       } break;
-      case btlso::Flag::e_SHUTDOWN_SEND: {
+      case btlso::Flags::e_SHUTDOWN_SEND: {
         channelDownMask = e_CLOSED_SEND_MASK;
       } break;
-      case btlso::Flag::e_SHUTDOWN_GRACEFUL: {
+      case btlso::Flags::e_SHUTDOWN_GRACEFUL: {
         channelDownMask = 0 != currentWriteQueueSize()
                           ? e_CLOSED_RECEIVE_MASK
                           : e_CLOSED_BOTH_MASK;
@@ -1407,7 +1407,7 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         type = btlso::Flags::e_SHUTDOWN_BOTH;
     }
 
-    if (btlso::Flag::e_SHUTDOWN_GRACEFUL == type) {
+    if (btlso::Flags::e_SHUTDOWN_GRACEFUL == type) {
         d_shutdownSendWhenQueueDrained = 1;
     }
 
@@ -1994,7 +1994,7 @@ void Channel::writeCb(ChannelHandle self)
                     d_shutdownSendWhenQueueDrained = 0;
 
                     notifyChannelDown(self,
-                                      btlso::Flag::e_SHUTDOWN_SEND);
+                                      btlso::Flags::e_SHUTDOWN_SEND);
                 }
 
                 return;                                               // RETURN
@@ -3674,7 +3674,7 @@ int ChannelPool::connectImp(int                    clientId,
 
     if (0 != connectOptions.socketPtr()
      && 0 != (*connectOptions.socketPtr())->setBlockingMode(
-                                            btlso::Flag::e_NONBLOCKING_MODE)) {
+                                            btlso::Flags::e_NONBLOCKING_MODE)) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }

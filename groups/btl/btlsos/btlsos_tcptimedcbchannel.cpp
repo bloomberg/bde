@@ -887,7 +887,7 @@ namespace btlsos {
 // PRIVATE MANIPULATORS
 bool TcpTimedCbChannel::handleInterruptedWrite(int status)
 {
-    if (d_currentWriteRequest_p->d_flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
+    if (d_currentWriteRequest_p->d_flags & btlsc::Flags::k_ASYNC_INTERRUPT) {
         if (d_writeTimerId) {
             d_wManager_p->deregisterTimer(d_writeTimerId);
             d_writeTimerId = 0;

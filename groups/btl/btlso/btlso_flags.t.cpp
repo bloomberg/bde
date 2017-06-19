@@ -321,10 +321,10 @@ if (veryVerbose)
         ValueTest<btlso::Flags::ShutdownType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-          { btlso::Flag::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
-          { btlso::Flag::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
-          { btlso::Flag::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
-          { btlso::Flag::e_SHUTDOWN_GRACEFUL,    "SHUTDOWN_GRACEFUL" },
+          { btlso::Flags::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
+          { btlso::Flags::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
+          { btlso::Flags::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
+          { btlso::Flags::e_SHUTDOWN_GRACEFUL,    "SHUTDOWN_GRACEFUL" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;

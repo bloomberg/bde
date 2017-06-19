@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
 #include <btlso_eventmanagertester.h>   // for testing only
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_socketimputil.h>
 #include <btlso_socketoptutil.h>        // for testing only
 #include <btlso_timemetrics.h>

@@ -9,7 +9,7 @@
 
 #include <btlsc_timedchannel.h>
 
-#include <btlsc_flag.h>          // for testing only
+#include <btlsc_flags.h>          // for testing only
 
 #include <bdls_testutil.h>
 

@@ -13,7 +13,7 @@
 #include <btlso_timemetrics.h>
 #include <btlso_eventmanagertester.h>
 #include <btlso_platform.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bslma_default.h>
@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                               deadline,
-                                              btlso::Flag::k_ASYNC_INTERRUPT));
+                                              btlso::Flags::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[])
                 deadline.addNanoseconds(i % 1000);
 
                 LOOP_ASSERT(i, 0 ==
-                        mX.dispatch(deadline, btlso::Flag::k_ASYNC_INTERRUPT));
+                        mX.dispatch(deadline, btlso::Flags::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP3_ASSERT(deadline, now, i, deadline <= now);

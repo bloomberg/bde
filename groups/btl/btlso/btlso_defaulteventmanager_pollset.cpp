@@ -26,7 +26,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #define revents rtnevents  // renamed field in struct pollfd
 #endif
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 

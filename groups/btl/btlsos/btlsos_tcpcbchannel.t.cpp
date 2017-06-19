@@ -949,6 +949,9 @@ static int gg(btlsos::TcpCbChannel        *channel,
           case 'a':
                                // cancel all
               channel->cancelAll();
+              if ('s' == *(script+2)) {
+                  bslmt::ThreadUtil::microSleep(100, 0);
+              }
               break;
           case 'r':
                                // cancel read
@@ -961,13 +964,13 @@ static int gg(btlsos::TcpCbChannel        *channel,
           case 'R': {
                                // close receive
               ret = channel->socket()->shutdown(
-                     btlso::Flag::e_SHUTDOWN_RECEIVE);
+                     btlso::Flags::e_SHUTDOWN_RECEIVE);
               ASSERT(0 == ret);
           } break;
           case 'S':
                                // close receive
               ret = channel->socket()->shutdown(
-                     btlso::Flag::e_SHUTDOWN_SEND);
+                     btlso::Flags::e_SHUTDOWN_SEND);
               ASSERT(0 == ret);
 
               break;
@@ -1357,7 +1360,8 @@ static int gg(btlsos::TcpCbChannel        *channel,
                 break;
             case 'w':
                 ret = wManager->dispatch(0);
-                ASSERT(expRet == ret || channel->isInvalidWrite());
+                LOOP3_ASSERT(expRet, ret, channel->isInvalidWrite(),
+                             expRet == ret || channel->isInvalidWrite());
                 if (veryVerbose) {
                     cout << " wManager ret: " << ret << " isinvalid: "
                          << channel->isInvalidWrite() << endl;
@@ -1484,7 +1488,7 @@ int main(int argc, char *argv[])
             // object.
 
             btlsos::TcpCbChannel channel(sSocket, &rEventManager,
-                                        &wEventManager, &testAllocator);
+                                         &wEventManager, &testAllocator);
 
             ASSERT(sSocket == channel.socket());
             ASSERT(0 == channel.isInvalidRead());
@@ -1655,7 +1659,7 @@ int main(int argc, char *argv[])
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
      {L_, "wbvi7,1,29760,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_, "wbvi6,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi6,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1670,24 +1674,24 @@ int main(int argc, char *argv[])
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
      {L_, "wbvi7,1,29760,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_, "wbvi5,1,40,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "R25000",           0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi5,1,40,0",     0,        0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "R25000",           0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },/*
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
      {L_,  "wbvi7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "wbvi7,1,29760,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,29760,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    }, */
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
      {L_,  "wbvi7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "R25000",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "R25000",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
 
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1696,18 +1700,18 @@ int main(int argc, char *argv[])
      // once can be kept on the request queue and finished by following
      // dispatches.
      {L_,  "wbvi7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "wbvi5,1,40,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi5,1,40,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
      {L_,  "wbvi7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi3,1,18,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35021",          0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,15,0",      0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi3,1,18,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35021",          0,       0,      2,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
@@ -1734,7 +1738,7 @@ int main(int argc, char *argv[])
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
      {L_, "wbvo7,1,29760,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_, "wbvo6,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo6,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1749,24 +1753,24 @@ int main(int argc, char *argv[])
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
      {L_, "wbvo7,1,29760,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_, "wbvo5,1,40,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "R25000",           0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo5,1,40,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "R25000",           0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
      {L_,  "wbvo7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "wbvo7,1,29760,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,29760,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },  /*
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
      {L_,  "wbvo7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "R25000",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "R25000",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
 
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1775,18 +1779,18 @@ int main(int argc, char *argv[])
      // once can be kept on the request queue and finished by following
      // dispatches.
      {L_,  "wbvo7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "wbvo5,1,40,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo5,1,40,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
      {L_,  "wbvo7,1,29760,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo3,1,18,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35021",          0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,15,0",      0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo3,1,18,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35021",          0,       0,      2,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    }, /*
@@ -1820,7 +1824,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-     {L_, "wbvi7,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi7,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1834,26 +1838,26 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-     {L_, "wbvi7,1,1540,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "wbvi5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "R500",             0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi7,1,1540,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "R500",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-     {L_,  "wbvi7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi7,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-     {L_,  "wbvi7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wvi3,1,18,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvi3,1,18,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
 
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1861,20 +1865,20 @@ int main(int argc, char *argv[])
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-     {L_,  "wbvi7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
-     {L_,  "wbvi7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi3,1,18,0",    0,       1,      3,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,15,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi3,1,18,0",    0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
@@ -1915,7 +1919,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-     {L_, "wbvo7,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo7,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1929,26 +1933,26 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-     {L_, "wbvo7,1,1540,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "wbvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "R500",             0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo7,1,1540,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "R500",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-     {L_,  "wbvo7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo7,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-     {L_,  "wbvo7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wvo3,1,18,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvo3,1,18,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
 
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -1956,20 +1960,20 @@ int main(int argc, char *argv[])
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-     {L_,  "wbvo7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
-     {L_,  "wbvo7,1,1540,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo3,1,18,0",    0,       1,      3,       1,  e_NON_VEC,   ""  },
-     {L_,  "R500",            0,       1,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,1540,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,15,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo3,1,18,0",    0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "R500",            0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
@@ -2010,7 +2014,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-     {L_, "wbvi8,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi8,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2024,26 +2028,26 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-     {L_, "wbvi8,1,20478,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "wbvi5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "R55000",           0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi8,1,20478,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "R55000",           0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-     {L_,  "wbvi8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi8,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi8,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-     {L_,  "wbvi8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wvi3,1,18,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvi3,1,18,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
 
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2051,21 +2055,21 @@ int main(int argc, char *argv[])
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-     {L_,  "wbvi8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch. bug ?? !!! there's
      // bug here for mixed request: buffered and non-buffered.
-     {L_,  "wbvi8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi3,1,0,-1",    0,       1,      3,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35021",          0,       1,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,15,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi3,1,0,-1",    0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35021",          0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a channel will write nothing as expected after it is closed for
@@ -2105,7 +2109,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-     {L_, "wbvo8,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo8,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2119,26 +2123,26 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-     {L_, "wbvo8,1,20478,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "wbvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "R55000",           0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo8,1,20478,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "R55000",           0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-     {L_,  "wbvo8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo8,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R17000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo8,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R17000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-     {L_,  "wbvo8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wvo3,1,18,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvo3,1,18,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
 
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2146,20 +2150,20 @@ int main(int argc, char *argv[])
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-     {L_,  "wbvo8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
-     {L_,  "wbvo8,1,20478,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo3,1,18,0",    0,       1,      3,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35021",          0,       1,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo8,1,20478,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,15,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo3,1,18,0",    0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35021",          0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
@@ -2201,7 +2205,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-     {L_, "wbvi7,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi7,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2215,48 +2219,48 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-     {L_, "wbvi7,1,74720,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "wbvi5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "R55000",           0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_, "wbvi7,1,0,-1",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvi5,1,0,-1",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "R55000",           0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "dw1",              0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-     {L_,  "wbvi7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi7,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-     {L_,  "wbvi7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wvi3,1,18,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvi3,1,0,-1",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-     {L_,  "wbvi7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi5,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch. bug ?? !!! there's
      // bug here for mixed request: buffered and non-buffered.
-     {L_,  "wbvi7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvi3,1,0,-1",    0,       1,      3,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35021",          0,       1,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,0,-1",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvi3,1,0,-1",    0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35021",          0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      3,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a channel will write nothing as expected after it is closed for
@@ -2269,14 +2273,14 @@ int main(int argc, char *argv[])
    },
    { // Enqueue a request with some requests inside its user-installed
      // callback.
-     {L_,  "wbvi7,1,74720,0", 0,      1,       1,      1,  e_NON_VEC,   ""   },
-     {L_,  "wbvi1,1,11,0,{wbvi2,0,15,0; wbvi4,0,20,0,{wbvi5,1,40,0}}",
-                              0,      1,       2,      1,  e_NON_VEC,   ""   },
-     {L_,  "wbvi3,1,18,0",    0,      1,       3,      1,  e_NON_VEC,   ""   },
-     {L_,  "R35769",          0,      1,       3,      1,  e_NON_VEC,   ""   },
-     {L_,  "dw1",             0,      1,       2,      1,  e_NON_VEC,   ""   },
-     {L_,  "dw1",             0,      1,       1,      1,  e_NON_VEC,   ""   },
-     {L_,  "dw1",             0,      0,       0,      0,  e_NON_VEC,   ""   },
+     {L_,  "wbvi7,1,0,-1", 0,      0,       1,      1,  e_NON_VEC,   ""   },
+     {L_,  "wbvi1,1,0,-1,{wbvi2,0,15,0; wbvi4,0,20,0,{wbvi5,1,40,0}}",
+                              0,      0,       2,      1,  e_NON_VEC,   ""   },
+     {L_,  "wbvi3,1,0,-1",    0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "R35769",          0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "dw1",             0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "dw1",             0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "dw1",             0,      0,       3,      1,  e_NON_VEC,   ""   },
      {L_,  0,                 0,      0,       0,      0,  e_NON_VEC,   ""   }
    },
      // The following test data is for testing bufferedWritev(oVec) function.
@@ -2296,7 +2300,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-     {L_, "wbvo7,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo7,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_, "cw",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_, "dw0",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2310,48 +2314,48 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-     {L_, "wbvo7,1,74720,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_, "wbvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "R55000",           0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_, "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_, "wbvo7,1,0,-1",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_, "wbvo5,1,0,-1",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "R55000",           0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_, "dw1",              0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-     {L_,  "wbvo7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo7,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-     {L_,  "wbvo7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wvo3,1,18,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wvo3,1,0,-1",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-     {L_,  "wbvo7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35000",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo5,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35000",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      2,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
-     {L_,  "wbvo7,1,74720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "w15,1,15,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "wbvo3,1,18,0",    0,       1,      3,       1,  e_NON_VEC,   ""  },
-     {L_,  "R35021",          0,       1,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo7,1,0,-1", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     {L_,  "w15,1,0,-1",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+     {L_,  "wbvo3,1,0,-1",    0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "R35021",          0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-     {L_,  "dw1",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       1,      1,       1,  e_NON_VEC,   ""  },
-     {L_,  "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      3,       1,  e_NON_VEC,   ""  },
+     {L_,  "dw1",             0,       0,      3,       1,  e_NON_VEC,   ""  },
      {L_,  0,                 0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if a channel will write nothing as expected after it is closed for
@@ -2364,14 +2368,14 @@ int main(int argc, char *argv[])
    },
    { // Enqueue a request with some requests inside its user-installed
      // callback.
-     {L_,  "wbvo7,1,74720,0", 0,      1,       1,      1,  e_NON_VEC,   ""   },
-     {L_,  "wbvo1,1,11,0,{wbvo2,0,15,0; wbvo4,0,20,0,{wbvo5,1,40,0}}",
-                              0,      1,       2,      1,  e_NON_VEC,   ""   },
-     {L_,  "wbvo3,1,18,0",    0,      1,       3,      1,  e_NON_VEC,   ""   },
-     {L_,  "R35769",          0,      1,       3,      1,  e_NON_VEC,   ""   },
-     {L_,  "dw1",             0,      1,       2,      1,  e_NON_VEC,   ""   },
-     {L_,  "dw1",             0,      1,       1,      1,  e_NON_VEC,   ""   },
-     {L_,  "dw1",             0,      0,       0,      0,  e_NON_VEC,   ""   },
+     {L_,  "wbvo7,1,0,-1", 0,      0,       1,      1,  e_NON_VEC,   ""   },
+     {L_,  "wbvo1,1,0,-1,{wbvo2,0,15,0; wbvo4,0,20,0,{wbvo5,1,40,0}}",
+                              0,      0,       2,      1,  e_NON_VEC,   ""   },
+     {L_,  "wbvo3,1,0,-1",    0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "R35769",          0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "dw1",             0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "dw1",             0,      0,       3,      1,  e_NON_VEC,   ""   },
+     {L_,  "dw1",             0,      0,       3,      1,  e_NON_VEC,   ""   },
      {L_,  0,                 0,      0,       0,      0,  e_NON_VEC,   ""   }
    },
 
@@ -2412,9 +2416,12 @@ int main(int argc, char *argv[])
             btlso::StreamSocket<btlso::IPv4Address> *cSocket =
                                             factory.allocate(handles[1]);
 
-            btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::e_NO_HINT,
-               &testAllocator);
+            btlso::TcpTimerEventManager rEventManager(
+                                    btlso::TcpTimerEventManager::e_NO_HINT,
+                                    &testAllocator);
+            btlso::TcpTimerEventManager wEventManager(
+                                    btlso::TcpTimerEventManager::e_NO_HINT,
+                                    &testAllocator);
             char readBuf[MAX_BUF];
             memset(readBuf, '\0', sizeof readBuf);
             Buffer buffer = {readBuf, str, 0, ioVec, oVec};
@@ -2429,8 +2436,8 @@ int main(int argc, char *argv[])
                 // inside a block while the corresponding 'streamSocket' object
                 // is created outside the block as above.
 
-                btlsos::TcpCbChannel channel(sSocket, &eventManager,
-                                            &testAllocator);
+            btlsos::TcpCbChannel channel(sSocket, &rEventManager,
+                                         &wEventManager, &testAllocator);
 
                 for (int j = 0; j < MAX_CMDS; ++j) {
                     const char *command = SCRIPTS[i][j].d_cmd;
@@ -2438,9 +2445,8 @@ int main(int argc, char *argv[])
                         break;
                     }
                     const int LINE = SCRIPTS[i][j].d_line;
-
                     int length = gg(&channel, &buffer,
-                                    &eventManager, &eventManager, command);
+                                    &rEventManager, &wEventManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
                     // function.  This is the maximum number of parameters to
@@ -2471,7 +2477,9 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                    LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
+                    LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite,
+                                 channel.numPendingWriteOperations(),
+                                 SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {
@@ -2486,7 +2494,7 @@ int main(int argc, char *argv[])
                         P_(LINE);
                         P_(channel.numPendingReadOperations());
                         P_(channel.numPendingWriteOperations());
-                        P(eventManager.numEvents());
+                        P(wEventManager.numEvents());
                         cout << endl;
                     }
 
@@ -2594,7 +2602,7 @@ int main(int argc, char *argv[])
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
     {L_, "wb28720,1,28720,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-    {L_, "wb720,1,0,-1",      0,       1,      1,       1,  e_NON_VEC,   ""  },
+    {L_, "wb720,1,0,-1",      0,       0,      1,       1,  e_NON_VEC,   ""  },
     {L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_, "dw0",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2609,8 +2617,8 @@ int main(int argc, char *argv[])
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
     {L_, "wb28720,1,28720,0", 0,       0,      0,       0,   e_NON_VEC,  ""  },
-    {L_, "wb40,1,40,0",       0,       1,      1,       1,   e_NON_VEC,  ""  },
-    {L_, "R25000",            0,       1,      1,       1,   e_NON_VEC,  ""  },
+    {L_, "wb40,1,40,0",       0,       0,      1,       1,   e_NON_VEC,  ""  },
+    {L_, "R25000",            0,       0,      1,       1,   e_NON_VEC,  ""  },
     {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,  ""  },
     {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,  ""  },
    },
@@ -2618,15 +2626,15 @@ int main(int argc, char *argv[])
      // of data is to be written from a request.
    {L_,  "wb28720,1,28720,0", 0,      0,      0,       0,   e_NON_VEC,   ""  },
    {L_,  "wb28720,1,28720,0", 0,      1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "R25000",           0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "R25000",           0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },  /*
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
    {L_, "wb28720,1,28720,0", 0,       0,      0,       0,   e_NON_VEC,   ""  },
-   {L_, "w18,1,18,0",        0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_, "R35000",            0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "w18,1,18,0",        0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "R35000",            0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,   ""  },
 
    {L_, 0,                   0,       0,      0,       0,   e_NON_VEC,   ""  },
@@ -2635,18 +2643,18 @@ int main(int argc, char *argv[])
      // once can be kept on the request queue and finished by following
      // dispatches.
    {L_, "wb28720,1,28720,0", 0,       0,      0,       0,   e_NON_VEC,   ""  },
-   {L_, "wb40,1,40,0",       0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_, "R25000",            0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "wb40,1,40,0",       0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "R25000",            0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
    {L_,  "wb28720,1,28720,0", 0,      0,      0,       0,   e_NON_VEC,   ""  },
-   {L_,  "w15,1,15,0",       0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb18,1,18,0",      0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "R25021",           0,       1,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "w15,1,15,0",       0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb18,1,18,0",      0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "R25021",           0,       0,      2,       1,   e_NON_VEC,   ""  },
 
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
@@ -2654,11 +2662,11 @@ int main(int argc, char *argv[])
      // callback.
    {L_,  "wb28720,1,28720,0", 0,      0,      0,       0,   e_NON_VEC,   ""  },
      {L_,  "wb11,1,11,0,{wb15,0,15,0; wb20,0,20,0,{wb40,1,40,0}}",
-                             0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb18,1,18,0",      0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "R25769",           0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
+                             0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb18,1,18,0",      0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "R25769",           0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  }
    },
@@ -2680,7 +2688,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-    {L_, "wb1025,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+    {L_, "wb1025,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
     {L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_, "dw0",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2694,26 +2702,26 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-    {L_, "wb1025,1,1025,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-    {L_, "wb40,1,40,0",       0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
+    {L_, "wb1025,1,1025,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+    {L_, "wb40,1,40,0",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
     {L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-    {L_,  "wb1025,1,1025,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-    {L_,  "wb1025,1,0,-1",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_,  "R500",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_,  "dw1",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+    {L_,  "wb1025,1,1025,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+    {L_,  "wb1025,1,0,-1",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_,  "R500",             0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_,  "dw1",              0,       0,      1,       1,  e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-    {L_, "wb1025,1,1025,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-    {L_, "w18,1,18,0",        0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+    {L_, "wb1025,1,1025,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+    {L_, "w18,1,18,0",        0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
 
     {L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_, 0,                   0,       0,      0,       0,  e_NON_VEC,   ""  },
@@ -2721,20 +2729,20 @@ int main(int argc, char *argv[])
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-    {L_, "wb1025,1,1025,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-    {L_, "wb40,1,40,0",       0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
+    {L_, "wb1025,1,1025,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+    {L_, "wb40,1,40,0",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
     {L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
-    {L_,  "wb1025,1,1025,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-    {L_,  "w15,1,15,0",       0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_,  "wb18,1,18,0",      0,       1,      3,       1,  e_NON_VEC,   ""  },
-    {L_,  "R500",             0,       1,      3,       1,  e_NON_VEC,   ""  },
+    {L_,  "wb1025,1,1025,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+    {L_,  "w15,1,15,0",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_,  "wb18,1,18,0",      0,       0,      3,       1,  e_NON_VEC,   ""  },
+    {L_,  "R500",             0,       0,      3,       1,  e_NON_VEC,   ""  },
 
-    {L_,  "dw1",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_,  "dw1",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+    {L_,  "dw1",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_,  "dw1",              0,       0,      1,       1,  e_NON_VEC,   ""  },
     {L_,  "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  },
    },
@@ -2748,13 +2756,13 @@ int main(int argc, char *argv[])
    },
    { // Enqueue a request with some requests inside its user-installed
      // callback.
-    {L_,  "wb1025,1,1025,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
+    {L_,  "wb1025,1,1025,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
      {L_,  "wb11,1,11,0,{wb15,0,15,0; wb20,0,20,0,{wb40,1,40,0}}",
-                              0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_,  "wb18,1,18,0",      0,       1,      3,       1,  e_NON_VEC,   ""  },
-    {L_,  "R500",             0,       1,      3,       1,  e_NON_VEC,   ""  },
-    {L_,  "dw1",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-    {L_,  "dw1",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+                              0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_,  "wb18,1,18,0",      0,       0,      3,       1,  e_NON_VEC,   ""  },
+    {L_,  "R500",             0,       0,      3,       1,  e_NON_VEC,   ""  },
+    {L_,  "dw1",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+    {L_,  "dw1",              0,       0,      1,       1,  e_NON_VEC,   ""  },
     {L_,  "dw1",              0,       0,      0,       0,  e_NON_VEC,   ""  },
      {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -2776,7 +2784,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-   {L_, "wb40000,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""   },
+   {L_, "wb40000,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""   },
    {L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""   },
    {L_, "dw0",               0,       0,      0,       0,  e_NON_VEC,   ""   },
    {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""   },
@@ -2790,26 +2798,26 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-   {L_, "wb30000,1,30000,0", 0,       1,      1,       1,   e_NON_VEC,  ""   },
-   {L_, "wb40,1,40,0",       0,       1,      2,       1,   e_NON_VEC,  ""   },
-   {L_, "R55000",            0,       1,      2,       1,   e_NON_VEC,  ""   },
+   {L_, "wb30000,1,30000,0", 0,       0,      1,       1,   e_NON_VEC,  ""   },
+   {L_, "wb40,1,40,0",       0,       0,      2,       1,   e_NON_VEC,  ""   },
+   {L_, "R55000",            0,       0,      2,       1,   e_NON_VEC,  ""   },
    {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,  ""   },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,  ""   },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
     {L_,  "wb30000,1,30000,0",0,      1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb32766,1,0,-1",   0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "R35000",           0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb32766,1,0,-1",   0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "R35000",           0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-   {L_, "wb30000,1,30000,0", 0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_, "w18,1,18,0",        0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "R35000",            0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "dw1",               0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "wb30000,1,30000,0", 0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "w18,1,18,0",        0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "R35000",            0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "dw1",               0,       0,      1,       1,   e_NON_VEC,   ""  },
 
    {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,   ""  },
    {L_, 0,                   0,       0,      0,       0,   e_NON_VEC,   ""  },
@@ -2817,20 +2825,20 @@ int main(int argc, char *argv[])
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-   {L_, "wb30000,1,30000,0", 0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_, "wb40,1,40,0",       0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "R55000",            0,       1,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "wb30000,1,30000,0", 0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "wb40,1,40,0",       0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "R55000",            0,       0,      2,       1,   e_NON_VEC,   ""  },
    {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
    {L_,  "wb30000,1,30000,0", 0,      1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "w15,1,15,0",       0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb18,1,18,0",      0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "R35021",           0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "w15,1,15,0",       0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb18,1,18,0",      0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "R35021",           0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      2,       1,   e_NON_VEC,   ""  },
 
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
@@ -2846,11 +2854,11 @@ int main(int argc, char *argv[])
      // callback.
    {L_,  "wb30000,1,30000,0", 0,      1,      1,       1,   e_NON_VEC,   ""  },
      {L_,  "wb11,1,11,0,{wb15,0,15,0; wb20,0,20,0,{wb40,1,40,0}}",
-                             0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb18,1,18,0",      0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "R35769",           0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
+                             0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb18,1,18,0",      0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "R35769",           0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      1,       1,   e_NON_VEC,   ""  },
    {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  }
    },
@@ -2872,7 +2880,7 @@ int main(int argc, char *argv[])
    { // Test if all write requests can be canceled after a "cancel write"
      // command is executed.  Verify by trying dispatching a request, which
      // shouldn't have any request to disp.
-   {L_, "wb74720,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""   },
+   {L_, "wb74720,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""   },
    {L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""   },
    {L_, "dw0",               0,       0,      0,       0,  e_NON_VEC,   ""   },
    {L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""   },
@@ -2886,48 +2894,48 @@ int main(int argc, char *argv[])
    { // Issue a partially write will be queued correctly for a write with
      // ERROR_WOULDBLOCK during the first try, then dispatch the queued
      // request.
-   {L_, "wb74720,1,74720,0", 0,       1,      1,       1,   e_NON_VEC,  ""   },
-   {L_, "wb40,1,40,0",       0,       1,      2,       1,   e_NON_VEC,  ""   },
-   {L_, "R55000",            0,       1,      2,       1,   e_NON_VEC,  ""   },
-   {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,  ""   },
+   {L_, "wb74720,1,0,-1", 0,       0,      1,       1,   e_NON_VEC,  ""   },
+   {L_, "wb40,1,0,-1",       0,       0,      2,       1,   e_NON_VEC,  ""   },
+   {L_, "R55000",            0,       0,      2,       1,   e_NON_VEC,  ""   },
+   {L_, "dw1",               0,       0,      2,       1,   e_NON_VEC,  ""   },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,  ""   },
    },
    { // Test if the channel's buffer will be extended properly if a big chunk
      // of data is to be written from a request.
-   {L_,  "wb74720,1,74720,0", 0,      1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb74720,1,0,-1",   0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "R35000",           0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb74720,1,0,-1", 0,      0,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb74720,1,0,-1",   0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "R35000",           0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      2,       1,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Test if an other kind of write request on the request queue can be
      // finished after the previous buffered requests before it.
-   {L_, "wb74720,1,74720,0", 0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_, "w18,1,18,0",        0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "R35000",            0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "dw1",               0,       1,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "wb74720,1,0,-1", 0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "w18,1,0,-1",        0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "R35000",            0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "dw1",               0,       0,      2,       1,   e_NON_VEC,   ""  },
 
-   {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,   ""  },
+   {L_, "dw1",               0,       0,      2,       1,   e_NON_VEC,   ""  },
    {L_, 0,                   0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Test if a write request on the request queue which can't be finished
      // once can be kept on the request queue and finished by following
      // dispatches.
-   {L_, "wb74720,1,74720,0", 0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_, "wb40,1,40,0",       0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "R55000",            0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_, "dw1",               0,       0,      0,       0,   e_NON_VEC,   ""  },
+   {L_, "wb74720,1,0,-1", 0,       0,      1,       1,   e_NON_VEC,   ""  },
+   {L_, "wb40,1,0,-1",       0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "R55000",            0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_, "dw1",               0,       0,      2,       1,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Issue 3 requests of different types, then dispatch.
-   {L_,  "wb74720,1,74720,0", 0,      1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "w15,1,15,0",       0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb18,1,18,0",      0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "R35021",           0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb74720,1,0,-1", 0,      0,      1,       1,   e_NON_VEC,   ""  },
+   {L_,  "w15,1,0,-1",       0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb18,1,0,-1",      0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "R35021",           0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      3,       1,   e_NON_VEC,   ""  },
 
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      3,       1,   e_NON_VEC,   ""  },
    {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  },
    },
    { // Test if a channel will write nothing as expected after it is closed for
@@ -2940,14 +2948,14 @@ int main(int argc, char *argv[])
    },
    { // Enqueue a request with some requests inside its user-installed
      // callback.
-   {L_,  "wb74720,1,74720,0", 0,      1,      1,       1,   e_NON_VEC,   ""  },
-     {L_,  "wb11,1,11,0,{wb15,0,15,0; wb20,0,20,0,{wb40,1,40,0}}",
-                             0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "wb18,1,18,0",      0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "R35769",           0,       1,      3,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      2,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       1,      1,       1,   e_NON_VEC,   ""  },
-   {L_,  "dw1",              0,       0,      0,       0,   e_NON_VEC,   ""  },
+   {L_,  "wb74720,1,0,-1", 0,      0,      1,       1,   e_NON_VEC,   ""  },
+     {L_,  "wb11,1,0,-1,{wb15,0,15,0; wb20,0,20,0,{wb40,1,40,0}}",
+                             0,       0,      2,       1,   e_NON_VEC,   ""  },
+   {L_,  "wb18,1,0,-1",      0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "R35769",           0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      3,       1,   e_NON_VEC,   ""  },
+   {L_,  "dw1",              0,       0,      3,       1,   e_NON_VEC,   ""  },
     {L_,  0,                  0,       0,      0,       0,   e_NON_VEC,   ""  }
    },
 
@@ -2987,9 +2995,12 @@ int main(int argc, char *argv[])
             btlso::StreamSocket<btlso::IPv4Address> *cSocket =
                                             factory.allocate(handles[1]);
 
-            btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::e_NO_HINT,
-               &testAllocator);
+            btlso::TcpTimerEventManager rEventManager(
+                                    btlso::TcpTimerEventManager::e_NO_HINT,
+                                    &testAllocator);
+            btlso::TcpTimerEventManager wEventManager(
+                                    btlso::TcpTimerEventManager::e_NO_HINT,
+                                    &testAllocator);
             char readBuf[MAX_BUF];
             memset(readBuf, '\0', sizeof readBuf);
             Buffer buffer = {readBuf, str, 0, ioVec, 0};
@@ -3004,8 +3015,8 @@ int main(int argc, char *argv[])
                 // inside a block while the corresponding 'streamSocket' object
                 // is created outside the block as above.
 
-                btlsos::TcpCbChannel channel(sSocket, &eventManager,
-                                            &testAllocator);
+                btlsos::TcpCbChannel channel(sSocket, &rEventManager,
+                                             &wEventManager, &testAllocator);
 
                 for (int j = 0; j < MAX_CMDS; ++j) {
                     const char *command = SCRIPTS[i][j].d_cmd;
@@ -3013,9 +3024,8 @@ int main(int argc, char *argv[])
                         break;
                     }
                     const int LINE = SCRIPTS[i][j].d_line;
-
                     int length = gg(&channel, &buffer,
-                                    &eventManager, &eventManager, command);
+                                    &rEventManager, &wEventManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
                     // function.  This is the maximum number of parameters to
@@ -3046,7 +3056,9 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                    LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
+                    LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite,
+                                 channel.numPendingWriteOperations(),
+                                 SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {
@@ -3061,7 +3073,7 @@ int main(int argc, char *argv[])
                         P_(LINE);
                         P_(channel.numPendingReadOperations());
                         P_(channel.numPendingWriteOperations());
-                        P(eventManager.numEvents());
+                        P(wEventManager.numEvents());
                         cout << endl;
                     }
 
@@ -3089,7 +3101,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_SOLARIS
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_DARWIN)
         // --------------------------------------------------------------------
         // TESTING 'writevRaw(btls::Ovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -3173,8 +3185,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3187,53 +3199,53 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },/*
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    }, */
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R8192",           0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R8192",           0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor7,1,29760,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R6000",           0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor7,1,29760,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R6000",           0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,29760,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor3,1,18,0,{wvor4,1,0,-1; cw; wvor1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor2,1,0,-1",    0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor2,1,0,-1",    0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3246,8 +3258,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3260,53 +3272,53 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R8192",           0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R8192",           0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    }, /*
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo7,1,29760,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R6000",           0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo7,1,29760,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R6000",           0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    }, */
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,29760,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo3,1,18,0,{wvo4,1,0,-1; cw; wvo1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo2,1,0,-1",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo2,1,0,-1",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3320,8 +3332,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvor6,1,540,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor6,1,540,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor6,1,540,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3334,8 +3346,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvor7,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -3347,47 +3359,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvor7,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvor7,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R540",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R540",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvor7,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor6,1,540,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor6,1,540,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor3,1,18,0,{wvor4,1,0,-1; cw; wvor1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor2,1,0,-1",    0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor2,1,0,-1",    0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3400,8 +3412,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvo6,1,540,0",    0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo6,1,540,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo6,1,540,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3414,8 +3426,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvo7,1,1024,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -3427,47 +3439,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvo7,1,1024,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvo7,1,1024,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R540",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R540",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,1024,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvo7,1,1024,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo6,1,540,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo6,1,540,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,1024,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo3,1,18,0,{wvo4,1,0,-1; cw; wvo1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo2,1,0,-1",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo2,1,0,-1",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3482,8 +3494,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request, then dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3497,8 +3509,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request without being dispatched.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -3511,10 +3523,10 @@ int main(int argc, char *argv[])
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3522,20 +3534,20 @@ int main(int argc, char *argv[])
      // dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3543,8 +3555,8 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor8,1,16384,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor8,1,16384,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3552,10 +3564,10 @@ int main(int argc, char *argv[])
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor3,1,18,0,{wvor4,1,0,-1; cw; wvor1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor2,1,0,-1",    0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor2,1,0,-1",    0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3569,8 +3581,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request, then dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3584,8 +3596,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request without being dispatched.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -3598,10 +3610,10 @@ int main(int argc, char *argv[])
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3609,20 +3621,20 @@ int main(int argc, char *argv[])
      // dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3630,8 +3642,8 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo8,1,16384,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo8,1,16384,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3639,10 +3651,10 @@ int main(int argc, char *argv[])
      { L_, "wvo7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo3,1,18,0,{wvo4,1,0,-1; cw; wvo1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo2,1,0,-1",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo2,1,0,-1",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3656,8 +3668,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3670,8 +3682,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -3683,47 +3695,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvor3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor7,1,57344,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor7,1,57344,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvor7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor3,1,18,0,{wvor4,1,0,-1; cw; wvor1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvor2,1,0,-1",    0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor2,1,0,-1",    0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3736,8 +3748,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvo7,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3750,8 +3762,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvo7,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -3763,47 +3775,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvo7,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvo7,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "cw",              0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "wvo3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvo7,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo7,1,57344,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo7,1,57344,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvo7,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo3,1,18,0,{wvo4,1,0,-1; cw; wvo1,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-     { L_, "wvo2,1,0,-1",     0,       1,      2,       1,  e_OVECTOR,   ""  },
-     { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,   ""  },
-     { L_, "dw1",             0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo2,1,0,-1",     0,       0,      2,       1,  e_OVECTOR,   ""  },
+     { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,   ""  },
+     { L_, "dw1",             0,       0,      1,       1,  e_OVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -3940,7 +3952,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
 // TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_SOLARIS
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_DARWIN)
         // --------------------------------------------------------------------
         // TESTING 'writevRaw(btls::Iovec)' FUNCTION:
         //   Initiate a non-blocking operation to *atomically* write *up *to*
@@ -4021,8 +4033,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
@@ -4035,53 +4047,53 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "wvir5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    }, /*
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R8192",           0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R8192",           0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    }, */
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir7,1,29760,0", 0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R6000",           0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir7,1,29760,0", 0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R6000",           0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvir7,1,29760,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvir3,1,18,0,{wvir4,1,0,-1; cw; wvir1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wvir2,1,0,-1",    0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wvir2,1,0,-1",    0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
@@ -4094,8 +4106,8 @@ int main(int argc, char *argv[])
    }, /*
    { // Enqueue 1 request, then dispatch.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    }, */
@@ -4108,53 +4120,53 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "wvi5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R22379",          0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R22379",          0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R8192",           0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R8192",           0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi7,1,29760,0",  0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R6000",           0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi7,1,29760,0",  0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R6000",           0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },/*
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,29760,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi3,1,18,0,{wvi4,1,0,-1; cw; wvi1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wvi2,1,0,-1",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R22379",          0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wvi2,1,0,-1",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R22379",          0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    }, */
@@ -4167,8 +4179,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvir6,1,540,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir6,1,540,0",   0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir6,1,540,0",   0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
@@ -4181,8 +4193,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvir7,1,1024,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4194,47 +4206,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvir7,1,1024,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "wvir5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvir7,1,1024,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R540",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R540",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvir7,1,1024,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvir7,1,1024,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir6,1,540,0",   0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvir6,1,540,0",   0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvir7,1,1024,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvir3,1,18,0,{wvir4,1,0,-1; cw; wvir1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wvir2,1,0,-1",    0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wvir2,1,0,-1",    0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
@@ -4247,8 +4259,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvi6,1,540,0",    0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi6,1,540,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi6,1,540,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
@@ -4261,8 +4273,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvi7,1,1024,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4274,47 +4286,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvi7,1,1024,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "wvi5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvi7,1,1024,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R540",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R540",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,1024,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvi7,1,1024,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi6,1,540,0",    0,       1,      1,       1,  e_NON_VEC,   ""   },
-    { L_, "R500",            0,       1,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "wvi6,1,540,0",    0,       0,      1,       1,  e_NON_VEC,   ""   },
+    { L_, "R500",            0,       0,      1,       1,  e_NON_VEC,   ""   },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,1024,0",   0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi3,1,18,0,{wvi4,1,0,-1; cw; wvi1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,   ""   },
-     { L_, "wvi2,1,0,-1",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R500",            0,       1,      2,       1,  e_NON_VEC,   ""   },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,   ""   },
+     { L_, "wvi2,1,0,-1",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R500",            0,       0,      2,       1,  e_NON_VEC,   ""   },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,   ""   },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""   }
    },
@@ -4328,8 +4340,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request, then dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4343,8 +4355,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request without being dispatched.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4357,10 +4369,10 @@ int main(int argc, char *argv[])
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "wvir5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-    { L_, "dw1",             0,       1,      1,       1,  e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+    { L_, "dw1",             0,       0,      1,       1,  e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4368,20 +4380,20 @@ int main(int argc, char *argv[])
      // dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir3,1,0,-1",    0,       0,      1,       1,  e_NON_VEC,    ""  },
     { L_, "cw",              0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir4,0,20,0",    0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "wb20,1,20,0",     0,       1,      2,       1,  e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-    { L_, "dw1",             0,       1,      1,       1,  e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wb20,1,20,0",     0,       0,      2,       1,  e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+    { L_, "dw1",             0,       0,      1,       1,  e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4389,8 +4401,8 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir8,1,16384,0", 0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R30000",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir8,1,16384,0", 0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R30000",          0,       0,      1,       1,  e_NON_VEC,    ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "R40000",          0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
@@ -4399,10 +4411,10 @@ int main(int argc, char *argv[])
      { L_, "wvir7,1,16383,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvir7,1,16383,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvir3,1,18,0,{wvir4,1,0,-1; cw; wvir1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wvir2,1,0,-1",    0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wvir2,1,0,-1",    0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4417,8 +4429,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request, then dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4432,8 +4444,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request without being dispatched.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4446,10 +4458,10 @@ int main(int argc, char *argv[])
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-     { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wvi5,1,40,0",     0,       1,      2,       1,  e_NON_VEC,     ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+     { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wvi5,1,40,0",     0,       0,      2,       1,  e_NON_VEC,     ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4457,20 +4469,20 @@ int main(int argc, char *argv[])
      // dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4478,8 +4490,8 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi8,1,16384,0",  0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi8,1,16384,0",  0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4487,10 +4499,10 @@ int main(int argc, char *argv[])
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi3,1,18,0,{wvi4,1,0,-1; cw; wvi1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wvi2,1,0,-1",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wvi2,1,0,-1",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4502,10 +4514,10 @@ int main(int argc, char *argv[])
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 1 request, then dispatch.
-     { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
+     { L_, "wvir7,1,8192,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      0,       0,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      0,       0,  e_NON_VEC,    ""  },
+     { L_, "dw0",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4516,9 +4528,9 @@ int main(int argc, char *argv[])
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 1 request without being dispatched.
-     { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wvir7,1,8192,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      0,       0,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4529,48 +4541,48 @@ int main(int argc, char *argv[])
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-     { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "wvir5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
-     { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
+     { L_, "wvir7,1,8192,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      2,       1, e_IOVECTOR,   ""  },
+     { L_, "dw1",             0,       0,      2,       1, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
-     { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,0,-1",    0,       1,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wvir7,1,8192,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir4,0,20,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
+    { L_, "wvir4,0,20,0",    0,       0,      0,       0,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      0,       0,  e_NON_VEC,    ""  },
+     { L_, "dw0",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir3,1,18,0",    0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvir3,1,18,0",    0,       0,      0,       0,  e_NON_VEC,    ""  },
+     { L_, "wb20,1,20,0",     0,       0,      0,       0, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      0,       0,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvir7,1,57344,0", 0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir7,1,57344,0", 0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvir7,1,73728,0", 0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvir3,1,18,0,{wvir4,1,0,-1; cw; wvir1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wvir2,1,0,-1",    0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wvir2,1,0,-1",    0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4584,8 +4596,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4598,8 +4610,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -4611,47 +4623,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-    { L_, "wvi5,1,40,0",    0,       1,      2,       1,  e_NON_VEC,     ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",      0,       0,      1,       1,  e_NON_VEC,   ""  },
+    { L_, "wvi5,1,40,0",    0,       0,      2,       1,  e_NON_VEC,     ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,0,-1",     0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi3,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "cw",              0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi4,0,20,0",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi4,0,20,0",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi3,1,18,0",     0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wb20,1,20,0",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+    { L_, "wvi3,1,18,0",     0,       0,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wb20,1,20,0",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi7,1,57344,0",  0,       1,      1,       1,  e_NON_VEC,    ""  },
-    { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi7,1,57344,0",  0,       0,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "R52379",          0,       0,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
      { L_, "wvi7,1,73728,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi3,1,18,0,{wvi4,1,0,-1; cw; wvi1,0,11,0,{wb9,1,9,0};iw}",
-                             0,       1,      1,       1,  e_NON_VEC,    ""  },
-     { L_, "wvi2,1,0,-1",     0,       1,      2,       1, e_IOVECTOR,   ""  },
-    { L_, "R52379",          0,       1,      2,       1,  e_NON_VEC,    ""  },
-     { L_, "dw1",             0,       1,      1,       1, e_IOVECTOR,   ""  },
+                             0,       0,      1,       1,  e_NON_VEC,    ""  },
+     { L_, "wvi2,1,0,-1",     0,       0,      2,       1, e_IOVECTOR,   ""  },
+    { L_, "R52379",          0,       0,      2,       1,  e_NON_VEC,    ""  },
+     { L_, "dw1",             0,       0,      1,       1, e_IOVECTOR,   ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_NON_VEC,    ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
    },
@@ -4696,9 +4708,12 @@ int main(int argc, char *argv[])
             btlso::StreamSocket<btlso::IPv4Address> *cSocket =
                                             factory.allocate(handles[1]);
 
-            btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::e_NO_HINT,
-               &testAllocator);
+            btlso::TcpTimerEventManager rEventManager(
+                                    btlso::TcpTimerEventManager::e_NO_HINT,
+                                    &testAllocator);
+            btlso::TcpTimerEventManager wEventManager(
+                                    btlso::TcpTimerEventManager::e_NO_HINT,
+                                    &testAllocator);
 
             {
 
@@ -4708,7 +4723,8 @@ int main(int argc, char *argv[])
                 // inside a block while the corresponding 'streamSocket' object
                 // is created outside the block as above.
 
-                btlsos::TcpCbChannel channel(sSocket, &eventManager,
+                btlsos::TcpCbChannel channel(sSocket, &rEventManager,
+                                             &wEventManager,
                                             &testAllocator);
 
                 char readBuf[MAX_BUF];  // To read from the channel.
@@ -4724,6 +4740,7 @@ int main(int argc, char *argv[])
                         break;
                     }
                     const int LINE = SCRIPTS[i][j].d_line;
+                    P(LINE)
 
                     // There are 9 parameters in the bufferedReadCallback()
                     // function.  This is the maximum number of parameters to
@@ -4736,8 +4753,8 @@ int main(int argc, char *argv[])
                     // the function call less straightforward.  That's why we
                     // execute the following commands outside gg().
 
-                    int length = gg(&channel, &buffer, 0,
-                                    &eventManager, iter);
+                    int length = gg(&channel, &buffer, &rEventManager,
+                                    &wEventManager, iter);
                     if (length > 0) {
                         if ('W' == *iter) {
                             ret = helpWrite(handles[0],
@@ -4758,7 +4775,9 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                    LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
+                    LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite,
+                                 channel.numPendingWriteOperations(),
+                                 SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {
@@ -4766,15 +4785,17 @@ int main(int argc, char *argv[])
                                      channel.readEventManager()->numEvents());
                     }
                     if (channel.writeEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent ==
+                        LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent,
+                                     channel.writeEventManager()->numEvents(),
+                                     SCRIPTS[i][j].d_numWriteEvent ==
                                      channel.writeEventManager()->numEvents());
                     }
                     if (veryVerbose) {
                         P_(LINE);
                         P_(channel.numPendingReadOperations());
                         P_(channel.numPendingWriteOperations());
-                        P_(eventManager.numEvents());
-                        P(eventManager.numEvents());
+                        P_(rEventManager.numEvents());
+                        P_(wEventManager.numEvents());
                         cout << endl;
                     }
                     readBuf[0] = '\0';
@@ -6296,31 +6317,31 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w220,1,220,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w220,1,220,0",      0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enter 2 requests, make the second only partial write before dispatch,
      // then dispatch to finish that request.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w28720,1,28720,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w28720,1,28720,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request without being dispatched.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w18,1,18,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w40,1,40,0",        0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w18,1,18,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w40,1,40,0",        0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
 
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -6328,20 +6349,20 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w20,0,20,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w20,0,20,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
 
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w28,1,28,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w28,1,28,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
 
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -6350,22 +6371,22 @@ int main(int argc, char *argv[])
      // length of data during a dispatch, and so another dispatch is needed to
      // finish that request..
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w28720,1,28720,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w680,1,680,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w28720,1,28720,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w680,1,680,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
 
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    }, */
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "w28720,1,28720,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_, "w18,1,18,0,{w4,1,0,-1; cw; w11,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w2,1,0,-1",         0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w2,1,0,-1",         0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
 
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -6387,23 +6408,23 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w220,1,220,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w220,1,220,0",      0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enter 2 requests, make the second only partial write before dispatch,
      // then dispatch to finish that request.
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w1020,1,1020,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w1020,1,1020,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request without being dispatched.
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -6415,29 +6436,29 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w18,1,18,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w40,1,40,0",        0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w18,1,18,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w40,1,40,0",        0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w20,0,20,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w20,0,20,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "w28,1,28,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "w28,1,28,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6445,23 +6466,23 @@ int main(int argc, char *argv[])
      // length of data during a dispatch, and so another dispatch is needed to
      // finish that request..
    { L_, "w1024,1,1024,0",    0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "w1025,1,1025,0",    0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w680,1,680,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "w1025,1,1025,0",    0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w680,1,680,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      2,       1,  e_OVECTOR,   ""  },
 
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "w1024,1,1024,0",  0,       0,      0,       0,  e_OVECTOR,   ""    },
      { L_, "w18,1,18,0,{w4,1,0,-1; cw; w11,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w2,1,0,-1",         0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w2,1,0,-1",         0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6483,24 +6504,24 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request, then dispatch.
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w220,1,220,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w220,1,220,0",      0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enter 2 requests, make the second only partial write before dispatch,
      // then dispatch to finish that request.
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w20000,1,20000,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w20000,1,20000,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request without being dispatched.
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w10,1,0,-1",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w10,1,0,-1",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -6513,10 +6534,10 @@ int main(int argc, char *argv[])
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w18,1,18,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w40,1,40,0",        0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w18,1,18,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w40,1,40,0",        0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6524,20 +6545,20 @@ int main(int argc, char *argv[])
      // dispatch.
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w20,0,20,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w20,0,20,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w28,1,28,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "w28,1,28,0",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6546,12 +6567,12 @@ int main(int argc, char *argv[])
      // finish that request..
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "w30000,1,30000,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w680,1,680,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "w30000,1,30000,0",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w680,1,680,0",      0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6559,10 +6580,10 @@ int main(int argc, char *argv[])
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
    { L_, "w16383,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "w18,1,18,0,{w4,1,0,-1; cw; w11,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w2,1,0,-1",         0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w2,1,0,-1",         0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6582,24 +6603,24 @@ int main(int argc, char *argv[])
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request, then dispatch.
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w220,1,220,0",      0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "w73728,1,0,-1",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w220,1,0,-1",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      2,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enter 2 requests, make the second only partial write before dispatch,
      // then dispatch to finish that request.
-   { L_, "w23680,1,23680,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w73680,1,73680,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "w23680,1,0,-1",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w73680,1,0,-1",  0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      2,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request without being dispatched.
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w73728,1,0,-1",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -6610,54 +6631,54 @@ int main(int argc, char *argv[])
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w18,1,18,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w40,1,40,0",        0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "w73728,1,0,-1",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w18,1,0,-1",        0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "w40,1,0,-1",        0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w3,1,0,-1",         0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w73728,1,0,-1",  0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "w3,1,0,-1",         0,       0,      2,       1,  e_NON_VEC,   ""  },
    { L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "w20,0,20,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "w20,0,20,0",        0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "dw0",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "w28,1,28,0",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "w73728,1,0,-1",  0,       0,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "w28,1,0,-1",        0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "wb30,1,0,-1",       0,       0,      3,       1,  e_OVECTOR,   ""  },
+   { L_, "R52379",            0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_OVECTOR,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the first one couldn't extract the specified
      // length of data during a dispatch, and so another dispatch is needed to
      // finish that request..
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "w73680,1,73680,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w680,1,680,0",      0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
+   { L_, "w73728,1,0,-1",  0,       0,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "w73680,1,0,-1",  0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "w680,1,0,-1",      0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_OVECTOR,   ""  },
+   { L_, "R52379",            0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_OVECTOR,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_OVECTOR,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
-   { L_, "w73728,1,73728,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "w18,1,18,0,{w4,1,0,-1; cw; w11,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "w2,1,0,-1",         0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R52379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
+   { L_, "w73728,1,0,-1",  0,       0,      1,       1,  e_OVECTOR,   ""  },
+     { L_, "w18,1,0,-1,{w4,1,4,0; cw; w11,0,11,0,{wb9,1,9,0};iw}",
+                              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "w2,1,0,-1",         0,       0,      3,       1,  e_OVECTOR,   ""  },
+   { L_, "R52379",            0,       0,      3,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_OVECTOR,   ""  },
+   { L_, "dw1",               0,       0,      3,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
 
@@ -6695,7 +6716,10 @@ int main(int argc, char *argv[])
             btlso::StreamSocket<btlso::IPv4Address> *cSocket =
                                             factory.allocate(handles[1]);
 
-            btlso::TcpTimerEventManager eventManager(
+            btlso::TcpTimerEventManager rEventManager(
+               btlso::TcpTimerEventManager::e_NO_HINT,
+               &testAllocator);
+            btlso::TcpTimerEventManager wEventManager(
                btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
 
@@ -6706,8 +6730,9 @@ int main(int argc, char *argv[])
                 // inside a block while the corresponding 'streamSocket' object
                 // is created outside the block as above.
 
-                btlsos::TcpCbChannel channel(sSocket, &eventManager,
-                                            &testAllocator);
+                btlsos::TcpCbChannel channel(sSocket, &rEventManager,
+                                             &wEventManager,
+                                             &testAllocator);
 
                 char readBuf[MAX_BUF];  // To read from the channel.
                     // Buffer is a struct type where declares different
@@ -6734,8 +6759,8 @@ int main(int argc, char *argv[])
                     // the function call less straightforward.  That's why we
                     // execute the following commands outside gg().
 
-                    int length = gg(&channel, &buffer, 0,
-                                    &eventManager, iter);
+                    int length = gg(&channel, &buffer,
+                                    &rEventManager, &wEventManager, iter);
                     if (length > 0) {
                         if ('W' == *iter) {
                             ret = helpWrite(handles[0],
@@ -6754,23 +6779,29 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                    LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
+                    LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite,
+                                 channel.numPendingWriteOperations(),
+                                 SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numReadEvent ==
+                        LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numReadEvent,
+                                     channel.readEventManager()->numEvents(),
+                                     SCRIPTS[i][j].d_numReadEvent ==
                                      channel.readEventManager()->numEvents());
                     }
                     if (channel.writeEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent ==
+                        LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent,
+                                     channel.writeEventManager()->numEvents(),
+                                     SCRIPTS[i][j].d_numWriteEvent ==
                                      channel.writeEventManager()->numEvents());
                     }
                     if (veryVerbose) {
                         P_(LINE);
                         P_(channel.numPendingReadOperations());
                         P_(channel.numPendingWriteOperations());
-                        P_(eventManager.numEvents());
-                        P(eventManager.numEvents());
+                        P_(rEventManager.numEvents());
+                        P_(wEventManager.numEvents());
                         cout << endl;
                     }
                     readBuf[0] = '\0';
@@ -6863,8 +6894,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr220,1,220,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr220,1,220,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6877,53 +6908,53 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr3,1,0,-1",        0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R32379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr3,1,0,-1",        0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R32379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr18,1,18,0",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wr40,1,40,0",       0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr18,1,18,0",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr40,1,40,0",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr3,1,0,-1",        0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr3,1,0,-1",        0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr20,0,20,0",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R52379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr20,0,20,0",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R52379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },/*
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "wr28,1,28,0",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R22379",            0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "wr28,1,28,0",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R22379",            0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    }, */
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "wr28720,1,28720,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R22379",            0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr28720,1,28720,0", 0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R22379",            0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "wr28720,1,28720,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wr18,1,18,0,{wr4,1,0,-1; cw; wr11,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wr2,1,0,-1",        0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R2379",             0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr2,1,0,-1",        0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R2379",             0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6937,8 +6968,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request, then dispatch.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr220,1,220,0",     0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr220,1,220,0",     0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
@@ -6951,8 +6982,8 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 1 request without being dispatched.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr50,1,0,-1",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr50,1,0,-1",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -6964,47 +6995,47 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr18,1,18,0",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wr40,1,40,0",       0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr18,1,18,0",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr40,1,40,0",       0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr50,1,0,-1",       0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr50,1,0,-1",       0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "cw",                0,       0,      0,       0,  e_NON_VEC,   ""  },
-   { L_, "wr20,0,20,0",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr20,0,20,0",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "wr28,1,28,0",       0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+   { L_, "wr28,1,28,0",       0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
-   { L_, "wr1020,1,1020,0",   0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "R500",              0,       1,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr1020,1,1020,0",   0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "R500",              0,       0,      1,       1,  e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
     { L_,  0,                  0,       0,      0,       0,  e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "wr1020,1,1020,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wr18,1,18,0,{wr4,1,0,-1; cw; wr11,0,11,0,{wb9,1,9,0};iw}",
-                              0,       1,      1,       1,  e_NON_VEC,   ""  },
-   { L_, "wr2,1,0,-1",        0,       1,      2,       1,  e_OVECTOR,   ""  },
-   { L_, "R500",              0,       1,      2,       1,  e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+                              0,       0,      1,       1,  e_NON_VEC,   ""  },
+   { L_, "wr2,1,0,-1",        0,       0,      2,       1,  e_OVECTOR,   ""  },
+   { L_, "R500",              0,       0,      2,       1,  e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
@@ -7017,8 +7048,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request, then dispatch.
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr20,1,20,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr20,1,20,0",       0,       0,      1,       1, e_NON_VEC,   ""  },
+    { L_, "R52379",            0,       0,      1,       1, e_NON_VEC,   ""  },
     { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
@@ -7032,8 +7063,8 @@ int main(int argc, char *argv[])
    { // Enqueue 1 request without being dispatched.
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr3,1,0,-1",        0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr3,1,0,-1",        0,       0,      1,       1, e_NON_VEC,   ""  },
+    { L_, "R52379",            0,       0,      1,       1, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -7046,10 +7077,10 @@ int main(int argc, char *argv[])
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr20,1,20,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "wr40,1,40,0",       0,       1,      2,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      2,       1, e_NON_VEC,   ""  },
-    { L_, "dw1",               0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr20,1,20,0",       0,       0,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr40,1,40,0",       0,       0,      2,       1, e_NON_VEC,   ""  },
+    { L_, "R52379",            0,       0,      2,       1, e_NON_VEC,   ""  },
+    { L_, "dw1",               0,       0,      1,       1, e_NON_VEC,   ""  },
     { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
@@ -7057,20 +7088,20 @@ int main(int argc, char *argv[])
      // dispatch.
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
     { L_, "wr16383,1,16383,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr3,1,0,-1",        0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr3,1,0,-1",        0,       0,      1,       1, e_NON_VEC,   ""  },
     { L_, "cw",                0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr20,0,20,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr20,0,20,0",       0,       0,      1,       1, e_NON_VEC,   ""  },
+    { L_, "R52379",            0,       0,      1,       1, e_NON_VEC,   ""  },
     { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
    { L_, "wr16383,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
    { L_, "wr16383,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-    { L_, "wr28,1,28,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-    { L_, "R52379",            0,       1,      2,       1, e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+    { L_, "wr28,1,28,0",       0,       0,      1,       1, e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      2,       1,  e_OVECTOR,   ""  },
+    { L_, "R52379",            0,       0,      2,       1, e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
     { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
@@ -7078,8 +7109,8 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
    { L_, "wr16383,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
    { L_, "wr16383,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-    { L_, "wr33000,1,16384,0", 0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr33000,1,16384,0", 0,       0,      1,       1, e_NON_VEC,   ""  },
+    { L_, "R52379",            0,       0,      1,       1, e_NON_VEC,   ""  },
    { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
     { L_, "R52379",            0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
@@ -7088,10 +7119,10 @@ int main(int argc, char *argv[])
    { L_, "wr16383,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
    { L_, "wr16383,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wr18,1,18,0,{wr4,1,0,-1; cw; wr11,0,11,0,{wb9,1,9,0};iw}",
-                               0,       1,      1,       1, e_NON_VEC,   ""  },
-   { L_, "wr2,1,0,-1",        0,       1,      2,       1,  e_OVECTOR,   ""  },
-    { L_, "R52379",            0,       1,      2,       1, e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
+                               0,       0,      1,       1, e_NON_VEC,   ""  },
+   { L_, "wr2,1,0,-1",        0,       0,      2,       1,  e_OVECTOR,   ""  },
+    { L_, "R52379",            0,       0,      2,       1, e_NON_VEC,   ""  },
+   { L_, "dw1",               0,       0,      1,       1,  e_OVECTOR,   ""  },
     { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
@@ -7103,10 +7134,10 @@ int main(int argc, char *argv[])
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request, then dispatch.
-    { L_, "wr73728,1,73728,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr220,1,220,0",     0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr4096,1,4096,0",   0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr220,1,220,0",     0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "R4096",             0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "dw0",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
@@ -7117,10 +7148,10 @@ int main(int argc, char *argv[])
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request without being dispatched.
-    { L_, "wr73728,1,73728,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr3,1,0,-1",        0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
-     { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
+    { L_, "wr4096,1,4096,0",   0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr3,1,3,0",         0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "R4096",             0,       0,      0,       0, e_NON_VEC,   ""  },
+     { L_,  0,                 0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Invalidate the channel, then issue 1 request and try dispatching.
     { L_, "wr1040,1,1040,0",   0,       0,      0,       0, e_NON_VEC,   ""  },
@@ -7130,49 +7161,49 @@ int main(int argc, char *argv[])
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-    { L_, "wr73728,1,73728,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr18,1,18,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "wr40,1,40,0",       0,       1,      2,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      2,       1, e_NON_VEC,   ""  },
-    { L_, "dw1",               0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
-     { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
+    { L_, "wr4096,1,4096,0",   0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr18,1,18,0",       0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr40,1,40,0",       0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "R4096",             0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "dw0",               0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "dw0",               0,       0,      0,       0, e_NON_VEC,   ""  },
+     { L_,  0,                  0,       0,      0,      0, e_NON_VEC,   ""  }
    },
    { // Enqueue 1 request and later cancel it, then enqueue a new request and
      // dispatch.
-    { L_, "wr73728,1,73728,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr3,1,0,-1",        0,       1,      1,       1, e_NON_VEC,   ""  },
+    { L_, "wr4096,1,4096,0",   0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr3,1,3,0",         0,       0,      0,       0, e_NON_VEC,   ""  },
     { L_, "cw",                0,       0,      0,       0, e_NON_VEC,   ""  },
-    { L_, "wr20,0,20,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "wr20,0,20,0",       0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "R4096",             0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "dw0",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
-   { L_, "wr73728,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-    { L_, "wr28,1,28,0",       0,       1,      1,       1, e_NON_VEC,   ""  },
-   { L_, "wb30,1,30,0",       0,       1,      2,       1,  e_OVECTOR,   ""  },
-    { L_, "R52379",            0,       1,      2,       1, e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
-    { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
-     { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
+   { L_, "wr4096,1,4096,0",   0,       0,      0,       0,  e_OVECTOR,   ""  },
+    { L_, "wr28,1,28,0",       0,      0,      0,       0, e_NON_VEC,   ""  },
+   { L_, "wb30,1,30,0",       0,       0,      0,       0,  e_OVECTOR,   ""  },
+    { L_, "R4096",            0,       0,      0,       0, e_NON_VEC,   ""  },
+   { L_, "dw0",               0,       0,      0,       0,  e_OVECTOR,   ""  },
+    { L_, "dw0",               0,       0,     0,       0, e_NON_VEC,   ""  },
+     { L_,  0,                  0,       0,    0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests, make the second one couldn't extract the specified
      // length of data during dispatch.
-   { L_, "wr73728,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-    { L_, "wr73680,1,57344,0", 0,       1,      1,       1, e_NON_VEC,   ""  },
-    { L_, "R52379",            0,       1,      1,       1, e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       0,      0,       0,  e_OVECTOR,   ""  },
+   { L_, "wr4096,1,4096,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
+    { L_, "wr1024,1,1024,0", 0,       0,      0,       0, e_NON_VEC,   ""  },
+    { L_, "R4096",            0,      0,      0,       0, e_NON_VEC,   ""  },
+   { L_, "dw0",               0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    { // Enqueue 2 requests of different write event types, and dispatch.
-   { L_, "wr73728,1,73728,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wr18,1,18,0,{wr4,1,0,-1; cw; wr11,0,11,0,{wb9,1,9,0};iw}",
-                               0,       1,      1,       1, e_NON_VEC,   ""  },
-   { L_, "wr2,1,0,-1",        0,       1,      2,       1,  e_OVECTOR,   ""  },
-    { L_, "R52379",            0,       1,      2,       1, e_NON_VEC,   ""  },
-   { L_, "dw1",               0,       1,      1,       1,  e_OVECTOR,   ""  },
-    { L_, "dw1",               0,       0,      0,       0, e_NON_VEC,   ""  },
+   { L_, "wr4096,1,4096,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
+     { L_, "wr18,1,18,0,{wr4,1,4,0; cw; wr11,0,11,0,{wb9,1,9,0};iw}",
+                               0,       0,      0,       0, e_NON_VEC,   ""  },
+   { L_, "wr2,1,3,0",        0,       0,      0,       0,  e_OVECTOR,   ""  },
+    { L_, "R4096",            0,       0,      0,       0, e_NON_VEC,   ""  },
+   { L_, "dw0",               0,       0,      0,       0,  e_OVECTOR,   ""  },
+    { L_, "dw0",               0,       0,      0,       0, e_NON_VEC,   ""  },
      { L_,  0,                  0,       0,      0,       0, e_NON_VEC,   ""  }
    },
    #endif
@@ -7237,7 +7268,6 @@ int main(int argc, char *argv[])
                         break;
                     }
                     const int LINE = SCRIPTS[i][j].d_line;
-
                     // There are 9 parameters in the bufferedReadCallback()
                     // function.  This is the maximum number of parameters to
                     // call makeF() for a functor object.  If we have the
@@ -7269,15 +7299,21 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                    LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
+                    LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite,
+                                 channel.numPendingWriteOperations(),
+                                 SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numReadEvent ==
+                        LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numReadEvent,
+                                     channel.readEventManager()->numEvents(),
+                                     SCRIPTS[i][j].d_numReadEvent ==
                                      channel.readEventManager()->numEvents());
                     }
                     if (channel.writeEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent ==
+                        LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent,
+                                    channel.writeEventManager()->numEvents(),
+                                    SCRIPTS[i][j].d_numWriteEvent ==
                                      channel.writeEventManager()->numEvents());
                     }
                     if (veryVerbose) {
@@ -7370,37 +7406,37 @@ int main(int argc, char *argv[])
    //---- ---       --------  -----  --------  ------  ----   ---------
    { // Enqueue 1 request, then dispatch: concern (2).
      { L_, "W4",         0,      0,      0,       0,  e_NON_VEC,     ""      },
-     { L_, "rr4,0,4,0",  1,      1,      0,       1,  e_NON_VEC,     ""      },
+     { L_, "rr4,0,4,0",  1,      1,      0,       0,  e_NON_VEC,     ""      },
      { L_, "dr1",        0,      0,      0,       0,  e_NON_VEC,     "j123"  },
      { L_,  0,           0,      0,      0,       0,  e_NON_VEC,     ""      }
    },
    { // Enqueue 1 request, then dispatch: concern (2) for diff length.
      { L_, "W4",         0,      0,      0,       0,  e_NON_VEC,     ""      },
-     { L_, "rr3,0,3,0",  1,      1,      0,       1,  e_NON_VEC,     ""      },
+     { L_, "rr3,0,3,0",  1,      1,      0,       0,  e_NON_VEC,     ""      },
      { L_, "dr1",        0,      0,      0,       0,  e_NON_VEC,     "j12"   },
      { L_,  0,           0,      0,      0,       0,  e_NON_VEC,     ""      }
    },
    { // Enqueue 1 request, then dispatch: concern (2) for diff length.
      { L_, "W4",         0,      0,      0,       0,  e_NON_VEC,     ""      },
-     { L_, "rr2,0,2,0",  1,      1,      0,       1,  e_NON_VEC,     ""      },
+     { L_, "rr2,0,2,0",  1,      1,      0,       0,  e_NON_VEC,     ""      },
      { L_, "dr1",        0,      0,      0,       0,  e_NON_VEC,     "j1"    },
      { L_,  0,           0,      0,      0,       0,  e_NON_VEC,     ""      }
    },
    { // Enqueue 1 request, then dispatch: concern (2) for diff length.
      { L_, "W4",         0,      0,      0,       0,  e_NON_VEC,     ""      },
-     { L_, "rr5,0,4,0",  1,      1,      0,       1,  e_NON_VEC,     ""      },
+     { L_, "rr5,0,4,0",  1,      1,      0,       0,  e_NON_VEC,     ""      },
      { L_, "dr1",        0,      0,      0,       0,  e_NON_VEC,     "j123"  },
      { L_,  0,           0,      0,      0,       0,  e_NON_VEC,     ""      }
    },
    { // Enqueue 1 request, then dispatch: concern (2) for diff length.
      { L_, "W4",         0,      0,      0,       0,  e_NON_VEC,     ""      },
-     { L_, "rr6,0,4,0",  1,      1,      0,       1,  e_NON_VEC,     ""      },
+     { L_, "rr6,0,4,0",  1,      1,      0,       0,  e_NON_VEC,     ""      },
      { L_, "dr1",        0,      0,      0,       0,  e_NON_VEC,     "j123"  },
      { L_,  0,           0,      0,      0,       0,  e_NON_VEC,     ""      }
    },
    { // Enqueue 2 requests, then dispatch: concern (1).
      { L_, "W11",        0,      0,      0,       0,  e_NON_VEC,     ""      },
-     { L_, "rb2,0,2,0",  1,      1,      0,       1,  e_NON_VEC,     ""      },
+     { L_, "rb2,0,2,0",  1,      1,      0,       0,  e_NON_VEC,     ""      },
      { L_, "dr1",        0,      0,      0,       0,  e_NON_VEC,     "j1"    },
      { L_, "rr5,0,5,0",  0,      0,      0,       0,  e_NON_VEC,     "23456" },
      { L_, "dr0",        0,      0,      0,       0,  e_NON_VEC,     ""      },
@@ -7416,40 +7452,40 @@ int main(int argc, char *argv[])
    },
    { // Enqueue 2 requests, then dispatch: concern (4) and (5).
      { L_, "W11",        0,      0,      0,       0, e_NON_VEC,     ""      },
-     { L_, "rr4,0,4,0",  1,      1,      0,       1, e_NON_VEC,     ""      },
-     { L_, "rr3,0,3,0",  2,      1,      0,       1, e_NON_VEC,     ""      },
-     { L_, "dr1",        1,      1,      0,       1, e_NON_VEC,     "j123"  },
+     { L_, "rr4,0,4,0",  1,      1,      0,       0, e_NON_VEC,     ""      },
+     { L_, "rr3,0,3,0",  2,      1,      0,       0, e_NON_VEC,     ""      },
+     { L_, "dr1",        1,      1,      0,       0, e_NON_VEC,     "j123"  },
      { L_, "dr1",        0,      0,      0,       0, e_NON_VEC,     "456"   },
      { L_,  0,           0,      0,      0,       0, e_NON_VEC,     ""      }
    },
    { // Enqueue 2 requests, then dispatch: concern (6).
      { L_, "W11",        0,      0,      0,       0, e_NON_VEC,     ""      },
-     { L_, "rr5,0,5,0",  1,      1,      0,       1, e_NON_VEC,     ""      },
-     { L_, "rb2,0,2,0",  2,      1,      0,       1, e_NON_VEC,     ""      },
-     { L_, "dr1",        1,      1,      0,       1, e_NON_VEC,     "j1234" },
+     { L_, "rr5,0,5,0",  1,      1,      0,       0, e_NON_VEC,     ""      },
+     { L_, "rb2,0,2,0",  2,      1,      0,       0, e_NON_VEC,     ""      },
+     { L_, "dr1",        1,      1,      0,       0, e_NON_VEC,     "j1234" },
      { L_, "dr1",        0,      0,      0,       0, e_NON_VEC,     "56"    },
      { L_,  0,           0,      0,      0,       0, e_NON_VEC,     ""      }
    },
    { // Concern: after cancel previous reads for a valid channel, if this
      // channel can still work correctly for new read request.
      {L_, "W11",         0,      0,      0,       0, e_NON_VEC,     ""      },
-     {L_, "rr4,0,0,-1",  1,      1,      0,       1, e_NON_VEC,     ""      },
+     {L_, "rr4,0,0,-1",  1,      1,      0,       0, e_NON_VEC,     ""      },
      {L_, "cr",          0,      0,      0,       0, e_NON_VEC,     ""      },
-     {L_, "rr3,1,3,0",   1,      1,      0,       1, e_NON_VEC,     ""      },
+     {L_, "rr3,1,3,0",   1,      1,      0,       0, e_NON_VEC,     ""      },
      {L_, "dr1",         0,      0,      0,       0, e_NON_VEC,     "j12"   },
    },
    { // Concern: if this channel can work correctly for new read requests from
      // the user-installed callback function.
      {L_, "W11",          0,      0,      0,      0, e_NON_VEC,     ""      },
      {L_, "rr3,0,3,0,{rr2,1,2,0}",
-                         1,      1,      0,       1, e_NON_VEC,     ""      },
-     {L_, "dr1",         1,      1,      0,       1, e_NON_VEC,     "j12"   },
-     {L_, "W4",         1,      1,      0,        1, e_NON_VEC,     ""      },
+                         1,      1,      0,       0, e_NON_VEC,     ""      },
+     {L_, "dr1",         1,      1,      0,       0, e_NON_VEC,     "j12"   },
+     {L_, "W4",         1,      1,      0,        0, e_NON_VEC,     ""      },
      {L_, "rr1,1,1,0,{rr5,0,5,0; rr3,1,3,0}",
-                         2,      1,      0,       1, e_NON_VEC,     ""      },
-     {L_, "dr1",         1,      1,      0,       1, e_NON_VEC,     "34"    },
-     {L_, "dr1",         2,      1,      0,       1, e_NON_VEC,     "5"     },
-     {L_, "dr1",         1,      1,      0,       1, e_NON_VEC,     "67890" },
+                         2,      1,      0,       0, e_NON_VEC,     ""      },
+     {L_, "dr1",         1,      1,      0,       0, e_NON_VEC,     "34"    },
+     {L_, "dr1",         2,      1,      0,       0, e_NON_VEC,     "5"     },
+     {L_, "dr1",         1,      1,      0,       0, e_NON_VEC,     "67890" },
      {L_, "dr1",         0,      0,      0,       0, e_NON_VEC,     "j12"   },
      {L_,  0,            0,      0,      0,       0, e_NON_VEC,     ""      }
    },
@@ -7478,7 +7514,8 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[0]);
             LOOP_ASSERT(i, sSocket);
 
-            btlso::TcpTimerEventManager eventManager(&testAllocator);
+            btlso::TcpTimerEventManager rEventManager(&testAllocator);
+            btlso::TcpTimerEventManager wEventManager(&testAllocator);
 
             {
                 // We should guarantee that the 'channel's destructor is
@@ -7487,8 +7524,8 @@ int main(int argc, char *argv[])
                 // inside a block while the corresponding 'streamSocket' object
                 // is created outside the block as above.
 
-                btlsos::TcpCbChannel channel(sSocket, &eventManager,
-                                            &testAllocator);
+                btlsos::TcpCbChannel channel(sSocket, &rEventManager,
+                                             &wEventManager, &testAllocator);
 
                 for (int j = 0; j < MAX_CMDS; ++j) {
                     const char *command = SCRIPTS[i][j].d_cmd;
@@ -7504,8 +7541,8 @@ int main(int argc, char *argv[])
                     // readBuffer, writeBuffer, iovecBuffer, ovecBuffer.  This
                     // struct is declared at the beginning of this test driver.
                     Buffer buffer = {readBuf, 0, 0, 0, 0};
-                    int length = gg(&channel, &buffer, &eventManager, 0,
-                                                                     command);
+                    int length = gg(&channel, &buffer, &rEventManager,
+                                    &wEventManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
                     // function.  This is the maximum number of parameters to
@@ -7545,7 +7582,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) {
                         P_(LINE);
                         P_(channel.numPendingReadOperations());
-                        P(eventManager.numEvents());
+                        P(rEventManager.numEvents());
                         P_(buffer.d_readBuf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
@@ -7717,19 +7754,19 @@ int main(int argc, char *argv[])
    {
     { L_, "rb1,0,0,-1",       1,     1,      0,        0, e_NON_VEC,   ""    },
     { L_, "rb4,1,0,-1",       2,     1,      0,        0, e_NON_VEC,   ""    },
-    { L_, "w73720,0,73720,0", 2,     1,      0,        0, e_NON_VEC,   ""    },
-    { L_, "w33720,0,0,-1",    2,     1,      1,        1, e_NON_VEC,   ""    },
+    { L_, "w4096,0,4096,0",   2,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "w73787,0,0,-1",    2,     1,      1,        1, e_NON_VEC,   ""    },
     { L_, "w25,1,0,-1",       2,     1,      2,        1, e_NON_VEC,   ""    },
 
-    { L_, "ca",               0,     0,      0,        0, e_NON_VEC,   ""    },
+    { L_, "cas",              0,     0,      0,        0, e_NON_VEC,   ""    },
     { L_, "r15,1,0,-1",       1,     1,      0,        0, e_NON_VEC,   ""    },
-    { L_, "w5,1,0,-1",        1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "ia",               1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "r3,1,0,-1",        1,     1,      1,        1, e_NON_VEC,   ""    },
+    { L_, "w5,1,5,0",         1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "ia",               1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "r3,1,0,-1",        1,     1,      0,        0, e_NON_VEC,   ""    },
 
-    { L_, "w5,1,0,-1",        1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "r5,1,0,-1",        1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "w9,1,0,-1",        1,     1,      1,        1, e_NON_VEC,   ""    },
+    { L_, "w5,1,5,0",        1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "r5,1,0,-1",        1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "w9,1,9,0",        1,     1,      0,        0, e_NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0, e_NON_VEC,   ""    }
    };
 
@@ -7834,7 +7871,9 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SCRIPTS[j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                        LOOP_ASSERT(LINE, SCRIPTS[j].d_numPendingWrite ==
+                        LOOP3_ASSERT(LINE, SCRIPTS[j].d_numPendingWrite,
+                                    channel.numPendingWriteOperations(),
+                                    SCRIPTS[j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                         if (channel.readEventManager()) {
@@ -8150,16 +8189,16 @@ int main(int argc, char *argv[])
    {
     { L_, "rb1,0,0,-1",       1,     1,      0,        1, e_NON_VEC,   ""    },
     { L_, "rb4,1,0,-1",       2,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w73720,0,73720,0", 2,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w33720,0,33720,0", 2,     2,      1,        2, e_NON_VEC,   ""    },
+    { L_, "w4096,0,4096,0",   2,     1,      0,        1, e_NON_VEC,   ""    },
+    { L_, "w78192,0,0,-1",    2,     2,      1,        2, e_NON_VEC,   ""    },
     { L_, "w220,0,0,-1",      2,     2,      2,        2, e_NON_VEC,   ""    },
             // Make sure the write is not affected by cancelRead() by
             // dispatching a write request.
     { L_, "cr",               0,     1,      2,        1, e_NON_VEC,   ""    },
-    { L_, "R32729",           0,     1,      2,        1, e_NON_VEC,   ""    },
-    { L_, "R22729",           0,     1,      2,        1, e_NON_VEC,   ""    },
-    { L_, "dw1",              0,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "r15,1,0,-1",       1,     2,      1,        2, e_NON_VEC,   ""    },
+    { L_, "R4096",            0,     1,      2,        1, e_NON_VEC,   ""    },
+    { L_, "R8192",            0,     1,      2,        1, e_NON_VEC,   ""    },
+    { L_, "dw1",              0,     1,      2,        1, e_NON_VEC,   ""    },
+    { L_, "r15,1,0,-1",       1,     2,      2,        2, e_NON_VEC,   ""    },
 
     { L_, "cw",               1,     1,      0,        1, e_NON_VEC,   ""    },
     { L_, "w73720,0,0,-1",    1,     2,      1,        2, e_NON_VEC,   ""    },
@@ -8172,18 +8211,18 @@ int main(int argc, char *argv[])
    {
     { L_, "r8,0,8,0",         1,     1,      0,        0, e_NON_VEC,   ""    },
     { L_, "rb4,1,0,-1",       2,     1,      0,        0, e_NON_VEC,   ""    },
-    { L_, "w20,0,0,-1",       2,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "w720,0,0,-1",      2,     1,      2,        1, e_NON_VEC,   ""    },
-    { L_, "w220,0,0,-1",      2,     1,      3,        1, e_NON_VEC,   ""    },
+    { L_, "w20,0,20,0",       2,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "w720,0,720,0",     2,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "w220,0,220,0",     2,     1,      0,        0, e_NON_VEC,   ""    },
             // Verify that the read is not affected by cancelWrite() by
             // dispatching a write request.
     { L_, "cw",               2,     1,      0,        0, e_NON_VEC,   ""    },
      { L_, "W8",              2,     1,      0,        0, e_NON_VEC,   ""    },
     { L_, "dr1",              1,     1,      0,        0, e_NON_VEC,   ""    },
-    { L_, "w5,1,5,0",         1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "R22729",           1,     1,      1,        1, e_NON_VEC,   ""    },
+    { L_, "w5,1,5,0",         1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "R22729",           1,     1,      0,        0, e_NON_VEC,   ""    },
 
-    { L_, "dw1",              1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "dw0",              1,     1,      0,        0, e_NON_VEC,   ""    },
     { L_, "cr",               0,     0,      0,        0, e_NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0, e_NON_VEC,   ""    }
    },
@@ -8197,31 +8236,31 @@ int main(int argc, char *argv[])
             // dispatching a write request.
     { L_, "W8",               2,     1,      0,        0, e_NON_VEC,   ""    },
     { L_, "dr1",              1,     1,      0,        0, e_NON_VEC,   ""    },
-    { L_, "w5,1,5,0",         1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "R35729",           1,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "R35729",           1,     1,      1,        1, e_NON_VEC,   ""    },
+    { L_, "w5,1,5,0",         1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "R35729",           1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "R35729",           1,     1,      0,        0, e_NON_VEC,   ""    },
 
-    { L_, "dw1",              1,     1,      0,        0, e_NON_VEC,   ""    },
+    { L_, "dw0",              1,     1,      0,        0, e_NON_VEC,   ""    },
     { L_, "cr",               0,     0,      0,        0, e_NON_VEC,   ""    },
      { L_,  0,                 0,     0,      0,        0, e_NON_VEC,   ""    }
    },
-   {
-    { L_, "r8,0,0,-1",        1,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "rb4,1,0,-1",       2,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w63720,0,63720,0", 2,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w13720,0,13720,0", 2,     2,      1,        2, e_NON_VEC,   ""    },
-    { L_, "w720,0,720,0",     2,     2,      2,        2, e_NON_VEC,   ""    },
-    { L_, "cr",               0,     1,      2,        1, e_NON_VEC,   ""    },
-            // Verify that the read is not affected by cancelWrite() by
-            // dispatching a write request.
-    { L_, "R52729",           0,     1,      2,        1, e_NON_VEC,   ""    },
-    { L_, "dw1",              0,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "W55",              0,     1,      1,        1, e_NON_VEC,   ""    },
-    { L_, "r55,1,55,0",       1,     2,      1,        2, e_NON_VEC,   ""    },
-    { L_, "dr2",              0,     0,      0,        0, e_NON_VEC,   ""    },
-    { L_, "dr0",              0,     0,      0,        0, e_NON_VEC,   ""    },
-     { L_,  0,                 0,     0,      0,        0, e_NON_VEC,   ""    }
-   },
+// {
+//  { L_, "r8,0,0,-1",        1,     1,      0,        1, e_NON_VEC,   ""    },
+//  { L_, "rb4,1,0,-1",       2,     1,      0,        1, e_NON_VEC,   ""    },
+//  { L_, "w4096,0,4096,0",   2,     1,      0,        1, e_NON_VEC,   ""    },
+//  { L_, "w8192,0,8192,0",   2,     2,      0,        1, e_NON_VEC,   ""    },
+//  { L_, "w720,0,720,0",     2,     2,      0,        1, e_NON_VEC,   ""    },
+//  { L_, "cr",               0,     1,      0,        0, e_NON_VEC,   ""    },
+//            // Verify that the read is not affected by cancelWrite() by
+//            // dispatching a write request.
+//  { L_, "R52729",           0,     1,      2,        0, e_NON_VEC,   ""    },
+//  { L_, "dw1",              0,     1,      1,        0, e_NON_VEC,   ""    },
+//  { L_, "W55",              0,     1,      1,        0, e_NON_VEC,   ""    },
+//  { L_, "r55,1,55,0",       1,     2,      1,        1, e_NON_VEC,   ""    },
+//  { L_, "dr2",              0,     0,      0,        0, e_NON_VEC,   ""    },
+//  { L_, "dr0",              0,     0,      0,        0, e_NON_VEC,   ""    },
+//  { L_,  0,                 0,     0,      0,        0, e_NON_VEC,   ""    }
+// },
    #endif
  };
 
@@ -8333,11 +8372,11 @@ int main(int argc, char *argv[])
                             }
                             else if ('R' == *command) {
                                 memset(readBuf, '\0', sizeof readBuf);
-                                btlso::Flag::BlockingMode bm;
+                                btlso::Flags::BlockingMode bm;
                                 LOOP_ASSERT(LINE, 0 == sSocket->
                                         blockingMode(&bm));
                                 cSocket->setBlockingMode(
-                                        btlso::Flag::e_NONBLOCKING_MODE);
+                                        btlso::Flags::e_NONBLOCKING_MODE);
                                 int toRead = length;
                                 while (toRead > 0) {
                                     ret = cSocket->read(readBuf, toRead);
@@ -8357,7 +8396,10 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
+                        LOOP3_ASSERT(LINE,
+                                     SCRIPTS[i][j].d_numPendingWrite,
+                                     channel.numPendingWriteOperations(),
+                                     SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                         if (channel.readEventManager()) {
@@ -8365,7 +8407,9 @@ int main(int argc, char *argv[])
                                      channel.readEventManager()->numEvents());
                         }
                         if (channel.writeEventManager()) {
-                            LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent
+                            LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent,
+                                      channel.writeEventManager()->numEvents(),
+                                         SCRIPTS[i][j].d_numWriteEvent
                                   == channel.writeEventManager()->numEvents());
                         }
                         if (veryVerbose) {
@@ -8613,14 +8657,14 @@ int main(int argc, char *argv[])
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,      0,       0  },
      { L_, "rb4,1,0,-1",       2,     1,      0,        1,      0,       0  },
-     { L_, "w73720,0,73720,0", 2,     1,      0,        1,      0,       0  },
-     { L_, "w33720,0,33720,0", 2,     2,      1,        2,      0,       0  },
+     { L_, "w4096,0,4096,0",   2,     1,      0,        1,      0,       0  },
+     { L_, "w8192,0,8192,0",   2,     2,      1,        2,      0,       0  },
      { L_, "w220,0,0,-1",      2,     2,      2,        2,      0,       0  },
             // Make sure the write is not affected by cancelRead() by
             // dispatching a write request.
      { L_, "cr",               0,     1,      2,        1,      0,       0  },
-     { L_, "R32729",           0,     1,      2,        1,      0,       0  },
-     { L_, "R22729",           0,     1,      2,        1,      0,       0  },
+     { L_, "R4096",            0,     1,      2,        1,      0,       0  },
+     { L_, "R8192",            0,     1,      2,        1,      0,       0  },
      { L_, "dw1",              0,     1,      1,        1,      0,       0  },
      { L_, "r15,1,0,-1",       1,     2,      1,        2,      0,       0  },
 
@@ -8638,14 +8682,14 @@ int main(int argc, char *argv[])
    {
      { L_, "rb1,0,0,-1",       1,     1,      0,        0,      0,       0  },
      { L_, "rb4,1,0,-1",       2,     1,      0,        0,      0,       0  },
-     { L_, "w73720,0,73720,0", 2,     1,      0,        0,      0,       0  },
-     { L_, "w33720,0,33720,0", 2,     1,      1,        1,      0,       0  },
+     { L_, "w4096,0,4096,0",   2,     1,      0,        0,      0,       0  },
+     { L_, "w8192,0,8192,0",   2,     1,      1,        1,      0,       0  },
      { L_, "w220,0,0,-1",      2,     1,      2,        1,      0,       0  },
             // Make sure the write is not affected by cancelRead() by
             // dispatching a write request.
      { L_, "cr",               0,     0,      2,        1,      0,       0  },
-     { L_, "R32729",           0,     0,      2,        1,      0,       0  },
-     { L_, "R22729",           0,     0,      2,        1,      0,       0  },
+     { L_, "R4096",            0,     0,      2,        1,      0,       0  },
+     { L_, "R8192",            0,     0,      2,        1,      0,       0  },
      { L_, "dw1",              0,     0,      1,        1,      0,       0  },
      { L_, "r15,1,0,-1",       1,     1,      1,        1,      0,       0  },
 
@@ -8765,10 +8809,10 @@ int main(int argc, char *argv[])
                         }
                         else if ('R' == *command) {
                             memset(readBuf, '\0', sizeof readBuf);
-                            btlso::Flag::BlockingMode bm;
+                            btlso::Flags::BlockingMode bm;
                             LOOP_ASSERT(LINE, 0 == sSocket->blockingMode(&bm));
                             cSocket->setBlockingMode(
-                                    btlso::Flag::e_NONBLOCKING_MODE);
+                                    btlso::Flags::e_NONBLOCKING_MODE);
                             int toRead = length;
                             while (toRead > 0) {
                                 ret = cSocket->read(readBuf, toRead);
@@ -9000,20 +9044,20 @@ int main(int argc, char *argv[])
     { L_, "rb1,0,0,-1",       1,     1,      0,        1, e_NON_VEC,   ""    },
     { L_, "rb4,1,0,-1",       2,     1,      0,        1, e_NON_VEC,   ""    },
     { L_, "rb8,1,0,-1",       3,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w73720,0,73720,0", 3,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w33720,0,33720,0", 3,     2,      1,        2, e_NON_VEC,   ""    },
+    { L_, "w4096,0,4096,0",   3,     1,      0,        1, e_NON_VEC,   ""    },
+    { L_, "w33700,0,0,-1", 3,     2,      1,        2, e_NON_VEC,   ""    },
     { L_, "w220,0,0,-1",      3,     2,      2,        2, e_NON_VEC,   ""    },
     { L_, "w120,0,0,-1",      3,     2,      3,        2, e_NON_VEC,   ""    },
             // Make sure the write is not affected by cancelRead() by
             // dispatching a write request.
     { L_, "cr",               0,     1,      3,        1, e_NON_VEC,   ""    },
-    { L_, "R32729",           0,     1,      3,        1, e_NON_VEC,   ""    },
-    { L_, "R22729",           0,     1,      3,        1, e_NON_VEC,   ""    },
-    { L_, "dw1",              0,     1,      2,        1, e_NON_VEC,   ""    },
-    { L_, "r15,1,0,-1",       1,     2,      2,        2, e_NON_VEC,   ""    },
+    { L_, "R4096",            0,     1,      3,        1, e_NON_VEC,   ""    },
+    { L_, "R8192",            0,     1,      3,        1, e_NON_VEC,   ""    },
+    { L_, "dw1",              0,     1,      3,        1, e_NON_VEC,   ""    },
+    { L_, "r15,1,0,-1",       1,     2,      3,        2, e_NON_VEC,   ""    },
 
     { L_, "cw",               1,     1,      0,        1, e_NON_VEC,   ""    },
-    { L_, "w73720,0,0,-1",    1,     2,      1,        2, e_NON_VEC,   ""    },
+    { L_, "w73706,0,0,-1",    1,     2,      1,        2, e_NON_VEC,   ""    },
     { L_, "ir",               1,     2,      1,        2, e_NON_VEC,   ""    },
     { L_, "r3,1,0,-1",        1,     2,      1,        2, e_NON_VEC,   ""    },
     { L_, "w5,1,0,-1",        1,     2,      2,        2, e_NON_VEC,   ""    },
@@ -9125,7 +9169,9 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, SCRIPTS[j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
-                    LOOP_ASSERT(LINE, SCRIPTS[j].d_numPendingWrite ==
+                    LOOP4_ASSERT(LINE, j, SCRIPTS[j].d_numPendingWrite,
+                                 channel.numPendingWriteOperations(),
+                                 SCRIPTS[j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {

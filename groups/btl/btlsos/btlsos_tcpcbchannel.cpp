@@ -714,7 +714,7 @@ void TcpCbChannel::bufferedReadCb()
         d_currentReadRequest_p->invoke(NULL, e_CONNECTION_CLOSED, 0);
     } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
         if (d_currentReadRequest_p->d_flags
-                                        & btlsc::Flag::k_ASYNC_INTERRUPT) {
+                                        & btlsc::Flags::k_ASYNC_INTERRUPT) {
             bsl::deque<TcpCbChannel_RReg *> toBeDispatched(d_readRequests);
             toBeDispatched.pop_back();
             d_readRequests.erase(d_readRequests.begin(),
@@ -1068,7 +1068,7 @@ void TcpCbChannel::bufferedWriteCb() {
 
     } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
         if (d_currentWriteRequest_p->d_flags
-                                         & btlsc::Flag::k_ASYNC_INTERRUPT) {
+                                         & btlsc::Flags::k_ASYNC_INTERRUPT) {
             bsl::deque<TcpCbChannel_WReg *> toBeDispatched(d_writeRequests);
             toBeDispatched.pop_back();
             d_writeRequests.erase(d_writeRequests.begin(),
