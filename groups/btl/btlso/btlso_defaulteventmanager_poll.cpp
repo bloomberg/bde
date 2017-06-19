@@ -12,7 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 
@@ -270,7 +270,7 @@ int DefaultEventManager<Platform::POLL>::dispatch(
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags)
               && now < timeout);
 
         if (0 >= rfds) {
@@ -332,7 +332,7 @@ int DefaultEventManager<Platform::POLL>::dispatch(int flags)
             }
             errno = 0;
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             if (0 == rfds) {

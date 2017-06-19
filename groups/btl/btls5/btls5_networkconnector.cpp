@@ -636,7 +636,7 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
             return 0;                                                 // RETURN
         }
     }
-    rc = socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+    rc = socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
     if (rc) {
         error->setDescription("Unable to set socket mode to non-blocking.");
         return 0;                                                     // RETURN

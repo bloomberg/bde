@@ -12,7 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlsc_channel_cpp,"$Id$ $CSID$")
 
-#include <btlsc_flag.h>          // for testing only
+#include <btlsc_flags.h>          // for testing only
 
 namespace BloombergLP {
 namespace btlsc {

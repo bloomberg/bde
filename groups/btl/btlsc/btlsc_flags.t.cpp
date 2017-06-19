@@ -1,4 +1,4 @@
-// btlsc_flag.t.cpp                                                   -*-C++-*-
+// btlsc_flags.t.cpp                                                  -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bdls_testutil.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
@@ -26,11 +26,11 @@ using namespace bsl;
 //                              --------
 // Standard enumeration test plan.
 //-----------------------------------------------------------------------------
-// [ 1] enum Enum { ... };
+// [ 1] enum Flag { ... };
 // [ 1] enum { k_LENGTH = ... };
-// [ 1] static const char *toAscii(Enum value);
+// [ 1] static const char *toAscii(Flag value);
 //
-// [ 1] ostream& operator<<(ostream& stream, Flag::Enum value);
+// [ 1] ostream& operator<<(ostream& stream, Flag::Flag value);
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -82,8 +82,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef btlsc::Flag Class;
-typedef Class::Enum Enum;
+typedef btlsc::Flags Class;
+typedef Class::Flag  Flag;
 
 // ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
@@ -141,16 +141,16 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'btlsc::Flag' operation.
+// 'btlsc::Flags' operation.
 //
-// First, create a variable, 'flag', of type 'btlsc::Flag::Enum', and
-// initialize it to the value 'btlsc::Flag::k_ASYNC_INTERRUPT':
+// First, create a variable, 'flag', of type 'btlsc::Flags::Flag', and
+// initialize it to the value 'btlsc::Flags::k_ASYNC_INTERRUPT':
 //..
-    btlsc::Flag::Enum flag = btlsc::Flag::k_ASYNC_INTERRUPT;
+    btlsc::Flags::Flag flag = btlsc::Flags::k_ASYNC_INTERRUPT;
 //..
 // Next, store its representation in a variable, 'rep', of type 'const char *':
 //..
-    const char *rep = btlsc::Flag::toAscii(flag);
+    const char *rep = btlsc::Flags::toAscii(flag);
     ASSERT(0 == bsl::strcmp(rep, "ASYNC_INTERRUPT"));
 //..
 // Finally, we print the value of 'flag' to 'stdout':
@@ -178,17 +178,17 @@ if (verbose) {  // added in test driver
         //   representation and 'ostream' output for invalid enumerator values.
         //
         // Testing:
-        //   enum Enum { ... };
+        //   enum Flag { ... };
         //   enum { k_LENGTH = ... };
-        //   static const char *toAscii(Enum value);
-        //   ostream& operator<<(ostream& stream, Flag::Enum value);
+        //   static const char *toAscii(Flag value);
+        //   ostream& operator<<(ostream& stream, Flag::Flag value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "VALUE TEST" << endl
                                   << "==========" << endl;
 
         static const struct {
-            Enum        d_enum;   // enumerated value
+            Flag        d_Flag;   // enumerated value
             const char *d_ascii;  // string representation
         } DATA[] = {
             // Enumerated Value              String Representation
@@ -225,7 +225,7 @@ if (verbose) {  // added in test driver
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
-            const char *const ACT = Class::toAscii((Enum) twoToTheN(i));
+            const char *const ACT = Class::toAscii((Flag) twoToTheN(i));
             if (veryVerbose)
                 cout << "  ACTUAL FORMAT: " << ACT << endl <<endl;
 
@@ -253,7 +253,7 @@ if (verbose) {  // added in test driver
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
             bsl::ostream out(&obuf);
-            out << (Enum) twoToTheN(i) << ends;
+            out << (Flag) twoToTheN(i) << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
             const int SZ = strlen(FMT) + 1;

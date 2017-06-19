@@ -1415,7 +1415,7 @@ class ChannelPool {
     int shutdown(int                       channelId,
                  ShutdownMode              mode = e_IMMEDIATE);
     int shutdown(int                       channelId,
-                 btlso::Flag::ShutdownType type,
+                 btlso::Flags::ShutdownType type,
                  ShutdownMode              mode = e_IMMEDIATE);
         // Shut down the communication channel having the specified 'channelId'
         // in the optionally specified 'mode' and return 0 on success, and a

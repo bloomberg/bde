@@ -12,7 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_eventtype.h>
 #include <btlso_socketimputil.h>
 #include <btlso_eventmanager.h>
@@ -730,7 +730,7 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = 0;
               } break;
               case 'i': {
-                flags = btlso::Flag::k_ASYNC_INTERRUPT;
+                flags = btlso::Flags::k_ASYNC_INTERRUPT;
               } break;
               default: {
                 return e_FAIL;                                        // RETURN
@@ -757,7 +757,7 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = 0;
               } break;
               case 'i': {
-                flags = btlso::Flag::k_ASYNC_INTERRUPT;
+                flags = btlso::Flags::k_ASYNC_INTERRUPT;
               } break;
               default: {
                 return e_FAIL;                                        // RETURN
@@ -1438,8 +1438,8 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
         //  ----   --------      ------                           ------
         {
            { L_,    INFINITE,      0,                                 1  },
-           { L_,    INFINITE,      btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
-           { L_,     TIMEOUT,      btlso::Flag::k_ASYNC_INTERRUPT,   -1  },
+           { L_,    INFINITE,      btlso::Flags::k_ASYNC_INTERRUPT,   -1  },
+           { L_,     TIMEOUT,      btlso::Flags::k_ASYNC_INTERRUPT,   -1  },
            { L_,     TIMEOUT,      0,                                 0  },
         };
 

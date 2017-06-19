@@ -211,15 +211,15 @@ BSLS_IDENT("$Id: $")
 //
 //  6. 'D'<I>,<RC>
 //     Dispatch events without specifying a timeout value,
-//           <I> = 'n' | 'i' : 'n' => flags = 0
-//                             'i' => flags = btlso_Flag::k_ASYNC_INTERRUPT
+//           <I> = 'n' | 'i' : 'n' => Flags = 0
+//                             'i' => flags = bteso_Flags ::k_ASYNC_INTERRUPT
 //           <RC> : the expected return value from the 'dispatch' method.
 //
 //  7. 'D'<I><MILLISECOND>,<RC>
 //     Dispatch events with the specified 'millisecond' timeout value,
 //     where <I> = 'n' | 'i' :
 //                             'n' => flags = 0
-//                             'i' => flags = btlso_Flag::k_ASYNC_INTERRUPT
+//                             'i' => flags = bteso_Flags ::k_ASYNC_INTERRUPT
 //           <MILLISECOND>   : a relative timeout in milliseconds
 //                             (negative and zero values are also allowed)
 //           <RC>            : the expected return value of the dispatch
@@ -289,7 +289,7 @@ BSLS_IDENT("$Id: $")
 //       there should be 1 event to be dispatched.
 // "Di100,2"
 //    -- Call dispatch on the event manager under test with flags set to
-//       btlso_Flag::k_ASYNC_INTERRUPT, the timeout value for the dispatch
+//       bteso_Flags ::k_ASYNC_INTERRUPT, the timeout value for the dispatch
 //       is 100 milliseconds, there are 2 events to be dispatched.
 // "E1a"
 //    -- Verify that an "ACCEPT" event has been registered for the observed

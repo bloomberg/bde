@@ -1,4 +1,4 @@
-// btlsc_flag.cpp                                                     -*-C++-*-
+// btlsc_flags.cpp                                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlsc_flag_cpp,"$Id$ $CSID$")
@@ -17,12 +17,12 @@ BSLS_IDENT_RCSID(btlsc_flag_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace btlsc {
 
-                              // ----------
-                              // class Flag
-                              // ----------
+                              // -----------
+                              // class Flags
+                              // -----------
 
 // CLASS METHODS
-const char *Flag::toAscii(Enum value)
+const char *Flags::toAscii(Flag value)
 {
 #define CASE(X) case(k_ ## X): return #X
 
@@ -40,9 +40,9 @@ const char *Flag::toAscii(Enum value)
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& btlsc::operator<<(bsl::ostream& stream, Flag::Enum value)
+bsl::ostream& btlsc::operator<<(bsl::ostream& stream, Flags::Flag value)
 {
-    return stream << Flag::toAscii(value);
+    return stream << Flags::toAscii(value);
 }
 
 }  // close enterprise namespace
