@@ -104,9 +104,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlstat::Moment<bdlstat::MEAN> ObjM;
-typedef bdlstat::Moment<bdlstat::VARIANCE> ObjV;
-typedef bdlstat::Moment<bdlstat::KURTOSIS> ObjK;
+typedef bdlstat::Moment<bdlstat::M1> ObjM;
+typedef bdlstat::Moment<bdlstat::M2> ObjV;
+typedef bdlstat::Moment<bdlstat::M3> ObjS;
+typedef bdlstat::Moment<bdlstat::M4> ObjK;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -298,21 +299,32 @@ int main(int argc, char *argv[])
                           << "==================" << endl;
 
         double input[] = {1.0, 2.0, 4.0, 5.0};
-        bdlstat::Moment<bdlstat::MEAN> m1;
+        bdlstat::Moment<bdlstat::M1> m1;
         for(int i = 0; i < 4; ++i)
         	m1.add(input[i]);
         ASSERT(4 == m1.getCount());
         ASSERT(3.0 == m1.getMean());
-        //ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5); // Does not compile, as it should
+        // The below does not compile, as it should
+        //ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
 
-        bdlstat::Moment<bdlstat::VARIANCE> m2;
+        bdlstat::Moment<bdlstat::M2> m2;
         for(int i = 0; i < 4; ++i)
         	m2.add(input[i]);
         ASSERT(4 == m2.getCount());
         ASSERT(3.0 == m2.getMean());
         ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
 
-        bdlstat::Moment<bdlstat::KURTOSIS> m4;
+        bdlstat::Moment<bdlstat::M3> m3;
+        for(int i = 0; i < 4; ++i)
+        	m3.add(input[i]);
+        ASSERT(4 == m3.getCount());
+        ASSERT(3.0 == m3.getMean());
+        ASSERT(fabs(3.33333  - m3.getVariance()) < 1e-5);
+        ASSERT(fabs(-1.38086 - m3.getSkew())     < 1e-5);
+        // The below does not compile, as it should
+        //ASSERT(fabs(644.185  - m3.getKurtosis()) < 1e-3);
+
+        bdlstat::Moment<bdlstat::M4> m4;
         for(int i = 0; i < 4; ++i)
         	m4.add(input[i]);
         ASSERT(4 == m4.getCount());

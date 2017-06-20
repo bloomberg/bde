@@ -125,10 +125,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cmath.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
-#include <bslmf_enableif.h>
-#endif
-
 #ifndef INCLUDED_LIMITS
 #include <limits>           // 'std::numeric_limits'
 #endif
@@ -140,37 +136,71 @@ namespace bdlstat {
                       // class Moment
                       // ============
 const double DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
-enum MomentLevel {MEAN, VARIANCE, KURTOSIS};
+enum MomentLevel {M1, M2, M3, M4};
 
 template <MomentLevel ML>
 struct Moment_Data;
 
 template<>
-struct Moment_Data<MEAN> {
-  // Data members for Mean only
-	int    d_count; // Number of entries
-	double d_sum;   // Sum of entries
-	Moment_Data() : d_count(0), d_sum(0.0) {}
+struct Moment_Data<M1> {
+    // Data members for Mean only.
+    int    d_count; // Number of entries.
+    double d_sum;   // Sum of entries.
+    Moment_Data()
+    : d_count(0)
+    , d_sum(0.0)
+    {}
 };
 
 template<>
-struct Moment_Data<VARIANCE> {
-	  // Data members for Variance and below
-		int    d_count; // Number of entries
-		double d_mean;   // Sum of entries
-		double d_M2; // 2nd moment, for variance
-		Moment_Data() : d_count(0), d_mean(0.0), d_M2(0.0) {}
+struct Moment_Data<M2> {
+    // Data members for Variance and below.
+    int    d_count; // Number of entries.
+    double d_sum;   // Sum of entries.
+    double d_mean;  // Mean of entries.
+    double d_M2;    // 2nd moment, for variance.
+    Moment_Data()
+    : d_count(0)
+    , d_sum(0.0)
+    , d_mean(0.0)
+    , d_M2(0.0)
+    {}
 };
 
 template<>
-struct Moment_Data<KURTOSIS> {
-  // Data members for Kurtosis and below
-	int    d_count; // Number of entries
-	double d_mean;   // Sum of entries
-	double d_M2; // 2nd moment, for variance
-	double d_M3; // 3rd moment, for skew
-	double d_M4; // 4th moment, for kurtosis
-	Moment_Data() : d_count(0), d_mean(0.0), d_M2(0.0), d_M3(0.0), d_M4(0.0) {}
+struct Moment_Data<M3> {
+    // Data members for Skew and below
+    int    d_count; // Number of entries.
+    double d_sum;   // Sum of entries.
+    double d_mean;  // Mean of entries.
+    double d_M2;    // 2nd moment, for variance.
+    double d_M3;    // 3rd moment, for skew
+    Moment_Data()
+    : d_count(0)
+    , d_sum(0.0)
+    , d_mean(0.0)
+    , d_M2(0.0)
+    , d_M3(0.0)
+    {}
+};
+
+template<>
+struct Moment_Data<M4> {
+    // Data members for Kurtosis and below
+    int    d_count; // Number of entries.
+    double d_sum;   // Sum of entries.
+    double d_mean;  // Mean of entries.
+    double d_M2;    // 2nd moment, for variance.
+    double d_M3;    // 3rd moment, for skew
+    double d_M4;    // 4th moment, for kurtosis
+    Moment_Data()
+    : d_count(0)
+    , d_sum(0.0)
+    , d_mean(0.0)
+    , d_M2(0.0)
+    , d_M3(0.0)
+    , d_M4(0.0)
+    {}
 };
 
 template <MomentLevel ML>
@@ -178,96 +208,108 @@ class Moment {
   // How to calculate stable skew and kurtosis
   // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
   private:
-	struct Moment_Data<ML> d_data;
+    struct Moment_Data<ML> d_data;
 
   public:
-	Moment() {};
-	void add(double value);
-	int getCount() const
-	{
-		return d_data.d_count;
-	}
-	double getMean() const
-	{
-		if (d_data.d_count < 1)
-			return DBL_NAN;
-		return d_data.d_mean;
-	}
-	//bsl::enable_if<ML != MEAN>
-	double getVariance() const
-	{
-		return d_data.d_M2 / (d_data.d_count - 1);
-	}
-	double getSkew() const;
-	double getKurtosis() const;
+    // CREATORS
+    Moment();
+
+    // MANIPULATORS
+    void add(double value);
+
+    // ACCESSORS
+    int getCount() const;
+        // Returns the number of elements in the data set. 
+
+    double getMeanRaw() const;
+        // Return mean of the data set.  The behavior is undefined unless
+        // 'count' >= 1.
+
+    double getMean() const;
+        // Return mean of the data set.  The result is 'Nan' unless
+        // 'count' >= 1. 
+
+    double getVarianceRaw() const;
+        // Return variance of the data set.  The behavior is undefined unless
+        // 'count' >= 2.
+
+    double getVariance() const;
+        // Return variance of the data set.  The result is 'Nan' unless
+        // 'count' >= 2. 
+
+    double getSkewRaw() const;
+        // Return kurtosis of the data set.  The behavior is undefined unless
+        // 'count' >= 3.
+
+    double getSkew() const;
+        // Return kurtosis of the data set.  The result is 'Nan' unless
+        // 'count' >= 3. 
+
+    double getKurtosisRaw() const;
+        // Return kurtosis of the data set.  The behavior is undefined unless
+        // 'count' >= 4.
+
+    double getKurtosis() const;
+        // Return kurtosis of the data set.  The result is 'Nan' unless
+        // 'count' >= 4.
 };
 
-/*template <MomentLevel ML>
-inline int Moment<ML>::getCount()
-{
-	return d_data.d_count;
-}
-
+// CREATORS
 template <MomentLevel ML>
-inline double Moment<ML>::getMean()
+inline
+Moment<ML>::Moment()
 {
-	if (d_count < 1)
-		return DBL_NAN;
-	return d_data.d_mean;
-}*/
-
-template<>
-inline double Moment<MEAN>::getMean() const
-{
-	if (d_data.d_count < 1)
-		return DBL_NAN;
-	return d_data.d_sum / static_cast<double>(d_data.d_count);
 }
 
+// MANIPULATORS
 template<>
-inline double Moment<KURTOSIS>::getSkew() const
-{
-	if (d_data.d_count < 2)
-		return DBL_NAN;
-	return bsl::sqrt(static_cast<double>(d_data.d_count)) * d_data.d_M3 / bsl::pow(d_data.d_M2, 1.5);
-}
-
-template<>
-inline double Moment<KURTOSIS>::getKurtosis() const
-{
-	if (d_data.d_count < 2)
-		return DBL_NAN;
-	return static_cast<double>(d_data.d_count) * d_data.d_M4 / d_data.d_M2 * d_data.d_M2 - 3.0;
-}
-
-template<>
-inline void Moment<MEAN>::add(double value)
+inline void Moment<M1>::add(double value)
 {
 	++d_data.d_count;
 	d_data.d_sum += value;
 }
 
 template<>
-inline void Moment<VARIANCE>::add(double value)
+inline void Moment<M2>::add(double value)
 {
-	// Welford algorithm for variance
+	// Modified Welford algorithm for variance
 	const double delta = value - d_data.d_mean;
+	d_data.d_sum += value;
 	++d_data.d_count;
-	d_data.d_mean += delta / d_data.d_count;
+	d_data.d_mean = d_data.d_sum / static_cast<double>(d_data.d_count);
 	const double delta2 = value - d_data.d_mean;
 	d_data.d_M2 += delta * delta2;
-	// variance = d_M2 / (d_count - 1)
 }
 
 template<>
-inline void Moment<KURTOSIS>::add(double value)
+inline void Moment<M3>::add(double value)
 {
-	// Welford algorithm for variance
+	// Modified Welford algorithm for variance, and similar algorithm for skew.
+    const double delta = value - d_data.d_mean;
+    const double nm1 = d_data.d_count;
+    d_data.d_sum += value;
+    ++d_data.d_count;
+    const double n = d_data.d_count;
+    d_data.d_mean = d_data.d_sum / n;
+    const double deltaN = value - d_data.d_mean;
+    d_data.d_M2 += delta * deltaN;
+	const double delta2 = delta * delta;
+	const double delta3 = delta * delta2;
+	const double n2 = n * n;
+	d_data.d_M3 += delta3 * nm1 * (nm1 - 1.0) / n2 - 3.0 * delta * d_data.d_M2 / n;
+}
+
+template<>
+inline void Moment<M4>::add(double value)
+{
+	// Modified Welford algorithm for variance, and similar algorithms for skew
+	// and kurtosis.
 	const double delta = value - d_data.d_mean;
 	const double nm1 = d_data.d_count;
+	d_data.d_sum += value;
 	++d_data.d_count;
 	const double n = d_data.d_count;
-	d_data.d_mean += delta / n;
+	d_data.d_mean = d_data.d_sum / n;
 	const double deltaN = value - d_data.d_mean;
 	d_data.d_M2 += delta * deltaN;
 	const double delta2 = delta * delta;
@@ -278,9 +320,70 @@ inline void Moment<KURTOSIS>::add(double value)
 	d_data.d_M3 += delta3 * nm1 * (nm1 - 1.0) / n2 - 3.0 * delta * d_data.d_M2 / n;
 	d_data.d_M4 += delta4 * nm1 * (n2 - 3.0 * n + 3.0) / n3 + 6.0 * delta2 * d_data.d_M2 / n2;
 	d_data.d_M4 -= 4.0 * delta * d_data.d_M3 / n;
-	// variance = d_M2 / (d_count - 1)
-	// skew = sqrt(d_count) * d_M3 / pow(d_M2, 1.5)
-	// kurtosis = d_count * d_M4 / d_M2^2 - 3
+}
+
+// ACCESSORS
+template <MomentLevel ML>
+inline int Moment<ML>::getCount() const
+{
+	return d_data.d_count;
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getMeanRaw() const
+{
+	return d_data.d_sum / static_cast<double>(d_data.d_count);
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getMean() const
+{
+	if (d_data.d_count < 1)
+		return DBL_NAN;
+    return getMeanRaw();
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getVarianceRaw() const
+{
+    return d_data.d_M2 / (d_data.d_count - 1);
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getVariance() const
+{
+    if (d_data.d_count < 1)
+		return DBL_NAN;
+    return getVarianceRaw();
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getSkewRaw() const
+{
+	return bsl::sqrt(static_cast<double>(d_data.d_count)) * d_data.d_M3 / bsl::pow(d_data.d_M2, 1.5);
+}
+
+template <MomentLevel ML>
+inline double Moment<ML>::getSkew() const
+{
+	if (d_data.d_count < 3)
+		return DBL_NAN;
+	return getSkewRaw();
+}
+
+template<>
+inline double Moment<M4>::getKurtosis() const
+{
+	if (d_data.d_count < 2)
+		return DBL_NAN;
+	return static_cast<double>(d_data.d_count) * d_data.d_M4 / d_data.d_M2 * d_data.d_M2 - 3.0;
+	//return getKurtosisRaw(); // ALISDAIR
+}
+
+template<>
+inline double Moment<M4>::getKurtosisRaw() const
+{
+	return static_cast<double>(d_data.d_count) * d_data.d_M4 / d_data.d_M2 * d_data.d_M2 - 3.0;
 }
 
 }  // close package namespace
