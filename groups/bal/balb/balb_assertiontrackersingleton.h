@@ -127,11 +127,15 @@ class AssertionTrackerSingleton {
     // about them is being gathered.
     //
     // The requirements on the 'TRACKER" class are
-    //: 1 A 'TRACKER' object is constructible given two arguments, the first of
-    //:   type 'bsls::Assert::Handler', and the second of type
+    //: 1 The 'TRACKER' type must have a membertype named
+    //:   'ConfigurationCallback'.
+    //:
+    //: 2 A 'TRACKER' object is constructible given three arguments, the first
+    //:   of type 'bsls::Assert::Handler', the second a configuration handler
+    //:   of type 'TRACKER::ConfigurationCallback', and the third of type
     //:   'bslma::Allocator*'.
     //:
-    //: 2 A 'TRACKER' object may be invoked as a function and passed three
+    //: 2 A 'TRACKER' object has an 'assertionDetected' fiunction taking three
     //:   arguments, the first two of type 'const char *' and the third of type
     //:   'int'.
   public:
@@ -147,14 +151,18 @@ class AssertionTrackerSingleton {
         // Note that unlike proper handlers, this handler returns to its caller
         // and may trigger warnings on such behavior within 'bsls::Assert'.
 
-    static TRACKER *singleton(bslma::Allocator *basicAllocator = 0);
+    static TRACKER *singleton(
+        typename TRACKER::ConfigurationCallback  configure      =
+                                     typename TRACKER::ConfigurationCallback(),
+        bslma::Allocator                        *basicAllocator = 0);
         // Return a pointer to the 'TRACKER' singleton object that will be used
         // to track assertion failures.  When the singleton is created,
         // 'failTracker' will be installed as the assertion-handler function
         // for 'bsls::Assert'.  If 'failTracker' could not be installed, return
         // a null pointer instead.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  The currently installed failure handler and this
-        // allocator are supplied to the constructor of the singleton.
+        // to supply memory.  The currently installed failure handler, the
+        // optionally-specified 'configure' callback, and 'basicAallocator' are
+        // supplied to the constructor of the singleton.
 };
 
                         // -------------------------------
@@ -167,12 +175,13 @@ void AssertionTrackerSingleton<TRACKER>::failTracker(const char *text,
                                                      const char *file,
                                                      int         line)
 {
-    (*singleton())(text, file, line);
+    singleton()->assertionDetected(text, file, line);
 }
 
 template <class TRACKER>
-TRACKER *
-AssertionTrackerSingleton<TRACKER>::singleton(bslma::Allocator *basicAllocator)
+TRACKER *AssertionTrackerSingleton<TRACKER>::singleton(
+                       typename TRACKER::ConfigurationCallback  configure,
+                       bslma::Allocator                        *basicAllocator)
 {
     static TRACKER *theSingleton_p;
 
@@ -180,8 +189,8 @@ AssertionTrackerSingleton<TRACKER>::singleton(bslma::Allocator *basicAllocator)
     {
         bsls::Assert::setFailureHandler(&failTracker);
         if (bsls::Assert::failureHandler() == &failTracker) {
-            static TRACKER theSingleton(bsls::Assert::failureHandler(),
-                                        basicAllocator);
+            static TRACKER theSingleton(
+                    bsls::Assert::failureHandler(), configure, basicAllocator);
             theSingleton_p = &theSingleton;
         }
     }

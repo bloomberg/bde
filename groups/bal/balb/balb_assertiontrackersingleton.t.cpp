@@ -104,13 +104,18 @@ typedef balb::AssertionTrackerSingleton<balb::AssertionTracker> Obj;
         int d_assertion_counter;  // Number of assertions seen.
 
       public:
+        // PUBLIC TYPES
+        typedef void *ConfigurationCallback;  // We're not using it.
+
         // PUBLIC CREATORS
-        explicit AssertionCounter(bsls::Assert::Handler = 0, void * = 0);
+        explicit AssertionCounter(bsls::Assert::Handler   = 0,
+                                  void                  * = 0,
+                                  void                  * = 0);
             // Create an 'AssertionCounter' object.  We ignore the fallback
-            // handler and optional allocator parameters.
+            // handler, configuration callback, and allocator parameters.
 
         // PUBLIC MANIPULATORS
-        void operator()(const char *, const char *, int);
+        void assertionDetected(const char *, const char *, int);
             // Function called when assertion failure occurs.  We ignore the
             // text, file, and line parameters.
 
@@ -121,12 +126,12 @@ typedef balb::AssertionTrackerSingleton<balb::AssertionTracker> Obj;
 //..
 // Then, we implement the member functions of the 'AssertionCounter' class.
 //..
-    AssertionCounter::AssertionCounter(bsls::Assert::Handler, void *)
+    AssertionCounter::AssertionCounter(bsls::Assert::Handler, void *, void *)
     : d_assertion_counter(0)
     {
     }
 
-    void AssertionCounter::operator()(const char *, const char *, int)
+    void AssertionCounter::assertionDetected(const char *, const char *, int)
     {
         ++d_assertion_counter;
     }
@@ -219,7 +224,7 @@ int main(int argc, char *argv[])
             ASSERT(at_p);
             at_p->setReportingCallback(
                 bdlf::BindUtil::bind(&balb::AssertionTracker::reportAssertion,
-                                     &os, _1, _2, _3, _4, _5));
+                                     &os, _1, _2, _3, _4, _5, _6));
 
             for (int i = 0; i < 10; ++i) {
                 if (veryVeryVerbose) { P_(i) Q("assert 1") }
@@ -244,7 +249,7 @@ int main(int argc, char *argv[])
             ASSERTV(s, s.npos != s.find(":1:0 && \"assert 3\":"))
 
             os.str("");
-            at_p->reportAllStackTraces();
+            at_p->reportAllRecordedStackTraces();
             s = os.str();
 
             ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"))
