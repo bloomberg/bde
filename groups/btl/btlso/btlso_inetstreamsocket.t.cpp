@@ -2181,15 +2181,15 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp == sizeof(buf1));
 
-// #if defined(BSLS_PLATFORM_OS_WINDOWS)
-// // Some TCP driver implementations require some delay between write and
-// // read (on the loopback service) in order to recognize I/O events
-// // correctly.
-//             bslmt::ThreadUtil::microSleep(20 * 1000);
-// #endif
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    // Some TCP driver implementations require some delay between write and
+    // read (on the loopback service) in order to recognize I/O events
+    // correctly.
+            bslmt::ThreadUtil::microSleep(20 * 1000);
+#endif
 
             resp = clientSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == sizeof(buf1));
+            LOOP2_ASSERT(resp, sizeof(buf1), resp == sizeof(buf1));
 
             ASSERT(memcmp(bufrcv, buf1, sizeof(buf1)) == 0);
 
@@ -2220,12 +2220,13 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp < 0);
 
-// #if defined(BSLS_PLATFORM_OS_WINDOWS)
-// // Some TCP driver implementations require some delay between write and
-// // read (on the loopback service) in order to recognize I/O events
-// // correctly.
-//             bslmt::ThreadUtil::microSleep(20 * 1000);
-// #endif
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    // Some TCP driver implementations require some delay between write and
+    // read (on the loopback service) in order to recognize I/O events
+    // correctly.
+            bslmt::ThreadUtil::microSleep(20 * 1000);
+#endif
+
 
             resp = clientSocket->read(bufrcv, sizeof(buf1));
             ASSERT(btlso::SocketHandle::e_ERROR_EOF == resp ||
