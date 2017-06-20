@@ -3,6 +3,8 @@
 #include <balb_assertiontracker.h>
 #include <bsls_ident.h>
 
+#include <bdlf_bind.h>
+
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bslma_default.h>
@@ -20,6 +22,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+
+using namespace BloombergLP::bdlf::PlaceHolders;
 
 // MSVC optimizations (like omitting frame pointers) can interfere with the
 // gathering of stack traces.  With optimization enabled, the test driver is
@@ -69,16 +73,30 @@ ThreadLocalDataGuard::~ThreadLocalDataGuard()
     bslmt::ThreadUtil::setSpecific(d_key, 0);
 }
 
-bsl::string formatAssertion(int                         count,
+bsl::string formatAssertion(int                         severity,
+                            int                         count,
                             const char                 *text,
                             const char                 *file,
                             int                         line,
                             const bsl::vector<void *>&  stack)
     // Return a string containing a printable version of the specified 'count',
-    // 'text', 'file', 'line', and 'stack'.
+    // 'text', 'file', 'line', and 'stack' at the specified 'severity'.
 {
     bsl::ostringstream out;
-    out << file << ":" << line << ":" << count << ":" << text << ":[";
+    if (!text) {
+        text = "(* Unspecified Assertion Text *)";
+    }
+    else if (!*text) {
+        text = "(* Empty Assertion Text *)";
+    }
+    if (!file) {
+        file = "(* Unspecified File Name *)";
+    }
+    else if (!*file) {
+        file = "(* Empty File Name *)";
+    }
+    out << bsls::LogSeverity::toAscii(bsls::LogSeverity::Enum(severity)) << ":"
+        << file << ":" << line << ":" << count << ":" << text << ":[";
     bsl::vector<void *>::const_iterator b = stack.begin();
     bsl::vector<void *>::const_iterator e = stack.end();
     for (; b != e; b++) {
@@ -95,20 +113,12 @@ bsl::string formatAssertion(int                         count,
                             // ----------------------
 
 // CLASS METHODS
-void AssertionTracker::logAssertion(int                         count,
-                                    const char                 *text,
-                                    const char                 *file,
-                                    int                         line,
-                                    const bsl::vector<void *>&  stack)
+void AssertionTracker::preserveConfiguration(int (&)[5])
 {
-    char                               buffer[1024];
-    bdlma::BufferedSequentialAllocator allocator(buffer, sizeof(buffer));
-    bslma::DefaultAllocatorGuard       guard(&allocator);
-    BSLS_LOG_FATAL("%s",
-                   formatAssertion(count, text, file, line, stack).data());
 }
 
 void AssertionTracker::reportAssertion(bsl::ostream               *out,
+                                       int                         severity,
                                        int                         count,
                                        const char                 *text,
                                        const char                 *file,
@@ -118,20 +128,37 @@ void AssertionTracker::reportAssertion(bsl::ostream               *out,
     char                               buffer[1024];
     bdlma::BufferedSequentialAllocator allocator(buffer, sizeof(buffer));
     bslma::DefaultAllocatorGuard       guard(&allocator);
-    *out << formatAssertion(count, text, file, line, stack);
+    bsl::string s = formatAssertion(count, severity, text, file, line, stack);
+    if (out) {
+        *out << s;
+    }
+    else {
+        bsls::Log::platformDefaultMessageHandler(
+            bsls::LogSeverity::Enum(severity), __FILE__, __LINE__, s.data());
+    }
 }
 
 // CREATORS
-AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallbackHandler,
+AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallback,
+                                   ConfigurationCallback  configure,
                                    bslma::Allocator      *basicAllocator)
-: d_fallbackHandler(fallbackHandler)
+: d_fallbackHandler(fallback)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_maxAssertions(-1)
 , d_maxLocations(-1)
 , d_maxStackTracesPerLocation(-1)
+, d_severity(bsls::LogSeverity::e_FATAL)
 , d_assertionCount(0)
 , d_trackingData(basicAllocator)
-, d_reportingCallback(logAssertion)
+, d_configurationCallback(configure)
+, d_reportingCallback(bdlf::BindUtil::bind(reportAssertion,
+                                           (bsl::ostream *)0,
+                                           _1,
+                                           _2,
+                                           _3,
+                                           _4,
+                                           _5,
+                                           _6))
 , d_reportingFrequency(e_onNewStackTrace)
 {
     if (bslmt::ThreadUtil::createKey(&d_recursionCheck, 0) != 0) {
@@ -140,7 +167,9 @@ AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallbackHandler,
 }
 
 // MANIPULATORS
-void AssertionTracker::operator()(const char *text, const char *file, int line)
+void AssertionTracker::assertionDetected(const char *text,
+                                         const char *file,
+                                         int         line)
 {
     if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
         d_fallbackHandler(text, file, line);
@@ -150,6 +179,23 @@ void AssertionTracker::operator()(const char *text, const char *file, int line)
     ThreadLocalDataGuard recursionGuard(d_recursionCheck);
 
     bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+
+    if (d_configurationCallback) {
+        int configuration[5] = {d_maxAssertions,
+                                d_maxLocations,
+                                d_maxStackTracesPerLocation,
+                                d_severity,
+                                d_reportingFrequency};
+        d_configurationCallback(configuration);
+        setMaxAssertions(configuration[e_maxAssertions]);
+        setMaxLocations(configuration[e_maxLocations]);
+        setMaxStackTracesPerLocation(
+            configuration[e_maxStackTracesPerLocation]);
+        setReportingSeverity(
+            bsls::LogSeverity::Enum(configuration[e_severity]));
+        setReportingFrequency(
+            ReportingFrequency(configuration[e_reportingFrequency]));
+    }
 
     if (++d_assertionCount > d_maxAssertions && d_maxAssertions >= 0) {
         d_fallbackHandler(text, file, line);
@@ -204,11 +250,18 @@ void AssertionTracker::operator()(const char *text, const char *file, int line)
         (d_reportingFrequency == e_onNewStackTrace && newStack   ) ||
         (d_reportingFrequency == e_onNewLocation   && newLocation)) {
         d_reportingCallback(counts_iterator->second,
+                            d_severity,
                             location_iterator->first.first,
                             location_iterator->first.second.first,
                             location_iterator->first.second.second,
                             counts_iterator->first);
     }
+}
+
+void AssertionTracker::setConfigurationCallback(ConfigurationCallback cb)
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    d_configurationCallback = cb;
 }
 
 void AssertionTracker::setMaxAssertions(int value)
@@ -237,10 +290,22 @@ void AssertionTracker::setReportingFrequency(ReportingFrequency value)
     d_reportingFrequency = value;
 }
 
+void AssertionTracker::setReportingSeverity(bsls::LogSeverity::Enum value)
+{
+    d_severity = value;
+}
+
 // ACCESSORS
 bslma::Allocator *AssertionTracker::allocator() const
 {
     return d_allocator_p;
+}
+
+AssertionTracker::ConfigurationCallback
+AssertionTracker::configurationCallback() const
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+    return d_configurationCallback;
 }
 
 int AssertionTracker::maxAssertions() const
@@ -258,7 +323,7 @@ int AssertionTracker::maxStackTracesPerLocation() const
     return d_maxStackTracesPerLocation;
 }
 
-void AssertionTracker::reportAllStackTraces() const
+void AssertionTracker::reportAllRecordedStackTraces() const
 {
     if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
         return;                                                       // RETURN
@@ -273,6 +338,7 @@ void AssertionTracker::reportAllStackTraces() const
         AssertionCounts::const_iterator ce = tb->second.end();
         for (; cb != ce; ++cb) {
             d_reportingCallback(cb->second,
+                                d_severity,
                                 tb->first.first,
                                 tb->first.second.first,
                                 tb->first.second.second,
@@ -291,6 +357,11 @@ AssertionTracker::ReportingFrequency
 AssertionTracker::reportingFrequency() const
 {
     return ReportingFrequency(int(d_reportingFrequency));
+}
+
+bsls::LogSeverity::Enum AssertionTracker::reportingSeverity() const
+{
+    return bsls::LogSeverity::Enum(int(d_severity));
 }
 
 }  // close package namespace
