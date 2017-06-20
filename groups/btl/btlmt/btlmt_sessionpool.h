@@ -1021,6 +1021,16 @@ class SessionPool {
         // Return a non-modifiable reference to the configuration used during
         // the construction of this session pool.
 
+    int busyMetrics() const;
+        // Return the (percent) value in the range [0..100] (inclusive) that
+        // reflects the workload of this session pool (e.g., how busy it was
+        // for the last period).  If the 'collectTimeMetrics' property of the
+        // configuration supplied at construction is 'false' (i.e., the
+        // collection of time metrics has been disabled), then the returned
+        // value is unspecified.  The value 0 indicates that the pool is either
+        // idle or has not been started.  A value of 100 indicates that pool
+        // is operating at the configured capacity.
+
     void getChannelHandleStatistics(
                        bsl::vector<ChannelPool::HandleInfo> *handleInfo) const;
         // Load into the specified 'handleInfo' array a snapshot of the
@@ -1245,6 +1255,12 @@ inline
 const ChannelPoolConfiguration& SessionPool::config() const
 {
     return d_config;
+}
+
+inline
+int SessionPool::busyMetrics() const
+{
+    return d_channelPool_p ? d_channelPool_p->busyMetrics() : 0;
 }
 
 inline

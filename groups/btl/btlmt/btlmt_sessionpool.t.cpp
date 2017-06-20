@@ -24,6 +24,7 @@
 #include <btlso_flag.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
+#include <btlso_sockethandle.h>
 #include <btlso_socketoptions.h>
 #include <btlso_streamsocket.h>
 
@@ -45,6 +46,7 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_map.h>
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
@@ -94,6 +96,7 @@ using namespace bdlf::PlaceHolders;
 //
 // ACCESSORS
 // [  ] const btlmt::ChannelPoolConfiguration& config() const;
+// [18] int busyMetrics() const;
 // [  ] void getChannelHandleStatistics(*handleInfo) const;
 // [ 6] int numSessions() const;
 // [ 4] int portNumber(int handle) const;
@@ -193,6 +196,9 @@ typedef btlso::IPv4Address                         IPAddress;
 typedef btlso::IPv4Address                         IPAddress;
 typedef btlso::InetStreamSocketFactory<IPAddress>  InetStreamSocketFactory;
 typedef btlso::StreamSocket<IPAddress>             StreamSocket;
+typedef Obj::SessionStateCallback                  SessionStateCallback;
+typedef btlmt::SessionFactory                      SessionFactory;
+typedef btlso::StreamSocketFactory<IPAddress>      SocketFactory;
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -982,6 +988,12 @@ void sessionStateCallbackUsingChannelMapAndCounter(
                    << " has disconnected."
                    << MTENDL;
         }
+        {
+            MapIter iter = sourceIdToChannelMap.find(handle);
+            if (iter != sourceIdToChannelMap.end()) {
+                sourceIdToChannelMap.erase(iter);
+            }
+        }
       } break;
       case btlmt::SessionPool::e_SESSION_UP: {
         if (veryVerbose) {
@@ -1716,6 +1728,69 @@ int Tester::portNumber() const
 
 }  // close namespace BTLMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL
 
+namespace BTLMT_SESSION_POOL_BUSY_METRICS {
+
+using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+
+void runTestFunction(Obj                     *mX,
+                     SessionStateCallback    *scb,
+                     SessionFactory          *sessionFactory,
+                     InetStreamSocketFactory *socketFactory,
+                     bslmt::Barrier          *barrier,
+                     bool                     expZeroBusyMetrics,
+                     int                      numIters)
+    // Create a socket pair and import the server socket created using the
+    // specified 'socketFactory' into the specified 'mX' session pool using as
+    // arguments the specified 'scb' and 'sessionFactory'.  Write data into the
+    // client end of the socket pair the specified 'numIters' times and confirm
+    // that the value returned by the 'busyMetrics' method matches the
+    // specified 'expZeroBusyMetrics'.
+{
+    btlso::SocketHandle::Handle handles[2];
+
+    int ret = btlso::SocketImpUtil::socketPair<IPAddress>(
+                                        handles,
+                                        btlso::SocketImpUtil::k_SOCKET_STREAM);
+
+    ASSERT(0 == ret);
+
+    btlso::StreamSocket<IPAddress> *serverSocket =
+                                           socketFactory->allocate(handles[0]);
+    ASSERT(serverSocket);
+    btlso::StreamSocket<IPAddress> *clientSocket =
+                                           socketFactory->allocate(handles[1]);
+    ASSERT(clientSocket);
+
+    int handle;
+    ASSERT(0 == mX->import(&handle,
+                           *scb,
+                           serverSocket,
+                           socketFactory,
+                           sessionFactory));
+
+    barrier->wait();
+
+    const int NUM_BYTES = 1024 * 1024;
+    bsl::vector<char> buffer(NUM_BYTES);
+
+    for (int i = 0; i < numIters; ++i) {
+        int rc = clientSocket->write(buffer.data(), NUM_BYTES);
+        const int percent = mX->busyMetrics();
+        if (0 != percent) {
+            if (expZeroBusyMetrics) {
+                ASSERT(false);
+            }
+            return;                                                   // RETURN
+        }
+        if (rc <= 0) {
+            bslmt::ThreadUtil::microSleep(10, 0);
+        }
+    }
+    ASSERT(expZeroBusyMetrics);
+}
+
+}  // close namespace BTLMT_SESSION_POOL_BUSY_METRICS
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -2166,7 +2241,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2187,6 +2262,132 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // Testing 'busyMetrics'
+        //
+        // Concerns:
+        //: 1 The 'busyMetrics' method returns 0 if the session pool object has
+        //:   not been started.
+        //:
+        //: 2 The 'busyMetrics' method returns 0 if the 'collectTimeMetrics' is
+        //:   'false' (QoI).
+        //:
+        //: 3 If session pool was started then 'busyMetrics' returns an
+        //:   accurate reflection of the percent of time spent processing data.
+        //
+        // Plan:
+        //: This function simply forwards to the underlying channel pool for
+        //: the value returned.  We will follow these steps:
+        //:
+        //: 1 Create a channel pool configuration object.  Set the
+        //:   'metricsInterval' to a small value.
+        //:
+        //: 2 Set the 'collectTimeMetrics' attribute to 'false'.
+        //:
+        //: 3 Create a session pool object, mX.  Confirm that 'busyMetrics'
+        //:   returns 0.
+        //:
+        //: 4 Start mX, establish a connection, and write some data to the
+        //:   connection.  Confirm that after each step 'busyMetrics' returns
+        //:   0.
+        //:
+        //: 5 Set the 'collectTimeMetrics' attribute to 'true'.
+        //:
+        //: 6 Follow steps 3-5 on a new session pool object and confirm that
+        //:   'busyMetrics' returns a non-zero value.
+        //
+        // Testing:
+        //    int busyMetrics() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing 'busyMetrics'" << endl
+                          << "=====================" << endl;
+
+        using namespace BTLMT_SESSION_POOL_BUSY_METRICS;
+
+        typedef btlmt::SessionPool::SessionStateCallback     SessionCb;
+        typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
+
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(3);
+        config.setWriteCacheWatermarks(0, 1024 * 1024 * 100);  // 100 Mb
+        config.setMetricsInterval(.1);
+
+        btlso::InetStreamSocketFactory<IPAddress> socketFactory;
+        BlobReadCallback rcb(&readCb);
+        TestFactory sessionFactory(&rcb);
+
+        // Set collectMetrics 'false'
+        config.setCollectTimeMetrics(false);
+
+        {
+            Obj mX(config, &poolStateCallback);  const Obj& X = mX;
+            ASSERT(0 == X.busyMetrics());
+
+            ASSERT(0 == mX.start());
+            ASSERT(0 == mX.stop());
+            ASSERT(0 == X.busyMetrics());
+        }
+
+        {
+            Obj mX(config, &poolStateCallback);  const Obj& X = mX;
+
+            ASSERT(0 == mX.start());
+
+            bslmt::Barrier barrier(2);
+
+            SessionCb sessionStateCb = bdlf::BindUtil::bind(
+                                              &sessionStateCallbackWithBarrier,
+                                              _1,
+                                              _2,
+                                              _3,
+                                              _4,
+                                              &barrier);
+
+            runTestFunction(&mX, &sessionStateCb, &sessionFactory,
+                            &socketFactory, &barrier, true, 100);
+
+            bslmt::ThreadUtil::microSleep(100, 0);
+
+            ASSERT(0 == X.busyMetrics());
+        }
+
+        // Set collectMetrics 'true'
+        config.setCollectTimeMetrics(true);
+
+        {
+            Obj mX(config, &poolStateCallback);  const Obj& X = mX;
+            ASSERT(0 == X.busyMetrics());
+
+            ASSERT(0 == mX.start());
+            ASSERT(0 == mX.stop());
+            ASSERT(0 == X.busyMetrics());
+        }
+
+        {
+            Obj mX(config, &poolStateCallback);  const Obj& X = mX;
+
+            ASSERT(0 == mX.start());
+
+            bslmt::Barrier barrier(2);
+
+            SessionCb sessionStateCb = bdlf::BindUtil::bind(
+                                              &sessionStateCallbackWithBarrier,
+                                              _1,
+                                              _2,
+                                              _3,
+                                              _4,
+                                              &barrier);
+
+            runTestFunction(&mX, &sessionStateCb, &sessionFactory,
+                            &socketFactory, &barrier, false, 1000);
+
+            bslmt::ThreadUtil::microSleep(0, 1);
+
+            ASSERT(0 == X.busyMetrics());
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
