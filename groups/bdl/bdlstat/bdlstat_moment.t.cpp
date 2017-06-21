@@ -30,13 +30,25 @@ using namespace bsl;
 // schedule.
 // ----------------------------------------------------------------------------
 // [ 2] generateFromDayInterval(s, e, l, example, interval);
+// [ 2] Moment()
+// [ 2] add(double value)
+// [ 2] getCount()
+// [ 2] getMean()
+// [ 2] getMeanRaw()
+//   getVariance()
+//   getVarianceRaw()
+//   getSkew()
+//   getSkewRaw()
+//   getKurtosis()
+//   getKurtosisRaw()
 // [ 3] generateFromDayOfMonth(s, e, l, eY, eM, i, tDOM, tDOF);
 // [ 4] generateFromBusinessDayOfMonth(s, e, l, c, eY, eM, i, tBDOM);
 // [ 5] generateFromDayOfWeekAfterDayOfMonth(s, e, l, d, eY, eM, i, DOM);
 // [ 6] generateFromDayOfWeekInMonth(s, e, l, d, eY, eM, i, oW);
 // ----------------------------------------------------------------------------
-// [ 7] USAGE EXAMPLE
-// [ 1] toString(output, date)
+// [ 1] BREATHING TEST
+// [ 3] EDGE CASES
+// [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -122,7 +134,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -147,156 +159,206 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Generating a Schedule
+///Example 1: Calculating skew, variance, and mean
 ///- - - - - - - - - - - - - - - -
-// Suppose that we want to determine the sequence of dates that are:
-//   * integral multiples of 9 months away from July 2007,
-//   * on the 23rd day of the month,
-//   * and within the closed interval '[02/01/2012, 02/28/2015]'.
+// This example shows how to accumulate a set of value, and calculate the skew,
+// variance and kurtosis.
 //
-// First, we define the inputs and output to the schedule generation function:
+// First, we create example input and instantiate the appropriate mechanism:
 //..
-/*    bdlt::Date earliest(2012, 2,  1);
-    bdlt::Date   latest(2015, 2, 28);
-    bdlt::Date  example(2007, 7, 23);
+    double input[] = {1.0, 2.0, 4.0, 5.0};
+    bdlstat::Moment<bdlstat::M3> m3;
+//..
+// Then, we invoke the 'add' routine to accumulate the data:
+//..
+    for(int i = 0; i < 4; ++i) {
+        m3.add(input[i]);
+    }
+//..
+// Finally, we assert that the mean, variance, and skew are what we expect:
+//..
+    ASSERT(4 == m3.getCount());
+    ASSERT(3.0 == m3.getMean());
+    ASSERT(fabs(3.33333  - m3.getVariance()) < 1e-5);
+    ASSERT(fabs(-1.38086 - m3.getSkew())     < 1e-5);
+//..
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING EDGE CASES
+        //
+        // Concerns:
+        //: 1 'getMean' returns 'Nan' when no data is fed.
+        //:
+        //: 2 'getVariance' returns 'Nan' with less than 2 data values.
+        //:
+        //: 3 'getSkew' returns 'Nan' with less than 3 data values.
+        //:
+        //: 4 'getKurtosis' returns 'Nan' with less than 4 data values.
+        //
+        // Plan:
+        //: 1 Verify the 'getMean' with no data returns 'Nan'.  (C-1)
+        //:
+        //: 2 Verify the 'getVariance' with 1 data value returns 'Nan'. (C-2)
+        //:
+        //: 3 Verify the 'getSkew' with 2 data values returns 'Nan'. (C-2)
+        //:
+        //: 4 Verify the 'getKurtosis' with 3 data values returns 'Nan'. (C-4)
+        //
+        // Testing:
+        //   EDGE CASES
+        // --------------------------------------------------------------------
 
-    bsl::vector<bdlt::Date> schedule;
-//..
-// Now, we invoke the 'generateFromDayOfMonth' routine to obtain the subset of
-// dates:
-//..
-    bblb::ScheduleGenerationUtil::generateFromDayOfMonth(
-                                                    &schedule,
-                                                    earliest,
-                                                    latest,
-                                                    example.year(),
-                                                    example.month(),
-                                                    9,    // 'intervalInMonths'
-                                                    23);  // 'targetDayOfMonth'
-//..
-// Finally, we assert that the generated schedule is what we expect:
-//..
-    ASSERT(4 == schedule.size());
-    ASSERT(bdlt::Date(2012, 10, 23) == schedule[0]);
-    ASSERT(bdlt::Date(2013,  7, 23) == schedule[1]);
-    ASSERT(bdlt::Date(2014,  4, 23) == schedule[2]);
-    ASSERT(bdlt::Date(2015,  1, 23) == schedule[3]);*/
-//..
+        if (verbose) cout << endl
+                          << "TESTING EDGE CASES" << endl
+                          << "==================" << endl;
+
+        {
+            bdlstat::Moment<bdlstat::M1> m1;
+            ASSERT(0 == m1.getCount());
+            ASSERT(std::isnan(m1.getMean()));
+        }
+
+        {
+            bdlstat::Moment<bdlstat::M2> m2;
+          	m2.add(1.0);
+            ASSERT(1 == m2.getCount());
+            ASSERT(std::isnan(m2.getVariance()));
+        }
+
+        {
+            bdlstat::Moment<bdlstat::M3> m3;
+          	m3.add(1.0);
+          	m3.add(2.0);
+            ASSERT(2 == m3.getCount());
+            ASSERT(std::isnan(m3.getSkew()));
+        }
+
+        {
+            bdlstat::Moment<bdlstat::M4> m4;
+          	m4.add(1.0);
+          	m4.add(2.0);
+          	m4.add(4.0);
+            ASSERT(3 == m4.getCount());
+            ASSERT(std::isnan(m4.getKurtosis()));
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromDayInterval'
+        // PRIMARY MANIPULATORS AND BASIC ACCESSORS
+        //   This test will verify that the primary manipulators are working as
+        //   expected.  As basic accessors should be tested exactly the same
+        //   way, these two tests have been united.  So we test that the basic
+        //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
+        //: 1 All accessors return the expected values after 'bdlstat::Moment'
+        //:   loaded with a series of values.
         //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //: 2 Different specializations produce the same set of values.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
+        //: 1 Using the table method, create 'bdlstat::Moment<M4>', use
+        //:   'bdlstat::Moment<M4>::add' to load data, and check the
+        //:   values of mean, variance, skew, and kurtosis.  (C-1)
         //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        //: 2 Verify that we get the same values from the 'raw' methods.  (C-1)
+        //:
+        //: 3 Load the same set of data into 'bdlstat::Moment<M3>',
+        //:   'bdlstat::Moment<M2>', 'bdlstat::Moment<M1>', and verify that we
+        //:   get the same values.  (C-2)
         //
         // Testing:
-        //   generateFromDayInterval(s, e, l, example, interval);
+        //   Moment()
+        //   add(double value)
+        //   getCount()
+        //   getMean()
+        //   getMeanRaw()
+        //   getVariance()
+        //   getVarianceRaw()
+        //   getSkew()
+        //   getSkewRaw()
+        //   getKurtosis()
+        //   getKurtosisRaw()
         // --------------------------------------------------------------------
 
-/*        if (verbose) cout << endl
-                          << "TESTING 'generateFromDayInterval'" << endl
-                          << "=================================" << endl;
+        if (verbose)
+            cout << endl
+                 << "TESTING PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
+                 << "================================================" << endl;
 
         static const struct {
-            int         d_lineNum;
-            int         d_earliestYYYYMMDD;
-            int         d_latestYYYYMMDD;
-            int         d_exampleYYYYMMDD;
-            int         d_interval;
-            const char *d_expectedOutputString_p;
+            int    d_line;
+            double d_values[7];
+            double d_mean;
+            double d_variance;
+            double d_skew;
+            double d_kurtosis;
         } INPUT[] = {
-            //LN  earliest   latest   example    I   EXP
-            //--  --------  --------  --------  ---  -----------------------
-            { L_, 20140505, 20140512, 20010201,   1,
-  "20140505,20140506,20140507,20140508,20140509,20140510,20140511,20140512," },
-            { L_, 20150123, 20150203, 20190205,   7, "20150127,20150203,"    },
-            { L_, 20150123, 20150304, 20190223,  14,
-                                               "20150131,20150214,20150228," },
-            { L_, 20150123, 20150703, 19680607,  30,
-                    "20150201,20150303,20150402,20150502,20150601,20150701," },
-            { L_, 20010123, 20070203, 20520201, 365,
-                    "20010213,20020213,20030213,20040213,20050212,20060212," },
-            { L_, 20150123, 20150125, 20150122,   3, "20150125,"             },
-            { L_, 20150123, 20150123, 20150124,   2, ""                      },
+            //LN  val1   val2   val3   val4   val5   val6   val7
+            //--  -----  -----  -----  -----  -----  -----  -----
+            //mean      variance  skew      kurtosis
+            //--------  --------  --------  --------
+            { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 25.0 , 30.0
+              10.12    ,22.3     ,33.2     , 444.3                           },
         };
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        bsl::vector<bdlt::Date> schedule;
+        ObjK m4;
 
         for (size_t di = 0; di < NUM_DATA; ++di) {
-            const int  LINE     = INPUT[di].d_lineNum;
-            bdlt::Date earliest = bdlt::DateUtil::convertFromYYYYMMDDRaw(
-                                                 INPUT[di].d_earliestYYYYMMDD);
-            bdlt::Date latest   = bdlt::DateUtil::convertFromYYYYMMDDRaw(
-                                                   INPUT[di].d_latestYYYYMMDD);
-            bdlt::Date example = bdlt::DateUtil::convertFromYYYYMMDDRaw(
-                                                  INPUT[di].d_exampleYYYYMMDD);
+            const int  LINE     = INPUT[di].d_line;
+            for(int i = 0; i < 7; ++i) {
+                m4.add(d_values[i]);
+            }
+            const double expectedMean     = INPUT[di].d_mean;
+            const double expectedVariance = INPUT[di].d_variance;
+            const double expectedSkew     = INPUT[di].d_skew;
+            const double expectedKurtosis = INPUT[di].d_kurtosis;
+            const int    count       = m4.getCount();
+            const double mean        = m4.getMean();
+            const double meanRaw     = m4.getMeanRaw();
+            const double variance    = m4.getVariance();
+            const double varianceRaw = m4.getVarianceRaw();
+            const double skew        = m4.getMean();
+            const double skewRaw     = m4.getMeanRaw();
+            const double kurtosis    = m4.getVariance();
+            const double kurtosisRaw = m4.getVarianceRaw();
 
-            const int   interval       = INPUT[di].d_interval;
-            const char* expectedOutput = INPUT[di].d_expectedOutputString_p;
-
-            Obj::generateFromDayInterval(
-                               &schedule, earliest, latest, example, interval);
-
-            bsl::ostringstream output;
-            toString(&output, schedule);
-
-            if (veryVerbose) { P_(LINE) P_(output.str()) P(expectedOutput); }
+            if (veryVerbose) {
+            	T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
+            	T_ P_(variance) P_(varianceRaw) P(expectedvariance);
+            	T_ P_(skew) P_(skewRaw) P(expectedSkew);
+            	T_ P_(kurtosis) P_(kurtosisRaw) P(expectedkurtosis);
+            }
 
             LOOP3_ASSERT(di,
-                         output.str(),
-                         expectedOutput,
-                         output.str() == expectedOutput);
+                         mean,
+                         expectedMean,
+					     fabs(expectedMean  - mean) < 1e-5);
         }
 
-        // negative tests
-
-        if (veryVerbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
-
-            bdlt::Date d(2015, 1, 23);
-
-            // 'earliest <= latest'
-
-            ASSERT_FAIL(Obj::generateFromDayInterval(
-                                                   &schedule, d, d - 1, d, 2));
-            ASSERT_PASS(Obj::generateFromDayInterval(&schedule, d, d, d, 2));
-
-            // 'interval'
-
-            ASSERT_FAIL(Obj::generateFromDayInterval(&schedule, d, d, d, 0));
-            ASSERT_PASS(Obj::generateFromDayInterval(&schedule, d, d, d, 1));
-        }*/
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'toString'
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
+        //: 1 Developer test sandbox. (C-1)
         //
         // Testing:
-        //   toString(output, date)
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'toString'" << endl
-                          << "==================" << endl;
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         double input[] = {1.0, 2.0, 4.0, 5.0};
         bdlstat::Moment<bdlstat::M1> m1;

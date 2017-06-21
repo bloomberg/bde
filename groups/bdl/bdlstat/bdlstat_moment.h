@@ -79,12 +79,20 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlstat {
 
+// BDE_VERIFY pragma: -TR17 // Avoid users having to specify template params
+// BDE_VERIFY pragma: -CP01 // Avoid users having to specify template params
+// BDE_VERIFY pragma: -AQa01 // Really, constexpr
 const double k_DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
     // Nan value to signify an illegal value returned.
+// BDE_VERIFY pragma: +AQa01
 
+// BDE_VERIFY pragma: -UC01
 enum         MomentLevel {M1, M2, M3, M4};
     // Level of data desired: M1- mean; M2 - variance+mean; M3 - skew+variance+
     // mean; M4 - kurtosis+skew+variance+mean.
+// BDE_VERIFY pragma: +TR17
+// BDE_VERIFY pragma: +CP01
+// BDE_VERIFY pragma: +UC01
 
                       // ==========================
                       // private struct Moment_Data
@@ -171,9 +179,6 @@ class Moment {
     struct Moment_Data<ML> d_data;
 
   public:
-    // CREATORS
-    Moment();
-
     // MANIPULATORS
     void add(double value);
         // Add the specified 'value' to the data set.
@@ -261,13 +266,6 @@ Moment_Data<M4>::Moment_Data()
                         // class bdlstat::Moment
                         // ---------------------
 
-// CREATORS
-template <MomentLevel ML>
-inline
-Moment<ML>::Moment()
-{
-}
-
 // MANIPULATORS
 template<>
 inline
@@ -344,6 +342,7 @@ int Moment<ML>::getCount() const
     return d_data.d_count;
 }
 
+// BDE_VERIFY pragma: -FABC01 // getKurtosisRaw needed before getKurtosis
 template<>
 inline
 double Moment<M4>::getKurtosisRaw() const
@@ -351,6 +350,7 @@ double Moment<M4>::getKurtosisRaw() const
     return static_cast<double>(d_data.d_count) * d_data.d_M4 / d_data.d_M2
                                                * d_data.d_M2 - 3.0;
 }
+// BDE_VERIFY pragma: +FABC01
 
 template<>
 inline
