@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // Note that some methods, such as 'stop' and 'shutdown', are documented to
 // perform operations on "all queues"; since 'createQueue' may safely be
 // called concurrently with these methods, they should be understood to operate
-// on 
+// on some set of queues that exist at or during the time they are invoked.
 // 
 ///Usage
 ///-----
