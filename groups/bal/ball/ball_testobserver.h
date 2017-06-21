@@ -256,6 +256,20 @@ class TestObserver : public Observer {
         // to 'stream'.  Note that the 'setVerbose' method can affect this
         // default behavior.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    explicit
+    TestObserver(bsl::ostream& stream, bslma::Allocator *basicAllocator = 0);
+        // Create a test observer having a unique integer identifier, whose
+        // 'publish' method will print diagnostic information (if any) to the
+        // specified 'stream'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  By default, this observer prints nothing
+        // to 'stream'.  Note that the 'setVerbose' method can affect this
+        // default behavior.
+        //
+        // !DEPRECATED!: Use the constructor taking 'bsl::ostream *' instead.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     virtual ~TestObserver();
         // Destroy this test observer.
 
@@ -347,6 +361,21 @@ TestObserver::TestObserver(bsl::ostream     *stream,
 {
     BSLS_ASSERT_SAFE(d_stream_p);
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+inline
+TestObserver::TestObserver(bsl::ostream&     stream,
+                           bslma::Allocator *basicAllocator)
+: d_stream_p(&stream)
+, d_record(basicAllocator)
+, d_context(basicAllocator)
+, d_id(AtomicOps::incrementIntNvAcqRel(&s_count))
+, d_verboseFlag(0)
+, d_numRecords(0)
+, d_numReleases(0)
+{
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // MANIPULATORS
 inline

@@ -47,7 +47,7 @@ using namespace bsl;
 // using ad hoc testing.
 //-----------------------------------------------------------------------------
 // [ 2] static int numInstances();
-// [ 2] TestObserver(bsl::ostream& stream, bslma::Allocator *ba = 0);
+// [ 2] TestObserver(bsl::ostream *stream, bslma::Allocator *ba = 0);
 // [ 2] virtual ~TestObserver();
 // [ 2] virtual void publish(const Record&, const Context&);
 // [ 2] virtual void publish(const shared_ptr<const Record>&, context);
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static int numInstances();
-        //   TestObserver(bsl::ostream& stream, bslma::Allocator *ba = 0);
+        //   TestObserver(bsl::ostream *stream, bslma::Allocator *ba = 0);
         //   virtual ~TestObserver();
         //   virtual void publish(const Record&, const Context&);
         //   virtual void publish(const shared_ptr<const Record>&, context);
@@ -402,7 +402,6 @@ int main(int argc, char *argv[])
 
             ASSERT(0 < da.numBlocksTotal());
         }
-
         ASSERT(1 == Obj::numInstances());
 
         if (verbose) cout << "\tDEPRECATED 'publish' method." << endl;
@@ -481,8 +480,20 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksTotal());
             ASSERT(0 <  oa.numBlocksTotal());
         }
-
         ASSERT(2 == Obj::numInstances());
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        // Use DEPRECATED constructor.
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            const Obj X(bsl::cout, &oa);
+            ASSERT(3 == Obj::numInstances());
+
+            const Obj Y(bsl::cout);
+            ASSERT(4 == Obj::numInstances());
+        }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) cout << "\nNegative Testing" << endl;
         {

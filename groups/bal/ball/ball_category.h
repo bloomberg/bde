@@ -331,10 +331,10 @@ class CategoryHolder {
         e_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
         e_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BALL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , BALL_DYNAMIC_CATEGORY = e_DYNAMIC_CATEGORY
-      , UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
+      , BAEL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
+      , BAEL_DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
+      , UNINITIALIZED_CATEGORY      = e_UNINITIALIZED_CATEGORY
+      , DYNAMIC_CATEGORY            = e_DYNAMIC_CATEGORY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // This enumeration defines distinguished values for category holder

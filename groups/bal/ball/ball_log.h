@@ -768,8 +768,8 @@ BSLS_IDENT("$Id: $")
 
 // HELPER FUNCTIONS
 inline
-BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
-                             BloombergLP::ball::CategoryHolder& categoryHolder)
+const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
+                       const BloombergLP::ball::CategoryHolder& categoryHolder)
     // Return the address of the specified 'categoryHolder'.  Note that this
     // function facilitates consistent lookup of block-scope and class-scope
     // category holders (see "Logging Macro Reuse" in the "IMPLEMENTATION
@@ -823,12 +823,12 @@ BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
 
 #define BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)                                 \
     enum { BALL_LOG_CATEGORYHOLDER = 0 };                                     \
-    static BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(        \
-                           BloombergLP::ball::CategoryHolder& categoryHolder) \
+    static const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(  \
+                     const BloombergLP::ball::CategoryHolder& categoryHolder) \
     {                                                                         \
         return &categoryHolder;                                               \
     }                                                                         \
-    static BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(        \
+    static const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(  \
                                                                   const int&) \
     {                                                                         \
         static BloombergLP::ball::CategoryHolder holder = {                   \

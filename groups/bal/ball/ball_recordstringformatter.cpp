@@ -96,6 +96,25 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
     *result += buffer;
 }
 
+static void appendToStringAsHex(bsl::string *result, bsls::Types::Uint64 value)
+    // Convert the specified 'value' into hexadecimal and append it to the
+    // specified 'result'.
+{
+    char buffer[32];
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
+    snprintf(buffer, sizeof(buffer), "%llX", value);
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#undef snprintf
+#endif
+
+    *result += buffer;
+}
+
 namespace ball {
 
                         // ---------------------------
@@ -291,6 +310,9 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               } break;
               case 't': {
                 appendToString(&output, fixedFields.threadID());
+              } break;
+              case 'T': {
+                appendToStringAsHex(&output, fixedFields.threadID());
               } break;
               case 's': {
                 output += Severity::toAscii(
