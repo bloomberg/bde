@@ -1,6 +1,8 @@
 // bdlstat_moment.t.cpp                                               -*-C++-*-
 #include <bdlstat_moment.h>
 
+#include <bdlb_float.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
@@ -29,22 +31,17 @@ using namespace bsl;
 // 'earliest <= example <= latest' as well as edge cases for the resulting
 // schedule.
 // ----------------------------------------------------------------------------
-// [ 2] generateFromDayInterval(s, e, l, example, interval);
 // [ 2] Moment()
 // [ 2] add(double value)
 // [ 2] getCount()
 // [ 2] getMean()
 // [ 2] getMeanRaw()
-//   getVariance()
-//   getVarianceRaw()
-//   getSkew()
-//   getSkewRaw()
-//   getKurtosis()
-//   getKurtosisRaw()
-// [ 3] generateFromDayOfMonth(s, e, l, eY, eM, i, tDOM, tDOF);
-// [ 4] generateFromBusinessDayOfMonth(s, e, l, c, eY, eM, i, tBDOM);
-// [ 5] generateFromDayOfWeekAfterDayOfMonth(s, e, l, d, eY, eM, i, DOM);
-// [ 6] generateFromDayOfWeekInMonth(s, e, l, d, eY, eM, i, oW);
+// [ 2] getVariance()
+// [ 2] getVarianceRaw()
+// [ 2] getSkew()
+// [ 2] getSkewRaw()
+// [ 2] getKurtosis()
+// [ 2] getKurtosisRaw()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] EDGE CASES
@@ -166,7 +163,7 @@ int main(int argc, char *argv[])
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-    double input[] = {1.0, 2.0, 4.0, 5.0};
+    double                       input[] = {1.0, 2.0, 4.0, 5.0};
     bdlstat::Moment<bdlstat::M3> m3;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
@@ -179,8 +176,8 @@ int main(int argc, char *argv[])
 //..
     ASSERT(4 == m3.getCount());
     ASSERT(3.0 == m3.getMean());
-    ASSERT(fabs(3.33333  - m3.getVariance()) < 1e-5);
-    ASSERT(fabs(-1.38086 - m3.getSkew())     < 1e-5);
+    ASSERT(fabs(3.33333 - m3.getVariance()) < 1e-5);
+    ASSERT(fabs(0.0     - m3.getSkew())     < 1e-5);
 //..
       } break;
       case 3: {
@@ -216,31 +213,31 @@ int main(int argc, char *argv[])
         {
             bdlstat::Moment<bdlstat::M1> m1;
             ASSERT(0 == m1.getCount());
-            ASSERT(std::isnan(m1.getMean()));
+            ASSERT(bdlb::Float::isNan(m1.getMean()));
         }
 
         {
             bdlstat::Moment<bdlstat::M2> m2;
-          	m2.add(1.0);
+            m2.add(1.0);
             ASSERT(1 == m2.getCount());
-            ASSERT(std::isnan(m2.getVariance()));
+            ASSERT(bdlb::Float::isNan(m2.getVariance()));
         }
 
         {
             bdlstat::Moment<bdlstat::M3> m3;
-          	m3.add(1.0);
-          	m3.add(2.0);
+            m3.add(1.0);
+            m3.add(2.0);
             ASSERT(2 == m3.getCount());
-            ASSERT(std::isnan(m3.getSkew()));
+            ASSERT(bdlb::Float::isNan(m3.getSkew()));
         }
 
         {
             bdlstat::Moment<bdlstat::M4> m4;
-          	m4.add(1.0);
-          	m4.add(2.0);
-          	m4.add(4.0);
+            m4.add(1.0);
+            m4.add(2.0);
+            m4.add(4.0);
             ASSERT(3 == m4.getCount());
-            ASSERT(std::isnan(m4.getKurtosis()));
+            ASSERT(bdlb::Float::isNan(m4.getKurtosis()));
         }
       } break;
       case 2: {
@@ -284,8 +281,8 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
-                 << "================================================" << endl;
+                 << "PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
+                 << "========================================" << endl;
 
         static const struct {
             int    d_line;
@@ -299,44 +296,264 @@ int main(int argc, char *argv[])
             //--  -----  -----  -----  -----  -----  -----  -----
             //mean      variance  skew      kurtosis
             //--------  --------  --------  --------
-            { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 25.0 , 30.0
-              10.12    ,22.3     ,33.2     , 444.3                           },
+            { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 25.0 , 30.0,
+              13.4286  ,137.952, 0.30677  , -1.86809                        },
+            { L_,30.0  , 25.0  , 20.0 , 12.0 , 4.0  , 2.0  , 1.0,
+              13.4286  ,137.952, 0.30677  , -1.86809                        },
+            { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1.0  , 2.0  , 3.0,
+              1429.43  ,2.616E6, 0.674989 , -1.14935                        },
+            { L_, 1.0  , 2.0   , 3.0  , 4e3  , 1e3  , 2e3  , 3e3,
+              1429.43  ,2.616E6, 0.674989 , -1.14935                        },
+            { L_,-123.0,-55.0  , 4.0  , 0.0  , 100.0, 24.0 , 24.0,
+              -3.71429 ,4870.9 ,-0.46229  , 1.01756                         },
+            { L_, 1.0  ,  2.0  , 3.0  , 4.0  , 5.0  ,  6.0 , 7.0 ,
+                   4.0 ,4.6667  ,0.0       , -1.2                            },
+            { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1e-3 , 2e-3 , 3e-3,
+             1428.57  ,2.619E6, 0.67409   , -1.15101                        },
+            { L_, 1e-3 , 2e-3  , 3e-3 , 4e3  , 1e3  , 2e3  , 3e3 ,
+             1428.57  ,2.619E6, 0.67409   , -1.15101                        },
         };
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        ObjK m4;
+        if (verbose) cout << "Testing M4\n";
+        {
+            for (size_t di = 0; di < NUM_DATA; ++di) {
+                ObjK m4;
 
-        for (size_t di = 0; di < NUM_DATA; ++di) {
-            const int  LINE     = INPUT[di].d_line;
-            for(int i = 0; i < 7; ++i) {
-                m4.add(d_values[i]);
+                const int     LINE   = INPUT[di].d_line;
+                const double *VALUES = INPUT[di].d_values;
+                for(int i = 0; i < 7; ++i) {
+                    m4.add(VALUES[i]);
+                    if (veryVerbose) {
+                        P_(LINE) P_(i) P(VALUES[i]);
+                    }
+                }
+                const double expectedMean     = INPUT[di].d_mean;
+                const double expectedVariance = INPUT[di].d_variance;
+                const double expectedSkew     = INPUT[di].d_skew;
+                const double expectedKurtosis = INPUT[di].d_kurtosis;
+                const int    count       = m4.getCount();
+                const double mean        = m4.getMean();
+                const double meanRaw     = m4.getMeanRaw();
+                const double variance    = m4.getVariance();
+                const double varianceRaw = m4.getVarianceRaw();
+                const double skew        = m4.getSkew();
+                const double skewRaw     = m4.getSkewRaw();
+                const double kurtosis    = m4.getKurtosis();
+                const double kurtosisRaw = m4.getKurtosisRaw();
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
+                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
+                    T_ P_(skew) P_(skewRaw) P(expectedSkew);
+                    T_ P_(kurtosis) P_(kurtosisRaw) P(expectedKurtosis);
+                }
+
+                LOOP3_ASSERT(di,
+                             count,
+                             7,
+                             7 == count);
+                LOOP3_ASSERT(di,
+                             mean,
+                             expectedMean,
+                             fabs((expectedMean - mean) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             meanRaw,
+                             expectedMean,
+                             fabs((expectedMean - meanRaw) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             variance,
+                             expectedVariance,
+                             fabs((expectedVariance - variance) /
+                                  (expectedVariance + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             varianceRaw,
+                             expectedVariance,
+                             fabs((expectedVariance - varianceRaw) /
+                                  (expectedVariance + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             skew,
+                             expectedSkew,
+                             fabs((expectedSkew - skew) /
+                                  (expectedSkew + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             skewRaw,
+                             expectedSkew,
+                             fabs((expectedSkew - skewRaw) /
+                                  (expectedSkew + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             kurtosis,
+                             expectedKurtosis,
+                             fabs((expectedKurtosis - kurtosis) /
+                                  (expectedKurtosis + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             kurtosisRaw,
+                             expectedKurtosis,
+                             fabs((expectedKurtosis - kurtosisRaw) /
+                                  (expectedKurtosis + 1e-10)) < 1e-4);
             }
-            const double expectedMean     = INPUT[di].d_mean;
-            const double expectedVariance = INPUT[di].d_variance;
-            const double expectedSkew     = INPUT[di].d_skew;
-            const double expectedKurtosis = INPUT[di].d_kurtosis;
-            const int    count       = m4.getCount();
-            const double mean        = m4.getMean();
-            const double meanRaw     = m4.getMeanRaw();
-            const double variance    = m4.getVariance();
-            const double varianceRaw = m4.getVarianceRaw();
-            const double skew        = m4.getMean();
-            const double skewRaw     = m4.getMeanRaw();
-            const double kurtosis    = m4.getVariance();
-            const double kurtosisRaw = m4.getVarianceRaw();
+        }
 
-            if (veryVerbose) {
-            	T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-            	T_ P_(variance) P_(varianceRaw) P(expectedvariance);
-            	T_ P_(skew) P_(skewRaw) P(expectedSkew);
-            	T_ P_(kurtosis) P_(kurtosisRaw) P(expectedkurtosis);
+        if (verbose) cout << "Testing M3\n";
+        {
+            for (size_t di = 0; di < NUM_DATA; ++di) {
+                ObjS m3;
+
+                const int     LINE   = INPUT[di].d_line;
+                const double *VALUES = INPUT[di].d_values;
+                for(int i = 0; i < 7; ++i) {
+                    m3.add(VALUES[i]);
+                    if (veryVerbose) {
+                        P_(LINE) P_(i) P(VALUES[i]);
+                    }
+                }
+                const double expectedMean     = INPUT[di].d_mean;
+                const double expectedVariance = INPUT[di].d_variance;
+                const double expectedSkew     = INPUT[di].d_skew;
+                const int    count       = m3.getCount();
+                const double mean        = m3.getMean();
+                const double meanRaw     = m3.getMeanRaw();
+                const double variance    = m3.getVariance();
+                const double varianceRaw = m3.getVarianceRaw();
+                const double skew        = m3.getSkew();
+                const double skewRaw     = m3.getSkewRaw();
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
+                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
+                    T_ P_(skew) P_(skewRaw) P(expectedSkew);
+                }
+
+                LOOP3_ASSERT(di,
+                             count,
+                             7,
+                             7 == count);
+                LOOP3_ASSERT(di,
+                             mean,
+                             expectedMean,
+                             fabs((expectedMean - mean) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             meanRaw,
+                             expectedMean,
+                             fabs((expectedMean - meanRaw) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             variance,
+                             expectedVariance,
+                             fabs((expectedVariance - variance) /
+                                  (expectedVariance + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             varianceRaw,
+                             expectedVariance,
+                             fabs((expectedVariance - varianceRaw) /
+                                  (expectedVariance + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             skew,
+                             expectedSkew,
+                             fabs((expectedSkew - skew) /
+                                  (expectedSkew + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             skewRaw,
+                             expectedSkew,
+                             fabs((expectedSkew - skewRaw) /
+                                  (expectedSkew + 1e-10)) < 1e-4);
             }
+        }
 
-            LOOP3_ASSERT(di,
-                         mean,
-                         expectedMean,
-					     fabs(expectedMean  - mean) < 1e-5);
+        if (verbose) cout << "Testing M2\n";
+        {
+            for (size_t di = 0; di < NUM_DATA; ++di) {
+                ObjV m2;
+
+                const int     LINE   = INPUT[di].d_line;
+                const double *VALUES = INPUT[di].d_values;
+                for(int i = 0; i < 7; ++i) {
+                    m2.add(VALUES[i]);
+                    if (veryVerbose) {
+                        P_(LINE) P_(i) P(VALUES[i]);
+                    }
+                }
+                const double expectedMean     = INPUT[di].d_mean;
+                const double expectedVariance = INPUT[di].d_variance;
+                const int    count       = m2.getCount();
+                const double mean        = m2.getMean();
+                const double meanRaw     = m2.getMeanRaw();
+                const double variance    = m2.getVariance();
+                const double varianceRaw = m2.getVarianceRaw();
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
+                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
+                }
+
+                LOOP3_ASSERT(di,
+                             count,
+                             7,
+                             7 == count);
+                LOOP3_ASSERT(di,
+                             mean,
+                             expectedMean,
+                             fabs((expectedMean - mean) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             meanRaw,
+                             expectedMean,
+                             fabs((expectedMean - meanRaw) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             variance,
+                             expectedVariance,
+                             fabs((expectedVariance - variance) /
+                                  (expectedVariance + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             varianceRaw,
+                             expectedVariance,
+                             fabs((expectedVariance - varianceRaw) /
+                                  (expectedVariance + 1e-10)) < 1e-4);
+            }
+        }
+
+        if (verbose) cout << "Testing M1\n";
+        {
+            for (size_t di = 0; di < NUM_DATA; ++di) {
+                ObjM m1;
+
+                const int     LINE   = INPUT[di].d_line;
+                const double *VALUES = INPUT[di].d_values;
+                for(int i = 0; i < 7; ++i) {
+                    m1.add(VALUES[i]);
+                    if (veryVerbose) {
+                        P_(LINE) P_(i) P(VALUES[i]);
+                    }
+                }
+                const double expectedMean     = INPUT[di].d_mean;
+                const int    count       = m1.getCount();
+                const double mean        = m1.getMean();
+                const double meanRaw     = m1.getMeanRaw();
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
+                }
+
+                LOOP3_ASSERT(di,
+                             count,
+                             7,
+                             7 == count);
+                LOOP3_ASSERT(di,
+                             mean,
+                             expectedMean,
+                             fabs((expectedMean - mean) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             meanRaw,
+                             expectedMean,
+                             fabs((expectedMean - meanRaw) /
+                                  (expectedMean + 1e-10)) < 1e-4);
+            }
         }
 
       } break;
@@ -360,41 +577,56 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        double input[] = {1.0, 2.0, 4.0, 5.0};
+        double                       input[] = {1.0, 2.0, 4.0, 5.0};
         bdlstat::Moment<bdlstat::M1> m1;
-        for(int i = 0; i < 4; ++i)
-        	m1.add(input[i]);
+        for(int i = 0; i < 4; ++i) {
+            m1.add(input[i]);
+            if (veryVerbose) {
+                P_(i) P(input[i]);
+            }
+        }
         ASSERT(4 == m1.getCount());
         ASSERT(3.0 == m1.getMean());
         // The below does not compile, as it should
         //ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
 
         bdlstat::Moment<bdlstat::M2> m2;
-        for(int i = 0; i < 4; ++i)
-        	m2.add(input[i]);
+        for(int i = 0; i < 4; ++i) {
+            m2.add(input[i]);
+            if (veryVerbose) {
+                P_(i) P(input[i]);
+            }
+        }
         ASSERT(4 == m2.getCount());
         ASSERT(3.0 == m2.getMean());
         ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
 
         bdlstat::Moment<bdlstat::M3> m3;
-        for(int i = 0; i < 4; ++i)
-        	m3.add(input[i]);
+        for(int i = 0; i < 4; ++i) {
+            m3.add(input[i]);
+            if (veryVerbose) {
+                P_(i) P(input[i]);
+            }
+        }
         ASSERT(4 == m3.getCount());
         ASSERT(3.0 == m3.getMean());
-        ASSERT(fabs(3.33333  - m3.getVariance()) < 1e-5);
-        ASSERT(fabs(-1.38086 - m3.getSkew())     < 1e-5);
+        ASSERT(fabs(3.33333 - m3.getVariance()) < 1e-5);
+        ASSERT(fabs(0.0     - m3.getSkew())     < 1e-5);
         // The below does not compile, as it should
         //ASSERT(fabs(644.185  - m3.getKurtosis()) < 1e-3);
 
         bdlstat::Moment<bdlstat::M4> m4;
-        for(int i = 0; i < 4; ++i)
-        	m4.add(input[i]);
+        for(int i = 0; i < 4; ++i) {
+            m4.add(input[i]);
+            if (veryVerbose) {
+                P_(i) P(input[i]);
+            }
+        }
         ASSERT(4 == m4.getCount());
         ASSERT(3.0 == m4.getMean());
-        ASSERT(fabs(3.33333  - m4.getVariance()) < 1e-5);
-        ASSERT(fabs(-1.38086 - m4.getSkew())     < 1e-5);
-        ASSERT(fabs(644.185  - m4.getKurtosis()) < 1e-3);
-        //cout << "variance=" << m4.getVariance() <<  ",skew=" << m4.getSkew() <<  ",kurtosis=" << m4.getKurtosis() <<  "\n";
+        ASSERT(fabs(3.33333 - m4.getVariance()) < 1e-5);
+        ASSERT(fabs(0.0     - m4.getSkew())     < 1e-5);
+        ASSERT(fabs(-3.3    - m4.getKurtosis()) < 1e-3);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

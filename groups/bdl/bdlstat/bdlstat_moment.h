@@ -172,8 +172,14 @@ class Moment {
     // calculating mean, variance, skew and kurtosis.  The class provides
     // template specializations, so that no unnecessary data members will be
     // kept or unnecessary calculations done.  The online algorithms used are
-    // Wilford for variance, and the stable skew and kurtosis take from:
+    // Wilford for variance, and the stable M3 and M4 is taken from:
     // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
+    //
+    // The formula for sample skewness is taken from:
+    // http://www.macroption.com/skewness-formula/
+    //
+    // The formula for sample excess kurtosis is taken from:
+    // http://www.macroption.com/kurtosis-formula/
   private:
     // DATA
     struct Moment_Data<ML> d_data;
@@ -189,7 +195,7 @@ class Moment {
 
     double getKurtosis() const;
         // Return kurtosis of the data set.  The result is 'Nan' unless
-        // '4 <= count'.
+        // '4 <= count' and the variance is not zero.
 
     double getKurtosisRaw() const;
         // Return kurtosis of the data set.  The behavior is undefined unless
@@ -205,11 +211,11 @@ class Moment {
 
     double getSkew() const;
         // Return kurtosis of the data set.  The result is 'Nan' unless
-        // '3 <= count'.
+        // '3 <= count' and the variance is not zero..
 
     double getSkewRaw() const;
-        // Return kurtosis of the data set.  The behavior is undefined unless
-        // '3 <= count'.
+        // Return same excess kurtosis of the data set.  The behavior is
+        // undefined unless '3 <= count'.
 
     double getVariance() const;
         // Return variance of the data set.  The result is 'Nan' unless
@@ -298,14 +304,11 @@ void Moment<M3>::add(double value)
     d_data.d_sum += value;
     ++d_data.d_count;
     const double n = d_data.d_count;
+    const double deltaN = delta / n;
     d_data.d_mean = d_data.d_sum / n;
-    const double deltaN = value - d_data.d_mean;
-    d_data.d_M2 += delta * deltaN;
-    const double delta2 = delta * delta;
-    const double delta3 = delta * delta2;
-    const double n2 = n * n;
-    d_data.d_M3 += delta3 * nm1 * (nm1 - 1.0) / n2 - 3.0 * delta * d_data.d_M2
-                                                                           / n;
+    const double term1 = delta * deltaN * nm1;
+    d_data.d_M3 += term1 * deltaN * (n - 2.0) - 3.0 * deltaN * d_data.d_M2;
+    d_data.d_M2 += term1;
 }
 
 template<>
@@ -319,19 +322,15 @@ void Moment<M4>::add(double value)
     d_data.d_sum += value;
     ++d_data.d_count;
     const double n = d_data.d_count;
-    d_data.d_mean = d_data.d_sum / n;
-    const double deltaN = value - d_data.d_mean;
-    d_data.d_M2 += delta * deltaN;
-    const double delta2 = delta * delta;
-    const double delta3 = delta * delta2;
-    const double delta4 = delta * delta3;
     const double n2 = n * n;
-    const double n3 = n * n2;
-    d_data.d_M3 += delta3 * nm1 * (nm1 - 1.0) / n2 - 3.0 * delta * d_data.d_M2
-                                                                           / n;
-    d_data.d_M4 += delta4 * nm1 * (n2 - 3.0 * n + 3.0) / n3 + 6.0 * delta2
-                                                            * d_data.d_M2 / n2;
-    d_data.d_M4 -= 4.0 * delta * d_data.d_M3 / n;
+    const double deltaN = delta / n;
+    d_data.d_mean = d_data.d_sum / n;
+    const double term1 = delta * deltaN * nm1;
+    const double deltaN2 = deltaN * deltaN;
+    d_data.d_M4 += term1 * deltaN2 * (n2 - 3.0 * n + 3.0) +
+                   6 * deltaN2 * d_data.d_M2 - 4.0 * deltaN * d_data.d_M3;
+    d_data.d_M3 += term1 * deltaN * (n - 2.0) - 3.0 * deltaN * d_data.d_M2;
+    d_data.d_M2 += term1;
 }
 
 // ACCESSORS
@@ -347,8 +346,11 @@ template<>
 inline
 double Moment<M4>::getKurtosisRaw() const
 {
-    return static_cast<double>(d_data.d_count) * d_data.d_M4 / d_data.d_M2
-                                               * d_data.d_M2 - 3.0;
+    const double n = static_cast<double>(d_data.d_count);
+    const double n1   = (n - 1.0);
+    const double n2n3 = (n - 2.0) * (n - 3.0);
+    return n * (n + 1.0) * n1 / n2n3 * d_data.d_M4 / d_data.d_M2 / d_data.d_M2
+           - 3.0 * n1 * n1 / n2n3;
 }
 // BDE_VERIFY pragma: +FABC01
 
@@ -356,7 +358,7 @@ template<>
 inline
 double Moment<M4>::getKurtosis() const
 {
-    if (4 > d_data.d_count) {
+    if (4 > d_data.d_count || 0.0 == d_data.d_M2) {
         return k_DBL_NAN;                                             // RETURN
     }
     return getKurtosisRaw();
@@ -382,7 +384,7 @@ double Moment<ML>::getMeanRaw() const
 template <MomentLevel ML>
 inline double Moment<ML>::getSkew() const
 {
-    if (3 > d_data.d_count) {
+    if (3 > d_data.d_count || 0.0 == d_data.d_M2) {
         return k_DBL_NAN;                                             // RETURN
     }
     return getSkewRaw();
@@ -392,7 +394,8 @@ template <MomentLevel ML>
 inline
 double Moment<ML>::getSkewRaw() const
 {
-    return bsl::sqrt(static_cast<double>(d_data.d_count)) * d_data.d_M3
+    const double n = static_cast<double>(d_data.d_count);
+    return bsl::sqrt(n - 1.0) * n / (n- 2.0) * d_data.d_M3
                                                   / bsl::pow(d_data.d_M2, 1.5);
 }
 
