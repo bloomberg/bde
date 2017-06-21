@@ -212,18 +212,35 @@ class AssertionTracker {
     //:       are counted (by stack trace) but not reported.
   private:
     // PRIVATE TYPES
-    typedef const char                              *Text;
-    typedef const char                              *File;
-    typedef int                                      Line;
+    typedef const char *Text;  // assertion text type
+
+    typedef const char *File;  // source file name type
+
+    typedef int Line;          // source line number type
+
     typedef bsl::pair<Text, bsl::pair<File, Line> >  AssertionLocation;
-    typedef void                                    *Address;
-    typedef bsl::vector<Address>                     StackTrace;
-    typedef bsl::unordered_map<StackTrace, int>      AssertionCounts;
+                               // assertion location type, consisting of its
+                               // text, source file, and line number
+
+    typedef void *Address;     // type of one element of a stack trace
+
+    typedef bsl::vector<Address> StackTrace;
+                               // type of a stack trace, consisting of a
+                               // sequence of addresses
+
+    typedef bsl::unordered_map<StackTrace, int> AssertionCounts;
+                               // a type for keeping a count per stack trace
+
     typedef bsl::unordered_map<AssertionLocation, AssertionCounts>
-        TrackingData;
+        TrackingData;          // a type for keeping a set of stack traces and
+                               // their counts per assertion location
 
   public:
     // PUBLIC TYPES
+
+    // To allow configuration callbacks to be written in C, we treat the set of
+    // configuration options as an array of five integers.  This enumeration
+    // describes the meaning of each array element.
     enum ConfigurationOrder {
         e_maxAssertions,
         e_maxLocations,
@@ -231,7 +248,12 @@ class AssertionTracker {
         e_severity,
         e_reportingFrequency
     };
+
     typedef bsl::function<void(int(&)[5])> ConfigurationCallback;
+                               // a configuration callback is a functor that
+                               // receives an array of five integers, as
+                               // described above
+
     typedef bsl::function<void(int                         ,
                                int                         ,
                                const char                 *,
@@ -239,7 +261,14 @@ class AssertionTracker {
                                int                         ,
                                const bsl::vector<void *>&  )>
                                            ReportingCallback;
+                               // a reporting callback is a functor that
+                               // receives a count of how many times an
+                               // assertion stack trace has occurred, followed
+                               // by severity, assertion text, file name, line
+                               // number, and stack trace
 
+    // This enumeration defines the possible values for how often assertions
+    // are reported.
     enum ReportingFrequency {
         e_onNewLocation,    // Report once per distinct file/line pair
         e_onNewStackTrace,  // Report once per distinct stack trace
@@ -248,20 +277,45 @@ class AssertionTracker {
 
   private:
     // PRIVATE DATA
-    bsls::Assert::Handler   d_fallbackHandler;  // handler when limits exceeded
-    bslma::Allocator       *d_allocator_p;      // allocator
-    bsls::AtomicInt         d_maxAssertions;              // configured limit
-    bsls::AtomicInt         d_maxLocations;               // configured limit
-    bsls::AtomicInt         d_maxStackTracesPerLocation;  // configured limit
-    bsls::AtomicInt         d_severity;         // configured severity
-    bsls::AtomicInt         d_assertionCount;   // number of assertions seen
-    TrackingData            d_trackingData;     // store of assertions seen
-    bslmt::ThreadUtil::Key  d_recursionCheck;   // thread-local data key to
-                                                // prevent recursive invocation
-    mutable bslmt::Mutex    d_mutex;            // mutual exclusion lock
+    bsls::Assert::Handler   d_fallbackHandler;
+        // handler invoked when assertions occur beyond configured limits
+
+    bslma::Allocator       *d_allocator_p;
+        // allocator used by this object
+
+    bsls::AtomicInt         d_maxAssertions;
+        // configured limit of assertions that will be processed
+
+    bsls::AtomicInt         d_maxLocations;
+        // configured limit of assertion locations that will be processed
+
+    bsls::AtomicInt         d_maxStackTracesPerLocation;
+        // configured limit of per-location stack traces that will be processed
+
+    bsls::AtomicInt         d_severity;
+        // configured severity, passed to reporting callback
+
+    bsls::AtomicInt         d_assertionCount;
+        // number of assertions seen, including unprocessed ones
+
+    TrackingData            d_trackingData;
+        // database tracking all processed assertions so far seen
+
+    bslmt::ThreadUtil::Key  d_recursionCheck;
+        // key for thread-local data, used to prevent recursive invocation of
+        // the assertion handler if a callback itself triggers an assertion
+
+    mutable bslmt::Mutex    d_mutex;
+        // lock used to serialize concurrent access
+
     ConfigurationCallback   d_configurationCallback;
+        // callback invoked to reconfigure reporting parameters
+
     ReportingCallback       d_reportingCallback;
+        // callback invoked to report an assertion
+
     bsls::AtomicInt         d_reportingFrequency;
+        // configured reporting frequency
 
     // PRIVATE CREATORS
     AssertionTracker(const AssertionTracker&);             // = delete
@@ -275,7 +329,8 @@ class AssertionTracker {
     // CLASS METHODS
     static void preserveConfiguration(int (&)[5]);
         // This function can be installed as a configuration callback.  It
-        // leaves the configuration unchanged.
+        // leaves the configuration unchanged.  This function is used as the
+        // default configuration callback.
 
     static void reportAssertion(bsl::ostream               *out,
                                 int                         severity,
@@ -285,9 +340,19 @@ class AssertionTracker {
                                 int                         line,
                                 const bsl::vector<void *>&  stack);
         // Report the specified 'count', 'text', 'file', 'line', and 'stack' to
-        // the specified stream 'out' at the specified 'severity'.  If 'out' is
-        // null, the assertion will be reported via
-        // 'bsls::Log::platformDefaultMessageHandler'.
+        // the specified stream 'out' at the specified 'severity' in an
+        // implementation-defined format.  If 'out' is null, the assertion will
+        // be reported via 'bsls::Log::platformDefaultMessageHandler'.  A
+        // functor of this function with 'out' bound to a particular stream
+        // pointer can be installed as a reporting callback.  Such a functor
+        // with 'out' bound to a null pointer is used as the default reporting
+        // callback.
+        //
+        // While the format is subject to change, it is currently
+        // 'severity:file:line:count:message:[ addresses... ]\n'.  Note that
+        // 'file' and 'message' may contain embedded colons.  The addresses are
+        // written as a sequence of space-separated hexadecimal values without
+        // a leading '0x' tag.
 
     // CREATORS
     explicit AssertionTracker(
@@ -316,32 +381,34 @@ class AssertionTracker {
         // behavior.
 
     void setConfigurationCallback(ConfigurationCallback cb);
-        // Set the configuration callback function invoked when an assertion
-        // occurs to the specified 'cb'.
+        // Set the configuration callback function, invoked when an assertion
+        // is reported to 'assertionDetected', to the specified 'cb'.
 
     void setMaxAssertions(int value);
         // Set the maximum number of assertions that this object will handle to
         // the specified 'value'.  If 'value' is negative, an unlimited number
         // of assertions can be handled.  If there is an assertion failure
-        // beyond the limit, the assertion will be passed to the saved handler.
+        // beyond the limit, the assertion will be passed to the fallback
+        // handler supplied at construction.
 
     void setMaxLocations(int value);
         // Set the maximum number of assertion locations that this object will
         // handle to the specified 'value'.  If 'value' is negative, an
         // unlimited number of locations can be handled.  If there is an
         // assertion failure beyond the limit, the assertion will be passed to
-        // the saved handler.
+        // the fallback handler supplied at construction.
 
     void setMaxStackTracesPerLocation(int value);
         // Set the maximum number of stack traces for a given location that
         // this object will handle to the specified 'value'.  If 'value' is
         // negative, an unlimited number of stack traces can be handled.  If
         // there is an assertion failure beyond the limit, the assertion will
-        // be passed to the saved handler.
+        // be passed to the fallback handler supplied at construction.
 
     void setReportingCallback(ReportingCallback cb);
-        // Set the callback function invoked when an assertion occurs to the
-        // specified 'cb'.
+        // Set the callback function, invoked when an assertion reported to
+        // 'assertionDetected' meets the configured criteria for reporting, to
+        // the specified 'cb'.
 
     void setReportingFrequency(ReportingFrequency value);
         // Set the frequency with which assertions are reported to the
@@ -353,12 +420,17 @@ class AssertionTracker {
         // file/line location may have multiple stack traces because the
         // function in which it appears is called from a variety of call
         // paths).  Finally, if 'value' is 'e_onEachAssertion', every assertion
-        // occurrence will be reported.  This reporting frequency is initially
-        // 'e_onNewStackTrace'.
+        // occurrence will be reported (resulting in multiple reports if the
+        // same assertion is triggered multiple times).  This reporting
+        // frequency is initially 'e_onNewStackTrace'.
 
     void setReportingSeverity(bsls::LogSeverity::Enum value);
         // Set the severity level at which assertions will be reported to the
-        // specified 'value'.
+        // specified 'value'.  See 'bsls_logseverity.h' for details.  When
+        // this object reports assertions using
+        // 'bsls::Log::platformDefaultMessageHandler', the severity level is
+        // passed to that function.  The severity level is also encoded as a
+        // string into the formatted message prepared by 'reportAssertion'.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -369,27 +441,34 @@ class AssertionTracker {
 
     int maxAssertions() const;
         // Return the maximum number of assertions that this object will handle
-        // or -1 if the number is unlimited.
+        // or a negative value if the number is unlimited.
 
     int maxLocations() const;
         // Return the maximum number of locations that this object will handle
-        // or -1 if the number is unlimited.
+        // or a negative value if the number is unlimited.
 
     int maxStackTracesPerLocation() const;
         // Return the maximum number of stack traces for a given location that
-        // this object will handle or -1 if the number is unlimited.
+        // this object will handle or a negative value if the number is
+        // unlimited.
 
     void reportAllRecordedStackTraces() const;
-        // This method invokes the callback for each saved stack trace.
+        // This method invokes the reporting callback for each saved stack
+        // trace, in arbitrary order.
 
     ReportingCallback reportingCallback() const;
         // Return the callback functor used to report assertions.
 
     ReportingFrequency reportingFrequency() const;
-        // Return the frequency with which assertions are reported.
+        // Return the frequency with which assertions are reported.  The
+        // possible values are
+        //: e_onNewLocation (0)   - report first time for each location
+        //: e_onNewStackTrace (1) - report first time for each stack trace
+        //: e_onEachAssertion (2) - report every assertion occurrence
 
     bsls::LogSeverity::Enum reportingSeverity() const;
-        // Return the severity with which assertions are reported.
+        // Return the severity with which assertions are reported.  See
+        // 'bsls_logseverity.h' for details.
 };
 
 }  // close package namespace
