@@ -664,18 +664,60 @@ class Allocator;
                         // ==============
 
 struct Default {
-    // This struct is a namespace for functions that manipulate and access the
-    // default and global allocator pointers.
+    // This struct is a mechanism with global state, i.e., all state is held in
+    // global variables and all functions are class methods.  The state
+    // consists of two distinct parts that don't influence one another: the
+    // default allocator and the global allocator.  All addresses are stored
+    // without assuming ownership.
+    //
+    // The 'setDefaultAllocator' method will only modify the default allocator
+    // prior to the default allocator being accessed (by either 'allocator',
+    // 'defaultAllocator', or 'lockDefaultAllocator'). The global allocator may
+    // be freely modified.
+    //
+    // Note that *only* the *owner* of 'main' (or in *testing*), where the
+    // caller affirmatively takes responsibility for the behavior of all
+    // clients of the global allocator, is intended to change the global
+    // allocator.
 
   private:
     // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Pointer s_allocator;
-                                                  // the default allocator
-    static bsls::AtomicOperations::AtomicTypes::Int     s_locked;
-                                                  // lock to disable non-Raw
-                                                  // 'set' of default allocator
+
+                        // *** default allocator ***
+
+    static bsls::AtomicOperations::AtomicTypes::Pointer
+                                                   s_requestedDefaultAllocator;
+        // The default allocator that is requested by the user and will be
+        // installed as the default allocator on the first attempt to access
+        // the default allocator (via 'allocator', 'defaultAllocator', or
+        // 'lockDefaultAllocator').  This value is initialized to '0',
+        // indicating the user hasn't made a choice yet.  In that case, when
+        // needed, the new-delete allocator will be used.  This value can be
+        // set (multiple times) by calling to 'setDefaultAllocator'.  Note that
+        // once changed this variable will not become '0' again.
+
+    static bsls::AtomicOperations::AtomicTypes::Pointer s_defaultAllocator;
+        // The currently installed default allocator.  This variable must be
+        // set only once, when the default allocator is first accessed (via
+        // 'allocator', 'defaultAllocator', or 'lockDefaultAllocator') but may
+        // be '0' before it is accessed unless *for* *testing* *only*
+        // 'setDefaultAllocatorRaw' is used.
+
+                        // *** global allocator ***
+
     static bsls::AtomicOperations::AtomicTypes::Pointer s_globalAllocator;
-                                                  // the global allocator
+        // The address of the global allocator to use.
+
+    // PRIVATE CLASS METHODS
+    static Allocator *determineAndReturnDefaultAllocator();
+        // Atomically exchange the address for the allocator to set with the
+        // address of the 'NewDeleteAllocator' singleton if the address is '0',
+        // atomically exchange the address for the allocator to use with the
+        // current address in the allocator to set if the address is '0', and
+        // return the final resulting address for the allocator to use.  Note
+        // that this function performs the one and only transition of the
+        // stored address for the allocator to use from '0' to a non-null value
+        // except when using raw access *during* *testing*.
 
   public:
     // CLASS METHODS
@@ -770,22 +812,15 @@ struct Default {
 inline
 void Default::lockDefaultAllocator()
 {
-    bsls::AtomicOperations::setIntRelaxed(&s_locked, 1);
+    determineAndReturnDefaultAllocator();
 }
 
 inline
 Allocator *Default::defaultAllocator()
 {
-    if (!bsls::AtomicOperations::getPtrAcquire(&s_allocator)) {
-        setDefaultAllocatorRaw(&NewDeleteAllocator::singleton());
-    }
-
-    if (!bsls::AtomicOperations::getIntRelaxed(&s_locked)) {
-        bsls::AtomicOperations::setIntRelaxed(&s_locked, 1);
-    }
-
-    return static_cast<Allocator *>(const_cast<void *>(
-                         bsls::AtomicOperations::getPtrRelaxed(&s_allocator)));
+    void *alloc = bsls::AtomicOperations::getPtrRelaxed(&s_defaultAllocator);
+    return alloc ? static_cast<Allocator *>(alloc)
+                 : determineAndReturnDefaultAllocator();
 }
 
 inline
