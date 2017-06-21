@@ -139,35 +139,34 @@ class AssertionTrackerSingleton {
     // about them is being gathered.
     //
     // The requirements on the 'TRACKER" class are
-    //: 1 The 'TRACKER' type must have a membertype named
+    //: 1 The 'TRACKER' type must have a member type named
     //:   'ConfigurationCallback'.
     //:
-    //: 2 A 'TRACKER' object is constructible given three arguments, the first
+    //: 2 A 'TRACKER' object can be constructed from three arguments, the first
     //:   of type 'bsls::Assert::Handler', the second a configuration handler
     //:   of type 'TRACKER::ConfigurationCallback', and the third of type
     //:   'bslma::Allocator*'.
     //:
-    //: 2 A 'TRACKER' object has an 'assertionDetected' fiunction taking three
+    //: 2 A 'TRACKER' object has an 'assertionDetected' function taking three
     //:   arguments, the first two of type 'const char *' and the third of type
     //:   'int'.
   public:
     // PUBLIC TYPES
     typedef void (*BregCallback)(int *, int *, int *);
-        // This is the type of a callback function that fetches three 'BREG'
+        // This is the type of a callback function that fetches three BREG
         // values.  These are intended to be the ones found in
         //     <bbit/201310/bbit_assert_trace_enable.h>
         //     <bbit/201310/bbit_assert_trace_severity_level.h>
         //     <bbit/201411/bbit_assert_max_callstack_count.h>
-        // and represent the "legacy" BREGs meant to control assertion logging.
-
-    // PRIVATE CLASS METHODS
-    static void bregCallbackAdapter(BregCallback bregCallback,
-                                    int (&configure)[5]);
-        // This function is an adapter that maps the 'BREG' values provided by
-        // the specified 'bregCallback' to the specified 'configure' array used
-        // by 'balb::AssertionTracker'.
+        // and represent the legacy BREG meant to control assertion logging.
 
     // PUBLIC CLASS METHODS
+    static void bregCallbackAdapter(BregCallback   callback,
+                                    int          (&configure)[5]);
+        // This function is an adapter that maps the BREG values provided by
+        // the specified 'callback' to the specified 'configure' array used by
+        // 'balb::AssertionTracker'.
+
     static void failTracker(const char *text, const char *file, int line);
         // Forward the specified 'text', 'file', and 'line' corresponding to a
         // failed assertion to the singleton object managed by this class via
@@ -180,16 +179,16 @@ class AssertionTrackerSingleton {
         // and may trigger warnings on such behavior within 'bsls::Assert'.
 
     static TRACKER *singleton(
-        typename TRACKER::ConfigurationCallback  configure      =
+                  typename TRACKER::ConfigurationCallback  configure      =
                                      typename TRACKER::ConfigurationCallback(),
-        bslma::Allocator                        *basicAllocator = 0);
+                  bslma::Allocator                        *basicAllocator = 0);
         // Return a pointer to the 'TRACKER' singleton object that will be used
         // to track assertion failures.  When the singleton is created,
         // 'failTracker' will be installed as the assertion-handler function
         // for 'bsls::Assert'.  If 'failTracker' could not be installed, return
         // a null pointer instead.  Optionally specify a 'basicAllocator' used
         // to supply memory.  The currently installed failure handler, the
-        // optionally-specified 'configure' callback, and 'basicAallocator' are
+        // optionally specified 'configure' callback, and 'basicAallocator' are
         // supplied to the constructor of the singleton.
 
     static TRACKER *singleton(BregCallback      callback,
@@ -208,6 +207,26 @@ class AssertionTrackerSingleton {
                         // -------------------------------
 
 // CLASS METHODS
+template <class TRACKER>
+void AssertionTrackerSingleton<TRACKER>::bregCallbackAdapter(
+                                                  BregCallback   callback,
+                                                  int          (&configure)[5])
+{
+    int trace_enable, max_callstack_count, trace_severity_level;
+    callback(&trace_enable, &max_callstack_count, &trace_severity_level);
+    if (!trace_enable || !trace_severity_level) {
+        configure[0] = 0;
+    }
+    else {
+        configure[0] = -1;
+        configure[1] = -1;
+        configure[2] = max_callstack_count;
+        // Align the BREG value with the 'bsls::LogSeverity::Enum' value.
+        configure[3] = trace_severity_level - 1;
+        configure[4] = 1;
+    }
+}
+
 template <class TRACKER>
 void AssertionTrackerSingleton<TRACKER>::failTracker(const char *text,
                                                      const char *file,
@@ -234,26 +253,6 @@ TRACKER *AssertionTrackerSingleton<TRACKER>::singleton(
     }
 
     return theSingleton_p;
-}
-
-template <class TRACKER>
-void AssertionTrackerSingleton<TRACKER>::bregCallbackAdapter(
-                                                         BregCallback callback,
-                                                         int (&configure)[5])
-{
-    int trace_enable, max_callstack_count, trace_severity_level;
-    callback(&trace_enable, &max_callstack_count, &trace_severity_level);
-    if (!trace_enable || !trace_severity_level) {
-        configure[0] = 0;
-    }
-    else {
-        configure[0] = -1;
-        configure[1] = -1;
-        configure[2] = max_callstack_count;
-        // Align the BREG value with the bsls::LogSeverity::Enum value.
-        configure[3] = trace_severity_level - 1;
-        configure[4] = 1;
-    }
 }
 
 template <class TRACKER>
