@@ -810,7 +810,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bdlt::CurrentTime::now() + d_ioTimeout,
+          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 

@@ -288,7 +288,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bsls::SystemTime::notMonotonicClock() + d_ioTimeout,
+//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
@@ -312,7 +312,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bsls::SystemTime::notMonotonicClock() + d_ioTimeout,
+//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
