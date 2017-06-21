@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 
 #include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -25,7 +26,7 @@
 
 using namespace BloombergLP::bdlf::PlaceHolders;
 
-// MSVC optimizations (like omitting frame pointers) can interfere with the
+// 'MSVC' optimizations (like omitting frame pointers) can interfere with the
 // gathering of stack traces.  With optimization enabled, the test driver is
 // observed to fail some of its stack-trace based tests unless this pragma is
 // specified.
@@ -128,6 +129,7 @@ void AssertionTracker::reportAssertion(bsl::ostream               *out,
     char                               buffer[1024];
     bdlma::BufferedSequentialAllocator allocator(buffer, sizeof(buffer));
     bslma::DefaultAllocatorGuard       guard(&allocator);
+
     bsl::string s = formatAssertion(count, severity, text, file, line, stack);
     if (out) {
         *out << s;

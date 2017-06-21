@@ -39,7 +39,8 @@
 // slow down the task of information gathering, and because we need to gather
 // the information in production.  We can use 'bsls::AssertionTracker' for
 // this purpose.
-// First, we will place a local staic 'AssertionTracker' object ahead of the
+//
+// First, we will place a local static 'AssertionTracker' object ahead of the
 // function we want to instrument, and create custom assertion macros just for
 // that function.
 //..
@@ -47,7 +48,7 @@
 //  balb::AssertionTracker theTracker;
 //  #define TRACK_ASSERT(condition) do { if (!(condition)) { \{{ Remove This }}
 //  theTracker.assertionDetected(#condition, __FILE__, __LINE__); } } while (0)
-//  }
+//  }  // close unnamed namespace
 //..
 // Then, we define the function to be traced, and use the modified assertions.
 //..
@@ -62,6 +63,7 @@
 // Next, we create some uses of the function that may trigger the assertions.
 //..
 //   void useFoo()
+//       // Trigger assertions by passing invalid values to 'foo'.
 //   {
 //       for (int i = 0; i < 100; ++i) {
 //           foo(i);
@@ -116,7 +118,7 @@
 #include <bsls_log.h>
 #endif
 
-#ifndef INCLUDED_BSLS_LOG
+#ifndef INCLUDED_BSLS_LOGSEVERITY
 #include <bsls_logseverity.h>
 #endif
 
@@ -159,7 +161,7 @@ class AssertionTracker {
     //: fallback handler
     //: - set to 'bsls::Assert::failureHandler()'
     //:
-    //: configuartion callback
+    //: configuration callback
     //: - retains configuration with no changes.
     //:
     //: reporting callback
@@ -169,7 +171,7 @@ class AssertionTracker {
     // parameters mediated by a client-controlled configuration callback.
     // This callback is invoked each time an assertion failure is reported via
     // 'reportAssertion' in order to make dynamic control of reporting
-    // possible, for example by modifying BREGs.  The parameters are
+    // possible, for example by modifying 'BREGs'.  The parameters are
     //
     //: maxAssertions (default -1)
     //: - The maximum number of assertion occurrences this object will handle,
@@ -190,14 +192,14 @@ class AssertionTracker {
     //: location may be reached through many different paths.)  If more stack
     //: traces for a location occur, the assertion will be reported to the
     //: fallback handler and the stack traces will not be stored.
-    //: 
+    //:
     //: reportingSeverity (default 'bsls::LogSeverity::e_FATAL')
     //: - This severity value is passed to the reporting callback.
     //:
     //: reportingFrequency (default 'e_onNewStackTrace')
-    //: - This parameter controls which assertion occurrences are reported
-    //: via the reporting callback.
-    //: The possible values are
+    //: - This parameter controls what assertion occurrences are reported via
+    //: the reporting callback. The possible values are
+    //:
     //:   1 'e_onEachAssertion' - All assertion occurrences are reported.
     //:
     //:   2 'e_onNewStackTrace' - The first time a new stack trace is seen, it
@@ -230,13 +232,13 @@ class AssertionTracker {
         e_reportingFrequency
     };
     typedef bsl::function<void(int(&)[5])> ConfigurationCallback;
-    typedef bsl::function<void(int,
-                               int,
-                               const char *,
-                               const char *,
-                               int,
-                               const bsl::vector<void *>&)>
-        ReportingCallback;
+    typedef bsl::function<void(int                         ,
+                               int                         ,
+                               const char                 *,
+                               const char                 *,
+                               int                         ,
+                               const bsl::vector<void *>&  )>
+                                           ReportingCallback;
 
     enum ReportingFrequency {
         e_onNewLocation,    // Report once per distinct file/line pair
@@ -341,21 +343,22 @@ class AssertionTracker {
         // Set the callback function invoked when an assertion occurs to the
         // specified 'cb'.
 
-    void setReportingFrequency(ReportingFrequency frequency);
+    void setReportingFrequency(ReportingFrequency value);
         // Set the frequency with which assertions are reported to the
-        // specified 'frequency'.  If 'frequency' is 'e_onNewLocation', an
-        // assertion will be reported if it is the first time that file/line
-        // assertion location has been seen.  If 'frequency' is
-        // 'e_onNewStackTrace', an assertion will be reported if it is the
-        // first time a particular stack trace has been seen (that is, an
-        // assertion at a particular file/line location may have multiple stack
-        // traces because the function in which it appears is called from a
-        // variety of call paths).  Finally, if 'frequency' is
-        // 'e_onEachAssertion', every assertion occurrence will be reported.
-        // This reporting frequency is initially 'e_onNewStackTrace'.
+        // specified 'value'.  If 'value' is 'e_onNewLocation', an assertion
+        // will be reported if it is the first time that file/line assertion
+        // location has been seen.  If 'value' is 'e_onNewStackTrace', an
+        // assertion will be reported if it is the first time a particular
+        // stack trace has been seen (that is, an assertion at a particular
+        // file/line location may have multiple stack traces because the
+        // function in which it appears is called from a variety of call
+        // paths).  Finally, if 'value' is 'e_onEachAssertion', every assertion
+        // occurrence will be reported.  This reporting frequency is initially
+        // 'e_onNewStackTrace'.
 
-    void setReportingSeverity(bsls::LogSeverity::Enum severity);
-        // Set the severity level at which assertions will be reported.
+    void setReportingSeverity(bsls::LogSeverity::Enum value);
+        // Set the severity level at which assertions will be reported to the
+        // specified 'value'.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -376,14 +379,6 @@ class AssertionTracker {
         // Return the maximum number of stack traces for a given location that
         // this object will handle or -1 if the number is unlimited.
 
-    bool onNewLocation() const;
-        // Return whether the callback is invoked on each new assertion
-        // location.
-
-    bool onNewStackTrace() const;
-        // Return whether the callback is invoked on each new assertion stack
-        // trace;
-
     void reportAllRecordedStackTraces() const;
         // This method invokes the callback for each saved stack trace.
 
@@ -394,7 +389,7 @@ class AssertionTracker {
         // Return the frequency with which assertions are reported.
 
     bsls::LogSeverity::Enum reportingSeverity() const;
-        // Return the seveirty with which assertions are reported.
+        // Return the severity with which assertions are reported.
 };
 
 }  // close package namespace
