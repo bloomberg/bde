@@ -86,6 +86,20 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef balb::AssertionTrackerSingleton<balb::AssertionTracker> Obj;
 
+// 'MSVC' optimizations (like omitting frame pointers, loop unrolling, and
+// inlining) can interfere with the gathering of stack traces and with the
+// (perhaps overly simplistic) expectations of the tests below.  With
+// optimization enabled, this test driver is observed to fail some of its
+// stack-trace based tests unless this pragma is specified.
+//
+// The use of functions with variadic argument lists and volatile automatic
+// variables below is also meant to discourage optimizations that interfere
+// with standard stack frames.
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma optimize("gsty", off)
+#endif
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
