@@ -355,8 +355,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_qlock.h>
 #endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
-#include <bslmt_rwmutex.h>
+#ifndef INCLUDED_BSLMT_READERWRITERMUTEX
+#include <bslmt_readerwritermutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -604,7 +604,7 @@ class MultiQueueThreadPool {
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
                       d_queueRegistry;      // registry of queue contexts
 
-    mutable bslmt::RWMutex
+    mutable bslmt::ReaderWriterMutex
                       d_registryLock;       // synchronizes registry access
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
@@ -729,12 +729,13 @@ class MultiQueueThreadPool {
 
     int drainQueue(int id);
         // Wait until all jobs in the queue indicated by the specified 'id' are
-        // finished.  This method simply spins (with yield) until that queue is
-        // empty, without disabling the queue; it may thus spin indefinitely if
-        // more jobs are being added.  The queue may be enabled or disabled when
-        // when this method is called.  Return 0 on success, and a non-zero
-        // value if the specified queue does not exist or is deleted while this
-        // method is waiting.
+        // finished.  This method simply waits until that queue is empty,
+        // without disabling the queue; it may thus wait indefinitely if more
+        // jobs are being added.  The queue may be enabled or disabled when
+        // this method is called.  Return 0 on success, and a non-zero value
+        // if the specified queue does not exist or is deleted while this
+        // method is waiting.  Note that this method waits by repeatedly
+        // yielding.
 
     int enqueueJob(int id, const Job& functor);
         // Enqueue the specified 'functor' to the queue specified by 'id'.
@@ -778,16 +779,17 @@ class MultiQueueThreadPool {
         // started.  Note that any paused queues remain paused.
 
     void drain();
-        // Wait (by spinning and yielding) until all queues are empty.  This
-        // method waits until all queues are empty without disabling the
-        // queues.  The queues and/or the thread pool may be either enabled or
-        // disabled when this method is called.  This method may be called on a
-        // stopped or started thread pool.  This method will block if any
-        // thread is executing 'start', 'stop', or 'shutdown' at the time of
-        // the call.  Note that 'drain' does not attempt to delete queues
-        // directly.  However, as a side-effect of emptying all queues, any
-        // queue for which 'deleteQueue' was called previously will be deleted
-        // before 'drain' returns.
+        // Wait until all queues are empty.  This method waits until all
+        // queues are empty without disabling the queues (and may thus wait
+        // indefinitely).  The queues and/or the thread pool may be either
+        // enabled or disabled when this method is called.  This method may be
+        // called on a stopped or started thread pool.  This method will block
+        // if any thread is executing 'start', 'stop', or 'shutdown' at the
+        // time of the call.  Note that 'drain' does not attempt to delete
+        // queues directly.  However, as a side-effect of emptying all queues,
+        // any queue for which 'deleteQueue' was called previously will be
+        // deleted before 'drain' returns.  Note also that this method waits
+        // by repeatedly yielding.
 
     void stop();
         // Disable queuing on all queues and wait until all non-paused queues
