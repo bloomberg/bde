@@ -160,6 +160,9 @@ class AssertionTrackerSingleton {
         //     <bbit/201411/bbit_assert_max_callstack_count.h>
         // and represent the legacy BREG meant to control assertion logging.
 
+    typedef typename TRACKER::ConfigurationCallback ConfigurationCallback;
+        // The type of the configuration callback of the 'TRACKER'.
+
     // PUBLIC CLASS METHODS
     static void bregCallbackAdapter(BregCallback   callback,
                                     int          (&configure)[5]);
@@ -178,10 +181,9 @@ class AssertionTrackerSingleton {
         // Note that unlike proper handlers, this handler returns to its caller
         // and may trigger warnings on such behavior within 'bsls::Assert'.
 
-    static TRACKER *singleton(
-                  typename TRACKER::ConfigurationCallback  configure      =
-                                     typename TRACKER::ConfigurationCallback(),
-                  bslma::Allocator                        *basicAllocator = 0);
+    static TRACKER *
+    singleton(ConfigurationCallback  configure      = ConfigurationCallback(),
+              bslma::Allocator      *basicAllocator = 0);
         // Return a pointer to the 'TRACKER' singleton object that will be used
         // to track assertion failures.  When the singleton is created,
         // 'failTracker' will be installed as the assertion-handler function
@@ -237,8 +239,8 @@ void AssertionTrackerSingleton<TRACKER>::failTracker(const char *text,
 
 template <class TRACKER>
 TRACKER *AssertionTrackerSingleton<TRACKER>::singleton(
-                       typename TRACKER::ConfigurationCallback  configure,
-                       bslma::Allocator                        *basicAllocator)
+                                         ConfigurationCallback  configure,
+                                         bslma::Allocator      *basicAllocator)
 {
     static TRACKER *theSingleton_p;
 
