@@ -206,6 +206,9 @@ BSLS_IDENT("$Id: $")
 // connections.  It closes a connection if the data for it does not arrive
 // before a timeout (specified at the server creation time).
 //
+// Because the timeout is relative to the arrival of data, it is best to use
+// a "monotonic" clock that advances at a steady rate, rather than a "wall"
+// clock that may fluctuate to reflect real time adjustments.
 //..
 //    class my_Session{
 //        // This class encapsulates the data and state associated with a
@@ -263,7 +266,7 @@ BSLS_IDENT("$Id: $")
 // my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
 //                      bslma::Allocator          *alloc)
 // : d_connections(alloc)
-// , d_scheduler(alloc)
+// , d_scheduler(bsls::SystemClockType::e_MONOTONIC, alloc)
 // , d_ioTimeout(ioTimeout)
 // {
 //      // TBD: logic to start monitoring the arriving connections or data
@@ -285,7 +288,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
@@ -309,7 +312,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
