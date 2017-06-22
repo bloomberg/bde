@@ -764,7 +764,7 @@ class my_Server {
 my_Server::my_Server(const bsls::TimeInterval&  ioTimeout,
                      bslma::Allocator          *allocator)
 : d_connections(allocator)
-, d_scheduler(allocator)
+, d_scheduler(bsls::SystemClockType::e_MONOTONIC, allocator)
 , d_ioTimeout(ioTimeout)
 {
      // logic to start monitoring the arriving connections or data
@@ -786,7 +786,7 @@ void my_Server::newConnection(my_Server::Connection *connection)
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bdlt::CurrentTime::now() + d_ioTimeout,
+          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
@@ -810,7 +810,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bdlt::CurrentTime::now() + d_ioTimeout,
+          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
