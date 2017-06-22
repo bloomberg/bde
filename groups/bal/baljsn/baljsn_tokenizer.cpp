@@ -81,11 +81,13 @@ int Tokenizer::reloadStringBuffer()
 
 int Tokenizer::expandBufferForLargeValue()
 {
-    d_stringBuffer.resize(d_stringBuffer.length() + k_MAX_STRING_SIZE);
+    const int currLength = d_stringBuffer.length();
+    d_stringBuffer.resize(currLength + k_MAX_STRING_SIZE);
 
     const int numRead =
             static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                                   k_MAX_STRING_SIZE));
+    d_stringBuffer.resize(currLength + numRead);
     return numRead ? 0 : -1;
 }
 
