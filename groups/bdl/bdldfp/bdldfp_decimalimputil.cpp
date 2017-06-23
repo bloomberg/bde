@@ -265,6 +265,198 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
+DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
+{
+    const ValueType32 ZERO  = makeDecimalRaw32(0, 0);  // zero
+    const ValueType32 INF_P = infinity32();            // positive infinity
+    const ValueType32 INF_N = negate(INF_P);           // negative infinity
+    const ValueType32 NAN_P = signalingNaN32();        // positive NaN
+    const ValueType32 NAN_N = negate(NAN_P);           // negative NaN
+
+    ValueType32       result;
+
+    int          sign;
+    unsigned int significand;
+    int          exponent;
+    int          objClass;
+
+    objClass = decompose(&sign, &significand, &exponent, value);
+
+    switch (objClass) {
+      case FP_ZERO: {
+        result = ZERO;
+      } break;
+
+      case FP_INFINITE: {
+        if (sign == 1) {
+            result = INF_P;
+        } else {
+            result = INF_N;
+        }
+      } break;
+
+      case FP_NAN: {
+        if (sign == 1) {
+            result = NAN_P;
+        } else {
+            result = NAN_N;
+        }
+      } break;
+
+      case FP_NORMAL:
+      case FP_SUBNORMAL: {
+        while ((significand % 10 == 0) && (exponent < 90)) {
+            significand /= 10;
+            ++exponent;
+        }
+
+        result = makeDecimalRaw32(sign*significand, exponent);
+      } break;
+
+      default:
+        BSLS_ASSERT(false);
+    }
+
+    return result;
+}
+
+DecimalImpUtil::ValueType64 DecimalImpUtil::normalize(ValueType64 value)
+{
+    const ValueType64 ZERO  = makeDecimalRaw64(0, 0);  // zero
+    const ValueType64 INF_P = infinity64();            // positive infinity
+    const ValueType64 INF_N = negate(INF_P);           // negative infinity
+    const ValueType64 NAN_P = signalingNaN64();        // positive NaN
+    const ValueType64 NAN_N = negate(NAN_P);           // negative NaN
+
+    ValueType64       result;
+
+    int                 sign;
+    bsls::Types::Uint64 significand;
+    int                 exponent;
+    int                 objClass;
+
+    objClass = decompose(&sign, &significand, &exponent, value);
+
+    switch (objClass) {
+      case FP_ZERO: {
+        result = ZERO;
+      } break;
+
+      case FP_INFINITE: {
+        if (sign == 1) {
+            result = INF_P;
+        } else {
+            result = INF_N;
+        }
+      } break;
+
+      case FP_NAN: {
+        if (sign == 1) {
+            result = NAN_P;
+        } else {
+            result = NAN_N;
+        }
+      } break;
+
+      case FP_NORMAL:
+      case FP_SUBNORMAL: {
+        while ((significand % 10 == 0) && (exponent < 369)) {
+            significand /= 10;
+            ++exponent;
+        }
+
+        result = makeDecimalRaw64(significand, exponent);
+        result = (sign == 1) ? result : negate(result);
+      } break;
+
+      default:
+        BSLS_ASSERT(false);
+    }
+
+    return result;
+}
+
+DecimalImpUtil::ValueType128 DecimalImpUtil::normalize(ValueType128 value)
+{
+    const ValueType128 ZERO  = makeDecimalRaw128(0, 0);  // zero
+    const ValueType128 INF_P = infinity128();            // positive infinity
+    const ValueType128 INF_N = negate(INF_P);            // negative infinity
+    const ValueType128 NAN_P = signalingNaN128();        // positive NaN
+    const ValueType128 NAN_N = negate(NAN_P);            // negative NaN
+
+    ValueType128       result;
+
+    int     sign;
+    Uint128 significand;
+    int     exponent;
+    int     objClass;
+
+    objClass = decompose(&sign, &significand, &exponent, value);
+
+    switch (objClass) {
+      case FP_ZERO: {
+        result = ZERO;
+      } break;
+
+      case FP_INFINITE: {
+        if (sign == 1) {
+            result = INF_P;
+        } else {
+            result = INF_N;
+        }
+      } break;
+
+      case FP_NAN: {
+        if (sign == 1) {
+            result = NAN_P;
+        } else {
+            result = NAN_N;
+        }
+      } break;
+
+      case FP_NORMAL:
+      case FP_SUBNORMAL: {
+        bsls::Types::Uint64 r = 0;  // reminder
+        while ((r == 0) && (exponent < 6144)) {
+            bsls::Types::Uint64 high = significand.high();
+            bsls::Types::Uint64 low  = significand.low();
+
+            bsls::Types::Uint64 qh = high / 10;
+            bsls::Types::Uint64 rh = high % 10;
+            bsls::Types::Uint64 ql = low / 10;
+            bsls::Types::Uint64 rl = low % 10;
+
+            r = (6 * rh + rl) % 10;
+
+            if (r == 0) {
+              significand.setHigh(qh);
+              significand.setLow(ql + 0x1999999999999999ull * rh +
+                                                           (6 * rh + rl) / 10);
+              ++exponent;
+            }
+        }
+
+        // TODO: we need constructor/util function for Decimal128 creation,
+        //       accepting Uint128.
+        const ValueType128 MOVE_LEFT_64 = add(
+                                     uint64ToDecimal128(0xFFFFFFFFFFFFFFFFull),
+                                     uint64ToDecimal128(1));
+        const ValueType128 SIGNIFICAND = add(
+                                     multiply(
+                                        uint64ToDecimal128(significand.high()),
+                                        MOVE_LEFT_64),
+                                     uint64ToDecimal128(significand.low()));
+        result = scaleB(SIGNIFICAND, exponent);
+        result = (sign == 1) ? result : negate(result);
+      } break;
+
+      default:
+        BSLS_ASSERT(false);
+    }
+
+    return result;
+}
+
 int DecimalImpUtil::decompose(int          *sign,
                               unsigned int *significand,
                               int          *exponent,

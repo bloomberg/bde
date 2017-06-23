@@ -315,6 +315,25 @@ class DecimalImpUtil {
         // that fail to define those standard macros we define the in this
         // component as public macros.
 
+
+                          // normalize
+
+    static ValueType32 normalize(ValueType32 original);
+    static ValueType64 normalize(ValueType64 original);
+    static ValueType128 normalize(ValueType128 original);
+        // Return a 'ValueTypeXX' number having the value as the specified
+        // 'original, but with the significand, that can not be divided by ten,
+        // and appropriate exponent.
+        //
+        //: o Any representations of zero value (either positive or negative)
+        //:   are normalized to positive zero having null significand and
+        //:   exponent.
+        //:
+        //: o Any NaN values (either signaling or quiet) are normalized to
+        //:   signaling NaN.
+        //:
+        //: o Normalized non-zero value has the same sign as the original one.
+
                         // compose and decompose
 
     //static ValueType32  composeDecimal32 (DecimalTriple triple);

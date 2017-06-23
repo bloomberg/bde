@@ -127,9 +127,12 @@ using bsl::atoi;
 // [21] convertToBID(ValueType32)
 // [21] convertToBID(ValueType64)
 // [21] convertToBID(ValueType128)
-// [25] static int classify(ValueType32  x);
-// [25] static int classify(ValueType64  x);
-// [25] static int classify(ValueType128 x);
+// [25] int classify(ValueType32  x);
+// [25] int classify(ValueType64  x);
+// [25] int classify(ValueType128 x);
+// [26] ValueType32 normalize(ValueType32 original);
+// [26] ValueType64 normalize(ValueType64 original);
+// [26] ValueType128 normalize(ValueType128 original);
 // [24] int decompose(int *, unsigned int *, int *, ValueType32);
 // [24] int decompose(int *, bsls::Types::Uint64 *, int *, ValueType64);
 // [24] int decompose(int *, Uint128 *, int *, ValueType128);
@@ -160,7 +163,7 @@ using bsl::atoi;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 //=============================================================================
@@ -782,6 +785,27 @@ Util::ValueType128 alternateMakeDecimalRaw128(unsigned long long int mantissa,
     return result;
 }
 
+template <class TYPE>
+bool checkBitsEquality(TYPE lhs, TYPE rhs)
+    // Return 'true' if binary representations of the specified 'lhs' and 'rhs'
+    // are equal and 'false' otherwise.
+{
+    bool           result = true;
+    int            size   = sizeof(TYPE);
+    unsigned char *lhsPtr = reinterpret_cast<unsigned char*>(&lhs);
+    unsigned char *rhsPtr = reinterpret_cast<unsigned char*>(&rhs);
+
+    for (int i = 0; i < size; ++i)
+    {
+        if (lhsPtr[i] != rhsPtr[i]) {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
+}
+
 // ============================================================================
 //                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -829,6 +853,7 @@ static int veryVeryVeryVerbose;
 
 struct TestDriver {
     typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
+    static void testCase27();
     static void testCase26();
     static void testCase25();
     static void testCase24();
@@ -857,7 +882,7 @@ struct TestDriver {
     static void testCase1();
 };
 
-void TestDriver::testCase26()
+void TestDriver::testCase27()
 {
     // ------------------------------------------------------------------------
     // TESTING USAGE EXAMPLE
@@ -957,6 +982,419 @@ void TestDriver::testCase26()
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+}
+void TestDriver::testCase26()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'normalize'
+    //
+    // Concerns:
+    //: 1 The 'normalize' function converts any representations of zero values
+    //:   to positive zero value with null significand and exponent.
+    //:
+    //: 2 The 'normalize' function converts any representations of NaN (either
+    //:    signaling or quiet) to signaling NaN.
+    //:
+    //: 3 The 'normalize' function converts any non-zero values preserving the
+    //:   sign.
+    //:
+    //: 4 The 'normalize' function remains values, that can not be normalized,
+    //:   unchanged.
+    //
+    // Plan:
+    //: 1 Brute force test of a several hand picked values(including special
+    //:   and boundary values), ensuring that they are normalized correctly or
+    //:   remained unchanged.  (C-1..4)
+    //
+    // Testing:
+    //   static ValueType32 normalize(ValueType32 original);
+    //   static ValueType64 normalize(ValueType64 original);
+    //   static ValueType128 normalize(ValueType128 original);
+    // --------------------------------------------------------------------
+    if (verbose) bsl::cout << "\nTESTING 'normalize'"
+                           << "\n=================="
+                           << bsl::endl;
+
+    if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+    {
+        typedef Util::ValueType32 Type;
+
+        Type SUBN_P  =              Util::denormMin32();
+        Type SUBN_N  = Util::negate(Util::denormMin32());
+        Type INF_P   =              Util::infinity32();
+        Type INF_N   = Util::negate(Util::infinity32());
+        Type NAN_Q_P =              Util::quietNaN32();
+        Type NAN_Q_N = Util::negate(Util::quietNaN32());
+        Type NAN_S_P =              Util::signalingNaN32();
+        Type NAN_S_N = Util::negate(Util::signalingNaN32());
+        Type MAX_P   =              Util::max32();
+        Type MAX_N   = Util::negate(Util::max32());
+        Type MIN_P   =              Util::min32();
+        Type MIN_N   = Util::negate(Util::min32());
+
+        static const struct {
+            int  d_line;      // line
+            Type d_original;  // value to normalize
+            Type d_expected;  // expected normalized value
+        } SPECIAL_DATA[] = {
+            // LINE  ORIGINAL   NORMALIZED
+            // ----  --------   ----------
+            // Test special encoding values
+            {  L_,   INF_P,     INF_P     },
+            {  L_,   INF_N,     INF_N     },
+            {  L_,   SUBN_P,    SUBN_P    },
+            {  L_,   SUBN_N,    SUBN_N    },
+            {  L_,   NAN_Q_P,   NAN_S_P   },
+            {  L_,   NAN_Q_N,   NAN_S_N   },
+            {  L_,   NAN_S_P,   NAN_S_P   },
+            {  L_,   NAN_S_N,   NAN_S_N   },
+
+            // Test boundary values
+            {  L_,   MIN_P,     MIN_P     },
+            {  L_,   MIN_N,     MIN_N     },
+            {  L_,   MAX_P,     MAX_P     },
+            {  L_,   MAX_N,     MAX_N     },
+        };
+        enum { NUM_SPECIAL_DATA = sizeof SPECIAL_DATA / sizeof *SPECIAL_DATA };
+
+        for (int ti = 0; ti < NUM_SPECIAL_DATA; ++ti) {
+            const int  LINE     = SPECIAL_DATA[ti].d_line;
+            const Type ORIGINAL = SPECIAL_DATA[ti].d_original;
+            const Type EXPECTED = SPECIAL_DATA[ti].d_expected;
+
+            if (veryVerbose) {
+                P(LINE);
+            }
+
+            Type result = Util::normalize(ORIGINAL);
+            ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+
+        static const struct {
+            int  d_line;             // line
+            int  d_origSign;         // sign        of original value
+            int  d_origSignificand;  // significand of original value
+            int  d_origExponent;     // exponent    of original value
+            int  d_expSign;          // sign        of expected value
+            int  d_expSignificand;   // significand of expected value
+            int  d_expExponent;      // exponent    of expected value
+        } ARBITRARY_DATA[] = {
+            // LINE O_SIGN O_SIGN-ND O_EXP      E_SIGN E_SIGN-ND E_EXP
+            // ---- ------ --------- -----      ------ --------- -----
+            // Test zero values
+            {  L_,   1,    0,         0  ,       1,    0,         0   },
+            {  L_,   1,    0,         1  ,       1,    0,         0   },
+            {  L_,  -1,    0,         1  ,       1,    0,         0   },
+            {  L_,   1,    0,        -1  ,       1,    0,         0   },
+            {  L_,  -1,    0,        -1  ,       1,    0,         0   },
+            {  L_,   1,    0,         96 ,       1,    0,         0   },
+            {  L_,  -1,    0,         96 ,       1,    0,         0   },
+            {  L_,   1,    0,        -101,       1,    0,         0   },
+            {  L_,  -1,    0,        -101,       1,    0,         0   },
+
+            // Test arbitrary values
+            {  L_,   1,    1    ,     1 ,        1,    1  ,       1   },
+            {  L_,  -1,    1    ,     1 ,       -1,    1  ,       1   },
+            {  L_,   1,    1    ,    -1 ,        1,    1  ,      -1   },
+            {  L_,  -1,    1    ,    -1 ,       -1,    1  ,      -1   },
+            {  L_,   1,    12   ,     1 ,        1,    12 ,       1   },
+            {  L_,  -1,    12   ,     1 ,       -1,    12 ,       1   },
+            {  L_,   1,    12   ,    -1 ,        1,    12 ,      -1   },
+            {  L_,  -1,    12   ,    -1 ,       -1,    12 ,      -1   },
+
+            {  L_,   1,    10000,     88,        1,    100 ,      90  },
+            {  L_,  -1,    10000,     88,       -1,    100 ,      90  },
+            {  L_,   1,    1000 ,     89,        1,    100 ,      90  },
+            {  L_,  -1,    1000 ,     89,       -1,    100 ,      90  },
+            {  L_,   1,    100  ,     90,        1,    100 ,      90  },
+            {  L_,  -1,    100  ,     90,       -1,    100 ,      90  },
+            {  L_,   1,    10   ,     91,        1,    100 ,      90  },
+            {  L_,  -1,    10   ,     91,       -1,    100 ,      90  },
+            {  L_,   1,    100  ,     91,        1,    1000,      90  },
+            {  L_,  -1,    100  ,     91,       -1,    1000,      90  },
+        };
+        enum { NUM_ARBITRARY_DATA =
+                              sizeof ARBITRARY_DATA / sizeof *ARBITRARY_DATA };
+
+        for (int ti = 0; ti < NUM_ARBITRARY_DATA; ++ti) {
+            const int LINE             = ARBITRARY_DATA[ti].d_line;
+            const int ORIG_SIGN        = ARBITRARY_DATA[ti].d_origSign;
+            const int ORIG_SIGNIFICAND = ARBITRARY_DATA[ti].d_origSignificand;
+            const int ORIG_EXPONENT    = ARBITRARY_DATA[ti].d_origExponent;
+            const int EXP_SIGN         = ARBITRARY_DATA[ti].d_expSign;
+            const int EXP_SIGNIFICAND  = ARBITRARY_DATA[ti].d_expSignificand;
+            const int EXP_EXPONENT     = ARBITRARY_DATA[ti].d_expExponent;
+
+            Type ORIGINAL = Util::scaleB(
+                                   Util::makeDecimalRaw32(ORIG_SIGNIFICAND, 0),
+                                   ORIG_EXPONENT);
+            ORIGINAL = (ORIG_SIGN == -1) ? Util::negate(ORIGINAL) : ORIGINAL;
+
+            Type EXPECTED = Util::scaleB(
+                                    Util::makeDecimalRaw32(EXP_SIGNIFICAND, 0),
+                                    EXP_EXPONENT);
+            EXPECTED = (EXP_SIGN == -1) ? Util::negate(EXPECTED) : EXPECTED;
+
+            if (veryVerbose) {
+                P(LINE);
+            }
+            Type result = Util::normalize(ORIGINAL);
+            ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+    }
+
+    if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+    {
+        typedef Util::ValueType64 Type;
+
+        Type SUBN_P  =              Util::denormMin64();
+        Type SUBN_N  = Util::negate(Util::denormMin64());
+        Type INF_P   =              Util::infinity64();
+        Type INF_N   = Util::negate(Util::infinity64());
+        Type NAN_Q_P =              Util::quietNaN64();
+        Type NAN_Q_N = Util::negate(Util::quietNaN64());
+        Type NAN_S_P =              Util::signalingNaN64();
+        Type NAN_S_N = Util::negate(Util::signalingNaN64());
+        Type MAX_P   =              Util::max64();
+        Type MAX_N   = Util::negate(Util::max64());
+        Type MIN_P   =              Util::min64();
+        Type MIN_N   = Util::negate(Util::min64());
+
+        static const struct {
+            int  d_line;      // line
+            Type d_original;  // value to normalize
+            Type d_expected;  // expected normalized value
+        } S_DATA[] = {
+            // LINE  ORIGINAL   NORMALIZED
+            // ----  --------   ----------
+            // Test special encoding values
+            {  L_,   INF_P,     INF_P     },
+            {  L_,   INF_N,     INF_N     },
+            {  L_,   SUBN_P,    SUBN_P    },
+            {  L_,   SUBN_N,    SUBN_N    },
+            {  L_,   NAN_Q_P,   NAN_S_P   },
+            {  L_,   NAN_Q_N,   NAN_S_N   },
+            {  L_,   NAN_S_P,   NAN_S_P   },
+            {  L_,   NAN_S_N,   NAN_S_N   },
+
+            // Test boundary values
+            {  L_,   MIN_P,     MIN_P     },
+            {  L_,   MIN_N,     MIN_N     },
+            {  L_,   MAX_P,     MAX_P     },
+            {  L_,   MAX_N,     MAX_N     },
+        };
+        enum { NUM_S_DATA = sizeof S_DATA / sizeof *S_DATA };
+
+        for (int ti = 0; ti < NUM_S_DATA; ++ti) {
+            const int  LINE     = S_DATA[ti].d_line;
+            const Type ORIGINAL = S_DATA[ti].d_original;
+            const Type EXPECTED = S_DATA[ti].d_expected;
+
+            if (veryVerbose) {
+                P(LINE);
+            }
+
+            Type result = Util::normalize(ORIGINAL);
+            ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+
+        static const struct {
+            int d_line;             // line
+            int d_origSign;         // sign        of original value
+            int d_origSignificand;  // significand of original value
+            int d_origExponent;     // exponent    of original value
+            int d_expSign;          // sign        of expected value
+            int d_expSignificand;   // significand of expected value
+            int d_expExponent;      // exponent    of expected value
+        } ARBITRARY_DATA[] = {
+            // LINE O_SIGN O_SIGN-ND O_EXP      E_SIGN E_SIGN-ND    E_EXP
+            // ---- ------ --------- -----      ------ ---------    -----
+            // Test zero values
+            {  L_,   1,    0,         0  ,       1,    0,            0   },
+            {  L_,   1,    0,         1  ,       1,    0,            0   },
+            {  L_,  -1,    0,         1  ,       1,    0,            0   },
+            {  L_,   1,    0,        -1  ,       1,    0,            0   },
+            {  L_,  -1,    0,        -1  ,       1,    0,            0   },
+            {  L_,   1,    0,         384,       1,    0,            0   },
+            {  L_,  -1,    0,         384,       1,    0,            0   },
+            {  L_,   1,    0,        -383,       1,    0,            0   },
+            {  L_,  -1,    0,        -383,       1,    0,            0   },
+
+            // Test arbitrary values
+            {  L_,   1,    1    ,     1 ,        1,    1          ,  1   },
+            {  L_,  -1,    1    ,     1 ,       -1,    1          ,  1   },
+            {  L_,   1,    1    ,    -1 ,        1,    1          , -1   },
+            {  L_,  -1,    1    ,    -1 ,       -1,    1          , -1   },
+            {  L_,   1,    12   ,     1 ,        1,    12         ,  1   },
+            {  L_,  -1,    12   ,     1 ,       -1,    12         ,  1   },
+            {  L_,   1,    12   ,    -1 ,        1,    12         , -1   },
+            {  L_,  -1,    12   ,    -1 ,       -1,    12         , -1   },
+
+            {  L_,   1,    10000,     367,       1,    100        ,  369 },
+            {  L_,  -1,    10000,     367,      -1,    100        ,  369 },
+            {  L_,   1,    1000 ,     368,       1,    100        ,  369 },
+            {  L_,  -1,    1000 ,     368,      -1,    100        ,  369 },
+            {  L_,   1,    100  ,     369,       1,    100        ,  369 },
+            {  L_,  -1,    100  ,     369,      -1,    100        ,  369 },
+            {  L_,   1,    10   ,     370,       1,    100        ,  369 },
+            {  L_,  -1,    10   ,     370,      -1,    100        ,  369 },
+            {  L_,   1,    100  ,     370,       1,    1000       ,  369 },
+            {  L_,  -1,    100  ,     370,      -1,    1000       ,  369 },
+        };
+        enum { NUM_ARBITRARY_DATA =
+                              sizeof ARBITRARY_DATA / sizeof *ARBITRARY_DATA };
+
+        for (int ti = 0; ti < NUM_ARBITRARY_DATA; ++ti) {
+            const int LINE             = ARBITRARY_DATA[ti].d_line;
+            const int ORIG_SIGN        = ARBITRARY_DATA[ti].d_origSign;
+            const int ORIG_SIGNIFICAND = ARBITRARY_DATA[ti].d_origSignificand;
+            const int ORIG_EXPONENT    = ARBITRARY_DATA[ti].d_origExponent;
+            const int EXP_SIGN         = ARBITRARY_DATA[ti].d_expSign;
+            const int EXP_SIGNIFICAND  = ARBITRARY_DATA[ti].d_expSignificand;
+            const int EXP_EXPONENT     = ARBITRARY_DATA[ti].d_expExponent;
+
+            Type ORIGINAL = Util::scaleB(
+                                   Util::makeDecimalRaw64(ORIG_SIGNIFICAND, 0),
+                                   ORIG_EXPONENT);
+            ORIGINAL = (ORIG_SIGN == -1) ? Util::negate(ORIGINAL) : ORIGINAL;
+
+            Type EXPECTED = Util::scaleB(
+                                    Util::makeDecimalRaw64(EXP_SIGNIFICAND, 0),
+                                    EXP_EXPONENT);
+            EXPECTED = (EXP_SIGN == -1) ? Util::negate(EXPECTED) : EXPECTED;
+
+            if (veryVerbose) {
+                P(LINE);
+            }
+            Type result = Util::normalize(ORIGINAL);
+            ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+    }
+
+    if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+    {
+        typedef Util::ValueType128 Type;
+
+        Type SUBN_P  =              Util::denormMin128();
+        Type SUBN_N  = Util::negate(Util::denormMin128());
+        Type INF_P   =              Util::infinity128();
+        Type INF_N   = Util::negate(Util::infinity128());
+        Type NAN_Q_P =              Util::quietNaN128();
+        Type NAN_Q_N = Util::negate(Util::quietNaN128());
+        Type NAN_S_P =              Util::signalingNaN128();
+        Type NAN_S_N = Util::negate(Util::signalingNaN128());
+        Type MAX_P   =              Util::max128();
+        Type MAX_N   = Util::negate(Util::max128());
+        Type MIN_P   =              Util::min128();
+        Type MIN_N   = Util::negate(Util::min128());
+
+        static const struct {
+            int  d_line;      // line
+            Type d_original;  // value to normalize
+            Type d_expected;  // expected normalized value
+        } SPECIAL_DATA[] = {
+            // LINE  ORIGINAL   NORMALIZED
+            // ----  --------   ----------
+            // Test special encoding values
+            {  L_,   INF_P,     INF_P     },
+            {  L_,   INF_N,     INF_N     },
+            {  L_,   SUBN_P,    SUBN_P    },
+            {  L_,   SUBN_N,    SUBN_N    },
+            {  L_,   NAN_Q_P,   NAN_S_P   },
+            {  L_,   NAN_Q_N,   NAN_S_N   },
+            {  L_,   NAN_S_P,   NAN_S_P   },
+            {  L_,   NAN_S_N,   NAN_S_N   },
+
+            // Test boundary values
+            {  L_,   MIN_P,     MIN_P     },
+            {  L_,   MIN_N,     MIN_N     },
+            {  L_,   MAX_P,     MAX_P     },
+            {  L_,   MAX_N,     MAX_N     },
+        };
+        enum { NUM_SPECIAL_DATA = sizeof SPECIAL_DATA / sizeof *SPECIAL_DATA };
+
+        for (int ti = 0; ti < NUM_SPECIAL_DATA; ++ti) {
+            const int  LINE     = SPECIAL_DATA[ti].d_line;
+            const Type ORIGINAL = SPECIAL_DATA[ti].d_original;
+            const Type EXPECTED = SPECIAL_DATA[ti].d_expected;
+
+            if (veryVerbose) {
+                P(LINE);
+            }
+
+            Type result = Util::normalize(ORIGINAL);
+            ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+
+        static const struct {
+            int  d_line;             // line
+            int  d_origSign;         // sign        of original value
+            int  d_origSignificand;  // significand of original value
+            int  d_origExponent;     // exponent    of original value
+            int  d_expSign;          // sign        of expected value
+            int  d_expSignificand;   // significand of expected value
+            int  d_expExponent;      // exponent    of expected value
+        } ARBITRARY_DATA[] = {
+            // LINE O_SIGN O_SIGN-ND O_EXP      E_SIGN E_SIGN-ND E_EXP
+            // ---- ------ --------- -----      ------ --------- ------
+            // Test zero values
+            {  L_,   1,    0,         0   ,      1,    0,         0    },
+            {  L_,   1,    0,         1   ,      1,    0,         0    },
+            {  L_,  -1,    0,         1   ,      1,    0,         0    },
+            {  L_,   1,    0,        -1   ,      1,    0,         0    },
+            {  L_,  -1,    0,        -1   ,      1,    0,         0    },
+            {  L_,   1,    0,         6144,      1,    0,         0    },
+            {  L_,  -1,    0,         6144,      1,    0,         0    },
+            {  L_,   1,    0,        -6143,      1,    0,         0    },
+            {  L_,  -1,    0,        -6143,      1,    0,         0    },
+
+            // Test arbitrary values
+            {  L_,   1,    1    ,     1   ,      1,    1  ,       1    },
+            {  L_,  -1,    1    ,     1   ,     -1,    1  ,       1    },
+            {  L_,   1,    1    ,    -1   ,      1,    1  ,      -1    },
+            {  L_,  -1,    1    ,    -1   ,     -1,    1  ,      -1    },
+
+            {  L_,   1,    10000,     6109,      1,    100 ,      6111 },
+            {  L_,  -1,    10000,     6109,     -1,    100 ,      6111 },
+            {  L_,   1,    1000 ,     6110,      1,    100 ,      6111 },
+            {  L_,  -1,    1000 ,     6110,     -1,    100 ,      6111 },
+            {  L_,   1,    100  ,     6111,      1,    100 ,      6111 },
+            {  L_,  -1,    100  ,     6111,     -1,    100 ,      6111 },
+            {  L_,   1,    10   ,     6112,      1,    100 ,      6111 },
+            {  L_,  -1,    10   ,     6112,     -1,    100 ,      6111 },
+            {  L_,   1,    100  ,     6112,      1,    1000,      6111 },
+            {  L_,  -1,    100  ,     6112,     -1,    1000,      6111 },
+        };
+        enum { NUM_ARBITRARY_DATA =
+                              sizeof ARBITRARY_DATA / sizeof *ARBITRARY_DATA };
+
+        for (int ti = 0; ti < NUM_ARBITRARY_DATA; ++ti) {
+            const int LINE             = ARBITRARY_DATA[ti].d_line;
+            const int ORIG_SIGN        = ARBITRARY_DATA[ti].d_origSign;
+            const int ORIG_SIGNIFICAND = ARBITRARY_DATA[ti].d_origSignificand;
+            const int ORIG_EXPONENT    = ARBITRARY_DATA[ti].d_origExponent;
+            const int EXP_SIGN         = ARBITRARY_DATA[ti].d_expSign;
+            const int EXP_SIGNIFICAND  = ARBITRARY_DATA[ti].d_expSignificand;
+            const int EXP_EXPONENT     = ARBITRARY_DATA[ti].d_expExponent;
+
+            Type ORIGINAL = Util::scaleB(
+                                  Util::makeDecimalRaw128(ORIG_SIGNIFICAND, 0),
+                                  ORIG_EXPONENT);
+            ORIGINAL = (ORIG_SIGN == -1) ? Util::negate(ORIGINAL) : ORIGINAL;
+
+            Type EXPECTED = Util::scaleB(
+                                   Util::makeDecimalRaw128(EXP_SIGNIFICAND, 0),
+                                   EXP_EXPONENT);
+            EXPECTED = (EXP_SIGN == -1) ? Util::negate(EXPECTED) : EXPECTED;
+
+            if (veryVerbose) {
+                P(LINE);
+            }
+
+            Type result = Util::normalize(ORIGINAL);
+            ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+    }
 }
 
 void TestDriver::testCase25()
