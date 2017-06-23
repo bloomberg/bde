@@ -126,6 +126,10 @@
 #include <bsl_functional.h>
 #endif
 
+#ifndef INCLUDED_BSL_MAP
+#include <bsl_map.h>
+#endif
+
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
@@ -228,11 +232,13 @@ class AssertionTracker {
                                // type of a stack trace, consisting of a
                                // sequence of addresses
 
-    typedef bsl::unordered_map<StackTrace, int> AssertionCounts;
+    // The following two types can use unordered_map instead of map once
+    // {DRQS 102622326} (compilation failure on AIX) is fixed.
+    typedef bsl::map<StackTrace, int> AssertionCounts;
                                // a type for keeping a count per stack trace
 
-    typedef bsl::unordered_map<AssertionLocation, AssertionCounts>
-        TrackingData;          // a type for keeping a set of stack traces and
+    typedef bsl::map<AssertionLocation, AssertionCounts> TrackingData;
+                               // a type for keeping a set of stack traces and
                                // their counts per assertion location
 
   public:
