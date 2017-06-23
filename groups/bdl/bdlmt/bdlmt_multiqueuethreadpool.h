@@ -605,7 +605,8 @@ class MultiQueueThreadPool {
                       d_queueRegistry;      // registry of queue contexts
 
     mutable bslmt::ReaderWriterMutex
-                      d_registryLock;       // synchronizes registry access
+                      d_queueStateLock;     // locked for write when deleting
+                                            // queues or changing pool state
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
     bsls::AtomicInt   d_state;              // maintains internal state
