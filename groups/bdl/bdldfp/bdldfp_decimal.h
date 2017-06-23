@@ -971,25 +971,13 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
 // FREE FUNCTIONS
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Decimal32& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'Decimal32'.  Note that two
-    // objects which have the same value but different representations will
-    // hash to the same value.
-
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Decimal64& object);
-    // Pass the specified 'object' to the specified 'hashAlg'.  This function
-    // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'Decimal64'.  Note that two
-    // objects which have the same value but different representations will
-    // hash to the same value.
-
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Decimal128& object);
     // Pass the specified 'object' to the specified 'hashAlg'.  This function
     // integrates with the 'bslh' modular hashing system and effectively
-    // provides a 'bsl::hash' specialization for 'Decimal128'.  Note that two
+    // provides a 'bsl::hash' specialization for 'DecimalXX'.  Note that two
     // objects which have the same value but different representations will
     // hash to the same value.
 
@@ -6409,65 +6397,13 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal32& object)
 {
     using ::BloombergLP::bslh::hashAppend;
 
-    typedef bsl::numeric_limits<bdldfp::Decimal32> d32_limits;
-    typedef bdldfp::DecimalImpUtil                 Util;
-
-    const bdldfp::Decimal32 ZERO  = Util::makeDecimalRaw32(0, 0);  // zero
-    const bdldfp::Decimal32 INF_P = d32_limits::infinity();        // pos inf
-    const bdldfp::Decimal32 INF_N = -INF_P;                        // neg inf
-    const bdldfp::Decimal32 NAN_P = d32_limits::signaling_NaN();   // pos NaN
-    const bdldfp::Decimal32 NAN_N = -NAN_P;                        // neg NaN
-
-    bdldfp::Decimal32       result;
-
-    int          sign;
-    unsigned int significand;
-    int          exponent;
-    int          objClass;
-
-    objClass = Util::decompose(&sign, &significand, &exponent, object.value());
-
-    switch (objClass) {
-      case FP_ZERO: {
-        result = ZERO;
-      } break;
-
-      case FP_INFINITE: {
-        if (sign == 1) {
-            result = INF_P;
-        } else {
-            result = INF_N;
-        }
-      } break;
-
-      case FP_NAN: {
-        if (sign == 1) {
-            result = NAN_P;
-        } else {
-            result = NAN_N;
-        }
-      } break;
-
-      case FP_NORMAL:
-      case FP_SUBNORMAL: {
-        // Normalization.
-
-        while ((significand % 10 == 0) && (exponent < 90)) {
-            significand /= 10;
-            ++exponent;
-        }
-
-        result = Util::makeDecimalRaw32(sign*significand, exponent);
-      } break;
-
-      default:
-        BSLS_ASSERT(false);
-    }
+    bdldfp::Decimal32 normalizedObject = DecimalImpUtil::normalize(
+                                                               object.value());
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-    hashAppend(hashAlg, result.value().d_raw);
+    hashAppend(hashAlg, normalizedObject.value().d_raw);
 #else
-    hashAppend(hashAlg, *result.value().words);
+    hashAppend(hashAlg, *normalizedObject.value().words);
 #endif
 }
 
@@ -6477,65 +6413,13 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal64& object)
 {
     using ::BloombergLP::bslh::hashAppend;
 
-    typedef bsl::numeric_limits<bdldfp::Decimal64> d64_limits;
-    typedef bdldfp::DecimalImpUtil                 Util;
-
-    const bdldfp::Decimal64 ZERO  = Util::makeDecimalRaw64(0, 0);  // zero
-    const bdldfp::Decimal64 INF_P = d64_limits::infinity();        // pos inf
-    const bdldfp::Decimal64 INF_N = -INF_P;                        // neg inf
-    const bdldfp::Decimal64 NAN_P = d64_limits::signaling_NaN();   // pos NaN
-    const bdldfp::Decimal64 NAN_N = -NAN_P;                        // neg NaN
-
-    bdldfp::Decimal64       result;
-
-    int                 sign;
-    bsls::Types::Uint64 significand;
-    int                 exponent;
-    int                 objClass;
-
-    objClass = Util::decompose(&sign, &significand, &exponent, object.value());
-
-    switch (objClass) {
-      case FP_ZERO: {
-        result = ZERO;
-      } break;
-
-      case FP_INFINITE: {
-        if (sign == 1) {
-            result = INF_P;
-        } else {
-            result = INF_N;
-        }
-      } break;
-
-      case FP_NAN: {
-        if (sign == 1) {
-            result = NAN_P;
-        } else {
-            result = NAN_N;
-        }
-      } break;
-
-      case FP_NORMAL:
-      case FP_SUBNORMAL: {
-        // Normalization.
-
-        while ((significand % 10 == 0) && (exponent < 384)) {
-            significand /= 10;
-            ++exponent;
-        }
-
-        result = sign * Util::makeDecimalRaw64(significand, exponent);
-      } break;
-
-      default:
-        BSLS_ASSERT(false);
-    }
+    bdldfp::Decimal64 normalizedObject = DecimalImpUtil::normalize(
+                                                               object.value());
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-    hashAppend(hashAlg, result.value().d_raw);
+    hashAppend(hashAlg, normalizedObject.value().d_raw);
 #else
-    hashAppend(hashAlg, *result.value().longs);
+    hashAppend(hashAlg, *normalizedObject.value().longs);
 #endif
 }
 
@@ -6545,92 +6429,15 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal128& object)
 {
     using ::BloombergLP::bslh::hashAppend;
 
-    typedef bsl::numeric_limits<bdldfp::Decimal128> d128_limits;
-    typedef bdldfp::DecimalImpUtil                 Util;
-
-    const bdldfp::Decimal128 ZERO  = Util::makeDecimalRaw128(0, 0);  // zero
-    const bdldfp::Decimal128 INF_P = d128_limits::infinity();        // pos inf
-    const bdldfp::Decimal128 INF_N = -INF_P;                         // neg inf
-    const bdldfp::Decimal128 NAN_P = d128_limits::signaling_NaN();   // pos NaN
-    const bdldfp::Decimal128 NAN_N = -NAN_P;                         // neg NaN
-
-    bdldfp::Decimal128       result;
-
-    int     sign;
-    Uint128 significand;
-    int     exponent;
-    int     objClass;
-
-    objClass = Util::decompose(&sign, &significand, &exponent, object.value());
-
-    switch (objClass) {
-      case FP_ZERO: {
-        result = ZERO;
-      } break;
-
-      case FP_INFINITE: {
-        if (sign == 1) {
-            result = INF_P;
-        } else {
-            result = INF_N;
-        }
-      } break;
-
-      case FP_NAN: {
-        if (sign == 1) {
-            result = NAN_P;
-        } else {
-            result = NAN_N;
-        }
-      } break;
-
-      case FP_NORMAL:
-      case FP_SUBNORMAL: {
-        // Normalization.
-        // TODO: Separate function for normalization should be written.
-
-        bsls::Types::Uint64 r = 0;  // reminder
-        while ((r == 0) && (exponent < 6144)) {
-            bsls::Types::Uint64 high = significand.high();
-            bsls::Types::Uint64 low  = significand.low();
-
-            bsls::Types::Uint64 qh = high / 10;
-            bsls::Types::Uint64 rh = high % 10;
-            bsls::Types::Uint64 ql = low / 10;
-            bsls::Types::Uint64 rl = low % 10;
-
-            r = (6 * rh + rl) % 10;
-
-            if (r == 0) {
-              significand.setHigh(qh);
-              significand.setLow(ql + 0x1999999999999999ull * rh +
-                                                           (6 * rh + rl) / 10);
-              ++exponent;
-            }
-        }
-
-        // TODO: we need constructor/util function for Decimal128 creation,
-        //       accepting Uint128.
-
-        const bdldfp::Decimal128 MOVE_LEFT_64 =
-                                 bdldfp::Decimal128(0xFFFFFFFFFFFFFFFFull) + 1;
-        const bdldfp::Decimal128 resultSignificand =
-                          bdldfp::Decimal128(significand.high()) * MOVE_LEFT_64
-                          + bdldfp::Decimal128(significand.low());
-        result = sign * DecimalImpUtil::scaleB(resultSignificand.value(),
-                                               exponent);
-      } break;
-
-      default:
-        BSLS_ASSERT(false);
-    }
+    bdldfp::Decimal128 normalizedObject = DecimalImpUtil::normalize(
+                                                               object.value());
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-    hashAppend(hashAlg, result.value().d_raw.w[0]);
-    hashAppend(hashAlg, result.value().d_raw.w[1]);
+    hashAppend(hashAlg, normalizedObject.value().d_raw.w[0]);
+    hashAppend(hashAlg, normalizedObject.value().d_raw.w[1]);
 #else
-    hashAppend(hashAlg, *result.value().longs[0]);
-    hashAppend(hashAlg, *result.value().longs[1]);
+    hashAppend(hashAlg, *normalizedObject.value().longs[0]);
+    hashAppend(hashAlg, *normalizedObject.value().longs[1]);
 #endif
 }
 
