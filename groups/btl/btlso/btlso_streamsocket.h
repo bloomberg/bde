@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //     if (rc != length) {
 //         bsl::cout << "Error writing request body to server: " << rc
 //                   << bsl::endl;
-//         client->shutdown(btlso::Flagss::e_SHUTDOWN_BOTH);
+//         client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //         return;                                                    // RETURN
 //     }
 //..

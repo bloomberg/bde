@@ -198,7 +198,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             if (0 > rc) {
                 if (EINTR == savedErrno) {
-                    if (flags & btlso::Flagss::k_ASYNC_INTERRUPT) {
+                    if (flags & btlso::Flags::k_ASYNC_INTERRUPT) {
                         return -1;                                    // RETURN
                     }
                 }
@@ -258,7 +258,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flagss::k_ASYNC_INTERRUPT & flags)
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags)
               && now < timeout);
 
         if (0 >= rfds) {
