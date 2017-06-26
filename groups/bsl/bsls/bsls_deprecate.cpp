@@ -158,19 +158,6 @@
 //:                      compares equal to '0'.
 //: 4 '0 + 1'.           This will compare equal to '1'.
 //
-///Support for Future Compilers
-///----------------------------
-// Future compilers should begin to support this facility as they begin to
-// implement either a GCC-style deprecation attribute or the C++14 attribute.
-// For example, Sun Studio 12.5 is known to provide deprecation of functions
-// (only) via the GCC-style attribute.  This support will be detected
-// automatically through the '__has_cpp_attribute' and '__has_attribute'
-// intrinsics.
-//
-// It may be desireable, though, to explicitly disable this facility for
-// compiler versions that are known to provide only partial support for
-// deprecating interfaces (such as Sun Studio 12.5).
-//
 ///Use of Deprecated Interfaces in Inline Functions
 ///------------------------------------------------
 // Sometimes, a family of related interfaces in a single component or package
@@ -273,45 +260,97 @@
 // In this case, defining 'BB_BUILDING_UOR_GRP' in the 'grppkg_someutility.h'
 // header would be inappropriate.  The author of 'grp' has a few options:
 //:  o Move the definition of 'first' out-of-line.
-//:  o Surround the call to 'nth' with compiler-specific warning-suppression
-//:    macros.
+//:  o Re-factor 'first' and 'nth' to both work in terms of a non-deprecated
+//:    private function or component-private function.
 //
-// Of these, moving the function out-of-line is preferable, if the performance
-// cost is not too high.  If the function must be kept inline, the needed
-// macros can be quite extensive, and have to deal with some compiler-specific
-// quirks:
+// Of these, moving the function out-of-line is the simplest, if the performance
+// cost is not too high.  If the function must be kept inline, refactoring
+// 'first' and 'nth' would be preferable:
 //..
-//  // Suppress warnings for use of deprecated function 'nth'.
-//  #if    defined(BSLS_PLATFORM_CMP_GNU)     \
-//      || defined(BSLS_PLATFORM_CMP_CLANG)   \
-//      || defined(BSLS_PLATFORM_CMP_XLCLANG)
-//  #pragma GCC diagnostic push
-//  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-//  #elif defined(BSLS_PLATFORM_CMP_MSVC)
-//  #pragma warning(push)
-//  #pragma warning(disable: 4996)
-//  #elif defined(BSLS_PLATFORM_CMP_SUN)
-//  #pragma error_messages (off, symdeprecated)
-//  #endif
+//  // grppkg_someutility.h
 //
-//  inline
-//  Element SomeUtility::first(const SomeContainer& container)
+//  struct SomeUtility {
+//    private:
+//      Element nthImp(const SomeContainer& container, int index);
+//          // Return the 'Element' object in the specified 'index' position in
+//          // the specified 'container'. ...
+//
+//    public:
+//      ConstElementIterator cbegin(const SomeContainer& container);
+//          // Return an iterator pointing to the first element in the
+//          // specified 'c'.
+//
+//      // Legacy direct-access API is deprecated.  Use the iterator API
+//      // provided by 'cbegin' instead.
+//
+//      #if BSLS_DEPRECATE_IS_ACTIVE(GRP, 1, 2)
+//      BSLS_DEPRECATE
+//      #endif
+//      Element first(const SomeContainer& container);
+//          // Return the 'Element' object at the head of the specified
+//          // 'container'.  ...
+//
+//      #if BSLS_DEPRECATE_IS_ACTIVE(GRP, 1, 2)
+//      BSLS_DEPRECATE
+//      #endif
+//      Element nth(const SomeContainer& container, int index);
+//          // Return the 'Element' object in the specified 'index' position in
+//          // the specified 'container'. ...
+//  };
+//
+//  // ========================================================================
+//  //                      INLINE FUNCTION DEFINITIONS
+//  // ------------------------------------------------------------------------
+//
+//  Element SomeUtility::nthImp(const SomeContainer& container, int index)
 //  {
-//      return nth(container, 0);  // This call will be seen during compilation
-//                                 // of all dependents!
+//      // Pure magic.
 //  }
 //
-//  // Undo warning suppression for use of deprecated function 'nth'.
-//  #if    defined(BSLS_PLATFORM_CMP_GNU)     \
-//      || defined(BSLS_PLATFORM_CMP_CLANG)   \
-//      || defined(BSLS_PLATFORM_CMP_XLCLANG)
-//  #pragma GCC diagnostic pop
-//  #elif defined(BSLS_PLATFORM_CMP_MSVC)
-//  #pragma warning(pop)
-//  #elif defined(BSLS_PLATFORM_CMP_SUN)
-//  namespace {} // dummy use of anonymous namespace to un-confuse SUN parser.
-//  #pragma error_messages (default, symdeprecated)
-//  #endif
+//  Element SomeUtility::first(const SomeContainer& container)
+//  {
+//      return nthImp(container, 0);
+//  }
+//
+//  Element SomeUtility::nth(const SomeContainer& container, int index)
+//  {
+//      return nthImp(container, index);
+//  }
+//..
+//
+///Future Development
+///------------------
+//
+///Support for Future Compilers
+/// - - - - - - - - - - - - - -
+// Future compilers should begin to support this facility as they begin to
+// implement either a GCC-style deprecation attribute or the C++14 attribute.
+// For example, Sun Studio 12.5 is known to provide deprecation of functions
+// (only) via the GCC-style attribute.  This support will be detected
+// automatically through the '__has_cpp_attribute' and '__has_attribute'
+// intrinsics.
+//
+// It may be desireable, though, to explicitly disable this facility for
+// compiler versions that are known to provide only partial support for
+// deprecating interfaces (such as Sun Studio 12.5).
+//
+///Strong Enforcement of Deprecations
+/// - - - - - - - - - - - - - - - - -
+//
+// By default, the 'bsls_deprecate' facility depends on warnings to encourage
+// users to stop using deprecated interfaces.  This can be effective in an
+// organization where the build system or code review standards forbid warnings
+// in production code.  In an organization where that is not the case, stronger
+// enforcement could be achieved by forcing deprecation warnings to be errors
+// on platforms such as GCC that allow users to customize diagnostic levels:
+//..
+//  #if BSLS_DEPRECATE_COMPILER_SUPPORT
+//  #  if defined(__GNUC__)
+//  #    pragma GCC diagnostic error "-Wdeprecated-declarations"
+//  #  elif defined(_MSC_VER)
+//  #    pragma warning(error:4996)
+//  #  endif
+//  #endif  // BSLS_DEPRECATE_COMPILER_SUPPORT
 //..
 
 // ----------------------------------------------------------------------------
