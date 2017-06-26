@@ -43,6 +43,24 @@
 //                             // calling 'foo' will generate a deprecation
 //                             // warning on supported platforms.
 //..
+// If an interface has several macros being deprecated at the same time,
+// clients can define a new deprecation macro within that header to avoid
+// repeated use of 'BSLS_DEPRECATE_IS_ACTIVE':
+//..
+//  // xyz_component.h                                                -*-C++-*-
+//
+//  #if BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)
+//  #define XYZ_COMPONENT_DEPRECATED_3_2 BSLS_DEPRECATE
+//  #endif
+//
+//  //...
+//
+//  XYZ_COMPONENT_DEPRECATED_3_2
+//  int foo();
+//
+//  XYZ_COMPONENT_DEPRECATED_3_2
+//  int bar();
+//..
 //
 ///Keeping Your Code Free of Calls to Deprecated Interfaces
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -534,7 +552,6 @@
 //     Clang issues a warning when the c++14 attribute is used before c++14,
 //     where it is offered as an extension rather than a feature.
 #      undef BSLS_DEPRECATE
-//#      warning "clang: No c++14 attribute"
 #    endif
 
 #  endif
