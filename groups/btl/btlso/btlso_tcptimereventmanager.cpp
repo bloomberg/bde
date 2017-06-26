@@ -129,22 +129,22 @@ TcpTimerEventManager::~TcpTimerEventManager()
 // MANIPULATORS
 int TcpTimerEventManager::dispatch(int flags)
 {
-    int ret;
-
+    typedef bsl::vector<bdlcc::TimeQueueItem<bsl::function<void() > > >
+        TimerArray;
+    
     if (d_timers.length()) {
         bsls::TimeInterval minTime;
         if (d_timers.minTime(&minTime)) {
             return -1;                                                // RETURN
         }
-        ret = d_manager_p->dispatch(minTime, flags);
+        int ret = d_manager_p->dispatch(minTime, flags);
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         if (now >= minTime) {
-            bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
-                                                       requests(d_allocator_p);
-            d_timers.popLE(now, &requests);
-            int numTimers = static_cast<int>(requests.size());
+            TimerArray timers;
+            d_timers.popLE(now, &timers);
+            int numTimers = static_cast<int>(timers.size());
             for (int i = 0; i < numTimers; ++i) {
-                requests[i].data()();
+                timers[i].data()();
             }
 
             return numTimers + (ret >= 0 ? ret : 0);                  // RETURN
