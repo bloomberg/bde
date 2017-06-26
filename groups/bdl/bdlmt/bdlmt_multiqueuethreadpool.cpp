@@ -550,6 +550,10 @@ int MultiQueueThreadPool::start()
         return 0;                                                     // RETURN
     }
 
+    // While changing the state of the pool, acquire a write lock on
+    // d_queueStateLock.
+    
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
     for (RegistryIterator it(d_queueRegistry); it; ++it) {
         RegistryValue rv = it();
         rv.second->d_queue.enable();
@@ -560,10 +564,6 @@ int MultiQueueThreadPool::start()
         rc = d_threadPool_p->start() ? -1 : 0;
     }
     if (0 == rc) {
-        // While changing the state of the pool, acquire a write lock on
-        // d_queueStateLock
-        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> regGuard(
-                                                             &d_queueStateLock);
         d_state.storeRelaxed(STATE_RUNNING);
     }
 
@@ -641,23 +641,26 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
                                    newState,
                                    &semaphore);
     if (paused) {
-        // enqueueJobImpl locks the queue state and context locks, so invoke
-        // while both are unlocked
+        // 'enqueueJobImpl' locks the queue state and context locks, so invoke
+        // while both are unlocked.
+        
         guard.unlock();
         bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(
                                                           &d_queueStateLock);
         if (0 != enqueueJobImpl(id, job, e_FRONT_FORCE)) {
-            // queue was deleted (no need to reset d_isChanging flag, this queue
-            // is in a terminal state)
+            // Queue was deleted (no need to reset d_isChanging flag, this queue
+            // is in a terminal state).
+            
             return 1;                                                 // RETURN
         }
 
         semaphore.wait();
     } else {
-        // we can't use enqueueJobImpl, because we need to increment the number
+        // We can't use enqueueJobImpl, because we need to increment the number
         // of jobs but unconditionally re-enqueue the processing callback
         // (to effect the resumption) so we need to do it manually.  At this
         // point we still hold the queue state and context locks.
+        
         context->d_queue.forceFront(job);
         ++context->d_queue.d_numPendingJobs;
         ++d_numActiveQueues;
@@ -666,8 +669,9 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
             d_threadPool_p->enqueueJob(context->d_processingCb);
         (void)status; BSLS_ASSERT(0 == status);
 
-        // now unlock the queue state and context locks to wait on the
+        // Now unlock the queue state and context locks to wait on the
         // semaphore.
+        
         guard.unlock();
         bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(
                                                           &d_queueStateLock);
@@ -708,6 +712,7 @@ void MultiQueueThreadPool::stop()
     // While changing the state of the pool, acquire a write lock on
     // d_queueStateLock.  This ensures that anyone who acquired
     // a read lock when the queue was RUNNING completes before we can proceed.
+
     d_queueStateLock.lockWrite();
     d_state.storeRelaxed(STATE_STOPPED);    // disables all queues
     d_queueStateLock.unlock();
@@ -731,6 +736,7 @@ void MultiQueueThreadPool::shutdown()
     // While changing the state of the pool, acquire a write lock on
     // d_queueStateLock.  This ensures that anyone who acquired
     // a read lock when the queue was RUNNING completes before we can proceed.
+
     d_queueStateLock.lockWrite();
     d_state.storeRelaxed(STATE_STOPPED);    // disables all queues
     d_queueStateLock.unlock();

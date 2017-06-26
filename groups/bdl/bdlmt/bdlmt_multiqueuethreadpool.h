@@ -66,11 +66,6 @@ BSLS_IDENT("$Id: $")
 // This class is also *thread-enabled* (i.e., the class does not function
 // correctly in a non-multi-threading environment).  See 'bsldoc_glossary' for
 // complete definitions of *fully thread-safe* and *thread-enabled*.
-//
-// Note that some methods, such as 'stop' and 'shutdown', are documented to
-// perform operations on "all queues"; since 'createQueue' may safely be
-// called concurrently with these methods, they should be understood to operate
-// on some set of queues that exist at or during the time they are invoked.
 // 
 ///Usage
 ///-----
@@ -382,8 +377,9 @@ namespace bdlmt {
 
 class MultiQueueThreadPool_Queue {
     // This private class provides a lightweight queue, plus some state.
-    // There is no synchronization provided by this class; see
-    // 'MultiQueueThreadPool_QueueContext::mutex()'.  
+    // This class relies on external synchronization to behave correctly in a
+    // multi-threaded context (see
+    // 'MultiQueueThreadPool_QueueContext::mutex()').
 
   public:
     // PUBLIC TYPES
