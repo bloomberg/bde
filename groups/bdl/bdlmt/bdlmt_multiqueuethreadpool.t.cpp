@@ -585,9 +585,6 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
                                      basicAllocator);
     RegistryType profileRegistry(bsl::less<bsl::string>(), basicAllocator);
 
-    // Start the pool, enabling queue creation and processing.
-    ASSERT(0 == pool.start());
-
     // Create a queue and a search profile associated with each word in
     // 'wordList'.
 
@@ -611,6 +608,9 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
         deleter.release();
     }
 
+    // Start the pool, enabling enqueuing and queue processing.
+    ASSERT(0 == pool.start());
+    
     // Enqueue a job which tries to match each file in 'fileList' with each
     // search profile.
 
@@ -3034,8 +3034,9 @@ int main(int argc, char *argv[]) {
         //   * That stopping a pool blocks until all queues are empty, but does
         //     not destroy the queues or the threads.
         //
-        //   * That creating or deleting queues while the pool is stopped
-        //     results in an error.
+        //   * That creating queues while the pool is stopped succeeds.
+        //
+        //   * That deleting queues while the pool is stopped fails.
         //
         //   * That enqueuing jobs to any queue while the pool is stopped
         //     results in an error.
@@ -3137,7 +3138,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == tp.numWaitingThreads());
             ASSERT(0 == X.numQueues());
 
-            int  id = 0;
+            int  id = 0, id2 = 0;
             Func cleanupCb;  // do nothing
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3248,8 +3249,11 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == tp.numPendingJobs());
                 ASSERT(0 != mX.deleteQueue(id));
                 ASSERT(0 != mX.enqueueJob(id, block));
-                ASSERT(0 == mX.createQueue());
-                ASSERT(1 == X.numQueues());
+
+                // Queues can be created (but not deleted) on a stopped pool
+                id2 = mX.createQueue();
+                ASSERT(0 != id2);
+                ASSERT(2 == X.numQueues());
             }
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3264,9 +3268,14 @@ int main(int argc, char *argv[]) {
             {
                 counter = 0;
                 ASSERT(0 == mX.start());
-                ASSERT(1 == X.numQueues());
+                ASSERT(2 == X.numQueues());
                 ASSERT(0 == X.numElements(id));
 
+                // Now that we're restarted, let's remove the extra queue we
+                // created above
+                ASSERT(0 == mX.deleteQueue(id2));
+                ASSERT(1 == X.numQueues());
+                
                 mX.pauseQueue(id);
                 ASSERT(X.isPaused(id));
                 mX.enqueueJob(id, bdlf::BindUtil::bind(&incrementCounter,
@@ -3348,8 +3357,6 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == tp.numPendingJobs());
                 ASSERT(0 != mX.deleteQueue(id));
                 ASSERT(0 != mX.enqueueJob(id, block));
-                ASSERT(0 == mX.createQueue());
-                ASSERT(0 == X.numQueues());
             }
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
