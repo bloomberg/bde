@@ -78,9 +78,9 @@
 //  # used in 'my_application', even if those deprecations are scheduled to
 //  # take effect in a future release.
 //..
-// *NEVER* define 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' for a
-// *PRODUCTION* *BUILD*.  If you do so, all libraries that you depend on will
-// be prevented from deprecating more code in future versions.
+// *NEVER* define 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY' in a
+// *PRODUCTION* *BUILD* *CONFIGURATION*.  If you do so, all libraries that you
+// depend on will be prevented from deprecating more code in future versions.
 //
 ///Preventing New Uses of Already-Deprecated Interfaces
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -113,11 +113,11 @@
 // appropriate options.  These solutions have a practical short-coming in a
 // production environment like Bloomberg's, where lower-level libraries cannot
 // check in changes that break the build of client libraries.  In such a
-// system, well meaning clients might build their libraries using '-Werror' or
-// with appropriate '#ifdef', to ensure their code does not use deprecated
-// APIs, but in so doing prevent any new deprecations from being added.  In
-// addition, the use of '#ifdef' results in ABI compatibility issues, as some
-// clients may build with deprecated code removed, and others may not.
+// system, well-meaning clients might build their libraries using '-Werror' or
+// with appropriate '#ifdef' to ensure their code does not use deprecated APIs,
+// but in so doing prevent any new deprecations from being added.  In addition,
+// the use of '#ifdef' results in ABI compatibility issues, as some clients may
+// build with deprecated code removed, and others may not.
 //
 // This deprecation facility is based around two concepts that attempt to
 // address those shortcomings:
@@ -293,7 +293,8 @@
 //:   defined, deprecations will be enforced for all versions of all UORs,
 //:   except as overridden by 'BB_BUILDING_UOR_*' or
 //:   'BB_SILENCE_DEPRECATION_*'.  This macro must *never* appear in source
-//:   code, and must *never* be defined during any production or checkin build.
+//:   code, and must *never* be defined for any production or checkin build
+//:   configuration.
 //:
 //: 'BB_SILENCE_DEPRECATION_<UOR>_<M>_<N>':
 //:   This macro should be defined by clients of 'UOR' who still need to use an
