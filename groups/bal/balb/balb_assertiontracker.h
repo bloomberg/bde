@@ -255,7 +255,7 @@ class AssertionTracker {
         e_reportingFrequency
     };
 
-    typedef bsl::function<void(int(&)[5])> ConfigurationCallback;
+    typedef bsl::function<void(int(*)[5])> ConfigurationCallback;
                                // a configuration callback is a functor that
                                // receives an array of five integers, as
                                // described above
@@ -333,7 +333,7 @@ class AssertionTracker {
 
   public:
     // CLASS METHODS
-    static void preserveConfiguration(int (&)[5]);
+    static void preserveConfiguration(int (*)[5]);
         // This function can be installed as a configuration callback.  It
         // leaves the configuration unchanged.  This function is used as the
         // default configuration callback.
