@@ -114,7 +114,7 @@ bsl::string formatAssertion(int                         severity,
                             // ----------------------
 
 // CLASS METHODS
-void AssertionTracker::preserveConfiguration(int (*)[5])
+void AssertionTracker::preserveConfiguration(int *)
 {
 }
 
@@ -188,7 +188,7 @@ void AssertionTracker::assertionDetected(const char *text,
                                 d_maxStackTracesPerLocation,
                                 d_severity,
                                 d_reportingFrequency};
-        d_configurationCallback(&configuration);
+        d_configurationCallback(&configuration[0]);
         setMaxAssertions(configuration[e_maxAssertions]);
         setMaxLocations(configuration[e_maxLocations]);
         setMaxStackTracesPerLocation(

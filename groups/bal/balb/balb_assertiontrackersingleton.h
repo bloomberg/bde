@@ -164,8 +164,7 @@ class AssertionTrackerSingleton {
         // The type of the configuration callback of the 'TRACKER'.
 
     // PUBLIC CLASS METHODS
-    static void bregCallbackAdapter(BregCallback   callback,
-                                    int          (&configure)[5]);
+    static void bregCallbackAdapter(BregCallback callback, int *configure);
         // This function is an adapter that maps the BREG values provided by
         // the specified 'callback' to the specified 'configure' array used by
         // 'balb::AssertionTracker'.
@@ -211,8 +210,8 @@ class AssertionTrackerSingleton {
 // CLASS METHODS
 template <class TRACKER>
 void AssertionTrackerSingleton<TRACKER>::bregCallbackAdapter(
-                                                  BregCallback   callback,
-                                                  int          (&configure)[5])
+                                                       BregCallback  callback,
+                                                       int          *configure)
 {
     int trace_enable, max_callstack_count, trace_severity_level;
     callback(&trace_enable, &max_callstack_count, &trace_severity_level);
