@@ -1031,16 +1031,16 @@ class AtomicUint {
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
 
-    unsigned int sub(unsigned int value);
+    unsigned int subtract(unsigned int value);
         // Atomically subtract the specified 'value' from this object and
         // return the resulting value.
 
-    unsigned int subAcqRel(unsigned int value);
+    unsigned int subtractAcqRel(unsigned int value);
         // Atomically subtract the specified 'value' from this object and
         // return the resulting value, providing the acquire/release memory
         // ordering guarantee.
 
-    unsigned int subRelaxed(unsigned int value);
+    unsigned int subtractRelaxed(unsigned int value);
         // Atomically subtract the specified 'value' from this object and
         // return the resulting value, providing the relaxed memory ordering
         // guarantee.
@@ -1178,16 +1178,16 @@ class AtomicUint64 {
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
 
-    Types::Uint64 sub(Types::Uint64 value);
+    Types::Uint64 subtract(Types::Uint64 value);
         // Atomically subtract the specified 'value' from this object and
         // return the resulting value.
 
-    Types::Uint64 subAcqRel(Types::Uint64 value);
+    Types::Uint64 subtractAcqRel(Types::Uint64 value);
         // Atomically subtract the specified 'value' from this object and
         // return the resulting value, providing the acquire/release memory
         // ordering guarantee.
 
-    Types::Uint64 subRelaxed(Types::Uint64 value);
+    Types::Uint64 subtractRelaxed(Types::Uint64 value);
         // Atomically subtract the specified 'value' from this object and
         // return the resulting value, providing the relaxed memory ordering
         // guarantee.
@@ -1796,7 +1796,7 @@ unsigned int AtomicUint::operator+=(unsigned int value)
 inline
 unsigned int AtomicUint::operator-=(unsigned int value)
 {
-    return AtomicOperations_Imp::subUintNv(&d_value, value); //TODO
+    return AtomicOperations_Imp::subtractUintNv(&d_value, value);
 }
 
 inline
@@ -1860,21 +1860,21 @@ void AtomicUint::storeRelease(unsigned int value)
 }
 
 inline
-unsigned int AtomicUint::sub(unsigned int value)
+unsigned int AtomicUint::subtract(unsigned int value)
 {
-    return AtomicOperations_Imp::subUintNv(&d_value, value);
+    return AtomicOperations_Imp::subtractUintNv(&d_value, value);
 }
 
 inline
-unsigned int AtomicUint::subAcqRel(unsigned int value)
+unsigned int AtomicUint::subtractAcqRel(unsigned int value)
 {
-    return AtomicOperations_Imp::subUintNvAcqRel(&d_value, value);
+    return AtomicOperations_Imp::subtractUintNvAcqRel(&d_value, value);
 }
 
 inline
-unsigned int AtomicUint::subRelaxed(unsigned int value)
+unsigned int AtomicUint::subtractRelaxed(unsigned int value)
 {
-    return AtomicOperations_Imp::subUintNvRelaxed(&d_value, value);
+    return AtomicOperations_Imp::subtractUintNvRelaxed(&d_value, value);
 }
 
 inline
@@ -1967,7 +1967,7 @@ Types::Uint64 AtomicUint64::operator+=(Types::Uint64 value)
 inline
 Types::Uint64 AtomicUint64::operator-=(Types::Uint64 value)
 {
-    return AtomicOperations_Imp::subUint64Nv(&d_value, value); //TODO
+    return AtomicOperations_Imp::subtractUint64Nv(&d_value, value);
 }
 
 inline
@@ -2031,21 +2031,21 @@ void AtomicUint64::storeRelease(Types::Uint64 value)
 }
 
 inline
-Types::Uint64 AtomicUint64::sub(Types::Uint64 value)
+Types::Uint64 AtomicUint64::subtract(Types::Uint64 value)
 {
-    return AtomicOperations_Imp::subUint64Nv(&d_value, value);
+    return AtomicOperations_Imp::subtractUint64Nv(&d_value, value);
 }
 
 inline
-Types::Uint64 AtomicUint64::subAcqRel(Types::Uint64 value)
+Types::Uint64 AtomicUint64::subtractAcqRel(Types::Uint64 value)
 {
-    return AtomicOperations_Imp::subUint64NvAcqRel(&d_value, value);
+    return AtomicOperations_Imp::subtractUint64NvAcqRel(&d_value, value);
 }
 
 inline
-Types::Uint64 AtomicUint64::subRelaxed(Types::Uint64 value)
+Types::Uint64 AtomicUint64::subtractRelaxed(Types::Uint64 value)
 {
-    return AtomicOperations_Imp::subUint64NvRelaxed(&d_value, value);
+    return AtomicOperations_Imp::subtractUint64NvRelaxed(&d_value, value);
 }
 
 inline

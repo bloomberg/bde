@@ -54,8 +54,8 @@ using namespace std;
 // [ 3] addUint64(Obj::Uint64 *, bsls::Types::Uint64);
 // [ 3] addUintNv(Obj::Uint *aUint, unsigned int value);
 // [ 3] addUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
-// [ 3] subUintNv(Obj::Uint *aUint, unsigned int value);
-// [ 3] subUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
+// [ 3] subtractUintNv(Obj::Uint *aUint, unsigned int value);
+// [ 3] subtractUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
 // [ 4] swapInt(Obj::Int *aInt, int value);
 // [ 4] testAndSwapInt(Obj::Int *, int, int);
 // [ 4] swapInt64(Obj::Int64 *, bsls::Types::Int64);
@@ -130,8 +130,8 @@ using namespace std;
 // [11] addUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
 // [11] addUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
 // [11] addUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
-// [11] subUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
-// [11] subUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
+// [11] subtractUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
+// [11] subtractUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
 // [12] setIntRelease(Obj::Int *aInt, int value);
 // [12] getIntAcquire(const Obj::Int &aInt);
 // [12] setInt64Release(Obj::Int64 *, bsls::Types::Int64);
@@ -215,6 +215,10 @@ extern "C" {
 typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
+#define UINT64_M1 0xFFFFFFFFFFFFFFFFLL
+#define UINT64_M2 0xFFFFFFFFFFFFFFFELL
+#define INT64_MN  0x1000000000000000LL
+#define INT64_MN1 0x1000000000000001LL
 
 const bsls::Types::Int64 OFFSET_64 = 0xA00000000LL;
 
@@ -2554,8 +2558,8 @@ int main(int argc, char *argv[]) {
         //   addUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
         //   addUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
         //   addUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
-        //   subUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
-        //   subUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
+        //   subtractUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
+        //   subtractUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2854,6 +2858,8 @@ int main(int argc, char *argv[]) {
                 { L_,   0       , 9     , 9         },
                 { L_,   1       , 0     , 1         },
                 { L_,  11       , 1     , 12        },
+                { L_,0x10000000U, 1     , 0x10000001U},
+                { L_,   1       , 0x10000000U , 0x10000001U},
                 { L_, 0xFFFFFFFF, 1     , 0         },
                 { L_, 0xFFFFFFFE, 6     , 4         }
             };
@@ -2915,7 +2921,7 @@ int main(int argc, char *argv[]) {
                 Obj::setUint(&x,BASE);
                 ASSERT(BASE == Obj::getUint(&X));
 
-                result = Obj::subUintNvAcqRel(&x,AMT);
+                result = Obj::subtractUintNvAcqRel(&x,AMT);
                 if (veryVerbose) {
                     T_(); P_(Obj::getUint(&X));
                     P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
@@ -2980,8 +2986,6 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\n\tTesting 'Uint64' Arith(with base) Manip"
                           << endl;
         {
-#define UINT64_M1 0xFFFFFFFFFFFFFFFFLL
-#define UINT64_M2 0xFFFFFFFFFFFFFFFELL
             static const struct {
                 int                 d_lineNum;  // Source line number
                 bsls::Types::Uint64 d_base;     // Base value
@@ -2994,6 +2998,8 @@ int main(int argc, char *argv[]) {
                 { L_,  1            , UINT64_M2, UINT64_M1     },
                 { L_,  UINT64_M1    , 2LL      , 1LL           },
                 { L_,  0xFFFFFFFFLL , 1LL      , 0x100000000LL },
+                { L_, INT64_MN      , 1        , INT64_MN1     },
+                { L_,   1           , INT64_MN , INT64_MN1     },
                 { L_,  0x100000000LL, UINT64_M2, 0xFFFFFFFELL  }
             };
 
@@ -3054,7 +3060,7 @@ int main(int argc, char *argv[]) {
                 Obj::setUint64(&x,BASE);
                 ASSERT(BASE == Obj::getUint64(&X));
 
-                result = Obj::subUint64NvAcqRel(&x,AMT);
+                result = Obj::subtractUint64NvAcqRel(&x,AMT);
                 if (veryVerbose) {
                     T_(); P_(Obj::getUint64(&X)); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();
@@ -7357,8 +7363,8 @@ int main(int argc, char *argv[]) {
         //   addUint64(Obj::Uint64 *, bsls::Types::Uint64);
         //   addUintNv(Obj::Uint *aUint, unsigned int value);
         //   addUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
-        //   subUintNv(Obj::Uint *aUint, unsigned int value);
-        //   subUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
+        //   subtractUintNv(Obj::Uint *aUint, unsigned int value);
+        //   subtractUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Arithmetic Manipulators"
@@ -7748,7 +7754,9 @@ int main(int argc, char *argv[]) {
                 { L_,   0             , 9    ,  9         },
                 { L_,   1             , 0     , 1          },
                 { L_,  11             , 1     , 12         },
-                { L_, (unsigned int) 0xFFFFFFFF, 1     , 0          },
+                { L_, 0xFFFFFFFFU     , 1     , 0          },
+                { L_, 0x10000000U     , 1     , 0x10000001U},
+                { L_,   1       , 0x10000000U , 0x10000001U},
                 { L_,  22             , 22    , 44         }
             };
 
@@ -7809,7 +7817,7 @@ int main(int argc, char *argv[]) {
                 Obj::setUint(&x,BASE);
                 ASSERT(BASE == Obj::getUint(&X));
 
-                result = Obj::subUintNv(&x,AMT);
+                result = Obj::subtractUintNv(&x,AMT);
                 if (veryVerbose) {
                     T_(); P_(Obj::getUint(&X));
                     P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
@@ -7882,6 +7890,8 @@ int main(int argc, char *argv[]) {
                 { L_,  1LL          , 10     , 11               },
                 { L_,  1            , 22LL   , 23LL             },
                 { L_,  11LL         , 2LL    , 13LL             },
+                { L_, INT64_MN      , 1        , INT64_MN1      },
+                { L_,   1           , INT64_MN , INT64_MN1      },
                 { L_,  0xFFFFFFFFLL , 1LL    , 0x100000000LL    },
                 { L_,  0x100000000LL, 2LL    , 0x100000002LL    }
             };
@@ -7943,7 +7953,7 @@ int main(int argc, char *argv[]) {
                 Obj::setUint64(&x,BASE);
                 ASSERT(BASE == Obj::getUint64(&X));
 
-                result = Obj::subUint64Nv(&x,AMT);
+                result = Obj::subtractUint64Nv(&x,AMT);
                 if (veryVerbose) {
                     T_(); P_(Obj::getUint64(&X)); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();

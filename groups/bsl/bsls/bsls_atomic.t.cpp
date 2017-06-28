@@ -229,6 +229,8 @@ typedef bsls::Types::Uint64           Uint64;
 
 #define UINT64_M1 0xFFFFFFFFFFFFFFFFLL
 #define UINT64_M2 0xFFFFFFFFFFFFFFFELL
+#define INT64_MN  0x1000000000000000LL
+#define INT64_MN1 0x1000000000000001LL
 
 //=============================================================================
 //                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -2415,17 +2417,17 @@ int main(int argc, char *argv[])
         //   unsigned int add(unsigned int value);
         //   unsigned int addAckRel(unsigned int value);
         //   unsigned int addRelaxed(unsigned int value);
-        //   unsigned int sub(unsigned int value);
-        //   unsigned int subAckRel(unsigned int value);
-        //   unsigned int subRelaxed(unsigned int value);
+        //   unsigned int subtract(unsigned int value);
+        //   unsigned int subtractAckRel(unsigned int value);
+        //   unsigned int subtractRelaxed(unsigned int value);
         //   void operator +=(unsigned int value);
         //   void operator -=(unsigned int value);
         //   bsls::Types::Uint64 add(bsls::Types::Uint64 value);
         //   bsls::Types::Uint64 addAckRel(bsls::Types::Uint64 value);
         //   bsls::Types::Uint64 addRelaxed(bsls::Types::Uint64 value);
-        //   bsls::Types::Uint64 sub(bsls::Types::Uint64 value);
-        //   bsls::Types::Uint64 subAckRel(bsls::Types::Uint64 value);
-        //   bsls::Types::Uint64 subRelaxed(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 subtract(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 subtractAckRel(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 subtractRelaxed(bsls::Types::Uint64 value);
         //   void operator +=(bsls::Types::Uint64 value);
         //   void operator -=(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
@@ -2737,6 +2739,8 @@ int main(int argc, char *argv[])
                 { L_,   1             , 0      , 1        },
                 { L_,  11             , 1      , 12       },
                 { L_, 0xFFFFFFFF      , 1      , 0        },
+                { L_, 0x10000000U     , 1      , 0x10000001U},
+                { L_,   1        , 0x10000000U , 0x10000001U},
                 { L_,  22             , 22     , 44       }
             };
 
@@ -2790,7 +2794,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
 
-                result = x.sub(AMT);
+                result = x.subtract(AMT);
                 if (veryVerbose) {
                     T_(); P_(X);
                     P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
@@ -2820,7 +2824,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
 
-                result = x.subAcqRel(AMT);
+                result = x.subtractAcqRel(AMT);
                 if (veryVerbose) {
                     T_(); P_(X);
                     P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
@@ -2850,7 +2854,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
 
-                result = x.subRelaxed(AMT);
+                result = x.subtractRelaxed(AMT);
                 if (veryVerbose) {
                     T_(); P_(X);
                     P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
@@ -2921,6 +2925,8 @@ int main(int argc, char *argv[])
                 { L_,  1            , UINT64_M2, UINT64_M1     },
                 { L_,  UINT64_M1    , 2LL      , 1LL           },
                 { L_,  0xFFFFFFFFLL , 1LL      , 0x100000000LL },
+                { L_, INT64_MN      , 1        , INT64_MN1     },
+                { L_,   1           , INT64_MN , INT64_MN1     },
                 { L_,  0x100000000LL, UINT64_M2, 0xFFFFFFFELL  }
             };
 
@@ -2965,7 +2971,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
 
-                result = x.sub(AMT);
+                result = x.subtract(AMT);
                 if (veryVerbose) {
                     T_(); P_(X); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();
@@ -2994,7 +3000,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
 
-                result = x.subAcqRel(AMT);
+                result = x.subtractAcqRel(AMT);
                 if (veryVerbose) {
                     T_(); P_(X); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();
@@ -3023,7 +3029,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
 
-                result = x.subRelaxed(AMT);
+                result = x.subtractRelaxed(AMT);
                 if (veryVerbose) {
                     T_(); P_(X); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();

@@ -805,19 +805,20 @@ struct AtomicOperations_DefaultUint
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
-    static unsigned int subUintNv(typename AtomicTypes::Uint *atomicUint,
-                                  unsigned int                value);
+    static unsigned int subtractUintNv(typename AtomicTypes::Uint *atomicUint,
+                                       unsigned int                value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
 
-    static unsigned int subUintNvAcqRel(typename AtomicTypes::Uint *atomicUint,
+    static unsigned int subtractUintNvAcqRel(
+                                        typename AtomicTypes::Uint *atomicUint,
                                         unsigned int                value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the
         // acquire/release memory ordering guarantee.
 
-    static unsigned int subUintNvRelaxed(
+    static unsigned int subtractUintNvRelaxed(
                                         typename AtomicTypes::Uint *atomicUint,
                                         unsigned int                value);
         // Atomically subtract from the specified 'atomicUint' the specified
@@ -1024,20 +1025,21 @@ struct AtomicOperations_DefaultUint64
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
-    static Types::Uint64 subUint64Nv(typename AtomicTypes::Uint64 *atomicUint,
-                                     Types::Uint64                 value);
+    static Types::Uint64 subtractUint64Nv(
+                                      typename AtomicTypes::Uint64 *atomicUint,
+                                      Types::Uint64                 value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
 
-    static Types::Uint64 subUint64NvAcqRel(
+    static Types::Uint64 subtractUint64NvAcqRel(
                                       typename AtomicTypes::Uint64 *atomicUint,
                                       Types::Uint64                 value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the
         // acquire/release memory ordering guarantee.
 
-    static Types::Uint64 subUint64NvRelaxed(
+    static Types::Uint64 subtractUint64NvRelaxed(
                                       typename AtomicTypes::Uint64 *atomicUint,
                                       Types::Uint64                 value);
         // Atomically subtract from the specified 'atomicUint' the specified
@@ -1857,7 +1859,7 @@ inline
 unsigned int AtomicOperations_DefaultUint<IMP>::
     decrementUintNv(typename AtomicTypes::Uint *atomicUint)
 {
-    return IMP::subUintNv(atomicUint, 1);
+    return IMP::subtractUintNv(atomicUint, 1);
 }
 
 template <class IMP>
@@ -1905,35 +1907,36 @@ unsigned int AtomicOperations_DefaultUint<IMP>::
 template <class IMP>
 inline
 unsigned int AtomicOperations_DefaultUint<IMP>::
-    subUintNv(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+    subtractUintNv(typename AtomicTypes::Uint *atomicUint, unsigned int value)
 {
     return static_cast<unsigned int>(
              IMP::addIntNv(
                  reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
-                     -static_cast<int>(value)));
+                     static_cast<int>(-value)));
 }
 
 template <class IMP>
 inline
-unsigned int AtomicOperations_DefaultUint<IMP>::
-    subUintNvAcqRel(typename AtomicTypes::Uint *atomicUint, unsigned int value)
+unsigned int AtomicOperations_DefaultUint<IMP>::subtractUintNvAcqRel(
+                                        typename AtomicTypes::Uint *atomicUint,
+                                        unsigned int                value)
 {
     return static_cast<unsigned int>(
         IMP::addIntNvAcqRel(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
-                -static_cast<int>(value)));
+                static_cast<int>(-value)));
 }
 
 template <class IMP>
 inline
-unsigned int AtomicOperations_DefaultUint<IMP>::subUintNvRelaxed(
+unsigned int AtomicOperations_DefaultUint<IMP>::subtractUintNvRelaxed(
                                         typename AtomicTypes::Uint *atomicUint,
                                         unsigned int                value)
 {
     return static_cast<unsigned int>(
         IMP::addIntNvRelaxed(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
-                -static_cast<int>(value)));
+                static_cast<int>(-value)));
 }
 
                     // ------------------------------------
@@ -2144,7 +2147,7 @@ inline
 Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
     decrementUint64Nv(typename AtomicTypes::Uint64 *atomicUint)
 {
-    return IMP::subUint64Nv(atomicUint, 1);
+    return IMP::subtractUint64Nv(atomicUint, 1);
 }
 
 template <class IMP>
@@ -2191,35 +2194,35 @@ Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
 
 template <class IMP>
 inline
-Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subUint64Nv(
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subtractUint64Nv(
                  typename AtomicTypes::Uint64 *atomicUint, Types::Uint64 value)
 {
     return static_cast<Types::Uint64>(
               IMP::addInt64Nv(
                   reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-                  -static_cast<Types::Int64>(value)));
+                  static_cast<Types::Int64>(-value)));
 }
 
 template <class IMP>
 inline
-Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subUint64NvAcqRel(
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subtractUint64NvAcqRel(
                   typename AtomicTypes::Uint64 *atomicUint,Types::Uint64 value)
 {
     return static_cast<Types::Uint64>(
         IMP::addInt64NvAcqRel(
             reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-            -static_cast<Types::Int64>(value)));
+            static_cast<Types::Int64>(-value)));
 }
 
 template <class IMP>
 inline
-Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subUint64NvRelaxed(
+Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subtractUint64NvRelaxed(
                   typename AtomicTypes::Uint64 *atomicUint,Types::Uint64 value)
 {
     return static_cast<Types::Uint64>(
         IMP::addInt64NvRelaxed(
             reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-            -static_cast<Types::Int64>(value)));
+            static_cast<Types::Int64>(-value)));
 }
 
                   // ----------------------------------------
