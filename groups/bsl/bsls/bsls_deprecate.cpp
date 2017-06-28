@@ -302,16 +302,19 @@
 //  //                      INLINE FUNCTION DEFINITIONS
 //  // ------------------------------------------------------------------------
 //
+//  inline
 //  Element SomeUtility::nthImp(const SomeContainer& container, int index)
 //  {
 //      // Pure magic.
 //  }
 //
+//  inline
 //  Element SomeUtility::first(const SomeContainer& container)
 //  {
 //      return nthImp(container, 0);
 //  }
 //
+//  inline
 //  Element SomeUtility::nth(const SomeContainer& container, int index)
 //  {
 //      return nthImp(container, index);
