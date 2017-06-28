@@ -128,6 +128,18 @@ namespace balb {
                         // class AssertionTrackerSingleton
                         // ===============================
 
+extern "C" {
+typedef void (*AssertionTrackerSingleton_BregCallback)(int *, int *, int *);
+    // This is the type of a callback function that fetches three BREG values.
+    // These are intended to be the ones found in
+    // <bbit/201310/bbit_assert_trace_enable.h>
+    // <bbit/201310/bbit_assert_trace_severity_level.h>
+    // <bbit/201411/bbit_assert_max_callstack_count.h> and represent the legacy
+    // BREG meant to control assertion logging.  (Note that linkage
+    // specifications must appear at namespace scope, forcing the placement of
+    // this declaration.)
+}
+
 template <class TRACKER>
 class AssertionTrackerSingleton {
     // This class template implements the management of a 'TRACKER' singleton
@@ -152,13 +164,8 @@ class AssertionTrackerSingleton {
     //:   'int'.
   public:
     // PUBLIC TYPES
-    typedef void (*BregCallback)(int *, int *, int *);
-        // This is the type of a callback function that fetches three BREG
-        // values.  These are intended to be the ones found in
-        //     <bbit/201310/bbit_assert_trace_enable.h>
-        //     <bbit/201310/bbit_assert_trace_severity_level.h>
-        //     <bbit/201411/bbit_assert_max_callstack_count.h>
-        // and represent the legacy BREG meant to control assertion logging.
+    typedef AssertionTrackerSingleton_BregCallback BregCallback;
+        // Incorporate the BREG callback type into the class.
 
     typedef typename TRACKER::ConfigurationCallback ConfigurationCallback;
         // The type of the configuration callback of the 'TRACKER'.
