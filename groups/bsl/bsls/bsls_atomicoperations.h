@@ -1181,6 +1181,18 @@ struct AtomicOperations {
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
 
+    static unsigned int subUintNvAcqRel(AtomicTypes::Uint *atomicUint,
+                                        unsigned int       value);
+        // Atomically subtract from the specified 'atomicUint' the specified
+        // 'value' and return the resulting value, providing the
+        // acquire/release memory ordering guarantee.
+
+    static unsigned int subUintNvRelaxed(AtomicTypes::Uint *atomicUint,
+                                         unsigned int       value);
+        // Atomically subtract from the specified 'atomicUint' the specified
+        // 'value' and return the resulting value, without providing any memory
+        // ordering guarantees.
+
         // *** atomic functions for Uint64 ***
 
     static Types::Uint64 getUint64(AtomicTypes::Uint64 const *atomicUint);
@@ -1326,6 +1338,18 @@ struct AtomicOperations {
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
+
+    static Types::Uint64 subUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint,
+                                           Types::Uint64        value);
+        // Atomically subtract from the specified 'atomicUint' the specified
+        // 'value' and return the resulting value, providing the
+        // acquire/release memory ordering guarantee.
+
+    static Types::Uint64 subUint64NvRelaxed(AtomicTypes::Uint64 *atomicUint,
+                                            Types::Uint64        value);
+        // Atomically subtract from the specified 'atomicUint' the specified
+        // 'value' and return the resulting value, without providing any memory
+        // ordering guarantees.
 
         // *** atomic functions for pointer ***
 
@@ -1913,6 +1937,27 @@ unsigned int AtomicOperations::incrementUintNvAcqRel(
     return Imp::incrementUintNvAcqRel(atomicUint);
 }
 
+inline
+unsigned int AtomicOperations::subUintNv(AtomicTypes::Uint *atomicUint,
+                                         unsigned int       value)
+{
+    return Imp::subUintNv(atomicUint, value);
+}
+
+inline
+unsigned int AtomicOperations::subUintNvAcqRel(AtomicTypes::Uint *atomicUint,
+                                               unsigned int       value)
+{
+    return Imp::subUintNvAcqRel(atomicUint, value);
+}
+
+inline
+unsigned int AtomicOperations::subUintNvRelaxed(AtomicTypes::Uint *atomicUint,
+                                                unsigned int       value)
+{
+    return Imp::subUintNvRelaxed(atomicUint, value);
+}
+
 // *** atomic functions for Uint64 ***
 
 inline
@@ -2093,6 +2138,29 @@ Types::Uint64
     AtomicOperations::incrementUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint)
 {
     return Imp::incrementUint64NvAcqRel(atomicUint);
+}
+
+inline
+Types::Uint64 AtomicOperations::subUint64Nv(AtomicTypes::Uint64 *atomicUint,
+                                            Types::Uint64        value)
+{
+    return Imp::subUint64Nv(atomicUint, value);
+}
+
+inline
+Types::Uint64 AtomicOperations::subUint64NvAcqRel(
+                                               AtomicTypes::Uint64 *atomicUint,
+                                               Types::Uint64        value)
+{
+    return Imp::subUint64NvAcqRel(atomicUint, value);
+}
+
+inline
+Types::Uint64 AtomicOperations::subUint64NvRelaxed(
+                                               AtomicTypes::Uint64 *atomicUint,
+                                               Types::Uint64        value)
+{
+    return Imp::subUint64NvRelaxed(atomicUint, value);
 }
 
 // *** atomic functions for pointer ***

@@ -2413,9 +2413,19 @@ int main(int argc, char *argv[])
         //   void operator +=(bsls::Types::Int64 value);
         //   void operator -=(bsls::Types::Int64 value);
         //   unsigned int add(unsigned int value);
+        //   unsigned int addAckRel(unsigned int value);
+        //   unsigned int addRelaxed(unsigned int value);
+        //   unsigned int sub(unsigned int value);
+        //   unsigned int subAckRel(unsigned int value);
+        //   unsigned int subRelaxed(unsigned int value);
         //   void operator +=(unsigned int value);
         //   void operator -=(unsigned int value);
         //   bsls::Types::Uint64 add(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 addAckRel(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 addRelaxed(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 sub(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 subAckRel(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 subRelaxed(bsls::Types::Uint64 value);
         //   void operator +=(bsls::Types::Uint64 value);
         //   void operator -=(bsls::Types::Uint64 value);
         // --------------------------------------------------------------------
@@ -2779,6 +2789,74 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
+
+                result = x.sub(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int BASE = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int BASE = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int EXP  = VALUES[i].d_expected;
+                unsigned int       result;
+
+                AUI x;  const AUI& X = x;
+
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
             }
 
         }
@@ -2886,6 +2964,72 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
+
+                result = x.sub(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 BASE = VALUES[i].d_base;
+                const Uint64 AMT  = VALUES[i].d_amount;
+                const Uint64 EXP  = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Uint64 BASE = VALUES[i].d_base;
+                const Uint64 AMT  = VALUES[i].d_amount;
+                const Uint64 EXP  = VALUES[i].d_expected;
+                Uint64       result;
+
+                AUI64 x;  const AUI64& X = x;
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
             }
         }
       } break;

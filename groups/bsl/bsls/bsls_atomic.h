@@ -1031,6 +1031,20 @@ class AtomicUint {
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
 
+    unsigned int sub(unsigned int value);
+        // Atomically subtract the specified 'value' from this object and
+        // return the resulting value.
+
+    unsigned int subAcqRel(unsigned int value);
+        // Atomically subtract the specified 'value' from this object and
+        // return the resulting value, providing the acquire/release memory
+        // ordering guarantee.
+
+    unsigned int subRelaxed(unsigned int value);
+        // Atomically subtract the specified 'value' from this object and
+        // return the resulting value, providing the relaxed memory ordering
+        // guarantee.
+
     unsigned int swap(unsigned int swapValue);
         // Atomically set the value of this object to the specified 'swapValue'
         // and return its previous value.
@@ -1163,6 +1177,20 @@ class AtomicUint64 {
     void storeRelease(Types::Uint64 value);
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
+
+    Types::Uint64 sub(Types::Uint64 value);
+        // Atomically subtract the specified 'value' from this object and
+        // return the resulting value.
+
+    Types::Uint64 subAcqRel(Types::Uint64 value);
+        // Atomically subtract the specified 'value' from this object and
+        // return the resulting value, providing the acquire/release memory
+        // ordering guarantee.
+
+    Types::Uint64 subRelaxed(Types::Uint64 value);
+        // Atomically subtract the specified 'value' from this object and
+        // return the resulting value, providing the relaxed memory ordering
+        // guarantee.
 
     Types::Uint64 swap(Types::Uint64 swapValue);
         // Atomically set the value of this object to the specified 'swapValue'
@@ -1832,6 +1860,24 @@ void AtomicUint::storeRelease(unsigned int value)
 }
 
 inline
+unsigned int AtomicUint::sub(unsigned int value)
+{
+    return AtomicOperations_Imp::subUintNv(&d_value, value);
+}
+
+inline
+unsigned int AtomicUint::subAcqRel(unsigned int value)
+{
+    return AtomicOperations_Imp::subUintNvAcqRel(&d_value, value);
+}
+
+inline
+unsigned int AtomicUint::subRelaxed(unsigned int value)
+{
+    return AtomicOperations_Imp::subUintNvRelaxed(&d_value, value);
+}
+
+inline
 unsigned int AtomicUint::swap(unsigned int swapValue)
 {
     return AtomicOperations_Imp::swapUint(&d_value, swapValue);
@@ -1982,6 +2028,24 @@ inline
 void AtomicUint64::storeRelease(Types::Uint64 value)
 {
     AtomicOperations_Imp::setUint64Release(&d_value, value);
+}
+
+inline
+Types::Uint64 AtomicUint64::sub(Types::Uint64 value)
+{
+    return AtomicOperations_Imp::subUint64Nv(&d_value, value);
+}
+
+inline
+Types::Uint64 AtomicUint64::subAcqRel(Types::Uint64 value)
+{
+    return AtomicOperations_Imp::subUint64NvAcqRel(&d_value, value);
+}
+
+inline
+Types::Uint64 AtomicUint64::subRelaxed(Types::Uint64 value)
+{
+    return AtomicOperations_Imp::subUint64NvRelaxed(&d_value, value);
 }
 
 inline

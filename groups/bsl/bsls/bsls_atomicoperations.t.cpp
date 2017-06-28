@@ -54,6 +54,8 @@ using namespace std;
 // [ 3] addUint64(Obj::Uint64 *, bsls::Types::Uint64);
 // [ 3] addUintNv(Obj::Uint *aUint, unsigned int value);
 // [ 3] addUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
+// [ 3] subUintNv(Obj::Uint *aUint, unsigned int value);
+// [ 3] subUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
 // [ 4] swapInt(Obj::Int *aInt, int value);
 // [ 4] testAndSwapInt(Obj::Int *, int, int);
 // [ 4] swapInt64(Obj::Int64 *, bsls::Types::Int64);
@@ -128,6 +130,8 @@ using namespace std;
 // [11] addUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
 // [11] addUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
 // [11] addUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
+// [11] subUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
+// [11] subUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
 // [12] setIntRelease(Obj::Int *aInt, int value);
 // [12] getIntAcquire(const Obj::Int &aInt);
 // [12] setInt64Release(Obj::Int64 *, bsls::Types::Int64);
@@ -2550,6 +2554,8 @@ int main(int argc, char *argv[]) {
         //   addUint64AcqRel(Obj::Uint64 *, bsls::Types::Uint64);
         //   addUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
         //   addUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
+        //   subUintNvAcqRel(Obj::Uint *aUint, unsigned int value);
+        //   subUint64NvAcqRel(Obj::Uint64 *, bsls::Types::Uint64);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2896,6 +2902,28 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getUint(&X));
             }
 
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int EXP  = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int BASE = VALUES[i].d_expected;
+                unsigned int       result;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,BASE);
+                ASSERT(BASE == Obj::getUint(&X));
+
+                result = Obj::subUintNvAcqRel(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X));
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+
         }
 
         if (verbose) cout << "\nTesting 'Uint64' Arithmetic Manipulators"
@@ -3005,6 +3033,28 @@ int main(int argc, char *argv[]) {
                 ASSERT(BASE == Obj::getUint64(&X));
 
                 result = Obj::addUint64NvAcqRel(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 EXP = VALUES[i].d_base;
+                const bsls::Types::Uint64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Uint64 BASE = VALUES[i].d_expected;
+                bsls::Types::Uint64       result;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,BASE);
+                ASSERT(BASE == Obj::getUint64(&X));
+
+                result = Obj::subUint64NvAcqRel(&x,AMT);
                 if (veryVerbose) {
                     T_(); P_(Obj::getUint64(&X)); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();
@@ -7307,6 +7357,8 @@ int main(int argc, char *argv[]) {
         //   addUint64(Obj::Uint64 *, bsls::Types::Uint64);
         //   addUintNv(Obj::Uint *aUint, unsigned int value);
         //   addUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
+        //   subUintNv(Obj::Uint *aUint, unsigned int value);
+        //   subUint64Nv(Obj::Uint64 *, bsls::Types::Uint64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Arithmetic Manipulators"
@@ -7744,6 +7796,28 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, EXP == Obj::getUint(&X));
             }
 
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const unsigned int EXP  = VALUES[i].d_base;
+                const unsigned int AMT  = VALUES[i].d_amount;
+                const unsigned int BASE = VALUES[i].d_expected;
+                unsigned int       result;
+
+                Types::Uint x;  const Types::Uint& X = x;
+                Obj::initUint(&x,0);
+                ASSERT(0 == Obj::getUint(&X));
+
+                Obj::setUint(&x,BASE);
+                ASSERT(BASE == Obj::getUint(&X));
+
+                result = Obj::subUintNv(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint(&X));
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint(&X));
+            }
+
         }
 
         if (verbose) cout << "\nTesting 'Uint64' Arithmetic Manipulators"
@@ -7848,6 +7922,28 @@ int main(int argc, char *argv[]) {
                 ASSERT(BASE == Obj::getUint64(&X));
 
                 result = Obj::addUint64Nv(&x,AMT);
+                if (veryVerbose) {
+                    T_(); P_(Obj::getUint64(&X)); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == Obj::getUint64(&X));
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const bsls::Types::Uint64 EXP  = VALUES[i].d_base;
+                const bsls::Types::Uint64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Uint64 BASE = VALUES[i].d_expected;
+                bsls::Types::Uint64       result;
+
+                Types::Uint64 x;  const Types::Uint64& X = x;
+                Obj::initUint64(&x,0);
+                ASSERT(0 == Obj::getUint64(&X));
+
+                Obj::setUint64(&x,BASE);
+                ASSERT(BASE == Obj::getUint64(&X));
+
+                result = Obj::subUint64Nv(&x,AMT);
                 if (veryVerbose) {
                     T_(); P_(Obj::getUint64(&X)); P(BASE);
                     T_(); P_(AMT); P(EXP); NL();
