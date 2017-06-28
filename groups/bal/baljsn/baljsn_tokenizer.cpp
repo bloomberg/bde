@@ -81,7 +81,7 @@ int Tokenizer::reloadStringBuffer()
 
 int Tokenizer::expandBufferForLargeValue()
 {
-    const int currLength = d_stringBuffer.length();
+    const bsl::string::size_type currLength = d_stringBuffer.length();
     d_stringBuffer.resize(currLength + k_MAX_STRING_SIZE);
 
     const int numRead =
