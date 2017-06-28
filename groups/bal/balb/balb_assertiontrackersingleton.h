@@ -221,16 +221,15 @@ void AssertionTrackerSingleton<TRACKER>::bregCallbackAdapter(
                                                        int          *configure)
 {
     int trace_enable, max_callstack_count, trace_severity_level;
-    callback(&trace_enable, &max_callstack_count, &trace_severity_level);
-    if (!trace_enable || !trace_severity_level) {
+    callback(&trace_enable, &trace_severity_level, &max_callstack_count);
+    if (!trace_enable) {
         configure[0] = 0;
     }
     else {
         configure[0] = -1;
         configure[1] = -1;
         configure[2] = max_callstack_count;
-        // Align the BREG value with the 'bsls::LogSeverity::Enum' value.
-        configure[3] = trace_severity_level - 1;
+        configure[3] = trace_severity_level;
         configure[4] = 1;
     }
 }
@@ -252,10 +251,11 @@ TRACKER *AssertionTrackerSingleton<TRACKER>::singleton(
 
     BSLMT_ONCE_DO
     {
+        bsls::Assert::Handler fallbackHandler = bsls::Assert::failureHandler();
         bsls::Assert::setFailureHandler(&failTracker);
         if (bsls::Assert::failureHandler() == &failTracker) {
             static TRACKER theSingleton(
-                    bsls::Assert::failureHandler(), configure, basicAllocator);
+                                   fallbackHandler, configure, basicAllocator);
             theSingleton_p = &theSingleton;
         }
     }
@@ -269,7 +269,8 @@ AssertionTrackerSingleton<TRACKER>::singleton(BregCallback      callback,
                                               bslma::Allocator *basicAllocator)
 {
     using namespace bdlf::PlaceHolders;
-    return singleton(bdlf::BindUtil::bind(bregCallbackAdapter, callback, _1));
+    return singleton(bdlf::BindUtil::bind(bregCallbackAdapter, callback, _1),
+                     basicAllocator);
 }
 
 }  // close package namespace
