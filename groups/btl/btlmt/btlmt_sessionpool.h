@@ -882,7 +882,10 @@ class SessionPool {
         // system call failures when errors are available.
 
     ~SessionPool();
-        // Destroy this session pool.
+        // Destroy this session pool.  During destruction this object will
+        // attempt to terminate all underlying managed threads by calling
+        // 'stop' and will abort if 'stop' fails.  To ensure that this method
+        // succeeds users should call 'stop' before the object is destroyed.
 
     // MANIPULATORS
                                   // *** pool management section ***

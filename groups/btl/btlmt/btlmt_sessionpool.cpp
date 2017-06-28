@@ -23,6 +23,9 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <btlso_socketoptions.h>
 
 #include <btlb_pooledblobbufferfactory.h>
+
+#include <bdls_processutil.h>
+
 #include <bslmt_mutex.h>
 #include <bslmt_lockguard.h>
 
@@ -36,6 +39,7 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -660,7 +664,32 @@ SessionPool::SessionPool(
 
 SessionPool::~SessionPool()
 {
-    stop();
+    const int rc = stop();
+    if (0 != rc) {
+        // If 'stop' failed then that likely means that there was an error
+        // terminating one of the underlying dispatcher threads.  If a thread
+        // is still active, it could possibly access state associated with this
+        // session pool object after that state has been destroyed, resulting
+        // in inscrutable crashes (see DRQS 80078174 for a possible scenario
+        // where this occurred).  The only condition under which terminating a
+        // thread could fail is if there is a problem with the underlying
+        // control channel.  Whether the failure of the control channel is
+        // possible is unclear especially on *nix-based platforms.  On Windows
+        // machines there have been scenarios where a firewall or antivirus
+        // process identifies the control channel as potentially malicious and
+        // kills the socket.  So such a scenario is more likely there but we
+        // have not had any reported crashes that point to 'stop' failure.  In
+        // any case the best course of action is to log an appropriate message
+        // and abort.
+
+        BSLS_LOG_ERROR("(PID: %d) 'stop' failed in btlmt::SessionPool's "
+                       " destructor.  Please contact the BDE team Group 101 "
+                       " giving additional details on the crash, rc = %d.\n",
+                       bdls::ProcessUtil::getProcessId(),
+                       rc);
+        bsl::abort();
+    }
+
     if (d_channelPool_p) {
         d_allocator_p->deleteObjectRaw(d_channelPool_p);
     }
@@ -706,6 +735,9 @@ int SessionPool::stop()
     int ret = 0;
     if (d_channelPool_p) {
         ret = d_channelPool_p->stop();
+        if (ret) {
+            return ret;                                               // RETURN
+        }
     }
 
     const int NUM_HANDLES = 32;
@@ -745,6 +777,9 @@ int SessionPool::stopAndRemoveAllSessions()
     int ret = 0;
     if (d_channelPool_p) {
         ret = d_channelPool_p->stopAndRemoveAllChannels();
+        if (ret) {
+            return ret;                                               // RETURN
+        }
     }
 
     const int NUM_HANDLES = 32;

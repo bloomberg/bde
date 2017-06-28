@@ -1294,8 +1294,10 @@ class ChannelPool {
         // 'BlobBasedReadCallback', and 'PoolStateChangeCallback'.
 
     ~ChannelPool();
-        // Destroy this channel pool.  The behavior is undefined if the channel
-        // pool was not shut down properly.
+        // Destroy this channel pool.  During destruction this object will
+        // attempt to terminate all underlying managed threads by calling
+        // 'stop' and will abort if 'stop' fails.  To ensure that this method
+        // succeeds users should call 'stop' before the object is destroyed.
 
     // MANIPULATORS
                                   // *** Server part ***
