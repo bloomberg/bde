@@ -197,7 +197,7 @@ int EventManagerName::dispatchImp(int                       flags,
     }
     int numCallbacks = 0;                    // number of callbacks dispatched
     const bool allowAsyncInterrupts =
-                               (0 != (btlso::Flags::k_ASYNC_INTERRUPT & flags));
+                              (0 != (btlso::Flags::k_ASYNC_INTERRUPT & flags));
 
     do {
         int numReady;                // number of returned sockets

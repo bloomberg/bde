@@ -1438,8 +1438,8 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
         //  ----   --------      ------                           ------
         {
            { L_,    INFINITE,      0,                                 1  },
-           { L_,    INFINITE,      btlso::Flags::k_ASYNC_INTERRUPT,   -1  },
-           { L_,     TIMEOUT,      btlso::Flags::k_ASYNC_INTERRUPT,   -1  },
+           { L_,    INFINITE,      btlso::Flags::k_ASYNC_INTERRUPT,  -1  },
+           { L_,     TIMEOUT,      btlso::Flags::k_ASYNC_INTERRUPT,  -1  },
            { L_,     TIMEOUT,      0,                                 0  },
         };
 

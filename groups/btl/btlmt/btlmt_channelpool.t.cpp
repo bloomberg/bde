@@ -4496,7 +4496,7 @@ class bteso_SslLikeStreamSocket : public btlso::StreamSocket<ADDRESS> {
         // Return the result of calling 'waitForAccept' on the underlying
         // 'btlso::StreamSocket' object.
 
-    virtual int waitForIO(btlso::Flags::IOWaitType   type,
+    virtual int waitForIO(btlso::Flags::IOWaitType  type,
                           const bsls::TimeInterval& timeout);
     virtual int waitForIO(btlso::Flags::IOWaitType type);
         // Return the result of calling 'waitForIO' on the underlying
@@ -4920,7 +4920,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::waitForAccept(
 
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::waitForIO(
-        btlso::Flags::IOWaitType   type,
+        btlso::Flags::IOWaitType  type,
         const bsls::TimeInterval& timeout)
 {
     return d_socket_p->waitForIO(type, timeout);
@@ -4951,7 +4951,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::setOption(int level,
 // ACCESSORS
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::blockingMode(
-                                       btlso::Flags::BlockingMode *result) const
+                                      btlso::Flags::BlockingMode *result) const
 {
     return d_socket_p->blockingMode(result);
 }
@@ -9178,7 +9178,8 @@ void TestDriver::testCase36()
                                                             factory.allocate();
 
             ASSERT(0 == socket->connect(address));
-            ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
+            ASSERT(0 == socket->setBlockingMode(
+                                               btlso::Flags::e_BLOCKING_MODE));
 
             char data[SIZE];
             bsl::memset(data, FILL, SIZE);
@@ -10442,7 +10443,7 @@ void TestDriver::testCase28()
                                                             factory.allocate();
 
             ASSERT(0 == socket->setBlockingMode(
-                                             btlso::Flags::e_NONBLOCKING_MODE));
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
@@ -10513,7 +10514,7 @@ void TestDriver::testCase28()
                                                             factory.allocate();
 
             ASSERT(0 == socket->setBlockingMode(
-                                             btlso::Flags::e_NONBLOCKING_MODE));
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
@@ -12786,7 +12787,7 @@ void TestDriver::testCase18()
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                           btlso::Flags::e_NONBLOCKING_MODE);
+                                             btlso::Flags::e_NONBLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 

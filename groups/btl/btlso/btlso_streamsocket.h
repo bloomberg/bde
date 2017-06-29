@@ -430,8 +430,8 @@ class StreamSocket {
         // received, a call to 'accept' can be made to establish the
         // connection.
 
-    virtual int waitForIO(btlso::Flags::IOWaitType   type,
-                          const bsls::TimeInterval&  timeout) = 0;
+    virtual int waitForIO(btlso::Flags::IOWaitType  type,
+                          const bsls::TimeInterval& timeout) = 0;
         // Wait for the occurrence of an I/O event matching the specified
         // 'type', or until the specified absolute 'timeout' is reached,
         // whichever occurs first.  Return a value indicating the type(s) of
@@ -516,12 +516,12 @@ class StreamSocketAutoClose {
     // released from management by this proctor prior to destruction.
 
     // DATA
-    StreamSocket<ADDRESS>     *d_socket_p;
+    StreamSocket<ADDRESS>      *d_socket_p;
     btlso::Flags::ShutdownType  d_option;
 
   public:
     // CREATORS
-    StreamSocketAutoClose(StreamSocket<ADDRESS>     *socket,
+    StreamSocketAutoClose(StreamSocket<ADDRESS>      *socket,
                           btlso::Flags::ShutdownType  streamOption);
         // Create a proctor for the specified 'socket', recording the specified
         // 'streamOption' for shutting down the 'socket' upon destruction of

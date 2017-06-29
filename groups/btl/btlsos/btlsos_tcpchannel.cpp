@@ -184,7 +184,7 @@ int TcpChannel::read(int *augStatus, char *buffer, int numBytes, int flags)
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
             if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
+                                                            // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 return numBytesRead; // Return the total bytes read.  // RETURN
             }
@@ -275,7 +275,7 @@ int TcpChannel::readv(int               *augStatus,
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
             if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
+                                                            // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 return numBytesRead;  // Return the total bytes read. // RETURN
             }
@@ -495,7 +495,7 @@ int TcpChannel::bufferedRead(const char **buffer, int numBytes, int flags)
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
             if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {   // interruptible
-                                                               // mode
+                                                             // mode
                 *buffer = 0;       // not returned
                 d_readBufferOffset = numBytesRead;
                 return numBytesRead; // Return the total bytes read.  // RETURN
@@ -570,7 +570,7 @@ int TcpChannel::bufferedRead(int         *augStatus,
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
             if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {  // interruptible
-                                                              // mode
+                                                            // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 *buffer = 0;
                 d_readBufferOffset = numBytesRead;

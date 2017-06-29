@@ -414,7 +414,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // received, a call to 'accept' can be made to establish the
         // connection.
 
-    virtual int waitForIO(btlso::Flags::IOWaitType   type,
+    virtual int waitForIO(btlso::Flags::IOWaitType  type,
                           const bsls::TimeInterval& timeout);
         // Wait for an I/O of the specified 'type' to occur or until the
         // specified absolute 'timeout' is reached, whichever occurs first.
@@ -784,7 +784,7 @@ int InetStreamSocket<ADDRESS>::waitForAccept(const bsls::TimeInterval& timeout)
 }
 
 template <class ADDRESS>
-int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flags::IOWaitType   type,
+int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flags::IOWaitType  type,
                                          const bsls::TimeInterval& timeout)
 {
     bsls::TimeInterval interval     = timeout - bdlt::CurrentTime::now();
@@ -908,7 +908,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flags::IOWaitType   type,
                     rc = btlso::Flags::e_IO_RW;
                 } else {
                     rc = btlso::Flags::e_IO_READ;
-                    }
+                }
             } else {
                 rc = btlso::Flags::e_IO_WRITE;
             }
@@ -1102,7 +1102,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flags::IOWaitType type)
 // ACCESSORS
 template <class ADDRESS>
 int InetStreamSocket<ADDRESS>::blockingMode(
-                                       btlso::Flags::BlockingMode *result) const
+                                      btlso::Flags::BlockingMode *result) const
 {
     IoUtil::BlockingMode mode;
     int                  rc = IoUtil::getBlockingMode(&mode, d_handle);

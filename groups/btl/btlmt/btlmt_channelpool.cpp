@@ -592,9 +592,9 @@ class Channel {
         // that this function should always be executed in the dispatcher
         // thread of the event manager associated with this channel.
 
-    void notifyChannelDown(ChannelHandle             self,
+    void notifyChannelDown(ChannelHandle              self,
                            btlso::Flags::ShutdownType type,
-                           bool                      serializedFlag = true);
+                           bool                       serializedFlag = true);
         // Shutdown this channel with the specified 'mode' and invoke the
         // user-installed callback for this channel with either
         // 'e_CHANNEL_DOWN', 'e_CHANNEL_DOWN_RECEIVE', or 'e_CHANNEL_DOWN_SEND'
@@ -1386,9 +1386,9 @@ void Channel::invokeWriteQueueLowWatermark(ChannelHandle)
                      d_userData);
 }
 
-void Channel::notifyChannelDown(ChannelHandle             self,
+void Channel::notifyChannelDown(ChannelHandle              self,
                                 btlso::Flags::ShutdownType type,
-                                bool                      serializedFlag)
+                                bool                       serializedFlag)
 {
     // Always executed in the event manager's dispatcher thread, *except* if
     // called from ChannelPool::shutdown (for e_IMMEDIATE), or from
@@ -3171,7 +3171,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
         if (connectionSocket) {
             if (0 == connectionSocket->setBlockingMode(
-                                            btlso::Flags::e_NONBLOCKING_MODE)) {
+                                           btlso::Flags::e_NONBLOCKING_MODE)) {
 
                 typedef btlso::StreamSocketFactory<btlso::IPv4Address> Factory;
                 cs.d_socket.reset(connectionSocket,
@@ -3674,7 +3674,7 @@ int ChannelPool::connectImp(int                    clientId,
 
     if (0 != connectOptions.socketPtr()
      && 0 != (*connectOptions.socketPtr())->setBlockingMode(
-                                            btlso::Flags::e_NONBLOCKING_MODE)) {
+                                           btlso::Flags::e_NONBLOCKING_MODE)) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }
@@ -3854,9 +3854,9 @@ int ChannelPool::shutdown(int channelId, ShutdownMode how)
     return shutdown(channelId, btlso::Flags::e_SHUTDOWN_BOTH, how);
 }
 
-int ChannelPool::shutdown(int                       channelId,
+int ChannelPool::shutdown(int                        channelId,
                           btlso::Flags::ShutdownType type,
-                          ShutdownMode              how)
+                          ShutdownMode               how)
 {
     (void)how; BSLS_ASSERT(e_IMMEDIATE == how);
 

@@ -1054,7 +1054,7 @@ extern "C" void *listenFunction(void *args)
     ASSERT(!serverSocket->accept(&acceptSocket));
 
     ASSERT(0 == acceptSocket->setBlockingMode(
-                                             btlso::Flags::e_NONBLOCKING_MODE));
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
     acceptSockets[INDEX] = acceptSocket;
 

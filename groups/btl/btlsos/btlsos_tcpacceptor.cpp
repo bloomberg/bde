@@ -315,7 +315,7 @@ int TcpAcceptor::open(const btlso::IPv4Address& endpoint,
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                            btlso::Flags::e_NONBLOCKING_MODE)) {
+                                           btlso::Flags::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return e_BLOCKMODE_FAILED;                                    // RETURN

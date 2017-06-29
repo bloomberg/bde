@@ -309,8 +309,8 @@ if (veryVerbose)
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
         ValueTest<btlso::Flags::IOWaitType> valueTest(VERBOSITY,
-                                                     DATA_LENGTH,
-                                                     Util::identity);
+                                                      DATA_LENGTH,
+                                                      Util::identity);
         valueTest(DATA);
       } break;
       case 3: {
@@ -329,8 +329,8 @@ if (veryVerbose)
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
         ValueTest<btlso::Flags::ShutdownType> valueTest(VERBOSITY,
-                                                       DATA_LENGTH,
-                                                       Util::identity);
+                                                        DATA_LENGTH,
+                                                        Util::identity);
 
         valueTest(DATA);
       } break;
@@ -348,8 +348,8 @@ if (veryVerbose)
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
         ValueTest<btlso::Flags::BlockingMode> valueTest(VERBOSITY,
-                                                       DATA_LENGTH,
-                                                       Util::identity);
+                                                        DATA_LENGTH,
+                                                        Util::identity);
 
         valueTest(DATA);
       } break;
@@ -366,8 +366,8 @@ if (veryVerbose)
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
         ValueTest<btlso::Flags::Flag> valueTest(VERBOSITY,
-                                                   DATA_LENGTH,
-                                                   Util::twoToTheN);
+                                                DATA_LENGTH,
+                                                Util::twoToTheN);
 
         if (verbose) cout << "\nVerify table length is correct." << endl;
 
