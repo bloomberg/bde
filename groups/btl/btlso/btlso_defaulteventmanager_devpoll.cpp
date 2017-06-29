@@ -13,7 +13,7 @@
 BSLS_IDENT_RCSID(btlso_defaulteventmanager_devpoll_cpp,"$Id$ $CSID$")
 
 #include <btlso_timemetrics.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlb_bitmaskutil.h>
@@ -198,7 +198,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             if (0 > rc) {
                 if (EINTR == savedErrno) {
-                    if (flags & btlso::Flag::k_ASYNC_INTERRUPT) {
+                    if (flags & btlso::Flags::k_ASYNC_INTERRUPT) {
                         return -1;                                    // RETURN
                     }
                 }
@@ -258,7 +258,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags)
               && now < timeout);
 
         if (0 >= rfds) {
@@ -307,7 +307,7 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
             }
             errno = 0;
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             return rfds

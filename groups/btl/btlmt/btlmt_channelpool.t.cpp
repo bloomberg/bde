@@ -14,7 +14,7 @@
 #include <btlmt_asyncchannel.h>
 
 #include <btls_iovecutil.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_ipv4address.h>
 #include <btlso_resolveutil.h>
@@ -1434,11 +1434,11 @@ extern "C" void *listenFunction(void *args)
     ASSERT(0 == serverSockets[INDEX]->bind(getLocalAddress()));
     ASSERT(0 == serverSockets[INDEX]->listen(1));
 
-    serverSockets[INDEX]->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+    serverSockets[INDEX]->setBlockingMode(btlso::Flags::e_BLOCKING_MODE);
 
     btlso::StreamSocket<btlso::IPv4Address> *client;
     ASSERT(0 == serverSockets[INDEX]->accept(&client));
-    ASSERT(0 == client->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE));
+    ASSERT(0 == client->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE));
 
     acceptSockets[INDEX] = client;
 
@@ -4480,11 +4480,11 @@ class bteso_SslLikeStreamSocket : public btlso::StreamSocket<ADDRESS> {
         // either block until all data is flushed (in blocking mode) or return
         // 'ERROR_WOULDBLOCK' if reading on the underlying socket would block.
 
-    virtual int setBlockingMode(btlso::Flag::BlockingMode mode);
+    virtual int setBlockingMode(btlso::Flags::BlockingMode mode);
         // Return the result of calling 'setBlockingMode' on the underlying
         // 'btlso::StreamSocket' object.
 
-    virtual int shutdown(btlso::Flag::ShutdownType streamOption);
+    virtual int shutdown(btlso::Flags::ShutdownType streamOption);
         // Return the result of calling 'shutdown' on the underlying
         // 'btlso::StreamSocket' object.
 
@@ -4496,9 +4496,9 @@ class bteso_SslLikeStreamSocket : public btlso::StreamSocket<ADDRESS> {
         // Return the result of calling 'waitForAccept' on the underlying
         // 'btlso::StreamSocket' object.
 
-    virtual int waitForIO(btlso::Flag::IOWaitType   type,
+    virtual int waitForIO(btlso::Flags::IOWaitType  type,
                           const bsls::TimeInterval& timeout);
-    virtual int waitForIO(btlso::Flag::IOWaitType type);
+    virtual int waitForIO(btlso::Flags::IOWaitType type);
         // Return the result of calling 'waitForIO' on the underlying
         // 'btlso::StreamSocket' object.
 
@@ -4522,7 +4522,7 @@ class bteso_SslLikeStreamSocket : public btlso::StreamSocket<ADDRESS> {
         // this limit is reached.
 
     // ACCESSORS
-    virtual int blockingMode(btlso::Flag::BlockingMode *result) const;
+    virtual int blockingMode(btlso::Flags::BlockingMode *result) const;
         // Return the result of calling 'blockingMode' on the underlying
         // 'btlso::StreamSocket' object.
 
@@ -4892,14 +4892,14 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writeFlush()
 
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::setBlockingMode(
-        btlso::Flag::BlockingMode mode)
+        btlso::Flags::BlockingMode mode)
 {
     return d_socket_p->setBlockingMode(mode);
 }
 
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::shutdown(
-        btlso::Flag::ShutdownType streamOption)
+        btlso::Flags::ShutdownType streamOption)
 {
     return d_socket_p->shutdown(streamOption);
 }
@@ -4920,7 +4920,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::waitForAccept(
 
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::waitForIO(
-        btlso::Flag::IOWaitType   type,
+        btlso::Flags::IOWaitType  type,
         const bsls::TimeInterval& timeout)
 {
     return d_socket_p->waitForIO(type, timeout);
@@ -4928,7 +4928,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::waitForIO(
 
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::waitForIO(
-        btlso::Flag::IOWaitType type)
+        btlso::Flags::IOWaitType type)
 {
     return d_socket_p->waitForIO(type);
 }
@@ -4951,7 +4951,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::setOption(int level,
 // ACCESSORS
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::blockingMode(
-                                       btlso::Flag::BlockingMode *result) const
+                                      btlso::Flags::BlockingMode *result) const
 {
     return d_socket_p->blockingMode(result);
 }
@@ -8380,7 +8380,7 @@ void TestDriver::testCase39()
         channelUp.wait();
         ASSERT(-1 != channelId);
 
-        socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+        socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
         const int SIZE = 1024 * 1024 * 10;  // 10 MB
         btlb::PooledBlobBufferFactory f(SIZE);
@@ -8393,7 +8393,7 @@ void TestDriver::testCase39()
         rc = pool.write(channelId, b);
         ASSERT(rc);
 
-        rc = pool.shutdown(channelId, btlso::Flag::e_SHUTDOWN_GRACEFUL);
+        rc = pool.shutdown(channelId, btlso::Flags::e_SHUTDOWN_GRACEFUL);
         ASSERT(!rc);
 
         channelDownRead.wait();
@@ -8474,9 +8474,9 @@ void TestDriver::testCase39()
         channelUp.wait();
         ASSERT(-1 != channelId);
 
-        socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+        socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
-        rc = pool.shutdown(channelId, btlso::Flag::e_SHUTDOWN_GRACEFUL);
+        rc = pool.shutdown(channelId, btlso::Flags::e_SHUTDOWN_GRACEFUL);
         ASSERT(!rc);
 
         channelDownRead.wait();
@@ -8549,7 +8549,7 @@ void TestDriver::testCase39()
         channelUp.wait();
         ASSERT(-1 != channelId);
 
-        socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+        socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
         const int SIZE = 1024 * 1024 * 10;  // 10 MB
         btlb::PooledBlobBufferFactory f(SIZE);
@@ -8562,7 +8562,7 @@ void TestDriver::testCase39()
         rc = pool.write(channelId, b);
         ASSERT(rc);
 
-        rc = pool.shutdown(channelId, btlso::Flag::e_SHUTDOWN_GRACEFUL);
+        rc = pool.shutdown(channelId, btlso::Flags::e_SHUTDOWN_GRACEFUL);
         ASSERT(!rc);
 
         channelDownRead.wait();
@@ -8645,9 +8645,9 @@ void TestDriver::testCase39()
         channelUp.wait();
         ASSERT(-1 != channelId);
 
-        socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+        socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
-        rc = pool.shutdown(channelId, btlso::Flag::e_SHUTDOWN_GRACEFUL);
+        rc = pool.shutdown(channelId, btlso::Flags::e_SHUTDOWN_GRACEFUL);
         ASSERT(!rc);
 
         channelDownRead.wait();
@@ -9178,7 +9178,8 @@ void TestDriver::testCase36()
                                                             factory.allocate();
 
             ASSERT(0 == socket->connect(address));
-            ASSERT(0 == socket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE));
+            ASSERT(0 == socket->setBlockingMode(
+                                               btlso::Flags::e_BLOCKING_MODE));
 
             char data[SIZE];
             bsl::memset(data, FILL, SIZE);
@@ -9475,12 +9476,12 @@ void TestDriver::testCase34()
         int rc = pool.connect(SERVER_ID, options);
         ASSERT(!rc);
 
-        ASSERT(0 == socket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE));
+        ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
 
         btlso::StreamSocket<btlso::IPv4Address> *client;
         rc = socket->accept(&client);
         ASSERT(!rc);
-        ASSERT(0 == client->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE));
+        ASSERT(0 == client->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE));
 
         channelCbBarrier.wait();
 
@@ -9622,7 +9623,7 @@ void TestDriver::testCase33()
         btlso::StreamSocket<btlso::IPv4Address> *client;
         rc = socket->accept(&client);
         ASSERT(!rc);
-        ASSERT(0 == client->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE));
+        ASSERT(0 == client->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE));
 
         const int SIZE = 1000;
         btlb::PooledBlobBufferFactory f(SIZE);
@@ -9762,7 +9763,7 @@ void TestDriver::testCase32()
         ASSERT(!rc);
         LOOP2_ASSERT(EXP, PEER, EXP == PEER);
 
-        rc = socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+        rc = socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
         ASSERT(!rc);
 
         btlso::IPv4Address other;
@@ -9844,7 +9845,7 @@ void TestDriver::testCase31()
 
         const int NUM_TIMES = 100;
 
-        socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+        socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
         for (int i = 0; i < NUM_TIMES; ++i) {
             int rc = socket->write(TEXT, LEN);
             if (rc < 0) {
@@ -10442,7 +10443,7 @@ void TestDriver::testCase28()
                                                             factory.allocate();
 
             ASSERT(0 == socket->setBlockingMode(
-                                             btlso::Flag::e_NONBLOCKING_MODE));
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
@@ -10513,7 +10514,7 @@ void TestDriver::testCase28()
                                                             factory.allocate();
 
             ASSERT(0 == socket->setBlockingMode(
-                                             btlso::Flag::e_NONBLOCKING_MODE));
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
@@ -12041,8 +12042,8 @@ void TestDriver::testCase22()
                     LENGTHY = btls::IovecUtil::length(vY, numBufY);
                 }
 
-                sndSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
-                rcvSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+                sndSocket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE);
+                rcvSocket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE);
 
                 bsl::vector<char> rcvBufferX(2 * LENGTH, 0, &ta);
                 bsl::vector<char> rcvBufferY(2 * LENGTH, 0, &ta);
@@ -12786,7 +12787,7 @@ void TestDriver::testCase18()
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                           btlso::Flag::e_NONBLOCKING_MODE);
+                                             btlso::Flags::e_NONBLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
@@ -12847,7 +12848,7 @@ void TestDriver::testCase18()
                 sockets[i] = factory.allocate();
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                              btlso::Flag::e_BLOCKING_MODE);
+                                              btlso::Flags::e_BLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
@@ -15228,7 +15229,7 @@ void TestDriver::testCase7()
                 ASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_RECEIVE));
+                                        btlso::Flags::e_SHUTDOWN_RECEIVE));
                 barrier.wait(); // for CHANNEL_DOWN
 
                 MTASSERT(0 == info.d_channelDownReadFlag);
@@ -15245,7 +15246,7 @@ void TestDriver::testCase7()
                 ASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_SEND));
+                                        btlso::Flags::e_SHUTDOWN_SEND));
                 barrier.wait(); // for CHANNEL_DOWN
 
                 MTASSERT(0 == info.d_channelDownReadFlag);
@@ -15265,16 +15266,16 @@ void TestDriver::testCase7()
                 MTASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_RECEIVE));
+                                        btlso::Flags::e_SHUTDOWN_RECEIVE));
                 barrier.wait(); // for CHANNEL_DOWN_READ
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_RECEIVE));
+                                        btlso::Flags::e_SHUTDOWN_RECEIVE));
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_SEND));
+                                        btlso::Flags::e_SHUTDOWN_SEND));
                 barrier.wait(); // for CHANNEL_DOWN_WRITE
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
@@ -15296,16 +15297,16 @@ void TestDriver::testCase7()
                 MTASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_SEND));
+                                        btlso::Flags::e_SHUTDOWN_SEND));
                 barrier.wait(); // for CHANNEL_DOWN_WRITE
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_SEND));
+                                        btlso::Flags::e_SHUTDOWN_SEND));
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        btlso::Flag::e_SHUTDOWN_RECEIVE));
+                                        btlso::Flags::e_SHUTDOWN_RECEIVE));
                 barrier.wait(); // for CHANNEL_DOWN_READ
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
@@ -15401,7 +15402,7 @@ void TestDriver::testCase6()
                 socketA = factory.allocate(handles[0]);
                 socketB = factory.allocate(handles[1]);
                 LOOP_ASSERT(i,
-                      0 == socketB->shutdown(btlso::Flag::e_SHUTDOWN_BOTH));
+                      0 == socketB->shutdown(btlso::Flags::e_SHUTDOWN_BOTH));
                 LOOP_ASSERT(i, 0 == pool.numChannels());
 
                 typedef btlso::StreamSocketFactoryDeleter Deleter;

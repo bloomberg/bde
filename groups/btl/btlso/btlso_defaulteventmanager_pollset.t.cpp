@@ -23,7 +23,7 @@
 #ifdef BTESO_EVENTMANAGER_ENABLETEST
 
 #include <btlso_eventmanagertester.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_ioutil.h>
 #include <btlso_socketimputil.h>
 #include <btlso_socketoptutil.h>
@@ -816,7 +816,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           btlso::Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flags::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 if (now < deadline) {
@@ -854,7 +854,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           btlso::Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flags::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 if (now < deadline) {

@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(btlsos_tcpconnector_cpp,"$Id$ $CSID$")
 #include <btlsos_tcptimedchannel.h>
 #include <btlso_streamsocketfactory.h>
 #include <btlso_streamsocket.h>
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -74,7 +74,7 @@ inline
     if (!socket_p) {
         return NULL;                                                  // RETURN
     }
-    int rc = socket_p->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+    int rc = socket_p->setBlockingMode(btlso::Flags::e_BLOCKING_MODE);
 
     (void)rc; BSLS_ASSERT(0 == rc);
     while (1) {
@@ -86,7 +86,7 @@ inline
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
         }
-        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN

@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_epoll_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
 #include <btlso_eventmanagertester.h>   // for testing only
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_socketimputil.h>
 #include <btlso_socketoptutil.h>        // for testing only
 #include <btlso_timemetrics.h>
@@ -74,7 +74,7 @@ int sleep(int                       *resultErrno,
         if (0 > rc) {
             BSLS_ASSERT(savedErrno == EINTR);
 
-            if (flags & btlso::Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlso::Flags::k_ASYNC_INTERRUPT) {
                 // We're allowing async interrupts.
 
                 return -1;                                            // RETURN
@@ -197,7 +197,7 @@ int EventManagerName::dispatchImp(int                       flags,
     }
     int numCallbacks = 0;                    // number of callbacks dispatched
     const bool allowAsyncInterrupts =
-                               (0 != (btlso::Flag::k_ASYNC_INTERRUPT & flags));
+                              (0 != (btlso::Flags::k_ASYNC_INTERRUPT & flags));
 
     do {
         int numReady;                // number of returned sockets

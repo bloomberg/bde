@@ -9,7 +9,7 @@
 
 
 #include <btlsos_tcpchannel.h>
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bslma_testallocator.h>
 #include <btlso_inetstreamsocketfactory.h>
@@ -455,7 +455,7 @@ static void* threadSignalGenerator(void *arg)
                 QT(" reads from socket: ");
                 P_T(len);  PT(threadInfo->d_socketHandle);
             }
-#ifndef BSLS_PLATFORM_OS_LINUX
+#if !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_DARWIN)
             if (HELPER_READ != len) {
                 if (veryVerbose) {
                     PT(bslmt::ThreadUtil::self());
@@ -712,7 +712,8 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                                buffer,
                                command->numToProcess.d_numBytes,
                                command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum, augStatus,
+                     command->d_expStatus, augStatus == command->d_expStatus);
         if (augStatus != command->d_expStatus) {
             if (verbose) {
                 P_T(augStatus);
@@ -752,7 +753,9 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                                 oBuffer,
                                 command->numToProcess.d_numBuffers,
                                 command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum,
+                     augStatus, command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
     case e_WVIA: { //
         fillBuffers(ioBuffer, command->numToProcess.d_numBuffers, 'i');
@@ -761,7 +764,9 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
                                 ioBuffer,
                                 command->numToProcess.d_numBuffers,
                                 command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum,
+                     augStatus, command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
     case e_WVRO: {  //
         fillBuffers(oBuffer, command->numToProcess.d_numBuffers, 'o');
@@ -849,7 +854,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
             }
         }
         ++(*index);
-#ifdef BSLS_PLATFORM_OS_LINUX
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
         // do not race with the signaling thread
         bslmt::ThreadUtil::microSleep(0.2 * k_SLEEP_TIME);
 #endif
@@ -880,7 +885,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
             }
         }
         ++(*index);
-#ifdef BSLS_PLATFORM_OS_LINUX
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
         // do not race with the closer thread
         bslmt::ThreadUtil::microSleep(0.7 * k_SLEEP_TIME);
 #endif
@@ -992,8 +997,10 @@ int processTest(btlsos::TcpChannel          *channel,
         }
         else {
             if (ret < 0) {
-                LOOP_ASSERT(commands[i].d_lineNum,
-                            ret == commands[i].d_expReturnValue);
+                LOOP3_ASSERT(commands[i].d_lineNum,
+                             ret,
+                             commands[i].d_expReturnValue,
+                             ret == commands[i].d_expReturnValue);
             }
             else {
                 LOOP_ASSERT(commands[i].d_lineNum,
@@ -1588,33 +1595,33 @@ int main(int argc, char *argv[]) {
               {L_,    e_W,   SYS_DEPENDENT_LEN,  1,  SYS_DEPENDENT_LEN,  0   },
               {L_,   e_WR,    BUF_WRITE,         0,      BUF_WRITE,      0   },
               {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
-              {L_,  e_WVRO,           6,         1,        1024,         0   },
+              {L_,  e_WVRO,           6,         1,      BUF_LIMIT,      0   },
             },
             {
               {L_,  e_WVRI,           1,         0,           1,         0   },
               {L_,    e_W,   SYS_DEPENDENT_LEN,  1,  SYS_DEPENDENT_LEN,  0   },
               {L_,   e_WR,    BUF_WRITE,         0,      BUF_WRITE,      0   },
               {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
-              {L_,  e_WVRI,           6,         1,        1024,         0   },
+              {L_,  e_WVRI,           6,         1,     BUF_LIMIT,       0   },
             },
             {
               {L_, e_WVROA,           1,         0,           1,         0   },
               {L_,    e_W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,   0   },
               {L_,   e_WR,    BUF_WRITE,         0,     BUF_WRITE,       0   },
               {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
-              {L_, e_WVROA,           6,         1,        1024,         0   },
+              {L_, e_WVROA,           6,         1,     BUF_LIMIT,       0   },
             },
             {
               {L_, e_WVRIA,           1,         0,           1,         0   },
               {L_,    e_W,   SYS_DEPENDENT_LEN,  1, SYS_DEPENDENT_LEN,   0   },
               {L_,   e_WR,    BUF_WRITE,         0,     BUF_WRITE,       0   },
               {L_, e_SIGNAL,          2, e_READ_OP,           0,         0   },
-              {L_, e_WVRIA,           6,         1,        1024,         0   },
+              {L_, e_WVRIA,           6,         1,     BUF_LIMIT,       0   },
             },
             // commands set 13: to resolve concern 4 - 6.
             {
               {L_,    e_WA,     BUF_WRITE,        0,      BUF_WRITE,     0   },
-              {L_,  e_WVRO,           7,          1,        1024,        0   },
+              {L_,  e_WVRO,           7,          1,     BUF_LIMIT,      0   },
               {L_,  e_SIGNAL,         2,          0,           0,        0   },
               {L_,   e_WVO,           7,          0,       24740,        0   },
             },
@@ -1622,34 +1629,34 @@ int main(int argc, char *argv[]) {
             // commands set 5: to resolve concern 4 - 6.
             {
               {L_, e_WVRO,           1,         0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1, SYS_DEPENDENT_LEN,    0   },
               {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
               {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
-              {L_, e_WVRO,           6,         0,        1024,          0   },
+              {L_, e_WVRO,           6,         0,   BUF_LIMIT,          0   },
             },
             // commands set 5: to resolve concern 4 - 6.
             {
               {L_, e_WVRI,           1,         0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1, SYS_DEPENDENT_LEN,    0   },
               {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
               {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
-              {L_, e_WVRI,           6,         0,        1024,          0   },
+              {L_, e_WVRI,           6,         0,    BUF_LIMIT,         0   },
             },
             // commands set 5: to resolve concern 4 - 6.
             {
               {L_, e_WVROA,          1,         0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1, SYS_DEPENDENT_LEN,    0   },
               {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
               {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
-              {L_, e_WVROA,          6,         0,        1024,          0   },
+              {L_, e_WVROA,          6,         0,    BUF_LIMIT,         0   },
             },
             // commands set 5: to resolve concern 4 - 6.
             {
               {L_, e_WVRIA,          1,         0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1, SYS_DEPENDENT_LEN,    0   },
               {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
               {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
-              {L_, e_WVRIA,          6,         0,        1024,          0   },
+              {L_, e_WVRIA,          6,         0,   BUF_LIMIT,          0   },
             },
             #endif
 
@@ -2148,7 +2155,7 @@ int main(int argc, char *argv[]) {
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,        15,         0,           0,         0   },
-            {L_,  e_WVOA,           8,         1,        1024, e_INTERRUPTED },
+              {L_,  e_WVOA,           8,         1,      57508, 0 },
             },
             // commands set 8: to resolve concern 4 - 6.
             {
@@ -2159,7 +2166,7 @@ int main(int argc, char *argv[]) {
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,        15,         0,           0,         0   },
-            {L_,  e_WVIA,           8,         1,        1024, e_INTERRUPTED },
+              {L_,  e_WVIA,           8,         1,       57508, 0 },
             },
             // commands set 9: to resolve concern 4 - 6.
             {
@@ -2345,7 +2352,7 @@ int main(int argc, char *argv[]) {
             {L_,    e_WR,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,      0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,    e_WR,         100,         0,        e_INVALID,      0   },
+            {L_,    e_WR,         100,         0,        e_CLOSED,      0   },
             {L_,   e_WRA,          60,         0,        e_INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
@@ -2366,7 +2373,7 @@ int main(int argc, char *argv[]) {
             {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_CLOSED,      0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
-            {L_,   e_WRA,         100,         0,        e_INVALID,      0   },
+            {L_,   e_WRA,         100,         0,        e_CLOSED,      0   },
             {L_,    e_WR,          60,         0,        e_INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
@@ -2550,7 +2557,7 @@ int main(int argc, char *argv[]) {
             // commands set 5: to resolve concern 4 - 6.
             {
               {L_,    e_W,           1,         0,           1,          0   },
-              {L_,    e_W,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,    e_W,   SYS_DEPENDENT_LEN, 1, SYS_DEPENDENT_LEN,    0   },
               {L_,   e_WR,    BUF_WRITE,        0,        1024,          0   },
               {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
               {L_,   e_WR,        1000,         0,        1000,          0   },
@@ -2559,7 +2566,7 @@ int main(int argc, char *argv[]) {
             // commands set 6: to resolve concern 4 - 6.
             {
               {L_,   e_WA,           1,         0,           1,          0   },
-              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,        8192,          0   },
+              {L_,   e_WA,   SYS_DEPENDENT_LEN, 1,  SYS_DEPENDENT_LEN,   0   },
               {L_,  e_WRA,    BUF_WRITE,        0,        1024,          0   },
               {L_,  e_SIGNAL,        2,    e_READ_OP,        0,          0   },
               {L_,   e_WRA,       1000,         0,        1000,          0   },
@@ -2885,7 +2892,7 @@ int main(int argc, char *argv[]) {
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         2,         0,           0,         0   },
-              {L_,     e_W,   SYS_DEPENDENT_LEN, 1,        8192,         0   },
+              {L_,     e_W,   SYS_DEPENDENT_LEN, 1, SYS_DEPENDENT_LEN,   0   },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the write method w/o the
@@ -2900,7 +2907,7 @@ int main(int argc, char *argv[]) {
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,       30,          0,           0,         0   },
-              {L_,     e_WA,     60000,         1,       2000, e_INTERRUPTED },
+              {L_,     e_WA,     60000,         1,      60000,           0   },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the "write" method w/o the

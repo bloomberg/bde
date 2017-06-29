@@ -1,4 +1,4 @@
-// btlso_flag.cpp                                                     -*-C++-*-
+// btlso_flags.cpp                                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,17 +7,17 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(btlso_flag_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlso_flags_cpp,"$Id$ $CSID$")
 
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
 namespace btlso {
 
-const char *Flag::toAscii(Flag::FlagType value)
+const char *Flags::toAscii(Flags::Flag value)
 {
     switch (value) {
         case k_ASYNC_INTERRUPT: return "ASYNC_INTERRUPT";
@@ -25,7 +25,7 @@ const char *Flag::toAscii(Flag::FlagType value)
     }
 }
 
-const char *Flag::toAscii(Flag::BlockingMode value)
+const char *Flags::toAscii(Flags::BlockingMode value)
 {
 #define CASE(X) case(e_ ## X): return #X;
 
@@ -38,7 +38,7 @@ const char *Flag::toAscii(Flag::BlockingMode value)
 #undef CASE
 }
 
-const char *Flag::toAscii(Flag::ShutdownType value)
+const char *Flags::toAscii(Flags::ShutdownType value)
 {
 #define CASE(X) case(e_ ## X): return #X;
 
@@ -53,7 +53,7 @@ const char *Flag::toAscii(Flag::ShutdownType value)
 #undef CASE
 }
 
-const char *Flag::toAscii(Flag::IOWaitType value)
+const char *Flags::toAscii(Flags::IOWaitType value)
 {
 #define CASE(X) case(e_ ## X): return #X;
 
@@ -67,24 +67,24 @@ const char *Flag::toAscii(Flag::IOWaitType value)
 #undef CASE
 }
 
-bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::FlagType rhs)
+bsl::ostream& Flags::streamOut(bsl::ostream& stream, Flags::Flag rhs)
 {
-    return stream << Flag::toAscii(rhs);
+    return stream << Flags::toAscii(rhs);
 }
 
-bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::BlockingMode rhs)
+bsl::ostream& Flags::streamOut(bsl::ostream& stream, Flags::BlockingMode rhs)
 {
-    return stream << Flag::toAscii(rhs);
+    return stream << Flags::toAscii(rhs);
 }
 
-bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::ShutdownType rhs)
+bsl::ostream& Flags::streamOut(bsl::ostream& stream, Flags::ShutdownType rhs)
 {
-    return stream << Flag::toAscii(rhs);
+    return stream << Flags::toAscii(rhs);
 }
 
-bsl::ostream& Flag::streamOut(bsl::ostream& stream, Flag::IOWaitType rhs)
+bsl::ostream& Flags::streamOut(bsl::ostream& stream, Flags::IOWaitType rhs)
 {
-    return stream << Flag::toAscii(rhs);
+    return stream << Flags::toAscii(rhs);
 }
 
 }  // close package namespace

@@ -20,7 +20,7 @@
 #include <btlso_timemetrics.h>
 #include <btlso_eventmanagertester.h>
 #include <btlso_platform.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 
 #include <bslmt_threadutil.h>
 
@@ -878,7 +878,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           btlso::Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flags::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval finish = bdlt::CurrentTime::now();
                 const double dormant = dub(finish - start);
@@ -940,7 +940,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           btlso::Flag::k_ASYNC_INTERRUPT));
+                                           btlso::Flags::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval finish = bdlt::CurrentTime::now();
                 const double dormant = dub(finish - start);

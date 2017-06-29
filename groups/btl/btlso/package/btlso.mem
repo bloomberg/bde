@@ -11,7 +11,7 @@ btlso_eventcallbackregistry
 btlso_eventmanager
 btlso_eventmanagertester
 btlso_eventtype
-btlso_flag
+btlso_flags
 btlso_inetstreamsocket
 btlso_inetstreamsocketfactory
 btlso_ioutil

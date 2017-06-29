@@ -21,7 +21,7 @@
 #include <btlb_blobutil.h>
 #include <btlb_pooledblobbufferfactory.h>
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_sockethandle.h>
@@ -1058,7 +1058,7 @@ extern "C" void *listenFunction(void *args)
     ASSERT(0 == serverSocket->bind(getLocalAddress()));
     ASSERT(0 == serverSocket->listen(1));
 
-    serverSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+    serverSocket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE);
 
     ++numUpConnections;
 
@@ -1066,7 +1066,7 @@ extern "C" void *listenFunction(void *args)
     ASSERT(!serverSocket->accept(&acceptSocket));
 
     ASSERT(0 == acceptSocket->setBlockingMode(
-                                             btlso::Flag::e_NONBLOCKING_MODE));
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
     acceptSockets[INDEX] = acceptSocket;
 
@@ -2509,7 +2509,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Bringing down the channel" << MTENDL;
             }
 
-            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
             factory.deallocate(socket);
         }
@@ -2580,7 +2580,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Bringing down the channel" << MTENDL;
             }
 
-            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
             factory.deallocate(socket);
         }
@@ -2663,7 +2663,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Bringing down the channel" << MTENDL;
             }
 
-            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
             factory.deallocate(socket);
         }
@@ -2735,7 +2735,7 @@ int main(int argc, char *argv[])
                 MTCOUT << "Bringing down the channel" << MTENDL;
             }
 
-            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
             factory.deallocate(socket);
         }
@@ -3457,7 +3457,7 @@ int main(int argc, char *argv[])
             MTCOUT << "Bringing down the channel" << MTENDL;
         }
 
-        socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+        socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
         factory.deallocate(socket);
 
@@ -4269,7 +4269,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == socket->connect(ADDRESS));
 
-        socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+        socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
         barrier.wait();
       } break;

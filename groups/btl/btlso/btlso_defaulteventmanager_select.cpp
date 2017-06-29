@@ -13,7 +13,7 @@
 BSLS_IDENT_RCSID(btlso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 
 #include <btlso_timemetrics.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 
 #include <bdlb_bitutil.h>
 #include <bdlb_bitmaskutil.h>
@@ -345,7 +345,7 @@ int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
         }
     } while (ret < 0
           && EINTR == savedErrno
-          && !(flags & btlso::Flag::k_ASYNC_INTERRUPT));
+          && !(flags & btlso::Flags::k_ASYNC_INTERRUPT));
 
     if (ret < 0) {
         return EINTR == savedErrno ? -1 : ret;                        // RETURN
@@ -429,7 +429,7 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
         }
     } while ((ret < 0
           && EINTR == savedErrno
-          && !(flags & btlso::Flag::k_ASYNC_INTERRUPT))
+          && !(flags & btlso::Flags::k_ASYNC_INTERRUPT))
              #ifdef BSLS_PLATFORM_OS_LINUX
              // Linux select() returns at one tick *preceding* the expiration
              // of the timeout.  Since code usually expects that select() will

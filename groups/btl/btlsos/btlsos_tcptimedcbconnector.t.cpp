@@ -808,7 +808,7 @@ static int createServerThread(
     // force subsequent 'accept' calls to return WSAEWOULDBLOCK *even when
     // connection is present*.
 
-    ret = serverSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+    ret = serverSocket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
     ASSERT(0 == ret);
 

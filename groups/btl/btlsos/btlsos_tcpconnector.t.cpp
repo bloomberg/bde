@@ -14,7 +14,7 @@
 #include <btlsos_tcptimedchannel.h>
 
 #include <btlsc_channel.h>
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 #include <btlsc_timedchannel.h>
 
 #include <btlso_inetstreamsocketfactory.h>
@@ -738,7 +738,7 @@ int main(int argc, char *argv[]) {
 
                       bsls::TimeInterval timeout(0, 5), time(60, 0);
                       int non_interrupt = 0,
-                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
                       TestCommand DATA[] =
 // ===================>
@@ -821,7 +821,7 @@ int main(int argc, char *argv[]) {
                       ASSERT(0 == connector.isInvalid());
                       bsls::TimeInterval timeout(0, 5), time(60, 0);
                       int non_interrupt = 0,
-                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
                       TestCommand DATA[] =
 // ===================>
@@ -990,7 +990,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1422,7 +1422,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1810,7 +1810,7 @@ int main(int argc, char *argv[]) {
                   connector.setPeer(actualAddress);
                   LOOP_ASSERT(i, 0 == connector.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -1914,7 +1914,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
               for (int i = 0; i < NUM_VALUES; ++i) { // different connectors

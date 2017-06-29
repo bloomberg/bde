@@ -18,7 +18,7 @@
 #include <btlso_ipv4address.h>
 #include <btlso_socketimputil.h>
 
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 #include <btlsc_channel.h>
 #include <btlsc_timedchannel.h>
 
@@ -765,7 +765,7 @@ int main(int argc, char *argv[]) {
 
                   bsls::TimeInterval timeout(0, 5), time(60, 0);
                   int non_interrupt = 0,
-                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===================>
@@ -941,7 +941,7 @@ int main(int argc, char *argv[]) {
           }
           {
               int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
               struct {
                   int                   d_lineNum;
@@ -1219,7 +1219,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1625,7 +1625,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1981,7 +1981,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   LOOP_ASSERT(i, 0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -2087,7 +2087,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   ASSERT(0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flags::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>

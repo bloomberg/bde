@@ -397,6 +397,10 @@ class ChannelPoolConfiguration {
                                             e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE
       , ATTRIBUTE_INDEX_COLLECT_TIME_METRICS =
                                          e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS
+      , ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER  =
+                                        e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER
+      , ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER =
+                                       e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
@@ -461,6 +465,10 @@ class ChannelPoolConfiguration {
                                           e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER
       , ATTRIBUTE_ID_THREAD_STACK_SIZE    = e_ATTRIBUTE_ID_THREAD_STACK_SIZE
       , ATTRIBUTE_ID_COLLECT_TIME_METRICS = e_ATTRIBUTE_ID_COLLECT_TIME_METRICS
+      , ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER  =
+                                           e_ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER
+      , ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER =
+                                          e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };

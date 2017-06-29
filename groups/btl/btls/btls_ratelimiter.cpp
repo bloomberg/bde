@@ -12,6 +12,32 @@
 #include <bsl_climits.h>
 
 namespace BloombergLP {
+
+namespace {
+
+bool supportsExactly(bsls::Types::Uint64       limit,
+                     const bsls::TimeInterval& window)
+    // Return 'true' if the specified 'limit' and 'window' are legal values
+    // with which to initialize a 'btes_LeakyBucket' object, and if so, whether
+    // a 'btes_LeakyBucket' object so initialized would preserve the value of
+    // 'window'.
+{
+    // Aside from checking that the capacity calculated from 'window' and
+    // 'limit' can back out the same 'window' value, we also include checks on
+    // the parameters that the functions called do as assertions, so that this
+    // function will return 'false' for those values, e.g., 'window' is large
+    // enough to cause integer overflow.
+    return limit > 0
+        && window > bsls::TimeInterval()
+        && (   limit == 1
+            || window <= btls::LeakyBucket::calculateDrainTime(
+                                                      ULLONG_MAX, limit, true))
+        && window == btls::LeakyBucket::calculateTimeWindow(
+                   limit, btls::LeakyBucket::calculateCapacity(limit, window));
+}
+
+}
+
 namespace btls {
 
                             // -----------------
@@ -52,6 +78,17 @@ RateLimiter::~RateLimiter()
                                                           ULLONG_MAX,
                                                           sustainedRateLimit(),
                                                           true));
+}
+
+// CLASS METHODS
+bool RateLimiter::supportsRateLimitsExactly(
+                                 bsls::Types::Uint64       sustainedRateLimit,
+                                 const bsls::TimeInterval& sustainedRateWindow,
+                                 bsls::Types::Uint64       peakRateLimit,
+                                 const bsls::TimeInterval& peakRateWindow)
+{
+    return supportsExactly(sustainedRateLimit, sustainedRateWindow)
+        && supportsExactly(peakRateLimit, peakRateWindow);
 }
 
 // MANIPULATORS
