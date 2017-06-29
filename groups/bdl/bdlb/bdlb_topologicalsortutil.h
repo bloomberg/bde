@@ -41,12 +41,24 @@ BSLS_IDENT("$Id: $")
 // the number of input elements in the finite set S and m is the number of
 // relations as specified by the input pairs.
 //
+// The 'sort' function is provided in two variants or flavors: simple and
+// iterator-based.  The simple flavor is templated on the 'VALUE_TYPE', and it
+// provides topological sorting for the case where the input is a 'bsl::vector'
+// of 'bsl::pair's, and the outputs are 'bsl::vector's.  The templated variant
+// is highly customizable on both the input and the outputs.  The may be any
+// input iterator range that resolves to a 'bsl::pair' 'value_type' or to a
+// 'value_type' with a 'TopologicalSortUtil_MappingTraits' specialization.  The
+// two outputs are both defined as output iterators and they may have different
+// types.  So (for example) the iterator based 'sort' may be used with Null
+// Output Iterators to answer the question "does this graph have cycles?" while
+// not wasting memory in storing other sort results.
+//
 ///USAGE:
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using topological sort for calculating formulas
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using topological sort for calculating formulas (simple i/face)
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are evaluating formulas for a set of market data fields, where
 // formulas can reference other fields as part of their calculation.  As an
 // example let's say we have a field k_bbgDefinedVwap which is dependent on
@@ -132,8 +144,8 @@ BSLS_IDENT("$Id: $")
 //      };
 //  }
 //..
-///Example 2: Using topological sort with cycles in input
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Using topological sort with cycles in input (simple interface)
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which contain a cycle.
 //
 // First, we define a set of inputs which have a cycle:
@@ -167,8 +179,8 @@ BSLS_IDENT("$Id: $")
 //  assert(sorted2           == false);
 //  assert(unordered2.size() == 3);
 //..
-///Example 3: Using topological sort with self relations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Using topological sort with self relations (simple interface)
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which have input relations where predecessor
 // and successor point to the same value, i.e. we have pairs of input like
 // (u,u).  First, we define such a set of inputs:
@@ -221,7 +233,96 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
+///Example 4: Using topological sort with iterators as input
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a set of inputs which have input relations that conceptually
+// follow the input requirements (of a listing of pairs of nodes) but are not
+// physically stored in a 'bsl::vector' of 'bsl::pair' typed container.  Let's
+// suppose the input is in a 'bsl::list' instead.  First, we define such a set
+// of inputs:
+//..
+//  bsl::list<bsl::pair<int, int> > relations4;
 //
+//  relations4.push_back(bsl::make_pair(1, 2));
+//  relations4.push_back(bsl::make_pair(1, 3));
+//  relations4.push_back(bsl::make_pair(2, 3));
+//..
+// Now, we apply the topological sort routine on the input:
+//..
+//  bsl::vector<int> results4;
+//  bsl::vector<int> unordered4;
+//  typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
+//  bool sorted4 = TopologicalSortUtil::sort(OutIter(results4),
+//                                           OutIter(unordered3),
+//                                           relations4.begin(),
+//                                           relations4.end());
+//..
+// Finally, we verify that the self relations causes the cycle:
+//..
+//  assert(sorted4           == true);
+//  assert(results4.size()   == 3);
+//  assert(unordered4.size() == 0);
+//
+//  assert(results4[0] == 1);
+//  assert(results4[1] == 2);
+//  assert(results4[2] == 3);
+//..
+///Example 5: Using topological sort with iterators as output
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want our result in a 'bsl::list' instead of a 'bsl::vector' and
+// we do not care about the unordered elements so we do not want to pay for
+// storing them if they exist.  First, we would define a Null Output Iterator
+// that writes to nowhere:
+//..
+//  class NullOutputIterator {
+//    public:
+//      typedef void container_type;
+//      typedef void value_type;
+//      typedef void difference_type;
+//      typedef void pointer;
+//      typedef void reference;
+//      typedef bsl::output_iterator_tag iterator_category;
+//
+//      template <class T>
+//      NullOutputIterator& operator=(const T&)
+//      {
+//          return *this;
+//      }
+//
+//      NullOutputIterator& operator*()
+//      {
+//          return *this;
+//      }
+//
+//      NullOutputIterator& operator++()
+//      {
+//          return *this;
+//      }
+//
+//      NullOutputIterator& operator++(int)
+//      {
+//          return *this;
+//      }
+//  };
+//..
+// Now, we apply the topological sort routine on the input:
+//..
+//  bsl::list<int> results5;
+//  typedef bsl::back_insert_iterator<bsl::list<int> > ListOutIter;
+//  bool sorted5 = TopologicalSortUtil::sort(ListOutIter(results5),
+//                                           NullOutputIterator(),
+//                                           relations4.begin(),
+//                                           relations4.end());
+//..
+// Finally, we verify that the self relations causes the cycle:
+//..
+//  assert(sorted5           == true);
+//  assert(results5.size()   == 3);
+//
+//  assert(results5[0] == 1);
+//  assert(results5[1] == 2);
+//  assert(results5[2] == 3);
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -239,28 +340,78 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
+#endif
+
+#ifndef INCLUDED_BSL_QUEUE
 #include <bsl_queue.h>
+#endif
+
+#ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
+#endif
+
+#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include <bsl_iterator.h>
+#endif
 
 
 namespace BloombergLP {
 namespace bdlb {
+
+
+                   // =======================================
+                   // class TopologicalSortUtil_MappingTraits
+                   // =======================================
+
+template <class MAPPING_TYPE>
+struct TopologicalSortUtil_MappingTraits {};
+
+template <class VALUE_TYPE>
+struct TopologicalSortUtil_MappingTraits<bsl::pair<VALUE_TYPE, VALUE_TYPE> > {
+    // Specialization for bsl::pair
+
+    typedef bsl::pair<VALUE_TYPE, VALUE_TYPE> mapping_type;
+        // Just for readability
+
+    typedef typename mapping_type::first_type value_type;
+        // The values of the nodes of the DAG
+
+    static const value_type& from(const mapping_type& mapping);
+        // Return a 'const' reference to the 'from' attribute of the specified
+        // 'mapping' object.
+
+    static const value_type& to(const mapping_type& mapping);
+        // Return a 'to' reference to the 'from' attribute of the specified
+        // 'mapping' object.
+};
+
                         // ================================
                         // class TopologicalSortUtil_Helper
                         // ================================
 
-template <class VALUE_TYPE>
+template <class INPUT_ITER>
 class TopologicalSortUtil_Helper {
     // This class provides data structures required to sort the partial
     // unordered pairs into a total ordered set.
 
     // PRIVATE TYPES
+
+    typedef typename bsl::iterator_traits<INPUT_ITER>::value_type
+                                                           iterator_value_type;
+    typedef typename TopologicalSortUtil_MappingTraits<iterator_value_type>
+                                                                 MappingTraits;
+    typedef typename MappingTraits::value_type value_type;
+
     struct NodeInfo {
         // PUBLIC DATA
         int                     d_predecessorCount;
-        bsl::vector<VALUE_TYPE> d_successors;      // successors list
+        bsl::vector<value_type> d_successors;      // successors list
 
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(NodeInfo, bslma::UsesBslmaAllocator);
@@ -273,14 +424,13 @@ class TopologicalSortUtil_Helper {
             // globally supply default allocator instead.
     };
 
-    typedef bsl::vector< bsl::pair<VALUE_TYPE, VALUE_TYPE> > Relations;
-    typedef bsl::unordered_map<VALUE_TYPE, NodeInfo *>       SetInfo;
+    typedef bsl::unordered_map<value_type, NodeInfo *> SetInfo;
 
     // DATA
     SetInfo                 d_setInfo;     // additional data structure needed
                                            // for topologically sorting the
                                            // elements
-    bsl::queue<VALUE_TYPE>  d_orderedNodes; // elements which are not dependent
+    bsl::queue<value_type>  d_orderedNodes; // elements which are not dependent
                                             // on any other
     bool                    d_hasCycle;    // flag denoting whether cycles are
                                            // present
@@ -292,9 +442,9 @@ class TopologicalSortUtil_Helper {
                         TopologicalSortUtil_Helper, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit TopologicalSortUtil_Helper(
-        const bsl::vector< bsl::pair<VALUE_TYPE, VALUE_TYPE> >& relations,
-        bslma::Allocator                                       *allocator = 0);
+    explicit TopologicalSortUtil_Helper(INPUT_ITER        relationsBegin,
+                                        INPUT_ITER        relationsEnd,
+                                        bslma::Allocator *allocator = 0);
         // Create a helper class which holds the different data structures
         // required to sort the specified 'relations' in topological order.
         // Optionally, specify an 'allocator' for needed memory.  If
@@ -305,7 +455,8 @@ class TopologicalSortUtil_Helper {
         // Destroy this object.
 
     // MANIPULATORS
-    bool nextProcessed(VALUE_TYPE *result);
+    template <class RESULT_ITER>
+    bool nextProcessed(RESULT_ITER result);
         // Load an element which doesn't have any predecessors into the
         // specified 'result'.  Return 'false' if there is no such element left
         // or the input set is fully processed else return 'true'.  Note that
@@ -318,7 +469,8 @@ class TopologicalSortUtil_Helper {
         // Returns 'true' if 'd_hasCycle' flag has been set else returns
         // 'false'.
 
-    void unordered(bsl::vector<VALUE_TYPE> *unorderedList) const;
+    template <class UNSORTED_ITER>
+    void unordered(UNSORTED_ITER unordered) const;
         // Load elements which have not been sorted to the specified
         // 'unorderedList'.  Note that the behavior is undefined if this method
         // is called before the sort routine is finished (determined by
@@ -336,7 +488,57 @@ struct TopologicalSortUtil {
 
   public:
     // CLASS METHODS
-      template <class VALUE_TYPE>
+    template <class RESULT_ITER, class UNSORTED_ITER, class INPUT_ITER>
+    static bool sort(RESULT_ITER       result,
+                     UNSORTED_ITER     unordered,
+                     INPUT_ITER        relationsBegin,
+                     INPUT_ITER        relationsEnd,
+                     bslma::Allocator *allocator = 0);
+        // Sort the input elements in topological order and load the resulting
+        // linear ordered set into the specified 'result' output, and if the
+        // sort is unsuccessful load the elements which have not been ordered
+        // to the specified 'unordered' output; the input elements are provided
+        // (conceptually) as a sequence of pairs between the specified
+        // 'relationshipBegin' and 'relationshipPairsEnd', where the from/first
+        // element of the pair must precede the to/second element in the
+        // resulting sort.  Optionally, specify an 'allocator' for memory.  If
+        // 'allocator' is 0, use the globally supply default allocator instead.
+        // Return 0 on success, and non-zero if the sort fails due to a cycle
+        // in the input.  The input ('relationshipBegin' and 'relationshipEnd')
+        // is provided as (conceptual or physical) pairs of the form (U, V)
+        // where U precedes V in the output.  The type 'INPUT_ITER::value_type'
+        // must either be 'bsl::pair' where the 'first_type' and 'second_type'
+        // are the same as 'OUTPUT_ITER::value_type' or
+        // 'TopologicalSortUtil_MappingTraits' must be specialized for the type,
+        // I.e., the supplied 'INPUT_ITER::value_type' must support the
+        // following syntax:
+        //..
+        //  typedef typename INPUT_ITER::value_type iter_value_type;
+        //  typedef typename RESULT_ITER::value_type result_value_type;
+        //
+        //  typedef typename
+        //           TopologicalSortUtil_MappingTraits<iter_value_type> traits;
+        //
+        //  typedef typename traits::value_type traits::value_type;
+        //
+        //  BSLMF((bsl::issame(iter_value_type, traits_value_type>::value)));
+        //  BSLMF((bsl::issame(result_value_type, traits_value_type>::value)));
+        //
+        //  for (INPUT_ITER it  = relationshipPairsBegin;
+        //                  it != relationshipPairsEnd;
+        //                  ++it) {
+        //
+        //      *result++ = traits::from(*it);
+        //      *result++ = traits::to(*it);
+        //  }
+        //..
+        // Note that even if the method returns false 'result' may contain a
+        // subset of elements in the right topological order, essentially
+        // elements which the routine was able to sort before the cycle was
+        // discovered and 'unordered' will contain the elements which the
+        // routine was unable to sort.
+
+    template <class VALUE_TYPE>
     static bool sort(
          bsl::vector<VALUE_TYPE>                               *result,
          bsl::vector<VALUE_TYPE>                               *unorderedList,
@@ -360,13 +562,38 @@ struct TopologicalSortUtil {
         // routine was unable to sort.
 };
 
+                   // ---------------------------------------
+                   // class TopologicalSortUtil_MappingTraits
+                   // ---------------------------------------
+
+template <class VALUE_TYPE>
+inline
+const typename TopologicalSortUtil_MappingTraits<
+                               bsl::pair<VALUE_TYPE, VALUE_TYPE> >::value_type&
+TopologicalSortUtil_MappingTraits<bsl::pair<VALUE_TYPE, VALUE_TYPE> >::
+from(const mapping_type& mapping)
+{
+    return mapping.first;
+}
+
+template <class VALUE_TYPE>
+inline
+const typename TopologicalSortUtil_MappingTraits<
+                               bsl::pair<VALUE_TYPE, VALUE_TYPE> >::value_type&
+TopologicalSortUtil_MappingTraits<bsl::pair<VALUE_TYPE, VALUE_TYPE> >::
+to(const mapping_type& mapping)
+{
+    return mapping.second;
+}
+
+
                  // ------------------------------------------
                  // class TopologicalSortUtil_Helper::NodeInfo
                  // ------------------------------------------
 
 // CREATORS
-template <class VALUE_TYPE>
-TopologicalSortUtil_Helper<VALUE_TYPE>::NodeInfo::NodeInfo(
+template <class INPUT_ITER>
+TopologicalSortUtil_Helper<INPUT_ITER>::NodeInfo::NodeInfo(
                                                    bslma::Allocator *allocator)
 : d_predecessorCount(0)
 , d_successors(allocator)
@@ -378,37 +605,41 @@ TopologicalSortUtil_Helper<VALUE_TYPE>::NodeInfo::NodeInfo(
                       // --------------------------------
 
 // CREATORS
-template <typename VALUE_TYPE>
-TopologicalSortUtil_Helper<VALUE_TYPE>::TopologicalSortUtil_Helper(
-             const bsl::vector< bsl::pair<VALUE_TYPE, VALUE_TYPE> >& relations,
-             bslma::Allocator                                       *allocator)
-: d_setInfo      (allocator)
-, d_orderedNodes (allocator)
-, d_hasCycle     (false)
-, d_allocator_p  (bslma::Default::allocator(allocator))
+template <typename INPUT_ITER>
+TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
+                                              INPUT_ITER        relationsBegin,
+                                              INPUT_ITER        relationsEnd,
+                                              bslma::Allocator *allocator)
+: d_setInfo     (allocator)
+, d_orderedNodes(allocator)
+, d_hasCycle    (false)
+, d_allocator_p (bslma::Default::allocator(allocator))
 {
     // Iterate through the partial ordered set and create the input from the
     // pairs
 
-    typename Relations::const_iterator iter = relations.begin();
-    for (; iter != relations.end(); ++iter) {
-        typename SetInfo::iterator pIter = d_setInfo.find(iter->first);
+    for (INPUT_ITER iter = relationsBegin; iter != relationsEnd; ++iter) {
+        typename SetInfo::iterator pIter =
+                                    d_setInfo.find(MappingTraits::from(*iter));
         if (pIter == d_setInfo.end()) {
             // Create new node info and add it to set info.
 
             NodeInfo *nodeInfo = new (*d_allocator_p) NodeInfo(d_allocator_p);
             bsl::pair<typename SetInfo::iterator, bool> result =
-                     d_setInfo.insert(bsl::make_pair(iter->first, nodeInfo));
+                d_setInfo.insert(bsl::make_pair(MappingTraits::from(*iter),
+                                                nodeInfo));
             pIter = result.first;
         }
 
-        typename SetInfo::iterator sIter = d_setInfo.find(iter->second);
+        typename SetInfo::iterator sIter =
+                                      d_setInfo.find(MappingTraits::to(*iter));
         if (sIter == d_setInfo.end()) {
            // Create new node info and add it to set info.
 
             NodeInfo *nodeInfo = new (*d_allocator_p) NodeInfo(d_allocator_p);
             bsl::pair<typename SetInfo::iterator, bool> result =
-                    d_setInfo.insert(bsl::make_pair(iter->second, nodeInfo));
+                d_setInfo.insert(bsl::make_pair(MappingTraits::to(*iter),
+                                                nodeInfo));
             sIter = result.first;
         }
 
@@ -435,8 +666,8 @@ TopologicalSortUtil_Helper<VALUE_TYPE>::TopologicalSortUtil_Helper(
     }
 }
 
-template <typename VALUE_TYPE>
-TopologicalSortUtil_Helper<VALUE_TYPE>::~TopologicalSortUtil_Helper()
+template <typename INPUT_ITER>
+TopologicalSortUtil_Helper<INPUT_ITER>::~TopologicalSortUtil_Helper()
 {
     // Iterate through the set and delete any elements which have not been
     // processed.
@@ -448,14 +679,15 @@ TopologicalSortUtil_Helper<VALUE_TYPE>::~TopologicalSortUtil_Helper()
 }
 
 // MANIPULATORS
-template <typename VALUE_TYPE>
-bool TopologicalSortUtil_Helper<VALUE_TYPE>::nextProcessed(VALUE_TYPE *result)
+template <typename INPUT_ITER>
+template <class RESULT_ITER>
+bool TopologicalSortUtil_Helper<INPUT_ITER>::nextProcessed(RESULT_ITER result)
 {
     // process element with no predecessors
 
     if (! d_orderedNodes.empty()) {
 
-        VALUE_TYPE processed = d_orderedNodes.front();
+        value_type processed = d_orderedNodes.front();
         typename SetInfo::iterator processedNode = d_setInfo.find(processed);
 
         // iterate through the successor list of the node and reduce
@@ -463,15 +695,15 @@ bool TopologicalSortUtil_Helper<VALUE_TYPE>::nextProcessed(VALUE_TYPE *result)
         // zero add it 'd_orderedNodes'.
 
         NodeInfo *processedNodeInfo = processedNode->second;
-        typename bsl::vector<VALUE_TYPE>::iterator sListIter =
+        typename bsl::vector<value_type>::iterator sListIter =
                                      (processedNodeInfo->d_successors).begin();
-        typename bsl::vector<VALUE_TYPE>::iterator endIter =
+        typename bsl::vector<value_type>::iterator endIter =
                                       (processedNodeInfo->d_successors).end();
 
         for(; sListIter != endIter; ++sListIter) {
 
            typename SetInfo::iterator successor = d_setInfo.find((*sListIter));
-           VALUE_TYPE sValue                    = successor->first;
+           value_type sValue                    = successor->first;
            NodeInfo  *sNodeInfo                 = successor->second;
 
            // update predecessor count
@@ -509,15 +741,16 @@ bool TopologicalSortUtil_Helper<VALUE_TYPE>::nextProcessed(VALUE_TYPE *result)
 }
 
 // ACCESSORS
-template <typename VALUE_TYPE>
-bool TopologicalSortUtil_Helper<VALUE_TYPE>::hasCycle() const
+template <typename INPUT_ITER>
+bool TopologicalSortUtil_Helper<INPUT_ITER>::hasCycle() const
 {
     return d_hasCycle;
 }
 
-template <typename VALUE_TYPE>
-void TopologicalSortUtil_Helper<VALUE_TYPE>::unordered(
-                                  bsl::vector<VALUE_TYPE> *unorderedList) const
+template <typename INPUT_ITER>
+template <class UNSORTED_ITER>
+    void TopologicalSortUtil_Helper<INPUT_ITER>::unordered(
+                                  UNSORTED_ITER unorderedList) const
 {
 
     BSLS_ASSERT(d_hasCycle == true);
@@ -527,7 +760,8 @@ void TopologicalSortUtil_Helper<VALUE_TYPE>::unordered(
     for(typename SetInfo::const_iterator elemIter = d_setInfo.begin(),
                                          endIter  = d_setInfo.end();
                                          elemIter != endIter; ++ elemIter) {
-        unorderedList->push_back(elemIter->first);
+        *unorderedList = elemIter->first;
+        ++unorderedList;
     }
 }
 
@@ -536,28 +770,42 @@ void TopologicalSortUtil_Helper<VALUE_TYPE>::unordered(
                         // -------------------------
 
 // MANIPULATORS
-template <typename VALUE_TYPE>
-bool TopologicalSortUtil::sort(
-              bsl::vector<VALUE_TYPE>                           *result,
-              bsl::vector<VALUE_TYPE>                           *unorderedList,
-              const bsl::vector<bsl::pair<VALUE_TYPE, VALUE_TYPE> >&
-                                                                 relations,
-              bslma::Allocator                                  *allocator)
+template <class RESULT_ITER, class UNSORTED_ITER, class INPUT_ITER>
+bool TopologicalSortUtil::sort(RESULT_ITER       result,
+                               UNSORTED_ITER     unordered,
+                               INPUT_ITER        relationsBegin,
+                               INPUT_ITER        relationsEnd,
+                               bslma::Allocator *allocator)
 {
-    TopologicalSortUtil_Helper<VALUE_TYPE> tSortHelper(relations, allocator);
+    TopologicalSortUtil_Helper<INPUT_ITER> tSortHelper(relationsBegin,
+                                                       relationsEnd,
+                                                       allocator);
 
-    VALUE_TYPE processed;
-    while (tSortHelper.nextProcessed(&processed)) {
-        result->push_back(processed);
-    }
+    while (tSortHelper.nextProcessed(result));
 
     if (tSortHelper.hasCycle()) {
         // load unorderedList with unordered elements
 
-        tSortHelper.unordered(unorderedList);
+        tSortHelper.unordered(unordered);
         return false;                                                 // RETURN
     }
     return true;
+}
+
+template <typename VALUE_TYPE>
+bool TopologicalSortUtil::sort(
+         bsl::vector<VALUE_TYPE>                                *result,
+         bsl::vector<VALUE_TYPE>                                *unorderedList,
+         const bsl::vector<bsl::pair<VALUE_TYPE, VALUE_TYPE> >&  relations,
+         bslma::Allocator                                       *allocator)
+{
+    typedef bsl::vector<VALUE_TYPE> vector_type;
+
+    return sort(bsl::back_insert_iterator<vector_type>(*result),
+                bsl::back_insert_iterator<vector_type>(*unorderedList),
+                relations.begin(),
+                relations.end(),
+                allocator);
 }
 
 }  // close package namespace

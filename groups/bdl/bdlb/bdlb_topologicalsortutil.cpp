@@ -3,6 +3,12 @@
 
 BSLS_IDENT("$Id: $")
 
+namespace BloombergLP {
+namespace bdlb {
+
+}  // close package namespace
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2017
