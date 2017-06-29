@@ -378,11 +378,11 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // successfully, but simply that the data was successfully written to
         // the underlying socket's transmit buffers.
 
-    virtual int setBlockingMode(btlso::Flag::BlockingMode mode);
+    virtual int setBlockingMode(btlso::Flags::BlockingMode mode);
         // Set the current blocking mode of this socket to the specified
         // 'mode'.  Return 0 on success, an a non-zero value otherwise.
 
-    virtual int shutdown(btlso::Flag::ShutdownType streamOption);
+    virtual int shutdown(btlso::Flags::ShutdownType streamOption);
         // Shut down the input and/or output stream(s) indicated by the
         // specified 'streamOption' of the full-duplexed connection associated
         // with this socket.  Return 0 on success, and a non-zero value
@@ -412,7 +412,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // received, a call to 'accept' can be made to establish the
         // connection.
 
-    virtual int waitForIO(btlso::Flag::IOWaitType   type,
+    virtual int waitForIO(btlso::Flags::IOWaitType  type,
                           const bsls::TimeInterval& timeout);
         // Wait for an I/O of the specified 'type' to occur or until the
         // specified absolute 'timeout' is reached, whichever occurs first.
@@ -421,7 +421,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // value of 'SocketHandle::e_ERROR_TIMEDOUT' is returned.  If this call
         // is interrupted, 'SocketHandle::e_ERROR_INTERRUPTED' is returned.
 
-    virtual int waitForIO(btlso::Flag::IOWaitType type);
+    virtual int waitForIO(btlso::Flags::IOWaitType type);
         // Wait for an I/O of the specified 'type' to occur.  Return 'type' if
         // the corresponding event occurred, and a negative value otherwise.
         // If this call is interrupted, 'SocketHandle::e_ERROR_INTERRUPTED' is
@@ -438,7 +438,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // supported options.
 
     // ACCESSORS
-    virtual int blockingMode(btlso::Flag::BlockingMode *result) const;
+    virtual int blockingMode(btlso::Flags::BlockingMode *result) const;
         // Load into the specified 'result' the current blocking mode of this
         // socket.  Return 0 on success, and a non-zero value without affecting
         // 'result' otherwise.
@@ -658,10 +658,10 @@ int InetStreamSocket<ADDRESS>::writev(const btls::Ovec *buffers,
 }
 
 template <class ADDRESS>
-int InetStreamSocket<ADDRESS>::setBlockingMode(btlso::Flag::BlockingMode mode)
+int InetStreamSocket<ADDRESS>::setBlockingMode(btlso::Flags::BlockingMode mode)
 {
     return IoUtil::setBlockingMode(d_handle,
-                                   btlso::Flag::e_BLOCKING_MODE == mode
+                                   btlso::Flags::e_BLOCKING_MODE == mode
                                    ? IoUtil::e_BLOCKING
                                    : IoUtil::e_NONBLOCKING);
 }
@@ -690,7 +690,7 @@ int InetStreamSocket<ADDRESS>::setOption(int level, int option, int value)
 }
 
 template <class ADDRESS>
-int InetStreamSocket<ADDRESS>::shutdown(btlso::Flag::ShutdownType value)
+int InetStreamSocket<ADDRESS>::shutdown(btlso::Flags::ShutdownType value)
 {
     static enum SocketImpUtil::ShutDownType shutDownTypeMapping[] = {
         SocketImpUtil::e_SHUTDOWN_RECEIVE,
@@ -698,9 +698,9 @@ int InetStreamSocket<ADDRESS>::shutdown(btlso::Flag::ShutdownType value)
         SocketImpUtil::e_SHUTDOWN_BOTH
     };
 
-    BSLMF_ASSERT(0 == btlso::Flag::e_SHUTDOWN_RECEIVE
-              && 1 == btlso::Flag::e_SHUTDOWN_SEND
-              && 2 == btlso::Flag::e_SHUTDOWN_BOTH);
+    BSLMF_ASSERT(0 == btlso::Flags::e_SHUTDOWN_RECEIVE
+              && 1 == btlso::Flags::e_SHUTDOWN_SEND
+              && 2 == btlso::Flags::e_SHUTDOWN_BOTH);
 
     int ret = SocketImpUtil::shutDown(d_handle, shutDownTypeMapping[value]);
 
@@ -778,11 +778,11 @@ int InetStreamSocket<ADDRESS>::waitForConnect(
 template <class ADDRESS>
 int InetStreamSocket<ADDRESS>::waitForAccept(const bsls::TimeInterval& timeout)
 {
-    return InetStreamSocket<ADDRESS>::waitForIO(Flag::e_IO_READ, timeout);
+    return InetStreamSocket<ADDRESS>::waitForIO(Flags::e_IO_READ, timeout);
 }
 
 template <class ADDRESS>
-int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
+int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flags::IOWaitType  type,
                                          const bsls::TimeInterval& timeout)
 {
     bsls::TimeInterval interval     = timeout - bdlt::CurrentTime::now();
@@ -797,7 +797,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
     int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
 
     switch (type) {
-      case btlso::Flag::e_IO_READ: {
+      case btlso::Flags::e_IO_READ: {
 #ifdef BSLS_PLATFORM_OS_UNIX
         struct pollfd fds;
         fds.fd = d_handle;
@@ -809,7 +809,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         int ret = ::poll(&fds, 1, milliseconds);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_READ;
+            rc = btlso::Flags::e_IO_READ;
         }
         else if (0 == ret) {
             rc = SocketHandle::e_ERROR_TIMEDOUT;
@@ -831,7 +831,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         int ret = ::select(d_handle + 1, &readset, 0, 0, &tv);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_READ;
+            rc = btlso::Flags::e_IO_READ;
         }
         else if (0 == ret) {
             rc = SocketHandle::e_ERROR_TIMEDOUT;
@@ -843,7 +843,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         }
 #endif
       } break;
-      case btlso::Flag::e_IO_WRITE: {
+      case btlso::Flags::e_IO_WRITE: {
 #ifdef BSLS_PLATFORM_OS_UNIX
         struct pollfd fds;
         fds.fd = d_handle;
@@ -855,7 +855,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         int ret = ::poll(&fds, 1, milliseconds);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_WRITE;
+            rc = btlso::Flags::e_IO_WRITE;
         }
         else if (0 == ret) {
             rc = SocketHandle::e_ERROR_TIMEDOUT;
@@ -877,7 +877,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         int ret = ::select(d_handle + 1, 0, &writeset, 0, &tv);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_WRITE;
+            rc = btlso::Flags::e_IO_WRITE;
         }
         else if (0 == ret) {
             rc = SocketHandle::e_ERROR_TIMEDOUT;
@@ -889,7 +889,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         }
 #endif
       } break;
-      case btlso::Flag::e_IO_RW: {
+      case btlso::Flags::e_IO_RW: {
 #ifdef BSLS_PLATFORM_OS_UNIX
         struct pollfd fds;
         fds.fd = d_handle;
@@ -903,12 +903,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         if (ret > 0) {
             if (fds.revents & POLLIN) {
                 if (fds.revents & POLLOUT) {
-                    rc = btlso::Flag::e_IO_RW;
+                    rc = btlso::Flags::e_IO_RW;
                 } else {
-                    rc = btlso::Flag::e_IO_READ;
-                    }
+                    rc = btlso::Flags::e_IO_READ;
+                }
             } else {
-                rc = btlso::Flag::e_IO_WRITE;
+                rc = btlso::Flags::e_IO_WRITE;
             }
         }
         else if (0 == ret) {
@@ -936,12 +936,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
         if (ret > 0) {
             if (FD_ISSET(d_handle, &readset)) {
                 if (FD_ISSET(d_handle, &writeset)) {
-                    rc = btlso::Flag::e_IO_RW;
+                    rc = btlso::Flags::e_IO_RW;
                 } else {
-                    rc = btlso::Flag::e_IO_READ;
+                    rc = btlso::Flags::e_IO_READ;
                 }
             } else {
-                rc = btlso::Flag::e_IO_WRITE;
+                rc = btlso::Flags::e_IO_WRITE;
             }
         }
         else if (0 == ret) {
@@ -960,12 +960,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType   type,
 }
 
 template <class ADDRESS>
-int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
+int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flags::IOWaitType type)
 {
     int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
 
     switch (type) {
-      case btlso::Flag::e_IO_READ: {
+      case btlso::Flags::e_IO_READ: {
 #ifdef BSLS_PLATFORM_OS_UNIX
         struct pollfd fds;
         fds.fd = d_handle;
@@ -977,7 +977,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         int ret = ::poll(&fds, 1, milliseconds);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_READ;
+            rc = btlso::Flags::e_IO_READ;
         }
         else if (EINTR == errno) {
             rc = SocketHandle::e_ERROR_INTERRUPTED;
@@ -992,7 +992,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         int ret = ::select(d_handle + 1, &readset, 0, 0, 0);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_READ;
+            rc = btlso::Flags::e_IO_READ;
         }
         else if (WSAEINTR == WSAGetLastError()) {
             rc = SocketHandle::e_ERROR_INTERRUPTED;
@@ -1001,7 +1001,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         }
 #endif
       } break;
-      case btlso::Flag::e_IO_WRITE: {
+      case btlso::Flags::e_IO_WRITE: {
 #ifdef BSLS_PLATFORM_OS_UNIX
         struct pollfd fds;
         fds.fd = d_handle;
@@ -1013,7 +1013,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         int ret = ::poll(&fds, 1, milliseconds);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_WRITE;
+            rc = btlso::Flags::e_IO_WRITE;
         }
         else if (EINTR == errno) {
             rc = SocketHandle::e_ERROR_INTERRUPTED;
@@ -1028,7 +1028,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         int ret = ::select(d_handle + 1, 0, &writeset, 0, 0);
 
         if (ret > 0) {
-            rc = btlso::Flag::e_IO_WRITE;
+            rc = btlso::Flags::e_IO_WRITE;
         }
         else if (WSAEINTR == WSAGetLastError()) {
             rc = SocketHandle::e_ERROR_INTERRUPTED;
@@ -1037,7 +1037,7 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         }
 #endif
       } break;
-      case btlso::Flag::e_IO_RW: {
+      case btlso::Flags::e_IO_RW: {
 #ifdef BSLS_PLATFORM_OS_UNIX
         struct pollfd fds;
         fds.fd = d_handle;
@@ -1051,12 +1051,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         if (ret > 0) {
             if (fds.revents & POLLIN) {
                 if (fds.revents & POLLOUT) {
-                    rc = btlso::Flag::e_IO_RW;
+                    rc = btlso::Flags::e_IO_RW;
                 } else {
-                    rc = btlso::Flag::e_IO_READ;
+                    rc = btlso::Flags::e_IO_READ;
                 }
             } else {
-                rc = btlso::Flag::e_IO_WRITE;
+                rc = btlso::Flags::e_IO_WRITE;
             }
         }
         if (EINTR == errno) {
@@ -1077,12 +1077,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
         if (ret > 0) {
             if (FD_ISSET(d_handle, &readset)) {
                 if (FD_ISSET(d_handle, &writeset)) {
-                    rc = btlso::Flag::e_IO_RW;
+                    rc = btlso::Flags::e_IO_RW;
                 } else {
-                    rc = btlso::Flag::e_IO_READ;
+                    rc = btlso::Flags::e_IO_READ;
                 }
             } else {
-                rc = btlso::Flag::e_IO_WRITE;
+                rc = btlso::Flags::e_IO_WRITE;
             }
         }
         else if (WSAEINTR == WSAGetLastError()) {
@@ -1100,15 +1100,15 @@ int InetStreamSocket<ADDRESS>::waitForIO(btlso::Flag::IOWaitType type)
 // ACCESSORS
 template <class ADDRESS>
 int InetStreamSocket<ADDRESS>::blockingMode(
-                                       btlso::Flag::BlockingMode *result) const
+                                      btlso::Flags::BlockingMode *result) const
 {
     IoUtil::BlockingMode mode;
     int                  rc = IoUtil::getBlockingMode(&mode, d_handle);
 
     if (0 == rc) {
         *result = mode == IoUtil::e_BLOCKING
-                  ? btlso::Flag::e_BLOCKING_MODE
-                  : btlso::Flag::e_NONBLOCKING_MODE;
+                  ? btlso::Flags::e_BLOCKING_MODE
+                  : btlso::Flags::e_NONBLOCKING_MODE;
     }
 
     return rc;

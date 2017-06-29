@@ -203,7 +203,7 @@ class InetStreamSocketFactory : public StreamSocketFactory<ADDRESS> {
         // underlying TCP-based stream socket will be closed.
 
     virtual void deallocate(StreamSocket<ADDRESS> *socket,
-                            bool                   closeHandleFlag);
+                            bool                   closeHandleFlags);
         // Return the specified 'socket' back to this factory and, if the
         // specified 'closeHandleFlag' is 'true', also close the underlying
         // TCP-based stream socket.  If 'closeHandleFlag' is 'false', then

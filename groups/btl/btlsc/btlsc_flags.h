@@ -1,4 +1,4 @@
-// btlsc_flag.h                                                       -*-C++-*-
+// btlsc_flags.h                                                      -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BTLSC_FLAG
-#define INCLUDED_BTLSC_FLAG
+#ifndef INCLUDED_BTLSC_FLAGS
+#define INCLUDED_BTLSC_FLAGS
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,11 +18,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Enumerate all flags for stream-based-channel transport.
 //
 //@CLASSES:
-//  btlsc::Flag: namespace for enumerating all stream-based-channel flags
+//  btlsc::Flags: namespace for enumerating all stream-based-channel flags
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a namespace, 'btlsc::Flag', for
+//@DESCRIPTION: This component provides a namespace, 'btlsc::Flags', for
 // enumerating all flags of use to the various stream-based channel and
 // channel-allocator components of this package.  Functionality is provided to
 // convert each of these enumerated values to its corresponding string
@@ -45,16 +45,16 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'btlsc::Flag' operation.
+// 'btlsc::Flags' operation.
 //
-// First, create a variable, 'flag', of type 'btlsc::Flag::Enum', and
-// initialize it to the value 'btlsc::Flag::k_ASYNC_INTERRUPT':
+// First, create a variable, 'flag', of type 'btlsc::Flags::Enum', and
+// initialize it to the value 'btlsc::Flags::k_ASYNC_INTERRUPT':
 //..
-//  btlsc::Flag::Enum flag = btlsc::Flag::k_ASYNC_INTERRUPT;
+//  btlsc::Flags::Enum flag = btlsc::Flags::k_ASYNC_INTERRUPT;
 //..
 // Next, store its representation in a variable, 'rep', of type 'const char *':
 //..
-//  const char *rep = btlsc::Flag::toAscii(flag);
+//  const char *rep = btlsc::Flags::toAscii(flag);
 //  assert(0 == bsl::strcmp(rep, "ASYNC_INTERRUPT"));
 //..
 // Finally, we print the value of 'flag' to 'stdout':
@@ -77,16 +77,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace btlsc {
 
-                              // ==========
-                              // class Flag
-                              // ==========
+                              // ===========
+                              // class Flags
+                              // ===========
 
-struct Flag {
+struct Flags {
     // This class provides a namespace for enumerating all flags for the
     // 'btlsc' package.
 
     // TYPES
-    enum Enum {
+    enum Flag {
         k_ASYNC_INTERRUPT = 0x01  // If set, this flag permits an operation to
                                   // be interrupted by an unspecified
                                   // asynchronous event.  By default, the
@@ -112,13 +112,13 @@ struct Flag {
     };
 
     // CLASS METHODS
-    static const char *toAscii(Enum value);
+    static const char *toAscii(Flag value);
         // Return the abbreviated character-string representation of the
         // enumerator corresponding to the specified 'value'.  This
         // representation matches the enumerator's character name (e.g.,
         // 'k_RAW') with the "k_" prefix elided.  For example:
         //..
-        //  bsl::cout << btlsc::Flag::toAscii(btlsc::Flag::k_RAW);
+        //  bsl::cout << btlsc::Flags::toAscii(btlsc::Flags::k_RAW);
         //..
         // prints the following on standard output:
         //..
@@ -132,11 +132,11 @@ struct Flag {
 };
 
 // FREE FUNCTIONS
-bsl::ostream& operator<<(bsl::ostream& stream, Flag::Enum value);
+bsl::ostream& operator<<(bsl::ostream& stream, Flags::Flag value);
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'btlsc::Flag::Enum' value.
+    // representation of a 'btlsc::Flags::Enum' value.
 
 // ============================================================================
 //                              INLINE DEFINITIONS

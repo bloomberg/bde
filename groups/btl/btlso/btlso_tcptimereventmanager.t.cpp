@@ -9,7 +9,7 @@
 
 #include <btlso_tcptimereventmanager.h>
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_socketimputil.h>
 
 #include <bslmt_threadutil.h>
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
             int d_expIsInvoked;
         } DATA[] = {
             { 1.5, 0,                                  1, 1 },
-            { 1.5, btlso::Flag::k_ASYNC_INTERRUPT, -1, 0 }
+            { 1.5, btlso::Flags::k_ASYNC_INTERRUPT,   -1, 0 }
         };
         signal(SIGUSR1, signalHandler);
 

@@ -10,7 +10,7 @@
 #include <btlsc_timedcbchannelallocator.h>
 
 #include <btlsc_cbchannel.h>       // for testing only
-#include <btlsc_flag.h>            // for testing only
+#include <btlsc_flags.h>           // for testing only
 #include <btlsc_timedcbchannel.h>  // for testing only
 
 #include <bdlf_bind.h>

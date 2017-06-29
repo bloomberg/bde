@@ -1,4 +1,4 @@
-// btlso_flag.h                                                       -*-C++-*-
+// btlso_flags.h                                                      -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BTLSO_FLAG
-#define INCLUDED_BTLSO_FLAG
+#ifndef INCLUDED_BTLSO_FLAGS
+#define INCLUDED_BTLSO_FLAGS
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,10 +18,10 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Enumerate all flags for stream-based-channel transport.
 //
 //@CLASSES:
-//  btlso_Flag: namespace for enumerating all stream-based-channel flags
+//  btlso_Flags: namespace for enumerating all stream-based-channel flags
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type,
-// 'btlso_Flag', for enumerating all flags of use to the various socket-based
+// 'btlso_Flags', for enumerating all flags of use to the various socket-based
 // components.  Functionality is provided to convert each of these enumerated
 // values to its corresponding string representation, to write its string form
 // directly to a standard 'ostream'.  In addition, this class supports
@@ -32,11 +32,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  Type         Name                Description
 //  ------------ -----------------   -----------------------------------------
-//  FlagType
-//               k_ASYNC_INTERRUPT   Flag permitting an operation to be
+//  Flag         k_ASYNC_INTERRUPT   Flag permitting an operation to be
 //                                   interrupted by an asynchronous event
 //
-//               k_NFLAGS            Number of 'FlagType' enumerators
+//               k_NFLAGS            Number of 'Flag' enumerators
 //
 //  BlockingMode
 //               e_BLOCKING_MODE     Flag indicating blocking mode
@@ -75,15 +74,15 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code provide a simple illustration of using
 // one of the enumerations defined in this component, 'btlso::BlockingMode'.
 //
-// First, we create a variable 'value' of type 'btlso::Flag::BlockingMode' and
-// initialize it with the enumerator value 'btlso::Flag::e_NONBLOCKING_MODE':
+// First, we create a variable 'value' of type 'btlso::Flags::BlockingMode' and
+// initialize it with the enumerator value 'btlso::Flags::e_NONBLOCKING_MODE':
 //..
-//  btlso::Flag::BlockingMode value = btlso::Flag::e_NONBLOCKING_MODE;
+//  btlso::Flag::BlockingMode value = btlso::Flags::e_NONBLOCKING_MODE;
 //..
 // Now, we store the address of its ASCII representation in a pointer variable,
 // 'asciiValue', of type 'const char *':
 //..
-//  const char *asciiValue = btlso::Flag::toAscii(value);
+//  const char *asciiValue = btlso::Flags::toAscii(value);
 //  assert(0 == bsl::strcmp(asciiValue, "NONBLOCKING_MODE"));
 //..
 // Finally, we print 'value' to 'bsl::cout'.
@@ -106,16 +105,16 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace btlso {
 
-                        // ==========
-                        // class Flag
-                        // ==========
+                        // ===========
+                        // class Flags
+                        // ===========
 
-struct Flag {
+struct Flags {
     // This class provides a namespace for enumerating all flags for the
     // 'btlso' package.
 
     // TYPES
-    enum FlagType {
+    enum Flag {
         // Value used to specify if an operation can be interrupted by an
         // asynchronous event.
 
@@ -125,7 +124,7 @@ struct Flag {
                                   // implementation will ignore such events if
                                   // possible, or fail otherwise.
 
-        k_NFLAGS          = 1     // The number of FlagType enumerators.  This
+        k_NFLAGS          = 1     // The number of Flag enumerators.  This
                                   // must be maintained "by hand" since flags
                                   // are not consecutive.
 
@@ -180,59 +179,60 @@ struct Flag {
     };
 
     // CLASS METHODS
-    static bsl::ostream& streamOut(bsl::ostream& stream, Flag::FlagType rhs);
+    static bsl::ostream& streamOut(bsl::ostream& stream, Flags::Flag rhs);
         // Write to the specified 'stream' the string representation exactly
         // matching the name corresponding to the specified 'rhs' value.
 
-    static bsl::ostream& streamOut(bsl::ostream&      stream,
-                                   Flag::BlockingMode rhs);
+    static bsl::ostream& streamOut(bsl::ostream&       stream,
+                                   Flags::BlockingMode rhs);
         // Write to the specified 'stream' the string representation exactly
         // matching the name corresponding to the specified 'rhs' value.
 
-    static bsl::ostream& streamOut(bsl::ostream&      stream,
-                                   Flag::ShutdownType rhs);
+    static bsl::ostream& streamOut(bsl::ostream&       stream,
+                                   Flags::ShutdownType rhs);
         // Write to the specified 'stream' the string representation exactly
         // matching the name corresponding to the specified 'rhs' value.
 
-    static bsl::ostream& streamOut(bsl::ostream& stream, Flag::IOWaitType rhs);
+    static bsl::ostream& streamOut(bsl::ostream&     stream,
+                                   Flags::IOWaitType rhs);
         // Write to the specified 'stream' the string representation exactly
         // matching the name corresponding to the specified 'rhs' value.
 
-    static const char *toAscii(Flag::FlagType value);
+    static const char *toAscii(Flags::Flag value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumerator 'value'.
 
-    static const char *toAscii(Flag::BlockingMode value);
+    static const char *toAscii(Flags::BlockingMode value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumerator 'value'.
 
-    static const char *toAscii(Flag::ShutdownType value);
+    static const char *toAscii(Flags::ShutdownType value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumerator 'value'.
 
-    static const char *toAscii(Flag::IOWaitType value);
+    static const char *toAscii(Flags::IOWaitType value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumerator 'value'.
 };
 
 // FREE FUNCTIONS
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, Flag::FlagType rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, Flags::Flag rhs);
     // Write to the specified 'stream' the string representation exactly
     // matching the name corresponding to the specified 'rhs' value.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, Flag::BlockingMode rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, Flags::BlockingMode rhs);
     // Write to the specified 'stream' the string representation exactly
     // matching the name corresponding to the specified 'rhs' value.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, Flag::ShutdownType rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, Flags::ShutdownType rhs);
     // Write to the specified 'stream' the string representation exactly
     // matching the name corresponding to the specified 'rhs' value.
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, Flag::IOWaitType rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, Flags::IOWaitType rhs);
     // Write to the specified 'stream' the string representation exactly
     // matching the name corresponding to the specified 'rhs' value.
 
@@ -242,36 +242,36 @@ bsl::ostream& operator<<(bsl::ostream& stream, Flag::IOWaitType rhs);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------
-                        // class Flag
-                        // ----------
+                        // -----------
+                        // class Flags
+                        // -----------
 // FREE OPERATORS
 inline
-bsl::ostream& btlso::operator<<(bsl::ostream&         stream,
-                                btlso::Flag::FlagType rhs)
+bsl::ostream& btlso::operator<<(bsl::ostream&      stream,
+                                btlso::Flags::Flag rhs)
 {
-    return btlso::Flag::streamOut(stream, rhs);
+    return btlso::Flags::streamOut(stream, rhs);
 }
 
 inline
-bsl::ostream& btlso::operator<<(bsl::ostream&             stream,
-                                btlso::Flag::BlockingMode rhs)
+bsl::ostream& btlso::operator<<(bsl::ostream&              stream,
+                                btlso::Flags::BlockingMode rhs)
 {
-    return btlso::Flag::streamOut(stream, rhs);
+    return btlso::Flags::streamOut(stream, rhs);
 }
 
 inline
-bsl::ostream& btlso::operator<<(bsl::ostream&             stream,
-                                btlso::Flag::ShutdownType rhs)
+bsl::ostream& btlso::operator<<(bsl::ostream&              stream,
+                                btlso::Flags::ShutdownType rhs)
 {
-    return btlso::Flag::streamOut(stream, rhs);
+    return btlso::Flags::streamOut(stream, rhs);
 }
 
 inline
-bsl::ostream& btlso::operator<<(bsl::ostream&           stream,
-                                btlso::Flag::IOWaitType rhs)
+bsl::ostream& btlso::operator<<(bsl::ostream&            stream,
+                                btlso::Flags::IOWaitType rhs)
 {
-    return btlso::Flag::streamOut(stream, rhs);
+    return btlso::Flags::streamOut(stream, rhs);
 }
 
 }  // close enterprise namespace

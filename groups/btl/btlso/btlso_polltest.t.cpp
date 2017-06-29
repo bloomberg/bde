@@ -108,10 +108,10 @@ int main(int argc, char *argv[]) {
         typedef btlso::InetStreamSocket<btlso::IPv4Address> Obj;
         int (Obj::*f1)(const bsls::TimeInterval&) = &Obj::waitForConnect;
         ASSERT(f1);
-        int (Obj::*f2)(btlso::Flag::IOWaitType, const bsls::TimeInterval&) =
+        int (Obj::*f2)(btlso::Flags::IOWaitType, const bsls::TimeInterval&) =
             &Obj::waitForIO;
         ASSERT(f2);
-        int (Obj::*f3)(btlso::Flag::IOWaitType) = &Obj::waitForIO;
+        int (Obj::*f3)(btlso::Flags::IOWaitType) = &Obj::waitForIO;
         ASSERT(f3);
       } break;
       default: {

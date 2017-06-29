@@ -79,14 +79,14 @@ BSLS_IDENT("$Id: $")
 //     if (sizeof length != rc) {
 //         bsl::cout << "Error writing request header to server: " << rc
 //                   << bsl::endl;
-//         client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //         return;                                                    // RETURN
 //     }
 //     rc = client->write(word, sizeof word);
 //     if (rc != length) {
 //         bsl::cout << "Error writing request body to server: " << rc
 //                   << bsl::endl;
-//         client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //         return;                                                    // RETURN
 //     }
 //..
@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //     rc = client->read((char *)&length, sizeof length);
 //     if (rc != sizeof length) {
 //         bsl::cout << "Error reading from server: " << rc << bsl::endl;
-//         client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //         return;                                                    // RETURN
 //     }
 //
@@ -105,11 +105,11 @@ BSLS_IDENT("$Id: $")
 //     rc = client->read(definition, length);
 //     if (rc != length) {
 //         bsl::cout << "Error reading from server: " << rc << bsl::endl;
-//         client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //         return;                                                    // RETURN
 //     }
 //     bsl::cout << definition << bsl::endl;
-//     client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//     client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 // }
 //..
 //
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 //         rc = client->read((char*)&length, sizeof length);
 //         if (rc != sizeof length) {
 //             bsl::cout << "Error reading from client: " << rc << bsl::endl;
-//             client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //
@@ -188,7 +188,7 @@ BSLS_IDENT("$Id: $")
 //         rc = client->read(word, length);
 //         if (length != rc) {
 //             bsl::cout << "Error reading from client: " << rc << bsl::endl;
-//             client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //..
@@ -206,19 +206,19 @@ BSLS_IDENT("$Id: $")
 //         rc = client->write((char*)&tmp, sizeof tmp);
 //         if (sizeof tmp != rc) {
 //             bsl::cout << "Error writing to client: " << rc << bsl::endl;
-//             client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //         rc = client->write(definition, length);
 //         if (rc != length) {
 //             bsl::cerr << "Error writing to client: " << rc << bsl::endl;
-//             client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //..
 // Now, terminate the client connection.
 //..
-//         client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         client->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 //..
 // Finally, loop for the next connection.
 //..
@@ -238,8 +238,8 @@ BSLS_IDENT("$Id: $")
 #include <btlso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BTLSO_FLAG
-#include <btlso_flag.h>
+#ifndef INCLUDED_BTLSO_FLAGS
+#include <btlso_flags.h>
 #endif
 
 #ifndef INCLUDED_BTLS_IOVEC
@@ -394,11 +394,11 @@ class StreamSocket {
         // transmitted successfully, but simply that the data was successfully
         // written to the underlying socket's transmit buffers.
 
-    virtual int setBlockingMode(btlso::Flag::BlockingMode mode) = 0;
+    virtual int setBlockingMode(btlso::Flags::BlockingMode mode) = 0;
         // Set the current blocking mode of this socket to the specified
         // 'mode'.  Return 0 on success, an a non-zero value otherwise.
 
-    virtual int shutdown(btlso::Flag::ShutdownType streamOption) = 0;
+    virtual int shutdown(btlso::Flags::ShutdownType streamOption) = 0;
         // Shut down the input and/or output stream(s) specified by
         // 'streamOption' of the full-duplexed connection associated with this
         // socket.  Return 0 on success, and a non-zero value otherwise.
@@ -428,7 +428,7 @@ class StreamSocket {
         // received, a call to 'accept' can be made to establish the
         // connection.
 
-    virtual int waitForIO(btlso::Flag::IOWaitType   type,
+    virtual int waitForIO(btlso::Flags::IOWaitType  type,
                           const bsls::TimeInterval& timeout) = 0;
         // Wait for the occurrence of an I/O event matching the specified
         // 'type', or until the specified absolute 'timeout' is reached,
@@ -444,7 +444,7 @@ class StreamSocket {
         // event(s) currently available if polling the socket returns a
         // matching event, and 'SocketHandle::e_ERROR_TIMEDOUT' otherwise.
 
-    virtual int waitForIO(btlso::Flag::IOWaitType type) = 0;
+    virtual int waitForIO(btlso::Flags::IOWaitType type) = 0;
         // Wait for the occurrence of an I/O event matching the specified
         // 'type'.  Return a value indicating the type(s) of the event(s)
         // occurred, and a negative value on error.  If this call is
@@ -463,7 +463,7 @@ class StreamSocket {
         // commonly supported options.
 
     // ACCESSORS
-    virtual int blockingMode(btlso::Flag::BlockingMode *result) const = 0;
+    virtual int blockingMode(btlso::Flags::BlockingMode *result) const = 0;
         // Load into the specified 'result' the current blocking mode of this
         // socket.  Return 0 on success, and a non-zero value without affecting
         // 'result' otherwise.
@@ -508,19 +508,19 @@ class StreamSocket {
                     // ===========================
 
 template <class ADDRESS>
-class StreamSocketAutoClose{
+class StreamSocketAutoClose {
     // This class implements a proctor for a socket, using the specified
     // factory to deallocate it upon destruction unless this socket has been
     // released from management by this proctor prior to destruction.
 
     // DATA
-    StreamSocket<ADDRESS>     *d_socket_p;
-    btlso::Flag::ShutdownType  d_option;
+    StreamSocket<ADDRESS>      *d_socket_p;
+    btlso::Flags::ShutdownType  d_option;
 
   public:
     // CREATORS
-    StreamSocketAutoClose(StreamSocket<ADDRESS>     *socket,
-                          btlso::Flag::ShutdownType  streamOption);
+    StreamSocketAutoClose(StreamSocket<ADDRESS>      *socket,
+                          btlso::Flags::ShutdownType  streamOption);
         // Create a proctor for the specified 'socket', recording the specified
         // 'streamOption' for shutting down the 'socket' upon destruction of
         // this proctor.
@@ -557,8 +557,8 @@ StreamSocket<ADDRESS>::~StreamSocket()
 template <class ADDRESS>
 inline
 StreamSocketAutoClose<ADDRESS>::StreamSocketAutoClose(
-                                       StreamSocket<ADDRESS>     *socket,
-                                       btlso::Flag::ShutdownType  streamOption)
+                                      StreamSocket<ADDRESS>      *socket,
+                                      btlso::Flags::ShutdownType  streamOption)
 : d_socket_p(socket)
 , d_option(streamOption)
 {

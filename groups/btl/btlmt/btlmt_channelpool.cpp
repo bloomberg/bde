@@ -592,9 +592,9 @@ class Channel {
         // that this function should always be executed in the dispatcher
         // thread of the event manager associated with this channel.
 
-    void notifyChannelDown(ChannelHandle             self,
-                           btlso::Flag::ShutdownType type,
-                           bool                      serializedFlag = true);
+    void notifyChannelDown(ChannelHandle              self,
+                           btlso::Flags::ShutdownType type,
+                           bool                       serializedFlag = true);
         // Shutdown this channel with the specified 'mode' and invoke the
         // user-installed callback for this channel with either
         // 'e_CHANNEL_DOWN', 'e_CHANNEL_DOWN_RECEIVE', or 'e_CHANNEL_DOWN_SEND'
@@ -830,7 +830,7 @@ class Channel {
     void *userData() const;
         // Return the opaque user data associated to this channel.
 
-    ChannelDownMask getChannelDownMask(btlso::Flag::ShutdownType type);
+    ChannelDownMask getChannelDownMask(btlso::Flags::ShutdownType type);
         // Return the 'ChannelDownMask' corresponding to the specified
         // shutdown 'type' for this channel.
 };
@@ -946,18 +946,18 @@ void *Channel::userData() const
     return d_userData;
 }
 
-ChannelDownMask Channel::getChannelDownMask(btlso::Flag::ShutdownType type)
+ChannelDownMask Channel::getChannelDownMask(btlso::Flags::ShutdownType type)
 {
     ChannelDownMask channelDownMask;
 
     switch (type) {
-      case btlso::Flag::e_SHUTDOWN_RECEIVE: {
+      case btlso::Flags::e_SHUTDOWN_RECEIVE: {
         channelDownMask = e_CLOSED_RECEIVE_MASK;
       } break;
-      case btlso::Flag::e_SHUTDOWN_SEND: {
+      case btlso::Flags::e_SHUTDOWN_SEND: {
         channelDownMask = e_CLOSED_SEND_MASK;
       } break;
-      case btlso::Flag::e_SHUTDOWN_GRACEFUL: {
+      case btlso::Flags::e_SHUTDOWN_GRACEFUL: {
         channelDownMask = 0 != currentWriteQueueSize()
                           ? e_CLOSED_RECEIVE_MASK
                           : e_CLOSED_BOTH_MASK;
@@ -1386,9 +1386,9 @@ void Channel::invokeWriteQueueLowWatermark(ChannelHandle)
                      d_userData);
 }
 
-void Channel::notifyChannelDown(ChannelHandle             self,
-                                btlso::Flag::ShutdownType type,
-                                bool                      serializedFlag)
+void Channel::notifyChannelDown(ChannelHandle              self,
+                                btlso::Flags::ShutdownType type,
+                                bool                       serializedFlag)
 {
     // Always executed in the event manager's dispatcher thread, *except* if
     // called from ChannelPool::shutdown (for e_IMMEDIATE), or from
@@ -1404,10 +1404,10 @@ void Channel::notifyChannelDown(ChannelHandle             self,
         // No support for half-open connections, simply shut down, irrespective
         // of 'type'.
 
-        type = btlso::Flag::e_SHUTDOWN_BOTH;
+        type = btlso::Flags::e_SHUTDOWN_BOTH;
     }
 
-    if (btlso::Flag::e_SHUTDOWN_GRACEFUL == type) {
+    if (btlso::Flags::e_SHUTDOWN_GRACEFUL == type) {
         d_shutdownSendWhenQueueDrained = 1;
     }
 
@@ -1627,7 +1627,7 @@ void Channel::readCb(ChannelHandle self)
 
             BSLS_ASSERT(btlso::SocketHandle::e_ERROR_INTERRUPTED != readRet);
 
-            notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_RECEIVE);
+            notifyChannelDown(self, btlso::Flags::e_SHUTDOWN_RECEIVE);
             return;                                                   // RETURN
         }
 
@@ -1759,7 +1759,7 @@ void Channel::registerWriteCb(ChannelHandle self)
                              d_userData);
         }
         else {
-            notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_SEND);
+            notifyChannelDown(self, btlso::Flags::e_SHUTDOWN_SEND);
         }
     }
 
@@ -1858,7 +1858,7 @@ void Channel::writeCb(ChannelHandle self)
                                  d_userData);
             }
             else {
-                notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_SEND);
+                notifyChannelDown(self, btlso::Flags::e_SHUTDOWN_SEND);
             }
             return;                                                   // RETURN
         }
@@ -1994,7 +1994,7 @@ void Channel::writeCb(ChannelHandle self)
                     d_shutdownSendWhenQueueDrained = 0;
 
                     notifyChannelDown(self,
-                                      btlso::Flag::e_SHUTDOWN_SEND);
+                                      btlso::Flags::e_SHUTDOWN_SEND);
                 }
 
                 return;                                               // RETURN
@@ -2071,7 +2071,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 {
     BSLS_ASSERT(d_socket);
 
-    d_socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+    d_socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
     d_socket->peerAddress(&d_peerAddress);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -2179,7 +2179,7 @@ int Channel::initiateReadSequence(ChannelHandle self)
         }
     }
     else {
-        notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_RECEIVE);
+        notifyChannelDown(self, btlso::Flags::e_SHUTDOWN_RECEIVE);
     }
 
     return rCode;
@@ -2307,7 +2307,7 @@ int Channel::writeMessage(const MessageType&   msg,
 
             BSLS_ASSERT(btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
 
-            notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_SEND, false);
+            notifyChannelDown(self, btlso::Flags::e_SHUTDOWN_SEND, false);
             return ChannelStatus::e_WRITE_CHANNEL_DOWN;               // RETURN
         }
 
@@ -2955,7 +2955,7 @@ int ChannelPool::listenImp(int                   serverId,
         // will force subsequent 'accept' calls to return WSAEWOULDBLOCK *even
         // when connection is present*.
 
-    if (0 != serverSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
+    if (0 != serverSocket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE)) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }
@@ -3171,7 +3171,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
         if (connectionSocket) {
             if (0 == connectionSocket->setBlockingMode(
-                                            btlso::Flag::e_NONBLOCKING_MODE)) {
+                                           btlso::Flags::e_NONBLOCKING_MODE)) {
 
                 typedef btlso::StreamSocketFactory<btlso::IPv4Address> Factory;
                 cs.d_socket.reset(connectionSocket,
@@ -3674,7 +3674,7 @@ int ChannelPool::connectImp(int                    clientId,
 
     if (0 != connectOptions.socketPtr()
      && 0 != (*connectOptions.socketPtr())->setBlockingMode(
-                                            btlso::Flag::e_NONBLOCKING_MODE)) {
+                                           btlso::Flags::e_NONBLOCKING_MODE)) {
         if (platformErrorCode) {
             *platformErrorCode = getPlatformErrorCode();
         }
@@ -3851,12 +3851,12 @@ int ChannelPool::import(
 
 int ChannelPool::shutdown(int channelId, ShutdownMode how)
 {
-    return shutdown(channelId, btlso::Flag::e_SHUTDOWN_BOTH, how);
+    return shutdown(channelId, btlso::Flags::e_SHUTDOWN_BOTH, how);
 }
 
-int ChannelPool::shutdown(int                       channelId,
-                          btlso::Flag::ShutdownType type,
-                          ShutdownMode              how)
+int ChannelPool::shutdown(int                        channelId,
+                          btlso::Flags::ShutdownType type,
+                          ShutdownMode               how)
 {
     (void)how; BSLS_ASSERT(e_IMMEDIATE == how);
 

@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
 
                 const char *sundev1[]    = { "10.122.70.245",  0 };
                 const char *sundev5[]    = { "10.126.159.229", 0 };
-                const char *ibm1[]       = { "172.17.5.40",    0 };
+                const char *ibm1[]       = { "10.122.70.211",  0 };
                 const char *linxdev27[]  = { "10.122.130.229", 0 };
 
                 const char *badAddr1[] = { "86.0.0.32", 0 };
@@ -781,7 +781,7 @@ int main(int argc, char *argv[])
 
             const char *sundev1[]    = { "10.122.70.245",  0 };
             const char *sundev5[]    = { "10.126.159.229", 0 };
-            const char *ibm1[]       = { "172.17.5.40",    0 };
+            const char *ibm1[]       = { "10.122.70.211",  0 };
             const char *linxdev27[]  = { "10.122.130.229", 0 };
 
         #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -879,7 +879,10 @@ int main(int argc, char *argv[])
                                                     &errCode);
                 LOOP_ASSERT(retCode, 0 != retCode);
                 LOOP_ASSERT(result,  UNUSED_STRING_VALUE == result);
-                ASSERT(errCode);
+
+#ifndef BSLS_PLATFORM_OS_DARWIN
+                LOOP_ASSERT(errCode, errCode);
+#endif
             }
         } break;
         case 3: {
@@ -950,8 +953,8 @@ int main(int argc, char *argv[])
                 // These ports are not in the FreeBSD/Linux default
                 // /etc/services.
                 { L_,  "whois",      "tcp",     &errCode,      43,  SUCCESS },
-                { L_,  "sapdp99",    "tcp",     &errCode,    3299,  SUCCESS },
-                { L_,  "blp-ctrb",   "tcp",     &errCode,    3649,  SUCCESS },
+//              { L_,  "sapdp99",    "tcp",     &errCode,    3299,  SUCCESS },
+//              { L_,  "blp-ctrb",   "tcp",     &errCode,    3649,  SUCCESS },
               #endif
             #elif defined BSLS_PLATFORM_OS_WINDOWS
                 { L_,  "jlu123",     "tcp",     &errCode,       0,     FAIL },
@@ -1046,7 +1049,7 @@ int main(int argc, char *argv[])
             const char *me[]         = { "127.0.0.1",      0 };
             const char *sundev1[]    = { "10.122.70.245",  0 };
             const char *sundev5[]    = { "10.126.159.229", 0 };
-            const char *ibm1[]       = { "172.17.5.40",    0 };
+            const char *ibm1[]       = { "10.122.70.211",  0 };
             const char *linxdev27[]  = { "10.122.130.229", 0 };
 
             // Cannot come up with any multi-homed resolvable hosts.
@@ -1233,7 +1236,7 @@ int main(int argc, char *argv[])
                 { L_,  "sdv3",              0,  "10.122.130.92",  SUCCESS },
                 { L_,  "jlu_wrong",  &errCode,  0,                FAIL    },
                 { L_,  "jlu_wrong",         0,  0,                FAIL    },
-                { L_,  "n270",       &errCode,  "10.126.45.63",   SUCCESS },
+                { L_,  "n270",       &errCode,  "10.126.65.245",  SUCCESS },
                 { L_,  "n299",       &errCode,  "10.126.98.215",  SUCCESS },
             #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                 { L_,  "bny14",      &errCode,  0,                FAIL    },

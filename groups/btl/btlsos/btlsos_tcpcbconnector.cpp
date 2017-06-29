@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(btlsos_tcpcbconnector_cpp,"$Id$ $CSID$")
 #include <btlso_streamsocketfactory.h>
 #include <btlso_streamsocket.h>
 #include <btlso_eventtype.h>
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bdlt_currenttime.h>
 
@@ -268,7 +268,7 @@ int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
     }
 
     if (0 != d_connectingSocket_p->
-                           setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE))
+                           setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE))
     {
         d_factory_p->deallocate(d_connectingSocket_p);
         d_connectingSocket_p = NULL;
@@ -279,7 +279,7 @@ int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
 
     if ( s == btlso::SocketHandle::e_ERROR_WOULDBLOCK ||
         (s == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
-         0 == (flags & btlsc::Flag::k_ASYNC_INTERRUPT)))
+         0 == (flags & btlsc::Flags::k_ASYNC_INTERRUPT)))
     {
         if (createRequest) {
             TcpCbConnector_Reg *cb =
@@ -313,7 +313,7 @@ int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
         return 0;                                                     // RETURN
     }
     if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-        BSLS_ASSERT(btlsc::Flag::k_ASYNC_INTERRUPT & flags);
+        BSLS_ASSERT(btlsc::Flags::k_ASYNC_INTERRUPT & flags);
         callback(NULL, 1);
         return 0;                                                     // RETURN
     }

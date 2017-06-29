@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(btlsos_tcpacceptor_cpp,"$Id$ $CSID$")
 #include <btlsos_tcpchannel.h>
 #include <btlso_streamsocketfactory.h>
 #include <btlso_streamsocket.h>
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -39,8 +39,8 @@ namespace BloombergLP {
                      // ===============================
 
 enum {
-    e_BLOCKING_MODE    = btlso::Flag::e_BLOCKING_MODE,
-    e_NONBLOCKING_MODE = btlso::Flag::e_NONBLOCKING_MODE
+    e_BLOCKING_MODE    = btlso::Flags::e_BLOCKING_MODE,
+    e_NONBLOCKING_MODE = btlso::Flags::e_NONBLOCKING_MODE
 };
 
 enum {
@@ -73,7 +73,7 @@ static RESULT *allocate(int                                     *status,
     BSLS_ASSERT(status);
 
     // Bring the listening socket into blocking mode.
-    int rc = socket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+    int rc = socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE);
     (void)rc; BSLS_ASSERT(0 == rc);
 
     btlso::IPv4Address peer;
@@ -85,19 +85,19 @@ static RESULT *allocate(int                                     *status,
 
         if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = e_FAILED;
-            socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+            socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
             return NULL;                                              // RETURN
         }
 
-        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flags::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
-            socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+            socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
             return NULL;                                              // RETURN
         }
     }
 
-    socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+    socket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
     RESULT *channel = new (*pool) RESULT(acceptedConnection);
 
@@ -315,7 +315,7 @@ int TcpAcceptor::open(const btlso::IPv4Address& endpoint,
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                            btlso::Flag::e_NONBLOCKING_MODE)) {
+                                           btlso::Flags::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return e_BLOCKMODE_FAILED;                                    // RETURN

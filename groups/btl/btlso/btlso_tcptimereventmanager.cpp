@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(btlso_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <btlso_defaulteventmanager_epoll.h>
 #include <btlso_defaulteventmanager_poll.h>
 #include <btlso_defaulteventmanager_select.h>
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_platform.h>
 
 #include <bslma_default.h>

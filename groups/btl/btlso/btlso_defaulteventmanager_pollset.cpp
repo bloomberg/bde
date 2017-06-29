@@ -26,7 +26,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #define revents rtnevents  // renamed field in struct pollfd
 #endif
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 
@@ -224,7 +224,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags)
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags)
               && now < timeout);
 
         if (0 >= rfds) {
@@ -292,7 +292,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(int flags)
             }
             errno = 0;
         } while ((0 > rfds && EINTR == savedErrno)
-              && !(btlso::Flag::k_ASYNC_INTERRUPT & flags));
+              && !(btlso::Flags::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             if (0 == rfds) {

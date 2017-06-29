@@ -20,7 +20,7 @@
 #include <btls_iovec.h>
 #include <btls_iovecutil.h>
 
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bdlt_currenttime.h>
 
@@ -821,7 +821,10 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                buffer,
                                command->numToProcess.d_numBytes,
                                command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum,
+                     augStatus,
+                     command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
     case e_TW: {    //
         rCode = channel->timedWrite(buffer,
@@ -894,7 +897,10 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                 oBuffer,
                                 command->numToProcess.d_numBuffers,
                                 command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum,
+                     augStatus,
+                     command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
     case e_WVIA: { //
         fillBuffers(ioBuffer, command->numToProcess.d_numBuffers, 'i');
@@ -903,7 +909,10 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                 ioBuffer,
                                 command->numToProcess.d_numBuffers,
                                 command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum,
+                     augStatus,
+                     command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
    case e_TWVO: {  //
         fillBuffers(oBuffer, command->numToProcess.d_numBuffers, 'o');
@@ -6458,7 +6467,7 @@ int main(int argc, char *argv[]) {
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
-            {L_,  e_WVOA,           7,         1,     1024, e_INTERRUPTED, 0 },
+            {L_,  e_WVOA,           7,         1,     1024, 0, 0 },
             },
             // commands set 8: to resolve concern 4 - 6.
             {
@@ -6469,7 +6478,7 @@ int main(int argc, char *argv[]) {
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         2,         0,           0,        0, 0 },
-            {L_,  e_WVIA,           7,         1,     1024, e_INTERRUPTED, 0 },
+            {L_,  e_WVIA,           7,         1,     1024, 0, 0 },
             },
 
             // commands set 9: to resolve concern 4 - 6.
@@ -7193,7 +7202,7 @@ int main(int argc, char *argv[]) {
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         2,          0,           0,       0, 0 },
-              {L_,     e_WA,  SYS_DEPENDENT_LEN,  1,   8192,e_INTERRUPTED, 0 },
+              {L_,     e_WA,  SYS_DEPENDENT_LEN,  1,   8192,   0, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the "write" method w/o the

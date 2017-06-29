@@ -1,4 +1,4 @@
-// btlso_flag.t.cpp                                                   -*-C++-*-
+// btlso_flags.t.cpp                                                  -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -8,7 +8,7 @@
 // ----------------------------------------------------------------------------
 
 
-#include <btlso_flag.h>
+#include <btlso_flags.h>
 
 #include <bsl_cstdlib.h>                       // atoi()
 #include <bsl_cstring.h>                       // strcmp(), memcmp() memcpy()
@@ -24,7 +24,7 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // Standard enumeration test plan.  The VALUE and STREAMING tests for
-// btlso::Flag enumerated types are each implemented by a templated functor to
+// btlso::Flags enumerated types are each implemented by a templated functor to
 // guarantee uniformity and ease maintenance.
 //-----------------------------------------------------------------------------
 // [ 1] VALUE TEST: enum Flag
@@ -174,8 +174,8 @@ void ValueTest<ENUM>::operator()(const Data *DATA) const
     //
     // Testing:
     //   enum Enum { ... };
-    //   static const char *toAscii(btlso::Flag::ENUM value);
-    //   operator<<(ostream&, btlso::Flag::ENUM rhs)
+    //   static const char *toAscii(btlso::Flags::ENUM value);
+    //   operator<<(ostream&, btlso::Flags::ENUM rhs)
     // --------------------------------------------------------------------
 
     ASSERT(DATA);
@@ -197,7 +197,7 @@ void ValueTest<ENUM>::operator()(const Data *DATA) const
 
         if (d_veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
 
-        const char *const ACT = btlso::Flag::toAscii(
+        const char *const ACT = btlso::Flags::toAscii(
                                             static_cast<ENUM>(d_generator(i)));
 
         if (d_veryVerbose) cout << "  ACTUAL FORMAT: " << ACT << endl;
@@ -273,15 +273,15 @@ int main(int argc, char *argv[])
 // The following snippets of code provide a simple illustration of using
 // one of the enumerations defined in this component, 'btlso::BlockingMode'.
 //
-// First, we create a variable 'value' of type 'btlso::Flag::BlockingMode' and
-// initialize it with the enumerator value 'btlso::Flag::e_NONBLOCKING_MODE':
+// First, we create a variable 'value' of type 'btlso::Flags::BlockingMode' and
+// initialize it with the enumerator value 'btlso::Flags::e_NONBLOCKING_MODE':
 //..
-    btlso::Flag::BlockingMode value = btlso::Flag::e_NONBLOCKING_MODE;
+    btlso::Flags::BlockingMode value = btlso::Flags::e_NONBLOCKING_MODE;
 //..
 // Now, we store the address of its ASCII representation in a pointer variable,
 // 'asciiValue', of type 'const char *':
 //..
-    const char *asciiValue = btlso::Flag::toAscii(value);
+    const char *asciiValue = btlso::Flags::toAscii(value);
     ASSERT(0 == bsl::strcmp(asciiValue, "NONBLOCKING_MODE"));
 //..
 // Finally, we print 'value' to 'bsl::cout'.
@@ -296,82 +296,82 @@ if (veryVerbose)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // VALUE TEST: 'btlso::Flag::IOWaitType' enumerators
+        // VALUE TEST: 'btlso::Flags::IOWaitType' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<btlso::Flag::IOWaitType>::Data DATA[] = {
+        ValueTest<btlso::Flags::IOWaitType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { btlso::Flag::e_IO_READ,              "IO_READ" },
-            { btlso::Flag::e_IO_WRITE,             "IO_WRITE" },
-            { btlso::Flag::e_IO_RW,                "IO_RW" },
+            { btlso::Flags::e_IO_READ,              "IO_READ" },
+            { btlso::Flags::e_IO_WRITE,             "IO_WRITE" },
+            { btlso::Flags::e_IO_RW,                "IO_RW" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<btlso::Flag::IOWaitType> valueTest(VERBOSITY,
-                                                     DATA_LENGTH,
-                                                     Util::identity);
+        ValueTest<btlso::Flags::IOWaitType> valueTest(VERBOSITY,
+                                                      DATA_LENGTH,
+                                                      Util::identity);
         valueTest(DATA);
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE TEST: 'btlso::Flag::ShutdownType' enumerators
+        // VALUE TEST: 'btlso::Flags::ShutdownType' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<btlso::Flag::ShutdownType>::Data DATA[] = {
+        ValueTest<btlso::Flags::ShutdownType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-          { btlso::Flag::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
-          { btlso::Flag::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
-          { btlso::Flag::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
-          { btlso::Flag::e_SHUTDOWN_GRACEFUL,    "SHUTDOWN_GRACEFUL" },
+          { btlso::Flags::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
+          { btlso::Flags::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
+          { btlso::Flags::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
+          { btlso::Flags::e_SHUTDOWN_GRACEFUL,    "SHUTDOWN_GRACEFUL" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<btlso::Flag::ShutdownType> valueTest(VERBOSITY,
-                                                       DATA_LENGTH,
-                                                       Util::identity);
+        ValueTest<btlso::Flags::ShutdownType> valueTest(VERBOSITY,
+                                                        DATA_LENGTH,
+                                                        Util::identity);
 
         valueTest(DATA);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // VALUE TEST: 'btlso::Flag::BlockingMode' enumerators
+        // VALUE TEST: 'btlso::Flags::BlockingMode' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<btlso::Flag::BlockingMode>::Data DATA[] = {
+        ValueTest<btlso::Flags::BlockingMode>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { btlso::Flag::e_BLOCKING_MODE,        "BLOCKING_MODE" },
-            { btlso::Flag::e_NONBLOCKING_MODE,     "NONBLOCKING_MODE" },
+            { btlso::Flags::e_BLOCKING_MODE,        "BLOCKING_MODE" },
+            { btlso::Flags::e_NONBLOCKING_MODE,     "NONBLOCKING_MODE" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<btlso::Flag::BlockingMode> valueTest(VERBOSITY,
-                                                       DATA_LENGTH,
-                                                       Util::identity);
+        ValueTest<btlso::Flags::BlockingMode> valueTest(VERBOSITY,
+                                                        DATA_LENGTH,
+                                                        Util::identity);
 
         valueTest(DATA);
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // VALUE TEST: 'btlso::Flag::Flag' enumerators
+        // VALUE TEST: 'btlso::Flags::Flag' enumerators
         // --------------------------------------------------------------------
 
-        ValueTest<btlso::Flag::FlagType>::Data DATA[] = {
+        ValueTest<btlso::Flags::Flag>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { btlso::Flag::k_ASYNC_INTERRUPT,   "ASYNC_INTERRUPT" },
+            { btlso::Flags::k_ASYNC_INTERRUPT,   "ASYNC_INTERRUPT" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
-        ValueTest<btlso::Flag::FlagType> valueTest(VERBOSITY,
-                                                   DATA_LENGTH,
-                                                   Util::twoToTheN);
+        ValueTest<btlso::Flags::Flag> valueTest(VERBOSITY,
+                                                DATA_LENGTH,
+                                                Util::twoToTheN);
 
         if (verbose) cout << "\nVerify table length is correct." << endl;
 
-        ASSERT(DATA_LENGTH == btlso::Flag::k_NFLAGS);
+        ASSERT(DATA_LENGTH == btlso::Flags::k_NFLAGS);
         valueTest(DATA);
 
       } break;

@@ -663,7 +663,7 @@ int main(int argc, char *argv[]) {
 
             ASSERT(clientSocket);
 
-            clientSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+            clientSocket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
             int resp = clientSocket->connect(serverAddress);
             ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
@@ -732,7 +732,7 @@ int main(int argc, char *argv[]) {
 
             ASSERT(clientSocket);
 
-            clientSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+            clientSocket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
             resp = clientSocket->connect(serverAddress);
             ASSERT(resp == 0 ||
@@ -769,7 +769,7 @@ int main(int argc, char *argv[]) {
             resp = serverSocket->accept(&serviceSocket, &clientAddress);
 
             // shutdown service socket
-            resp = serviceSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            resp = serviceSocket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
             status = clientSocket->connectionStatus();
             ASSERT(status == 0);
@@ -1010,7 +1010,7 @@ int main(int argc, char *argv[]) {
             ASSERT(memcmp(buf1 + 6, rcvbuf3, 2) == 0);
 
             // shutdown A
-            resp = streamSocketA->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            resp = streamSocketA->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
             // First receive what has been sent.
             vec[0].setBuffer(rcvbuf1, 10);
@@ -1405,10 +1405,10 @@ int main(int argc, char *argv[]) {
                  ASSERT(resp);
 
                  streamSocketA->setBlockingMode(
-                     btlso::Flag::e_NONBLOCKING_MODE);
+                     btlso::Flags::e_NONBLOCKING_MODE);
 
                  streamSocketB->setBlockingMode(
-                     btlso::Flag::e_NONBLOCKING_MODE);
+                     btlso::Flags::e_NONBLOCKING_MODE);
 
                  // Fill the outgoing socket buffer for socket A
                  char zerobuf[1024*64];
@@ -1511,10 +1511,10 @@ int main(int argc, char *argv[]) {
                  ASSERT(resp);
 
                  streamSocketA->setBlockingMode(
-                     btlso::Flag::e_NONBLOCKING_MODE);
+                     btlso::Flags::e_NONBLOCKING_MODE);
 
                  streamSocketB->setBlockingMode(
-                     btlso::Flag::e_NONBLOCKING_MODE);
+                     btlso::Flags::e_NONBLOCKING_MODE);
 
                  // Fill the outgoing socket buffer for socket A
                  char zerobuf[1024*64];
@@ -1637,12 +1637,12 @@ int main(int argc, char *argv[]) {
  && !defined(BSLS_PLATFORM_OS_WINDOWS)       \
  && !defined(BSLS_PLATFORM_OS_LINUX)
 
-        const btlso::Flag::IOWaitType RD = btlso::Flag::e_IO_READ;
-        const btlso::Flag::IOWaitType WR = btlso::Flag::e_IO_WRITE;
-        const btlso::Flag::IOWaitType RW = btlso::Flag::e_IO_RW;
+        const btlso::Flags::IOWaitType RD = btlso::Flags::e_IO_READ;
+        const btlso::Flags::IOWaitType WR = btlso::Flags::e_IO_WRITE;
+        const btlso::Flags::IOWaitType RW = btlso::Flags::e_IO_RW;
         const int                   TO = btlso::SocketHandle::e_ERROR_TIMEDOUT;
 
-        typedef btlso::Flag S;
+        typedef btlso::Flags S;
         static const struct {
             int           d_lineNum;      // source line number
             S::IOWaitType d_io;           // what to wait for
@@ -1734,7 +1734,7 @@ int main(int argc, char *argv[]) {
                                      btlso::SocketOptUtil::k_TCPNODELAY,
                                      DATA[ti].d_tcpndelay);
 
-            streamSocketA->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+            streamSocketA->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
             // Fill the output buffer for socket A.
             char zerobuf[DATASIZE] = {0};
@@ -2055,7 +2055,7 @@ int main(int argc, char *argv[]) {
             // ignored.  'both' is always supported but the implementation
             // may not shutdown receive.
 
-            resp = serviceSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            resp = serviceSocket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
             ASSERT(resp == 0);
 
             resp = serviceSocket->write(buf1, sizeof(buf1));
@@ -2113,21 +2113,21 @@ int main(int argc, char *argv[]) {
 
             ASSERT(clientSocket);
 
-            btlso::Flag::BlockingMode result =
-                                            btlso::Flag::e_NONBLOCKING_MODE;
+            btlso::Flags::BlockingMode result =
+                                            btlso::Flags::e_NONBLOCKING_MODE;
 
             resp = clientSocket->blockingMode(&result);
             if (resp == 0) {
                 // If this platform supports this feature, verify result.
-                ASSERT(result == btlso::Flag::e_BLOCKING_MODE);
+                ASSERT(result == btlso::Flags::e_BLOCKING_MODE);
             }
 
-            clientSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
+            clientSocket->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
 
             resp = clientSocket->blockingMode(&result);
             if (resp == 0) {
                 // If this platform supports this feature, verify result.
-                ASSERT(result == btlso::Flag::e_NONBLOCKING_MODE);
+                ASSERT(result == btlso::Flags::e_NONBLOCKING_MODE);
             }
 
             // In non-blocking mode, some platforms will return 0
@@ -2181,15 +2181,15 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp == sizeof(buf1));
 
-// #if defined(BSLS_PLATFORM_OS_WINDOWS)
-// // Some TCP driver implementations require some delay between write and
-// // read (on the loopback service) in order to recognize I/O events
-// // correctly.
-//             bslmt::ThreadUtil::microSleep(20 * 1000);
-// #endif
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    // Some TCP driver implementations require some delay between write and
+    // read (on the loopback service) in order to recognize I/O events
+    // correctly.
+            bslmt::ThreadUtil::microSleep(20 * 1000);
+#endif
 
             resp = clientSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == sizeof(buf1));
+            LOOP2_ASSERT(resp, sizeof(buf1), resp == sizeof(buf1));
 
             ASSERT(memcmp(bufrcv, buf1, sizeof(buf1)) == 0);
 
@@ -2214,18 +2214,19 @@ int main(int argc, char *argv[]) {
 
             // Verify shutdown()
 
-            resp = serviceSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+            resp = serviceSocket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
             ASSERT(resp == 0);
 
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp < 0);
 
-// #if defined(BSLS_PLATFORM_OS_WINDOWS)
-// // Some TCP driver implementations require some delay between write and
-// // read (on the loopback service) in order to recognize I/O events
-// // correctly.
-//             bslmt::ThreadUtil::microSleep(20 * 1000);
-// #endif
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+    // Some TCP driver implementations require some delay between write and
+    // read (on the loopback service) in order to recognize I/O events
+    // correctly.
+            bslmt::ThreadUtil::microSleep(20 * 1000);
+#endif
+
 
             resp = clientSocket->read(bufrcv, sizeof(buf1));
             ASSERT(btlso::SocketHandle::e_ERROR_EOF == resp ||
@@ -2286,7 +2287,7 @@ int main(int argc, char *argv[]) {
                 (streamSocketA)->setLingerOption(ling);
 
                 // kill the connection before accept
-                (streamSocketA)->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+                (streamSocketA)->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
                 // close connection  after rst
                 testFactory.deallocate(streamSocketA);

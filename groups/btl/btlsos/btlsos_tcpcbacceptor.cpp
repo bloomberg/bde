@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 #include <btlso_timereventmanager.h>
 #include <btlso_streamsocketfactory.h>
 #include <btlso_streamsocket.h>
-#include <btlsc_flag.h>
+#include <btlsc_flags.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlf_memfn.h>
@@ -287,8 +287,8 @@ void TcpCbAcceptor::acceptCb() {
     }
     else {  // Existing connection - find out what happened
         if (status == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
-            d_currentRequest_p->flags() & btlsc::Flag::k_ASYNC_INTERRUPT) {
-            d_currentRequest_p->invoke(btlsc::Flag::k_ASYNC_INTERRUPT);
+            d_currentRequest_p->flags() & btlsc::Flags::k_ASYNC_INTERRUPT) {
+            d_currentRequest_p->invoke(btlsc::Flags::k_ASYNC_INTERRUPT);
         }
         else {
             if (status != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
@@ -603,7 +603,7 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
     // connection is present*.
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                         btlso::Flag::e_NONBLOCKING_MODE)) {
+                                         btlso::Flags::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return e_BLOCKMODE_FAILED;                                    // RETURN
