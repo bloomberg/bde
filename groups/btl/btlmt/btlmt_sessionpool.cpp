@@ -43,6 +43,7 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_memory.h>
 

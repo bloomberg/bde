@@ -47,12 +47,14 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_metaint.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
