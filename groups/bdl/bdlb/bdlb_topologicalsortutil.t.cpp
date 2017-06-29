@@ -7,7 +7,10 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
+#include <bsl_list.h>
 #include <bsl_queue.h>
+#include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -81,6 +84,78 @@ static void aSsErT(int c, const char *s, int i) {
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+class CustomMapping {
+
+    // DATA
+    int d_from;
+    int d_to;
+
+  public:
+    // CREATORS
+    CustomMapping(int from, int to)
+    : d_from(from)
+    , d_to(to)
+    {
+    }
+
+    // ACCESSORS
+    int from() const {
+        return d_from;
+    }
+
+    int to() const {
+        return d_to;
+    }
+};
+
+template <>
+struct BloombergLP::bdlb::TopologicalSortUtil_MappingTraits<CustomMapping> {
+    typedef int value_type;
+
+    static value_type from(const CustomMapping& mapping) {
+        return mapping.from();
+    }
+
+    static value_type to(const CustomMapping& mapping) {
+        return mapping.to();
+    }
+};
+
+                              // ==================
+                              // NullOutputIterator
+                              // ==================
+
+class NullOutputIterator {
+    public:
+    typedef void container_type;
+    typedef void value_type;
+    typedef void difference_type;
+    typedef void pointer;
+    typedef void reference;
+    typedef bsl::output_iterator_tag iterator_category;
+
+    template <class T>
+    NullOutputIterator& operator=(const T&)
+    {
+        return *this;
+    }
+
+    NullOutputIterator& operator*()
+    {
+        return *this;
+    }
+
+    NullOutputIterator& operator++()
+    {
+        return *this;
+    }
+
+    NullOutputIterator& operator++(int)
+    {
+        return *this;
+    }
+};
+
 //=============================================================================
 //                                   MAIN
 //-----------------------------------------------------------------------------
@@ -96,7 +171,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -292,6 +367,112 @@ int main(int argc, char *argv[])
         }
     }
 //..
+///Example 4: Using topological sort with iterators as input
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a set of inputs which have input relations that conceptually
+// follow the input requirements (of a listing of pairs of nodes) but are not
+// physically stored in a 'bsl::vector' of 'bsl::pair' typed container.  Let's
+// suppose the input is in a 'bsl::list' instead.  First, we define such a set
+// of inputs:
+//..
+    bsl::list<bsl::pair<int, int> > relations4;
+
+    relations4.push_back(bsl::make_pair(1, 2));
+    relations4.push_back(bsl::make_pair(1, 3));
+    relations4.push_back(bsl::make_pair(2, 3));
+//..
+// Now, we apply the topological sort routine on the input:
+//..
+    bsl::vector<int> results4;
+    bsl::vector<int> unordered4;
+    typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
+    bool sorted4 = TopologicalSortUtil::sort(OutIter(results4),
+                                             OutIter(unordered3),
+                                             relations4.begin(),
+                                             relations4.end());
+//..
+// Finally, we verify that the self relations causes the cycle:
+//..
+    ASSERT(sorted4           == true);
+    ASSERT(results4.size()   == 3);
+    ASSERT(unordered4.size() == 0);
+
+    ASSERT(results4[0] == 1);
+    ASSERT(results4[1] == 2);
+    ASSERT(results4[2] == 3);
+//..
+///Example 5: Using topological sort with iterators as output
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want our result in a 'bsl::list' instead of a 'bsl::vector' and
+// we do not care about the unordered elements so we do not want to pay for
+// storing them if they exist.  First, we would define a Null Output Iterator
+// that writes to nowhere, see 'NullOutputIterator' before 'main' (local
+// classes cannot be templates and cannot have member templates in C++03).
+//..
+// Now, we apply the topological sort routine on the input:
+//..
+    bsl::list<int> results5;
+    typedef bsl::back_insert_iterator<bsl::list<int> > ListOutIter;
+    bool sorted5 = TopologicalSortUtil::sort(ListOutIter(results5),
+                                             NullOutputIterator(),
+                                             relations4.begin(),
+                                             relations4.end());
+//..
+// Finally, we verify that the self relations causes the cycle:
+//..
+    ASSERT(sorted5           == true);
+    ASSERT(results5.size()   == 3);
+
+    ASSERT(*results5.begin() == 1);
+    results5.pop_front();
+    ASSERT(*results5.begin() == 2);
+    results5.pop_front();
+    ASSERT(*results5.begin() == 3);
+    results5.pop_front();
+//..
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // CUSTOM MAPPING CLASS TEST
+        //   This case tests the usage of custom mapping class instead of
+        //   'bsl::pair'.
+        //
+        // Concerns:
+        //: 1 The code compiles thanks to the specialization of the
+        //:   'TopologicalSortUtil_MappingTraits' template.  See the custom
+        //:   class and the specialization before 'main' (C++03 does not
+        //:   support local classes in templates.)
+        //
+        // Testing:
+        //   TopologicalSortUtil_MappingTraits
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CUSTOM MAPPING CLASS TEST" << endl
+                          << "=========================" << endl;
+
+        bsl::vector<CustomMapping> relations;
+
+        relations.emplace_back(1, 2);
+        relations.emplace_back(2, 3);
+        relations.emplace_back(3, 1);
+
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
+        typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
+        bool sorted = TopologicalSortUtil::sort(OutIter(results),
+                                                OutIter(unordered),
+                                                relations.begin(),
+                                                relations.end());
+        ASSERT(false == sorted);
+        ASSERT(results.empty());
+
+        ASSERT(unordered.size() == 3);
+
+        LOOP_ASSERT(unordered[0], unordered[0] == 3);
+        LOOP_ASSERT(unordered[1], unordered[1] == 1);
+        LOOP_ASSERT(unordered[2], unordered[2] == 2);
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -471,44 +652,77 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bsl::vector<bsl::pair<int, int> > relations;
+        if (veryVerbose) cout << "Simplified interface" << endl;
+        {
+            bsl::vector<bsl::pair<int, int> > relations;
 
-        relations.push_back(bsl::make_pair(3, 8));
+            relations.push_back(bsl::make_pair(3, 8));
+            relations.push_back(bsl::make_pair(3, 10));
+            relations.push_back(bsl::make_pair(5, 11));
+            relations.push_back(bsl::make_pair(7, 8));
+            relations.push_back(bsl::make_pair(7, 11));
+            relations.push_back(bsl::make_pair(8, 9));
+            relations.push_back(bsl::make_pair(11, 2));
+            relations.push_back(bsl::make_pair(11, 9));
+            relations.push_back(bsl::make_pair(11, 10));
 
-        relations.push_back(bsl::make_pair(3, 10));
+            bsl::vector<int> results;
+            bsl::vector<int> unordered;
+            const bool sorted = TopologicalSortUtil::sort(&results,
+                                                          &unordered,
+                                                          relations);
+            ASSERT(true == sorted);
+            ASSERT(unordered.empty());
 
-        relations.push_back(bsl::make_pair(5, 11));
+            LOOP_ASSERT(results.size(), results.size() == 8);
 
-        relations.push_back(bsl::make_pair(7, 8));
+            LOOP_ASSERT(results[0], results[0] == 7);
+            LOOP_ASSERT(results[1], results[1] == 3);
+            LOOP_ASSERT(results[2], results[2] == 5);
+            LOOP_ASSERT(results[3], results[3] == 8);
+            LOOP_ASSERT(results[4], results[4] == 11);
+            LOOP_ASSERT(results[5], results[5] == 2);
+            LOOP_ASSERT(results[6], results[6] == 9);
+            LOOP_ASSERT(results[7], results[7] == 10);
+        }
 
-        relations.push_back(bsl::make_pair(7, 11));
+        if (veryVerbose) cout << "Iterator interface" << endl;
+        {
+            bsl::list<bsl::pair<int, int> > relations;
 
-        relations.push_back(bsl::make_pair(8, 9));
+            relations.push_back(bsl::make_pair(3, 8));
+            relations.push_back(bsl::make_pair(3, 10));
+            relations.push_back(bsl::make_pair(5, 11));
+            relations.push_back(bsl::make_pair(7, 8));
+            relations.push_back(bsl::make_pair(7, 11));
+            relations.push_back(bsl::make_pair(8, 9));
+            relations.push_back(bsl::make_pair(11, 2));
+            relations.push_back(bsl::make_pair(11, 9));
+            relations.push_back(bsl::make_pair(11, 10));
 
-        relations.push_back(bsl::make_pair(11, 2));
+            bsl::vector<int> results;
+            bsl::set<int> unordered;
+            typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
+            const bool sorted = TopologicalSortUtil::sort(
+                                                     OutIter(results),
+                                                     inserter(unordered,
+                                                              unordered.end()),
+                                                     relations.begin(),
+                                                     relations.end());
+            ASSERT(true == sorted);
+            ASSERT(unordered.empty());
 
-        relations.push_back(bsl::make_pair(11, 9));
+            LOOP_ASSERT(results.size(), results.size() == 8);
 
-        relations.push_back(bsl::make_pair(11, 10));
-
-        bsl::vector<int> results;
-        bsl::vector<int> unordered;
-        const bool sorted = TopologicalSortUtil::sort(&results,
-                                                      &unordered,
-                                                      relations);
-        ASSERT(true == sorted);
-        ASSERT(unordered.empty());
-
-        ASSERT(results.size() == 8);
-
-        LOOP_ASSERT(results[0], results[0] == 7);
-        LOOP_ASSERT(results[1], results[1] == 3);
-        LOOP_ASSERT(results[2], results[2] == 5);
-        LOOP_ASSERT(results[3], results[3] == 8);
-        LOOP_ASSERT(results[4], results[4] == 11);
-        LOOP_ASSERT(results[5], results[5] == 2);
-        LOOP_ASSERT(results[6], results[6] == 9);
-        LOOP_ASSERT(results[7], results[7] == 10);
+            LOOP_ASSERT(results[0], results[0] == 7);
+            LOOP_ASSERT(results[1], results[1] == 3);
+            LOOP_ASSERT(results[2], results[2] == 5);
+            LOOP_ASSERT(results[3], results[3] == 8);
+            LOOP_ASSERT(results[4], results[4] == 11);
+            LOOP_ASSERT(results[5], results[5] == 2);
+            LOOP_ASSERT(results[6], results[6] == 9);
+            LOOP_ASSERT(results[7], results[7] == 10);
+        }
 
       } break;
       default: {
