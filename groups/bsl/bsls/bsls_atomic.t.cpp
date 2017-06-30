@@ -552,7 +552,7 @@ int getTestCaseIterations(TestLoopParameters::TestFunc testFunc)
     thread_t loopThr = createThread(&runTestingLoop, &params);
     thread_t obsvThr = createThread(&runObserverLoop, &params);
 
-    sleepSeconds(2);  // this makes the real test run for a couple of minutes
+    sleepSeconds(1);  // this makes the real test run for a couple of minutes
 
     params.d_cancel = 1;
     joinThread(loopThr);
