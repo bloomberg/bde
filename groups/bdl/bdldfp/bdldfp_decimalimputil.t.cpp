@@ -790,20 +790,7 @@ bool checkBitsEquality(TYPE lhs, TYPE rhs)
     // Return 'true' if binary representations of the specified 'lhs' and 'rhs'
     // are equal and 'false' otherwise.
 {
-    bool           result = true;
-    int            size   = sizeof(TYPE);
-    unsigned char *lhsPtr = reinterpret_cast<unsigned char*>(&lhs);
-    unsigned char *rhsPtr = reinterpret_cast<unsigned char*>(&rhs);
-
-    for (int i = 0; i < size; ++i)
-    {
-        if (lhsPtr[i] != rhsPtr[i]) {
-            result = false;
-            break;
-        }
-    }
-
-    return result;
+    return 0 == bsl::memcmp(&lhs, &rhs, sizeof(TYPE));
 }
 
 // ============================================================================
@@ -993,18 +980,21 @@ void TestDriver::testCase26()
     //:   to positive zero value with null significand and exponent.
     //:
     //: 2 The 'normalize' function converts any representations of NaN (either
-    //:    signaling or quiet) to signaling NaN.
+    //:    signaling or quiet) to quiet NaN.
     //:
     //: 3 The 'normalize' function converts any non-zero values preserving the
     //:   sign.
     //:
-    //: 4 The 'normalize' function remains values, that can not be normalized,
+    //: 4 The 'normalize' function retains values, that can not be normalized,
     //:   unchanged.
     //
     // Plan:
-    //: 1 Brute force test of a several hand picked values(including special
-    //:   and boundary values), ensuring that they are normalized correctly or
-    //:   remained unchanged.  (C-1..4)
+    //: 1 Use a table-based approach with a) special values, b) boundary
+    //:   values,  and c) several hand picked values, to verify that they are
+    //:   normalized correctly or remained unchanged.  (C-1..2)
+    //:
+    //: 2 Separately test 128-bit values, which significands occupy more than
+    //:   64 bits.  (C-3..4)
     //
     // Testing:
     //   static ValueType32 normalize(ValueType32 original);
@@ -1044,10 +1034,10 @@ void TestDriver::testCase26()
             {  L_,   INF_N,     INF_N     },
             {  L_,   SUBN_P,    SUBN_P    },
             {  L_,   SUBN_N,    SUBN_N    },
-            {  L_,   NAN_Q_P,   NAN_S_P   },
-            {  L_,   NAN_Q_N,   NAN_S_N   },
-            {  L_,   NAN_S_P,   NAN_S_P   },
-            {  L_,   NAN_S_N,   NAN_S_N   },
+            {  L_,   NAN_Q_P,   NAN_Q_P   },
+            {  L_,   NAN_Q_N,   NAN_Q_N   },
+            {  L_,   NAN_S_P,   NAN_Q_P   },
+            {  L_,   NAN_S_N,   NAN_Q_N   },
 
             // Test boundary values
             {  L_,   MIN_P,     MIN_P     },
@@ -1172,10 +1162,10 @@ void TestDriver::testCase26()
             {  L_,   INF_N,     INF_N     },
             {  L_,   SUBN_P,    SUBN_P    },
             {  L_,   SUBN_N,    SUBN_N    },
-            {  L_,   NAN_Q_P,   NAN_S_P   },
-            {  L_,   NAN_Q_N,   NAN_S_N   },
-            {  L_,   NAN_S_P,   NAN_S_P   },
-            {  L_,   NAN_S_N,   NAN_S_N   },
+            {  L_,   NAN_Q_P,   NAN_Q_P   },
+            {  L_,   NAN_Q_N,   NAN_Q_N   },
+            {  L_,   NAN_S_P,   NAN_Q_P   },
+            {  L_,   NAN_S_N,   NAN_Q_N   },
 
             // Test boundary values
             {  L_,   MIN_P,     MIN_P     },
@@ -1300,10 +1290,10 @@ void TestDriver::testCase26()
             {  L_,   INF_N,     INF_N     },
             {  L_,   SUBN_P,    SUBN_P    },
             {  L_,   SUBN_N,    SUBN_N    },
-            {  L_,   NAN_Q_P,   NAN_S_P   },
-            {  L_,   NAN_Q_N,   NAN_S_N   },
-            {  L_,   NAN_S_P,   NAN_S_P   },
-            {  L_,   NAN_S_N,   NAN_S_N   },
+            {  L_,   NAN_Q_P,   NAN_Q_P   },
+            {  L_,   NAN_Q_N,   NAN_Q_N   },
+            {  L_,   NAN_S_P,   NAN_Q_P   },
+            {  L_,   NAN_S_N,   NAN_Q_N   },
 
             // Test boundary values
             {  L_,   MIN_P,     MIN_P     },
@@ -1393,6 +1383,43 @@ void TestDriver::testCase26()
 
             Type result = Util::normalize(ORIGINAL);
             ASSERTV(LINE, checkBitsEquality(EXPECTED, result));
+        }
+
+        // Testing the 128-bit division.
+        {
+            const Type ORIGINAL = Util::add(
+                               Util::uint64ToDecimal128(0xFFFFFFFFFFFFFFFFull),
+                               Util::uint64ToDecimal128( 1));
+
+            const Type     DIV_MULT   =   Util::makeDecimalRaw128(10, 0);
+                // multiplier divisible by powers of 10
+
+            const Type NON_DIV_MULT[] = {
+                                             Util::makeDecimalRaw128(11, 0),
+                                             Util::makeDecimalRaw128(222, 0),
+                                             Util::makeDecimalRaw128(3333, 0),
+                                             Util::makeDecimalRaw128(44444, 0),
+                                             Util::makeDecimalRaw128(666666, 0)
+                                        };
+
+            Type normalized = Util::normalize(ORIGINAL);
+            ASSERTV(Util::equal(      normalized, ORIGINAL));
+            ASSERTV(checkBitsEquality(normalized, ORIGINAL));
+
+            Type divValue   = ORIGINAL;
+            for (int i = 0; i < 5; ++i) {
+                divValue   = Util::multiply(divValue, DIV_MULT);
+                normalized = Util::normalize(divValue);
+                ASSERTV( Util::equal(      normalized, divValue));
+                ASSERTV(!checkBitsEquality(normalized, divValue));
+            }
+
+            for (int i = 0; i < 5; ++i) {
+                Type nonDivValue = Util::multiply(ORIGINAL, NON_DIV_MULT[i]);
+                normalized       = Util::normalize(nonDivValue);
+                ASSERTV(i, Util::equal(      normalized, nonDivValue));
+                ASSERTV(i, checkBitsEquality(normalized, nonDivValue));
+            }
         }
     }
 }

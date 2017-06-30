@@ -267,13 +267,7 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 
 DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
 {
-    const ValueType32 ZERO  = makeDecimalRaw32(0, 0);  // zero
-    const ValueType32 INF_P = infinity32();            // positive infinity
-    const ValueType32 INF_N = negate(INF_P);           // negative infinity
-    const ValueType32 NAN_P = signalingNaN32();        // positive NaN
-    const ValueType32 NAN_N = negate(NAN_P);           // negative NaN
-
-    ValueType32       result;
+    ValueType32 result;
 
     int          sign;
     unsigned int significand;
@@ -284,22 +278,22 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
 
     switch (objClass) {
       case FP_ZERO: {
-        result = ZERO;
+        result = makeDecimalRaw32(0, 0);
       } break;
 
       case FP_INFINITE: {
         if (sign == 1) {
-            result = INF_P;
+            result = infinity32();
         } else {
-            result = INF_N;
+            result = negate(infinity32());
         }
       } break;
 
       case FP_NAN: {
         if (sign == 1) {
-            result = NAN_P;
+            result = quietNaN32();
         } else {
-            result = NAN_N;
+            result = negate(quietNaN32());
         }
       } break;
 
@@ -310,7 +304,8 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
             ++exponent;
         }
 
-        result = makeDecimalRaw32(sign*significand, exponent);
+        result = makeDecimalRaw32(significand, exponent);
+        result = (sign == 1) ? result : negate(result);
       } break;
 
       default:
@@ -322,13 +317,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
 
 DecimalImpUtil::ValueType64 DecimalImpUtil::normalize(ValueType64 value)
 {
-    const ValueType64 ZERO  = makeDecimalRaw64(0, 0);  // zero
-    const ValueType64 INF_P = infinity64();            // positive infinity
-    const ValueType64 INF_N = negate(INF_P);           // negative infinity
-    const ValueType64 NAN_P = signalingNaN64();        // positive NaN
-    const ValueType64 NAN_N = negate(NAN_P);           // negative NaN
-
-    ValueType64       result;
+    ValueType64 result;
 
     int                 sign;
     bsls::Types::Uint64 significand;
@@ -339,22 +328,22 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::normalize(ValueType64 value)
 
     switch (objClass) {
       case FP_ZERO: {
-        result = ZERO;
+        result = makeDecimalRaw64(0, 0);
       } break;
 
       case FP_INFINITE: {
         if (sign == 1) {
-            result = INF_P;
+            result = infinity64();
         } else {
-            result = INF_N;
+            result = negate(infinity64());
         }
       } break;
 
       case FP_NAN: {
         if (sign == 1) {
-            result = NAN_P;
+            result = quietNaN64();
         } else {
-            result = NAN_N;
+            result = negate(quietNaN64());
         }
       } break;
 
@@ -378,13 +367,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::normalize(ValueType64 value)
 
 DecimalImpUtil::ValueType128 DecimalImpUtil::normalize(ValueType128 value)
 {
-    const ValueType128 ZERO  = makeDecimalRaw128(0, 0);  // zero
-    const ValueType128 INF_P = infinity128();            // positive infinity
-    const ValueType128 INF_N = negate(INF_P);            // negative infinity
-    const ValueType128 NAN_P = signalingNaN128();        // positive NaN
-    const ValueType128 NAN_N = negate(NAN_P);            // negative NaN
-
-    ValueType128       result;
+    ValueType128 result;
 
     int     sign;
     Uint128 significand;
@@ -395,29 +378,29 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::normalize(ValueType128 value)
 
     switch (objClass) {
       case FP_ZERO: {
-        result = ZERO;
+        result = makeDecimalRaw128(0, 0);
       } break;
 
       case FP_INFINITE: {
         if (sign == 1) {
-            result = INF_P;
+            result = infinity128();
         } else {
-            result = INF_N;
+            result = negate(infinity128());
         }
       } break;
 
       case FP_NAN: {
         if (sign == 1) {
-            result = NAN_P;
+            result = quietNaN128();
         } else {
-            result = NAN_N;
+            result = negate(quietNaN128());
         }
       } break;
 
       case FP_NORMAL:
       case FP_SUBNORMAL: {
         bsls::Types::Uint64 r = 0;  // reminder
-        while ((r == 0) && (exponent < 6144)) {
+        while (exponent < 6144) {
             bsls::Types::Uint64 high = significand.high();
             bsls::Types::Uint64 low  = significand.low();
 
@@ -427,13 +410,14 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::normalize(ValueType128 value)
             bsls::Types::Uint64 rl = low % 10;
 
             r = (6 * rh + rl) % 10;
-
-            if (r == 0) {
-              significand.setHigh(qh);
-              significand.setLow(ql + 0x1999999999999999ull * rh +
-                                                           (6 * rh + rl) / 10);
-              ++exponent;
+            if (r != 0) {
+                break;
             }
+
+            significand.setHigh(qh);
+            significand.setLow(ql + 0x1999999999999999ull * rh +
+                                                           (6 * rh + rl) / 10);
+            ++exponent;
         }
 
         // TODO: we need constructor/util function for Decimal128 creation,
