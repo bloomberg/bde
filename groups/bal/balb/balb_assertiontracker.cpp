@@ -74,8 +74,8 @@ ThreadLocalDataGuard::~ThreadLocalDataGuard()
     bslmt::ThreadUtil::setSpecific(d_key, 0);
 }
 
-bsl::string formatAssertion(int                         severity,
-                            int                         count,
+bsl::string formatAssertion(int                         count,
+                            int                         severity,
                             const char                 *text,
                             const char                 *file,
                             int                         line,
@@ -119,8 +119,8 @@ void AssertionTracker::preserveConfiguration(int *)
 }
 
 void AssertionTracker::reportAssertion(bsl::ostream               *out,
-                                       int                         severity,
                                        int                         count,
+                                       int                         severity,
                                        const char                 *text,
                                        const char                 *file,
                                        int                         line,
