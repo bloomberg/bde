@@ -330,7 +330,7 @@ class DecimalImpUtil {
         //:   exponent.
         //:
         //: o Any NaN values (either signaling or quiet) are normalized to
-        //:   signaling NaN.
+        //:   quiet NaN.
         //:
         //: o Normalized non-zero value has the same sign as the original one.
 
