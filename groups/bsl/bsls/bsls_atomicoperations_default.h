@@ -442,6 +442,23 @@ struct AtomicOperations_DefaultInt
         // Atomically increment the specified 'atomicInt' by 1 and return the
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
+
+    static int subtractIntNv(typename AtomicTypes::Int *atomicInt, int value);
+        // Atomically subtract from the specified 'atomicInt' the specified
+        // 'value' and return the resulting value, providing the sequential
+        // consistency memory ordering guarantee.
+
+    static int subtractIntNvAcqRel(typename AtomicTypes::Int *atomicInt,
+                                   int                        value);
+        // Atomically subtract from the specified 'atomicInt' the specified
+        // 'value' and return the resulting value, providing the
+        // acquire/release memory ordering guarantee.
+
+    static int subtractIntNvRelaxed(typename AtomicTypes::Int *atomicInt,
+                                    int                        value);
+        // Atomically subtract from the specified 'atomicInt' the specified
+        // 'value' and return the resulting value, without providing any memory
+        // ordering guarantees.
 };
 
                     // ====================================
@@ -613,6 +630,26 @@ struct AtomicOperations_DefaultInt64
         // Atomically increment the specified 'atomicInt' by 1 and return the
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
+
+    static Types::Int64 subtractInt64Nv(typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64                 value);
+        // Atomically subtract from the specified 'atomicInt' the specified
+        // 'value' and return the resulting value, providing the sequential
+        // consistency memory ordering guarantee.
+
+    static Types::Int64 subtractInt64NvAcqRel(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64                 value);
+        // Atomically subtract from the specified 'atomicInt' the specified
+        // 'value' and return the resulting value, providing the
+        // acquire/release memory ordering guarantee.
+
+    static Types::Int64 subtractInt64NvRelaxed(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64                 value);
+        // Atomically subtract from the specified 'atomicInt' the specified
+        // 'value' and return the resulting value, without providing any memory
+        // ordering guarantees.
 };
 
                     // ===================================
@@ -1476,6 +1513,39 @@ int AtomicOperations_DefaultInt<IMP>::
     return IMP::addIntNvAcqRel(atomicInt, 1);
 }
 
+template <class IMP>
+inline
+int AtomicOperations_DefaultInt<IMP>::
+    subtractIntNv(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return static_cast<int>(
+        IMP::subtractUintNv(
+            reinterpret_cast<typename AtomicTypes::Uint *>(atomicInt),
+            static_cast<unsigned int>(value)));
+}
+
+template <class IMP>
+inline
+int AtomicOperations_DefaultInt<IMP>::
+    subtractIntNvAcqRel(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return static_cast<int>(
+        IMP::subtractUintNvAcqRel(
+            reinterpret_cast<typename AtomicTypes::Uint *>(atomicInt),
+            static_cast<unsigned int>(value)));
+}
+
+template <class IMP>
+inline
+int AtomicOperations_DefaultInt<IMP>::
+    subtractIntNvRelaxed(typename AtomicTypes::Int *atomicInt, int value)
+{
+    return static_cast<int>(
+        IMP::subtractUintNvRelaxed(
+            reinterpret_cast<typename AtomicTypes::Uint *>(atomicInt),
+            static_cast<unsigned int>(value)));
+}
+
                     // ------------------------------------
                     // struct AtomicOperations_DefaultInt64
                     // ------------------------------------
@@ -1651,6 +1721,42 @@ Types::Int64 AtomicOperations_DefaultInt64<IMP>::
     incrementInt64NvAcqRel(typename AtomicTypes::Int64 *atomicInt)
 {
     return IMP::addInt64NvAcqRel(atomicInt, 1);
+}
+
+template <class IMP>
+inline
+Types::Int64 AtomicOperations_DefaultInt64<IMP>::subtractInt64Nv(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64                 value)
+{
+    return static_cast<Types::Int64>(
+        IMP::subtractUint64Nv(
+            reinterpret_cast<typename AtomicTypes::Uint64 *>(atomicInt),
+            static_cast<Types::Uint64>(value)));
+}
+
+template <class IMP>
+inline
+Types::Int64 AtomicOperations_DefaultInt64<IMP>::subtractInt64NvAcqRel(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64                 value)
+{
+    return static_cast<Types::Int64>(
+        IMP::subtractUint64NvAcqRel(
+            reinterpret_cast<typename AtomicTypes::Uint64 *>(atomicInt),
+            static_cast<Types::Uint64>(value)));
+}
+
+template <class IMP>
+inline
+Types::Int64 AtomicOperations_DefaultInt64<IMP>::subtractInt64NvRelaxed(
+                                        typename AtomicTypes::Int64 *atomicInt,
+                                        Types::Int64                 value)
+{
+    return static_cast<Types::Int64>(
+        IMP::subtractUint64NvRelaxed(
+            reinterpret_cast<typename AtomicTypes::Uint64 *>(atomicInt),
+            static_cast<Types::Uint64>(value)));
 }
 
                      // ----------------------------------

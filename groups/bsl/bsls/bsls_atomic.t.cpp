@@ -47,6 +47,11 @@ using namespace std;
 // [ 5] int swap(int swapValue);
 // [ 5] int testAndSwap(int compareValue,int swapValue);
 // [ 4] int add(int value);
+// [ 4] int addAcqRel(int value);
+// [ 4] int addRelaxed(int value);
+// [ 4] int subtract(int value);
+// [ 4] int subtractAcqRel(int value);
+// [ 4] int subtractRelaxed(int value);
 // [ 6] int operator ++();
 // [ 6] int operator ++(int);
 // [ 6] int operator --();
@@ -65,6 +70,11 @@ using namespace std;
 // [ 3] bsls::AtomicInt64(bsls::Types::Int64 value);
 // [ 2] ~bsls::AtomicInt64();
 // [ 4] bsls::Types::Int64 add(bsls::Types::Int64 value);
+// [ 4] bsls::Types::Int64 addAcqRel(bsls::Types::Int64 value);
+// [ 4] bsls::Types::Int64 addRelaxed(bsls::Types::Int64 value);
+// [ 4] bsls::Types::Int64 subtract(bsls::Types::Int64 value);
+// [ 4] bsls::Types::Int64 subtractAcqRel(bsls::Types::Int64 value);
+// [ 4] bsls::Types::Int64 subtractRelaxed(bsls::Types::Int64 value);
 // [ 5] Int64 swap(Int64 swapValue);
 // [ 5] Int64 testAndSwap(Int64 compareValue, Int64 swapValue);
 // [ 6] bsls::Types::Int64 operator ++();
@@ -88,6 +98,11 @@ using namespace std;
 // [ 5] unsigned int testAndSwap(unsigned int compareValue,
 ///                              unsigned int swapValue);
 // [ 4] unsigned int add(unsigned int value);
+// [ 4] unsigned int addAcqRel(unsigned int value);
+// [ 4] unsigned int addRelaxed(unsigned int value);
+// [ 4] unsigned int subtract(unsigned int value);
+// [ 4] unsigned int subtractAcqRel(unsigned int value);
+// [ 4] unsigned int subtractRelaxed(unsigned int value);
 // [ 6] unsigned int operator ++();
 // [ 6] unsigned int operator ++(int);
 // [ 6] unsigned int operator --();
@@ -106,6 +121,11 @@ using namespace std;
 // [ 3] bsls::AtomicUint64(bsls::Types::Uint64 value);
 // [ 2] ~bsls::AtomicUint64();
 // [ 4] bsls::Types::Uint64 add(bsls::Types::Uint64 value);
+// [ 4] bsls::Types::Uint64 addAcqRel(bsls::Types::Uint64 value);
+// [ 4] bsls::Types::Uint64 addRelaxed(bsls::Types::Uint64 value);
+// [ 4] bsls::Types::Uint64 subtract(bsls::Types::Uint64 value);
+// [ 4] bsls::Types::Uint64 subtractAcqRel(bsls::Types::Uint64 value);
+// [ 4] bsls::Types::Uint64 subtractRelaxed(bsls::Types::Uint64 value);
 // [ 5] Uint64 swap(Uint64 swapValue);
 // [ 5] Uint64 testAndSwap(Uint64 compareValue, Uint64 swapValue);
 // [ 6] bsls::Types::Uint64 operator ++();
@@ -2409,24 +2429,34 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int add(int value);
+        //   int addAcqRel(int value);
+        //   int addRelaxed(int value);
+        //   int subtract(int value);
+        //   int subtractAcqRel(int value);
+        //   int subtractRelaxed(int value);
         //   void operator +=(int value);
         //   void operator -=(int value);
         //   bsls::Types::Int64 add(bsls::Types::Int64 value);
+        //   bsls::Types::Int64 addAcqRel(bsls::Types::Int64 value);
+        //   bsls::Types::Int64 addRelaxed(bsls::Types::Int64 value);
+        //   bsls::Types::Int64 subtract(bsls::Types::Int64 value);
+        //   bsls::Types::Int64 subtractAcqRel(bsls::Types::Int64 value);
+        //   bsls::Types::Int64 subtractRelaxed(bsls::Types::Int64 value);
         //   void operator +=(bsls::Types::Int64 value);
         //   void operator -=(bsls::Types::Int64 value);
         //   unsigned int add(unsigned int value);
-        //   unsigned int addAckRel(unsigned int value);
+        //   unsigned int addAcqRel(unsigned int value);
         //   unsigned int addRelaxed(unsigned int value);
         //   unsigned int subtract(unsigned int value);
-        //   unsigned int subtractAckRel(unsigned int value);
+        //   unsigned int subtractAcqRel(unsigned int value);
         //   unsigned int subtractRelaxed(unsigned int value);
         //   void operator +=(unsigned int value);
         //   void operator -=(unsigned int value);
         //   bsls::Types::Uint64 add(bsls::Types::Uint64 value);
-        //   bsls::Types::Uint64 addAckRel(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 addAcqRel(bsls::Types::Uint64 value);
         //   bsls::Types::Uint64 addRelaxed(bsls::Types::Uint64 value);
         //   bsls::Types::Uint64 subtract(bsls::Types::Uint64 value);
-        //   bsls::Types::Uint64 subtractAckRel(bsls::Types::Uint64 value);
+        //   bsls::Types::Uint64 subtractAcqRel(bsls::Types::Uint64 value);
         //   bsls::Types::Uint64 subtractRelaxed(bsls::Types::Uint64 value);
         //   void operator +=(bsls::Types::Uint64 value);
         //   void operator -=(bsls::Types::Uint64 value);
@@ -2559,6 +2589,74 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
+
+                result = x.subtract(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int BASE = VALUES[i].d_base;
+                const int AMT  = VALUES[i].d_amount;
+                const int EXP  = VALUES[i].d_expected;
+                int       result;
+
+                AI x;  const AI& X = x;
+
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subtractAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int BASE = VALUES[i].d_base;
+                const int AMT  = VALUES[i].d_amount;
+                const int EXP  = VALUES[i].d_expected;
+                int       result;
+
+                AI x;  const AI& X = x;
+
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subtractRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
             }
 
         }
@@ -2666,6 +2764,72 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, EXP == result);
                 LOOP_ASSERT(i, EXP == X);
+
+                result = x.subtract(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Int64 BASE = VALUES[i].d_base;
+                const Int64 AMT  = VALUES[i].d_amount;
+                const Int64 EXP  = VALUES[i].d_expected;
+                Int64       result;
+
+                AI64 x;  const AI64& X = x;
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subtractAcqRel(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
+            }
+
+            for (std::size_t i = 0; i < NUM_VALUES; ++i) {
+                const Int64 BASE = VALUES[i].d_base;
+                const Int64 AMT  = VALUES[i].d_amount;
+                const Int64 EXP  = VALUES[i].d_expected;
+                Int64       result;
+
+                AI64 x;  const AI64& X = x;
+                ASSERT(0 == X);
+
+                x = BASE;
+                ASSERT(BASE == X);
+
+                result = x.addRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X); P(BASE);
+                    T_(); P_(AMT); P(EXP); NL();
+                }
+                LOOP_ASSERT(i, EXP == result);
+                LOOP_ASSERT(i, EXP == X);
+
+                result = x.subtractRelaxed(AMT);
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(BASE); P_(AMT); P_(EXP); P_(result); NL();
+                }
+                LOOP_ASSERT(i, BASE == result);
+                LOOP_ASSERT(i, BASE == X);
             }
         }
 

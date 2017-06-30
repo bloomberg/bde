@@ -770,6 +770,20 @@ class AtomicInt {
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
 
+    int subtract(int value);
+        // Atomically subtract the specified 'value' to this object and return
+        // the resulting value.
+
+    int subtractAcqRel(int value);
+        // Atomically subtract the specified 'value' to this object and return
+        // the resulting value, providing the acquire/release memory ordering
+        // guarantee.
+
+    int subtractRelaxed(int value);
+        // Atomically subtract the specified 'value' to this object and return
+        // the resulting value, providing the relaxed memory ordering
+        // guarantee.
+
     int swap(int swapValue);
         // Atomically set the value of this object to the specified 'swapValue'
         // and return its previous value.
@@ -898,6 +912,20 @@ class AtomicInt64 {
     void storeRelease(Types::Int64 value);
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
+
+    Types::Int64 subtract(Types::Int64 value);
+        // Atomically subtract the specified 'value' to this object and return
+        // the resulting value.
+
+    Types::Int64 subtractAcqRel(Types::Int64 value);
+        // Atomically subtract the specified 'value' to this object and return
+        // the resulting value, providing the acquire/release memory ordering
+        // guarantee.
+
+    Types::Int64 subtractRelaxed(Types::Int64 value);
+        // Atomically subtract the specified 'value' to this object and return
+        // the resulting value, providing the relaxed memory ordering
+        // guarantee.
 
     Types::Int64 swap(Types::Int64 swapValue);
         // Atomically set the value of this object to the specified 'swapValue'
@@ -1491,7 +1519,7 @@ int AtomicInt::operator+=(int value)
 inline
 int AtomicInt::operator-=(int value)
 {
-    return AtomicOperations_Imp::addIntNv(&d_value, -value);
+    return AtomicOperations_Imp::subtractIntNv(&d_value, value);
 }
 
 inline
@@ -1503,7 +1531,9 @@ int AtomicInt::operator++()
 inline
 int AtomicInt::operator++(int)
 {
-    return AtomicOperations_Imp::incrementIntNv(&d_value) - 1;
+    return static_cast<int>(
+        static_cast<unsigned int>(
+            AtomicOperations_Imp::incrementIntNv(&d_value)) - 1);
 }
 
 inline
@@ -1515,7 +1545,9 @@ int AtomicInt::operator--()
 inline
 int AtomicInt::operator--(int)
 {
-    return AtomicOperations_Imp::decrementIntNv(&d_value) + 1;
+    return static_cast<int>(
+        static_cast<unsigned int>(
+            AtomicOperations_Imp::decrementIntNv(&d_value)) + 1);
 }
 
 inline
@@ -1552,6 +1584,24 @@ inline
 void AtomicInt::storeRelease(int value)
 {
     AtomicOperations_Imp::setIntRelease(&d_value, value);
+}
+
+inline
+int AtomicInt::subtract(int value)
+{
+    return AtomicOperations_Imp::subtractIntNv(&d_value, value);
+}
+
+inline
+int AtomicInt::subtractAcqRel(int value)
+{
+    return AtomicOperations_Imp::subtractIntNvAcqRel(&d_value, value);
+}
+
+inline
+int AtomicInt::subtractRelaxed(int value)
+{
+    return AtomicOperations_Imp::subtractIntNvRelaxed(&d_value, value);
 }
 
 inline
@@ -1642,7 +1692,7 @@ Types::Int64 AtomicInt64::operator+=(Types::Int64 value)
 inline
 Types::Int64 AtomicInt64::operator-=(Types::Int64 value)
 {
-    return AtomicOperations_Imp::addInt64Nv(&d_value, -value);
+    return AtomicOperations_Imp::subtractInt64Nv(&d_value, value);
 }
 
 inline
@@ -1654,7 +1704,9 @@ Types::Int64 AtomicInt64::operator++()
 inline
 Types::Int64 AtomicInt64::operator++(int)
 {
-    return AtomicOperations_Imp::incrementInt64Nv(&d_value) - 1;
+    return static_cast<Types::Int64>(
+        static_cast<Types::Uint64>(
+            AtomicOperations_Imp::incrementInt64Nv(&d_value)) - 1);
 }
 
 inline
@@ -1666,7 +1718,9 @@ Types::Int64 AtomicInt64::operator--()
 inline
 Types::Int64 AtomicInt64::operator--(int)
 {
-    return AtomicOperations_Imp::decrementInt64Nv(&d_value) + 1;
+    return static_cast<Types::Int64>(
+        static_cast<Types::Uint64>(
+            AtomicOperations_Imp::decrementInt64Nv(&d_value)) + 1);
 }
 
 inline
@@ -1703,6 +1757,24 @@ inline
 void AtomicInt64::storeRelease(Types::Int64 value)
 {
     AtomicOperations_Imp::setInt64Release(&d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::subtract(Types::Int64 value)
+{
+    return AtomicOperations_Imp::subtractInt64Nv(&d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::subtractAcqRel(Types::Int64 value)
+{
+    return AtomicOperations_Imp::subtractInt64NvAcqRel(&d_value, value);
+}
+
+inline
+Types::Int64 AtomicInt64::subtractRelaxed(Types::Int64 value)
+{
+    return AtomicOperations_Imp::subtractInt64NvRelaxed(&d_value, value);
 }
 
 inline
