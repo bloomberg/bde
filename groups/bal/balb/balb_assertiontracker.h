@@ -339,8 +339,8 @@ class AssertionTracker {
         // default configuration callback.
 
     static void reportAssertion(bsl::ostream               *out,
-                                int                         severity,
                                 int                         count,
+                                int                         severity,
                                 const char                 *text,
                                 const char                 *file,
                                 int                         line,
