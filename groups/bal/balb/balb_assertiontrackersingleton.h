@@ -223,14 +223,11 @@ void AssertionTrackerSingleton<TRACKER>::bregCallbackAdapter(
     int trace_enable, max_callstack_count, trace_severity_level;
     callback(&trace_enable, &trace_severity_level, &max_callstack_count);
     if (!trace_enable) {
-        configure[0] = 0;
+        configure[2] = 0;
     }
     else {
-        configure[0] = -1;
-        configure[1] = -1;
         configure[2] = max_callstack_count;
         configure[3] = trace_severity_level;
-        configure[4] = 1;
     }
 }
 
