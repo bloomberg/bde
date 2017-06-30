@@ -6399,12 +6399,7 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal32& object)
 
     bdldfp::Decimal32 normalizedObject = DecimalImpUtil::normalize(
                                                                object.value());
-
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-    hashAppend(hashAlg, normalizedObject.value().d_raw);
-#else
-    hashAppend(hashAlg, *normalizedObject.value().words);
-#endif
+    hashAlg(&normalizedObject, sizeof(normalizedObject));
 }
 
 template <class HASHALG>
@@ -6416,11 +6411,7 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal64& object)
     bdldfp::Decimal64 normalizedObject = DecimalImpUtil::normalize(
                                                                object.value());
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-    hashAppend(hashAlg, normalizedObject.value().d_raw);
-#else
-    hashAppend(hashAlg, *normalizedObject.value().longs);
-#endif
+    hashAlg(&normalizedObject, sizeof(normalizedObject));
 }
 
 template <class HASHALG>
@@ -6432,13 +6423,7 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal128& object)
     bdldfp::Decimal128 normalizedObject = DecimalImpUtil::normalize(
                                                                object.value());
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-    hashAppend(hashAlg, normalizedObject.value().d_raw.w[0]);
-    hashAppend(hashAlg, normalizedObject.value().d_raw.w[1]);
-#else
-    hashAppend(hashAlg, *normalizedObject.value().longs[0]);
-    hashAppend(hashAlg, *normalizedObject.value().longs[1]);
-#endif
+    hashAlg(&normalizedObject, sizeof(normalizedObject));
 }
 
 }  // close enterprise namespace

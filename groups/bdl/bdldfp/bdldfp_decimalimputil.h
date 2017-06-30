@@ -164,31 +164,6 @@ BSLS_IDENT("$Id$")
 #include <bsl_algorithm.h>
 #endif
 
-#ifndef INCLUDED_BSL_CMATH
-#include <bsl_cmath.h>
-#endif
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(FP_NAN)
-
-// MS does not provide standard floating-point classification in math so we do
-
-// First, make sure that the environment is sane
-
-#if defined(FP_NORMAL) || defined(FP_INFINITE) || defined(FP_ZERO) || \
-    defined(FP_SUBNORMAL)
-#error Standard FP_ macros are not defined properly.
-#endif
-
-// Make it look like stiff MS has in ymath.h
-
-#define FP_SUBNORMAL (-2)
-#define FP_NORMAL    (-1)
-#define FP_ZERO        0
-#define FP_INFINITE    1
-#define FP_NAN         2
-
-#endif
-
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
