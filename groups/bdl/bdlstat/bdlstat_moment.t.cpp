@@ -24,12 +24,9 @@ using namespace bsl;
 //                                  Overview
 //                                  --------
 // The component under test consists of a templated object accumulating scalar
-// values and supporting mean, variance, skew, and kurtosis.  The general plan
-// is that the methods are tested against a set of tabulated test vectors, and
-// negative tests for preconditions are conducted.  The test vectors cover the
-// permutations of interest of relations of the type
-// 'earliest <= example <= latest' as well as edge cases for the resulting
-// schedule.
+// values and supporting calculation of mean, variance, skew, and kurtosis.
+// The general plan is that the methods are tested against a set of tabulated
+// test vectors, and negative tests for preconditions are conducted.
 // ----------------------------------------------------------------------------
 // [ 2] Moment()
 // [ 2] add(double value)
