@@ -766,6 +766,13 @@ struct TemplateTestFacility {
         // created from the 'TemplateTestFacility::create' class method
         // template.
 
+    template <class TYPE>
+    static int getIdentifier(TYPE*const& object);
+        // Return the integer identifier that uniquely identifies the specified
+        // 'object'.  The behavior is undefined unless 'object' was created by
+        // a call to the 'TemplateTestFacility::create' class method template,
+        // or is a copy of such an object.
+
     template <class ALLOC>
     static int getIdentifier(const StdAllocTestType<ALLOC>& object);
         // Return the integer identifier that uniquely identifies the specified
@@ -1187,7 +1194,7 @@ inline
 TYPE TemplateTestFacility::create(int identifier)
 {
     bsls::ObjectBuffer<TYPE> obj;
-    emplace(bsls::Util::addressOf(obj.object()),
+    emplace(obj.address(),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
     return obj.object();
@@ -1859,6 +1866,14 @@ inline
 int TemplateTestFacility::getIdentifier(const TYPE& object)
 {
     return int(object);
+}
+
+template <class TYPE>
+inline
+int TemplateTestFacility::getIdentifier(TYPE*const& object)
+{
+    bsls::Types::IntPtr result = reinterpret_cast<bsls::Types::IntPtr>(object);
+    return static_cast<int>(result);
 }
 
 template <class ALLOC>

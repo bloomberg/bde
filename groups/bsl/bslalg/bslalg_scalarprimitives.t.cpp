@@ -11,7 +11,10 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_ispair.h>
+#include <bslmf_movableref.h>
+#include <bslmf_usesallocatorargt.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>

@@ -614,7 +614,7 @@ void TestHelper<TYPE>::test5Helper()
 
     for (int ti = 0; ti <= 127; ++ti) {
         TYPE X = TemplateTestFacility::create<TYPE>(ti);
-        int value = TemplateTestFacility::getIdentifier<TYPE>(X);
+        int value = TemplateTestFacility::getIdentifier(X);
 
         if (veryVeryVerbose) {
             P_(ti) P(value) }
@@ -645,7 +645,7 @@ void TestHelper<TYPE>::test6Helper()
 
     for (int ti = 0; ti <= 127; ++ti) {
         TemplateTestFacility::emplace(address, ti, &objectAllocator);
-        int value = TemplateTestFacility::getIdentifier<TYPE>(X);
+        int value = TemplateTestFacility::getIdentifier(X);
 
         if (veryVeryVerbose) {
             P_(ti) P(value) }
@@ -835,7 +835,8 @@ int main(int argc, char *argv[])
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test7Helper,
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL,
+                                    const char *);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -880,7 +881,8 @@ int main(int argc, char *argv[])
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test6Helper,
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL,
+                                    const char *);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -923,7 +925,8 @@ int main(int argc, char *argv[])
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test5Helper,
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL,
+                                    const char *);
       } break;
       case 4: {
         // --------------------------------------------------------------------

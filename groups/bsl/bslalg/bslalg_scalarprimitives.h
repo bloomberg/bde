@@ -115,6 +115,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
 #endif
@@ -2577,8 +2585,8 @@ ScalarPrimitives_Imp::defaultConstruct(
               TARGET_TYPE                                             *address,
               bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // assignment can't throw.
@@ -2638,8 +2646,8 @@ ScalarPrimitives_Imp::copyConstruct(
                       bslma::Allocator                               *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2681,8 +2689,8 @@ ScalarPrimitives_Imp::copyConstruct(
                       const TARGET_TYPE&                              original,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2752,8 +2760,8 @@ ScalarPrimitives_Imp::moveConstruct(
                       bslma::Allocator                               *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2793,8 +2801,8 @@ ScalarPrimitives_Imp::moveConstruct(
                       TARGET_TYPE&                                    original,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // move-constructor can't throw, and that assignment (although would
@@ -2836,8 +2844,8 @@ ScalarPrimitives_Imp::destructiveMove(
                       ALLOCATOR                                      *,
                       bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2882,8 +2890,8 @@ ScalarPrimitives_Imp::construct(
                       bslma::Allocator                                *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -3831,8 +3839,8 @@ void ScalarPrimitives_Imp::swap(
                       bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS> *)
 {
     if (bsl::is_same<LHS_TYPE, RHS_TYPE>::value
-     && !bslmf::IsFundamental<LHS_TYPE>::value
-     && !bslmf::IsPointer<LHS_TYPE>::value
+     && !bsl::is_fundamental<LHS_TYPE>::value
+     && !bsl::is_pointer<LHS_TYPE>::value
      && !bslmf::UsesAllocatorArgT<LHS_TYPE>::value
      && !bslma::UsesBslmaAllocator<LHS_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't

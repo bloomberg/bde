@@ -348,8 +348,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#include <bslmf_ismemberpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -410,6 +418,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -3153,7 +3165,12 @@ void ArrayPrimitives::defaultConstruct(
     typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
 
     enum {
-        k_VALUE = bsl::is_trivially_default_constructible<TARGET_TYPE>::value
+        k_VALUE = bsl::is_fundamental<TARGET_TYPE>::value
+               || bsl::is_enum<TARGET_TYPE>::value
+               || bsl::is_pointer<TARGET_TYPE>::value
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+               || bsl::is_member_pointer<TARGET_TYPE>::value
+#endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
               : bsl::is_trivially_copyable<TARGET_TYPE>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
@@ -5558,7 +5575,8 @@ bool ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR,
     // generalized random access iterators, but we are constrained by 'bsl'
     // levelization to not depend on 'bsl_iterator.h'.  As the intent is to
     // detect invalid ranges in assertions, the conservative choice is to
-    // return 'false' always.
+    // return 'false' always.  Note that this differs from the pointers case
+    // below, which also disallows empty ranges.
 
     return false;
 }
@@ -6110,10 +6128,12 @@ void ArrayPrimitives_Imp::defaultConstruct(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    bsl::allocator_traits<ALLOCATOR>::construct(allocator, begin);
-    bitwiseFillN(reinterpret_cast<char *>(begin),
-                 sizeof(TARGET_TYPE),
-                 numElements * sizeof(TARGET_TYPE));
+    if (0 < numElements) {
+        bsl::allocator_traits<ALLOCATOR>::construct(allocator, begin);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof(TARGET_TYPE),
+                     numElements * sizeof(TARGET_TYPE));
+    }
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>

@@ -2,13 +2,18 @@
 
 #include <bslalg_arrayprimitives.h>
 
+#include <bslalg_arraydestructionprimitives.h>
 #include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_integralconstant.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
@@ -53,10 +58,9 @@ using namespace BloombergLP;
 // not have those traits.
 //-----------------------------------------------------------------------------
 // bslalg::ArrayPrimitives public interface:
-// [ 2] void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
 // [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
 // [ 3] void copyConstruct(T *dstB, S *srcB, S *srcE, *a);
-// [  ] void defaultConstruct(T *begin, size_type ne, allocator *a);
+// [10] void defaultConstruct(T *begin, size_type ne, allocator *a);
 // [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
 // [ 6] void destructiveMoveAndInsert(...);
 // [ 6] void destructiveMoveAndMoveInsert(...);
@@ -66,10 +70,11 @@ using namespace BloombergLP;
 // [ 5] void insert(T *dstB, T *dstE, FWD srcB, FWD srcE, ne, *a);
 // [ 5] void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
 // [ 8] void rotate(T *first, T *middle, T *last);
+// [ 2] void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] Hymans's first test case
-// [11] USAGE EXAMPLE
+// [11] Hymans's first test case
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -411,7 +416,7 @@ InitFuncPtrArray<112, 127> initFuncPtrArray112;
 
 char getValue(const FuncPtrType& fpt)
 {
-    return static_cast<char>((*fpt)());
+    return fpt ? static_cast<char>((*fpt)()) : '\0';
 }
 
 void setValue(FuncPtrType *fpt, char ch)
@@ -464,6 +469,8 @@ InitMemberFuncPtrArray<112, 127> initMemberFuncPtrArray112;
 
 char getValue(const MemberFuncPtrType& mfpt)
 {
+    if (!mfpt) { return '\0'; }                                       // RETURN
+
     Thing t;
     return static_cast<char>((t.*mfpt)());
 }
@@ -958,6 +965,12 @@ struct AmbiguousConvertibleType {
     {
         return reinterpret_cast<void *>(d_f);
     }
+
+    // FRIENDS
+    friend void debugprint(const AmbiguousConvertibleType& obj)
+    {
+        bsls::debugprint(obj.d_f);
+    }
 };
 
 void setValue(AmbiguousConvertibleType *f, char ch)
@@ -995,6 +1008,13 @@ struct FnPtrConvertibleType {
     {
         return d_f;
     }
+
+    // FRIENDS
+    friend void debugprint(const FnPtrConvertibleType& obj)
+    {
+        bsls::debugprint(obj.d_f);
+    }
+ 
 };
 
 void setValue(FnPtrConvertibleType *f, char ch)
@@ -1042,21 +1062,13 @@ class TestType {
         *d_data_p = cE.d_c;
     }
 
-    friend void setValue(TestType *c, char ch)
-    {
-        *c->d_data_p = ch;
-    }
-
     TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
-        if (&original != this) {
-            d_data_p =
-                    static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
-            *d_data_p = *original.d_data_p;
-        }
+        d_data_p = static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
+        *d_data_p = *original.d_data_p;
     }
 
     ~TestType() {
@@ -1095,6 +1107,17 @@ class TestType {
         } else {
             printf("VOID\n");
         }
+    }
+
+    // FRIENDS
+    friend void setValue(TestType *c, char ch)
+    {
+        *c->d_data_p = ch;
+    }
+
+    friend void debugprint(const TestType& obj)
+    {
+        obj.print();
     }
 };
 
@@ -1197,6 +1220,12 @@ class TestTypeNoAlloc {
     {
         ASSERT(isalpha(d_u.d_char));
         printf("%c (int: %d)\n", d_u.d_char, static_cast<int>(d_u.d_char));
+    }
+
+    // FRIENDS
+    friend void debugprint(const TestTypeNoAlloc& obj)
+    {
+        obj.print();
     }
 };
 
@@ -1303,6 +1332,12 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     : TestTypeNoAlloc()
     {
         setValue(this, original.datum());
+    }
+    
+    // FRIENDS
+    friend void debugprint(const BitwiseCopyableTestType& obj)
+    {
+        obj.print();
     }
 };
 
@@ -1733,38 +1768,155 @@ TYPE& gg(TYPE *array, const char *spec)
 }
 
 //=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR CASE 10
+//-----------------------------------------------------------------------------
+bslma::Allocator *staticAllocator()
+{
+    return &bslma::MallocFreeAllocator::singleton();
+}
+
+template <class TYPE>
+bool isDefault(const TYPE& obj, bsl::false_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    static const TYPE DEFAULT = TYPE();
+    return DEFAULT == obj;
+}
+
+template <class TYPE>
+bool isDefault(const TYPE& obj, bsl::true_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    static const TYPE DEFAULT = TYPE(staticAllocator());
+    return DEFAULT == obj;
+}
+
+bool isDefault(const TestType& obj, bsl::true_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    return '?' == obj.datum();
+}
+
+bool isDefault(const TestTypeNoAlloc& obj, bsl::false_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    return '?' == obj.datum();
+}
+
+bool isDefault(const BitwiseCopyableTestType& obj,
+               bsl::false_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    return '?' == obj.datum();
+}
+
+bool isDefault(const BitwiseMoveableTestType& obj,
+               bsl::true_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    return '?' == obj.datum();
+}
+
+bool isDefault(const AmbiguousConvertibleType& obj,
+               bsl::false_type usesBslmaAllocator)
+{
+    (void)usesBslmaAllocator;
+
+    return &funcTemplate<0> == static_cast<FuncPtrType>(obj);
+}
+
+template <class TYPE>
+void testDefaultConstruct(bool bitwiseMoveableFlag,
+                          bool bitwiseCopyableFlag,
+                          bool exceptionSafetyFlag = false)
+    // This test function verifies that an array of elements initialized by a
+    // call to 'defaultConstruct', each element has the default-constructed
+    // value.
+{
+    // These parameters are not actually used, but allow the same signature to
+    // run through the 'GAUNTLET' macros.
+
+    (void)bitwiseMoveableFlag;
+    (void)bitwiseCopyableFlag;
+
+    const int MAX_SIZE = 4;
+    static union {
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } u;
+
+    typedef bslma::UsesBslmaAllocator<TYPE> UsesAllocator;
+
+    for (int ti = 0; ti < MAX_SIZE; ++ti) {
+        TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+
+        if (exceptionSafetyFlag) {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                Obj::defaultConstruct(&buf[0], ti, Z);
+                for (int tj = 0; tj != ti; ++tj) {
+                    ASSERTV(ti, tj, buf[tj], isDefault(buf[tj],
+                                                       UsesAllocator()));
+                }
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        } else {
+            Obj::defaultConstruct(&buf[0], ti, Z);
+            for (int tj = 0; tj != ti; ++tj) {
+                ASSERTV(ti, tj, buf[tj], isDefault(buf[tj], UsesAllocator()));
+            }
+        }
+
+        bslalg::ArrayDestructionPrimitives::destroy(buf,
+                                                    buf + ti,
+                                                    bsl::allocator<TYPE>(Z));
+    }
+
+    ASSERT(0 == Z->numMismatches());
+    ASSERT(0 == Z->numBytesInUse());
+}
+
+
+//=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR CASE 9
 //-----------------------------------------------------------------------------
 
 static const struct {
     int         d_lineNum;   // source line number
     const char *d_spec;      // specification string
-    int         d_ne;        // number of elements to insert
     int         d_dst;       // index of insertion point
     int         d_end;       // end of data
     const char *d_expected;  // expected result array
 } DATA_9DV[] = {
-    //line spec            ne  dst    end  expected            ordered by ne
-    //---- ----            --  ---    ---  --------            -------------
-    { L_,  "___",          1,  1,     1,   "_?_"           },  // 1
-    { L_,  "a_c",          1,  1,     1,   "a?c"           },
-    { L_,  "ab_d",         1,  1,     2,   "a?bd"          },
-    { L_,  "abc_e",        1,  1,     3,   "a?bce"         },
-    { L_,  "abcd_f",       1,  1,     4,   "a?bcdf"        },
-    { L_,  "abcde_g",      1,  1,     5,   "a?bcdeg"       },
+    //line spec            dst    end  expected
+    //---- ----            ---    ---  --------
+    { L_,  "___",          0,     0,   "?__"           },
+    { L_,  "___",          1,     1,   "_?_"           },
+    { L_,  "___",          2,     2,   "__?"           },
+    { L_,  "a_c",          1,     1,   "a?c"           },
+    { L_,  "ab_d",         1,     2,   "a?bd"          },
+    { L_,  "abc_e",        1,     3,   "a?bce"         },
+    { L_,  "abcd_f",       1,     4,   "a?bcdf"        },
+    { L_,  "abcde_g",      1,     5,   "a?bcdeg"       },
 };
 const int NUM_DATA_9DV = sizeof DATA_9DV / sizeof *DATA_9DV;
 
 template <class TYPE>
-void testEmplaceDefaultValueN(bool bitwiseMoveableFlag,
-                              bool bitwiseCopyableFlag,
-                              bool exceptionSafetyFlag = false)
+void testEmplaceDefaultValue(bool bitwiseMoveableFlag,
+                             bool bitwiseCopyableFlag,
+                             bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_9DV' elements of
-    // the 'DATA_9DV' array, that inserting the 'd_ne' entries at the 'd_dst'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.
+    // the 'DATA_9DV' array, that inserting a new entry at the 'd_dst' index
+    // while shifting the entries between 'd_dst' until the 'd_end' indices in
+    // a buffer built according to the 'd_spec' specifications results in a
+    // buffer built according to the 'd_expected' specifications.  The
+    // 'd_lineNum' member is used to report errors.  New entries are
+    // constructed with the supplied allocator 'Z' if allocator aware, and with
+    // their default constructor otherwise.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -1830,33 +1982,34 @@ void testEmplaceDefaultValueN(bool bitwiseMoveableFlag,
 static const struct {
     int         d_lineNum;   // source line number
     const char *d_spec;      // specification string
-    int         d_ne;        // number of elements to insert
     int         d_dst;       // index of insertion point
     int         d_end;       // end of data
     const char *d_expected;  // expected result array
     int         d_expNum;    // expected number of constructor invocations
 } DATA_9V[] = {
-    //line spec            ne  dst    end  expected        eN    ordered by ne
-    //---- ----            --  ---    ---  --------        --    -------------
-    { L_,  "___",          1,  1,     1,   "_V_",           1 },  // 1
-    { L_,  "a_c",          1,  1,     1,   "aVc",           1 },
-    { L_,  "ab_d",         1,  1,     2,   "aVbd",          1 },
-    { L_,  "abc_e",        1,  1,     3,   "aVbce",         1 },
-    { L_,  "abcd_f",       1,  1,     4,   "aVbcdf",        1 },
-    { L_,  "abcde_g",      1,  1,     5,   "aVbcdeg",       1 },
+    //line spec            dst    end  expected        eN
+    //---- ----            ---    ---  --------        --
+    { L_,  "___",          0,     0,   "V__",           1 },
+    { L_,  "___",          1,     1,   "_V_",           1 },
+    { L_,  "___",          2,     2,   "__V",           1 },
+    { L_,  "a_c",          1,     1,   "aVc",           1 },
+    { L_,  "ab_d",         1,     2,   "aVbd",          1 },
+    { L_,  "abc_e",        1,     3,   "aVbce",         1 },
+    { L_,  "abcd_f",       1,     4,   "aVbcdf",        1 },
+    { L_,  "abcde_g",      1,     5,   "aVbcdeg",       1 },
 };
 const int NUM_DATA_9V = sizeof DATA_9V / sizeof *DATA_9V;
 
 template <class TYPE>
-void testEmplaceValueN(bool bitwiseMoveableFlag,
-                       bool bitwiseCopyableFlag,
-                       bool exceptionSafetyFlag = false)
+void testEmplaceValue(bool bitwiseMoveableFlag,
+                      bool bitwiseCopyableFlag,
+                      bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_9V' elements of
-    // the 'DATA_9V' array, that inserting the 'd_ne' entries at the 'd_dst'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.
+    // the 'DATA_9V' array, that inserting the a new entry at the 'd_dst' index
+    // while shifting the entries between 'd_dst' until the 'd_end' indices in
+    // a buffer built according to the 'd_spec' specifications results in a
+    // buffer built according to the 'd_expected' specifications.  The
+    // 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -1866,8 +2019,8 @@ void testEmplaceValueN(bool bitwiseMoveableFlag,
 
     {
         bsls::ObjectBuffer<TYPE> mV;
-        bslalg::ScalarPrimitives::defaultConstruct(&mV.object(), Z);
-        setValue(&mV.object(), 'V');
+        bslalg::ScalarPrimitives::defaultConstruct(mV.address(), Z);
+        setValue(mV.address(), 'V');
         const TYPE& V = mV.object();
         ASSERT('V' == getValue(V));
 
@@ -1919,7 +2072,7 @@ void testEmplaceValueN(bool bitwiseMoveableFlag,
             }
 
         }
-        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(mV.address());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -3977,8 +4130,8 @@ void testUninitializedFillNBCT(TYPE value)
     // the subset, and each entry equal to 'value' within the subset) in all
     // cases.  The behavior is undefined unless 'TYPE' is bitwise copyable.
 {
-    const int MAX_SIZE    = 15;
-    const int BUFFER_SIZE = MAX_SIZE * sizeof(TYPE);
+    const size_t MAX_SIZE    = 15;
+    const size_t BUFFER_SIZE = MAX_SIZE * sizeof(TYPE);
 
     typedef union {
         char                                d_raw[BUFFER_SIZE];
@@ -4249,96 +4402,6 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
     } while (false)
 
 //=============================================================================
-//                         DV_GAUNTLET MACRO
-// Passed 'func', which should be a template of a function whose single
-// template parameter is the type to be stored into the array, and which takes
-// 3 boolean arguments telling
-//    - the template parameter is a bitwise moveable type
-//    - the template parameter is a bitwise copyable type
-//    - exception testing is to be done.
-//
-// Run 'func' on a whole gauntlet of different types.  Note that the tested
-// types are a subset of those tested with the 'GAUNTLET' macro.
-//=============================================================================
-
-#define DV_GAUNTLET(func) do {                                                \
-        if (verbose) printf("\t...with TestTypeNoAlloc.\n");                  \
-        func<TNA>(false, false);                                              \
-                                                                              \
-        if (verbose) printf("\t...with TestType.\n");                         \
-        func<T>(false, false);                                                \
-                                                                              \
-        if (verbose) printf("\t...with BitwiseMoveableTestType.\n");          \
-        func<BMT>(true, false);                                               \
-                                                                              \
-        if (verbose) printf("\t...with BitwiseCopyableTestType.\n");          \
-        func<BCT>(true, true);                                                \
-                                                                              \
-        if (verbose) printf("\t...with char.\n");                             \
-        func<char>(true, true);                                               \
-                                                                              \
-        if (verbose) printf("\t...with char.\n");                             \
-        func<signed char>(true, true);                                        \
-                                                                              \
-        if (verbose) printf("\t...with char.\n");                             \
-        func<unsigned char>(true, true);                                      \
-                                                                              \
-        if (verbose) printf("\t...with short.\n");                            \
-        func<short>(true, true);                                              \
-                                                                              \
-        if (verbose) printf("\t...with unsigned short.\n");                   \
-        func<unsigned short>(true, true);                                     \
-                                                                              \
-        if (verbose) printf("\t...with int.\n");                              \
-        func<int>(true, true);                                                \
-                                                                              \
-        if (verbose) printf("\t...with unsigned int.\n");                     \
-        func<unsigned int>(true, true);                                       \
-                                                                              \
-        if (verbose) printf("\t...with long.\n");                             \
-        func<long>(true, true);                                               \
-                                                                              \
-        if (verbose) printf("\t...with unsigned long.\n");                    \
-        func<unsigned long>(true, true);                                      \
-                                                                              \
-        if (verbose) printf("\t...with Int64.\n");                            \
-        func<Int64>(true, true);                                              \
-                                                                              \
-        if (verbose) printf("\t...with Uint64.\n");                           \
-        func<Uint64>(true, true);                                             \
-                                                                              \
-        if (verbose) printf("\t...with float.\n");                            \
-        func<float>(true, true);                                              \
-                                                                              \
-        if (verbose) printf("\t...with double.\n");                           \
-        func<double>(true, true);                                             \
-                                                                              \
-        if (verbose) printf("\t...with long double.\n");                      \
-        func<long double>(true, true);                                        \
-                                                                              \
-        if (verbose) printf("\t...with 'void *'.\n");                         \
-        func<void *>(true, true);                                             \
-                                                                              \
-        if (verbose) printf("\t...with 'const void *'.\n");                   \
-        func<const void *>(true, true);                                       \
-                                                                              \
-        if (verbose) printf("\t...with 'int *'.\n");                          \
-        func<int *>(true, true);                                              \
-                                                                              \
-        if (verbose) printf("\t...with 'const int *'.\n");                    \
-        func<const int *>(true, true);                                        \
-                                                                              \
-        if (verbose) printf("\t with 'FnPtrConvertibleType'.\n");             \
-        func<FnPtrConvertibleType>(true, true);                               \
-                                                                              \
-        if (verbose) printf("\t with 'AmbiguousConvertibleType'.\n");         \
-        func<AmbiguousConvertibleType>(true, true);                           \
-                                                                              \
-        if (verbose) printf("\tException test.\n");                           \
-        func<T>(false, false, true);                                          \
-    } while (false)
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -4360,7 +4423,7 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4405,7 +4468,7 @@ int main(int argc, char *argv[])
             ASSERT(u[i] == DATA[i]);
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING HYMAN'S TEST CASE 1
         //
@@ -4488,6 +4551,25 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'defaultConstruct'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //   emplace: order test data by increasing 'ne'.
+        //
+        // Testing:
+        //   void emplace(T *toBegin, T *toEnd, size_type ne, *a, ...args);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'defaultConstruct'"
+                            "\n==========================\n");
+
+        GAUNTLET(testDefaultConstruct);
+
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING 'emplace'
@@ -4508,8 +4590,8 @@ int main(int argc, char *argv[])
             printf("\nTesting 'emplace(T *toBegin, T *toEnd, "
                                               "size_type ne, *a, ...args)'\n");
 
-        DV_GAUNTLET(testEmplaceDefaultValueN);
-        GAUNTLET(testEmplaceValueN);
+        GAUNTLET(testEmplaceDefaultValue);
+        GAUNTLET(testEmplaceValue);
 
         // Verify zero up to five arguments work as expected.
 
