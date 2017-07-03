@@ -1058,7 +1058,7 @@ struct AtomicOperations {
 
     static Types::Int64 subtractInt64Nv(AtomicTypes::Int64 *atomicInt,
                                         Types::Int64        value);
-        // Atomically subtract from the specified 'atomicIint' the specified
+        // Atomically subtract from the specified 'atomicInt' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
 
@@ -1367,19 +1367,21 @@ struct AtomicOperations {
         // guarantee.
 
     static Types::Uint64 subtractUint64Nv(AtomicTypes::Uint64 *atomicUint,
-                                         Types::Uint64        value);
+                                          Types::Uint64        value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the sequential
         // consistency memory ordering guarantee.
 
-    static Types::Uint64 subtractUint64NvAcqRel(AtomicTypes::Uint64 *atomicUint,
-                                                Types::Uint64        value);
+    static Types::Uint64 subtractUint64NvAcqRel(
+                                               AtomicTypes::Uint64 *atomicUint,
+                                               Types::Uint64        value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, providing the
         // acquire/release memory ordering guarantee.
 
-    static Types::Uint64 subtractUint64NvRelaxed(AtomicTypes::Uint64 *atomicUint,
-                                                 Types::Uint64        value);
+    static Types::Uint64 subtractUint64NvRelaxed(
+                                                AtomicTypes::Uint64 *atomicUint,
+                                                Types::Uint64        value);
         // Atomically subtract from the specified 'atomicUint' the specified
         // 'value' and return the resulting value, without providing any memory
         // ordering guarantees.
