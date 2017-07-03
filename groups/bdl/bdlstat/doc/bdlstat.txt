@@ -6,16 +6,20 @@
 
 @DESCRIPTION: The 'bdlstat' package provides basic statisticalcomputations.  At
  the moment, this package contains a component, 'bdlstat_moment', for
- calculating mean, variance, skew, and kurtosis.
+ calculating mean, variance, skew, and kurtosis.  Another component,
+ 'bdlstat_linefit', is for calculating linear sqaures line fit.
 
 /Hierarchical Synopsis
 /---------------------
  The 'bdlstat' package currently has 1 component.
 ..
-  1. bdlstat_moment
+  1. bdlstat_linefit
+  2. bdlstat_moment
 ..
 
 /Component Synopsis
 /------------------
+: 'bdlstat_linefit':
+:      Provide functions for calculating linear squares line fit.
 : 'bdlstat_moment':
 :      Provide functions for calculating mean, variance, skew, and kurtosis.
