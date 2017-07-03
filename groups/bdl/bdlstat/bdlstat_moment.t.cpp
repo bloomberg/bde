@@ -23,11 +23,11 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test consists of several static member functions that
-// provide a way to generate an infinite series of dates and compute a subset
-// of it.  The general plan is that the methods are tested against a set of
-// tabulated test vectors, and negative tests for preconditions are conducted.
-// The test vectors cover the permutations of interest of relations of the type
+// The component under test consists of a templated object accumulating scalar
+// values and supporting mean, variance, skew, and kurtosis.  The general plan
+// is that the methods are tested against a set of tabulated test vectors, and
+// negative tests for preconditions are conducted.  The test vectors cover the
+// permutations of interest of relations of the type
 // 'earliest <= example <= latest' as well as edge cases for the resulting
 // schedule.
 // ----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//                     STANDARD BDE ASSERT TEST FUNCTION
+// STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -93,7 +93,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -110,7 +110,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define DAY(X) bdlt::DayOfWeek::e_##X       // Shorten qualified name
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+// GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlstat::Moment<bdlstat::M1> ObjM;

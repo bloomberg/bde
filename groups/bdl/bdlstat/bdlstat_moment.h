@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Calculating skew, variance, and mean
 ///- - - - - - - - - - - - - - - -
-// This example shows how to accumulate a set of value, and calculate the skew,
-// variance and kurtosis.
+// This example shows how to accumulate a set of values, and calculate the
+// skew, variance and kurtosis.
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
