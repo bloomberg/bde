@@ -150,28 +150,34 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Calculating skew, variance, and mean
+///Example 1: Calculating line fit, variance, and mean
 ///- - - - - - - - - - - - - - - -
-// This example shows how to accumulate a set of value, and calculate the skew,
-// variance and kurtosis.
+// This example shows how to accumulate a set of values, and calculate the
+// line fit parameters, variance and mean.
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-/*    double                       input[] = {1.0, 2.0, 4.0, 5.0};
-    bdlstat::Moment<bdlstat::M3> m3;
+  double inputX[] = {1.0, 2.0, 4.0, 5.0};
+  double inputY[] = {1.0, 2.0, 4.0, 4.5};
+  bdlstat::LineFit lineFit;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
-    for(int i = 0; i < 4; ++i) {
-        m3.add(input[i]);
-    }
+  for(int i = 0; i < 4; ++i) {
+      lineFit.add(inputX[i], inputY[i]);
+  }
 //..
-// Finally, we assert that the mean, variance, and skew are what we expect:
+// Finally, we assert that the alpha, beta, variance, and mean are what we 
+// expect:
 //..
-    ASSERT(4 == m3.getCount());
-    ASSERT(3.0 == m3.getMean());
-    ASSERT(fabs(3.33333 - m3.getVariance()) < 1e-5);
-    ASSERT(fabs(0.0     - m3.getSkew())     < 1e-5);*/
+  double alpha = 0.0, beta = 0.0;
+  ASSERT(4 == lineFit.getCount());
+  ASSERT(3.0 == lineFit.getXMean());
+  ASSERT(fabs(2.875    - lineFit.getYMean()) < 1e-3);
+  ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
+  ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
+  ASSERT(fabs(-231.125 - alpha)     < 1e-3);
+  ASSERT(fabs(78.0     - beta )     < 1e-3);
 //..
       } break;
       case 3: {
@@ -579,14 +585,17 @@ int main(int argc, char *argv[])
             lineFit.add(inputX[i], inputY[i]);
         }
 
-        double alpha, beta;
+        double alpha = 0.0, beta = 0.0;
         ASSERT(4 == lineFit.getCount());
+        cout << "YMean=" << lineFit.getYMean() << "\n";
         ASSERT(3.0 == lineFit.getXMean());
-        ASSERT(fabs(3.0 - lineFit.getYMean()) < 1e-5);
-        ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-5);
-        ASSERT(0 == lineFit.getLineFit(alpha, beta));
-        ASSERT(fabs(-1.38086 - alpha)     < 1e-5);
-        ASSERT(fabs(-1.38086 - beta )     < 1e-5);
+        ASSERT(fabs(2.875 - lineFit.getYMean()) < 1e-3);
+        cout << "Var=" << lineFit.getVariance() << "\n";
+        ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
+        ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
+        cout << "Alpha=" << alpha << ",Beta=" << beta << "\n";
+        ASSERT(fabs(-231.125 - alpha)     < 1e-3);
+        ASSERT(fabs(78.0 - beta )     < 1e-3);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Functions to calculate online least sqaures line fit. Y = A+B*X
+//@PURPOSE: Functions to calculate online least squares line fit (Y = A+B*X).
 //
 //@CLASSES:
 //  bdlstat::LineFit: calculate online least squares line fit
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // provides online calculation of least squares line fit.  Online algorithms
 // process the data in one pass, while keeping good accuracy.  The online
 // algorithm used is developed in the implementation notes, and is similar to
-// Wilford for variance. The formulae for line fit are taken from:
+// Wilford for variance.  The formulae for line fit are taken from:
 // https://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
 //
 // Note that the behavior is undefined if there are less than 2 data points, or
@@ -48,17 +48,17 @@ BSLS_IDENT("$Id: $")
 //      lineFit.add(inputX[i], inputY[i]);
 //  }
 //..
-// Finally, we assert that the alpha, beta, variance, and mean are what we 
+// Finally, we assert that the alpha, beta, variance, and mean are what we
 // expect:
 //..
 //  double alpha, beta;
 //  ASSERT(4 == lineFit.getCount());
 //  ASSERT(3.0 == lineFit.getXMean());
-//  ASSERT(fabs(3.0 - lineFit.getYMean()) < 1e-5);
-//  ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-5);
-//  ASSERT(0 == lineFit.getLineFit(alpha, beta));
-//  ASSERT(fabs(-1.38086 - alpha)     < 1e-5);
-//  ASSERT(fabs(-1.38086 - beta )     < 1e-5);
+//  ASSERT(fabs(2.875    - lineFit.getYMean()) < 1e-3);
+//  ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
+//  ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
+//  ASSERT(fabs(-231.125 - alpha)     < 1e-3);
+//  ASSERT(fabs(78.0     - beta )     < 1e-3);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -76,8 +76,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlstat {
 
+// BDE_VERIFY pragma: -TR17 // Avoid users having to specify template params
+// BDE_VERIFY pragma: -CP01 // Avoid users having to specify template params
+// BDE_VERIFY pragma: -AQa01 // Really, constexpr
 const double k_DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
     // Nan value to signify an illegal value returned.
+// BDE_VERIFY pragma: +TR17
+// BDE_VERIFY pragma: +CP01
+// BDE_VERIFY pragma: +AQa01
 
 
                             // =============
@@ -88,15 +94,8 @@ class LineFit {
     // This class provides efficient and accurate online algorithms for
     // calculating linear square line fit.  The class also calculates mean for
     // the X's and Y's, and variance for the X's, all byproducts of calculating
-    // the line fit.  The online algorithms used are
-    // Wilford for variance, and the stable M3 and M4 is taken from:
-    // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
-    //
-    // The formula for sample skewness is taken from:
-    // http://www.macroption.com/skewness-formula/
-    //
-    // The formula for sample excess kurtosis is taken from:
-    // http://www.macroption.com/kurtosis-formula/
+    // the line fit.  The online algorithm is detailed in the implementation
+    // notes.
   private:
     // DATA
     int    d_count; // Number of data points.
@@ -107,6 +106,10 @@ class LineFit {
     double d_xySum; // Sum of Xi*Yi
 
   public:
+    // CREATORS
+    LineFit();
+        // Create an empty 'LineFit' object.
+
     // MANIPULATORS
     void add(double xValue, double yValue);
         // Add the specified 'XValue', 'yValue' point to the data set.
@@ -168,12 +171,12 @@ LineFit::LineFit()
 inline
 void LineFit::add(double xValue, double yValue)
 {
-    const double delta = value - d_data.d_xMean;
-    ++d_data.d_count;
-    d_data.d_xSum += xValue;
-    d_data.d_ySum += yValue;
-    d_data.d_xMean = d_xSum / static_cast<double>(d_count);
-    const double delta2 = xValue - d_data.d_xMean;
+    const double delta = xValue - d_xMean;
+    ++d_count;
+    d_xSum += xValue;
+    d_ySum += yValue;
+    d_xMean = d_xSum / static_cast<double>(d_count);
+    const double delta2 = xValue - d_xMean;
     d_M2 += delta * delta2;
     d_xySum += xValue * yValue;
 }
@@ -186,14 +189,15 @@ int LineFit::getCount() const
 }
 
 inline
-int getLineFit(double *alpha, double *beta) const;
+int LineFit::getLineFit(double *alpha, double *beta) const
 {
-    if (2 > d_count || 0.0 == d_data.d_M2) {
+    if (2 > d_count || 0.0 == d_M2) {
         return -1;                                                    // RETURN
     }
     const double n = static_cast<double>(d_count);
-    beta = d_xySum + d_xSum * d_ySum / n;
-    alpha = (d_ySum - d_xSum * beta) / n;
+    double tmpBeta = d_xySum + d_xSum * d_ySum / n;
+    *beta = tmpBeta;
+    *alpha = (d_ySum - d_xSum * tmpBeta) / n;
     return 0;
 }
 
