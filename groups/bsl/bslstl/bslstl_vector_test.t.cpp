@@ -452,16 +452,6 @@ const int NUM_ALLOCS[] = {
        0,  1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6
 };
 
-// TBD 'bsltf::TemplateTestFacility::FunctionPtr' had to be omitted from the
-// following in the four contexts where this macro is used.
-
-#define REDUCED_TEST_TYPES_REGULAR                                            \
-        signed char,                                                          \
-        size_t,                                                               \
-        bsltf::TemplateTestFacility::ObjectPtr,                               \
-        bsltf::TemplateTestFacility::MethodPtr,                               \
-        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED
-
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
 // constructors.  Note, that you cannot change those values as they are used by
@@ -11331,6 +11321,7 @@ int main(int argc, char *argv[])
                       signed char,
                       size_t,
                       bsltf::TemplateTestFacility::ObjectPtr,
+                      bsltf::TemplateTestFacility::FunctionPtr,
                       const char *);
       } break;
       case 33: {
@@ -11412,19 +11403,8 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase28,
-                      signed char,
-                      size_t,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      // bsltf::TemplateTestFacility::FunctionPtr,
-                      bsltf::TemplateTestFacility::MethodPtr,
-                      bsltf::EnumeratedTestType::Enum,
-                      bsltf::UnionTestType,
-                      bsltf::SimpleTestType,
-                      bsltf::AllocTestType,
-                      bsltf::BitwiseCopyableTestType,
-                      bsltf::BitwiseMoveableTestType,
-                      bsltf::AllocBitwiseMoveableTestType,
-                      bsltf::NonTypicalOverloadsTestType,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      const char *,
                       bsltf::NonDefaultConstructibleTestType,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
@@ -11437,11 +11417,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase28,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      signed char,
-                      size_t,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      // bsltf::TemplateTestFacility::FunctionPtr,
-                      bsltf::TemplateTestFacility::MethodPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                      const char *);
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -11455,28 +11432,16 @@ int main(int argc, char *argv[])
             printf("This test has not yet been fully implemented.\n");
 
         if (verbose) printf("\nTesting Value Emplacement"
-                            "\n=======================\n");
+                            "\n=========================\n");
 
         // TBD: should be 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR'
         RUN_EACH_TYPE(TestDriver,
                       testCase27,
-                      signed char,
-                      size_t,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      // bsltf::TemplateTestFacility::FunctionPtr,
-                      bsltf::TemplateTestFacility::MethodPtr,
-                      bsltf::EnumeratedTestType::Enum,
-                      bsltf::UnionTestType,
-                      bsltf::SimpleTestType,
-                      bsltf::AllocTestType,
-                      bsltf::BitwiseCopyableTestType,
-                      bsltf::BitwiseMoveableTestType,
-                      bsltf::AllocBitwiseMoveableTestType,
-                      bsltf::NonTypicalOverloadsTestType,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      const char *,
                       bsltf::NonDefaultConstructibleTestType,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
-                      const char *,
                       NotAssignable,
                       BitwiseNotAssignable
                       );
@@ -11489,12 +11454,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase27,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      signed char,
-                      size_t,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      // bsltf::TemplateTestFacility::FunctionPtr,
-                      bsltf::TemplateTestFacility::MethodPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                      const char *);
       } break;
       case 26: {
         // --------------------------------------------------------------------
@@ -11713,6 +11674,20 @@ int main(int argc, char *argv[])
                                      bsltf::BitwiseMoveableTestType,
                                      bsltf::BitwiseCopyableTestType);
 
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCase17Range,
+                                     const char *,
+                                     bsltf::TemplateTestFacility::ObjectPtr,
+                                     bsltf::TemplateTestFacility::FunctionPtr,
+                                     bsltf::TemplateTestFacility::MethodPtr);
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCase17Range,
+                                     bsltf::NonTypicalOverloadsTestType,
+                                     bsltf::AllocBitwiseMoveableTestType,
+                                     bsltf::MovableTestType,
+                                     bsltf::MovableAllocTestType);
+
         if (verbose) printf("\nNegative Testing Insertions"
                             "\n===========================\n");
 
@@ -11852,8 +11827,15 @@ int main(int argc, char *argv[])
 
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
                                      testCase13Range,
+                                     const char *,
                                      bsltf::TemplateTestFacility::ObjectPtr,
                                      bsltf::TemplateTestFacility::FunctionPtr,
+                                     bsltf::TemplateTestFacility::MethodPtr);
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCase13Range,
+                                     bsltf::NonTypicalOverloadsTestType,
+                                     bsltf::AllocBitwiseMoveableTestType,
                                      bsltf::MovableTestType,
                                      bsltf::MovableAllocTestType);
 
@@ -11870,10 +11852,18 @@ int main(int argc, char *argv[])
 
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
                                      testCase13Negative,
+                                     const char *,
                                      bsltf::TemplateTestFacility::ObjectPtr,
                                      bsltf::TemplateTestFacility::FunctionPtr,
+                                     bsltf::TemplateTestFacility::MethodPtr);
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCase13Negative,
+                                     bsltf::NonTypicalOverloadsTestType,
+                                     bsltf::AllocBitwiseMoveableTestType,
                                      bsltf::MovableTestType,
                                      bsltf::MovableAllocTestType);
+
 
         if (verbose) printf("\nTest iterator vs. value type deduction"
                             "\n======================================\n");
@@ -11888,7 +11878,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase13,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                      const char *);
 
       } break;
       case 12: {
@@ -11930,11 +11921,17 @@ int main(int argc, char *argv[])
 
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
                                      testCase12Range,
+                                     const char *,
                                      bsltf::TemplateTestFacility::ObjectPtr,
                                      bsltf::TemplateTestFacility::FunctionPtr,
+                                     bsltf::TemplateTestFacility::MethodPtr);
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCase12Range,
+                                     bsltf::NonTypicalOverloadsTestType,
+                                     bsltf::AllocBitwiseMoveableTestType,
                                      NotAssignable,
-                                     BitwiseNotAssignable
-                                     );
+                                     BitwiseNotAssignable);
 
         if (verbose) printf("\nTesting Initial-Range vs. -Length Ambiguity"
                             "\n===========================================\n");
@@ -11944,7 +11941,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase12,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
+                      const char *);
       } break;
       case 11:
       case 10:

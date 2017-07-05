@@ -3151,290 +3151,58 @@ class vector< VALUE_TYPE *, ALLOCATOR >
 
                             // *** modifiers ***
 
+    void emplace_back()
+    {
+        Base::emplace_back();
+    }
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class ARG>
+    void emplace_back(ARG&& arg)
+    {
+        VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        Base::emplace_back(reinterpret_cast<void *>(ptr));
+    }
+# else
+    void emplace_back(VALUE_TYPE *ptr)
+    {
+        Base::emplace_back(reinterpret_cast<void *>(ptr));
+    }
+# endif
+
     void push_back(VALUE_TYPE *value)
     {
-        Base::push_back((void *) value);
+        Base::emplace_back(reinterpret_cast<void *>(value));
     }
 
     // void pop_back();
     //   This method can be inherited from Base without a cast.
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... Args>
-    iterator emplace(const_iterator position, Args&&... arguments)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-    }
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_vector.h
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
-#define BSLSTL_VECTOR_VARIADIC_LIMIT 10
-#endif
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_C
-#define BSLSTL_VECTOR_VARIADIC_LIMIT_C BSLSTL_VECTOR_VARIADIC_LIMIT
-#endif
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
     iterator emplace(const_iterator position)
     {
         return (iterator) Base::emplace((void *const *) position);
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
-    template <class Args_01>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class ARG>
+    iterator emplace(const_iterator position, ARG&& arg)
+    {
+        VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        return (iterator) Base::emplace((void *const *) position,
+                                        reinterpret_cast<void *>(ptr));
+    }
+# else
+    iterator emplace(const_iterator position, VALUE_TYPE *ptr)
     {
         return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+                                        reinterpret_cast<void *>(ptr));
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
-    template <class Args_01,
-              class Args_02>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
-    template <class Args_01,
-              class Args_02,
-              class Args_03>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07,
-              class Args_08>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07,
-              class Args_08,
-              class Args_09>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07,
-              class Args_08,
-              class Args_09,
-              class Args_10>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class... Args>
-    iterator emplace(const_iterator position,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-    {
-        return (iterator) Base::emplace((void *const *) position,
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-    }
-// }}} END GENERATED CODE
-#endif
+# endif
 
     iterator insert(const_iterator position, VALUE_TYPE *value)
     {
-        return (iterator) Base::insert((void *const *) position,
-                                       (void *) value);
+        return (iterator) Base::emplace((void *const *) position,
+                                        reinterpret_cast<void *>(value));
     }
 
     iterator insert(const_iterator  position,
@@ -3799,290 +3567,58 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
 
                             // *** modifiers ***
 
+    void emplace_back()
+    {
+        Base::emplace_back();
+    }
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class ARG>
+    void emplace_back(ARG&& arg)
+    {
+        const VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        Base::emplace_back(static_cast<const void *>(ptr));
+    }
+# else
+    void emplace_back(const VALUE_TYPE *ptr)
+    {
+        Base::emplace_back(static_cast<const void *>(ptr));
+    }
+# endif
+
     void push_back(const VALUE_TYPE *value)
     {
-        Base::push_back((const void *) value);
+        Base::emplace_back(static_cast<const void *>(value));
     }
 
     // void pop_back();
     //   This method can be inherited from Base without a cast.
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... Args>
-    iterator emplace(const_iterator position, Args&&... arguments)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-    }
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslstl_vector.h
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
-#define BSLSTL_VECTOR_VARIADIC_LIMIT 10
-#endif
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_D
-#define BSLSTL_VECTOR_VARIADIC_LIMIT_D BSLSTL_VECTOR_VARIADIC_LIMIT
-#endif
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 0
     iterator emplace(const_iterator position)
     {
         return (iterator) Base::emplace((const void *const *) position);
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 1
-    template <class Args_01>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class ARG>
+    iterator emplace(const_iterator position, ARG&& arg)
+    {
+        const VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        return (iterator) Base::emplace((const void *const *) position,
+                                        static_cast<const void *>(ptr));
+    }
+# else
+    iterator emplace(const_iterator position, const VALUE_TYPE *ptr)
     {
         return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+                                        static_cast<const void *>(ptr));
     }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 1
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 2
-    template <class Args_01,
-              class Args_02>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 2
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 3
-    template <class Args_01,
-              class Args_02,
-              class Args_03>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 3
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 4
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 4
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 5
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 5
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 6
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 6
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 7
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 7
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 8
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07,
-              class Args_08>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 8
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 9
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07,
-              class Args_08,
-              class Args_09>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 9
-
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 10
-    template <class Args_01,
-              class Args_02,
-              class Args_03,
-              class Args_04,
-              class Args_05,
-              class Args_06,
-              class Args_07,
-              class Args_08,
-              class Args_09,
-              class Args_10>
-    iterator emplace(const_iterator position,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                         BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
-                         BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
-    }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_D >= 10
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class... Args>
-    iterator emplace(const_iterator position,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-    {
-        return (iterator) Base::emplace((const void *const *) position,
-                            BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-    }
-// }}} END GENERATED CODE
-#endif
+# endif
 
     iterator insert(const_iterator position, const VALUE_TYPE *value)
     {
-        return (iterator) Base::insert((const void *const *) position,
-                                       (const void *) value);
+        return (iterator) Base::emplace((const void *const *) position,
+                                        static_cast<const void *>(value));
     }
 
     iterator insert(const_iterator    position,
