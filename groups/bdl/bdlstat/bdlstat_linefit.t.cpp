@@ -176,8 +176,8 @@ int main(int argc, char *argv[])
   ASSERT(fabs(2.875    - lineFit.getYMean()) < 1e-3);
   ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
   ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
-  ASSERT(fabs(-231.125 - alpha)     < 1e-3);
-  ASSERT(fabs(78.0     - beta )     < 1e-3);
+  ASSERT(fabs(0.175 - alpha)     < 1e-3);
+  ASSERT(fabs(0.9   - beta )     < 1e-3);
 //..
       } break;
       case 3: {
@@ -587,15 +587,15 @@ int main(int argc, char *argv[])
 
         double alpha = 0.0, beta = 0.0;
         ASSERT(4 == lineFit.getCount());
-        cout << "YMean=" << lineFit.getYMean() << "\n";
+        //cout << "YMean=" << lineFit.getYMean() << "\n";
         ASSERT(3.0 == lineFit.getXMean());
         ASSERT(fabs(2.875 - lineFit.getYMean()) < 1e-3);
-        cout << "Var=" << lineFit.getVariance() << "\n";
+        //cout << "Var=" << lineFit.getVariance() << "\n";
         ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
         ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
-        cout << "Alpha=" << alpha << ",Beta=" << beta << "\n";
-        ASSERT(fabs(-231.125 - alpha)     < 1e-3);
-        ASSERT(fabs(78.0 - beta )     < 1e-3);
+        //cout << "Alpha=" << alpha << ",Beta=" << beta << "\n";
+        ASSERT(fabs(0.175 - alpha)     < 1e-3);
+        ASSERT(fabs(0.9 - beta )     < 1e-3);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

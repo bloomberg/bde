@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(fabs(2.875    - lineFit.getYMean()) < 1e-3);
 //  ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
 //  ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
-//  ASSERT(fabs(-231.125 - alpha)     < 1e-3);
-//  ASSERT(fabs(78.0     - beta )     < 1e-3);
+//  ASSERT(fabs(0.175 - alpha)     < 1e-3);
+//  ASSERT(fabs(0.9   - beta )     < 1e-3);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -195,7 +195,7 @@ int LineFit::getLineFit(double *alpha, double *beta) const
         return -1;                                                    // RETURN
     }
     const double n = static_cast<double>(d_count);
-    double tmpBeta = d_xySum + d_xSum * d_ySum / n;
+    double tmpBeta = (d_xySum - d_xSum * d_ySum / n) / d_M2;
     *beta = tmpBeta;
     *alpha = (d_ySum - d_xSum * tmpBeta) / n;
     return 0;
