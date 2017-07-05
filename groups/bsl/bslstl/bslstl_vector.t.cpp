@@ -99,13 +99,16 @@
 // [11] TRAITS
 //
 // CREATORS:
-// [ 2] vector<T,A>(const A& a = A());
+// [ 2] vector<T,A>();
+// [ 2] vector<T,A>(const A& a);
 // [12] vector<T,A>(size_type n, const A& alloc = A());
 // [12] vector<T,A>(size_type n, const T& value, const A& alloc = A());
 // [12] vector<T,A>(InputIter first, InputIter last, const A& alloc = A());
-// [ 7] vector<T,A>(const vector<T,A>& original, const A& alloc = A());
-// [23] vector(vector<T,A>&& original, const A& alloc = A());
-// [29] vector(initializer_list<T>, const A& alloc = A());
+// [ 7] vector<T,A>(const vector<T,A>& original);
+// [ 7] vector<T,A>(const vector<T,A>& original, const A& alloc);
+// [23] vector<T,A>(vector&& original);
+// [23] vector<T,A>(vector&& original, const A& alloc);
+// [29] vector<T,A>(initializer_list<T>, const A& alloc = A());
 // [ 2] ~vector<T,A>();
 //
 /// MANIPULATORS:
@@ -443,16 +446,6 @@ const int NUM_ALLOCS[] = {
     // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
        0,  1,  2,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,  5,  6
 };
-
-// TBD 'bsltf::TemplateTestFacility::FunctionPtr' had to be omitted from the
-// following in the four contexts where this macro is used.
-
-#define REDUCED_TEST_TYPES_REGULAR                                            \
-        signed char,                                                          \
-        size_t,                                                               \
-        bsltf::TemplateTestFacility::ObjectPtr,                               \
-        bsltf::TemplateTestFacility::MethodPtr,                               \
-        BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED
 
 // Define values used to initialize positional arguments for
 // 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
@@ -1537,6 +1530,7 @@ void TestDriver<TYPE, ALLOC>::testCase11()
 
     ASSERT(( bslma::UsesBslmaAllocator<TYPE>::value));
     {
+        // Note that this constructor has not otherwise been tested yet
         Obj mX(1, VALUES[0], &ta);  const Obj& X = mX;
         ASSERT(&ta == X[0].allocator());
         ASSERT(2   == ta.numBlocksInUse());
@@ -1595,7 +1589,8 @@ void TestDriver<TYPE, ALLOC>::
 
         StdAlloc scratch(&da);
 
-        const Obj W(IVALUES.begin(), IVALUES.end(), scratch);  // control
+        Obj mW(scratch);
+        const Obj& W = gg(&mW, ISPEC);  // control
 
         // Create target object.
         for (int tj = 0; tj < NUM_SPECS; ++tj) {
@@ -1604,13 +1599,13 @@ void TestDriver<TYPE, ALLOC>::
             {
                 IVALUES.resetIterators();
 
-                Obj        mY(IVALUES.begin(), IVALUES.end(), mas);
-                const Obj& Y = mY;
+                Obj        mY(mas);
+                const Obj& Y = gg(&mY, ISPEC);
 
                 if (veryVerbose) { T_ P_(ISPEC) P_(Y) P(W) }
 
-                Obj        mX(JVALUES.begin(), JVALUES.end(), mat);
-                const Obj& X = mX;
+                Obj        mX(mat);
+                const Obj& X = gg(&mX, JSPEC);
 
                 bslma::TestAllocatorMonitor oasm(&oas);
                 bslma::TestAllocatorMonitor oatm(&oat);
@@ -3546,7 +3541,7 @@ void TestDriver<TYPE, ALLOC>::testCase4a()
                       objAllocatorPtr = &da;
                   } break;
                   case 'b': {
-                      objPtr = new (fa) Obj(0);
+                      objPtr = new (fa) Obj((bslma::Allocator *)0);
                       objAllocatorPtr = &da;
                   } break;
                   case 'c': {
@@ -3688,7 +3683,7 @@ void TestDriver<TYPE, ALLOC>::testCase4a()
                       objPtr = new (fa) Obj();
                   } break;
                   case 'b': {
-                      objPtr = new (fa) Obj(0);
+                      objPtr = new (fa) Obj((bslma::Allocator *)0);
                   } break;
                   case 'c': {
                       objPtr = new (fa) Obj(&sa1);
@@ -5304,7 +5299,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
-                      REDUCED_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       const char *,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
@@ -5353,7 +5348,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase7_select_on_container_copy_construction,
-                      REDUCED_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       const char *,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,

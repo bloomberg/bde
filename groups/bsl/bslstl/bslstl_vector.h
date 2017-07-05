@@ -5305,7 +5305,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();  // Nothing after this can throw
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5360,7 +5360,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5410,7 +5410,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5464,7 +5464,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5522,7 +5522,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5584,7 +5584,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5650,7 +5650,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5720,7 +5720,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5794,7 +5794,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5872,7 +5872,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -5954,7 +5954,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -6040,7 +6040,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -6092,7 +6092,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
@@ -6141,7 +6141,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
                                          this->d_dataEnd_p,
                                          ContainerBase::allocator());
         guard.release();  // Nothing after this can throw
-        
+
         this->d_dataEnd_p = this->d_dataBegin_p;
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);

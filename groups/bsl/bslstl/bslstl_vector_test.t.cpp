@@ -101,13 +101,16 @@
 // [11] TRAITS
 //
 // CREATORS:
-// [ 2] vector<T,A>(const A& a = A());
+// [ 2] vector<T,A>();
+// [ 2] vector<T,A>(const A& a);
 // [12] vector<T,A>(size_type n, const A& alloc = A());
 // [12] vector<T,A>(size_type n, const T& value, const A& alloc = A());
 // [12] vector<T,A>(InputIter first, InputIter last, const A& alloc = A());
-// [ 7] vector<T,A>(const vector<T,A>& original, const A& alloc = A());
-// [23] vector(vector<T,A>&& original, const A& alloc = A());
-// [29] vector(initializer_list<T>, const A& alloc = A());
+// [ 7] vector<T,A>(const vector<T,A>& original);
+// [ 7] vector<T,A>(const vector<T,A>& original, const A& alloc);
+// [23] vector<T,A>(vector&& original);
+// [23] vector<T,A>(vector&& original, const A& alloc);
+// [29] vector<T,A>(initializer_list<T>, const A& alloc = A());
 // [ 2] ~vector<T,A>();
 //
 /// MANIPULATORS:
