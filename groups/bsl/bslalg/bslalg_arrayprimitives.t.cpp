@@ -4401,10 +4401,10 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
         if (verbose) printf("\t...with 'FuncPtrType'.\n");                    \
         func<FuncPtrType>(true, true);                                        \
                                                                               \
-        if (verbose) printf("\t with 'FnPtrConvertibleType'.\n");             \
+        if (verbose) printf("\t...with 'FnPtrConvertibleType'.\n");           \
         func<FnPtrConvertibleType>(true, true);                               \
                                                                               \
-        if (verbose) printf("\t with 'AmbiguousConvertibleType'.\n");         \
+        if (verbose) printf("\t...with 'AmbiguousConvertibleType'.\n");       \
         func<AmbiguousConvertibleType>(true, true);                           \
                                                                               \
         if (verbose) printf("\tException test.\n");                           \
@@ -4596,14 +4596,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'emplace'"
                             "\n================\n");
 
-        if (verbose)
-            printf("\nTesting 'emplace(T *toBegin, T *toEnd, "
-                                              "size_type ne, *a, ...args)'\n");
+        if (verbose) printf(
+                         "\nTesting 'emplace(T *toBegin, T *toEnd, alloc)'\n");
 
         GAUNTLET(testEmplaceDefaultValue);
+
+        if (verbose) printf(
+                   "\nTesting 'emplace(T *toBegin, T *toEnd, alloc, rval)'\n");
+
         GAUNTLET(testEmplaceValue);
 
         // Verify zero up to five arguments work as expected.
+
+        if (verbose) printf(
+                "\nTesting 'emplace(T *toBegin, T *toEnd, alloc, args...)'\n");
 
         testEmplaceAttrib5(false);
         testEmplaceAttrib5(true );

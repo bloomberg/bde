@@ -4193,8 +4193,10 @@ ConstructionUtil_Imp::construct(
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value
      || bsl::is_pointer<TARGET_TYPE>::value
-     || bsl::is_member_pointer<TARGET_TYPE>::value) {
-
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
+     || bsl::is_member_pointer<TARGET_TYPE>::value
+#endif
+     ) {
         ::new (voidify(address)) TARGET_TYPE();
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
