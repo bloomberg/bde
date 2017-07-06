@@ -12,10 +12,102 @@
 //@CLASSES:
 //   balb::AssertionTracker: capture information about failed assertions
 //
+//@SEE_ALSO: balb_assertiontrackersingleton
+//
 //@DESCRIPTION: The 'balb::AssertionTracker' component keeps track of failed
 // assertions and the stack traces leading to them.  It provides means by which
 // such collection can be limited so as not to overwhelm processes where
 // assertions fail frequently, and ways to examine the accumulated data.
+//
+// For purposes of this component, an assertion is considered to have a
+// location, represented by a triple of assertion text, source file name, and
+// source line number, and a stack trace, consisting of a vector of addresses
+// representing the call stack from 'main()' to the assertion location.  (Note
+// that an assertion that appears to have a single location and stack trace in
+// the source code may nevertheless appear as having multiple stack traces when
+// they occur.  This is because compiler optimizations such as inlining, loop
+// unrolling, and frame-pointer suppression can generate duplicates of the
+// assertion line or disguise the call stack.)
+//
+// This component serves as a means whereby assertion failures can be noted,
+// tracked, and reported, but does not itself provide the facility for
+// being attached to the global 'bsls::Assert' system (and indeed the usage
+// example below shows how this component may be used independently of that).
+// Rather, this component considers an assertion to have occurred when its
+// 'assertionDetected' method is invoked.  The separate
+// 'balb::AssertionTrackerSingleton' component mediates between this component
+// and the 'bsls::Assert' system.
+//
+// The behavior of this component involves the actions of three function object
+// callbacks:
+//: o Fallback Handler
+//:   When the number of assertions exceeds configured parameters (or in the
+//:   unlikely case that one of these callbacks itself fails an assertion), the
+//:   assertion is reported to this handler instead.
+//:
+//:   By default, the failure handler installed in the 'bsls::Assert' system is
+//:   used for this.
+//:
+//: o Reporting Callback
+//:   When an assertion failure occurs and the component configuration requires
+//:   the failure to be reported, the reporting callback is invoked and passed
+//:   information about the assertion, including the number of times it has
+//:   occurred and the stack trace (as a vector of addresses, without symbolic
+//:   information) to the place where it was triggered.  The reporting callback
+//:   is also used to report the accumulated set of recorded assertion traces
+//:   when this is requested through a call to 'reportAllRecordedStackTraces'.
+//:
+//:   By default, reporting is done using the platform default message handler
+//:   of the 'bsls::Log' system.
+//:
+//: o Configuration Callback
+//:   Each time an assertion failure occurs, this component first calls the
+//:   configuration callback and resets the component configuration based on
+//:   its results.  This callback can, for example, query 'BREG' settings and
+//:   thereby allow reporting to be dynamically enabled or disabled.
+//:
+//:   By default, configuration is left unchanged.
+//
+// Configuration of this component is mediated through five properties:
+//: o 'maxAssertions' (default -1)
+//:   The maximum number of assertion occurrences this object will handle,
+//:   unlimited if set to -1.  If more assertions occur, they will be
+//:   reported to the fallback handler and their stack traces will not be
+//:   stored.
+//:
+//: o 'maxLocations' (default -1)
+//:   The maximum number of assertion locations (i.e., pairs of file name
+//:   and line number) this object will handle, unlimited if set to -1.  If
+//:   assertions at more locations occur, they will be reported to the
+//:   fallback handler and their stack traces will not be stored.
+//:
+//: o 'maxStackTracesPerLocation' (default -1)
+//:   The maximum number of different stack traces that will be stored per
+//:   assertion location, unlimited if -1.  (A stack trace is the path of
+//:   function calls leading to the assertion location.  A given assertion
+//:   location may be reached through different paths.)  If more stack traces
+//:   for a location occur, the assertion will be reported to the fallback
+//:   handler and the stack traces will not be stored.
+//:
+//: o 'reportingSeverity' (default 'bsls::LogSeverity::e_FATAL')
+//:   This severity value is passed to the reporting callback.
+//:
+//: o 'reportingFrequency' (default 'e_onNewStackTrace')
+//:   This parameter controls whether an assertion occurrence is reported via
+//:   the reporting callback or whether it is only counted but not reported.
+//:   The possible values are:
+//:   o 'e_onEachAssertion'
+//:     All assertion occurrences are reported.
+//:
+//:   o 'e_onNewStackTrace'
+//:     The first time a new stack trace is seen, it is reported.  Subsequent
+//:     instances of the same stack trace are counted but not reported.
+//:
+//:   o 'e_onNewLocation'
+//:     The first time a new location (i.e., a pair of file and line) is seen,
+//:     it is reported.  Subsequent instances of the same location, even if
+//:     they have different stack traces, are counted (by stack trace) but not
+//:     reported.
 //
 ///Thread Safety
 ///-------------
@@ -154,66 +246,6 @@ namespace balb {
                             // ======================
 
 class AssertionTracker {
-    // This class provides the ability to keep track of multiple assertion
-    // failures and report them when they occur or cumulatively, including
-    // stack traces to enable determiming the paths leading to failure.
-    //
-    // This class can be configured with a fallback handler, a configuration
-    // callback, and a reporting callback.  It has sensible defaults if none
-    // are specified:
-    //
-    //: fallback handler
-    //: - set to 'bsls::Assert::failureHandler()'
-    //:
-    //: configuration callback
-    //: - retains configuration with no changes.
-    //:
-    //: reporting callback
-    //: - log via 'bsls::Log::platformDefaultMessageHandler'
-    //
-    // How assertions are reported is determined by five configuration
-    // parameters mediated by a client-controlled configuration callback.
-    // This callback is invoked each time an assertion failure is reported via
-    // 'reportAssertion' in order to make dynamic control of reporting
-    // possible, for example by modifying 'BREGs'.  The parameters are
-    //
-    //: maxAssertions (default -1)
-    //: - The maximum number of assertion occurrences this object will handle,
-    //: unlimited if set to -1.  If more assertions occur, they will be
-    //: reported to the fallback handler and their stack traces will not be
-    //: stored.
-    //:
-    //: maxLocations (default -1)
-    //: - The maximum number of assertion locations (i.e., pairs of file name
-    //: and line number) this object will handle, unlimited if set to -1.  If
-    //: assertions at more locations occur, they will be reported to the
-    //: fallback handler and their stack traces will not be stored.
-    //:
-    //: maxStackTracesPerLocation (default -1)
-    //: - The maximum number of different stack traces that will be stored per
-    //: assertion location, unlimited if -1.  (A stack trace is the path of
-    //: function calls leading to the assertion location.  A given assertion
-    //: location may be reached through many different paths.)  If more stack
-    //: traces for a location occur, the assertion will be reported to the
-    //: fallback handler and the stack traces will not be stored.
-    //:
-    //: reportingSeverity (default 'bsls::LogSeverity::e_FATAL')
-    //: - This severity value is passed to the reporting callback.
-    //:
-    //: reportingFrequency (default 'e_onNewStackTrace')
-    //: - This parameter controls what assertion occurrences are reported via
-    //: the reporting callback. The possible values are
-    //:
-    //:   1 'e_onEachAssertion' - All assertion occurrences are reported.
-    //:
-    //:   2 'e_onNewStackTrace' - The first time a new stack trace is seen, it
-    //:       is reported.  Subsequent instances of the same stack trace are
-    //:       counted but not reported.
-    //:
-    //:   3 'e_onNewLocation'   - The first time a new location (i.e., a pair
-    //:       of file and line) is seen, it is reported.  Subsequent instances
-    //:       of the same location, even if they have different stack traces,
-    //:       are counted (by stack trace) but not reported.
   private:
     // PRIVATE TYPES
     typedef const char *Text;  // assertion text type
@@ -243,22 +275,15 @@ class AssertionTracker {
 
   public:
     // PUBLIC TYPES
-
-    // To allow configuration callbacks to be written in C, we treat the set of
-    // configuration options as an array of five integers.  This enumeration
-    // describes the meaning of each array element.
-    enum ConfigurationOrder {
-        e_maxAssertions,
-        e_maxLocations,
-        e_maxStackTracesPerLocation,
-        e_severity,
-        e_reportingFrequency
-    };
-
-    typedef bsl::function<void(int*)> ConfigurationCallback;
+    typedef bsl::function<void(int *maxAssertions,
+                               int *maxLocations,
+                               int *maxStackTracesPerLocation,
+                               int *reportingSeverity,
+                               int *reportingFrequency)>
+        ConfigurationCallback;
                                // a configuration callback is a functor that
-                               // receives an array of five integers, as
-                               // described above
+                               // receives pointers to five integer parameters
+                               // that it can modify
 
     typedef bsl::function<void(int                         ,
                                int                         ,
@@ -298,7 +323,7 @@ class AssertionTracker {
     bsls::AtomicInt         d_maxStackTracesPerLocation;
         // configured limit of per-location stack traces that will be processed
 
-    bsls::AtomicInt         d_severity;
+    bsls::AtomicInt         d_reportingSeverity;
         // configured severity, passed to reporting callback
 
     bsls::AtomicInt         d_assertionCount;
@@ -333,7 +358,11 @@ class AssertionTracker {
 
   public:
     // CLASS METHODS
-    static void preserveConfiguration(int *);
+    static void preserveConfiguration(int *maxAssertions,
+                                      int *maxLocations,
+                                      int *maxStackTracesPerLocation,
+                                      int *reportingSeverity,
+                                      int *reportingFrequency);
         // This function can be installed as a configuration callback.  It
         // leaves the configuration unchanged.  This function is used as the
         // default configuration callback.
@@ -383,8 +412,11 @@ class AssertionTracker {
         // of assertions that have already been reported previously, this
         // assertion and its stack trace may be stored, and it may be reported
         // through the reporting callback, the fallback handler, or not at all.
-        // See the class description above for how configuration controls this
-        // behavior.
+        // See the description above for how configuration controls this
+        // behavior.  The behavior is undefined unless 'text' and 'file' have a
+        // lifetime exceeding this object and their contents do not change once
+        // this method has been called.  (In typical use, both are string
+        // constants, and this requirement is trivially met.)
 
     void setConfigurationCallback(ConfigurationCallback cb);
         // Set the configuration callback function, invoked when an assertion
