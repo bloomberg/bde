@@ -824,8 +824,7 @@ class EventScheduler {
         // with.
 
     int numEvents() const;
-        // Return the number of pending and executing one-time events in this
-        // scheduler.
+        // Return the number of pending one-time events in this scheduler.
 
     int numRecurringEvents() const;
         // Return the number of recurring events registered with this
