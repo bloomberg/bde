@@ -1828,7 +1828,17 @@ bool isDefault(const AmbiguousConvertibleType& obj,
 {
     (void)usesBslmaAllocator;
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    // There is an odd compiler/linker bug on the Sun CC platform prior to the
+    // 12.4 compiler, that means the linker will fail to find the function
+    // below if part of the returned test-expression, but all works fine if
+    // used as a named constant.
+
+    const FuncPtrType ZERO = &::funcTemplate<0>;
+    return ZERO == static_cast<FuncPtrType>(obj);
+#else
     return &funcTemplate<0> == static_cast<FuncPtrType>(obj);
+#endif
 }
 
 template <class TYPE>
