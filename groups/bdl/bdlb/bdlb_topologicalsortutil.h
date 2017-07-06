@@ -424,9 +424,8 @@ class TopologicalSortUtil_Helper {
     // PRIVATE TYPES
     typedef typename bsl::iterator_traits<INPUT_ITER>::value_type
                                                                  IteratorValue;
-    typedef typename TopologicalSortUtilMappingTraits<IteratorValue>
-                                                                 MappingTraits;
-    typedef typename MappingTraits::ValueType ValueType;
+    typedef TopologicalSortUtilMappingTraits<IteratorValue>      MappingTraits;
+    typedef typename MappingTraits::ValueType                    ValueType;
 
     struct NodeInfo {
         // PUBLIC DATA
