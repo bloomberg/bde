@@ -109,14 +109,14 @@ class CustomMapping {
 };
 
 template <>
-struct BloombergLP::bdlb::TopologicalSortUtil_MappingTraits<CustomMapping> {
-    typedef int value_type;
+struct BloombergLP::bdlb::TopologicalSortUtilMappingTraits<CustomMapping> {
+    typedef int ValueType;
 
-    static value_type from(const CustomMapping& mapping) {
+    static ValueType from(const CustomMapping& mapping) {
         return mapping.from();
     }
 
-    static value_type to(const CustomMapping& mapping) {
+    static ValueType to(const CustomMapping& mapping) {
         return mapping.to();
     }
 };
@@ -248,34 +248,43 @@ int main(int argc, char *argv[])
             ASSERT(calculated[k_vwapTurnover] == true);
             ASSERT(calculated[k_vwapVolume]   == true);
 
+            ASSERT(calculated[k_bbgDefinedVwap] == false);
             calculated[k_bbgDefinedVwap] = true;
           } break;
           case k_vwapTurnover: {
             ASSERT(calculated[k_tradeSize]  == true);
             ASSERT(calculated[k_tradePrice] == true);
 
+            ASSERT(calculated[k_vwapTurnover] == false);
             calculated[k_vwapTurnover] = true;
           } break;
           case k_vwapVolume: {
             ASSERT(calculated[k_tradeSize]  == true);
 
+            ASSERT(calculated[k_vwapVolume] == false);
             calculated[k_vwapVolume] = true;
           } break;
           case k_tradeSize: {
             ASSERT(calculated[k_vwapVolume]   == false);
             ASSERT(calculated[k_vwapTurnover] == false);
 
+            ASSERT(calculated[k_tradeSize] == false);
             calculated[k_tradeSize] = true;
           } break;
           case k_tradePrice: {
             ASSERT(calculated[k_vwapTurnover] == false);
 
+            ASSERT(calculated[k_tradePrice] == false);
             calculated[k_tradePrice] = true;
           } break;
           default:
             ASSERT(false);
             break;
         };
+    }
+
+    for (int i = 0; i < 5; ++i) {
+        ASSERT(calculated[i] == true);
     }
 //..
 ///Example 2: Using topological sort with cycles in input
@@ -386,10 +395,10 @@ int main(int argc, char *argv[])
     bsl::vector<int> results4;
     bsl::vector<int> unordered4;
     typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
-    bool sorted4 = TopologicalSortUtil::sort(OutIter(results4),
-                                             OutIter(unordered3),
-                                             relations4.begin(),
-                                             relations4.end());
+    bool sorted4 = TopologicalSortUtil::sort(relations4.begin(),
+                                             relations4.end(),
+                                             OutIter(results4),
+                                             OutIter(unordered3));
 //..
 // Finally, we verify that the self relations causes the cycle:
 //..
@@ -413,10 +422,10 @@ int main(int argc, char *argv[])
 //..
     bsl::list<int> results5;
     typedef bsl::back_insert_iterator<bsl::list<int> > ListOutIter;
-    bool sorted5 = TopologicalSortUtil::sort(ListOutIter(results5),
-                                             NullOutputIterator(),
-                                             relations4.begin(),
-                                             relations4.end());
+    bool sorted5 = TopologicalSortUtil::sort(relations4.begin(),
+                                             relations4.end(),
+                                             ListOutIter(results5),
+                                             NullOutputIterator());
 //..
 // Finally, we verify that the self relations causes the cycle:
 //..
@@ -439,12 +448,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The code compiles thanks to the specialization of the
-        //:   'TopologicalSortUtil_MappingTraits' template.  See the custom
+        //:   'TopologicalSortUtilMappingTraits' template.  See the custom
         //:   class and the specialization before 'main' (C++03 does not
         //:   support local classes in templates.)
         //
         // Testing:
-        //   TopologicalSortUtil_MappingTraits
+        //   TopologicalSortUtilMappingTraits
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -460,10 +469,10 @@ int main(int argc, char *argv[])
         bsl::vector<int> results;
         bsl::vector<int> unordered;
         typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
-        bool sorted = TopologicalSortUtil::sort(OutIter(results),
-                                                OutIter(unordered),
-                                                relations.begin(),
-                                                relations.end());
+        bool sorted = TopologicalSortUtil::sort(relations.begin(),
+                                                relations.end(),
+                                                OutIter(results),
+                                                OutIter(unordered));
         ASSERT(false == sorted);
         ASSERT(results.empty());
 
@@ -704,11 +713,11 @@ int main(int argc, char *argv[])
             bsl::set<int> unordered;
             typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
             const bool sorted = TopologicalSortUtil::sort(
-                                                     OutIter(results),
-                                                     inserter(unordered,
-                                                              unordered.end()),
-                                                     relations.begin(),
-                                                     relations.end());
+                                                    relations.begin(),
+                                                    relations.end(),
+                                                    OutIter(results),
+                                                    inserter(unordered,
+                                                             unordered.end()));
             ASSERT(true == sorted);
             ASSERT(unordered.empty());
 
