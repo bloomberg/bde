@@ -108,8 +108,11 @@ class CustomMapping {
     }
 };
 
+namespace BloombergLP {
+namespace bdlb {
+
 template <>
-struct BloombergLP::bdlb::TopologicalSortUtilMappingTraits<CustomMapping> {
+struct TopologicalSortUtilMappingTraits<CustomMapping> {
     typedef int ValueType;
 
     static ValueType from(const CustomMapping& mapping) {
@@ -120,6 +123,9 @@ struct BloombergLP::bdlb::TopologicalSortUtilMappingTraits<CustomMapping> {
         return mapping.to();
     }
 };
+
+}  // close package namespace
+}  // close enterprise namespace
 
                               // ==================
                               // NullOutputIterator
