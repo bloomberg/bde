@@ -114,7 +114,7 @@ bsl::string formatAssertion(int                         count,
                             // ----------------------
 
 // CLASS METHODS
-void AssertionTracker::preserveConfiguration(int *)
+void AssertionTracker::preserveConfiguration(int *, int *, int *, int *, int *)
 {
 }
 
@@ -149,7 +149,7 @@ AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallback,
 , d_maxAssertions(-1)
 , d_maxLocations(-1)
 , d_maxStackTracesPerLocation(-1)
-, d_severity(bsls::LogSeverity::e_FATAL)
+, d_reportingSeverity(bsls::LogSeverity::e_FATAL)
 , d_assertionCount(0)
 , d_trackingData(basicAllocator)
 , d_configurationCallback(configure)
@@ -183,20 +183,21 @@ void AssertionTracker::assertionDetected(const char *text,
     bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
 
     if (d_configurationCallback) {
-        int configuration[5] = {d_maxAssertions,
-                                d_maxLocations,
-                                d_maxStackTracesPerLocation,
-                                d_severity,
-                                d_reportingFrequency};
-        d_configurationCallback(&configuration[0]);
-        setMaxAssertions(configuration[e_maxAssertions]);
-        setMaxLocations(configuration[e_maxLocations]);
-        setMaxStackTracesPerLocation(
-            configuration[e_maxStackTracesPerLocation]);
-        setReportingSeverity(
-            bsls::LogSeverity::Enum(configuration[e_severity]));
-        setReportingFrequency(
-            ReportingFrequency(configuration[e_reportingFrequency]));
+        int maxAssertions             = d_maxAssertions;
+        int maxLocations              = d_maxLocations;
+        int maxStackTracesPerLocation = d_maxStackTracesPerLocation;
+        int reportingSeverity         = d_reportingSeverity;
+        int reportingFrequency        = d_reportingFrequency;
+        d_configurationCallback(&maxAssertions,
+                                &maxLocations,
+                                &maxStackTracesPerLocation,
+                                &reportingSeverity,
+                                &reportingFrequency);
+        setMaxAssertions(maxAssertions);
+        setMaxLocations(maxLocations);
+        setMaxStackTracesPerLocation(maxStackTracesPerLocation);
+        setReportingSeverity(bsls::LogSeverity::Enum(reportingSeverity));
+        setReportingFrequency(ReportingFrequency(reportingFrequency));
     }
 
     if (++d_assertionCount > d_maxAssertions && d_maxAssertions >= 0) {
@@ -252,7 +253,7 @@ void AssertionTracker::assertionDetected(const char *text,
         (d_reportingFrequency == e_onNewStackTrace && newStack   ) ||
         (d_reportingFrequency == e_onNewLocation   && newLocation)) {
         d_reportingCallback(counts_iterator->second,
-                            d_severity,
+                            d_reportingSeverity,
                             location_iterator->first.first,
                             location_iterator->first.second.first,
                             location_iterator->first.second.second,
@@ -294,7 +295,7 @@ void AssertionTracker::setReportingFrequency(ReportingFrequency value)
 
 void AssertionTracker::setReportingSeverity(bsls::LogSeverity::Enum value)
 {
-    d_severity = value;
+    d_reportingSeverity = value;
 }
 
 // ACCESSORS
@@ -340,7 +341,7 @@ void AssertionTracker::reportAllRecordedStackTraces() const
         AssertionCounts::const_iterator ce = tb->second.end();
         for (; cb != ce; ++cb) {
             d_reportingCallback(cb->second,
-                                d_severity,
+                                d_reportingSeverity,
                                 tb->first.first,
                                 tb->first.second.first,
                                 tb->first.second.second,
@@ -363,7 +364,7 @@ AssertionTracker::reportingFrequency() const
 
 bsls::LogSeverity::Enum AssertionTracker::reportingSeverity() const
 {
-    return bsls::LogSeverity::Enum(int(d_severity));
+    return bsls::LogSeverity::Enum(int(d_reportingSeverity));
 }
 
 }  // close package namespace
