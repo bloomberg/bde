@@ -58,23 +58,25 @@ using namespace BloombergLP;
 // not have those traits.
 //-----------------------------------------------------------------------------
 // bslalg::ArrayPrimitives public interface:
-// [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
-// [ 3] void copyConstruct(T *dstB, S *srcB, S *srcE, *a);
-// [10] void defaultConstruct(T *begin, size_type ne, allocator *a);
-// [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
+// [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, ALLOCATOR a);
+// [ 3] void copyConstruct(T *dstB, S *srcB, S *srcE, ALLOCATOR a);
+// [10] void defaultConstruct(T *begin, size_type ne, ALLOCATOR a);
+// [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, ALLOCATOR a);
+// [  ] void destructiveMoveAndEmplace(...);
 // [ 6] void destructiveMoveAndInsert(...);
 // [ 6] void destructiveMoveAndMoveInsert(...);
-// [ 9] void emplace(T *toBegin, T *toEnd, size_type ne, *a, ...args);
-// [ 7] void erase(T *first, T *middle, T *last, bslma::Allocator *a);
+// [ 9] void emplace(T *toBegin, T *toEnd, ALLOCATOR a, args...);
+// [ 7] void erase(T *first, T *middle, T *last, ALLOCATOR a);
 // [ 5] void insert(T *dstB, T *dstE, const T& v, ne, *a);
 // [ 5] void insert(T *dstB, T *dstE, FWD srcB, FWD srcE, ne, *a);
+// [  ] void moveConstruct(T *dstB, T *srcB, T *srcE, ALLOCATOR a);
 // [ 5] void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
 // [ 8] void rotate(T *first, T *middle, T *last);
 // [ 2] void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] Hymans's first test case
 // [12] USAGE EXAMPLE
+// [11] Hyman's first test case
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -1014,7 +1016,6 @@ struct FnPtrConvertibleType {
     {
         bsls::debugprint(obj.d_f);
     }
- 
 };
 
 void setValue(FnPtrConvertibleType *f, char ch)
@@ -1333,7 +1334,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     {
         setValue(this, original.datum());
     }
-    
+
     // FRIENDS
     friend void debugprint(const BitwiseCopyableTestType& obj)
     {
@@ -4495,6 +4496,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   Hyman's first test case
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING HYMAN'S TEST CASE 1"
+                            "\n===========================\n");
+
         BSLMF_ASSERT(!(bslalg::ArrayPrimitives_CanBitwiseCopy<Derived,
                                                               Base>::value));
 
@@ -4571,7 +4576,7 @@ int main(int argc, char *argv[])
         //   emplace: order test data by increasing 'ne'.
         //
         // Testing:
-        //   void emplace(T *toBegin, T *toEnd, size_type ne, *a, ...args);
+        //   void defaultConstruct(T *begin, size_type ne, ALLOCATOR a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'defaultConstruct'"
@@ -4590,7 +4595,7 @@ int main(int argc, char *argv[])
         //   emplace: order test data by increasing 'ne'.
         //
         // Testing:
-        //   void emplace(T *toBegin, T *toEnd, size_type ne, *a, ...args);
+        //   void emplace(T *toBegin, T *toEnd, ALLOCATOR a, args...);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'emplace'"
@@ -4678,7 +4683,7 @@ int main(int argc, char *argv[])
         //   Let ne = 'e' - 'b'.  Order test data by increasing ne.
         //
         // Testing:
-        //   void erase(T *first, T *middle, T *last, bslma::Allocator *a);
+        //   void erase(T *first, T *middle, T *last, ALLOCATOR a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'erase'"
@@ -4770,7 +4775,7 @@ int main(int argc, char *argv[])
         //   (2) 'dstB' + ne <= 'srcB'.
         //
         // Testing:
-        //   void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
+        //   void destructiveMove(T *dstB, T *srcB, T *srcE, ALLOCATOR a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'destructiveMove'"
@@ -4790,8 +4795,8 @@ int main(int argc, char *argv[])
         //   (2) 'dstB' + ne <= 'srcB'.
         //
         // Testing:
-        //   void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
-        //   void copyConstruct(T *dstB, S *srcB, S *srcE, *a);
+        //   void copyConstruct(T *dstB, FWD srcB, FWD srcE, ALLOCATOR a);
+        //   void copyConstruct(T *dstB, S *srcB, S *srcE, ALLOCATOR a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'copyConstruct'"

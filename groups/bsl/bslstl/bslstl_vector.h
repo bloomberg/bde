@@ -338,17 +338,17 @@ BSLS_IDENT("$Id: $")
 //      void clear();
 //          // Remove all rows and columns from this object.
 //
-//      void insertRow(int rowIndex);
-//          // Insert, into this matrix, a row at the specified 'rowIndex'.
-//          // All elements of the (template parameter) 'TYPE' in the row will
-//          // have the default-constructed value.  The behavior is undefined
-//          // unless '0 <= rowIndex <= numRows()'.
-//
 //      void insertColumn(int columnIndex);
 //          // Insert, into this matrix, an column at the specified
 //          // 'columnIndex'.  All elements of the (template parameter) 'TYPE'
 //          // in the column will have the default-constructed value.  The
 //          // behavior is undefined unless '0 <= columnIndex <= numColumns()'.
+//
+//      void insertRow(int rowIndex);
+//          // Insert, into this matrix, a row at the specified 'rowIndex'.
+//          // All elements of the (template parameter) 'TYPE' in the row will
+//          // have the default-constructed value.  The behavior is undefined
+//          // unless '0 <= rowIndex <= numRows()'.
 //
 //      TYPE& theModifiableValue(int rowIndex, int columnIndex);
 //          // Return a reference providing modifiable access to the element at
@@ -455,14 +455,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  template <class TYPE>
-//  void MyMatrix<TYPE>::insertRow(int rowIndex)
-//  {
-//      typename MatrixType::iterator itr =
-//          d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
-//      itr->resize(d_numColumns);
-//  }
-//
-//  template <class TYPE>
 //  void MyMatrix<TYPE>::insertColumn(int colIndex) {
 //      for (typename MatrixType::iterator itr = d_matrix.begin();
 //           itr != d_matrix.end();
@@ -470,6 +462,14 @@ BSLS_IDENT("$Id: $")
 //          itr->insert(itr->begin() + colIndex, TYPE());
 //      }
 //      ++d_numColumns;
+//  }
+//
+//  template <class TYPE>
+//  void MyMatrix<TYPE>::insertRow(int rowIndex)
+//  {
+//      typename MatrixType::iterator itr =
+//          d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
+//      itr->resize(d_numColumns);
 //  }
 //
 //  template <class TYPE>
@@ -738,12 +738,14 @@ struct Vector_Util {
 template <class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
                    = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
+    // PUBLIC TYPES
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;
 };
 
 template <class BSLSTL_ITERATOR>
 struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
+    // PUBLIC TYPES
     typedef BloombergLP::bslmf::Nil type;
 };
 
@@ -816,7 +818,7 @@ class Vector_ImpBase {
         // movable references.
 
   protected:
-    // DATA
+    // PROTECTED DATA
     VALUE_TYPE  *d_dataBegin_p;  // beginning of data storage (owned)
     VALUE_TYPE  *d_dataEnd_p;    // one past the end of data storage
     std::size_t  d_capacity;     // capacity of data storage in # of elements
@@ -1010,7 +1012,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // with this container.
 
   public:
-    // PUBLIC TYPES:
+    // PUBLIC TYPES
     typedef VALUE_TYPE                                value_type;
     typedef ALLOCATOR                                 allocator_type;
     typedef typename ALLOCATOR::reference             reference;
@@ -2656,7 +2658,7 @@ bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
 
 template <class VALUE_TYPE, class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
 class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
-    // Note that members which don't need to be redefined are inherited
+    // Note that members that do not need to be redefined are inherited
     // straightforwardly from the 'Base', although if an overloaded method
     // needs to be redefined, then all its overloads need to be redefined.
 {
@@ -3374,7 +3376,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     // terms of 'Vector_Imp<const void *>' to reduce the amount of code
     // generated.  Note that this specialization rebinds the (template
     // parameter) 'ALLOCATOR' type to an allocator of 'const void *' so as to
-    // satisfy the invariant in 'Vector_Imp'.  Also note that members which do
+    // satisfy the invariant in 'Vector_Imp'.  Also note that members that do
     // not need to be redefined are inherited straightforwardly from the
     // 'Base', although if an overloaded method needs to be redefined, then all
     // its overloads need to be redefined.

@@ -14,6 +14,7 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 
@@ -48,10 +49,11 @@
 #include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'
 
+#include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
 
 //=============================================================================
 //                             TEST PLAN
@@ -178,7 +180,7 @@
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
-// [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -285,7 +287,7 @@ void aSsErT(bool condition, const char *message, int line)
 // The Linux compiler exceeds 64K compilation units and can't cope due to the
 // explosion of the number of templates in these tests, so turn them off on
 // that platform.  The Solaris CC compiler somehow complains that it's out of
-// memory.  The Solaric g++ compiler ran for 90 minutes before being killed.
+// memory.  The Solaris g++ compiler ran for 90 minutes before being killed.
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
@@ -550,17 +552,17 @@ class MyMatrix {
     void clear();
         // Remove all rows and columns from this object.
 
-    void insertRow(int rowIndex);
-        // Insert, into this matrix, an row at the specified 'rowIndex'.  All
-        // elements of the (template parameter) 'TYPE' in the row will have the
-        // default-constructed value.  The behavior is undefined unless
-        // '0 <= rowIndex <= numRows()'.
-
     void insertColumn(int columnIndex);
         // Insert, into this matrix, an column at the specified 'columnIndex'.
         // All elements of the (template parameter) 'TYPE' in the column will
         // have the default constructed value.  The behavior is undefined
         // unless '0 <= columnIndex <= numColumns()'.
+
+    void insertRow(int rowIndex);
+        // Insert, into this matrix, an row at the specified 'rowIndex'.  All
+        // elements of the (template parameter) 'TYPE' in the row will have the
+        // default-constructed value.  The behavior is undefined unless
+        // '0 <= rowIndex <= numRows()'.
 
     TYPE& theModifiableValue(int rowIndex, int columnIndex);
         // Return a reference providing modifiable access to the element at the
@@ -658,14 +660,6 @@ void MyMatrix<TYPE>::clear()
 }
 
 template <class TYPE>
-void MyMatrix<TYPE>::insertRow(int rowIndex)
-{
-    typename MatrixType::iterator itr =
-        d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
-    itr->resize(d_numColumns);
-}
-
-template <class TYPE>
 void MyMatrix<TYPE>::insertColumn(int columnIndex)
 {
     for (typename MatrixType::iterator itr = d_matrix.begin();
@@ -674,6 +668,14 @@ void MyMatrix<TYPE>::insertColumn(int columnIndex)
         itr->insert(itr->begin() + columnIndex, TYPE());
     }
     ++d_numColumns;
+}
+
+template <class TYPE>
+void MyMatrix<TYPE>::insertRow(int rowIndex)
+{
+    typename MatrixType::iterator itr =
+        d_matrix.insert(d_matrix.begin() + rowIndex, RowType());
+    itr->resize(d_numColumns);
 }
 
 template <class TYPE>
@@ -973,7 +975,7 @@ bool operator<(const AllocTestType& lhs, const AllocTestType& rhs)
     return lhs.data() < rhs.data();
 }
 
-}  // close package namespace
+}  // close namespace bsltf
 }  // close enterprise namespace
 
                             // ==========================
@@ -1212,7 +1214,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<BitwiseNotAssignable> : bsl::true_type {};
 
-}  // close package namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 //=============================================================================
@@ -2017,7 +2019,7 @@ void TestDriver<TYPE, ALLOC>::testCase9()
         int oldLen = -1;
         for (int ti = 0;  ti < NUM_SPECS; ++ti) {
             const char *const SPEC = SPECS[ti];
-            const int         curLen = (int) strlen(SPEC);
+            const int         curLen = static_cast<int>(strlen(SPEC));
 
             if (veryVerbose) {
                 printf("\tFor an object of length %d:\t", curLen);
@@ -2602,13 +2604,13 @@ void TestDriver<TYPE, ALLOC>::testCase8_dispatch()
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const char *const SPEC1  = DATA[ti].d_spec;
-        const size_t      LENGTH1 = std::strlen(SPEC1);
+        const size_t      LENGTH1 = strlen(SPEC1);
 
         Obj mXX(xsa);    const Obj& XX = gg(&mXX, SPEC1);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char *const SPEC2   = DATA[tj].d_spec;
-            const size_t      LENGTH2 = std::strlen(SPEC2);
+            const size_t      LENGTH2 = strlen(SPEC2);
 
             if (4 < LENGTH2) {
                 continue;    // time consuming, skip (it's O(LENGTH2^2))
@@ -2813,7 +2815,7 @@ void TestDriver<TYPE, ALLOC>::testCase7_select_on_container_copy_construction()
     //: 2 Create a 'bsltf::StdStatefulAllocator' with its
     //:   'select_on_container_copy_construction' property configured to
     //:   'false'.  In two successive iterations of P-3..5, first configure the
-    //:   three properties not under test to be 'false', then confgiure them
+    //:   three properties not under test to be 'false', then configure them
     //:   all to be 'true'.
     //:
     //: 3 For each value in S, initialize objects 'W' (a control) and 'X' using
@@ -4014,7 +4016,7 @@ template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase3()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg'
     //   Having demonstrated that our primary manipulators work as expected
     //   under normal conditions, we want to verify (1) that valid
     //   generator syntax produces expected results and (2) that invalid
@@ -4719,7 +4721,7 @@ void TestDriver<TYPE, ALLOC>::testCase2()
     //:     6 Insert 'L - 1' elements in order of increasing value into the
     //:       container.
     //:
-    //:     7 Insert the 'L'th value in the presense of exception and use the
+    //:     7 Insert the 'L'th value in the presence of exception and use the
     //:       (as yet unproven) basic accessors to verify the container has the
     //:       expected values.  Verify the number of allocation is as expected.
     //:       (C-5..6, 13..14)
@@ -5173,8 +5175,7 @@ int main(int argc, char *argv[])
             foundMax |= DEFAULT_MAX_LENGTH == len;
 
             for (unsigned jj = 0; jj < NUM_DATA; ++jj) {
-                ASSERT(ii == jj ||
-                                std::strcmp(DATA[ii].d_spec, DATA[jj].d_spec));
+                ASSERT(ii == jj || strcmp(DATA[ii].d_spec, DATA[jj].d_spec));
             }
         }
         ASSERT(foundMax);
@@ -5363,7 +5364,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY COMPARISION OPERATORS
+        // TESTING EQUALITY COMPARISON OPERATORS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING EQUALITY COMPARISION OPERATORS"
@@ -5514,7 +5515,7 @@ int main(int argc, char *argv[])
         bsl::allocator<int> zza(&testAllocator);
 
         // Disabled: in order to use bslstl_Vector_Imp, we disabled this very
-        // unfrequent usage for Vector_Imp (it will be flagged by
+        // infrequent usage for Vector_Imp (it will be flagged by
         // 'BSLMF_ASSERT'):
         //..
         // Vector_Imp<int, bsl::allocator<void*> > zz1, zz2(zza);

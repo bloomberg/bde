@@ -596,10 +596,10 @@ struct ArrayPrimitives {
 
     template <class ALLOCATOR>
     static void destructiveMove(
-                  typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
-                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromBegin,
-                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromEnd,
-                  ALLOCATOR                                          allocator);
+                 typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
+                 typename bsl::allocator_traits<ALLOCATOR>::pointer fromBegin,
+                 typename bsl::allocator_traits<ALLOCATOR>::pointer fromEnd,
+                 ALLOCATOR                                          allocator);
         // Move the elements of type 'allocator_traits<ALLOCATOR>::value_type'
         // in the range beginning at the specified 'fromBegin' location and
         // ending immediately before the specified 'fromEnd' location into the
@@ -637,15 +637,15 @@ struct ArrayPrimitives {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
 
-    template <class ALLOCATOR, class... Args>
+    template <class ALLOCATOR, class... ARGS>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               Args&&...                                           arguments);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                ARGS&&...                                           arguments);
         // Move the elements of type 'allocator_traits<ALLOCATOR>::value_type'
         // in the specified range '[fromBegin .. fromEnd)' into the
         // uninitialized array beginning at the specified 'toBegin' location,
@@ -674,219 +674,247 @@ struct ArrayPrimitives {
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#endif
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
-    template <class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 1
+    template <class ALLOCATOR, class ARGS_01>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 2
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 3
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 4
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 5
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 6
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 7
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07,
-                               class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 8
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07,
+                               class ARGS_08>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07,
-                               class Args_08,
-                               class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 9
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07,
+                               class ARGS_08,
+                               class ARGS_09>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07,
-                               class Args_08,
-                               class Args_09,
-                               class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 10
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07,
+                               class ARGS_08,
+                               class ARGS_09,
+                               class ARGS_10>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-    template <class ALLOCATOR, class... Args>
+    template <class ALLOCATOR, class... ARGS>
     static void destructiveMoveAndEmplace(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-               ALLOCATOR                                           allocator,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
+                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
+                ALLOCATOR                                           allocator,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 
 // }}} END GENERATED CODE
 #endif
@@ -956,14 +984,14 @@ struct ArrayPrimitives {
 
     template <class ALLOCATOR>
     static void destructiveMoveAndInsert(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-      const typename bsl::allocator_traits<ALLOCATOR>::value_type& value,
-               size_type                                           numElements,
-               ALLOCATOR                                           allocator);
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            toBegin,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer           *fromEndPtr,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            fromBegin,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            position,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            fromEnd,
+     const typename bsl::allocator_traits<ALLOCATOR>::value_type&  value,
+     size_type                                                     numElements,
+     ALLOCATOR                                                     allocator);
         // Move the elements of type 'allocator_traits<ALLOCATOR>::value_type'
         // in the range beginning at the specified 'fromBegin' location and
         // ending immediately before the specified 'fromEnd' location into the
@@ -1144,12 +1172,12 @@ struct ArrayPrimitives {
         // '[ fromBegin, *fromEndPtr )' will have unspecified but valid values.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
-    template <class ALLOCATOR, class... Args>
+    template <class ALLOCATOR, class... ARGS>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                Args&&...                                           arguments);
+                ARGS&&...                                           arguments);
         // Insert a newly created 'allocator_traits<ALLOCATOR>::value_type'
         // object, constructed by forwarding the specified 'allocator' (if
         // required) and the specified (variable number of) 'arguments' to the
@@ -1166,11 +1194,11 @@ struct ArrayPrimitives {
         // The behavior is undefined unless 'toBegin' refers to sufficient
         // space to hold at least 'toEnd - toBegin + 1' elements.
 
-    template <class TARGET_TYPE, class... Args>
+    template <class TARGET_TYPE, class... ARGS>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        Args&&...                  args);
+                        ARGS&&...                  args);
         // Insert a newly created object of the (template parameter) type
         // 'TARGET_TYPE', constructed by forwarding the specified 'allocator'
         // (if required) and the specified (variable number of) 'arguments' to
@@ -1191,343 +1219,393 @@ struct ArrayPrimitives {
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#endif
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 0
     template <class ALLOCATOR>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 0
 
-    template <class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 1
+    template <class ALLOCATOR, class ARGS_01>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 1
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 2
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 2
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 3
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 3
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 4
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 4
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 5
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 5
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 6
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 6
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 7
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 7
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07,
-                               class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 8
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07,
+                               class ARGS_08>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 8
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07,
-                               class Args_08,
-                               class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 9
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07,
+                               class ARGS_08,
+                               class ARGS_09>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 9
 
-    template <class ALLOCATOR, class Args_01,
-                               class Args_02,
-                               class Args_03,
-                               class Args_04,
-                               class Args_05,
-                               class Args_06,
-                               class Args_07,
-                               class Args_08,
-                               class Args_09,
-                               class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 10
+    template <class ALLOCATOR, class ARGS_01,
+                               class ARGS_02,
+                               class ARGS_03,
+                               class ARGS_04,
+                               class ARGS_05,
+                               class ARGS_06,
+                               class ARGS_07,
+                               class ARGS_08,
+                               class ARGS_09,
+                               class ARGS_10>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 10
 
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 0
     template <class TARGET_TYPE>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 0
 
-    template <class TARGET_TYPE, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 1
+    template <class TARGET_TYPE, class ARGS_01>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 1
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 2
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 2
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 3
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 3
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 4
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 4
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 5
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 5
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 6
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 6
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 7
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 7
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 8
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 8
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 9
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 9
 
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 10
+    template <class TARGET_TYPE, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-    template <class ALLOCATOR, class... Args>
+    template <class ALLOCATOR, class... ARGS>
     static void emplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 
-    template <class TARGET_TYPE, class... Args>
+    template <class TARGET_TYPE, class... ARGS>
     static void emplace(TARGET_TYPE               *toBegin,
                         TARGET_TYPE               *toEnd,
                         bslma::Allocator          *allocator,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 
 // }}} END GENERATED CODE
 #endif
@@ -1551,9 +1629,9 @@ struct ArrayPrimitives {
         // 'first <= middle <= last'.
 
     template <class TARGET_TYPE>
-    static void erase(TARGET_TYPE *first,
-                      TARGET_TYPE *middle,
-                      TARGET_TYPE *last,
+    static void erase(TARGET_TYPE      *first,
+                      TARGET_TYPE      *middle,
+                      TARGET_TYPE      *last,
                       bslma::Allocator *allocator = 0);
         // Destroy the elements of the parameterized 'TARGET_TYPE' in the array
         // starting at the specified 'first' address and ending immediately
@@ -2168,548 +2246,620 @@ struct ArrayPrimitives_Imp {
         // and is not used.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+    template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        Args&&...                                  args);
-    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+                        ARGS&&...                                  args);
+    template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        Args&&...                                  args);
-    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+                        ARGS&&...                                  args);
+    template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        Args&&...                     args);
-        // TBD: comment this
+                        ARGS&&...                     args);
+        // TBD: document this
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#endif
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 0
     template <class TARGET_TYPE, class ALLOCATOR>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 0
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 1
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 1
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 2
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 2
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 3
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 3
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 4
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 4
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 5
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 5
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 6
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 6
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 7
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 7
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 8
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 8
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08,
-                                                  class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 9
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 9
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08,
-                                                  class Args_09,
-                                                  class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 10
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 10
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 0
     template <class TARGET_TYPE, class ALLOCATOR>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 0
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 1
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 1
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 2
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 2
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 3
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 3
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 4
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 4
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 5
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 5
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 6
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 6
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 7
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 7
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 8
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 8
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08,
-                                                  class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 9
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 9
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08,
-                                                  class Args_09,
-                                                  class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 10
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 10
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 0
     template <class TARGET_TYPE, class ALLOCATOR>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 0
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 1
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 1
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 2
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 2
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 3
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 3
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 4
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 4
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 5
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 5
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 6
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 6
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 7
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 7
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 8
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 8
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08,
-                                                  class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 9
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 9
 
-    template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                                  class Args_02,
-                                                  class Args_03,
-                                                  class Args_04,
-                                                  class Args_05,
-                                                  class Args_06,
-                                                  class Args_07,
-                                                  class Args_08,
-                                                  class Args_09,
-                                                  class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 10
+    template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+    template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+    template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
     static void emplace(TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         ALLOCATOR                                  allocator,
                         bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-    template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+    template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
     static void emplace(TARGET_TYPE                  *toBegin,
                         TARGET_TYPE                  *toEnd,
                         ALLOCATOR                     allocator,
                         bslmf::MetaInt<e_NIL_TRAITS> *,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 // }}} END GENERATED CODE
 #endif
 
@@ -2936,21 +3086,16 @@ struct ArrayPrimitives_Imp {
                    // =====================================
 
 template <class FROM_TYPE, class TO_TYPE>
-struct ArrayPrimitives_CanBitwiseCopy {
-
-    typedef typename bsl::remove_const<FROM_TYPE>::type FromType;
-    typedef typename bsl::remove_const<TO_TYPE  >::type ToType;
-        // We do not worry about volatile qualifiers as volatile types should
-        // not be bitwise copyable.  We do allow 'TO_TYPE' to be 'const' to
-        // support cases like range construction.
-
-    enum {
-        k_VALUE = bsl::is_same<FromType, ToType>::value &&
-                  bsl::is_trivially_copyable<TO_TYPE>::value
-    };
-
-    static const bool value = k_VALUE;
-    typedef bsl::integral_constant<bool, k_VALUE> type;
+struct ArrayPrimitives_CanBitwiseCopy
+    : bsl::integral_constant<bool,
+                             bsl::is_same<
+                                   typename bsl::remove_const<FROM_TYPE>::type,
+                                   typename bsl::remove_const<TO_TYPE  >::type>
+                                                                        ::value
+                          && bsl::is_trivially_copyable<
+                                   typename bsl::remove_const<TO_TYPE  >::type>
+                                                                        ::value
+                            > {
 };
 
                        // ----------------------
@@ -2968,7 +3113,7 @@ void ArrayPrimitives::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
         // We provide specialized overloads of 'uninitializedFillN' for
@@ -2977,14 +3122,14 @@ void ArrayPrimitives::uninitializedFillN(
         // pointer template function overload in 'Imp', so we resort to the
         // general case for those.
 
-        k_IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<TARGET_TYPE>::value,
-        k_IS_FUNDAMENTAL      = bslmf::IsFundamental<TARGET_TYPE>::value,
-        k_IS_POINTER          = bslmf::IsPointer<TARGET_TYPE>::value,
+        k_IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<TargetType>::value,
+        k_IS_FUNDAMENTAL      = bsl::is_fundamental<TargetType>::value,
+        k_IS_POINTER          = bsl::is_pointer<TargetType>::value,
 
         k_IS_FUNDAMENTAL_OR_POINTER = k_IS_FUNDAMENTAL ||
                                      (k_IS_POINTER && !k_IS_FUNCTION_POINTER),
 
-        k_IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TARGET_TYPE>::value,
+        k_IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TargetType>::value,
 
         k_VALUE =
                  k_IS_FUNDAMENTAL_OR_POINTER ? Imp::e_IS_FUNDAMENTAL_OR_POINTER
@@ -3013,15 +3158,15 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
 
 template <class ALLOCATOR, class FWD_ITER>
 void ArrayPrimitives::copyConstruct(
-                 typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
-                 FWD_ITER                                           fromBegin,
-                 FWD_ITER                                           fromEnd,
-                 ALLOCATOR                                          allocator)
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
+                  FWD_ITER                                           fromBegin,
+                  FWD_ITER                                           fromEnd,
+                  ALLOCATOR                                          allocator)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
     BSLMF_ASSERT(!bsl::is_pointer<FWD_ITER>::value);
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
     typedef typename FWD_ITER::value_type FwdTarget;
         // Overload resolution will handle the case where 'FWD_ITER' is a raw
         // pointer, so we need handle only user-defined iterators.  As 'bslalg'
@@ -3038,13 +3183,13 @@ void ArrayPrimitives::copyConstruct(
         // to pass to the 'memcpy' describing the whole range.  It is not worth
         // the effort to try to bitwise copy one element at a time.
 
-    typedef typename bsl::remove_pointer<TARGET_TYPE>::type RemovePtrTarget;
+    typedef typename bsl::remove_pointer<TargetType>::type RemovePtrTarget;
         // We want to detect the special case of copying function pointers to
         // 'void *' or 'const void *' pointers.
 
     enum {
         k_ITER_TO_FUNC_PTRS   = bslmf::IsFunctionPointer<FwdTarget>::value,
-        k_TARGET_IS_VOID_PTR  = bsl::is_pointer<TARGET_TYPE>::value &&
+        k_TARGET_IS_VOID_PTR  = bsl::is_pointer<TargetType>::value &&
                                 bsl::is_void<RemovePtrTarget>::value,
 
         k_VALUE = k_ITER_TO_FUNC_PTRS && k_TARGET_IS_VOID_PTR
@@ -3075,20 +3220,20 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE      *toBegin,
 template <class ALLOCATOR, class SOURCE_TYPE>
 inline
 void ArrayPrimitives::copyConstruct(
-                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-                SOURCE_TYPE                                        *fromBegin,
-                SOURCE_TYPE                                        *fromEnd,
-                ALLOCATOR                                           allocator)
+                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
+                 SOURCE_TYPE                                        *fromBegin,
+                 SOURCE_TYPE                                        *fromEnd,
+                 ALLOCATOR                                           allocator)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
-                             bslmf::IsPointer<SOURCE_TYPE>::value,
+        k_ARE_PTRS_TO_PTRS = bsl::is_pointer<TargetType>::value &&
+                             bsl::is_pointer<SOURCE_TYPE>::value,
         k_IS_BITWISECOPYABLE  =
-               ArrayPrimitives_CanBitwiseCopy<SOURCE_TYPE, TARGET_TYPE>::value,
+               ArrayPrimitives_CanBitwiseCopy<SOURCE_TYPE, TargetType>::value,
         k_VALUE = k_ARE_PTRS_TO_PTRS   ? Imp::e_IS_POINTER_TO_POINTER
                 : k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
                 :                        Imp::e_NIL_TRAITS
@@ -3116,44 +3261,6 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE      *toBegin,
 
 template <class ALLOCATOR>
 inline
-void ArrayPrimitives::moveConstruct(
-                  typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
-                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromBegin,
-                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromEnd,
-                  ALLOCATOR                                          allocator)
-{
-    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
-
-    enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
-                  ? Imp::e_BITWISE_COPYABLE_TRAITS
-                  : Imp::e_NIL_TRAITS
-    };
-
-    ArrayPrimitives_Imp::moveConstruct(toBegin,
-                                       fromBegin,
-                                       fromEnd,
-                                       allocator,
-                                       (bslmf::MetaInt<k_VALUE>*)0);
-}
-
-template <class TARGET_TYPE>
-inline
-void ArrayPrimitives::moveConstruct(TARGET_TYPE      *toBegin,
-                                    TARGET_TYPE      *fromBegin,
-                                    TARGET_TYPE      *fromEnd,
-                                    bslma::Allocator *basicAllocator)
-{
-    moveConstruct<bsl::allocator<TARGET_TYPE> >(toBegin,
-                                                fromBegin,
-                                                fromEnd,
-                                                basicAllocator);
-}
-
-template <class ALLOCATOR>
-inline
 void ArrayPrimitives::defaultConstruct(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer begin,
                 size_type                                          numElements,
@@ -3162,17 +3269,17 @@ void ArrayPrimitives::defaultConstruct(
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_fundamental<TARGET_TYPE>::value
-               || bsl::is_enum<TARGET_TYPE>::value
-               || bsl::is_pointer<TARGET_TYPE>::value
+        k_VALUE = bsl::is_fundamental<TargetType>::value
+               || bsl::is_enum<TargetType>::value
+               || bsl::is_pointer<TargetType>::value
 #if !defined(BSLS_PLATFORM_CMP_IBM)
-               || bsl::is_member_pointer<TARGET_TYPE>::value
+               || bsl::is_member_pointer<TargetType>::value
 #endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : bsl::is_trivially_copyable<TARGET_TYPE>::value
+              : bsl::is_trivially_copyable<TargetType>::value
                   ? Imp::e_BITWISE_COPYABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -3196,18 +3303,18 @@ void ArrayPrimitives::defaultConstruct(TARGET_TYPE      *begin,
 template <class ALLOCATOR>
 inline
 void ArrayPrimitives::destructiveMove(
-                 typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
-                 typename bsl::allocator_traits<ALLOCATOR>::pointer fromBegin,
-                 typename bsl::allocator_traits<ALLOCATOR>::pointer fromEnd,
-                 ALLOCATOR                                          allocator)
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromBegin,
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromEnd,
+                  ALLOCATOR                                          allocator)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin, fromEnd));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseMoveable<TargetType>::value
               ? Imp::e_BITWISE_MOVEABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -3232,7 +3339,7 @@ void ArrayPrimitives::destructiveMove(TARGET_TYPE      *toBegin,
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
-template <class ALLOCATOR, class... Args>
+template <class ALLOCATOR, class... ARGS>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3240,7 +3347,7 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                Args&&...                                           arguments)
+                ARGS&&...                                           arguments)
 {
     // Key to the transformation diagrams:
     //..
@@ -3252,7 +3359,7 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     //  [...]   part of array protected by an exception guard object
     //..
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
@@ -3262,17 +3369,18 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     //               => ABCDEFGH: ; ____[v]____
     //..
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)...);
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
     //..
     //  Transformation: ABCDEFGH: ; ____[v]____
@@ -3304,6 +3412,13 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#endif
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 0
 template <class ALLOCATOR>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
@@ -3314,21 +3429,22 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 ALLOCATOR                                           allocator)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin);
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3348,8 +3464,10 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 0
 
-template <class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 1
+template <class ALLOCATOR, class ARGS_01>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3357,25 +3475,26 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3395,9 +3514,11 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 1
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 2
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3405,27 +3526,28 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3445,10 +3567,12 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 2
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 3
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3456,29 +3580,30 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3498,11 +3623,13 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 3
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 4
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3510,31 +3637,32 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3554,12 +3682,14 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 4
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 5
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3567,33 +3697,34 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05,arguments_05));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3613,13 +3744,15 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 5
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 6
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3627,35 +3760,36 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_06,arguments_06));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3675,14 +3809,16 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 6
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 7
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3690,37 +3826,38 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_07,arguments_07));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3740,15 +3877,17 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 7
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07,
-                           class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 8
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3756,39 +3895,40 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_08,arguments_08));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3808,16 +3948,18 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 8
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07,
-                           class Args_08,
-                           class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 9
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3825,41 +3967,42 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_09,arguments_09));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3879,17 +4022,19 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 9
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07,
-                           class Args_08,
-                           class Args_09,
-                           class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 10
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09,
+                           class ARGS_10>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3897,43 +4042,44 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_01,arguments_01),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02,arguments_02),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03,arguments_03),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04,arguments_04),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05,arguments_05),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_06,arguments_06),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_07,arguments_07),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_08,arguments_08),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_09,arguments_09),
+                          BSLS_COMPILERFEATURES_FORWARD(ARGS_10,arguments_10));
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -3953,11 +4099,12 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
     *fromEndPtr = fromBegin;
     guard.release();
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template <class ALLOCATOR, class... Args>
+template <class ALLOCATOR, class... ARGS>
 void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3965,25 +4112,26 @@ void ArrayPrimitives::destructiveMoveAndEmplace(
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                 typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                 ALLOCATOR                                           allocator,
-                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
 
     bsl::allocator_traits<ALLOCATOR>::construct(
                              allocator,
                              toPositionBegin,
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)...);
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + 1;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + 1;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
 
     destructiveMove(toPositionEnd,
@@ -4026,7 +4174,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     //  [...]   part of array protected by an exception guard object
     //..
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
@@ -4036,13 +4184,14 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     //               => ABCDEFGH: ; ____[vvvvv]____
     //..
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
     defaultConstruct(toPositionBegin, numElements, allocator);
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + numElements;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + numElements;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
     //..
     //  Transformation: ABCDEFGH: ; ____[vvvvv]____
@@ -4093,14 +4242,14 @@ void ArrayPrimitives::destructiveMoveAndInsert(
 
 template <class ALLOCATOR>
 void ArrayPrimitives::destructiveMoveAndInsert(
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromBegin,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
-               typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
-      const typename bsl::allocator_traits<ALLOCATOR>::value_type& value,
-               size_type                                           numElements,
-               ALLOCATOR                                           allocator)
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            toBegin,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer           *fromEndPtr,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            fromBegin,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            position,
+     typename bsl::allocator_traits<ALLOCATOR>::pointer            fromEnd,
+     const typename bsl::allocator_traits<ALLOCATOR>::value_type&  value,
+     size_type                                                     numElements,
+     ALLOCATOR                                                     allocator)
 {
     // Key to the transformation diagrams:
     //..
@@ -4112,7 +4261,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     //  [...]   part of array protected by an exception guard object
     //..
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
@@ -4125,13 +4274,14 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     //               => ABCDEFGH: ; ____[vvvvv]____
     //..
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
     uninitializedFillN(toPositionBegin, numElements, value, allocator);
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + numElements;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd = toPositionBegin + numElements;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
     //..
     //  Transformation: ABCDEFGH: ; ____[vvvvv]____
@@ -4203,7 +4353,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     //  [...]   part of array protected by an exception guard object
     //..
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *fromEndPtr = fromEnd;
 
@@ -4215,13 +4365,14 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     //               => ABCDEFGH: ; ____[tuvxy]____
     //..
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
     copyConstruct(toPositionBegin, first, last, allocator);
 
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + numElements;
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toPositionBegin,
-                                                      toPositionEnd,
-                                                      allocator);
+    TargetType *toPositionEnd   = toPositionBegin + numElements;
+
+    AutoArrayDestructor<TargetType, ALLOCATOR> guard(toPositionBegin,
+                                                     toPositionEnd,
+                                                     allocator);
 
     //..
     //  Transformation: ABCDEFGH: ; ____[tuvxy]____
@@ -4297,7 +4448,7 @@ void ArrayPrimitives::destructiveMoveAndMoveInsert(
     //  [...]   part of array protected by an exception guard object
     //..
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     *lastPtr = last;
     *fromEndPtr = fromEnd;
@@ -4307,8 +4458,8 @@ void ArrayPrimitives::destructiveMoveAndMoveInsert(
     //               => ABCD:____ ; _________[EFGH]
     //..
 
-    TARGET_TYPE *toPositionBegin = toBegin + (position - fromBegin);
-    TARGET_TYPE *toPositionEnd   = toPositionBegin + numElements;
+    TargetType *toPositionBegin = toBegin + (position - fromBegin);
+    TargetType *toPositionEnd   = toPositionBegin + numElements;
 
     destructiveMove(toPositionEnd,
                     position,
@@ -4317,7 +4468,7 @@ void ArrayPrimitives::destructiveMoveAndMoveInsert(
 
     *fromEndPtr = position;  // shorten input range after partial destruction
 
-    AutoArrayDestructor<TARGET_TYPE, ALLOCATOR>
+    AutoArrayDestructor<TargetType, ALLOCATOR>
                                    guard(toPositionEnd,
                                          toPositionEnd + (fromEnd - position),
                                          allocator);
@@ -4376,24 +4527,24 @@ void ArrayPrimitives::destructiveMoveAndMoveInsert(
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class ALLOCATOR, class... Args>
+template <class ALLOCATOR, class... ARGS>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 Args&&...                                           args)
+                 ARGS&&...                                           args)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4403,27 +4554,34 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+        BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 
-template <class TARGET_TYPE, class... Args>
+template <class TARGET_TYPE, class... ARGS>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                              Args&&...         args)
+                              ARGS&&...         args)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#endif
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 0
 template <class ALLOCATOR>
 inline
 void ArrayPrimitives::emplace(
@@ -4435,12 +4593,12 @@ void ArrayPrimitives::emplace(
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4451,25 +4609,27 @@ void ArrayPrimitives::emplace(
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0);
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 0
 
-template <class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 1
+template <class ALLOCATOR, class ARGS_01>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4479,29 +4639,31 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 1
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 2
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4511,32 +4673,34 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 2
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 3
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4546,35 +4710,37 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 3
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 4
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4584,38 +4750,40 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 4
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 5
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4625,41 +4793,43 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-        BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 5
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 6
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4669,44 +4839,46 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-        BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-        BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 6
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 7
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4716,47 +4888,49 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-        BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-        BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-        BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 7
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07,
-                           class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 8
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4766,50 +4940,52 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-        BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-        BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-        BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-        BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 8
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07,
-                           class Args_08,
-                           class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 9
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4819,53 +4995,55 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-        BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-        BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-        BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-        BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-        BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 9
 
-template <class ALLOCATOR, class Args_01,
-                           class Args_02,
-                           class Args_03,
-                           class Args_04,
-                           class Args_05,
-                           class Args_06,
-                           class Args_07,
-                           class Args_08,
-                           class Args_09,
-                           class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 10
+template <class ALLOCATOR, class ARGS_01,
+                           class ARGS_02,
+                           class ARGS_03,
+                           class ARGS_04,
+                           class ARGS_05,
+                           class ARGS_06,
+                           class ARGS_07,
+                           class ARGS_08,
+                           class ARGS_09,
+                           class ARGS_10>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -4875,19 +5053,21 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-        BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-        BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-        BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-        BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-        BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-        BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-        BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-        BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-        BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+        BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 10
 
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 0
 template <class TARGET_TYPE>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
@@ -4899,303 +5079,324 @@ void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                                  toEnd,
                                  basicAllocator);
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 0
 
-template <class TARGET_TYPE, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 1
+template <class TARGET_TYPE, class ARGS_01>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 1
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 2
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 2
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 3
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 3
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 4
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 4
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 5
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 5
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 6
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 6
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 7
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 7
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 8
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 8
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 9
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 9
 
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 10
+template <class TARGET_TYPE, class ARGS_01,
+                             class ARGS_02,
+                             class ARGS_03,
+                             class ARGS_04,
+                             class ARGS_05,
+                             class ARGS_06,
+                             class ARGS_07,
+                             class ARGS_08,
+                             class ARGS_09,
+                             class ARGS_10>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template <class ALLOCATOR, class... Args>
+template <class ALLOCATOR, class... ARGS>
 inline
 void ArrayPrimitives::emplace(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                  typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                  ALLOCATOR                                           allocator,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -5205,21 +5406,21 @@ void ArrayPrimitives::emplace(
         toEnd,
         allocator,
         (bslmf::MetaInt<k_VALUE> *)0,
-        BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+        BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 
-template <class TARGET_TYPE, class... Args>
+template <class TARGET_TYPE, class... ARGS>
 inline
 void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
                               TARGET_TYPE      *toEnd,
                               bslma::Allocator *basicAllocator,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
     emplace<bsl::allocator<TARGET_TYPE> >(
                                  toBegin,
                                  toEnd,
                                  basicAllocator,
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 
 // }}} END GENERATED CODE
@@ -5228,15 +5429,15 @@ void ArrayPrimitives::emplace(TARGET_TYPE      *toBegin,
 template <class ALLOCATOR>
 inline
 void ArrayPrimitives::erase(
-          typename bsl::allocator_traits<ALLOCATOR>::pointer first,
-          typename bsl::allocator_traits<ALLOCATOR>::pointer middle,
-          typename bsl::allocator_traits<ALLOCATOR>::pointer last,
-          ALLOCATOR                                          allocator)
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer first,
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer middle,
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer last,
+                  ALLOCATOR                                          allocator)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, middle));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, last));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     if (first == middle) { // erasing empty range O(1) versus O(N): Do not
                            // remove!
@@ -5244,7 +5445,7 @@ void ArrayPrimitives::erase(
     }
 
     enum {
-        k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseMoveable<TargetType>::value
               ? Imp::e_BITWISE_MOVEABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -5271,21 +5472,21 @@ void ArrayPrimitives::erase(TARGET_TYPE      *first,
 template <class ALLOCATOR>
 inline
 void ArrayPrimitives::insert(
-                typename bsl::allocator_traits<ALLOCATOR>::pointer     toBegin,
-                typename bsl::allocator_traits<ALLOCATOR>::pointer     toEnd,
-                bslmf::MovableRef<
-                typename bsl::allocator_traits<ALLOCATOR>::value_type> value,
-                ALLOCATOR allocator)
+              typename bsl::allocator_traits<ALLOCATOR>::pointer     toBegin,
+              typename bsl::allocator_traits<ALLOCATOR>::pointer     toEnd,
+              bslmf::MovableRef<
+              typename bsl::allocator_traits<ALLOCATOR>::value_type> value,
+              ALLOCATOR                                              allocator)
 {
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -5298,11 +5499,10 @@ void ArrayPrimitives::insert(
 
 template <class TARGET_TYPE>
 inline
-void ArrayPrimitives::insert(
-                      TARGET_TYPE                              *toBegin,
-                      TARGET_TYPE                              *toEnd,
-                      bslmf::MovableRef<TARGET_TYPE>            value,
-                      bslma::Allocator                         *basicAllocator)
+void ArrayPrimitives::insert(TARGET_TYPE                    *toBegin,
+                             TARGET_TYPE                    *toEnd,
+                             bslmf::MovableRef<TARGET_TYPE>  value,
+                             bslma::Allocator               *basicAllocator)
 {
     insert<bsl::allocator<TARGET_TYPE> >(toBegin,
                                          toEnd,
@@ -5312,25 +5512,25 @@ void ArrayPrimitives::insert(
 
 template <class ALLOCATOR>
 void ArrayPrimitives::insert(
-                typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
-                typename bsl::allocator_traits<ALLOCATOR>::pointer toEnd,
-           const typename bsl::allocator_traits<ALLOCATOR>::value_type& value,
-                size_type                                          numElements,
-                ALLOCATOR                                          allocator)
+      typename bsl::allocator_traits<ALLOCATOR>::pointer           toBegin,
+      typename bsl::allocator_traits<ALLOCATOR>::pointer           toEnd,
+      const typename bsl::allocator_traits<ALLOCATOR>::value_type& value,
+      size_type                                                    numElements,
+      ALLOCATOR                                                    allocator)
 {
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     if (0 == numElements) {
         return;                                                       // RETURN
     }
 
     enum {
-        k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
               ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+              : bslmf::IsBitwiseMoveable<TargetType>::value
                   ? Imp::e_BITWISE_MOVEABLE_TRAITS
                   : Imp::e_NIL_TRAITS
     };
@@ -5370,7 +5570,7 @@ void ArrayPrimitives::insert(
         return;                                                       // RETURN
     }
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     BSLMF_ASSERT(!bsl::is_pointer<FWD_ITER>::value);
 
@@ -5390,13 +5590,13 @@ void ArrayPrimitives::insert(
         // to pass to the 'memcpy' describing the whole range.  It is not worth
         // the effort to try to bitwise copy one element at a time.
 
-    typedef typename bsl::remove_pointer<TARGET_TYPE>::type RemovePtrTarget;
+    typedef typename bsl::remove_pointer<TargetType>::type RemovePtrTarget;
         // We want to detect the special case of copying function pointers to
         // 'void *' or 'const void *' pointers.
 
     enum {
         k_ITER_TO_FUNC_PTRS  = bslmf::IsFunctionPointer<FwdTarget>::value,
-        k_TARGET_IS_VOID_PTR = bsl::is_pointer<TARGET_TYPE>::value &&
+        k_TARGET_IS_VOID_PTR = bsl::is_pointer<TargetType>::value &&
                                bsl::is_void<RemovePtrTarget>::value,
 
         k_VALUE = k_ITER_TO_FUNC_PTRS && k_TARGET_IS_VOID_PTR
@@ -5442,14 +5642,14 @@ void ArrayPrimitives::insert(
         return;                                                       // RETURN
     }
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_ARE_PTRS_TO_PTRS   = bslmf::IsPointer<TARGET_TYPE>::value &&
-                               bslmf::IsPointer<SOURCE_TYPE>::value,
-        k_IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value,
+        k_ARE_PTRS_TO_PTRS   = bsl::is_pointer<TargetType>::value &&
+                               bsl::is_pointer<SOURCE_TYPE>::value,
+        k_IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<TargetType>::value,
         k_IS_BITWISECOPYABLE =
-               ArrayPrimitives_CanBitwiseCopy<SOURCE_TYPE, TARGET_TYPE>::value,
+               ArrayPrimitives_CanBitwiseCopy<SOURCE_TYPE, TargetType>::value,
         k_VALUE = k_ARE_PTRS_TO_PTRS   ? Imp::e_IS_POINTER_TO_POINTER
                 : k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : k_IS_BITWISEMOVEABLE ? Imp::e_BITWISE_MOVEABLE_TRAITS
@@ -5483,6 +5683,44 @@ void ArrayPrimitives::insert(TARGET_TYPE      *toBegin,
 
 template <class ALLOCATOR>
 inline
+void ArrayPrimitives::moveConstruct(
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromBegin,
+                  typename bsl::allocator_traits<ALLOCATOR>::pointer fromEnd,
+                  ALLOCATOR                                          allocator)
+{
+    BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
+
+    enum {
+        k_VALUE = bsl::is_trivially_copyable<TargetType>::value
+                  ? Imp::e_BITWISE_COPYABLE_TRAITS
+                  : Imp::e_NIL_TRAITS
+    };
+
+    ArrayPrimitives_Imp::moveConstruct(toBegin,
+                                       fromBegin,
+                                       fromEnd,
+                                       allocator,
+                                       (bslmf::MetaInt<k_VALUE>*)0);
+}
+
+template <class TARGET_TYPE>
+inline
+void ArrayPrimitives::moveConstruct(TARGET_TYPE      *toBegin,
+                                    TARGET_TYPE      *fromBegin,
+                                    TARGET_TYPE      *fromEnd,
+                                    bslma::Allocator *basicAllocator)
+{
+    moveConstruct<bsl::allocator<TARGET_TYPE> >(toBegin,
+                                                fromBegin,
+                                                fromEnd,
+                                                basicAllocator);
+}
+
+template <class ALLOCATOR>
+inline
 void ArrayPrimitives::moveInsert(
                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
@@ -5492,10 +5730,10 @@ void ArrayPrimitives::moveInsert(
                size_type                                           numElements,
                ALLOCATOR                                           allocator)
 {
-    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TARGET_TYPE;
+    typedef typename bsl::allocator_traits<ALLOCATOR>::value_type TargetType;
 
     enum {
-        k_VALUE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value
+        k_VALUE = bslmf::IsBitwiseMoveable<TargetType>::value
               ? Imp::e_BITWISE_MOVEABLE_TRAITS
               : Imp::e_NIL_TRAITS
     };
@@ -5859,7 +6097,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     // default constructor, or even the same byte pattern repeated over
     // 'sizeof value' times, we can use 'memset.
 
-    size_type index = 0;
+    size_type   index       = 0;
     const char *valueBuffer =
                     reinterpret_cast<const char *>(BSLS_UTIL_ADDRESSOF(value));
     while (++index < sizeof(TARGET_TYPE)) {
@@ -6202,14 +6440,14 @@ void ArrayPrimitives_Imp::destructiveMove(
                   // *** 'emplace' with 'args' overloads: ***
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          Args&&...                                  args)
+                          ARGS&&...                                  args)
 {
     // TBD: The implementation is exactly the same as 'BITWISE_MOVEABLE_TRAITS'
     // unless 'AutoArrayMoveDestructor' has a 'release' method so the guard can
@@ -6220,16 +6458,16 @@ void ArrayPrimitives_Imp::emplace(
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                                 BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 
-template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          Args&&...                                  args)
+                          ARGS&&...                                  args)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -6265,16 +6503,17 @@ void ArrayPrimitives_Imp::emplace(
     //..
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
         guard.advance();
     }
 
@@ -6298,7 +6537,7 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
 
             endGuard.moveBegin(-1);
         }
@@ -6306,12 +6545,12 @@ void ArrayPrimitives_Imp::emplace(
     }
 }
 
-template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                                  Args&&...                     args)
+                                  ARGS&&...                     args)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -6335,7 +6574,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+            BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -6376,13 +6615,20 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         //..
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     }
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F
+#define BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT
+#endif
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 0
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::emplace(
@@ -6397,313 +6643,335 @@ void ArrayPrimitives_Imp::emplace(
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0);
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 0
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 1
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 1
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 2
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 2
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 3
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 3
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 4
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 4
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 5
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 5
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 6
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 6
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 7
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 7
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 8
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 8
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08,
-                                              class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 9
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08,
+                                              class ARGS_09>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 9
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08,
-                                              class Args_09,
-                                              class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 10
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08,
+                                              class ARGS_09,
+                                              class ARGS_10>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 10
 
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 0
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
@@ -6729,11 +6997,12 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
@@ -6758,14 +7027,16 @@ void ArrayPrimitives_Imp::emplace(
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 0
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 1
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -6785,16 +7056,17 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
         guard.advance();
     }
 
@@ -6809,23 +7081,25 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 1
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 2
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -6845,17 +7119,18 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
         guard.advance();
     }
 
@@ -6870,26 +7145,28 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 2
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 3
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -6909,18 +7186,19 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
         guard.advance();
     }
 
@@ -6935,29 +7213,31 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 3
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 4
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -6977,19 +7257,20 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
         guard.advance();
     }
 
@@ -7004,32 +7285,34 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 4
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 5
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7049,20 +7332,21 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
         guard.advance();
     }
 
@@ -7077,35 +7361,37 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 5
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 6
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7125,21 +7411,22 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
         guard.advance();
     }
 
@@ -7154,38 +7441,40 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 6
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 7
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7205,22 +7494,23 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
         guard.advance();
     }
 
@@ -7235,41 +7525,43 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 7
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 8
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7289,23 +7581,24 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
         guard.advance();
     }
 
@@ -7320,44 +7613,46 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 8
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08,
-                                              class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 9
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08,
+                                              class ARGS_09>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7375,24 +7670,25 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
         guard.advance();
     }
 
@@ -7407,47 +7703,49 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 9
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08,
-                                              class Args_09,
-                                              class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 10
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08,
+                                              class ARGS_09,
+                                              class ARGS_10>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7467,25 +7765,26 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
         guard.advance();
     }
 
@@ -7500,24 +7799,26 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
 
             endGuard.moveBegin(-1);
         }
         endGuard.release();
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 10
 
 
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 0
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
@@ -7566,13 +7867,15 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
             allocator, toEnd);
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 0
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 1
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7585,7 +7888,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7614,18 +7917,20 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 1
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 2
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7638,8 +7943,8 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7668,21 +7973,23 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 2
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 3
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7695,9 +8002,9 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7726,24 +8033,26 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 3
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 4
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7756,10 +8065,10 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7788,27 +8097,29 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 4
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 5
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7821,11 +8132,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-            BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7854,30 +8165,32 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 5
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 6
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7890,12 +8203,12 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-            BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-            BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7924,33 +8237,35 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 6
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 7
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -7963,13 +8278,13 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-            BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-            BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-            BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -7998,36 +8313,38 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 7
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 8
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -8040,14 +8357,14 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-            BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-            BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-            BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-            BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -8076,39 +8393,41 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 8
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08,
-                                              class Args_09>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 9
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08,
+                                              class ARGS_09>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -8121,15 +8440,15 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-            BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-            BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-            BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-            BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-            BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -8158,42 +8477,44 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 9
 
-template <class TARGET_TYPE, class ALLOCATOR, class Args_01,
-                                              class Args_02,
-                                              class Args_03,
-                                              class Args_04,
-                                              class Args_05,
-                                              class Args_06,
-                                              class Args_07,
-                                              class Args_08,
-                                              class Args_09,
-                                              class Args_10>
+#if BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 10
+template <class TARGET_TYPE, class ALLOCATOR, class ARGS_01,
+                                              class ARGS_02,
+                                              class ARGS_03,
+                                              class ARGS_04,
+                                              class ARGS_05,
+                                              class ARGS_06,
+                                              class ARGS_07,
+                                              class ARGS_08,
+                                              class ARGS_09,
+                                              class ARGS_10>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -8206,16 +8527,16 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-            BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-            BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-            BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-            BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-            BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-            BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-            BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-            BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-            BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+            BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -8244,46 +8565,47 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
-                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
     }
 }
+#endif  // BSLALG_ARRAYPRIMITIVES_VARIADIC_LIMIT_F >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
 inline
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
 
     ArrayPrimitives_Imp::emplace(toBegin,
                                  toEnd,
                                  allocator,
                                  (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                                 BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 
-template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
 void ArrayPrimitives_Imp::emplace(
                           TARGET_TYPE                               *toBegin,
                           TARGET_TYPE                               *toEnd,
                           ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -8303,16 +8625,17 @@ void ArrayPrimitives_Imp::emplace(
 
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                     guard.destination(),
-                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
         guard.advance();
     }
 
@@ -8327,7 +8650,7 @@ void ArrayPrimitives_Imp::emplace(
         while (toEnd != destBegin) {
             bsl::allocator_traits<ALLOCATOR>::construct(allocator,
                                                         --destBegin,
-                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+                                  BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
 
             endGuard.moveBegin(-1);
         }
@@ -8335,12 +8658,12 @@ void ArrayPrimitives_Imp::emplace(
     }
 }
 
-template <class TARGET_TYPE, class ALLOCATOR, class... Args>
+template <class TARGET_TYPE, class ALLOCATOR, class... ARGS>
 void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
                                   TARGET_TYPE                  *toEnd,
                                   ALLOCATOR                     allocator,
                                   bslmf::MetaInt<e_NIL_TRAITS> *,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
@@ -8353,7 +8676,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         bsl::allocator_traits<ALLOCATOR>::construct(
             allocator,
             BSLS_UTIL_ADDRESSOF(space.object()),
-            BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+            BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
         bslma::DestructorProctor<TARGET_TYPE> temp(
                                           BSLS_UTIL_ADDRESSOF(space.object()));
 
@@ -8382,7 +8705,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
     else {
 
         bsl::allocator_traits<ALLOCATOR>::construct(
-            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+            allocator, toEnd, BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     }
 }
 // }}} END GENERATED CODE
@@ -8392,11 +8715,11 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::erase(
-                            TARGET_TYPE                             *first,
-                            TARGET_TYPE                             *middle,
-                            TARGET_TYPE                             *last,
-                            ALLOCATOR                                allocator,
-                            bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *)
+                          TARGET_TYPE                               *first,
+                          TARGET_TYPE                               *middle,
+                          TARGET_TYPE                               *last,
+                          ALLOCATOR                                  allocator,
+                          bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, middle));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, last));
@@ -8424,10 +8747,10 @@ void ArrayPrimitives_Imp::erase(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void ArrayPrimitives_Imp::erase(TARGET_TYPE                *first,
-                                TARGET_TYPE                *middle,
-                                TARGET_TYPE                *last,
-                                ALLOCATOR                   allocator,
+void ArrayPrimitives_Imp::erase(TARGET_TYPE                  *first,
+                                TARGET_TYPE                  *middle,
+                                TARGET_TYPE                  *last,
+                                ALLOCATOR                     allocator,
                                 bslmf::MetaInt<e_NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, middle));
@@ -8460,10 +8783,10 @@ void ArrayPrimitives_Imp::erase(TARGET_TYPE                *first,
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::insert(
-                          TARGET_TYPE                              *toBegin,
-                          TARGET_TYPE                              *toEnd,
-                          bslmf::MovableRef<TARGET_TYPE>            value,
-                          ALLOCATOR                                 allocator,
+                          TARGET_TYPE                               *toBegin,
+                          TARGET_TYPE                               *toEnd,
+                          bslmf::MovableRef<TARGET_TYPE>             value,
+                          ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
@@ -8480,10 +8803,10 @@ void ArrayPrimitives_Imp::insert(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
-                          TARGET_TYPE                              *toBegin,
-                          TARGET_TYPE                              *toEnd,
-                          bslmf::MovableRef<TARGET_TYPE>            value,
-                          ALLOCATOR                                 allocator,
+                          TARGET_TYPE                               *toBegin,
+                          TARGET_TYPE                               *toEnd,
+                          bslmf::MovableRef<TARGET_TYPE>             value,
+                          ALLOCATOR                                  allocator,
                           bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
@@ -8499,12 +8822,11 @@ void ArrayPrimitives_Imp::insert(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void ArrayPrimitives_Imp::insert(
-                          TARGET_TYPE                              *toBegin,
-                          TARGET_TYPE                              *toEnd,
-                          bslmf::MovableRef<TARGET_TYPE>            value,
-                          ALLOCATOR                                 allocator,
-                          bslmf::MetaInt<e_NIL_TRAITS>             *)
+void ArrayPrimitives_Imp::insert(TARGET_TYPE                    *toBegin,
+                                 TARGET_TYPE                    *toEnd,
+                                 bslmf::MovableRef<TARGET_TYPE>  value,
+                                 ALLOCATOR                       allocator,
+                                 bslmf::MetaInt<e_NIL_TRAITS>   *)
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
@@ -8674,11 +8996,12 @@ void ArrayPrimitives_Imp::insert(
     //..
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     while (guard.middle() != guard.end()) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
@@ -8987,11 +9310,12 @@ void ArrayPrimitives_Imp::insert(
     //..
 
     TARGET_TYPE *destEnd = toEnd + numElements;
+
     AutoArrayMoveDestructor<TARGET_TYPE, ALLOCATOR> guard(toBegin,
-                                               destEnd - numGuarded,
-                                               destEnd - numGuarded,
-                                               destEnd,
-                                               allocator);
+                                                          destEnd - numGuarded,
+                                                          destEnd - numGuarded,
+                                                          destEnd,
+                                                          allocator);
 
     for (; guard.middle() != guard.end(); ++fromBegin) {
         bsl::allocator_traits<ALLOCATOR>::construct(allocator,
