@@ -99,12 +99,10 @@ BSLS_IDENT("$Id: $")
 //  bsl::vector<int> unordered;
 //  bool sorted = TopologicalSortUtil::sort(&results, &unordered, relations);
 //..
-// Finally, we verify that the order of the fields that the sort returns is
-// topologically correct and 'unordered' is empty.  The expected topological
-// order is: 'k_vwapTurnover', and 'k_vwapVolume' precedes 'k_bbgDefinedVwap';
-// 'k_tradeSize', and 'k_tradePrice' precedes 'k_vwapTurnover'; 'k_tradeSize'
-// precedes 'k_vwapVolume'; 'k_vwapVolume', and 'k_vwapTurnover' precedes
-// 'k_tradeSize'; 'k_vwapTurnover' precedes 'k_tradePrice':
+// Finally, we verify the call to 'sort' populates the supplied 'results' with
+// a sequence in sorted order (e.g.. 'k_tradeSize', 'k_tradePrice,
+// 'k_vwapTurnover', 'k_vwapVolume', 'k_bbgDefinedVwap') and 'unsorted' will be
+// empty because the input relationships do not contain a cycle.
 //..
 //  bool calculated[5] = { 0 };
 //  assert(sorted == true);
@@ -346,6 +344,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_MANAGEDPTR
+#include <bslma_managedptr.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -385,11 +387,26 @@ namespace bdlb {
 
 template <class MAPPING_TYPE>
 struct TopologicalSortUtilMappingTraits {
-    // This 'struct' represents a customization point for mapping types
-    // ('value_type' of the 'INPUT_ITER' type) that must specify an inner type
-    // 'ValueType' that is the node/vertex type of the direct acyclic graph,
-    // and two 'static' functions 'from' and 'to' which may be used to retrieve
-    // the start and end node/vertex (of type 'value_type').
+    // This 'struct' represents a customization point allowing clients to
+    // supply input iterators to 'sort' working on types other than 'pair'.
+    // Clients may specialize 'TopologicalSortUtilMappingTraits' to supply the
+    // following :
+    //..
+    //  typedef user-defined ValueType
+    //      // Alias describing the output values from a sort, as well as the
+    //      // results of the 'from' and 'to' functions of this mapping traits
+    //      // instance.
+    //
+    //  static const ValueType& from(const MAPPING_TYPE& input);
+    //      // Return a 'const' reference to the "from" attribute of the
+    //      // specified 'inout'.  Note that the template parameter type
+    //      // 'MAPPING_TYPE' is an element in the input range to 'sort.
+    //
+    //  static const ValueType& to(const MAPPING_TYPE& input)
+    //      // Return a 'const' reference to the "from" attribute of the
+    //      // specified 'input'.  Note that the template parameter type
+    //      // 'MAPPING_TYPE' is an element in the input range to 'sort.
+    //..
 };
 
 template <class VALUE_TYPE>
@@ -451,7 +468,7 @@ class TopologicalSortUtil_Helper {
                                             // elements
 
     bsl::queue<ValueType>  d_orderedNodes; // elements which are not dependent
-                                            // on any other
+                                           // on any other
 
     bool                    d_hasCycle;     // flag denoting whether cycles are
                                             // present
@@ -482,7 +499,9 @@ class TopologicalSortUtil_Helper {
     // ACCESSORS
     bool hasCycle() const;
         // Returns 'true' if relations specified at construction time contains
-        // a cycle, otherwise returns 'false'.
+        // a cycle, otherwise returns 'false'.  The behavior is undefined
+        // unless 'processNext' has been called, and the most recent invocation
+        // of 'processNext' returned 'false'.
 
     template <class UNORDERED_ITER>
     void unordered(UNORDERED_ITER unordered) const;
@@ -513,16 +532,16 @@ struct TopologicalSortUtil {
         // sort is unsuccessful load the elements which have not been ordered
         // to the specified 'unordered' output; the input elements are provided
         // (conceptually) as a sequence of pairs between the specified
-        // 'relationshipBegin' and 'relationshipPairsEnd', where the from
-        // element of the pair must precede the to element in the resulting
-        // sort (see 'TopologicalSortUtilMappingTraits' for description of from
-        // and to).  Return 0 on success, and non-zero if the sort fails due to
-        // a cycle in the input.  The input ('relationshipBegin' and
-        // 'relationshipEnd') is provided as (conceptual or physical) pairs of
-        // the form (U, V) where U precedes V in the output.  The type
-        // 'bsl::iterator_traits<INPUT_ITER>::value_type' must either be
-        // 'bsl::pair' where the 'first_type' and 'second_type' are the same as
-        // 'bsl::iterator_traits<OUTPUT_ITER>::value_type' or
+        // 'relationshipBegin' and 'relationshipPairsEnd', where the "from"
+        // element of the pair must precede the "to" element in the resulting
+        // sort (see 'TopologicalSortUtilMappingTraits' for description of
+        // "from" and "to").  Return 0 on success, and non-zero if the sort
+        // fails due to a cycle in the input.  The input ('relationshipBegin'
+        // and 'relationshipEnd') is provided as a sequence of (conceptual or
+        // physical) pairs of the form (U, V) where U precedes V in the output.
+        // The type 'bsl::iterator_traits<INPUT_ITER>::value_type' must either
+        // be 'bsl::pair' where the 'first_type' and 'second_type' are the same
+        // as 'bsl::iterator_traits<OUTPUT_ITER>::value_type' or
         // 'TopologicalSortUtil_MappingTraits' must be specialized for the
         // type, i.e., the supplied
         // 'bsl::iterator_traits<INPUT_ITER>::value_type' must support the
@@ -577,9 +596,9 @@ struct TopologicalSortUtil {
 //                 INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                   // ---------------------------------------
-                   // class TopologicalSortUtil_MappingTraits
-                   // ---------------------------------------
+                   // --------------------------------------
+                   // class TopologicalSortUtilMappingTraits
+                   // --------------------------------------
 
 template <class VALUE_TYPE>
 inline
@@ -633,10 +652,10 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
         if (pIter == d_setInfo.end()) {
             // Create new node info and add it to set info.
 
-            NodeInfo *nodeInfo = new NodeInfo;
+            bslma::ManagedPtr<NodeInfo> nodeInfo(new NodeInfo);
             bsl::pair<typename SetInfo::iterator, bool> result =
                 d_setInfo.insert(bsl::make_pair(MappingTraits::from(*iter),
-                                                nodeInfo));
+                                                nodeInfo.release().first));
             pIter = result.first;
         }
 
