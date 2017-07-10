@@ -1,6 +1,7 @@
 // bdlb_topologicalsortutil.cpp                                       -*-C++-*-
 #include <bdlb_topologicalsortutil.h>
 
+#include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {

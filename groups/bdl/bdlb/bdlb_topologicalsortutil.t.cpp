@@ -4,6 +4,7 @@
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
+#include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -23,68 +24,87 @@ using namespace bdlb;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test... TODO
+// The component under test is a utility template with two flavor of 'sort'
+// functions that implement topological sorting of directed graphs with cycle
+// detection.  One version of the function has a signature with (input and
+// output) iterators while the other is templated on the type representing the
+// nodes and uses 'bsl::vector<bsl::pair<TYPE, TYPE>>' as input and
+// 'bsl::vector<TYPE>' as output.
+//
+// Class Methods:
+//: o 'sort<INPUT_ITER, RESULT_ITER, UNORDERED_ITER>'
+//: o 'sort<VALUE_TYPE>'
 //
 //-----------------------------------------------------------------------------
-// [0] BREATHING TEST
-// [1] constructors
-// [8] ....
+//
+// CLASS METHODS
+// [2] sort(result, unorderedList, relations)
+//
+// [3] sort(result, unorderedList, relations)
+//
+// [4] sort(result, unorderedList, relations)
+//
+// [5] sort(result, unorderedList, relations)
+//
+// [6] sort(relationsBegin, relationsEnd, result, unordered)
+// [6] TopologicalSortUtilMappingTraits
+//-----------------------------------------------------------------------------
+// [1] BREATHING TEST
+// [7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << bsl::endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
+             << "    (failed)" << endl;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " \
-          << J << "\t" << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t" << #J << ": " << J \
-          << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-        << "\n"; aSsErT(1, #X, __LINE__); } }
-
-
-//=============================================================================
-//                    SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value
-#define Q(X) cout << "<! " #X " |>" << endl;  // Quote identifier literally
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__
-#define _T() cout << "\t" << flush;           // Print tab w/o newline
-
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 class CustomMapping {
+    // 'CustomMapping' is an example attribute class used in demonstrating
+    // customizing 'TopologicalSortUtil::sort' using
+    // 'TopologicalSortUtilMappingTraits'.
 
     // DATA
     int d_from;
@@ -93,17 +113,23 @@ class CustomMapping {
   public:
     // CREATORS
     CustomMapping(int from, int to)
+        // Create a custom mapping object with the specified 'from' and 'to'
+        // attributes.
     : d_from(from)
     , d_to(to)
     {
     }
 
     // ACCESSORS
-    int from() const {
+    int from() const
+        // Return the 'from' attribute of this object.
+    {
         return d_from;
     }
 
-    int to() const {
+    int to() const
+        // Return the 'to' attribute of this object.
+    {
         return d_to;
     }
 };
@@ -113,13 +139,23 @@ namespace bdlb {
 
 template <>
 struct TopologicalSortUtilMappingTraits<CustomMapping> {
-    typedef int ValueType;
+    // This 'struct' 'TopologicalSortUtilMappingTraits<CustomMapping>'
+    // customizes 'TopologicalSortUtil::sort' to "understand" the
+    // 'CustomMapping' type.
 
-    static ValueType from(const CustomMapping& mapping) {
+    // TYPES
+    typedef int ValueType;
+        // The type that represents a node/vertex of the graph.
+
+    static ValueType from(const CustomMapping& mapping)
+        // Return the 'from' attribute of the specified 'mapping' object.
+    {
         return mapping.from();
     }
 
-    static ValueType to(const CustomMapping& mapping) {
+    static ValueType to(const CustomMapping& mapping)
+        // Return the 'to' attribute of the specified 'mapping' object.
+    {
         return mapping.to();
     }
 };
@@ -132,31 +168,54 @@ struct TopologicalSortUtilMappingTraits<CustomMapping> {
                               // ==================
 
 class NullOutputIterator {
-    public:
-    typedef void container_type;
-    typedef void value_type;
-    typedef void difference_type;
-    typedef void pointer;
-    typedef void reference;
-    typedef bsl::output_iterator_tag iterator_category;
+    // This 'class' 'NullOutputIterator' is an iterator of the
+    // 'output_iterator' category that supports all output iterator methods and
+    // all methods do nothing.  It is also able to accept any type for output.
 
-    template <class T>
-    NullOutputIterator& operator=(const T&)
+  public:
+    // TYPES
+    typedef void container_type;
+        // This iterator type does not serve a specific container, hence the
+        // 'container_type' is 'void'.
+
+    typedef void value_type;
+        // This iterator type does not serve a specific value type, hence the
+        // 'value_type' is 'void'.
+
+    typedef void difference_type;
+        // 'difference_type' for output iterators is 'void' by definition.
+
+    typedef void pointer;
+        // 'pointer_type' for output iterators is 'void' by definition.
+
+    typedef void reference;
+        // 'reference' type for output iterators is 'void' by definition.
+
+    typedef bsl::output_iterator_tag iterator_category;
+        // This iterator type is an output iterator, hence 'iterator_category'
+        // is 'bsl::output_iterator_tag'.
+
+    template <class TYPE>
+    NullOutputIterator& operator=(const TYPE&)
+        // Do nothing and return '*this'.
     {
         return *this;
     }
 
     NullOutputIterator& operator*()
+        // Do nothing and return '*this'.
     {
         return *this;
     }
 
     NullOutputIterator& operator++()
+        // Do nothing and return '*this'.
     {
         return *this;
     }
 
     NullOutputIterator& operator++(int)
+        // Do nothing and return '*this'.
     {
         return *this;
     }
@@ -197,13 +256,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-///Example 1: Using topological sort for calculating formulas
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using Topological Sort for Calculating Formulas
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are evaluating formulas for a set of market data fields, where
 // formulas can reference other fields as part of their calculation.  As an
-// example let's say we have a field k_bbgDefinedVwap which is dependent on
+// example let's say we have a field k_bbgDefinedVwap that is dependent on
 // k_vwapTurnover and k_vwapVolume.  These fields in turn are dependent on
-// k_tradeSize and k_tradePrice respectively.  So essentially the fields which
+// k_tradeSize and k_tradePrice respectively.  So essentially the fields that
 // are not dependent on any other field should be calculated first and then the
 // dependent fields.  We can use the topological sort utility to provide us the
 // order in which these fields should be calculated.
@@ -221,23 +280,25 @@ int main(int argc, char *argv[])
 
     bsl::vector<bsl::pair<int, int> > relations;
 
-    relations.push_back(bsl::make_pair((int) k_vwapTurnover,
-                                       (int) k_bbgDefinedVwap));
-    relations.push_back(bsl::make_pair((int) k_vwapVolume,
-                                       (int) k_bbgDefinedVwap));
-    relations.push_back(bsl::make_pair((int) k_tradeSize,
-                                       (int) k_vwapVolume));
-    relations.push_back(bsl::make_pair((int) k_tradeSize,
-                                       (int) k_vwapTurnover));
-    relations.push_back(bsl::make_pair((int) k_tradePrice,
-                                       (int) k_vwapTurnover));
+    relations.push_back(bsl::make_pair(static_cast<int>(k_vwapTurnover),
+                                       static_cast<int>(k_bbgDefinedVwap)));
+    relations.push_back(bsl::make_pair(static_cast<int>(k_vwapVolume),
+                                       static_cast<int>(k_bbgDefinedVwap)));
+    relations.push_back(bsl::make_pair(static_cast<int>(k_tradeSize),
+                                       static_cast<int>(k_vwapVolume)));
+    relations.push_back(bsl::make_pair(static_cast<int>(k_tradeSize),
+                                       static_cast<int>(k_vwapTurnover)));
+    relations.push_back(bsl::make_pair(static_cast<int>(k_tradePrice),
+                                       static_cast<int>(k_vwapTurnover)));
 //..
 // Now, we call the topological sort to get a topological order for the fields
 // referenced in the relations:
 //..
     bsl::vector<int> results;
     bsl::vector<int> unordered;
-    bool sorted = TopologicalSortUtil::sort(&results, &unordered, relations);
+    bool             sorted = TopologicalSortUtil::sort(&results,
+                                                        &unordered,
+                                                        relations);
 //..
 // Finally, we verify that the order of the fields that the sort returns is
 // topologically correct:
@@ -293,8 +354,8 @@ int main(int argc, char *argv[])
         ASSERT(calculated[i] == true);
     }
 //..
-///Example 2: Using topological sort with cycles in input
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Using Topological Sort with Cycles in Input
+///-  - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which contain a cycle.
 //
 // First, we define a set of inputs which have a cycle:
@@ -307,20 +368,20 @@ int main(int argc, char *argv[])
 
     bsl::vector<bsl::pair<int, int> > relations2;
 
-    relations2.push_back(bsl::make_pair((int) FIELD2,
-                                        (int) FIELD1));
-    relations2.push_back(bsl::make_pair((int) FIELD3,
-                                        (int) FIELD2));
-    relations2.push_back(bsl::make_pair((int) FIELD1,
-                                        (int) FIELD3));
+    relations2.push_back(bsl::make_pair(static_cast<int>(FIELD2),
+                                        static_cast<int>(FIELD1)));
+    relations2.push_back(bsl::make_pair(static_cast<int>(FIELD3),
+                                        static_cast<int>(FIELD2)));
+    relations2.push_back(bsl::make_pair(static_cast<int>(FIELD1),
+                                        static_cast<int>(FIELD3)));
 //..
 // Now, we apply the topological sort routine on the input:
 //..
     bsl::vector<int> results2;
     bsl::vector<int> unordered2;
-    bool sorted2 = TopologicalSortUtil::sort(&results2,
-                                             &unordered2,
-                                             relations2);
+    bool             sorted2 = TopologicalSortUtil::sort(&results2,
+                                                         &unordered2,
+                                                         relations2);
 //..
 // Finally, we verify whether the routine recognizes that there is a cycle and
 // returns false:
@@ -328,7 +389,7 @@ int main(int argc, char *argv[])
     ASSERT(sorted2           == false);
     ASSERT(unordered2.size() == 3);
 //..
-///Example 3: Using topological sort with self relations
+///Example 3: Using Topological Sort with Self Relations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which have input relations where predecessor
 // and successor point to the same value. i.e. we have pairs of input like
@@ -342,20 +403,20 @@ int main(int argc, char *argv[])
 
     bsl::vector<bsl::pair<int, int> > relations3;
 
-    relations3.push_back(bsl::make_pair((int) FIELD4,
-                                        (int) FIELD6));
-    relations3.push_back(bsl::make_pair((int) FIELD5,
-                                        (int) FIELD4));
-    relations3.push_back(bsl::make_pair((int) FIELD4,
-                                        (int) FIELD4));
+    relations3.push_back(bsl::make_pair(static_cast<int>(FIELD4),
+                                        static_cast<int>(FIELD6)));
+    relations3.push_back(bsl::make_pair(static_cast<int>(FIELD5),
+                                        static_cast<int>(FIELD4)));
+    relations3.push_back(bsl::make_pair(static_cast<int>(FIELD4),
+                                        static_cast<int>(FIELD4)));
 //..
 // Now, we apply the topological sort routine on the input:
 //..
     bsl::vector<int> results3;
     bsl::vector<int> unordered3;
-    bool sorted3 = TopologicalSortUtil::sort(&results3,
-                                             &unordered3,
-                                             relations3);
+    bool             sorted3 = TopologicalSortUtil::sort(&results3,
+                                                         &unordered3,
+                                                         relations3);
 //..
 // Finally, we verify that the self relations causes the cycle:
 //..
@@ -382,7 +443,7 @@ int main(int argc, char *argv[])
         }
     }
 //..
-///Example 4: Using topological sort with iterators as input
+///Example 4: Using Topological Sort with Iterators as Input
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which have input relations that conceptually
 // follow the input requirements (of a listing of pairs of nodes) but are not
@@ -416,14 +477,14 @@ int main(int argc, char *argv[])
     ASSERT(results4[1] == 2);
     ASSERT(results4[2] == 3);
 //..
-///Example 5: Using topological sort with iterators as output
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 5: Using Topological Sort with Iterators as Output
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want our result in a 'bsl::list' instead of a 'bsl::vector' and
 // we do not care about the unordered elements so we do not want to pay for
 // storing them if they exist.  First, we would define a Null Output Iterator
-// that writes to nowhere, see 'NullOutputIterator' before 'main' (local
+// that writes to nowhere.  See 'NullOutputIterator' before 'main' (local
 // classes cannot be templates and cannot have member templates in C++03).
-//..
+//
 // Now, we apply the topological sort routine on the input:
 //..
     bsl::list<int> results5;
@@ -458,7 +519,25 @@ int main(int argc, char *argv[])
         //:   class and the specialization before 'main' (C++03 does not
         //:   support local classes in templates.)
         //
+        // Plan:
+        //: 1 Create a set of input using a custom mapping (edge) type instead
+        //:   of 'bsl::pair'.
+        //:
+        //: 2 Call the iterator version of the 'sort' function.  (We could call
+        //:   the simple (non-iterator) version as well.)
+        //:
+        //: 3 Verify that with the fully specialized
+        //:   'TopologicalSortUtilMappingTraits' the code compiles and links.
+        //:
+        //: 4 Verify that 'sort' returned 'true', the resulting 'unordered'
+        //:   'vector' is empty, and 'results' contains an acceptable
+        //:   topological ordering of the nodes.  Note that for brevity and
+        //:   simplicity of the testing code we verify the *exact* order of the
+        //:   elements.  As noted in the component documentation there may be
+        //:   other valid orders.
+        //
         // Testing:
+        //   sort(relationsBegin, relationsEnd, result, unordered)
         //   TopologicalSortUtilMappingTraits
         // --------------------------------------------------------------------
 
@@ -499,8 +578,20 @@ int main(int argc, char *argv[])
         //:
         //: 2 The cycle is reported in the 'unordered' argument.
         //
+        // Plan:
+        //: 1 Create a set of input edges that contains a cycle.
+        //:
+        //: 2 Call the simple (non-iterator) version of the 'sort' function.
+        //:
+        //: 3 Verify that 'sort' returned 'false', the resulting 'unordered'
+        //:   'vector' contains the nodes in the cycle, and 'results' is empty.
+        //:   Note that for brevity and simplicity of the test driver we are
+        //:   testing the 'unordered' nodes in a static order; however the
+        //:   algorithm contract does not make any promise about the order in
+        //:   which the offending nodes are reported.
+        //
         // Testing:
-        //   sort
+        //   sort(result, unorderedList, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -515,9 +606,9 @@ int main(int argc, char *argv[])
 
         bsl::vector<int> results;
         bsl::vector<int> unordered;
-        bool sorted = TopologicalSortUtil::sort(&results,
-                                                &unordered,
-                                                relations);
+        bool             sorted = TopologicalSortUtil::sort(&results,
+                                                            &unordered,
+                                                            relations);
         ASSERT(false == sorted);
         ASSERT(results.empty());
 
@@ -530,7 +621,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // SELF REF IS CYCLE TEST
+        // SELF REFERENCE IS CYCLE TEST
         //   This case proves that a self referencing node is reported as a
         //   cycle.
         //
@@ -539,13 +630,23 @@ int main(int argc, char *argv[])
         //:
         //: 2 A graph with a self referencing node reports a cycle.
         //
+        // Plan:
+        //: 1 Create a set of input edges that contains a single connection
+        //:   from the same node to the same node.  In other words: a
+        //:   self-referencing node.
+        //:
+        //: 2 Call the simple (non-iterator) version of the 'sort' function.
+        //:
+        //: 3 Verify that 'sort' returned 'false', the resulting 'unordered'
+        //:   'vector' contains the single input node, and 'results' is empty.
+        //
         // Testing:
-        //   sort
+        //   sort(result, unorderedList, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "SELF REF IS CYCLE TEST" << endl
-                          << "======================" << endl;
+                          << "SELF REFERENCE IS CYCLE TEST" << endl
+                          << "============================" << endl;
 
         bsl::vector<bsl::pair<int, int> > relations;
 
@@ -553,9 +654,9 @@ int main(int argc, char *argv[])
 
         bsl::vector<int> results;
         bsl::vector<int> unordered;
-        bool sorted = TopologicalSortUtil::sort(&results,
-                                                &unordered,
-                                                relations);
+        bool             sorted = TopologicalSortUtil::sort(&results,
+                                                            &unordered,
+                                                            relations);
         ASSERT(false == sorted);
         ASSERT(results.empty());
 
@@ -574,13 +675,25 @@ int main(int argc, char *argv[])
         //:
         //: 2 No nodes are missing from the result.
         //
+        // Plan:
+        //: 1 Create a set of edges that comprise two graphs, two sets of nodes
+        //:   that have no connecting edge between them.
+        //:
+        //: 2 Call the simple (non-iterator) version of the 'sort' function.
+        //:
+        //: 3 Verify that 'sort' returned 'true', the resulting 'unordered'
+        //:   'vector' is empty, and 'results' contains the nodes a proper
+        //:   order.  Note that for brevity and simplicity of the testing code
+        //:   we verify the *exact* order of the elements.  As noted in the
+        //:   component documentation there may be other valid orders.
+        //
         // Testing:
-        //   sort
+        //   sort(result, unorderedList, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "EDGE TEST" << endl
-                          << "=========" << endl;
+                          << "TWO GRAPHS TEST" << endl
+                          << "===============" << endl;
 
         bsl::vector<bsl::pair<int, int> > relations;
 
@@ -590,9 +703,9 @@ int main(int argc, char *argv[])
 
         bsl::vector<int> results;
         bsl::vector<int> unordered;
-        bool sorted = TopologicalSortUtil::sort(&results,
-                                                &unordered,
-                                                relations);
+        bool             sorted = TopologicalSortUtil::sort(&results,
+                                                            &unordered,
+                                                            relations);
         ASSERT(true == sorted);
         ASSERT(unordered.empty());
 
@@ -607,29 +720,46 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // EDGE TEST
-        //   This case test sorting of zero and one relations graphs.
+        // EDGE CASES TEST
+        //   This case test sorting of zero and one relation graphs.
         //
         // Concerns:
         //: 1 Zero edges result in successful sort and zero sorted nodes.
         //:
         //: 2 One edge results in successful sort and two sorted nodes.
         //
+        // Plan:
+        //: 1 Create empty input of 'vector' of 'pair's of 'string's.
+        //:
+        //: 2 Invoke the simple (non-iterator) version of 'sort'.
+        //:
+        //: 3 Verify that the function returns 'true' and both the 'result',
+        //:   and the 'unordered' 'vector's are empty.
+        //:
+        //: 4 Add a single edge (edge as in graph theory, not to be confused
+        //:   with edge cases in software testing) to the input.
+        //:
+        //: 5 Invoke the simple (non-iterator) version of 'sort'.
+        //:
+        //: 6 Verify that the function returns 'true', the 'result' 'vector'
+        //:   contains the nodes in the same order as they were in the edge,
+        //:   and the 'unordered' 'vector' is empty.
+        //
         // Testing:
-        //   sort
+        //   sort(result, unorderedList, relations)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "EDGE TEST" << endl
-                          << "=========" << endl;
+                          << "EDGE CASES TEST" << endl
+                          << "===============" << endl;
 
         bsl::vector<bsl::pair<bsl::string, bsl::string> > relations;
 
         bsl::vector<bsl::string> results;
         bsl::vector<bsl::string> unordered;
-        bool sorted = TopologicalSortUtil::sort(&results,
-                                                &unordered,
-                                                relations);
+        bool                     sorted = TopologicalSortUtil::sort(&results,
+                                                                    &unordered,
+                                                                    relations);
         ASSERT(true == sorted);
         ASSERT(unordered.empty());
 
@@ -659,6 +789,43 @@ int main(int argc, char *argv[])
         //: 1 The class is sufficiently functional to enable comprehensive
         //:   testing in subsequent test cases.
         //
+        // Plan:
+        //:  1 Create the input of 'vector' of 'pair's of 'int's that describes
+        //:    a directed acyclic graph.
+        //:
+        //:  2 Create two empty 'vectors' 'results', and 'unordered' for the
+        //:    two output arguments of the 'sort' function.
+        //:
+        //:  3 Run the simple (non-iterator) variant of the 'sort' function.
+        //:
+        //:  4 Verify that the sort is successful ('sort' returns 'true')
+        //:
+        //:  5 verify that the 'unordered' output is empty.
+        //:
+        //:  6 Verify the order of nodes/vertexes in the 'results' vector.
+        //:    Note that for brevity and simplicity of the testing code we
+        //:    verify the *exact* order of the elements.  As noted in the
+        //:    component documentation there may be other valid orders.
+        //:
+        //:  7 Create the input of 'list' of 'pair's of 'int's that describes a
+        //:    directed acyclic graph.
+        //:
+        //:  2 Create an empty 'vector' for 'results', and an empty 'set' for
+        //:    'unordered' for the two output arguments of the 'sort' function.
+        //:
+        //:  3 Run the iterator variant of the 'sort' function using the input
+        //:    'bsl::list::begin' and 'bsl::list::end' for the input range, a
+        //:    back insert iterator for the 'results' 'vector' and an insert
+        //:    iterator for the 'unordered' 'set'.
+        //:
+        //:  4 Verify that the sort is successful ('sort' returns 'true')
+        //:
+        //:  5 verify that the 'unordered' output is empty.
+        //:
+        //:  6 Verify the order of nodes/vertexes in the 'results' vector.
+        //:    Note that for brevity and simplicity of the testing code we
+        //:    verify the *exact* order of the elements.  As noted in the
+        //:    component documentation there may be other valid orders.
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
@@ -683,9 +850,9 @@ int main(int argc, char *argv[])
 
             bsl::vector<int> results;
             bsl::vector<int> unordered;
-            const bool sorted = TopologicalSortUtil::sort(&results,
-                                                          &unordered,
-                                                          relations);
+            const bool       sorted = TopologicalSortUtil::sort(&results,
+                                                                &unordered,
+                                                                relations);
             ASSERT(true == sorted);
             ASSERT(unordered.empty());
 
@@ -716,7 +883,7 @@ int main(int argc, char *argv[])
             relations.push_back(bsl::make_pair(11, 10));
 
             bsl::vector<int> results;
-            bsl::set<int> unordered;
+            bsl::set<int>    unordered;
             typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
             const bool sorted = TopologicalSortUtil::sort(
                                                     relations.begin(),
