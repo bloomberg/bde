@@ -14,7 +14,7 @@ BSLS_IDENT("$Id$")
 //
 //@SEE_ALSO: bdldfp_decimal
 //
-//@DESCRIPTION: This component provides namespace,
+//@DESCRIPTION: This component provides a namespace,
 // 'bdldfp::DecimalFormatUtil', containing functions that format decimal types...
 //
 
@@ -22,17 +22,18 @@ BSLS_IDENT("$Id$")
 
 namespace BloombergLP {
 namespace bdldfp {
-                        // =======================
-                        // class DecimalFormatUtil
-                        // =======================
 
-struct DecimalFormatUtil {
+class DecimalFormatConfig {
+    // This attribute class characterizes haw to configure certain behavior of
+    // 'DecimalFormatUtil' functions.  Note that declaring the configuration
+    // class in this header file is a temporary solution.  This class will be
+    // extracted into a separate component during 'bdldfp_Decimal' package
+    // re-organization.
 
-    // TYPES
+  public:
     enum Sign {
         e_NEGATIVE_ONLY,  // no sign output when sign bit is not set
         e_ALWAYS,         // output '+' when sign bit is not set
-        e_POSITIVE_SPACE  // output ' ' when sign bit is not set
     };
 
     enum Style {
@@ -43,41 +44,111 @@ struct DecimalFormatUtil {
                           // {http://speleotrove.com/decimal/decarith.pdf}
     };
 
-    enum Letters {
-        e_LOWER,          // output letters in lower-case
-        e_UPPER,          // output letters in upper-case
-        e_MIXED           // output letters as in the above reference:
-                          // i.e., 'E', 'Infinity', 'NaN', 'sNaN'
-    };
+  private:
+    // DATA
+    int         d_precision;
+    Style       d_style;
+    Sign        d_sign;
+    const char *d_infinityText;
+    const char *d_nanText;
+    const char *d_sNanText;
+    char        d_decimalPoint;
+    char        d_exponent;
+
+  public:
+    // CREATORS
+    explicit
+    DecimalFormatConfig(int         precision,
+                        Style       style     = e_SCIENTIFIC,
+                        Sign        sign      = e_NEGATIVE_ONLY,
+                        const char *infinity  = "inf",
+                        const char *nan       = "nan",
+                        const char *snan      = "snan",
+                        char        point     = '.',
+                        char        exponent  = 'E')
+        : d_precision(precision)
+        , d_style(style)
+        , d_sign(sign)
+        , d_infinityText(infinity)
+        , d_nanText(nan)
+        , d_sNanText(snan)
+        , d_decimalPoint(point)
+        , d_exponent(exponent)
+    {
+    }
+
+    // ACCESSORS
+    int precision() const
+    {
+        return d_precision;
+    }
+
+    Style style() const
+    {
+        return d_style;
+    }
+
+    Sign sign() const
+    {
+        return d_sign;
+    }
+
+    const char *infinity() const
+    {
+        return d_infinityText;
+    }
+
+    const char *nan() const
+    {
+        return d_nanText;
+    }
+
+    const char *sNan() const
+    {
+        return d_sNanText;
+    }
+
+    char decimalPoint() const
+    {
+        return d_decimalPoint;
+    }
+
+    char exponent() const
+    {
+        return d_exponent;
+    }
+};
+
+
+                        // =======================
+                        // class DecimalFormatUtil
+                        // =======================
+
+class DecimalFormatUtil {
+    // This 'class' provide a namespace for formatting operations on
+    // 'Decimal32', 'Decimal64' and 'Decimal128' values.  Note that declaring
+    // format functions in this class is a temporary solution and these
+    // functions will be moved into 'DecimalUtil' class during 'bdldfp_Decimal'
+    // package re-organization.
+
+  public:
+    static
+    int format(char                      *buffer,
+               int                        length,
+               Decimal32                  value,
+               const DecimalFormatConfig& cfg = DecimalFormatConfig(6));
 
     static
-    int format(char       *buffer,
-               int         length,
-               Decimal32   value,
-               int         precision = 6,
-               Style       style     = e_SCIENTIFIC,
-               Sign        sign      = e_NEGATIVE_ONLY,
-               Letters     letters   = e_LOWER,
-               char        point     = '.'
-               );
+    int format(char                      *buffer,
+               int                        length,
+               Decimal64                  value,
+               const DecimalFormatConfig& cfg = DecimalFormatConfig(15));
+
     static
-    int format(char       *buffer,
-               int         length,
-               Decimal64   value,
-               int         precision = 15,
-               Style       style     = e_SCIENTIFIC,
-               Sign        sign      = e_NEGATIVE_ONLY,
-               Letters     letters   = e_LOWER,
-               char        point     = '.');
-    static
-    int format(char       *buffer,
-               int         length,
-               Decimal128  value,
-               int         precision = 33,
-               Style       style     = e_SCIENTIFIC,
-               Sign        sign      = e_NEGATIVE_ONLY,
-               Letters     letters   = e_LOWER,
-               char        point     = '.');
+    int format(char                      *buffer,
+               int                        length,
+               Decimal128                 value,
+               const DecimalFormatConfig& cfg = DecimalFormatConfig(33));
         // Format the specified 'value' according to the parameters as
         // described below, placing the output in the buffer designated by the
         // specified 'buffer' and 'length', and return the length of the
@@ -100,9 +171,11 @@ struct DecimalFormatUtil {
         // then a '-' or '+', then an exponent with no leading zeroes (with a
         // zero exponent written as '0').  If 'style' is 'e_FIXED', the number
         // is written as its sign, then one or more digits, then a decimal
-        // point, then 'precision' digits.  If 'style' is fixed, the number is
-        // written according to the description of 'to-scientific-string' found
-        // in {http://speleotrove.com/decimal/decarith.pdf}.
+        // point, then 'precision' digits.  If the 'precision' value equals '0'
+        // then precision digits and the decimal point are not written.  If
+        // 'style' is 'e_NATURAL', the number is written according to the
+        // description of 'to-scientific-string' found in
+        // {http://speleotrove.com/decimal/decarith.pdf}.
         //
         // Optionally specify 'sign' to control how the sign is output.  If
         // 'value' has its sign bit set, a '-' is always written.  Otherwise,

@@ -39,9 +39,9 @@ struct DecimalTraits<Decimal128>
 };
 
 static
-int formatSign(char                    *symbol,
-               int                      sign,
-               DecimalFormatUtil::Sign& signOutput)
+int formatSign(char                            *symbol,
+               int                              sign,
+               const DecimalFormatConfig::Sign& signOutput)
     // Format the specified 'sign' according to the specified 'signOutput'
     // type and load the result into the specified 'buffer'.  Return the
     // length of the formatted sign.
@@ -51,35 +51,37 @@ int formatSign(char                    *symbol,
         *symbol = '-';
     }
     else {
-      switch (signOutput) {
-        case DecimalFormatUtil::e_ALWAYS: {
-          *symbol = '+';
-        } break;
-        case DecimalFormatUtil::e_POSITIVE_SPACE: {
-          *symbol = ' ';
-        } break;
-        case DecimalFormatUtil::e_NEGATIVE_ONLY: {
+        if (DecimalFormatConfig::e_NEGATIVE_ONLY == signOutput) {
           len = 0;
-        } break;
-        default: {
-          BSLS_ASSERT(!"Unexpected sign value");
         }
-      }
+        else {
+          *symbol = '+';
+        }
     }
     return len;
 }
 
+template <class T>
+static
+T divmod10(T& v)
+    // Load the resultant value of dividing the specified value 'v' by 10 into
+    // 'v'.  Return the remainder of the division.
+{
+    T r =  v % 10;
+    v /= 10;
+    return r;
+}
+
 static
 bsls::Types::Uint64 divmod10(Uint128& v)
-    // Load the resultant value of division the specified value 'v' by 10 into
+    // Load the resultant value of dividing the specified value 'v' by 10 into
     // 'v'.  Return the remainder of the division.
 {
     // Set a = v.high(), b = v.low().
     // Let Q = (2^64 * a + b) / 10 and R = (2^64 * a + b) % 10.
     // Set a to Q / 2^64, b to Q % 2^64, and return R.
-    bsls::Types::Uint64 a =  v.high();
+    bsls::Types::Uint64 a  = v.high();
     bsls::Types::Uint64 b  = v.low();
-    bsls::Types::Uint64 r  = 0;
 
     bsls::Types::Uint64 qa = a / 10;
     bsls::Types::Uint64 ra = a % 10;
@@ -97,14 +99,14 @@ static
 bool isZero(const T& v)
     // Return true if the specified 'v' equals 0, and false otherwise.
 {
-    return v == 0;
+    return 0 == v;
 }
 
 static
 bool isZero(const Uint128& v)
     // Return true if the specified 'v' equals 0, and false otherwise.
 {
-    return v.high() == 0 && v.low() == 0;
+    return 0 == v.high() && 0 == v.low();
 }
 
 template <class T>
@@ -114,30 +116,20 @@ int toString(char *b, char *e, T value)
     // buffer confined by the specified 'b' and 'e' iterators.  Return the
     // total number of written characters.
 {
-    int len = bsl::sprintf(b, "%d", bsl::abs(value));
-    return len;
-}
-
-static
-int toString(char *b, char *e, Uint128 value)
-    // Compose a string from the specified 'value' and load the output into a
-    // buffer confined by the specified 'b' and 'e' iterators.  Return the
-    // total number of written characters.
-{
     char *i = e;
     do {
-        *--i = '0' + divmod10(value);
+        *--i = static_cast<char>('0' + divmod10(value));
     } while (!isZero(value));
 
     bsl::copy(i, e, b);
 
-    return e - i;
+    return static_cast<int>(e - i);
 }
 
 template <class SIGNIFICAND>
 static
 int pointPosition(SIGNIFICAND significand, int significandLength, int exponent)
-    // Return the point position relatively the most significand digit of a
+    // Return the point position relative to the most significant digit of a
     // decimal value designated by the specified 'significand',
     // 'significandLength' and 'exponent' values.
 {
@@ -152,30 +144,31 @@ int formatFixed(char       *buffer,
                 int         exponent,
                 int         precision,
                 char        point)
-{
     // Format a decimal value designated by the specified 'significand' and
     // 'exponent' values using 'e_FIXED' style and load the output into the
     // specified 'buffer'.  If there is insufficient room in the buffer, its
     // contents will be left in an unspecified state, with the returned
     // value indicating the necessary size.  The behavior is undefined if
-    // either 'significandLength' or 'length' or 'precision' is negative or
-    // 'buffer == 0 || significand == 0'.
+    // either 'significandLength' or 'precision' are negative or pointers are
+    // null.  The 'buffer' is permitted to be null if the 'length' is not
+    // positive.  This can be used to determine the necessary buffer size.
+{
 
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(length >= 0);
+    BSLS_ASSERT(buffer || length < 0);
     BSLS_ASSERT(significand);
     BSLS_ASSERT(significandLength >= 0);
     BSLS_ASSERT(precision >= 0);
 
     int pointPos     = significand[0] != '0' ? significandLength + exponent
                                              : 0;
-    int outputLength = (pointPos > 0 ? pointPos : sizeof('0'))
-                       + (precision ? sizeof(point) : 0) + precision;
+    int outputLength = static_cast<int>((pointPos > 0 ? pointPos : sizeof('0'))
+                                        + (precision ? sizeof(point) : 0)
+                                        + precision);
 
     if (outputLength <= length) {
 
         char       *oi = buffer;
-        char       *oe = buffer + length;
+        char       *oe = buffer + outputLength;
         const char *ii = significand;
         const char *ie = significand + significandLength;
 
@@ -201,8 +194,9 @@ int formatFixed(char       *buffer,
                 *oi++ = '0';
             }
 
-            if (ii < ie) {
-                oi = bsl::copy(ii, ie, oi);
+            end = bsl::min(ii + pointPos + precision, ie);
+            if (ii < end) {
+                oi = bsl::copy(ii, end, oi);
             }
             bsl::fill_n(oi, oe - oi, '0');
         }
@@ -219,30 +213,29 @@ int formatScientific(char       *buffer,
                      int         exponent,
                      int         precision,
                      char        point)
-{
     // Format a decimal value designated by the specified 'significand' and
     // 'exponent' values using 'e_SCIENTIFIC' style and load the output into
     // the specified 'buffer'.  If there is insufficient room in the buffer,
     // its contents will be left in an unspecified state, with the returned
     // value indicating the necessary size.  The behavior is undefined if
-    // either 'significandLength' or 'length' or 'precision' is negative or
-    // 'buffer == 0 || significand == 0'.
-
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(length >= 0);
+    // either 'significandLength' or 'precision' are negative or pointers are
+    // null.  The 'buffer' is permitted to be null if the 'length' is not
+    // positive.  This can be used to determine the necessary buffer size.
+{
+    BSLS_ASSERT(buffer || length < 0);
     BSLS_ASSERT(significand);
     BSLS_ASSERT(significandLength >= 0);
     BSLS_ASSERT(precision >= 0);
 
     exponent += significandLength - 1;
 
-    const int k_MAX_EXPONENT_LENGTH = 5;
+    const int k_MAX_EXPONENT_LENGTH = 6;
     char      exp[k_MAX_EXPONENT_LENGTH];
     int       exponentLength = bsl::sprintf(&exp[0], "%+d", exponent);
     int       outputLength   = 1
-                               + (precision ? sizeof(point) : 0) + precision
-                               + sizeof 'E'
-                               + sizeof '+'
+                               + (precision ? static_cast<int>(sizeof(point))
+                                            : 0) + precision
+                               + static_cast<int>(sizeof 'E')
                                + exponentLength;
     char     *i              = buffer;
 
@@ -257,10 +250,10 @@ int formatScientific(char       *buffer,
             *i++ = point;
 
             const char *end = bsl::min(j + precision, e);
-            if (j < end) {
+            if (j <= end) {
                 i = bsl::copy(j, end, i);
                 if (end == e) {
-                    int n = j + precision - e;
+                    long int n = bsl::distance(e, j + precision);
                     bsl::fill_n(i, n, '0');
                     i += n;
                 }
@@ -270,7 +263,7 @@ int formatScientific(char       *buffer,
         i    = bsl::copy(&exp[0], &exp[0] + exponentLength, i);
     }
 
-    return i - buffer;
+    return outputLength;
 }
 
 static
@@ -281,6 +274,14 @@ int formatNatural(char       *buffer,
                   int         exponent,
                   int         precision,
                   char        point)
+    // Format a decimal value designated by the specified 'significand' and
+    // 'exponent' values using 'e_NATURAL' style and load the output into
+    // the specified 'buffer'.  If there is insufficient room in the buffer,
+    // its contents will be left in an unspecified state, with the returned
+    // value indicating the necessary size.  The behavior is undefined if
+    // either 'significandLength' or 'precision' are negative or pointers are
+    // null.  The 'buffer' is permitted to be null if the 'length' is not
+    // positive.  This can be used to determine the necessary buffer size.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(length >= 0);
@@ -291,6 +292,7 @@ int formatNatural(char       *buffer,
     int len;
     int adjustedExponent = exponent + significandLength - 1;
     if (exponent <= 0 && adjustedExponent >= -6) {
+
         len = formatFixed(buffer,
                           length,
                           significand,
@@ -311,7 +313,26 @@ int formatNatural(char       *buffer,
     return len;
 }
 
-Decimal32 roundByPowerOf10(Decimal32 value, int exponent)
+static
+int formatSpecial(char        *buffer,
+                  int          length,
+                  const char  *begin,
+                  const char  *end)
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(length >= 0);
+
+    const long int len = bsl::distance(begin, end);
+
+    if (len <= length) {
+        bsl::copy(begin, end, buffer);
+    }
+
+    return static_cast<int>(len);
+}
+
+
+Decimal32 round(Decimal32 value, int exponent)
     // Multiply the specified 'value' by ten raised to the specified
     // 'exponent'.  Round the result to the nearest integral value and return
     // the result of dividing the value by ten raised to the 'exponent'.
@@ -324,7 +345,7 @@ Decimal32 roundByPowerOf10(Decimal32 value, int exponent)
 }
 
 template <class DECIMAL>
-DECIMAL roundByPowerOf10(DECIMAL value, int exponent)
+DECIMAL round(DECIMAL value, int exponent)
     // Multiply the specified 'value' by ten raised to the specified
     // 'exponent'.  Round the result to the nearest integral value and return
     // the result of dividing the value by ten raised to the 'exponent'.
@@ -337,14 +358,13 @@ DECIMAL roundByPowerOf10(DECIMAL value, int exponent)
 
 template <class DECIMAL>
 static
-int decompose(char                     *buffer,
-              int                       length,
-              int                      *cls,
-              int                      *sign,
-              int                      *exponent,
-              int                       precision,
-              DecimalFormatUtil::Style  style,
-              DECIMAL                   value)
+int decompose(char                *buffer,
+              int                  length,
+              int                 *cls,
+              int                 *sign,
+              int                 *exponent,
+              DecimalFormatConfig  cfg,
+              DECIMAL              value)
     // Decompose the specified decimal 'value' into the specified 'sign'
     // significand  and 'exponent' components.  Compose a string from the
     // significand part and load the result into the specified 'buffer'.  If
@@ -355,20 +375,30 @@ int decompose(char                     *buffer,
     typedef typename DecimalTraits<DECIMAL>::Significand SIGNIFICAND;
 
     SIGNIFICAND significand;
+
     *cls = DecimalUtil::decompose(sign,
                                   &significand,
                                   exponent,
                                   value);
-    int len = toString(buffer, buffer + length,  significand);
 
-    int pointPos = (DecimalFormatUtil::e_SCIENTIFIC == style)
-                   ? 1
-                   : pointPosition(significand, len, *exponent);
+    int len = toString(buffer, buffer + length, significand);
 
-    int roundingPos = pointPos + precision;
+    int adjustedExponent  = *exponent + len - 1;
+
+    bool fixedFormat = (DecimalFormatConfig::e_FIXED   == cfg.style()) ||
+                       (DecimalFormatConfig::e_NATURAL == cfg.style() &&
+                        *exponent <= 0 && adjustedExponent >= -6);
+
+    int pointPos = fixedFormat ? pointPosition(significand,
+                                               len,
+                                               *exponent)
+                               : 1;
+
+    int roundingPos = pointPos + cfg.precision();
 
     if (0 < roundingPos && roundingPos < len) {
-        value = roundByPowerOf10(value, -(*exponent) - len + roundingPos);
+
+        value = round(value, -(*exponent) - len + roundingPos);
         *cls  = DecimalUtil::decompose(sign,
                                        &significand,
                                        exponent,
@@ -380,17 +410,13 @@ int decompose(char                     *buffer,
 
 template <class DECIMAL>
 static
-int formatImpl(char                       *buffer,
-               int                         length,
-               DECIMAL                     value,
-               int                         precision,
-               DecimalFormatUtil::Style    style,
-               DecimalFormatUtil::Sign     signFormat,
-               DecimalFormatUtil::Letters  letters,
-               char                        point)
+int formatImpl(char                      *buffer,
+               int                        length,
+               DECIMAL                    value,
+               const DecimalFormatConfig& cfg)
 {
     BSLS_ASSERT(buffer || length < 0);
-    BSLS_ASSERT(precision >= 0);
+    BSLS_ASSERT(cfg.precision() >= 0);
 
     const int   k_MAX_SIGNIFICAND_LENGTH = 34;
     char        significand[k_MAX_SIGNIFICAND_LENGTH] = { 0 };
@@ -403,111 +429,119 @@ int formatImpl(char                       *buffer,
                                       &cls,
                                       &sign,
                                       &exponent,
-                                      precision,
-                                      style,
+                                      cfg,
                                       value);
-    char  signSymbol;
-    int   signLength    = formatSign(&signSymbol, sign, signFormat);
+
+    char  signSymbol('+');
+    int   signLength    = formatSign(&signSymbol, sign, cfg.sign());
     int   bufferLength  = length - signLength;
     int   decimalLength = 0;
     char *it            = buffer + signLength;
 
-    if (FP_NORMAL == cls || FP_ZERO == cls) {
-
-        switch (style) {
-          case DecimalFormatUtil::e_SCIENTIFIC: {
+    switch (cls) {
+      case FP_NORMAL:
+      case FP_ZERO: {
+        switch (cfg.style()) {
+          case DecimalFormatConfig::e_SCIENTIFIC: {
 
               decimalLength = formatScientific(it,
                                                bufferLength,
                                                &significand[0],
                                                significandLength,
                                                exponent,
-                                               precision,
-                                               point);
+                                               cfg.precision(),
+                                               cfg.decimalPoint());
           } break;
-          case DecimalFormatUtil::e_FIXED: {
+          case DecimalFormatConfig::e_FIXED: {
 
               decimalLength = formatFixed(it,
                                           bufferLength,
                                           &significand[0],
                                           significandLength,
                                           exponent,
-                                          precision,
-                                          point);
+                                          cfg.precision(),
+                                          cfg.decimalPoint());
           } break;
-          case DecimalFormatUtil::e_NATURAL: {
+          case DecimalFormatConfig::e_NATURAL: {
 
               decimalLength = formatNatural(it,
                                             bufferLength,
                                             &significand[0],
                                             significandLength,
                                             exponent,
-                                            precision,
-                                            point);
+                                            cfg.precision(),
+                                            cfg.decimalPoint());
           } break;
           default: {
             BSLS_ASSERT(!"Unexpected format style value");
           } break;
         }
+      } break;
+      case FP_INFINITE: {
+          const char *inf = cfg.infinity();
+          decimalLength = formatSpecial(it,
+                                        bufferLength,
+                                        inf,
+                                        inf + bsl::strlen(inf));
+      } break;
+      case FP_NAN: {
+          const char *nan = cfg.nan();
+          decimalLength = formatSpecial(it,
+                                        bufferLength,
+                                        nan,
+                                        nan + bsl::strlen(nan));
+      } break;
+      case FP_SUBNORMAL: {
+          const char *sNan= cfg.sNan();
+          decimalLength = formatSpecial(it,
+                                        bufferLength,
+                                        sNan,
+                                        sNan + bsl::strlen(sNan));
+      } break;
     }
 
     decimalLength += signLength;
     if (decimalLength <= length && signLength) {
-        *buffer = signSymbol;
+       *buffer = signSymbol;
     }
 
     return decimalLength;
 }
+
 }  // close unnamed namespace
 
-int DecimalFormatUtil::format(char       *buffer,
-                              int         length,
-                              Decimal32   value,
-                              int         precision,
-                              Style       style,
-                              Sign        sign,
-                              Letters     letters,
-                              char        point)
+int DecimalFormatUtil::format(char                      *buffer,
+                              int                        length,
+                              Decimal32                  value,
+                              const DecimalFormatConfig& config)
 {
     return formatImpl(buffer,
                       length,
                       value,
-                      precision,
-                      style,
-                      sign,
-                      letters,
-                      point);
+                      config);
 }
 
-int DecimalFormatUtil::format(char       *buffer,
-                              int         length,
-                              Decimal64   value,
-                              int         precision,
-                              Style       style,
-                              Sign        sign,
-                              Letters     letters,
-                              char        point)
+int DecimalFormatUtil::format(char                      *buffer,
+                              int                        length,
+                              Decimal64                  value,
+                              const DecimalFormatConfig& config)
 {
+    return formatImpl(buffer,
+                      length,
+                      value,
+                      config);
+}
+
+int DecimalFormatUtil::format(char                      *buffer,
+                              int                        length,
+                              Decimal128                 value,
+                              const DecimalFormatConfig& config)
+{
+    return formatImpl(buffer,
+                      length,
+                      value,
+                      config);
     return 0;
-}
-
-int DecimalFormatUtil::format(char       *buffer,
-                              int         length,
-                              Decimal128  value,
-                              int         precision,
-                              Style       style,
-                              Sign        sign,
-                              Letters     letters,
-                              char        point)
-{
-    return formatImpl(buffer,
-                      length,
-                      value,
-                      precision,
-                      style,
-                      sign,
-                      letters,
-                      point);
 }
 
 }  // close package namespace
