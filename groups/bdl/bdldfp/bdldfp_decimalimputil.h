@@ -140,10 +140,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil_decnumber.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_IBMXLC
-#include <bdldfp_decimalimputil_ibmxlc.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #include <bdldfp_decimalimputil_inteldfp.h>
 #endif
@@ -232,8 +228,6 @@ class DecimalImpUtil {
     typedef DecimalImpUtil_DecNumber Imp;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     typedef DecimalImpUtil_IntelDfp  Imp;
-#elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
-    typedef DecimalImpUtil_IbmXlc    Imp;
 #else
     BSLMF_ASSERT(false);
 #endif
