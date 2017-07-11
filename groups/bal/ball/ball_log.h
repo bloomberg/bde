@@ -101,10 +101,9 @@ BSLS_IDENT("$Id: $")
 //:     category is set *once* only, the first time that it is accessed (i.e.,
 //:     it is not a dynamic category).  This macro must be used, at most once,
 //:     within the definition of a class or class template (or else a compiler
-//:     diagnostic will result).  Uses of this macro must not be terminated by
-//:     a ';'.  Note that use of this macro may occur in either a 'public',
-//:     'private', or 'protected' section of a class's interface, although
-//:     'private' should be preferred.
+//:     diagnostic will result).  Note that use of this macro may occur in
+//:     either a 'public', 'private', or 'protected' section of a class's
+//:     interface, although 'private' should be preferred.
 //
 // Note that similar to block-scope categories (see 'BALL_LOG_SET_CATEGORY' and
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY'), class-scope categories are not destroyed
@@ -121,58 +120,62 @@ BSLS_IDENT("$Id: $")
 // macro.
 //
 // A set of macros based on C++ streams, 'BALL_LOG_TRACE', 'BALL_LOG_DEBUG',
-// 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', 'BALL_LOG_FATAL', and
-// 'BALL_LOG_END', are the ones most commonly used for logging.  They have the
-// following usage pattern:
+// 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', and 'BALL_LOG_FATAL',
+// are the ones most commonly used for logging.  They have the following usage
+// pattern:
 //..
-//  BALL_LOG_TRACE << X << Y ... << BALL_LOG_END
-//  BALL_LOG_DEBUG << X << Y ... << BALL_LOG_END
-//  BALL_LOG_INFO  << X << Y ... << BALL_LOG_END
-//  BALL_LOG_WARN  << X << Y ... << BALL_LOG_END
-//  BALL_LOG_ERROR << X << Y ... << BALL_LOG_END
-//  BALL_LOG_FATAL << X << Y ... << BALL_LOG_END
+//  BALL_LOG_TRACE << X << Y ... ;
+//  BALL_LOG_DEBUG << X << Y ... ;
+//  BALL_LOG_INFO  << X << Y ... ;
+//  BALL_LOG_WARN  << X << Y ... ;
+//  BALL_LOG_ERROR << X << Y ... ;
+//  BALL_LOG_FATAL << X << Y ... ;
 //      where X, Y, ... represents any sequence of values for which
 //      'operator<<' is defined.  The resulting formatted message string is
-//      logged with the severity indicated by the name of the initial macro
-//      (e.g., 'BALL_LOG_TRACE' ... 'BALL_LOG_END' logs with severity
-//      'ball::Severity::e_TRACE').
+//      logged with the severity indicated by the name of the macro
+//      (e.g., 'BALL_LOG_TRACE' logs with severity 'ball::Severity::e_TRACE').
 //..
-// Two closely-related macros also based on C++ streams, 'BALL_LOG_STREAM' and
-// 'BALL_LOG_STREAM_UNLIKELY', require that the severity be explicitly supplied
-// as an argument:
+// A closely-related macro also based on C++ streams, 'BALL_LOG_STREAM',
+// requires that the severity be explicitly supplied as an argument:
 //..
-//  BALL_LOG_STREAM(severity)          << X << Y ... << BALL_LOG_END
-//  BALL_LOG_STREAM_UNLIKELY(severity) << X << Y ... << BALL_LOG_END
+//  BALL_LOG_STREAM(SEVERITY) << X << Y ... ;
 //      where X, Y, ... represents any sequence of values for which
 //      'operator<<' is defined.  The resulting formatted message string is
-//      logged with the specified 'severity'.  'BALL_LOG_STREAM_UNLIKELY'
-//      differs from 'BALL_LOG_STREAM' in that the former provides a hint to
-//      the compiler that it is "unlikely" to be executed, and is intended for
-//      special-purpose use only.  Note that 'BALL_LOG_TRACE', for example, is
-//      equivalent to 'BALL_LOG_STREAM_UNLIKELY(ball::Severity::e_TRACE)'.
+//      logged with the specified 'SEVERITY'.
 //..
 // Another set of macros based on C++ streams, similar to 'BALL_LOG_TRACE',
 // etc., allow the caller to specify a "callback" function that is passed the
 // 'ball::UserFields *' used to represent the user fields of a log record.
 // 'BALL_LOGCB_TRACE', 'BALL_LOGCB_DEBUG', 'BALL_LOGCB_INFO',
-// 'BALL_LOGCB_WARN', 'BALL_LOGCB_ERROR', 'BALL_LOGCB_FATAL', and
-// 'BALL_LOGCB_END' have the following usage pattern:
+// 'BALL_LOGCB_WARN', 'BALL_LOGCB_ERROR', and 'BALL_LOGCB_FATAL' have the
+// following usage pattern:
 //..
-//  BALL_LOGCB_TRACE(CB) << X << Y ... << BALL_LOGCB_END
-//  BALL_LOGCB_DEBUG(CB) << X << Y ... << BALL_LOGCB_END
-//  BALL_LOGCB_INFO(CB)  << X << Y ... << BALL_LOGCB_END
-//  BALL_LOGCB_WARN(CB)  << X << Y ... << BALL_LOGCB_END
-//  BALL_LOGCB_ERROR(CB) << X << Y ... << BALL_LOGCB_END
-//  BALL_LOGCB_FATAL(CB) << X << Y ... << BALL_LOGCB_END
+//  BALL_LOGCB_TRACE(CALLBACK) << X << Y ... ;
+//  BALL_LOGCB_DEBUG(CALLBACK) << X << Y ... ;
+//  BALL_LOGCB_INFO(CALLBACK)  << X << Y ... ;
+//  BALL_LOGCB_WARN(CALLBACK)  << X << Y ... ;
+//  BALL_LOGCB_ERROR(CALLBACK) << X << Y ... ;
+//  BALL_LOGCB_FATAL(CALLBACK) << X << Y ... ;
 //      where X, Y, ... represents any sequence of values for which
-//      'operator<<' is defined and 'CB' is a callback taking a
+//      'operator<<' is defined and 'CALLBACK' is a callback taking a
 //      'ball::UserFields *' as an argument.  The resulting formatted message
-//      string is logged with the severity indicated by the name of the
-//      initial macro (e.g., 'BALL_LOGCB_ERROR' ... 'BALL_LOGCB_END' logs with
-//      severity 'ball::Severity::e_ERROR').  The generated log record will
+//      string is logged with the severity indicated by the name of the macro
+//      (e.g., 'BALL_LOGCB_ERROR' logs with severity
+//      'ball::Severity::e_ERROR').  The generated log record will contain the
+//      'ball::UserFields' representing user fields as populated by 'CALLBACK'.
+//      Note that the callback supplied to the logging macro must match the
+//      prototype 'void (*)(ball::UserFields *)'.
+//..
+// A closely-related macro also based on C++ streams, 'BALL_LOGCB_STREAM',
+// requires that the severity be explicitly supplied as an argument:
+//..
+//  BALL_LOGCB_STREAM(SEVERITY, CALLBACK) << X << Y ... ;
+//      where X, Y, ... represents any sequence of values for which
+//      'operator<<' is defined.  The resulting formatted message string is
+//      logged with the specified 'SEVERITY'.  The generated log record will
 //      contain the 'ball::UserFields' representing user fields as populated by
-//      'CB'.  Note that the callback supplied to the logging macro must match
-//      the prototype 'void (*)(ball::UserFields *)'.
+//      'CALLBACK'.  Note that the callback supplied to the logging macro must
+//      match the prototype 'void (*)(ball::UserFields *)'.
 //..
 // The remaining macros are based on 'printf'-style format specifications:
 //..
@@ -193,6 +196,47 @@ BSLS_IDENT("$Id: $")
 //      terminated by a ';'.
 //..
 //
+///Macros for Logging Code Blocks
+/// - - - - - - - - - - - - - - -
+//  The following macros allow the caller to start a code block that will be
+//  conditionally executed depending on the current logging threshold of the
+//  category that is in scope of those macros:
+//..
+//  BALL_LOG_TRACE_BLOCK { ... }
+//  BALL_LOG_DEBUG_BLOCK { ... }
+//  BALL_LOG_INFO_BLOCK  { ... }
+//  BALL_LOG_WARN_BLOCK  { ... }
+//  BALL_LOG_ERROR_BLOCK { ... }
+//  BALL_LOG_FATAL_BLOCK { ... }
+//..
+// A closely-related macro, 'BALL_LOG_STREAM_BLOCK', requires that the severity
+// be explicitly supplied as an argument:
+//..
+//  BALL_LOG_STREAM_BLOCK(SEVERITY) { ... }
+//..
+// Another set of macros, similar to 'BALL_LOG_*_BLOCK', allow the caller to
+// specify a "callback" function that is passed the 'ball::UserFields *' used
+// to represent the user fields of a log record:
+//..
+//  BALL_LOGCB_TRACE_BLOCK(CALLBACK) { ... }
+//  BALL_LOGCB_DEBUG_BLOCK(CALLBACK) { ... }
+//  BALL_LOGCB_INFO_BLOCK(CALLBACK)  { ... }
+//  BALL_LOGCB_WARN_BLOCK(CALLBACK)  { ... }
+//  BALL_LOGCB_ERROR_BLOCK(CALLBACK) { ... }
+//  BALL_LOGCB_FATAL_BLOCK(CALLBACK) { ... }
+//..
+// A closely-related macro, 'BALL_LOGCB_STREAM_BLOCK', requires that the
+// severity be explicitly supplied as an argument:
+//..
+//  BALL_LOGCB_STREAM_BLOCK(SEVERITY, CALLBACK) { ... }
+//..
+//  Within the logging code block a special macro, 'BALL_LOG_OUTPUT_STREAM',
+//  provides access to the log stream.
+//
+//  Note that code within a logging code block must not produce any side
+//  effects because it may or may not be executed based on run-time
+//  configuration of the 'ball' logging subsystem.
+//
 ///Utility Macros
 /// - - - - - - -
 // The following utility macro is intended for special-purpose use for
@@ -200,10 +244,10 @@ BSLS_IDENT("$Id: $")
 // category (as established by the macros defined above) be in scope at the
 // point where the macro is used.
 //..
-//  BALL_LOG_IS_ENABLED(BALL_SEVERITY)
-//      Return 'true' if the specified 'BALL_SEVERITY' is at least as severe as
-//      any of the threshold levels of the logging category that is in scope,
-//      and 'false' otherwise.
+//  BALL_LOG_IS_ENABLED(SEVERITY)
+//      Return 'true' if the specified 'SEVERITY' is at least as severe as any
+//      of the threshold levels of the logging category that is in scope, and
+//      'false' otherwise.
 //..
 //
 ///Usage
@@ -214,32 +258,45 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - -
 // The following trivial example shows how to use the logging macros to log
 // messages at various levels of severity.
-//..
-//  void exampleFunction()
-//  {
-//..
-// We start by initializing the log category within the context of this
-// function.  The logging macros such as 'BALL_LOG_ERROR' will not compile
-// unless a category has been specified in the current lexical scope.
-//..
-//      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//..
-// Now we record messages at various levels of severity.  These messages will
-// (or will not) be written to the log depending on the current logging
-// threshold of the category (configured using the 'ball::LoggerManager'
-// singleton).
-//..
-//      BALL_LOG_FATAL << "Write this message to the log if the log threshold "
-//                     << "is above 'ball::Severity::FATAL' (i.e., 32)."
-//                     << BALL_LOG_END
 //
-//      BALL_LOG_TRACE << "Write this message to the log if the log threshold "
-//                     << "is above 'ball::Severity::FATAL' (i.e., 192)."
-//                     << BALL_LOG_END
+// First, we initialize the log category within the context of this function.
+// The logging macros such as 'BALL_LOG_ERROR' will not compile unless a
+// category has been specified in the current lexical scope:
+//..
+//  BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+//..
+// Then, we record messages at various levels of severity.  These messages will
+// be conditionally written to the log depending on the current logging
+// threshold of the category (configured using the 'ball::LoggerManager'
+// singleton):
+//..
+//  BALL_LOG_FATAL << "Write this message to the log if the log threshold "
+//                 << "is above 'ball::Severity::e_FATAL' (i.e., 32).";
+//
+//  BALL_LOG_TRACE << "Write this message to the log if the log threshold "
+//                 << "is above 'ball::Severity::e_TRACE' (i.e., 192).";
+//..
+// Next, we demonstrate how to use proprietary code within logging macros.
+// Suppose you want to add the content of a vector to the log trace:
+//..
+//  bsl::vector<int> myVector(4, 328);
+//  BALL_LOG_TRACE_BLOCK {
+//      BALL_LOG_OUTPUT_STREAM << "myVector = [ ";
+//      unsigned int position = 0;
+//      for (bsl::vector<int>::const_iterator it  = myVector.begin(),
+//                                            end = myVector.end();
+//          it != end;
+//          ++it, ++position) {
+//          BALL_LOG_OUTPUT_STREAM << position << ':' << *it << ' ';
+//      }
+//      BALL_LOG_OUTPUT_STREAM << ']';
 //  }
 //..
-// Note that failing to match the start of a logged message with an
-// appropriate 'BALL_LOG_END' will result in a compilation error.
+// Note that the code block will be conditionally executed depending on the
+// current logging threshold of the category.  The code within the block must
+// not produce any side effects, because its execution depends on the current
+// logging configuration.  The special macro 'BALL_LOG_OUTPUT_STREAM' provides
+// access to the log stream within the block.
 //
 ///Example 2: Setting the Current Log Category
 ///- - - - - - - - - - - - - - - - - - - - - -
@@ -249,11 +306,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  BALL_LOG_SET_CATEGORY("EQUITY.NASD")
 //..
-// Note that this macro must not be used at file scope and it can be used
-// at most once in any given block (or else a compiler diagnostic will result).
-// A different category may be established to override one that is in effect,
-// but it must occur in a nested scope.  In any case, a use of this macro (or
-// of 'BALL_LOG_SET_DYNAMIC_CATEGORY') must be visible from within the lexical
+// Note that this macro must not be used at file scope and it can be used at
+// most once in any given block (or else a compiler diagnostic will result).  A
+// different category may be established to override one that is in effect, but
+// it must occur in a nested scope.  In any case, a use of this macro (or of
+// 'BALL_LOG_SET_DYNAMIC_CATEGORY') must be visible from within the lexical
 // scope of every use of the log-generating macros.  The following fragment of
 // code shows how to set a different category in a nested inner block that
 // hides a category set in an enclosing block:
@@ -306,9 +363,10 @@ BSLS_IDENT("$Id: $")
 // pass-through level of 'e_INFO', from here on.  We output a line using the
 // 'BALL_LOG_INFO' macro:
 //..
-//  BALL_LOG_INFO << "[1] " << lotSize << " shares of " << ticker <<
-//                               " sold at " << price << " settlement date " <<
-//                                                       settle << BALL_LOG_END
+//  BALL_LOG_INFO << "[1] " << lotSize
+//                << " shares of " << ticker
+//                << " sold at " << price
+//                << " settlement date " << settle;
 //..
 // The above results in the following single-line message being output:
 //..
@@ -330,9 +388,10 @@ BSLS_IDENT("$Id: $")
 //
 //      // Now logging with category "EQUITY.NASD.SUNW".
 //
-//      BALL_LOG_WARN << "[2] " << lotSize << " shares of " << ticker <<
-//                               " sold at " << price << " settlement date " <<
-//                                                       settle << BALL_LOG_END
+//      BALL_LOG_WARN << "[2] " << lotSize
+//                    << " shares of " << ticker
+//                    << " sold at " << price
+//                    << " settlement date " << settle;
 //  }
 //..
 // The above results in the following message to category "EQUITY.NASD.SUNW":
@@ -343,9 +402,10 @@ BSLS_IDENT("$Id: $")
 // Now, the category "EQUITY.NASD.SUNW" just went out of scope and category
 // "EQUITY.NASD" is visible again, so it applies to the following:
 //..
-//  BALL_LOG_INFO << "[3] " << lotSize << " shares of " << ticker <<
-//                               " sold at " << price << " settlement date " <<
-//                                                       settle << BALL_LOG_END
+//  BALL_LOG_INFO << "[3] " << lotSize
+//                << " shares of " << ticker
+//                << " sold at " << price
+//                << " settlement date " << settle;
 //..
 // Finally, the above results in the following single-line message being
 // output:
@@ -368,10 +428,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 4: 'printf'-Style Output
 /// - - - - - - - - - - - - - - - -
-// In the following example, we expand the 'logIt' function (defined above)
-// to log two messages using the 'BALL_LOGVA_INFO' logging macro provided by
-// this component.  This variadic macro takes a format string and a
-// variable-length series of arguments, similar to 'printf'.
+// In the following example, we expand the 'logIt' function (defined above) to
+// log two messages using the 'BALL_LOGVA_INFO' logging macro provided by this
+// component.  This variadic macro takes a format string and a variable-length
+// series of arguments, similar to 'printf'.
 //..
 //  int         lotSize = 400;
 //  const char *ticker  = "SUNW";
@@ -463,7 +523,7 @@ BSLS_IDENT("$Id: $")
 //
 //      BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName.c_str());
 //
-//      BALL_LOG_TRACE << "processing: " << security << BALL_LOG_END
+//      BALL_LOG_TRACE << "processing: " << security;
 //
 //      // ...
 //  }
@@ -518,7 +578,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //
-//      BALL_LOG_DEBUG << "An example message" << BALL_LOG_END
+//      BALL_LOG_DEBUG << "An example message";
 //..
 // Because 'attributes' is defined on this thread's stack, it must be removed
 // from this thread's attribute context before exiting the function (the
@@ -547,7 +607,7 @@ BSLS_IDENT("$Id: $")
 //
 //  bsl::vector<char> message;
 //
-//  BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END
+//  BALL_LOG_ERROR << "Processing the first message.";
 //  processData(3938908, 2, 9001, message);
 //..
 // Now we add a logging rule, setting the pass-through threshold to be
@@ -560,14 +620,14 @@ BSLS_IDENT("$Id: $")
 //  rule.addPredicate(ball::Predicate("uuid", 3938908));
 //  ball::LoggerManager::singleton().addRule(rule);
 //
-//  BALL_LOG_ERROR << "Processing the second message." << BALL_LOG_END
+//  BALL_LOG_ERROR << "Processing the second message.";
 //  processData(3938908, 2, 9001, message);
 //..
 // The final call to the 'processData' function below, passes a "uuid" of
 // '2171395' (not '3938908') so the logging rule we defined will *not* apply
 // and no message will be logged.
 //..
-//  BALL_LOG_ERROR << "Processing the third message." << BALL_LOG_END
+//  BALL_LOG_ERROR << "Processing the third message.";
 //  processData(2171395, 2, 9001, message);
 //..
 // The resulting logged output for this example looks like the following:
@@ -613,19 +673,19 @@ BSLS_IDENT("$Id: $")
 //
 //      int numErrors = 0;
 //      if (point.x() > 255) {
-//          BALL_LOGCB_ERROR(callback) << "X > 255"  << BALL_LOGCB_END
+//          BALL_LOGCB_ERROR(callback) << "X > 255";
 //          ++numErrors;
 //      }
 //      if (point.x() < -255) {
-//          BALL_LOGCB_ERROR(callback) << "X < -255" << BALL_LOGCB_END
+//          BALL_LOGCB_ERROR(callback) << "X < -255";
 //          ++numErrors;
 //      }
 //      if (point.y() > 255) {
-//          BALL_LOGCB_ERROR(callback) << "Y > 255"  << BALL_LOGCB_END
+//          BALL_LOGCB_ERROR(callback) << "Y > 255";
 //          ++numErrors;
 //      }
 //      if (point.y() < -255) {
-//          BALL_LOGCB_ERROR(callback) << "Y < -255" << BALL_LOGCB_END
+//          BALL_LOGCB_ERROR(callback) << "Y < -255";
 //          ++numErrors;
 //      }
 //      return numErrors;
@@ -651,7 +711,7 @@ BSLS_IDENT("$Id: $")
 //
 //    private:
 //      // CLASS-SCOPE CATEGORY
-//      BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING")
+//      BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING");
 //
 //    public:
 //      // ...
@@ -680,7 +740,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void Thing::inlineMethodThatLogs() const
 //  {
-//      BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END
+//      BALL_LOG_TRACE << "log to PCKG.THING";
 //  }
 //
 //  }  // close namespace pckg
@@ -699,11 +759,11 @@ BSLS_IDENT("$Id: $")
 //  void Thing::outOfLineMethodThatLogs(bool useClassCategory)
 //  {
 //      if (useClassCategory) {
-//          BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END;
+//          BALL_LOG_TRACE << "log to PCKG.THING";
 //      }
 //      else {
 //          BALL_LOG_SET_CATEGORY("X.Y.Z");
-//          BALL_LOG_TRACE << "log to X.Y.Z" << BALL_LOG_END
+//          BALL_LOG_TRACE << "log to X.Y.Z";
 //      }
 //  }
 //
@@ -714,11 +774,11 @@ BSLS_IDENT("$Id: $")
 // method would first log to "PCKG.THING" then log to "X.Y.Z":
 //..
 //      {
-//          BALL_LOG_TRACE << "log to PCKG.THING" << BALL_LOG_END
+//          BALL_LOG_TRACE << "log to PCKG.THING";
 //
 //          BALL_LOG_SET_CATEGORY("X.Y.Z");
 //
-//          BALL_LOG_TRACE << "log to X.Y.Z" << BALL_LOG_END
+//          BALL_LOG_TRACE << "log to X.Y.Z";
 //      }
 //..
 
@@ -768,7 +828,7 @@ BSLS_IDENT("$Id: $")
 
 // HELPER FUNCTIONS
 inline
-const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
+const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
                        const BloombergLP::ball::CategoryHolder& categoryHolder)
     // Return the address of the specified 'categoryHolder'.  Note that this
     // function facilitates consistent lookup of block-scope and class-scope
@@ -785,14 +845,14 @@ const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
                        // =========================
 
 #define BALL_LOG_CATEGORY                                                     \
-    (ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER)->category())
+    (ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER)->category())
 
 #define BALL_LOG_THRESHOLD                                                    \
-    (ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER)->threshold())
+    (ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER)->threshold())
 
-#define BALL_RECORD (ball_lOcAl_StReAm.record())
+#define BALL_LOG_RECORD (ball_log_lOg_StReAm.record())
 
-#define BALL_STREAM (ball_lOcAl_StReAm.stream())
+#define BALL_LOG_OUTPUT_STREAM (ball_log_lOg_StReAm.stream())
 
                        // ===========================
                        // Block-Scope Category Macros
@@ -810,7 +870,7 @@ const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
 
 #define BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)                               \
     const BloombergLP::ball::Category *BALL_LOG_DYNAMIC_CATEGORY =            \
-                             BloombergLP::ball::Log::setCategory(CATEGORY);   \
+                               BloombergLP::ball::Log::setCategory(CATEGORY); \
     BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
         BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY,                \
         const_cast<BloombergLP::ball::Category *>(BALL_LOG_DYNAMIC_CATEGORY), \
@@ -822,14 +882,14 @@ const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
                        // ==========================
 
 #define BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)                                 \
-    enum { BALL_LOG_CATEGORYHOLDER = 0 };                                     \
-    static const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(  \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(      \
                      const BloombergLP::ball::CategoryHolder& categoryHolder) \
     {                                                                         \
         return &categoryHolder;                                               \
     }                                                                         \
-    static const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(  \
-                                                                  const int&) \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
     {                                                                         \
         static BloombergLP::ball::CategoryHolder holder = {                   \
             BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY, 0, 0 \
@@ -839,124 +899,232 @@ const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR(
             BloombergLP::ball::Log::setCategory(&holder, CATEGORY);           \
         }                                                                     \
         return &holder;                                                       \
-    }
+    }                                                                         \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 }
+
+                 // ====================================
+                 // Implementation Details: Do *NOT* Use
+                 // ====================================
+
+// BALL_LOG_STREAM_CONST_IMP requires its argument to be a compile-time
+// constant.
+#define BALL_LOG_STREAM_CONST_IMP(SEVERITY)                                   \
+for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
+               BloombergLP::ball::Log::categoryHolderIfEnabled<(SEVERITY)>(   \
+                        ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER)); \
+     ball_log_cAtEgOrYhOlDeR;                                                 \
+     )                                                                        \
+for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
+                                         ball_log_cAtEgOrYhOlDeR->category(), \
+                                         __FILE__,                            \
+                                         __LINE__,                            \
+                                         (SEVERITY));                         \
+     ball_log_cAtEgOrYhOlDeR;                                                 \
+     ball_log_cAtEgOrYhOlDeR = 0)
+
+// BALL_LOG_STREAM_IMP allows its argument to be calculated at run-time, at a
+// cost in performance.
+#define BALL_LOG_STREAM_IMP(SEVERITY)                                         \
+for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
+                         ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \
+     ball_log_cAtEgOrYhOlDeR                                                  \
+     && ball_log_cAtEgOrYhOlDeR->threshold() >= (SEVERITY)                    \
+     && BloombergLP::ball::Log::isCategoryEnabled(ball_log_cAtEgOrYhOlDeR,    \
+                                                  (SEVERITY));                \
+     )                                                                        \
+for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
+                                         ball_log_cAtEgOrYhOlDeR->category(), \
+                                         __FILE__,                            \
+                                         __LINE__,                            \
+                                         (SEVERITY));                         \
+     ball_log_cAtEgOrYhOlDeR;                                                 \
+     ball_log_cAtEgOrYhOlDeR = 0)
 
                        // =======================
                        // C++ stream-based macros
                        // =======================
 
-#define BALL_LOG_STREAM(BALL_SEVERITY) {                                      \
-    using namespace BloombergLP;                                              \
-    if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
-        if (ball::Log::isCategoryEnabled(                                     \
-                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
-                            BALL_SEVERITY)) {                                 \
-            ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
-                                               __LINE__, BALL_SEVERITY);      \
-            BALL_STREAM
+#define BALL_LOG_STREAM(SEVERITY)                                             \
+    BALL_LOG_STREAM_IMP((SEVERITY)) BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOG_STREAM_UNLIKELY(BALL_SEVERITY) {                             \
-    using namespace BloombergLP;                                              \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \
-                                 BALL_LOG_THRESHOLD >= (BALL_SEVERITY))) {    \
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
-        if (ball::Log::isCategoryEnabled(                                     \
-                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
-                            BALL_SEVERITY)) {                                 \
-            ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
-                                               __LINE__, BALL_SEVERITY);      \
-            BALL_STREAM
+#define BALL_LOG_TRACE                                                        \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE)           \
+    BALL_LOG_OUTPUT_STREAM
 
-// We expect TRACE and DEBUG messages not to be logged.
+#define BALL_LOG_DEBUG                                                        \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG)           \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOG_TRACE BALL_LOG_STREAM_UNLIKELY(ball::Severity::e_TRACE)
+#define BALL_LOG_INFO                                                         \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_INFO)            \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOG_DEBUG BALL_LOG_STREAM_UNLIKELY(ball::Severity::e_DEBUG)
+#define BALL_LOG_WARN                                                         \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_WARN)            \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOG_INFO  BALL_LOG_STREAM(ball::Severity::e_INFO)
+#define BALL_LOG_ERROR                                                        \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_ERROR)           \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOG_WARN  BALL_LOG_STREAM(ball::Severity::e_WARN)
+#define BALL_LOG_FATAL                                                        \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL)           \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOG_ERROR BALL_LOG_STREAM(ball::Severity::e_ERROR)
+#define BALL_LOG_STREAM_BLOCK(SEVERITY) BALL_LOG_STREAM_IMP((SEVERITY))
 
-#define BALL_LOG_FATAL BALL_LOG_STREAM(ball::Severity::e_FATAL)
+#define BALL_LOG_TRACE_BLOCK                                                  \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE)
 
-// We indirectly define the macro for ending a 'BALL_LOG_*' block because the
-// 'BALL_LOG_[LEVEL]' macros that most often begin such a block (e.g.,
-// 'BALL_LOG_ERROR') indirectly forward to 'BALL_LOG_STREAM'.  This symmetry
-// enables Microsoft intellisense to reasonably parse code following a use of
-// this macro.
+#define BALL_LOG_DEBUG_BLOCK                                                  \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG)
 
-#define BALL_LOG_REAL_END bsl::ends;                                          \
-        }                                                                     \
-    }                                                                         \
-}
-#define BALL_LOG_END BALL_LOG_REAL_END
+#define BALL_LOG_INFO_BLOCK                                                   \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_INFO)
+
+#define BALL_LOG_WARN_BLOCK                                                   \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_WARN)
+
+#define BALL_LOG_ERROR_BLOCK                                                  \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_ERROR)
+
+#define BALL_LOG_FATAL_BLOCK                                                  \
+    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL)
+
+#define BALL_LOG_END ""
+
+                 // ====================================
+                 // Implementation Details: Do *NOT* Use
+                 // ====================================
+
+// BALL_LOGCB_STREAM_CONST_IMP requires its first argument to be a compile-time
+// constant.
+#define BALL_LOGCB_STREAM_CONST_IMP(SEVERITY, CALLBACK)                       \
+for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
+               BloombergLP::ball::Log::categoryHolderIfEnabled<(SEVERITY)>(   \
+                        ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER)); \
+     ball_log_cAtEgOrYhOlDeR;                                                 \
+     )                                                                        \
+for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
+                                         ball_log_cAtEgOrYhOlDeR->category(), \
+                                         __FILE__,                            \
+                                         __LINE__,                            \
+                                         (SEVERITY));                         \
+     ball_log_cAtEgOrYhOlDeR                                                  \
+     && (CALLBACK(&BALL_LOG_RECORD->customFields()), true);      \
+     ball_log_cAtEgOrYhOlDeR = 0)
+
+// BALL_LOGCB_STREAM_IMP allows its first argument to be calculated at
+// run-time, at a cost in performance.
+#define BALL_LOGCB_STREAM_IMP(SEVERITY, CALLBACK)                             \
+for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
+                         ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \
+     ball_log_cAtEgOrYhOlDeR                                                  \
+     && ball_log_cAtEgOrYhOlDeR->threshold() >= (SEVERITY)                    \
+     && BloombergLP::ball::Log::isCategoryEnabled(ball_log_cAtEgOrYhOlDeR,    \
+                                                  (SEVERITY));                \
+     )                                                                        \
+for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
+                                         ball_log_cAtEgOrYhOlDeR->category(), \
+                                         __FILE__,                            \
+                                         __LINE__,                            \
+                                         (SEVERITY));                         \
+     ball_log_cAtEgOrYhOlDeR                                                  \
+     && (CALLBACK(&BALL_LOG_RECORD->customFields()), true);                   \
+     ball_log_cAtEgOrYhOlDeR = 0)
 
                // ========================================
                // C++ stream-based macros using a callback
                // ========================================
 
-#define BALL_LOGCB_STREAM(BALL_SEVERITY, CB) {                                \
-    using namespace BloombergLP;                                              \
-    if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
-        if (ball::Log::isCategoryEnabled(                                     \
-                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
-                            BALL_SEVERITY)) {                                 \
-            ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
-                                               __LINE__, BALL_SEVERITY);      \
-            CB(&ball_lOcAl_StReAm.record()->customFields());                  \
-            BALL_STREAM
+#define BALL_LOGCB_STREAM(BALL_SEVERITY, CALLBACK)                            \
+    BALL_LOGCB_STREAM_IMP((BALL_SEVERITY), (CALLBACK)) BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOGCB_TRACE(CB) BALL_LOGCB_STREAM(ball::Severity::e_TRACE, CB)
+#define BALL_LOGCB_TRACE(CALLBACK)                                            \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE,         \
+                                (CALLBACK))                                   \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOGCB_DEBUG(CB) BALL_LOGCB_STREAM(ball::Severity::e_DEBUG, CB)
+#define BALL_LOGCB_DEBUG(CALLBACK)                                            \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG,         \
+                                (CALLBACK))                                   \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOGCB_INFO(CB) BALL_LOGCB_STREAM(ball::Severity::e_INFO, CB)
+#define BALL_LOGCB_INFO(CALLBACK)                                             \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_INFO,          \
+                                (CALLBACK))                                   \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOGCB_WARN(CB) BALL_LOGCB_STREAM(ball::Severity::e_WARN, CB)
+#define BALL_LOGCB_WARN(CALLBACK)                                             \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_WARN,          \
+                                (CALLBACK))                                   \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOGCB_ERROR(CB) BALL_LOGCB_STREAM(ball::Severity::e_ERROR, CB)
+#define BALL_LOGCB_ERROR(CALLBACK)                                            \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_ERROR,         \
+                                (CALLBACK))                                   \
+    BALL_LOG_OUTPUT_STREAM
 
-#define BALL_LOGCB_FATAL(CB) BALL_LOGCB_STREAM(ball::Severity::e_FATAL, CB)
+#define BALL_LOGCB_FATAL(CALLBACK)                                            \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL,         \
+                                (CALLBACK))                                   \
+    BALL_LOG_OUTPUT_STREAM
 
-// We indirectly define the macro for ending a 'BALL_LOGCB_*' block because the
-// 'BALL_LOGCB_[LEVEL]' macros that most often begin such a block (e.g.,
-// 'BALL_LOGCB_ERROR') indirectly forward to 'BALL_LOGCB_STREAM'.  This
-// symmetry enables Microsoft intellisense to reasonably parse code following a
-// use of this macro.
+#define BALL_LOGCB_STREAM_BLOCK(BALL_SEVERITY, CALLBACK)                      \
+    BALL_LOGCB_STREAM_IMP((BALL_SEVERITY), (CALLBACK))
 
-#define BALL_LOGCB_REAL_END bsl::ends;                                        \
-        }                                                                     \
-    }                                                                         \
-}
-#define BALL_LOGCB_END BALL_LOGCB_REAL_END
+#define BALL_LOGCB_TRACE_BLOCK(CALLBACK)                                      \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE,         \
+                                (CALLBACK))
+
+#define BALL_LOGCB_DEBUG_BLOCK(CALLBACK)                                      \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG,         \
+                                (CALLBACK))
+
+#define BALL_LOGCB_INFO_BLOCK(CALLBACK)                                       \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_INFO,          \
+                                (CALLBACK))
+
+#define BALL_LOGCB_WARN_BLOCK(CALLBACK)                                       \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_WARN,          \
+                                (CALLBACK))
+
+#define BALL_LOGCB_ERROR_BLOCK(CALLBACK)                                      \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_ERROR,         \
+                                (CALLBACK))
+
+#define BALL_LOGCB_FATAL_BLOCK(CALLBACK)                                      \
+    BALL_LOGCB_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL,         \
+                                (CALLBACK))
+
+#define BALL_LOGCB_END ""
 
                        // =====================
                        // 'printf'-style macros
                        // =====================
 
 // ----------------------------------------------------------------------------
-// Usage: BALL_LOGVA(severity, msg, arg1, arg2, ... argN);
+// Usage: BALL_LOGVA(SEVERITY, msg, arg1, arg2, ... argN);
 //
-// Log a message with the specified 'severity', formatting the specified 0 or
+// Log a message with the specified 'SEVERITY', formatting the specified 0 or
 // more arguments 'arg1, arg2, ... argN' according to the specified
 // 'printf'-style format string 'msg'.
 
-#define BALL_LOGVA(BALL_SEVERITY, ...)                                        \
+#define BALL_LOGVA(SEVERITY, ...)                                             \
 do {                                                                          \
-    if (BALL_LOG_THRESHOLD >= (BALL_SEVERITY)) {                              \
+    if (BALL_LOG_THRESHOLD >= (SEVERITY)) {                                   \
         if (BloombergLP::ball::Log::isCategoryEnabled(                        \
-                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
-                            BALL_SEVERITY)) {                                 \
-            BloombergLP::ball::Log_Formatter ball_lOcAl_FoRmAtTeR(            \
-                                                     BALL_LOG_CATEGORY,       \
-                                                     __FILE__, __LINE__,      \
-                                                     BALL_SEVERITY);          \
+                         ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER), \
+                         (SEVERITY))) {                                       \
+            BloombergLP::ball::Log_Formatter ball_log_fOrMaTtEr(              \
+                                                           BALL_LOG_CATEGORY, \
+                                                           __FILE__,          \
+                                                           __LINE__,          \
+                                                           (SEVERITY));       \
             BloombergLP::ball::Log::format(                                   \
-                              ball_lOcAl_FoRmAtTeR.messageBuffer(),           \
-                              ball_lOcAl_FoRmAtTeR.messageBufferLen(),        \
-                              __VA_ARGS__);                                   \
+                                       ball_log_fOrMaTtEr.messageBuffer(),    \
+                                       ball_log_fOrMaTtEr.messageBufferLen(), \
+                                       __VA_ARGS__);                          \
         }                                                                     \
     }                                                                         \
 } while(0)
@@ -990,11 +1158,11 @@ do {                                                                          \
                        // Utility Macros
                        // ==============
 
-#define BALL_LOG_IS_ENABLED(BALL_SEVERITY)                                    \
-    ((BALL_LOG_THRESHOLD >= (BALL_SEVERITY))                                  \
+#define BALL_LOG_IS_ENABLED(SEVERITY)                                         \
+    ((BALL_LOG_THRESHOLD >= (SEVERITY))                                       \
      && BloombergLP::ball::Log::isCategoryEnabled(                            \
-                            ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER), \
-                            BALL_SEVERITY))
+                         ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER), \
+                         (SEVERITY)))
 
 namespace BloombergLP {
 
@@ -1105,9 +1273,9 @@ struct Log {
         // the entire program.
 
     static void releaseMessageBuffer(bslmt::Mutex *mutex);
-        // Unlock the specified '*mutex' that guards the buffer used for
+        // Unlock the specified 'mutex' that guards the buffer used for
         // formatting messages in this thread of execution.  The behavior is
-        // undefined unless '*mutex' was obtained by a call to
+        // undefined unless 'mutex' was obtained by a call to
         // 'Log::obtainMessageBuffer' and has not yet been unlocked.
 
     static const Category *setCategory(const char *categoryName);
@@ -1119,6 +1287,13 @@ struct Log {
         // otherwise, return the address of the non-modifiable *Default*
         // *Category*.  Return 0 if the logger manager singleton is not
         // initialized.
+
+    template <int SEVERITY>
+    static const CategoryHolder *categoryHolderIfEnabled(
+                                         const CategoryHolder *categoryHolder);
+        // Return the specified 'categoryHolder' if the severity warrants
+        // logging according to the specified 'SEVERITY' and 'categoryHolder',
+        // and 0 otherwise.
 
     static void setCategory(CategoryHolder *categoryHolder,
                             const char     *categoryName);
@@ -1187,8 +1362,8 @@ class Log_Stream {
         // log message is put.
 
     ~Log_Stream();
-        // Log the record held by this logging stream to the held category
-        // (as returned by 'category') at the held severity (as returned by
+        // Log the record held by this logging stream to the held category (as
+        // returned by 'category') at the held severity (as returned by
         // 'severity') and destroy this logging stream.
 
     // MANIPULATORS
@@ -1276,13 +1451,13 @@ class Log_Formatter {
         // logging formatter.
 
     // MANIPULATORS
-    Record *record();
-        // Return the address of the modifiable log record held by this logging
+    char *messageBuffer();
+        // Return the address of the modifiable buffer held by this logging
         // formatter.  The address is valid until this logging formatter is
         // destroyed.
 
-    char *messageBuffer();
-        // Return the address of the modifiable buffer held by this logging
+    Record *record();
+        // Return the address of the modifiable log record held by this logging
         // formatter.  The address is valid until this logging formatter is
         // destroyed.
 
@@ -1308,9 +1483,54 @@ class Log_Formatter {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                     // ----------------
-                     // class Log_Stream
-                     // ----------------
+                                 // ---------
+                                 // class Log
+                                 // ---------
+
+template <int SEVERITY>
+inline
+const CategoryHolder *Log::categoryHolderIfEnabled(
+                                          const CategoryHolder *categoryHolder)
+{
+    // The following condition is calculated at compile time so has no run-time
+    // cost.  Code from the branch not taken will not be generated.  Note that
+    // we expect TRACE and DEBUG messages not to be logged and thus they are
+    // marked with unlikely performance hints.
+
+    if (SEVERITY <= Severity::e_INFO) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                    categoryHolder->threshold() >= SEVERITY)) {
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                           Log::isCategoryEnabled(categoryHolder, SEVERITY))) {
+                return categoryHolder;                                // RETURN
+            }
+            else {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            }
+
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        }
+    }
+    else {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                    categoryHolder->threshold() >= SEVERITY)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                           Log::isCategoryEnabled(categoryHolder, SEVERITY))) {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                return categoryHolder;                                // RETURN
+            }
+        }
+    }
+
+    return 0;
+}
+
+                             // ----------------
+                             // class Log_Stream
+                             // ----------------
 
 // MANIPULATORS
 inline
@@ -1350,15 +1570,15 @@ int Log_Stream::severity() const
 
 // MANIPULATORS
 inline
-Record *Log_Formatter::record()
-{
-    return d_record_p;
-}
-
-inline
 char *Log_Formatter::messageBuffer()
 {
     return d_buffer_p;
+}
+
+inline
+Record *Log_Formatter::record()
+{
+    return d_record_p;
 }
 
 // ACCESSORS

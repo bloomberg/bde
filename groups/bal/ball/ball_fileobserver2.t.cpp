@@ -1113,7 +1113,7 @@ int main(int argc, char *argv[])
 
             ASSERT(false == X->isPublishInLocalTimeEnabled());
 
-            BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 1";
             ++logRecordCount;
 
             getDatetimeField(&datetimeField, fileName, logRecordCount);
@@ -1132,7 +1132,7 @@ int main(int argc, char *argv[])
             ASSERT(expectedLoadCount ==
                                      TestLocalTimeOffsetCallback::loadCount());
 
-            BALL_LOG_TRACE << "log 2" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 2";
             ++logRecordCount;
 
             getDatetimeField(&datetimeField, fileName, logRecordCount);
@@ -1161,7 +1161,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
 
-            BALL_LOG_TRACE << "log 3" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 3";
             ++logRecordCount;
             ++expectedLoadCount;
 
@@ -1190,7 +1190,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
 
-            BALL_LOG_TRACE << "log 4" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 4";
             ++logRecordCount;
             ++expectedLoadCount;
 
@@ -1217,7 +1217,7 @@ int main(int argc, char *argv[])
             mX->disablePublishInLocalTime();
             ASSERT(false == X->isPublishInLocalTimeEnabled());
 
-            BALL_LOG_TRACE << "log 5" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 5";
             ++logRecordCount;
 
             getDatetimeField(&datetimeField, fileName, logRecordCount);
@@ -1312,7 +1312,7 @@ int main(int argc, char *argv[])
 
             mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log";
 
             ASSERT(0 == cb.numInvocations());
 
@@ -1409,7 +1409,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log";
 
                 ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
                 ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
@@ -1437,7 +1437,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log";
 
                 ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
                 ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
@@ -1462,12 +1462,12 @@ int main(int argc, char *argv[])
 
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log";
                 bslmt::ThreadUtil::microSleep(0, 2);        // 2s
                 ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
                 bslmt::ThreadUtil::microSleep(250000, 1);  // 3.25s
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log";
 
                 ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
                 ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
@@ -1780,7 +1780,7 @@ int main(int argc, char *argv[])
                 enableFileLogging(mX, fileName);
                 mX->rotateOnSize(1);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 ASSERT(1 == FsUtil::exists(fileName.c_str()));
 
@@ -1795,17 +1795,17 @@ int main(int argc, char *argv[])
                 memset(buffer, 'x', sizeof buffer);
                 buffer[sizeof buffer - 1] = '\0';
 
-                BALL_LOG_TRACE << buffer << BALL_LOG_END;
+                BALL_LOG_TRACE << buffer;
                 mX->disableFileLogging();
 
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << 'x' << BALL_LOG_END;
+                BALL_LOG_TRACE << 'x';
 
                 ASSERT(0 == cb.numInvocations());
 
-                BALL_LOG_TRACE << buffer << BALL_LOG_END;
-                BALL_LOG_TRACE << 'x' << BALL_LOG_END;
+                BALL_LOG_TRACE << buffer;
+                BALL_LOG_TRACE << 'x';
 
                 ASSERT(1 == FsUtil::exists(fileName.c_str()));
                 ASSERT(1 == cb.numInvocations());
@@ -1875,7 +1875,7 @@ int main(int argc, char *argv[])
             memset(buffer, 'x', sizeof buffer);
             buffer[sizeof buffer - 1] = '\0';
 
-            BALL_LOG_TRACE << buffer << BALL_LOG_END;
+            BALL_LOG_TRACE << buffer;
 
             mX->disableFileLogging();
             ASSERT(false == X->isFileLoggingEnabled());
@@ -1888,7 +1888,7 @@ int main(int argc, char *argv[])
 
             enableFileLogging(mX, fileName);
 
-            BALL_LOG_TRACE << "x" << BALL_LOG_END;
+            BALL_LOG_TRACE << "x";
 
             ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERTV(cb.status(),         0 == cb.status());
@@ -2295,7 +2295,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, startDatetime.minute() == endDatetime.minute());
                 ASSERTV(LINE, startDatetime.second() == endDatetime.second());
 
-                BALL_LOG_INFO<< "log" << BALL_LOG_END;
+                BALL_LOG_INFO<< "log";
 
                 // now construct the name of the log file from startDatetime
 
@@ -2406,7 +2406,7 @@ int main(int argc, char *argv[])
                 mX->disablePublishInLocalTime();
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_INFO << "log" << BALL_LOG_END;
+                BALL_LOG_INFO << "log";
 
                 bdlt::Datetime end = bdlt::CurrentTime::utc();
 
@@ -2456,7 +2456,7 @@ int main(int argc, char *argv[])
                 mX->enablePublishInLocalTime();
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_INFO << "log" << BALL_LOG_END;
+                BALL_LOG_INFO << "log";
 
                 bdlt::Datetime end = bdlt::CurrentTime::local();
 
@@ -2585,7 +2585,7 @@ int main(int argc, char *argv[])
             enableFileLogging(mX, fileName, true);
 
             for (int i = 0; i < 40; ++i) {
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log";
             }
 
             fflush(stderr);
@@ -2686,7 +2686,7 @@ int main(int argc, char *argv[])
             {
                 enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 glob_t globbuf;
                 ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
@@ -2720,8 +2720,8 @@ int main(int argc, char *argv[])
                        X->rotationLifetime());
 
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
 
                 // Check that a rotation occurred.
 
@@ -2750,7 +2750,7 @@ int main(int argc, char *argv[])
 
                 mX->disableLifetimeRotation();
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log 3";
 
                 // Check that no rotation occurred.
 
@@ -2774,10 +2774,10 @@ int main(int argc, char *argv[])
             {
                 bslmt::ThreadUtil::microSleep(0, 2);
                 mX->forceRotation();
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO  << "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN  << "log 4" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
 
                 // Check that the rotation occurred.
 
@@ -2809,7 +2809,7 @@ int main(int argc, char *argv[])
                 mX->rotateOnSize(1);
                 ASSERT(1 == X->rotationSize());
                 for (int i = 0; i < 15; ++i) {
-                    BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                    BALL_LOG_TRACE << "log";
 
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
@@ -2837,7 +2837,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X->rotationSize());
 
                 for (int i = 0; i < 15; ++i) {
-                    BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                    BALL_LOG_TRACE << "log";
                     bslmt::ThreadUtil::microSleep(50 * 1000);
                 }
 
@@ -2872,7 +2872,7 @@ int main(int argc, char *argv[])
             {
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 glob_t globbuf;
                 ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
@@ -2903,8 +2903,8 @@ int main(int argc, char *argv[])
                        X->rotationLifetime());
 
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
 
                 // Check that a rotation occurred.
 
@@ -2932,7 +2932,7 @@ int main(int argc, char *argv[])
 
                 bslmt::ThreadUtil::microSleep(0, 4);
 
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log 3";
 
                 // Check that no rotation occurred.
 
@@ -3065,7 +3065,7 @@ int main(int argc, char *argv[])
 
                 enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
+                BALL_LOG_WARN << "log WARN";
 
                 bsl::string os;
                 ASSERT(2 == readFileIntoString(__LINE__, fileName, os));
@@ -3116,7 +3116,7 @@ int main(int argc, char *argv[])
 
                 enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log FATAL";
 
                 bsl::string os;
                 ASSERT(2 == readFileIntoString(__LINE__, fileName, os));
@@ -3218,12 +3218,12 @@ int main(int argc, char *argv[])
 
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO  << "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN  << "log 4" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
+                BALL_LOG_ERROR << "log 5";
+                BALL_LOG_FATAL << "log 6";
 
                 bsl::string os;
                 ASSERT(12    == readFileIntoString(__LINE__, fileName, os));
@@ -3232,23 +3232,23 @@ int main(int argc, char *argv[])
                 mX->disableFileLogging();
                 ASSERT(false == X->isFileLoggingEnabled());
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO  << "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN  << "log 4" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
+                BALL_LOG_ERROR << "log 5";
+                BALL_LOG_FATAL << "log 6";
 
                 ASSERT(12 == readFileIntoString(__LINE__, fileName, os));
 
                 enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << "log 7" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 8" << BALL_LOG_END;
-                BALL_LOG_INFO  << "log 9" << BALL_LOG_END;
-                BALL_LOG_WARN  << "log 1" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 2" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 7";
+                BALL_LOG_DEBUG << "log 8";
+                BALL_LOG_INFO  << "log 9";
+                BALL_LOG_WARN  << "log 1";
+                BALL_LOG_ERROR << "log 2";
+                BALL_LOG_FATAL << "log 3";
 
                 ASSERT(24 == readFileIntoString(__LINE__, fileName, os));
 
@@ -3273,12 +3273,12 @@ int main(int argc, char *argv[])
 
                 enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO  << "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN  << "log 4" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
+                BALL_LOG_ERROR << "log 5";
+                BALL_LOG_FATAL << "log 6";
 
                 bsl::string os;
                 ASSERT(12 == readFileIntoString(__LINE__, fileName, os));
@@ -3376,7 +3376,7 @@ int main(int argc, char *argv[])
                 enableFileLogging(mX3, fileName3);
                 mX3->setLogFileFunctor(&logRecord1);
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 bsl::string file1, file2, file3;
 
@@ -3433,7 +3433,7 @@ int main(int argc, char *argv[])
                 enableFileLogging(mX3, fileName3);
                 mX3->setLogFileFunctor(&logRecord2);
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 bsl::string file1, file2, file3;
 
@@ -3459,7 +3459,7 @@ int main(int argc, char *argv[])
                 mX1->setLogFileFunctor(ball::RecordStringFormatter(
                                                   "\n%p %t %s %f %c %m %u\n"));
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 ASSERT(2 == readFileIntoString(__LINE__, fileName1a,
                                                fileContent));
@@ -3471,7 +3471,7 @@ int main(int argc, char *argv[])
                 enableFileLogging(mX1, fileName1b);
                 mX1->setLogFileFunctor(&logRecord2);
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 ASSERT(2 == readFileIntoString(__LINE__, fileName1b,
                                                fileContent));
@@ -3485,7 +3485,7 @@ int main(int argc, char *argv[])
                 mX1->setLogFileFunctor(ball::RecordStringFormatter(
                                                   "\n%p %t %s %f %c %m %u\n"));
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 ASSERT(2 == readFileIntoString(__LINE__, fileName1c,
                                                fileContent));
@@ -3557,7 +3557,7 @@ int main(int argc, char *argv[])
 
         // Write over 5 GB
         for (int i = 0; i < 5000000; ++i) {
-            BALL_LOG_WARN << buffer << BALL_LOG_END;
+            BALL_LOG_WARN << buffer;
         }
 
         mX->disableFileLogging();

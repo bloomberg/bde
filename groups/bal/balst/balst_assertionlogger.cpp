@@ -78,8 +78,7 @@ void AssertionLogger::assertionFailureHandler(const char *text,
             << "\n"
             << "For stack trace, run 'showfunc.tsk <your_program_binary> "
             << u_StackTrace()
-            << "'\n"
-        << BALL_LOG_END
+            << "'\n";
     }
 }
 

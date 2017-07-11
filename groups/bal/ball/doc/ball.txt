@@ -824,11 +824,11 @@
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
 
-      BALL_LOG_INFO << "Hello world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello world!";
           // With default settings, this line has no effect.
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_ERROR << "Good-bye world!" << BALL_LOG_END;
+          BALL_LOG_ERROR << "Good-bye world!";
               // Log 'message' at 'ball::Severity::e_ERROR' severity level.
       }
       else {
@@ -964,11 +964,11 @@
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
 
-      BALL_LOG_INFO << "Hello world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello world!";
           // With default settings, this line has no effect.
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_ERROR << "Good-bye world!" << BALL_LOG_END;
+          BALL_LOG_ERROR << "Good-bye world!";
               // Log 'message' at 'ball::Severity::e_ERROR' severity level
               // *and* trigger the publication of the record buffer
               // "trace-back".
@@ -1082,9 +1082,9 @@
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
 
-      BALL_LOG_INFO << "Hello world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello world!";
 
-      BALL_LOG_INFO << "Hello again, world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello again, world!";
 
       bsl::cout << "We're almost ready to exit."     " "
                    "Let's publish the buffer first:" "\n";
@@ -1185,7 +1185,7 @@
       BALL_LOG_SET_CATEGORY("function category");
           // Set a category -- arbitrary and may be changed.
 
-      BALL_LOG_INFO << message << BALL_LOG_END;
+      BALL_LOG_INFO << message;
           // Log 'message' at 'ball::Severity::e_INFO' severity level.
   }
 
@@ -1245,7 +1245,7 @@
           // Set a category -- note that this will *not* affect the category
           // set in 'logThisInfoMsg'.
 
-      BALL_LOG_INFO << "Called directly from 'main'" << BALL_LOG_END;
+      BALL_LOG_INFO << "Called directly from 'main'";
           // Logged to "main category".
 
       if (verbose) {  // 'if' to allow command-line activation
@@ -1256,7 +1256,7 @@
           }
       }
 
-      BALL_LOG_INFO << "Called again directly from 'main'" << BALL_LOG_END;
+      BALL_LOG_INFO << "Called again directly from 'main'";
           // Logged to "main category".
 
       return 0;
@@ -1356,7 +1356,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 1");
-      BALL_LOG_INFO << message << BALL_LOG_END;
+      BALL_LOG_INFO << message;
   }
 
   void f2(const char *message)
@@ -1364,7 +1364,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 2");
-      BALL_LOG_WARN << message << BALL_LOG_END;
+      BALL_LOG_WARN << message;
   }
 
   extern "C" void *threadFunction1(void *)
@@ -1438,7 +1438,7 @@
       bslmt::ThreadUtil::join(handle2);
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_ERROR << "Force publication." << BALL_LOG_END;
+          BALL_LOG_ERROR << "Force publication.";
       }
       return 0;
   }
@@ -1629,7 +1629,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 1");
-      BALL_LOG_INFO << message << BALL_LOG_END;
+      BALL_LOG_INFO << message;
   }
 
   void f2(const char *message)
@@ -1637,7 +1637,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 2");
-      BALL_LOG_WARN << message << BALL_LOG_END;
+      BALL_LOG_WARN << message;
   }
 
   extern "C" void *threadFunction1(void *logger)
@@ -1724,7 +1724,7 @@
       bslmt::ThreadUtil::join(handle2);
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_FATAL << "Force publication." << BALL_LOG_END;
+          BALL_LOG_FATAL << "Force publication.";
       }
 
       manager.deallocateLogger(logger);  // free resources
@@ -1867,7 +1867,7 @@
       bslmt::ThreadUtil::join(handle2);
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_FATAL << "Force publication." << BALL_LOG_END;
+          BALL_LOG_FATAL << "Force publication.";
       }
       return 0;
   }
@@ -1922,21 +1922,21 @@
 :   (e.g., UUID).
 
  The seven macros based on C++ streams, 'BALL_LOG_TRACE', 'BALL_LOG_DEBUG',
- 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', 'BALL_LOG_FATAL', and
- 'BALL_LOG_END', have the following usage pattern:
+ 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', and 'BALL_LOG_FATAL',
+ have the following usage pattern:
 ..
-  BALL_LOG_TRACE << X << Y ... << BALL_LOG_END
-  BALL_LOG_DEBUG << X << Y ... << BALL_LOG_END
-  BALL_LOG_INFO  << X << Y ... << BALL_LOG_END
-  BALL_LOG_WARN  << X << Y ... << BALL_LOG_END
-  BALL_LOG_ERROR << X << Y ... << BALL_LOG_END
-  BALL_LOG_FATAL << X << Y ... << BALL_LOG_END
+  BALL_LOG_TRACE << X << Y ...;
+  BALL_LOG_DEBUG << X << Y ...;
+  BALL_LOG_INFO  << X << Y ...;
+  BALL_LOG_WARN  << X << Y ...;
+  BALL_LOG_ERROR << X << Y ...;
+  BALL_LOG_FATAL << X << Y ...;
       where X, Y, ... represents any sequence of values for which
       'operator<<' is defined.  The resulting formatted message string is
       logged with the severity indicated by the name of the initial macro
-      (e.g., 'BALL_LOG_TRACE' ... 'BALL_LOG_END' logs with severity
-      'ball::Severity::e_TRACE').  Note that the formatted string includes the
-      category and filename as established by the 'BALL_LOG_SET_CATEGORY' (or
+      (e.g., 'BALL_LOG_TRACE' logs with severity 'ball::Severity::e_TRACE').
+      Note that the formatted string includes the category and filename as
+      established by the 'BALL_LOG_SET_CATEGORY' (or
       'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 ..
  The remaining macros are based on 'printf'-style format specifications:

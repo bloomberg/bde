@@ -220,16 +220,24 @@ Log_Formatter::~Log_Formatter()
 ///--------------------
 // The stream-style logging macro (without a callback) is reproduced here:
 //..
-//#define BALL_LOG_STREAM(BALL_SEVERITY) {                                   \@
-//    using BloombergLP::ball::Log;                                          \@
-//    using BloombergLP::ball::Log_Stream;                                   \@
-//    using BloombergLP::ball::Severity;                                     \@
-//    if (BALL_LOG_THRESHOLD >= BALL_SEVERITY) {                             \@
-//        if (ball::Log::isCategoryEnabled(&BALL_LOG_CATEGORYHOLDER,         \@
-//                                        BALL_SEVERITY)) {                  \@
-//            ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,\@
-//                                              __LINE__, BALL_SEVERITY);    \@
-//            BALL_STREAM
+//#define BALL_LOG_STREAM_BLOCK(SEVERITY)                                    \@
+//for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =    \@
+//                      ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \@
+//     ball_log_cAtEgOrYhOlDeR                                               \@
+//     && ball_log_cAtEgOrYhOlDeR->threshold() >= (SEVERITY)                 \@
+//     && BloombergLP::ball::Log::isCategoryEnabled(ball_log_cAtEgOrYhOlDeR, \@
+//                                                  (SEVERITY));             \@
+//     )                                                                     \@
+//for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                    \@
+//                                       ball_log_cAtEgOrYhOlDeR->category(),\@
+//                                       __FILE__,                           \@
+//                                       __LINE__,                           \@
+//                                       (severity));                        \@
+//     ball_log_cAtEgOrYhOlDeR;                                              \@
+//     ball_log_cAtEgOrYhOlDeR = 0)
+//
+//#define BALL_LOG_STREAM(SEVERITY)                                          \@
+//    BALL_LOG_STREAM_BLOCK((SEVERITY)) BALL_LOG_OUTPUT_STREAM
 //..
 // Note that '@' is appended to each line in the macro that ends with '\' to
 // quell a diagnostic from gcc ("warning: multi-line comment").
@@ -246,7 +254,7 @@ Log_Formatter::~Log_Formatter()
 //
 // As used in this component, the 'threshold' attributes of category holders
 // are initialized to a value outside the range '[0 .. 255]'.  Category holders
-// corresponding to "static" categories ('BALL_LOG_SET_CATEGORY' macro') have
+// corresponding to "static" categories ('BALL_LOG_SET_CATEGORY' macro) have
 // their thresholds initialized to
 // 'ball::CategoryHolder::e_UNINITIALIZED_CATEGORY'.  The thresholds of
 // category holders corresponding to "dynamic" categories
@@ -258,18 +266,17 @@ Log_Formatter::~Log_Formatter()
 //
 // The general idea is that the condition:
 //..
-//    (BALL_LOG_THRESHOLD >= BALL_SEVERITY)
+//    (ball_log_cAtEgOrYhOlDeR->threshold() >= SEVERITY)
 //..
 // evaluates to 'true' if there is a *possibility* of a logging event based
 // simply on the current threshold of the corresponding category holder
-// ('BALL_LOG_CATEGORYHOLDER').  For static categories, this condition is
+// ('ball_log_cAtEgOrYhOlDeR').  For static categories, this condition is
 // 'true' if the logger manager either has not yet been initialized, or it has
 // been destroyed.  The 'isCategoryEnabled' method performs a more-refined
 // (but relatively cheap, in the vast majority of cases) analysis of whether a
-// record must actually be logged (after possibly calling 'setCategory' on
-// 'BALL_LOG_CATEGORYNAME').  Only if 'isCategoryEnabled' returns 'true' is a
-// 'ball::Log_Stream' object constructed (or a 'ball::Log_Formatter' object in
-// the case of the 'printf'-style macros) and a record logged.
+// record must actually be logged.  Only if 'isCategoryEnabled' returns 'true'
+// is a 'ball::Log_Stream' object constructed (or a 'ball::Log_Formatter'
+// object in the case of the 'printf'-style macros) and a record logged.
 //
 // Note that the above condition is *always* 'true' for dynamic categories.
 // Since category holders for dynamic categories are not 'static', as are
@@ -323,48 +330,49 @@ Log_Formatter::~Log_Formatter()
 // whether the category being logged to is provided by a block-scope category
 // holder ('BALL_LOG_SET_CATEGORY' and 'BALL_LOG_SET_DYNAMIC_CATEGORY') or a
 // class-scope category holder ('BALL_LOG_SET_CLASS_CATEGORY').  Two naming
-// gimmicks, involving 'ball_log_cAtEgOrYhOlDeR' and 'BALL_LOG_CATEGORYHOLDER',
-// facilitate this macro reuse.  The tricks simply leverage the usual C++ name
-// lookup and overload resolution rules to make it all work.
+// gimmicks, involving 'ball_log_getCategoryHolder' and
+// 'BALL_LOG_CATEGORYHOLDER', facilitate this macro reuse.  The tricks simply
+// leverage the usual C++ name lookup and overload resolution rules to make it
+// all work.
 //
-// 'ball_log_cAtEgOrYhOlDeR' names both the lone free function defined in the
-// header file and the (overloaded) class methods generated by
+// 'ball_log_getCategoryHolder' names both the lone free function defined in
+// the header file and the (overloaded) class methods generated by
 // 'BALL_LOG_SET_CLASS_CATEGORY'.  'BALL_LOG_CATEGORYHOLDER' names
 // both the category holders generated by 'BALL_LOG_SET_CATEGORY' and
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY', and the class-scope enumerators generated
 // by 'BALL_LOG_SET_CLASS_CATEGORY'.
 //
-// Given that, note that all calls to 'ball_log_cAtEgOrYhOlDeR' that occur in
-// 'ball_log' macros are of the form:
+// Given that, note that all calls to 'ball_log_getCategoryHolder' that occur
+// in 'ball_log' macros are of the form:
 //..
-//  ball_log_cAtEgOrYhOlDeR(BALL_LOG_CATEGORYHOLDER)
+//  ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER)
 //..
 // There are two cases to consider.
 //
-// First suppose that 'ball_log_cAtEgOrYhOlDeR' is called from a free function
-// or free operator, or from a method of a class that does *not* use
-// 'BALL_LOG_SET_CLASS_CATEGORY'.  In this case, 'ball_log_cAtEgOrYhOlDeR'
+// First suppose that 'ball_log_getCategoryHolder' is called from a free
+// function or free operator, or from a method of a class that does *not* use
+// 'BALL_LOG_SET_CLASS_CATEGORY'.  In this case, 'ball_log_getCategoryHolder'
 // resolves to the free function and the 'BALL_LOG_CATEGORYHOLDER' that is
 // supplied must necessarily be the category holder provided by the "nearest"
 // use of 'BALL_LOG_SET_CATEGORY' or 'BALL_LOG_SET_DYNAMIC_CATEGORY'.
 //
-// The more interesting case is where 'ball_log_cAtEgOrYhOlDeR' is called from
-// a method of a class that *does* use 'BALL_LOG_SET_CLASS_CATEGORY'.  In this
-// case, 'ball_log_cAtEgOrYhOlDeR' resolves to the class method, with two
-// sub-cases to consider.
+// The more interesting case is where 'ball_log_getCategoryHolder' is called
+// from a method of a class that *does* use 'BALL_LOG_SET_CLASS_CATEGORY'.  In
+// this case, 'ball_log_getCategoryHolder' resolves to the class method, with
+// two sub-cases to consider.
 //
 // If the class-scope 'BALL_LOG_CATEGORYHOLDER' enumerator is hidden by a
 // like-named category holder from an expansion of 'BALL_LOG_SET_CATEGORY' or
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY', then that holder is passed to the
-// 'ball_log_cAtEgOrYhOlDeR' class method taking 'ball::CategoryHolder&'.  That
-// method simply returns the (address of) the holder and the block-scope
+// 'ball_log_getCategoryHolder' class method taking 'ball::CategoryHolder&'.
+// That method simply returns the (address of) the holder and the block-scope
 // category is logged to.
 //
 // If the class-scope 'BALL_LOG_CATEGORYHOLDER' enumerator is *not* hidden,
-// then the 'ball_log_cAtEgOrYhOlDeR' class method taking 'const int&' is
-// invoked instead.  That method, which ignores its argument, returns the
-// (address of) the class-scope holder that is housed within the method and the
-// class-scope category is logged to.
+// then the 'ball_log_getCategoryHolder' class method taking 'int' is invoked
+// instead.  That method, which ignores its argument, returns the (address of)
+// the class-scope holder that is housed within the method and the class-scope
+// category is logged to.
 
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.

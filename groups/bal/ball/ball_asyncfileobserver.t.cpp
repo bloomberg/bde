@@ -626,8 +626,7 @@ extern "C" void *workerThread(void *arg)
     BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
     for (int i = 0; i < 10000; ++i) {
-        BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test "
-                       << BALL_LOG_END;
+        BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test.";
     }
     return 0;
 }
@@ -649,8 +648,7 @@ extern "C" void *workerThread2(void *arg)
         ret = observer->startPublicationThread();
         ASSERT(0 == ret);
         for (int j = 0; j < 1000; ++j) {
-            BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test "
-                           << BALL_LOG_END;
+            BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test.";
         }
 
         // Test both stopPublicationThread and shutdownPublicationThread
@@ -765,21 +763,16 @@ int main(int argc, char *argv[])
 //..
     BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-    BALL_LOG_INFO << "Will not be published on 'stdout'."
-                  << BALL_LOG_END;
-    BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
-                  << BALL_LOG_END;
+    BALL_LOG_INFO << "Will not be published on 'stdout'.";
+    BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
 //..
 // Then, change the default severity for logging to 'stdout' by calling the
 // 'setStdoutThreshold' method:
 //..
     observerPtr->setStdoutThreshold(ball::Severity::e_INFO);
-    BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
-                   << BALL_LOG_END;
-    BALL_LOG_INFO  << "This info will be published on 'stdout'."
-                   << BALL_LOG_END;
-    BALL_LOG_WARN  << "This warning will be published on 'stdout'."
-                   << BALL_LOG_END;
+    BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
+    BALL_LOG_INFO  << "This info will be published on 'stdout'.";
+    BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
 //..
 // Next, we disable logging to 'stdout' and enable logging to a file:
 //..
@@ -1144,13 +1137,13 @@ int main(int argc, char *argv[])
             mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), refTime);
             ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
 
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log";
             bslmt::ThreadUtil::microSleep(0, 1);
             ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
             bslmt::ThreadUtil::microSleep(0, 3);
 
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log";
             bslmt::ThreadUtil::microSleep(0, 1);
 
             // Wait up to 3 seconds for the file rotation to complete.
@@ -1173,7 +1166,7 @@ int main(int argc, char *argv[])
             mX->disableTimeIntervalRotation();
             bslmt::ThreadUtil::microSleep(0, 3);
 
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log";
             bslmt::ThreadUtil::microSleep(0, 1);
 
             ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
@@ -1313,7 +1306,7 @@ int main(int argc, char *argv[])
             ASSERT2(1    == mX->enableFileLogging(fn_time.c_str()));
 
             for (int i = 0; i < 40; ++i) {
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log";
             }
 
             // Wait some time for async writing to complete.
@@ -1415,7 +1408,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X->isFileLoggingEnabled());
                 ASSERT(1    == mX->enableFileLogging(fn_time.c_str()));
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 glob_t globbuf;
                 ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
@@ -1445,8 +1438,8 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(0, 4);
 
                 // Those logs will go into a file after rotation.
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
 
                 // Wait up to 3 seconds for the rotation to complete.
                 bsls::Stopwatch timer;
@@ -1478,7 +1471,7 @@ int main(int argc, char *argv[])
                 // message.
                 bslmt::ThreadUtil::microSleep(0, 4);
 
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log 3";
 
                 // Check that no rotation occurred.
                 ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
@@ -1496,10 +1489,10 @@ int main(int argc, char *argv[])
                 mX->disableTimeIntervalRotation();
                 mX->forceRotation();
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO  << "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN  << "log 4" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
 
                 // Check that the rotation occurred.
                 glob_t globbuf;
@@ -1520,7 +1513,7 @@ int main(int argc, char *argv[])
                 mX->rotateOnSize(1);
                 ASSERT(1 == X->rotationSize());
                 for (int i = 0 ; i < 30; ++i) {
-                    BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                    BALL_LOG_TRACE << "log";
 
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
@@ -1561,7 +1554,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X->rotationSize());
 
                 for (int i = 0 ; i < 30; ++i) {
-                    BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                    BALL_LOG_TRACE << "log";
                     bslmt::ThreadUtil::microSleep(50 * 1000);
                 }
 
@@ -1604,7 +1597,7 @@ int main(int argc, char *argv[])
                 ASSERT(X->isFileLoggingEnabled());
                 ASSERT(1 == mX->enableFileLogging(fileName.c_str()));
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 glob_t globbuf;
                 ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
@@ -1627,8 +1620,8 @@ int main(int argc, char *argv[])
                        X->rotationLifetime());
 
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
 
                 // Wait up to 3 seconds for the rotation to complete.
 
@@ -1656,7 +1649,7 @@ int main(int argc, char *argv[])
 
                 mX->disableTimeIntervalRotation();
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log 3";
 
                 // Check that no rotation occurred.
 
@@ -1764,7 +1757,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == FsUtil::getFileSize(fileName));
 
             for (int i = 0; i < numTestRecords; ++i) {
-                BALL_LOG_TRACE << "This will not be dropped." << BALL_LOG_END;
+                BALL_LOG_TRACE << "This will not be dropped.";
             }
 
             mX->stopPublicationThread();
@@ -1810,7 +1803,7 @@ int main(int argc, char *argv[])
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
             for (int i = 0; i < numTestRecords; ++i) {
-                BALL_LOG_TRACE << "This will be dropped." << BALL_LOG_END;
+                BALL_LOG_TRACE << "This will be dropped.";
             }
 
             mX->stopPublicationThread();
@@ -2391,19 +2384,19 @@ int main(int argc, char *argv[])
             (void) readPartialFile(stdoutFileName, 0);
             fileOffset = bdls::FilesystemUtil::getFileSize(stdoutFileName);
 
-            BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
+            BALL_LOG_TRACE << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
+            BALL_LOG_DEBUG << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_INFO << "not logged" << BALL_LOG_END;
+            BALL_LOG_INFO << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
+            BALL_LOG_WARN << "log WARN";
             // Replace the spaces after pid, __FILE__ to make dos match the
             // file.
             {
@@ -2434,12 +2427,12 @@ int main(int argc, char *argv[])
 
             ASSERT(ball::Severity::e_ERROR == X->stdoutThreshold());
 
-            BALL_LOG_WARN << "not logged" << BALL_LOG_END;
+            BALL_LOG_WARN << "not logged";
 
             ASSERT("" == readPartialFile(stdoutFileName, fileOffset));
             dos.str("");
 
-            BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
+            BALL_LOG_ERROR << "log ERROR";
             // Replace the spaces after pid, __FILE__ to make dos match the
             // file.
             {
@@ -2464,7 +2457,7 @@ int main(int argc, char *argv[])
             fileOffset = FsUtil::getFileSize(stdoutFileName);
             dos.str("");
 
-            BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
+            BALL_LOG_FATAL << "log FATAL";
             // Replace the spaces after pid, __FILE__ to make dos match the
             // file.
             {
@@ -2526,27 +2519,27 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
+            BALL_LOG_TRACE << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
+            BALL_LOG_DEBUG << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_INFO << "not logged" << BALL_LOG_END;
+            BALL_LOG_INFO << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_WARN << "not logged" << BALL_LOG_END;
+            BALL_LOG_WARN << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_ERROR << "not logged" << BALL_LOG_END;
+            BALL_LOG_ERROR << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_FATAL << "log" << BALL_LOG_END;
+            BALL_LOG_FATAL << "log";
             // Replace the spaces after pid, __FILE__ to make dos match the
             // file.
             {
@@ -2610,16 +2603,16 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(os.rdbuf());
 
-            BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
+            BALL_LOG_TRACE << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
+            BALL_LOG_DEBUG << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_INFO << "not logged" << BALL_LOG_END;
+            BALL_LOG_INFO << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
+            BALL_LOG_WARN << "log WARN";
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log WARN " << "\n";
             {
@@ -2636,7 +2629,7 @@ int main(int argc, char *argv[])
             fileOffset = FsUtil::getFileSize(stdoutFileName);
             testOs.str("");
 
-            BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
+            BALL_LOG_ERROR << "log ERROR";
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log ERROR " << "\n";
             {
@@ -2659,7 +2652,7 @@ int main(int argc, char *argv[])
 
             dos.str("");
 
-            BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
+            BALL_LOG_FATAL << "log FATAL";
             testOs << "\nFATAL " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log FATAL " << "\n";
             {
@@ -2727,16 +2720,16 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(os.rdbuf());
 
-            BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
+            BALL_LOG_TRACE << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
+            BALL_LOG_DEBUG << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_INFO << "not logged" << BALL_LOG_END;
+            BALL_LOG_INFO << "not logged";
             ASSERT(FsUtil::getFileSize(stdoutFileName) == fileOffset);
 
-            BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
+            BALL_LOG_WARN << "log WARN";
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log WARN " << "\n";
             {
@@ -2753,7 +2746,7 @@ int main(int argc, char *argv[])
             fileOffset = FsUtil::getFileSize(stdoutFileName);
             testOs.str("");
 
-            BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
+            BALL_LOG_ERROR << "log ERROR";
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log ERROR " << "\n";
             {
@@ -2776,7 +2769,7 @@ int main(int argc, char *argv[])
 
             dos.str("");
 
-            BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
+            BALL_LOG_FATAL << "log FATAL";
             testOs << "FATAL " << __FILE__ << ":" << __LINE__ - 1 <<
                       " ball::AsyncFileObserverTest log FATAL " << "\n";
             // Replace the spaces after pid, __FILE__.
@@ -2892,12 +2885,12 @@ int main(int argc, char *argv[])
             ASSERT(true == X->isFileLoggingEnabled());
             ASSERT(1    == mX->enableFileLogging(fileName.c_str()));
 
-            BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-            BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-            BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-            BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
-            BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-            BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 1";
+            BALL_LOG_DEBUG << "log 2";
+            BALL_LOG_INFO <<  "log 3";
+            BALL_LOG_WARN <<  "log 4";
+            BALL_LOG_ERROR << "log 5";
+            BALL_LOG_FATAL << "log 6";
 
             // Wait up to 3 seconds for the async logging to complete.
 
@@ -2938,12 +2931,12 @@ int main(int argc, char *argv[])
             ASSERT(true  == X->isFileLoggingEnabled());
             mX->disableFileLogging();
             ASSERT(false == X->isFileLoggingEnabled());
-            BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-            BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-            BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-            BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
-            BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-            BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 1";
+            BALL_LOG_DEBUG << "log 2";
+            BALL_LOG_INFO <<  "log 3";
+            BALL_LOG_WARN <<  "log 4";
+            BALL_LOG_ERROR << "log 5";
+            BALL_LOG_FATAL << "log 6";
 
             // Wait up to 3 seconds for the async logging to complete.
 
@@ -2972,12 +2965,12 @@ int main(int argc, char *argv[])
             ASSERT(true == X->isFileLoggingEnabled());
             ASSERT(1    == mX->enableFileLogging(fileName.c_str()));
 
-            BALL_LOG_TRACE << "log 7" << BALL_LOG_END;
-            BALL_LOG_DEBUG << "log 8" << BALL_LOG_END;
-            BALL_LOG_INFO <<  "log 9" << BALL_LOG_END;
-            BALL_LOG_WARN <<  "log 1" << BALL_LOG_END;
-            BALL_LOG_ERROR << "log 2" << BALL_LOG_END;
-            BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 7";
+            BALL_LOG_DEBUG << "log 8";
+            BALL_LOG_INFO <<  "log 9";
+            BALL_LOG_WARN <<  "log 1";
+            BALL_LOG_ERROR << "log 2";
+            BALL_LOG_FATAL << "log 3";
 
             // Wait up to 3 seconds for the async logging to complete.
 
@@ -3038,12 +3031,12 @@ int main(int argc, char *argv[])
             ASSERT(true == X->isFileLoggingEnabled());
             ASSERT(1    == mX->enableFileLogging(fn_time.c_str()));
 
-            BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-            BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-            BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-            BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
-            BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-            BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+            BALL_LOG_TRACE << "log 1";
+            BALL_LOG_DEBUG << "log 2";
+            BALL_LOG_INFO <<  "log 3";
+            BALL_LOG_WARN <<  "log 4";
+            BALL_LOG_ERROR << "log 5";
+            BALL_LOG_FATAL << "log 6";
 
             glob_t globbuf;
             ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
@@ -3142,7 +3135,7 @@ int main(int argc, char *argv[])
             ASSERT(startDatetime.minute() == endDatetime.minute());
             ASSERT(startDatetime.second() == endDatetime.second());
 
-            BALL_LOG_INFO<< "log" << BALL_LOG_END;
+            BALL_LOG_INFO<< "log";
 
             // Construct the name of the log file from startDatetime.
 
@@ -3298,7 +3291,7 @@ int main(int argc, char *argv[])
 
                 fileOffset = FsUtil::getFileSize(stdoutFileName);
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 // Look for the file with the constructed name.
 
@@ -3408,7 +3401,7 @@ int main(int argc, char *argv[])
                 mX->setLogFormat("%i %p %t %s %f %l %c %m %u",
                                  "%d %p %t %s %f %l %c %m %u");
 
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 // Look for the file with the constructed name.
 

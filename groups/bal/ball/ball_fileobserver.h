@@ -217,22 +217,17 @@ BSLS_IDENT("$Id: $")
 // messages with a 'WARN', 'ERROR' or 'FATAL' severity will be logged to
 // 'stdout':
 //..
-//  BALL_LOG_INFO << "Will not be published on 'stdout'."
-//                << BALL_LOG_END;
-//  BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
-//                << BALL_LOG_END;
+//  BALL_LOG_INFO << "Will not be published on 'stdout'.";
+//  BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
 //..
 // This default can be changed by specifying an optional argument to the
 // 'ball::FileObserver' constructor or by calling the 'setStdoutThreshold'
 // method:
 //..
 //  fileObserver.setStdoutThreshold(ball::Severity::e_INFO);
-//  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
-//                 << BALL_LOG_END;
-//  BALL_LOG_INFO  << "This info will be published on 'stdout'."
-//                 << BALL_LOG_END;
-//  BALL_LOG_WARN  << "This warning will be published on 'stdout'."
-//                 << BALL_LOG_END;
+//  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
+//  BALL_LOG_INFO  << "This info will be published on 'stdout'.";
+//  BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
 //..
 // The user can log all messages to a specified file and specify rotation rules
 // based on the size of the log file or its lifetime:

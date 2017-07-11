@@ -256,21 +256,16 @@ BSLS_IDENT("$Id: $")
 //..
 //  BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 //
-//  BALL_LOG_INFO << "Will not be published on 'stdout'."
-//                << BALL_LOG_END;
-//  BALL_LOG_WARN << "This warning *will* be published on 'stdout'."
-//                << BALL_LOG_END;
+//  BALL_LOG_INFO << "Will not be published on 'stdout'.";
+//  BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
 //..
 // Then, change the default severity for logging to 'stdout' by calling the
 // 'setStdoutThreshold' method:
 //..
 //  observerPtr->setStdoutThreshold(ball::Severity::e_INFO);
-//  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'."
-//                 << BALL_LOG_END;
-//  BALL_LOG_INFO  << "This info will be published on 'stdout'."
-//                 << BALL_LOG_END;
-//  BALL_LOG_WARN  << "This warning will be published on 'stdout'."
-//                 << BALL_LOG_END;
+//  BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
+//  BALL_LOG_INFO  << "This info will be published on 'stdout'.";
+//  BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
 //..
 // Next, we disable logging to 'stdout' and enable logging to a file:
 //..
