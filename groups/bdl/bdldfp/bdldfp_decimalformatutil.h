@@ -119,7 +119,6 @@ class DecimalFormatConfig {
     }
 };
 
-
                         // =======================
                         // class DecimalFormatUtil
                         // =======================
