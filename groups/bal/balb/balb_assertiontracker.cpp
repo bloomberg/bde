@@ -220,6 +220,7 @@ void AssertionTracker::assertionDetected(const char *text,
         }
         if (d_maxStackTracesPerLocation == 0) {
             d_fallbackHandler(text, file, line);
+            return;                                                   // RETURN
         }
         location_iterator =
             d_trackingData.emplace(location, AssertionCounts()).first;

@@ -271,7 +271,8 @@ AssertionTrackerSingleton<TRACKER>::singleton(BregCallback      callback,
                                               bslma::Allocator *basicAllocator)
 {
     using namespace bdlf::PlaceHolders;
-    return singleton(bdlf::BindUtil::bind(bregCallbackAdapter, callback, _1),
+    return singleton(bdlf::BindUtil::bind(
+                         bregCallbackAdapter, callback, _1, _2, _3, _4, _5),
                      basicAllocator);
 }
 
