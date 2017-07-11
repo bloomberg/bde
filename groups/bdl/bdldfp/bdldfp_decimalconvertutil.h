@@ -335,10 +335,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimal.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_DECNUMBER
-#include <bdldfp_decimalconvertutil_decnumber.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
 #include <bdldfp_decimalconvertutil_inteldfp.h>
 #endif
@@ -380,9 +376,7 @@ struct DecimalConvertUtil {
 
   private:
     // PRIVATE TYPES
-#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
-    typedef DecimalConvertUtil_DecNumber Imp;
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     typedef DecimalConvertUtil_IntelDfp  Imp;
 #else
     BSLMF_ASSERT(false);

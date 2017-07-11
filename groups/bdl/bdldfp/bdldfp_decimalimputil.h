@@ -132,14 +132,6 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_BINARYINTEGRALDECIMALIMPUTIL
-#include <bdldfp_binaryintegraldecimalimputil.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
-#include <bdldfp_decimalimputil_decnumber.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #include <bdldfp_decimalimputil_inteldfp.h>
 #endif
@@ -224,9 +216,7 @@ class DecimalImpUtil {
     // core decimal floating-poing operations.
 
   private:
-#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
-    typedef DecimalImpUtil_DecNumber Imp;
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     typedef DecimalImpUtil_IntelDfp  Imp;
 #else
     BSLMF_ASSERT(false);

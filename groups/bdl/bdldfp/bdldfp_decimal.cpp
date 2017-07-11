@@ -1,5 +1,6 @@
 // bdldfp_decimal.cpp                                                 -*-C++-*-
 #include <bdldfp_decimal.h>
+#include <bdldfp_decimalimputil_decnumber.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")

@@ -13,6 +13,7 @@
 BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalutil.h>
+#include <bdldfp_decimalimputil_decnumber.h>
 
 #include <bdlb_print.h>
 
