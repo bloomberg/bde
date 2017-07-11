@@ -598,7 +598,7 @@ int main(int argc, char *argv[]) {
             {
                 bslma::TestAllocator         da("def", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
-                bdld::Datum                  value;
+                bdld::Datum                  value = bdld::Datum::createNull();
 
                 ASSERT(0 == da.numAllocations());
 
@@ -622,7 +622,7 @@ int main(int argc, char *argv[]) {
             {
                 bslma::TestAllocator         da("def", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
-                bdld::Datum                  value;
+                bdld::Datum                  value = bdld::Datum::createNull();
 
                 ASSERT(0 == da.numAllocations());
 
@@ -646,7 +646,7 @@ int main(int argc, char *argv[]) {
                 bslma::TestAllocator         da("def", veryVeryVeryVerbose);
                 bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
-                bdld::Datum                  value;
+                bdld::Datum                  value = bdld::Datum::createNull();
 
                 ASSERT(0 == da.numAllocations());
                 ASSERT(0 == oa.numAllocations());
@@ -670,7 +670,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting destructor." << endl;
         {
-            if (verbose) cout << "\tTesting commited, empty array." << endl;
+            if (verbose) cout << "\tTesting committed, empty array." << endl;
             {
                 bslma::TestAllocator         da("def",
                                                 veryVeryVeryVerbose);
@@ -697,7 +697,7 @@ int main(int argc, char *argv[]) {
             }
 
             if (verbose)
-                cout << "\tTesting commited, non-empty array." << endl;
+                cout << "\tTesting committed, non-empty array." << endl;
             {
                 bslma::TestAllocator         da("def", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
@@ -705,7 +705,7 @@ int main(int argc, char *argv[]) {
 
                 ASSERT(0 == da.numAllocations());
                 {
-                    bdld::Datum value;
+                    bdld::Datum value = bdld::Datum::createNull();
                     ASSERT(0 == da.numAllocations());
 
                     Obj        mB(0, 0);
@@ -737,14 +737,14 @@ int main(int argc, char *argv[]) {
             }
 
             if (verbose)
-                cout << "\tTesting non-commited, non-empty array." << endl;
+                cout << "\tTesting non-committed, non-empty array." << endl;
             {
                 bslma::TestAllocator         da("def", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
 
                 ASSERT(0 == da.numAllocations());
                 {
-                    bdld::Datum value;
+                    bdld::Datum value = bdld::Datum::createNull();
                     ASSERT(0 == da.numAllocations());
 
                     Obj        mB(0, 0);
