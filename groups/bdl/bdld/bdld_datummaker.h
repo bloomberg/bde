@@ -101,7 +101,7 @@
 #endif
 
 #ifndef INCLUDED_BDLDFP_DECIMAL
-#include <bdld_decimal.h>
+#include <bdldfp_decimal.h>
 #endif
 
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
@@ -124,6 +124,10 @@
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdld {
 
@@ -144,7 +148,7 @@ class DatumMaker {
 
     template <class T> void operator()(T *) const;
         // This overload precludes an implicit (and unintended) conversion to
-        // 'bool'. This (unimplemented) function template should not be
+        // 'bool'.  This (unimplemented) function template should not be
         // instantiated unless 'operator()' is called with an unsupported type.
 
     // PRIVATE ACCESSORS
@@ -1890,8 +1894,8 @@ class DatumMaker {
                            bool                       sorted = false)  const;
         // Return a 'bdld::Datum' having the specified 'size' number of
         // 'elements'.  Note that where possible, no memory is allocated -
-        // arrays are returned as references.  Note that 'DatumMapRef' is
-        // not supported at the moment.
+        // arrays are returned as references.  Note that 'DatumMapRef' is not
+        // supported at the moment.
 
     bdld::Datum operator()(const bslstl::StringRef&  value) const;
     bdld::Datum operator()(const char               *value) const;
@@ -6148,10 +6152,10 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumArrayRef& value) const
 }
 
 inline
-bdld::Datum DatumMaker::operator()(const bdld::Datum *value,
+bdld::Datum DatumMaker::operator()(const bdld::Datum *elements,
                                    int                size) const
 {
-    return (*this)(bdld::DatumArrayRef(value, size));
+    return (*this)(bdld::DatumArrayRef(elements, size));
 }
 
 inline
@@ -6161,14 +6165,14 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumMutableMapRef& value) const
 }
 
 inline
-bdld::Datum DatumMaker::operator()(const bdld::DatumMapEntry *value,
+bdld::Datum DatumMaker::operator()(const bdld::DatumMapEntry *elements,
                                    int                        size,
                                    bool                       sorted) const
 {
     bdld::DatumMutableMapRef map;
     bdld::Datum::createUninitializedMap(&map, size, d_allocator_p);
     for (int i = 0; i < size; ++i) {
-        map.data()[i] = value[i];
+        map.data()[i] = elements[i];
     }
     *map.size()   = size;
     *map.sorted() = sorted;
