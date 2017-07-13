@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 // publication of each log record.  If that is problematic, the overhead can be
 // mitigated if the owner of 'main' installs a high-performance local-time
 // offset callback for 'bdlt::CurrentTime'.  See {'bsls_systemtime'} for
-// details of installing such callback and see {'baltzo_localtimeoffsetutil'}
-// for a an example facility.  Note that such callbacks can improve performance
+// details of installing such a callback and see {'baltzo_localtimeoffsetutil'}
+// for an example facility.  Note that such callbacks can improve performance
 // for all users of 'bdlt::CurrentTime', not just logging.
 //
 ///Log Filename Pattern

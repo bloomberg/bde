@@ -803,18 +803,19 @@ int main(int argc, char *argv[])
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
 //
-// Next, we disable the log rotation logic that is based on log file size and
+// Next, we demonstrate how to correctly shutdown the async observer.  We first
+// stop the publication thread by explicitly calling the
+// 'stopPublicationThread' method.  This method blocks until all the log
+// records in the record queue have been published:
+//..
+    observerPtr->stopPublicationThread();
+//..
+// Then, we disable the log rotation logic that is based on log file size and
 // completely disable logging to a file:
 //..
     observerPtr->disableSizeRotation();
 
     observerPtr->disableFileLogging();
-//..
-// Then, we stop the publication thread by explicitly calling the
-// 'stopPublicationThread' method.  The 'stopPublicationThread' is also invoked
-// when the async file observer is destroyed.
-//..
-    observerPtr->stopPublicationThread();
 //..
 // Note that stopping the publication thread and disabling various features of
 // the async observer is not strictly necessary before object destruction.  All

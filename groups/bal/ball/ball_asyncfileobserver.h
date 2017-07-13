@@ -136,8 +136,8 @@ BSLS_IDENT("$Id: $")
 // publication of each log record.  If that is problematic, the overhead can be
 // mitigated if the owner of 'main' installs a high-performance local-time
 // offset callback for 'bdlt::CurrentTime'.  See {'bsls_systemtime'} for
-// details of installing such callback and see {'baltzo_localtimeoffsetutil'}
-// for a an example facility.  Note that such callbacks can improve performance
+// details of installing such a callback and see {'baltzo_localtimeoffsetutil'}
+// for an example facility.  Note that such callbacks can improve performance
 // for all users of 'bdlt::CurrentTime', not just logging.
 //
 ///Log Filename Pattern
@@ -294,18 +294,19 @@ BSLS_IDENT("$Id: $")
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
 //
-// Next, we disable the log rotation logic that is based on log file size and
+// Next, we demonstrate how to correctly shutdown the async observer.  We first
+// stop the publication thread by explicitly calling the
+// 'stopPublicationThread' method.  This method blocks until all the log
+// records in the record queue have been published:
+//..
+//  observerPtr->stopPublicationThread();
+//..
+// Then, we disable the log rotation logic that is based on log file size and
 // completely disable logging to a file:
 //..
 //  observerPtr->disableSizeRotation();
 //
 //  observerPtr->disableFileLogging();
-//..
-// Then, we stop the publication thread by explicitly calling the
-// 'stopPublicationThread' method.  The 'stopPublicationThread' is also invoked
-// when the async file observer is destroyed.
-//..
-//  observerPtr->stopPublicationThread();
 //..
 // Note that stopping the publication thread and disabling various features of
 // the async observer is not strictly necessary before object destruction.  All
@@ -589,8 +590,10 @@ class AsyncFileObserver : public Observer {
 
     // MANIPULATORS
     void disableFileLogging();
-        // Disable file logging for this async file observer.  This method has
-        // no effect if file logging is not enabled.
+        // Disable file logging for this async file observer.  Calling this
+        // method will prevent the logging to a file of any unpublished records
+        // held by this observer.  This method has no effect if file logging is
+        // disabled.
 
     void disablePublishInLocalTime();
         // Disable publishing of the timestamp attribute of records in local
@@ -729,10 +732,11 @@ class AsyncFileObserver : public Observer {
         // value if there is an error creating the publication thread.
 
     int stopPublicationThread();
-        // Stop the publication thread after all the remaining records in the
-        // record queue have been published.  If there is no publication thread
-        // this operation has no effect.  Return 0 on success, and a non-zero
-        // value if there is an error joining the publication thread.
+        // Block until all the remaining records in the record queue have been
+        // published, then stop the publication thread.  If there is no
+        // publication thread this operation has no effect.  Return 0 on
+        // success, and a non-zero value if there is an error joining the
+        // publication thread.
 
     // ACCESSORS
     void getLogFormat(const char **logFileFormat,
