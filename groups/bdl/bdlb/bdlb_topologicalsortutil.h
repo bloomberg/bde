@@ -55,6 +55,19 @@ BSLS_IDENT("$Id: $")
 // with Null 'OUTPUT_ITER' to answer the question "does this graph have
 // cycles?" while not wasting memory in storing the sort results.
 //
+///Self-referencing Nodes
+///----------------------
+// Some designs may indicate graph nodes without connections as
+// self-referencing entries, i.e. we have pairs of input like (u,u).  The
+// implementation of 'sort' in this component treats such inputs entries as
+// cycles and fails sorting.
+//
+// You may still use this 'sort' implementation (to process your nodes in
+// proper order) if your data structure contains such entries by first
+// processing the self-referencing only (they have no dependencies) then
+// calling the iterator-based sort and using a filtering iterator (that filters
+// out self-referencing nodes) as the input iterator.
+//
 ///USAGE:
 ///-----
 // This section illustrates intended use of this component.
@@ -343,207 +356,6 @@ BSLS_IDENT("$Id: $")
 //  assert(results5[0] == 1);
 //  assert(results5[1] == 2);
 //  assert(results5[2] == 3);
-//..
-///Example 6: Using Topological Sort with Filtered out Self Relations
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a set of inputs that have input relations where predecessor
-// and successor point to the same value, i.e. we have pairs of input like
-// (u,u).  Suppose that such (u,u) input represents valid input, standalone
-// nodes i.e., nodes with no edges.  To handle such kind of input one needs to
-// use filtering iterators and the iterator variant of the 'sort' function.
-// First we create the filtering iterator that filters out self-referencing
-// elements of the input:
-//..
-//  template <class BASE_ITERATOR>
-//  class NoDetachedNodeIterator {
-//      // This 'class' 'FilteringIterator' is an iterator ...
-//
-//    private:
-//      // DATA
-//        BASE_ITERATOR d_actual;
-//        BASE_ITERATOR d_end;
-//
-//    public:
-//      // TYPES
-//      typedef BASE_ITERATOR base;
-//
-//      typedef typename bsl::iterator_traits<base> Traits;
-//          // To keep lines short
-//
-//      typedef typename Traits::value_type value_type;
-//          // This iterator is a stand-in for the base type, hence it has the
-//          // same 'value_type'.
-//
-//      typedef typename Traits::difference_type difference_type;
-//          // This iterator is a stand-in for the base type, hence it has the
-//          // same 'difference_type'.
-//
-//      typedef typename Traits::pointer pointer;
-//          // This iterator is a stand-in for the base type, hence it has the
-//          // same 'pointer' type.
-//
-//      typedef typename Traits::reference reference;
-//          // This iterator is a stand-in for the base type, hence it has the
-//          // same 'reference' type.
-//
-//      typedef typename Traits::iterator_category iterator_category;
-//          // This iterator is a stand-in for the base type, hence it has the
-//          // same 'iterator_category'.
-//
-//      typedef typename
-//          BloombergLP::bdlb::TopologicalSortUtilMappingTraits<value_type>
-//                                                                 MappingType;
-//      typedef typename MappingType::ValueType NodeType;
-//
-//      // PRIVATE MANIPULATORS
-//      void advanceOne()
-//      {
-//          ++d_actual;
-//          if (d_actual == d_end) {
-//              return;                                               // RETURN
-//          }
-//          while (MappingType::from(*d_actual) ==
-//                                                MappingType::to(*d_actual)) {
-//              ++d_actual;
-//              if (d_actual == d_end) {
-//                  return;                                           // RETURN
-//              }
-//          }
-//      }
-//
-//      // CREATORS
-//      NoDetachedNodeIterator(const base& begin, const base& end)
-//      : d_actual(begin)
-//      , d_end(end)
-//      {
-//      }
-//
-//      // ACCESSORS
-//      bool operator==(const NoDetachedNodeIterator& rhs) const
-//      {
-//          return d_actual == rhs.d_actual;
-//      }
-//
-//      bool operator==(const base& rhs) const
-//      {
-//          return d_actual == rhs;
-//      }
-//
-//      bool operator!=(const NoDetachedNodeIterator& rhs) const
-//      {
-//          return d_actual != rhs.d_actual;
-//      }
-//
-//      bool operator!=(const base& rhs) const
-//      {
-//          return d_actual != rhs;
-//      }
-//
-//      reference operator*() const
-//          // Do nothing and return a reference to the actual underlying
-//          // element.
-//      {
-//          return *d_actual;
-//      }
-//
-//      reference operator->() const
-//          // Do nothing and return a reference to the actual underlying
-//          // element.
-//      {
-//          return *d_actual;
-//      }
-//
-//      // MANIPULATORS
-//      reference operator*()
-//          // Do nothing and return a reference to the actual underlying
-//          // element.
-//      {
-//          return *d_actual;
-//      }
-//
-//      reference operator->()
-//          // Do nothing and return a reference to the actual underlying
-//          // element.
-//      {
-//          return *d_actual;
-//      }
-//
-//      NoDetachedNodeIterator& operator++()
-//          // Walk to the next non-standalone vertex if found, or to end and
-//          // return '*this'.
-//      {
-//          advanceOne();
-//          return *this;
-//      }
-//
-//      NoDetachedNodeIterator& operator++(int)
-//          // Do nothing and return '*this'.
-//      {
-//          NoDetachedNodeIterator old(*this);
-//          advanceOne();
-//          return old;
-//      }
-//  };
-//
-//  template<class BASE_ITERATOR>
-//  bool operator==(const BASE_ITERATOR&                         lhs,
-//                  const NoDetachedNodeIterator<BASE_ITERATOR>& rhs)
-//  {
-//      return rhs == lhs;
-//  }
-//
-//  template<class BASE_ITERATOR>
-//  bool operator!=(const BASE_ITERATOR&                         lhs,
-//                  const NoDetachedNodeIterator<BASE_ITERATOR>& rhs)
-//  {
-//      return rhs != lhs;
-//  }
-//..
-// Next, we can process the stand-alone nodes of the input as they do not
-// depend on anything else:
-//..
-//  if (veryVeryVerbose) {
-//      bsl::cout << "Detached node(s):" << bsl::endl;
-//  }
-//  for (bsl::size_t i = 0; i < relations3.size(); ++i) {
-//
-//      // Process the stand-alone nodes...
-//
-//      const bsl::pair<int, int>& elem = relations3[i];
-//      if (veryVeryVerbose && elem.first == elem.second) {
-//          bsl::cout << "    " << elem.first << bsl::endl;
-//      }
-//  }
-//  bsl::vector<int> results3;
-//  bsl::vector<int> unordered3;
-//  bool             sorted3 = TopologicalSortUtil::sort(&results3,
-//                                                       &unordered3,
-//                                                       relations3);
-//..
-// Then, we create the filtering iterator type:
-//..
-//  typedef NoDetachedNodeIterator<
-//               typename bsl::vector<bsl::pair<int, int> >::iterator > FiltIt;
-//..
-// Next, we can create the two input iterators:
-//..
-//  FiltIt begin(relations3.begin(), relations3.end());
-//  FiltIt end(relations3.end(), relations3.end());
-//..
-// Now, we call the iterator version of the 'sort' function:
-//..
-//  bsl::vector<int> results6;
-//  bsl::vector<int> unordered6;
-//  bool sorted6 = TopologicalSortUtil::sort(begin,
-//                                           end,
-//                                           OutIter(results6),
-//                                           OutIter(unordered6));
-//..
-// Finally, we verify that the self relations do not cause a cycle:
-//..
-//  assert(sorted6 == true);
-//  assert(results6.size() == 3);
-//  assert(unordered6.size() == 0);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
