@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //    bdlb::TopologicalSortUtil: utility for topologically sorting inputs
-//    bdlb::TopologicalSortUtilMappingTraits: customization point for mappings
+//    bdlb::TopologicalSortUtilEdgeTraits: customization point for edge types
 //
 //@SEE ALSO:
 //
@@ -43,17 +43,17 @@ BSLS_IDENT("$Id: $")
 // relations as specified by the input pairs.
 //
 // The 'sort' function is provided in two variants or flavors: simple and
-// iterator-based.  The simple flavor is templated on the 'VALUE_TYPE', and it
+// iterator-based.  The simple flavor is templated on the 'NODE_TYPE', and it
 // provides topological sorting for the case where the input is a 'bsl::vector'
 // of 'bsl::pair's, and the outputs are 'bsl::vector's.  The templated variant
 // is highly customizable (templated) on both the input and the outputs.  The
 // input may be any input iterator range that has a 'bsl::pair' 'value_type' or
-// a 'value_type' with a 'TopologicalSortUtilMappingTraits' specialization.
-// The 'value_type' is determined using 'bsl::iterator::traits'.  The two
-// outputs are both defined as templated output iterators and they may have
-// different types.  So (for example) the iterator based 'sort' may be used
-// with Null 'OUTPUT_ITER' to answer the question "does this graph have
-// cycles?" while not wasting memory in storing the sort results.
+// a 'value_type' with a 'TopologicalSortUtilEdgeTraits' specialization. The
+// 'value_type' is determined using 'bsl::iterator::traits'.  The two outputs
+// are both defined as templated output iterators and they may have different
+// types.  So (for example) the iterator based 'sort' may be used with Null
+// 'OUTPUT_ITER' to answer the question "does this graph have cycles?" while
+// not wasting memory in storing the sort results.
 //
 ///Self-referencing Nodes
 ///----------------------
@@ -67,6 +67,53 @@ BSLS_IDENT("$Id: $")
 // processing the self-referencing only (they have no dependencies) then
 // calling the iterator-based sort and using a filtering iterator (that filters
 // out self-referencing nodes) as the input iterator.
+//
+///Concepts
+///--------
+// This component provides generic (templated) utilities.  This section
+// describes the requirements of the type parameters (concepts) of these
+// generic methods.
+//
+///'NODE_TYPE' Concept
+///- - - - - - - - - -
+// Also called 'NodeType' in 'TopologicalSortUtilEdgeTraits'.
+//
+// 'NODE_TYPE' shall be a value type that supports hashing using the
+// 'bsl::hash<NODE_TYPE>' functor type and equality comparison using the
+// 'bsl::equal_to<NODE_TYPE>' functor type.
+//
+// Notice that we have not provided a customization point for the hash functor
+// type nor for the equality functor type because that would complicate the
+// code greatly (esp. readability would suffer).
+//
+///'EdgeType' Concept
+/// - - - - - - - - -
+// The 'EdgeType' concept represents the elements of the input to the 'sort'
+// methods.  It is the 'value_type' (accessed via 'bsl::iterator_traits' of the
+// 'INPUT_ITER'.  Conceptually it represents a pair (U,V) (where U and V are
+// 'NodeType's) that means "U precedes V".  In order to support any custom edge
+// type we are providing a customization point (traits type) called
+// 'TopologicalSortUtilEdgeTraits'.  Determining of the 'NodeType' and access
+// operations on 'EdgeType' objects are all done via the traits.
+//
+// 'TopologicalSortUtilEdgeTraits' is specialized for 'bsl::pair<T,T>', the
+// user needs to (partially or fully) specialize it for other types.  See the
+// 'CustomEdge' specialization in the test driver for an example.
+//
+///'INPUT_ITER' Concept
+/// - - - - - - - - - -
+// It's an input iterator with the 'value_type' (determined via
+// 'bsl::iterator_traits') of 'EdgeType'.
+//
+///'OUTPUT_ITER' Concept
+///- - - - - - - - - - -
+// It's an output iterator with the 'value_type' (determined via
+// 'bsl::iterator_traits') of 'NodeType'.
+//
+///'UNORDERED_ITER' Concept
+/// - - - - - - - - - - - -
+// It's an output iterator with the 'value_type' (determined via
+// 'bsl::iterator_traits') of 'NodeType'.
 //
 ///USAGE:
 ///-----
@@ -391,54 +438,58 @@ namespace BloombergLP {
 namespace bdlb {
 
 
-                   // ======================================
-                   // class TopologicalSortUtilMappingTraits
-                   // ======================================
+                    // ===================================
+                    // class TopologicalSortUtilEdgeTraits
+                    // ===================================
 
-template <class MAPPING_TYPE>
-struct TopologicalSortUtilMappingTraits {
+template <class EDGE_TYPE>
+struct TopologicalSortUtilEdgeTraits {
     // This 'struct' represents a customization point allowing clients to
     // supply input iterators to 'sort' working on types other than 'pair'.
-    // Clients may specialize 'TopologicalSortUtilMappingTraits' to supply the
-    // following :
+    // Clients may specialize 'TopologicalSortUtilEdgeTraits' to supply the
+    // following:
     //..
-    //  typedef user-defined ValueType;
+    //  typedef EDGE_TYPE EdgeType;
+    //      // The type of the directed connection from one node to another
+    //
+    //  typedef user-defined NodeType;
     //      // Alias describing the output values from a sort, as well as the
-    //      // results of the 'from' and 'to' functions of this mapping traits
-    //      // instance.
+    //      // results of the 'from' and 'to' functions of this edge traits
+    //      // instance.  Or in other words, the node (identifier) type of the
+    //      // directed acyclic graph.
     //
-    //  static const ValueType& from(const MAPPING_TYPE& input);
+    //  static const NodeType& from(const EDGE_TYPE& input);
     //      // Return a 'const' reference to the "from" attribute of the
     //      // specified 'input'.  Note that the template parameter type
-    //      // 'MAPPING_TYPE' is an element in the input range to 'sort'.
+    //      // 'EDGE_TYPE' is an element in the input range to 'sort'.
     //
-    //  static const ValueType& to(const MAPPING_TYPE& input)
+    //  static const NodeType& to(const EDGE_TYPE& input)
     //      // Return a 'const' reference to the "from" attribute of the
     //      // specified 'input'.  Note that the template parameter type
-    //      // 'MAPPING_TYPE' is an element in the input range to 'sort'.
+    //      // 'EDGE_TYPE' is an element in the input range to 'sort'.
     //..
 };
 
-template <class VALUE_TYPE>
-struct TopologicalSortUtilMappingTraits<bsl::pair<VALUE_TYPE, VALUE_TYPE> > {
+template <class NODE_TYPE>
+struct TopologicalSortUtilEdgeTraits<bsl::pair<NODE_TYPE, NODE_TYPE> > {
     // This 'struct' is a specialization (customization) of
-    // 'TopologicalSortUtilMappingTraits' for bsl::pair<T, T>.
+    // 'TopologicalSortUtilEdgeTraits' for bsl::pair<T, T>.
 
     // TYPES
-    typedef bsl::pair<VALUE_TYPE, VALUE_TYPE> MappingType;
-        // Just for readability
+    typedef bsl::pair<NODE_TYPE, NODE_TYPE> EdgeType;
+        // The type of the directed connection from one node to another
 
-    typedef typename MappingType::first_type ValueType;
-        // The values of the nodes of the DAG
+    typedef NODE_TYPE NodeType;
+        // The type of values of the nodes of the directed acyclic graph
 
     // CLASS METHODS
-    static const ValueType& from(const MappingType& mapping);
+    static const NODE_TYPE& from(const EdgeType& edge);
         // Return a 'const' reference to the 'from' attribute of the specified
-        // 'mapping' object.
+        // 'edge' object.
 
-    static const ValueType& to(const MappingType& mapping);
+    static const NODE_TYPE& to(const EdgeType& edge);
         // Return a 'to' reference to the 'from' attribute of the specified
-        // 'mapping' object.
+        // 'edge' object.
 };
 
                         // ================================
@@ -454,18 +505,18 @@ class TopologicalSortUtil_Helper {
     //
     // (*) The value type is determined by first getting the iterator's value
     //     type using 'bsl::iterator_traits<INPUT_ITER>::ValueType' and then
-    //     using 'TopologicalSortUtilMappingTraits::ValueType' on that result.
+    //     using 'TopologicalSortUtilEdgeTraits::ValueType' on that result.
 
     // PRIVATE TYPES
     typedef typename bsl::iterator_traits<INPUT_ITER>::value_type
                                                                  IteratorValue;
-    typedef TopologicalSortUtilMappingTraits<IteratorValue>      MappingTraits;
-    typedef typename MappingTraits::ValueType                    ValueType;
+    typedef TopologicalSortUtilEdgeTraits<IteratorValue>         EdgeTraits;
+    typedef typename EdgeTraits::NodeType                        NodeType;
 
     struct NodeInfo {
         // PUBLIC DATA
-        int                    d_predecessorCount;
-        bsl::vector<ValueType> d_successors;      // successors list
+        int                   d_predecessorCount;
+        bsl::vector<NodeType> d_successors;      // successors list
 
         // CREATORS
         explicit NodeInfo();
@@ -475,18 +526,18 @@ class TopologicalSortUtil_Helper {
             // globally supply default allocator instead.
     };
 
-    typedef bsl::unordered_map<ValueType, NodeInfo *> SetInfo;
+    typedef bsl::unordered_map<NodeType, NodeInfo *> SetInfo;
 
     // DATA
-    SetInfo                 d_setInfo;      // additional data structure needed
-                                            // for topologically sorting the
-                                            // elements
+    SetInfo              d_setInfo;      // additional data structure needed
+                                         // for topologically sorting the
+                                         // elements
 
-    bsl::queue<ValueType>  d_orderedNodes;  // elements that are not dependent
-                                            // on any other
+    bsl::queue<NodeType> d_orderedNodes;  // elements that are not dependent
+                                          // on any other
 
-    bool                    d_hasCycle;     // flag denoting whether cycles are
-                                            // present
+    bool                 d_hasCycle;     // flag denoting whether cycles are
+                                         // present
 
   public:
     // CREATORS
@@ -548,15 +599,15 @@ struct TopologicalSortUtil {
         // as a sequence of pairs between the specified 'relationsBegin' and
         // 'relationsEnd', where the "from" element of the pair must precede
         // the "to" element in the resulting sort (see
-        // 'TopologicalSortUtilMappingTraits' for description of "from" and
-        // "to").  Return 'true' on success, and 'false' if the sort fails due
-        // to a cycle in the input.  The input ('relationshipBegin' and
+        // 'TopologicalSortUtilEdgeTraits' for description of "from" and "to").
+        // Return 'true' on success, and 'false' if the sort fails due to a
+        // cycle in the input.  The input ('relationshipBegin' and
         // 'relationshipEnd') is provided as a sequence of (conceptual or
         // physical) pairs of the form (U, V) where U precedes V in the output.
         // The type 'bsl::iterator_traits<INPUT_ITER>::value_type' must either
         // be 'bsl::pair' where the 'first_type' and 'second_type' are the same
         // as 'bsl::iterator_traits<OUTPUT_ITER>::value_type' or
-        // 'TopologicalSortUtilMappingTraits' must be specialized for the type,
+        // 'TopologicalSortUtilEdgeTraits' must be specialized for the type,
         // i.e., the supplied 'bsl::iterator_traits<INPUT_ITER>::value_type'
         // must support the following syntax:
         //..
@@ -565,10 +616,9 @@ struct TopologicalSortUtil {
         //  typedef typename bsl::iterator_traits<RESULT_ITER>::value_type
         //                                                         ResultValue;
         //
-        //  typedef typename TopologicalSortUtilMappingTraits<IterValue>
-        //                                                              Traits;
+        //  typedef typename TopologicalSortUtilEdgeTraits<IterValue>   Traits;
         //
-        //  typedef typename Traits::value_type ValueType;
+        //  typedef typename Traits::NodeType NodeType;
         //
         //  for (INPUT_ITER it  = relationshipPairsBegin;
         //                  it != relationshipPairsEnd;
@@ -584,12 +634,12 @@ struct TopologicalSortUtil {
         // discovered and 'unordered' will contain the elements that the
         // routine was unable to sort.
 
-    template <class VALUE_TYPE>
+    template <class NODE_TYPE>
     static bool sort(
-         bsl::vector<VALUE_TYPE>                                *result,
-         bsl::vector<VALUE_TYPE>                                *unorderedList,
-         const bsl::vector<bsl::pair<VALUE_TYPE, VALUE_TYPE> >&  relations);
-        // Sort the elements of 'VALUE_TYPE' in topological order determined by
+         bsl::vector<NODE_TYPE>                                *result,
+         bsl::vector<NODE_TYPE>                                *unorderedList,
+         const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations);
+        // Sort the elements of 'NODE_TYPE' in topological order determined by
         // the specified 'relations' and load the resulting linear ordered set
         // to the specified 'result'.  If the sort is unsuccessful, load the
         // elements that have not been ordered to the specified 'unorderedList'
@@ -607,28 +657,26 @@ struct TopologicalSortUtil {
 //                 INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                   // --------------------------------------
-                   // class TopologicalSortUtilMappingTraits
-                   // --------------------------------------
+                   // -----------------------------------
+                   // class TopologicalSortUtilEdgeTraits
+                   // -----------------------------------
 
-template <class VALUE_TYPE>
+template <class NODE_TYPE>
 inline
-const typename TopologicalSortUtilMappingTraits<
-                               bsl::pair<VALUE_TYPE, VALUE_TYPE> >::ValueType&
-TopologicalSortUtilMappingTraits<bsl::pair<VALUE_TYPE, VALUE_TYPE> >::
-from(const MappingType& mapping)
+const NODE_TYPE&
+TopologicalSortUtilEdgeTraits<bsl::pair<NODE_TYPE, NODE_TYPE> >::
+from(const EdgeType& edge)
 {
-    return mapping.first;
+    return edge.first;
 }
 
-template <class VALUE_TYPE>
+template <class NODE_TYPE>
 inline
-const typename TopologicalSortUtilMappingTraits<
-                               bsl::pair<VALUE_TYPE, VALUE_TYPE> >::ValueType&
-TopologicalSortUtilMappingTraits<bsl::pair<VALUE_TYPE, VALUE_TYPE> >::
-to(const MappingType& mapping)
+const NODE_TYPE&
+TopologicalSortUtilEdgeTraits<bsl::pair<NODE_TYPE, NODE_TYPE> >::
+to(const EdgeType& edge)
 {
-    return mapping.second;
+    return edge.second;
 }
 
 
@@ -660,26 +708,26 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
 
     for (INPUT_ITER iter = relationsBegin; iter != relationsEnd; ++iter) {
         typename SetInfo::iterator pIter =
-                                    d_setInfo.find(MappingTraits::from(*iter));
+                                    d_setInfo.find(EdgeTraits::from(*iter));
         if (pIter == d_setInfo.end()) {
             // Create new node info and add it to set info.
 
             bslma::ManagedPtr<NodeInfo>                 nodeInfo(new NodeInfo);
             bsl::pair<typename SetInfo::iterator, bool> result =
-                d_setInfo.insert(bsl::make_pair(MappingTraits::from(*iter),
+                d_setInfo.insert(bsl::make_pair(EdgeTraits::from(*iter),
                                                 nodeInfo.get()));
             nodeInfo.release();
             pIter = result.first;
         }
 
         typename SetInfo::iterator sIter =
-                                      d_setInfo.find(MappingTraits::to(*iter));
+                                      d_setInfo.find(EdgeTraits::to(*iter));
         if (sIter == d_setInfo.end()) {
            // Create new node info and add it to set info.
 
             bslma::ManagedPtr<NodeInfo>                 nodeInfo(new NodeInfo);
             bsl::pair<typename SetInfo::iterator, bool> result =
-                d_setInfo.insert(bsl::make_pair(MappingTraits::to(*iter),
+                d_setInfo.insert(bsl::make_pair(EdgeTraits::to(*iter),
                                                 nodeInfo.get()));
             nodeInfo.release();
             sIter = result.first;
@@ -729,7 +777,7 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNext(RESULT_ITER result)
 
     if (! d_orderedNodes.empty()) {
 
-        ValueType                  processed = d_orderedNodes.front();
+        NodeType                   processed = d_orderedNodes.front();
         typename SetInfo::iterator processedNode = d_setInfo.find(processed);
 
         // iterate through the successor list of the node and reduce
@@ -738,16 +786,16 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNext(RESULT_ITER result)
 
         NodeInfo                                  *processedNodeInfo =
                                                          processedNode->second;
-        typename bsl::vector<ValueType>::iterator  sListIter =
+        typename bsl::vector<NodeType>::iterator  sListIter =
                                      (processedNodeInfo->d_successors).begin();
-        typename bsl::vector<ValueType>::iterator  endIter =
+        typename bsl::vector<NodeType>::iterator  endIter =
                                       (processedNodeInfo->d_successors).end();
 
         for (; sListIter != endIter; ++sListIter) {
 
             typename SetInfo::iterator  successor =
                                                   d_setInfo.find((*sListIter));
-            ValueType                   sValue    = successor->first;
+            NodeType                    sValue = successor->first;
             NodeInfo                   *sNodeInfo = successor->second;
 
             // update predecessor count
@@ -832,13 +880,13 @@ bool TopologicalSortUtil::sort(INPUT_ITER        relationsBegin,
     return true;
 }
 
-template <class VALUE_TYPE>
+template <class NODE_TYPE>
 bool TopologicalSortUtil::sort(
-         bsl::vector<VALUE_TYPE>                                *result,
-         bsl::vector<VALUE_TYPE>                                *unorderedList,
-         const bsl::vector<bsl::pair<VALUE_TYPE, VALUE_TYPE> >&  relations)
+         bsl::vector<NODE_TYPE>                                *result,
+         bsl::vector<NODE_TYPE>                                *unorderedList,
+         const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations)
 {
-    typedef bsl::vector<VALUE_TYPE> vector_type;
+    typedef bsl::vector<NODE_TYPE> vector_type;
 
     return sort(relations.begin(),
                 relations.end(),

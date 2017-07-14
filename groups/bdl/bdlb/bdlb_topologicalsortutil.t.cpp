@@ -47,7 +47,7 @@ using namespace bdlb;
 // [5] sort(result, unorderedList, relations)
 //
 // [6] sort(relationsBegin, relationsEnd, result, unordered)
-// [6] TopologicalSortUtilMappingTraits
+// [6] TopologicalSortUtilEdgeTraits
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [7] USAGE EXAMPLE
@@ -101,7 +101,7 @@ void aSsErT(bool condition, const char *message, int line)
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-class CustomMapping {
+class CustomEdge {
     // 'CustomMapping' is an example attribute class used in demonstrating
     // customizing 'TopologicalSortUtil::sort' using
     // 'TopologicalSortUtilMappingTraits'.
@@ -112,7 +112,7 @@ class CustomMapping {
 
   public:
     // CREATORS
-    CustomMapping(int from, int to)
+    CustomEdge(int from, int to)
         // Create a custom mapping object with the specified 'from' and 'to'
         // attributes.
     : d_from(from)
@@ -138,25 +138,28 @@ namespace BloombergLP {
 namespace bdlb {
 
 template <>
-struct TopologicalSortUtilMappingTraits<CustomMapping> {
-    // This 'struct' 'TopologicalSortUtilMappingTraits<CustomMapping>'
+struct TopologicalSortUtilEdgeTraits<CustomEdge> {
+    // This 'struct' 'TopologicalSortUtilEdgeTraits<CustomEdge>'
     // customizes 'TopologicalSortUtil::sort' to "understand" the
-    // 'CustomMapping' type.
+    // 'CustomEdge' type.
 
     // TYPES
-    typedef int ValueType;
+    typedef CustomEdge EdgeType;
+        // The type that represents a connection in the graph.
+
+    typedef int NodeType;
         // The type that represents a node/vertex of the graph.
 
-    static ValueType from(const CustomMapping& mapping)
-        // Return the 'from' attribute of the specified 'mapping' object.
+    static NodeType from(const CustomEdge& edge)
+        // Return the 'from' attribute of the specified 'edge' object.
     {
-        return mapping.from();
+        return edge.from();
     }
 
-    static ValueType to(const CustomMapping& mapping)
-        // Return the 'to' attribute of the specified 'mapping' object.
+    static NodeType to(const CustomEdge& edge)
+        // Return the 'to' attribute of the specified 'edge' object.
     {
-        return mapping.to();
+        return edge.to();
     }
 };
 
@@ -519,25 +522,25 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CUSTOM MAPPING CLASS TEST
-        //   This case tests the usage of custom mapping class instead of
+        // CUSTOM EDGE CLASS TEST
+        //   This case tests the usage of custom edge class instead of
         //   'bsl::pair'.
         //
         // Concerns:
         //: 1 The code compiles thanks to the specialization of the
-        //:   'TopologicalSortUtilMappingTraits' template.  See the custom
+        //:   'TopologicalSortUtilEdgeTraits' template.  See the custom
         //:   class and the specialization before 'main' (C++03 does not
         //:   support local classes in templates.)
         //
         // Plan:
-        //: 1 Create a set of input using a custom mapping (edge) type instead
+        //: 1 Create a set of input using a custom edge (edge) type instead
         //:   of 'bsl::pair'.
         //:
         //: 2 Call the iterator version of the 'sort' function.  (We could call
         //:   the simple (non-iterator) version as well.)
         //:
         //: 3 Verify that with the fully specialized
-        //:   'TopologicalSortUtilMappingTraits' the code compiles and links.
+        //:   'TopologicalSortUtilEdgeTraits' the code compiles and links.
         //:
         //: 4 Verify that 'sort' returned 'true', the resulting 'unordered'
         //:   'vector' is empty, and 'results' contains an acceptable
@@ -548,14 +551,14 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   sort(relationsBegin, relationsEnd, result, unordered)
-        //   TopologicalSortUtilMappingTraits
+        //   TopologicalSortUtilEdgeTraits
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CUSTOM MAPPING CLASS TEST" << endl
-                          << "=========================" << endl;
+                          << "CUSTOM EDGE CLASS TEST" << endl
+                          << "======================" << endl;
 
-        bsl::vector<CustomMapping> relations;
+        bsl::vector<CustomEdge> relations;
 
         relations.emplace_back(1, 2);
         relations.emplace_back(2, 3);
