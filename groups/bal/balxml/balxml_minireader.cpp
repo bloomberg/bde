@@ -855,9 +855,9 @@ int MiniReader::lookupAttribute(ElementAttribute *attribute,
 
 int MiniReader::advanceToEndNode()
 {
-    if (d_state == ST_EOF ||    // Is the reader operational?
-        d_state == ST_ERROR ||
-        d_state == ST_CLOSED) {
+    if (d_state == ST_EOF       // Is the reader operational?
+     || d_state == ST_ERROR
+     || d_state == ST_CLOSED) {
         return -1;                                                    // RETURN
     }
 
@@ -869,15 +869,24 @@ int MiniReader::advanceToEndNode()
         return 0;                                                     // RETURN
     }
 
-    size_t level = d_activeNodesCount + 1;
+    size_t            level = d_activeNodesCount + 1;
+    const bsl::string name = currentNode().d_qualifiedName;
+
     while (1) {
-        int rc;
-        if ((rc = advanceToNextNode()) != 0) {
+        int rc = advanceToNextNode();
+        if (rc != 0) {
             return rc;                                                // RETURN
         }
-        if (currentNode().d_type == e_NODE_TYPE_END_ELEMENT &&
-            level == d_activeNodesCount) {
-            return 0;                                                 // RETURN
+        if (currentNode().d_type == e_NODE_TYPE_END_ELEMENT
+         && currentNode().d_qualifiedName == name) {
+            if (level == d_activeNodesCount) {
+                return 0;                                             // RETURN
+            }
+            --level;
+        }
+        else if (currentNode().d_type == e_NODE_TYPE_ELEMENT
+              && currentNode().d_qualifiedName == name) {
+            ++level;
         }
     }
 }
@@ -912,9 +921,8 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                         return e_STRINGTYPE_NONE;                     // RETURN
                     }
                 }
-                if (d_endPtr - d_scanPtr > 2
-                    && '-' == d_scanPtr[0]
-                    && '-' == d_scanPtr[1]) {
+                if ('-' == d_scanPtr[0]
+                 && '-' == d_scanPtr[1]) {
                     d_scanPtr += 2;
                     return e_STRINGTYPE_COMMENT;                      // RETURN
                 }
@@ -925,14 +933,13 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                         return e_STRINGTYPE_NONE;                     // RETURN
                     }
                 }
-                if (d_endPtr - d_scanPtr > 7
-                         && '[' == d_scanPtr[0]
-                         && 'C' == d_scanPtr[1]
-                         && 'D' == d_scanPtr[2]
-                         && 'A' == d_scanPtr[3]
-                         && 'T' == d_scanPtr[4]
-                         && 'A' == d_scanPtr[5]
-                         && '[' == d_scanPtr[6]) {
+                if ('[' == d_scanPtr[0]
+                 && 'C' == d_scanPtr[1]
+                 && 'D' == d_scanPtr[2]
+                 && 'A' == d_scanPtr[3]
+                 && 'T' == d_scanPtr[4]
+                 && 'A' == d_scanPtr[5]
+                 && '[' == d_scanPtr[6]) {
                     d_scanPtr += 7;
                     return e_STRINGTYPE_CDATA;                        // RETURN
                 }
@@ -1006,9 +1013,9 @@ MiniReader::searchElementName(const bsl::string& name)
 
 int MiniReader::advanceToEndNodeRaw()
 {
-    if (d_state == ST_EOF   ||    // Is the reader operational?
-        d_state == ST_ERROR ||
-        d_state == ST_CLOSED) {
+    if (d_state == ST_EOF         // Is the reader operational?
+     || d_state == ST_ERROR
+     || d_state == ST_CLOSED) {
         return -1;                                                    // RETURN
     }
 
@@ -1029,18 +1036,14 @@ int MiniReader::advanceToEndNodeRaw()
             if (scanForString("-->") == 0) { // not found
                 return setParseError("Unclosed comment.", 0, 0);      // RETURN
             }
-            getCharAndSet(0);   // consume '-'
-            getChar();          // consume '-'
-            getChar();          // consume '>'
+            d_scanPtr += 3;   // consume "-->"
           } break;
 
           case e_STRINGTYPE_CDATA: {
             if (scanForString("]]>") == 0) { // not found
                 return setParseError("Unclosed CDATA.", 0, 0);        // RETURN
             }
-            getCharAndSet(0);   // consume ']'
-            getChar();          // consume ']'
-            getChar();          // consume '>'
+            d_scanPtr += 3;   // consume "]]>"
           } break;
 
           case e_STRINGTYPE_END_ELEMENT: {
@@ -1059,6 +1062,7 @@ int MiniReader::advanceToEndNodeRaw()
 
           case e_STRINGTYPE_START_ELEMENT: {
             ++level;
+            d_scanPtr += strlen(node.d_qualifiedName);
           } break;
 
           case e_STRINGTYPE_NONE:
@@ -1070,9 +1074,9 @@ int MiniReader::advanceToEndNodeRaw()
 
 int MiniReader::advanceToEndNodeRawBare()
 {
-    if (d_state == ST_EOF   ||    // Is the reader operational?
-        d_state == ST_ERROR ||
-        d_state == ST_CLOSED) {
+    if (d_state == ST_EOF         // Is the reader operational?
+     || d_state == ST_ERROR
+     || d_state == ST_CLOSED) {
         return -1;                                                    // RETURN
     }
 
@@ -1104,6 +1108,7 @@ int MiniReader::advanceToEndNodeRawBare()
 
           case e_STRINGTYPE_START_ELEMENT: {
             ++level;
+            d_scanPtr += strlen(node.d_qualifiedName);
           } break;
 
           case e_STRINGTYPE_COMMENT: // to silence warning

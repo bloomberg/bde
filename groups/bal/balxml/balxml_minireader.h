@@ -333,7 +333,7 @@ class MiniReader :  public Reader {
         k_MAX_BUFSIZE     = 1024 * 128,  // MAX - 128 KB
         k_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
         k_DEFAULT_DEPTH   = 20           // Average expected deep
-    };                                        // to minimize allocations
+    };                                   // to minimize allocations
 
     typedef ElementAttribute Attribute;
     typedef bsl::vector<Attribute> AttributeVector;

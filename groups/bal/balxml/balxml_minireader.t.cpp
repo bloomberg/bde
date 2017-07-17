@@ -901,8 +901,8 @@ int main(int argc, char *argv[])
             reader.close();
         }
 
-        if (veryVerbose) bsl::cout << "\nSkip Element1 (with comment)."
-                                      "\n- - - - - - - - - - - - - - -"
+        if (veryVerbose) bsl::cout << "\nSkip Element1."
+                                      "\n - - - - - - -"
                                    << bsl::endl;
         {
             int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
