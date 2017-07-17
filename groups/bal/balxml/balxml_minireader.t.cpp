@@ -722,6 +722,14 @@ void readHeader(Obj& reader)
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
     ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 }
+
+void advanceN(Obj& reader, bsl::size_t n)
+{
+    while (n--) {
+        advancePastWhiteSpace(reader);
+    }
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -834,52 +842,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+            advanceN(reader, 10);  // XML declaration --> <Element3>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
@@ -911,28 +874,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+            advanceN(reader, 4);  // XML declaration --> <Element1>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
@@ -940,36 +882,7 @@ int main(int argc, char *argv[])
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
+            advanceN(reader, 8);
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
@@ -987,24 +900,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
@@ -1030,20 +926,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
@@ -1071,20 +954,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
@@ -1121,24 +992,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
             // Wrong end-element name, going into error state:
 
@@ -1167,24 +1022,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0); //<<
 
@@ -1219,20 +1058,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -1271,20 +1098,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -1318,20 +1133,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -1359,20 +1162,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -1446,61 +1237,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                         " The first element has a comment "));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+            advanceN(reader, 12);  // XML declaration --> <Element3>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -1535,33 +1272,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+            advanceN(reader, 5);  // XML declaration --> <Element1>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -1569,40 +1280,7 @@ int main(int argc, char *argv[])
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
+            advanceN(reader, 9); // <Element2> --> </xs:schema>
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
@@ -1620,29 +1298,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 4);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -1668,25 +1324,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 3);  // XML declaration --> <xs:schema>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -1714,20 +1352,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -1764,24 +1390,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
             // Wrong end-element name, going into error state:
 
@@ -1810,24 +1420,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -1854,20 +1448,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node fails, cannot find the end of the comment:
 
@@ -1896,20 +1478,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node fails, cannot find the end of the CDATA:
 
@@ -1947,20 +1517,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -1999,20 +1557,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2050,20 +1596,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2101,20 +1635,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2148,20 +1670,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2189,20 +1699,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2232,20 +1730,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2275,20 +1761,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             // Skip to end node
 
@@ -2355,61 +1829,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element1"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                         " The first element has a comment "));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+            advanceN(reader, 12);  // XML declaration --> <Element3>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
 
@@ -2444,33 +1864,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
+            advanceN(reader, 5);  // XML declaration --> <Element1>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
 
@@ -2478,40 +1872,7 @@ int main(int argc, char *argv[])
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Element1"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element2"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element2"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "element3"));
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
-            ASSERT(!bsl::strcmp(reader.nodeValue(), "&lt;123&#240;&gt;"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() ==
-                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            rc = advancePastWhiteSpace(reader);
+            advanceN(reader, 9);  // </Element1> --> <xs:schema>
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
@@ -2529,29 +1890,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 4);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
 
@@ -2577,25 +1916,7 @@ int main(int argc, char *argv[])
             ASSERT( reader.isOpen());
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_COMMENT);
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                        " RCSId_bascfg_xsd = \"$Id: $\" "));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 3);  // XML declaration --> <xs:schema>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
 
@@ -2623,20 +1944,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 2);  // XML declaration --> <xs:schema>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
 
@@ -2673,24 +1982,8 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
-
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
             // Wrong end-element name, going into error state:
 
@@ -2719,26 +2012,10 @@ int main(int argc, char *argv[])
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
-            rc = advancePastWhiteSpace(reader);
-            // TBD: Mini Reader needs to be fixed to pass back the correct
-            // encoding.
-            //ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
-            ASSERT( reader.nodeType() ==
-                    balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
-            ASSERT( reader.nodeHasValue());
-            ASSERT(!bsl::strcmp(reader.nodeValue(),
-                                            "version='1.0' encoding='UTF-8'"));
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
-            rc = advancePastWhiteSpace(reader);
-            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
-
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);  // SKIP
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
 
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
             ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
