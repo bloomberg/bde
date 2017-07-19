@@ -79,6 +79,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimal.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
+#include <bdldfp_decimalimputil_decnumber.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
 #endif
