@@ -577,8 +577,8 @@ int main(int argc, char *argv[])
         ASSERT(unordered.size() == 3);
 
         LOOP_ASSERT(unordered[0], unordered[0] == 3);
-        LOOP_ASSERT(unordered[1], unordered[1] == 1);
-        LOOP_ASSERT(unordered[2], unordered[2] == 2);
+        LOOP_ASSERT(unordered[1], unordered[1] == 2);
+        LOOP_ASSERT(unordered[2], unordered[2] == 1);
 
       } break;
       case 5: {
@@ -628,8 +628,8 @@ int main(int argc, char *argv[])
         ASSERT(unordered.size() == 3);
 
         LOOP_ASSERT(unordered[0], unordered[0] == 3);
-        LOOP_ASSERT(unordered[1], unordered[1] == 1);
-        LOOP_ASSERT(unordered[2], unordered[2] == 2);
+        LOOP_ASSERT(unordered[1], unordered[1] == 2);
+        LOOP_ASSERT(unordered[2], unordered[2] == 1);
 
       } break;
       case 4: {

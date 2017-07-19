@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // of 'bsl::pair's, and the outputs are 'bsl::vector's.  The templated variant
 // is highly customizable (templated) on both the input and the outputs.  The
 // input may be any input iterator range that has a 'bsl::pair' 'value_type' or
-// a 'value_type' with a 'TopologicalSortUtilEdgeTraits' specialization. The
+// a 'value_type' with a 'TopologicalSortUtilEdgeTraits' specialization.  The
 // 'value_type' is determined using 'bsl::iterator::traits'.  The two outputs
 // are both defined as templated output iterators and they may have different
 // types.  So (for example) the iterator based 'sort' may be used with Null
@@ -57,16 +57,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Self-referencing Nodes
 ///----------------------
-// Some designs may indicate graph nodes without connections as
-// self-referencing entries, i.e. we have pairs of input like (u,u).  The
-// implementation of 'sort' in this component treats such inputs entries as
-// cycles and fails sorting.
+// Some graph representations may use self-referencing nodes to indicate nodes
+// without any connection -- where a self referencing node in the context of
+// this component is a input edge pair like (u, u).  The implementation of
+// 'sort' in this component treats such input entries as cycles and fails
+// sorting.
 //
 // You may still use this 'sort' implementation (to process your nodes in
-// proper order) if your data structure contains such entries by first
-// processing the self-referencing only (they have no dependencies) then
-// calling the iterator-based sort and using a filtering iterator (that filters
-// out self-referencing nodes) as the input iterator.
+// proper order) if your data structure contains such entries.  To process a
+// graph having self-referencing nodes one may create a filtering iterator on
+// top of the input that removes any self-referential edges from the input.
+// Any filtered nodes could be treated as being sorted first.
 //
 ///Concepts
 ///--------
@@ -76,7 +77,9 @@ BSLS_IDENT("$Id: $")
 //
 ///'NODE_TYPE' Concept
 ///- - - - - - - - - -
-// Also called 'NodeType' in 'TopologicalSortUtilEdgeTraits'.
+// The input for a topological sort is supplied as pairs (though not
+// necessarily 'bsl::pair's) of 'NODE_TYPE' values.  'NODE_TYPE' is aliased to
+// 'NodeType' in 'TopologicalSortUtilEdgeTraits'.
 //
 // 'NODE_TYPE' shall be a value type that supports hashing using the
 // 'bsl::hash<NODE_TYPE>' functor type and equality comparison using the
@@ -88,13 +91,15 @@ BSLS_IDENT("$Id: $")
 //
 ///'EdgeType' Concept
 /// - - - - - - - - -
-// The 'EdgeType' concept represents the elements of the input to the 'sort'
-// methods.  It is the 'value_type' (accessed via 'bsl::iterator_traits' of the
-// 'INPUT_ITER'.  Conceptually it represents a pair (U,V) (where U and V are
-// 'NodeType's) that means "U precedes V".  In order to support any custom edge
-// type we are providing a customization point (traits type) called
-// 'TopologicalSortUtilEdgeTraits'.  Determining of the 'NodeType' and access
-// operations on 'EdgeType' objects are all done via the traits.
+// The 'EdgeType' describes an edge as a (conceptual) pair of 'NODE_TYPE'
+// values and is supplied as the input to the topological sort methods.
+// 'EdgeType' is the 'value_type' of the 'INPUT_ITER' supplied to the 'sort'
+// functions.  Conceptually it represents a pair (U,V) (where U and V are
+// 'NodeType's) that means "U precedes V".  The 'EdgeType' supplied to a sort
+// is typically a 'bsl::pair', but users may customize this by specializing the
+// 'TopologicalSortUtilEdgeTraits' type.  'TopologicalSortUtil' determines the
+// 'NodeType' and access operations on 'EdgeType' via the
+// 'TopologicalSortUtilEdgeTraits' type.
 //
 // 'TopologicalSortUtilEdgeTraits' is specialized for 'bsl::pair<T,T>', the
 // user needs to (partially or fully) specialize it for other types.  See the
@@ -102,18 +107,22 @@ BSLS_IDENT("$Id: $")
 //
 ///'INPUT_ITER' Concept
 /// - - - - - - - - - -
-// It's an input iterator with the 'value_type' (determined via
-// 'bsl::iterator_traits') of 'EdgeType'.
+// 'INPUT_ITER' is an input iterator type used by the 'sort' functions, and its
+// 'value_type' is 'EdgeType' .
 //
 ///'OUTPUT_ITER' Concept
 ///- - - - - - - - - - -
-// It's an output iterator with the 'value_type' (determined via
-// 'bsl::iterator_traits') of 'NodeType'.
+// 'OUTPUT_ITER' is an output iterator for 'sort' functions, and its
+// 'value_type' is 'NodeType'.
 //
 ///'UNORDERED_ITER' Concept
 /// - - - - - - - - - - - -
-// It's an output iterator with the 'value_type' (determined via
-// 'bsl::iterator_traits') of 'NodeType'.
+//
+// 'UNORDERED_ITER' is a (second) output iterator for 'sort' functions, and its
+// 'value_type' is 'NodeType'.  Note that 'OUTPUT_ITERATOR' and
+// 'UNORDERED_ITER' are distinct types allowing the sorted output nodes to be
+// collected in a different way from the unsorted output nodes(e.g., into a
+// different type of container).
 //
 ///USAGE:
 ///-----
@@ -409,10 +418,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
-#include <bslma_managedptr.h>
-#endif
-
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
@@ -516,17 +521,15 @@ class TopologicalSortUtil_Helper {
     struct NodeInfo {
         // PUBLIC DATA
         int                   d_predecessorCount;
-        bsl::vector<NodeType> d_successors;      // successors list
+        bsl::vector<NodeType> d_successors;        // successors list
 
         // CREATORS
-        explicit NodeInfo();
+        NodeInfo();
             // Create a 'NodeInfo' which holds the predecessor and successor
-            // information of an input element.  Optionally, specify an
-            // 'allocator' for needed memory.  If 'allocator' is 0, use the
-            // globally supply default allocator instead.
+            // information of an input element.
     };
 
-    typedef bsl::unordered_map<NodeType, NodeInfo *> SetInfo;
+    typedef bsl::unordered_map<NodeType, NodeInfo> SetInfo;
 
     // DATA
     SetInfo              d_setInfo;      // additional data structure needed
@@ -546,9 +549,6 @@ class TopologicalSortUtil_Helper {
         // Create a helper class that holds the different data structures
         // required to sort in topological order the directed acyclic graph
         // described by the specified 'relationsBegin' and 'relationsEnd'.
-
-    ~TopologicalSortUtil_Helper();
-        // Destroy this object.
 
     // MANIPULATORS
     template <class RESULT_ITER>
@@ -707,40 +707,10 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
     // pairs
 
     for (INPUT_ITER iter = relationsBegin; iter != relationsEnd; ++iter) {
-        typename SetInfo::iterator pIter =
-                                    d_setInfo.find(EdgeTraits::from(*iter));
-        if (pIter == d_setInfo.end()) {
-            // Create new node info and add it to set info.
-
-            bslma::ManagedPtr<NodeInfo>                 nodeInfo(new NodeInfo);
-            bsl::pair<typename SetInfo::iterator, bool> result =
-                d_setInfo.insert(bsl::make_pair(EdgeTraits::from(*iter),
-                                                nodeInfo.get()));
-            nodeInfo.release();
-            pIter = result.first;
-        }
-
-        typename SetInfo::iterator sIter =
-                                      d_setInfo.find(EdgeTraits::to(*iter));
-        if (sIter == d_setInfo.end()) {
-           // Create new node info and add it to set info.
-
-            bslma::ManagedPtr<NodeInfo>                 nodeInfo(new NodeInfo);
-            bsl::pair<typename SetInfo::iterator, bool> result =
-                d_setInfo.insert(bsl::make_pair(EdgeTraits::to(*iter),
-                                                nodeInfo.get()));
-            nodeInfo.release();
-            sIter = result.first;
-        }
-
-        // add predecessor count for each successor of the pair being iterated
-        // currently
-
-        ++sIter->second->d_predecessorCount;
-
-        // add the successor to the list
-
-        pIter->second->d_successors.push_back(sIter->first);
+        const NodeType& from = EdgeTraits::from(*iter);
+        const NodeType& to = EdgeTraits::to(*iter);
+        ++d_setInfo[to].d_predecessorCount;
+        d_setInfo[from].d_successors.push_back(to);
     }
 
     // Now iterate through the set and find nodes that are independent i.e.
@@ -750,21 +720,9 @@ TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
 
     typename SetInfo::const_iterator setIter = d_setInfo.begin();
     for (; setIter != d_setInfo.end(); ++setIter ) {
-        if (0 == setIter->second->d_predecessorCount) {
+        if (0 == setIter->second.d_predecessorCount) {
             d_orderedNodes.push(setIter->first);
         }
-    }
-}
-
-template <class INPUT_ITER>
-TopologicalSortUtil_Helper<INPUT_ITER>::~TopologicalSortUtil_Helper()
-{
-    // Iterate through the set and delete any elements that have not been
-    // processed.
-
-    typename SetInfo::const_iterator iter = d_setInfo.begin();
-    for (; iter != d_setInfo.end(); ++iter) {
-        delete iter->second;
     }
 }
 
@@ -784,34 +742,33 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNext(RESULT_ITER result)
         // predecessor count of each successor.  Further if this count becomes
         // zero add it 'd_orderedNodes'.
 
-        NodeInfo                                  *processedNodeInfo =
+        const NodeInfo&                           processedNodeInfo =
                                                          processedNode->second;
-        typename bsl::vector<NodeType>::iterator  sListIter =
-                                     (processedNodeInfo->d_successors).begin();
-        typename bsl::vector<NodeType>::iterator  endIter =
-                                      (processedNodeInfo->d_successors).end();
+        typename bsl::vector<NodeType>::const_iterator  sListIter =
+                                      (processedNodeInfo.d_successors).begin();
+        typename bsl::vector<NodeType>::const_iterator  endIter =
+                                        (processedNodeInfo.d_successors).end();
 
         for (; sListIter != endIter; ++sListIter) {
 
-            typename SetInfo::iterator  successor =
+            typename SetInfo::iterator successor =
                                                   d_setInfo.find((*sListIter));
-            NodeType                    sValue = successor->first;
-            NodeInfo                   *sNodeInfo = successor->second;
+            NodeType                   sValue = successor->first;
+            NodeInfo&                  sNodeInfo = successor->second;
 
             // update predecessor count
 
-            --(sNodeInfo->d_predecessorCount);
+            --(sNodeInfo.d_predecessorCount);
 
             // add node to ordered if all predecessors processed
 
-            if ((sNodeInfo->d_predecessorCount) == 0) {
+            if ((sNodeInfo.d_predecessorCount) == 0) {
                 d_orderedNodes.push(sValue);
             }
         }
 
         // remove this node from the set since its already processed
 
-        delete processedNodeInfo;
         d_setInfo.erase(processedNode);
 
         // remove this node from the d_orderedNodes and return
