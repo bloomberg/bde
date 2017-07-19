@@ -16,9 +16,7 @@
 ..
   8. bdldfp_decimalconvertutil
 
-  7. bdldfp_decimalconvertutil_decnumber                              !PRIVATE!
-     bdldfp_decimalconvertutil_inteldfp                               !PRIVATE!
-     bdldfp_decimalutil
+  7. bdldfp_decimalutil
 
   6. bdldfp_decimal
 
@@ -26,32 +24,23 @@
 
   4. bdldfp_decimalimputil_inteldfp                                   !PRIVATE!
 
-  3. bdldfp_binaryintegraldecimalimputil
-     bdldfp_decimalimputil_decnumber                                  !PRIVATE!
+  3. bdldfp_decimalimputil_decnumber                                  !PRIVATE!
 
   2. bdldfp_denselypackeddecimalimputil
      bdldfp_intelimpwrapper
 
-  1. bdldfp_decimalplatform
+  1. bdldfp_decimalstorage
+     bdldfp_decimalplatform
      bdldfp_uint128
 ..
 
 /Component Synopsis
 /------------------
-: 'bdldfp_binaryintegraldecimalimputil':
-:      Utilities for working with Binary Integral Decimal representation.
-:
 : 'bdldfp_decimal':
 :      Provide IEEE-754 decimal floating-point types.
 :
 : 'bdldfp_decimalconvertutil':
 :      Provide decimal floating-point conversion functions.
-:
-: 'bdldfp_decimalconvertutil_decnumber':                              !PRIVATE!
-:      Provide decimal floating-point conversion functions for decNumber.
-:
-: 'bdldfp_decimalconvertutil_inteldfp':                               !PRIVATE!
-:      Provide decimal floating-point conversion functions for Intel DFP.
 :
 : 'bdldfp_decimalimputil':
 :      Provide a unified low-level interface for decimal floating point.
@@ -64,6 +53,9 @@
 :
 : 'bdldfp_decimalplatform':
 :      Provide decimal floating-point platform information macros.
+:
+: 'bdldfp_decimalstorage':
+:      Provide utilities dealing with Decimal Storage types.
 :
 : 'bdldfp_decimalutil':
 :      Provide utilities dealing with floating point decimal objects.
