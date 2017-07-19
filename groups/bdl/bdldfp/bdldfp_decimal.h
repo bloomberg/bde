@@ -4710,8 +4710,8 @@ STREAM& Decimal_Type64::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            BinaryIntegralDecimalImpUtil::StorageType64 bidVal;
-            stream.getUint64(bidVal.d_raw);
+            DecimalStorage::Type64 bidVal;
+            stream.getUint64(bidVal);
 
             if (stream) {
                 d_value = DecimalImpUtil::convertFromBID(bidVal);
@@ -4756,9 +4756,9 @@ STREAM& Decimal_Type64::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            BinaryIntegralDecimalImpUtil::StorageType64 bidVal =
-                DecimalImpUtil::convertToBID(d_value);
-            stream.putUint64(bidVal.d_raw);
+            DecimalStorage::Type64 bidVal = DecimalImpUtil::convertToBID(
+                                                                      d_value);
+            stream.putUint64(bidVal);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number

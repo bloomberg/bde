@@ -2472,7 +2472,7 @@ void TestDriver::testCase22()
                       << "TESTING CONVERSION FROM BINARY INTEGRAL" << endl
                       << "=======================================" << endl;
 
-    typedef BloombergLP::bdldfp::BinaryIntegralDecimalImpUtil BidUtil;
+    typedef BloombergLP::bdldfp::DecimalStorage DS;
 
     // Test that with any of a set of exponents, we can convert 32-bit
     // values correctly to BID.
@@ -2483,9 +2483,9 @@ void TestDriver::testCase22()
     // implementations.
 
     {
-           Util::  ValueType32 testDecimal;
-        BidUtil::StorageType32 witnessBID;
-           Util::  ValueType32 witness;
+        Util::ValueType32 testDecimal;
+        DS::  Type32      witnessBID;
+        Util::ValueType32 witness;
 
                     // 0e0
 
@@ -2572,9 +2572,9 @@ void TestDriver::testCase22()
     // values correctly to DPD.
 
     {
-           Util::  ValueType64 testDecimal;
-        BidUtil::StorageType64 witnessBID;
-           Util::  ValueType64 witness;
+        Util::ValueType64 testDecimal;
+        DS::  Type64      witnessBID;
+        Util::ValueType64 witness;
 
                     // 0e0
 
@@ -2661,9 +2661,9 @@ void TestDriver::testCase22()
     // values correctly to DPD.
 
     {
-           Util::  ValueType128 testDecimal;
-        BidUtil::StorageType128 witnessBID;
-           Util::  ValueType128 witness;
+        Util::ValueType128 testDecimal;
+        DS::  Type128      witnessBID;
+        Util::ValueType128 witness;
 
                     // 0e0
 
@@ -2783,7 +2783,7 @@ void TestDriver::testCase21()
                       << "TESTING CONVERSION TO BINARY INTEGRAL" << endl
                       << "=====================================" << endl;
 
-    typedef BloombergLP::bdldfp::BinaryIntegralDecimalImpUtil BidUtil;
+    typedef BloombergLP::bdldfp::DecimalStorage DS;
 
     // Test that with any of a set of exponents, we can convert 32-bit
     // values correctly to BID.
@@ -2794,9 +2794,9 @@ void TestDriver::testCase21()
     // implementations.
 
     {
-           Util::  ValueType32 testDecimal;
-        BidUtil::StorageType32 testConvert;
-           Util::  ValueType32 witness;
+        Util::ValueType32 testDecimal;
+        DS::  Type32      testConvert;
+        Util::ValueType32 witness;
 
                     // 0e0
 
@@ -2885,9 +2885,9 @@ void TestDriver::testCase21()
     // values correctly to DPD.
 
     {
-           Util::  ValueType64 testDecimal;
-        BidUtil::StorageType64 testConvert;
-           Util::  ValueType64 witness;
+        Util::ValueType64 testDecimal;
+        DS::  Type64      testConvert;
+        Util::ValueType64 witness;
 
                     // 0e0
 
@@ -2974,9 +2974,9 @@ void TestDriver::testCase21()
     // values correctly to DPD.
 
     {
-           Util::  ValueType128 testDecimal;
-        BidUtil::StorageType128 testConvert;
-           Util::  ValueType128 witness;
+        Util::ValueType128 testDecimal;
+        DS::  Type128      testConvert;
+        Util::ValueType128 witness;
 
                     // 0e0
 

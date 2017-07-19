@@ -1087,7 +1087,7 @@ void TestDriver::testCase6()
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
 
-            bdldfp::BinaryIntegralDecimalImpUtil::StorageType64 bidVal =
+            bdldfp::DecimalStorage::Type64 bidVal =
                 bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
             bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(
                 bidVal.d_raw);

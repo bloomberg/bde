@@ -930,23 +930,17 @@ class DecimalImpUtil {
 
                         // Densely Packed Conversion Functions
 
-    static ValueType32  convertFromDPD(
-                              DenselyPackedDecimalImpUtil::StorageType32  dpd);
-    static ValueType64  convertFromDPD(
-                              DenselyPackedDecimalImpUtil::StorageType64  dpd);
-    static ValueType128 convertFromDPD(
-                              DenselyPackedDecimalImpUtil::StorageType128 dpd);
+    static ValueType32  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32  dpd);
+    static ValueType64  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType64  dpd);
+    static ValueType128 convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128 dpd);
         // Return a 'ValueTypeXX' representing the specified 'dpd', which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
         // compatible with the IBM compiler's native type, and the decNumber
         // library.
 
-    static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(
-                                                           ValueType32  value);
-    static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(
-                                                           ValueType64  value);
-    static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(
-                                                           ValueType128 value);
+    static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(ValueType32  value);
+    static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(ValueType64  value);
+    static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(ValueType128 value);
         // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
         // format is compatible with the IBM compiler's native type, and the
@@ -954,29 +948,22 @@ class DecimalImpUtil {
 
                         // Binary Integral Conversion Functions
 
-    static ValueType32  convertFromBID(
-                             BinaryIntegralDecimalImpUtil::StorageType32  bid);
-    static ValueType64  convertFromBID(
-                             BinaryIntegralDecimalImpUtil::StorageType64  bid);
-    static ValueType128 convertFromBID(
-                             BinaryIntegralDecimalImpUtil::StorageType128 bid);
+    static ValueType32  convertFromBID(DecimalStorage::Type32  bid);
+    static ValueType64  convertFromBID(DecimalStorage::Type64  bid);
+    static ValueType128 convertFromBID(DecimalStorage::Type128 bid);
         // Return a 'ValueTypeXX' representing the specified 'bid', which is
         // currently in Binary Integral Decimal (BID) format.  This format is
         // compatible with the Intel DFP implementation type.
 
     static
-    BinaryIntegralDecimalImpUtil::StorageType32  convertToBID(
-                                                           ValueType32  value);
+    DecimalStorage::Type32  convertToBID(ValueType32  value);
     static
-    BinaryIntegralDecimalImpUtil::StorageType64  convertToBID(
-                                                           ValueType64  value);
+    DecimalStorage::Type64  convertToBID(ValueType64  value);
     static
-    BinaryIntegralDecimalImpUtil::StorageType128 convertToBID(
-                                                           ValueType128 value);
-        // Return a 'BinaryIntegralDecimalImpUtil::StorageTypeXX' representing
-        // the specified 'value' in Binary Integral Decimal (BID) format.  This
-        // format is compatible with the Intel DFP implementation type.
-
+    DecimalStorage::Type128 convertToBID(ValueType128 value);
+        // Return a 'DecimalStorage::TypeXX' representing  the specified
+        // 'value' in Binary Integral Decimal (BID) format.  This format is
+        // compatible with the Intel DFP implementation type.
 
                   // Functions returning special values
 
@@ -1134,22 +1121,19 @@ void DecimalImpUtil::checkLiteral(double)
                     // Integer construction
 
 inline
-DecimalImpUtil::ValueType32
-DecimalImpUtil::int32ToDecimal32(int value)
+DecimalImpUtil::ValueType32 DecimalImpUtil::int32ToDecimal32(int value)
 {
     return Imp::int32ToDecimal32(value);
 }
 
 inline
-DecimalImpUtil::ValueType64
-DecimalImpUtil::int32ToDecimal64(int value)
+DecimalImpUtil::ValueType64 DecimalImpUtil::int32ToDecimal64(int value)
 {
     return Imp::int32ToDecimal64(value);
 }
 
 inline
-DecimalImpUtil::ValueType128
-DecimalImpUtil::int32ToDecimal128(int value)
+DecimalImpUtil::ValueType128 DecimalImpUtil::int32ToDecimal128(int value)
 {
     return Imp::int32ToDecimal128(value);
 }
@@ -1720,24 +1704,21 @@ void DecimalImpUtil::format(DecimalImpUtil::ValueType128 value, char *buffer)
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::convertFromDPD(
-                                DenselyPackedDecimalImpUtil::StorageType32 dpd)
+DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32 dpd)
 {
     return Imp::convertFromDPD(dpd);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::convertFromDPD(
-                                DenselyPackedDecimalImpUtil::StorageType64 dpd)
+DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType64 dpd)
 {
     return Imp::convertFromDPD(dpd);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::convertFromDPD(
-                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
+DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128 dpd)
 {
     return Imp::convertFromDPD(dpd);
 }
@@ -1767,44 +1748,41 @@ DecimalImpUtil::convertToDPD(ValueType128 value)
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::convertFromBID(
-                               BinaryIntegralDecimalImpUtil::StorageType32 bid)
+DecimalImpUtil::convertFromBID(DecimalStorage::Type32 bid)
 {
     return Imp::convertFromBID(bid);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::convertFromBID(
-                               BinaryIntegralDecimalImpUtil::StorageType64 bid)
+DecimalImpUtil::convertFromBID(DecimalStorage::Type64 bid)
 {
     return Imp::convertFromBID(bid);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::convertFromBID(
-                              BinaryIntegralDecimalImpUtil::StorageType128 bid)
+DecimalImpUtil::convertFromBID(DecimalStorage::Type128 bid)
 {
     return Imp::convertFromBID(bid);
 }
 
 inline
-BinaryIntegralDecimalImpUtil::StorageType32
+DecimalStorage::Type32
 DecimalImpUtil::convertToBID(ValueType32 value)
 {
     return Imp::convertToBID(value);
 }
 
 inline
-BinaryIntegralDecimalImpUtil::StorageType64
+DecimalStorage::Type64
 DecimalImpUtil::convertToBID(ValueType64 value)
 {
     return Imp::convertToBID(value);
 }
 
 inline
-BinaryIntegralDecimalImpUtil::StorageType128
+DecimalStorage::Type128
 DecimalImpUtil::convertToBID(ValueType128 value)
 {
     return Imp::convertToBID(value);
