@@ -29,12 +29,77 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-// ============================================================================
+//=============================================================================
 //                                 TEST PLAN
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// ----------------------------------------------------------------------------
+// The component under test is a mechanism for parsing industry standard XML
+// files.
+//
+//-----------------------------------------------------------------------------
+//
+// MANIPULATORS
+// [-1] getColumnNumber()
+//
+// [ ?] nodeNamespaceUri()
+//
+// [ ?] setResolver()
+// [ ?] resolver()
+//
+// [ ?] nodePrefix()
+//
+// [ ?] setOptions()
+// [ ?] options()
+//
+// [ ?] nodeNamespaceId()
+//
+// [ ?] nodeBaseUri())
+//
+// [ ?] nodeLocalName()
+//
+// [ ?] close()
+//
+// [ ?] getCurrentPosition()
+//
+// [ 8] nodeEndPosition()
+// [ 8] nodeStartPosition()
+//
+// [11] numAttributes()
+//
+// [11] isEmptyElement()
+//
+// [12] advanceToEndNode()
+//
+// [13] advanceToEndNodeRaw()
+//
+// [14] advanceToEndNodeRawBare()
+//
+// [15] MiniReader(basicAllocator)
+// [15] MiniReader(bufSize, basicAllocator)
+// [15] ~MiniReader()
+// [15] setPrefixStack(balxml::PrefixStack *prefixes)
+// [15] prefixStack()
+// [15] open()
+// [15] isOpen()
+// [15] documentEncoding()
+// [15] nodeType()
+// [15] nodeName()
+// [15] nodeHasValue()
+// [15] nodeValue()
+// [15] nodeDepth()
+// [15] numAttributes()
+// [15] isEmptyElement()
+// [15] advanceToNextNode()
+// [15] lookupAttribute(ElemAtt a, int index)
+// [15] lookupAttribute(ElemAtt a, char *qname)
+// [15] lookupAttribute(ElemAtt a, char *localname, char *nsUri)
+// [15] lookupAttribute(ElemAtt a, char *localname, int nsId)
+//-----------------------------------------------------------------------------
+// [-1] INTERACTIVE TEST
+// [ 1] BREATHING TEST
+// [15] USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -724,6 +789,7 @@ void readHeader(Obj& reader)
 }
 
 void advanceN(Obj& reader, bsl::size_t n)
+    // Advance the specified 'n' number of nodes in the specified 'reader'.
 {
     while (n--) {
         advancePastWhiteSpace(reader);
@@ -760,24 +826,27 @@ int main(int argc, char *argv[])
         //   Replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //   balxml::MiniReader();  // Constructor
-        //   ~balxml::MiniReader(); // Destructor
-        //   setPrefixStack(balxml::PrefixStack *prefixes);
-        //   prefixStack();
-        //   isOpen();
-        //   documentEncoding();
-        //   nodeType();
-        //   nodeName();
-        //   nodeHasValue());
-        //   nodeValue());
-        //   nodeDepth());
-        //   numAttributes());
-        //   isEmptyElement());
-        //   advanceToNextNode();
-        //   lookupAttribute(ElemAtt a, int index);
-        //   lookupAttribute(ElemAtt a, char *qname);
-        //   lookupAttribute(ElemAtt a, char *localname, char *nsUri);
-        //   lookupAttribute(ElemAtt a, char *localname, int nsId);
+        //   USAGE EXAMPLE
+        //   MiniReader(basicAllocator)
+        //   MiniReader(bufSize, basicAllocator)
+        //   ~MiniReader()
+        //   setPrefixStack(balxml::PrefixStack *prefixes)
+        //   prefixStack()
+        //   open()
+        //   isOpen()
+        //   documentEncoding()
+        //   nodeType()
+        //   nodeName()
+        //   nodeHasValue()
+        //   nodeValue()
+        //   nodeDepth()
+        //   numAttributes()
+        //   isEmptyElement()
+        //   advanceToNextNode()
+        //   lookupAttribute(ElemAtt a, int index)
+        //   lookupAttribute(ElemAtt a, char *qname)
+        //   lookupAttribute(ElemAtt a, char *localname, char *nsUri)
+        //   lookupAttribute(ElemAtt a, char *localname, int nsId)
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
@@ -792,19 +861,35 @@ int main(int argc, char *argv[])
         // ADVANCE TO END NODE RAW BARE TEST
         //
         // Concerns:
-        // 1 'advanceToEndNodeRawBare' function skips all (text, whitespace,
-        //    start element, end element for skipped elements) node types
-        //    (without XML validation) until it finds the end element for
-        //   the element it was called for.
+        //: 1 'advanceToEndNodeRawBare' function skips all (text, whitespace,
+        //:    start element, end element for skipped elements) node types
+        //:    (without XML validation) until it finds the end element for
+        //:   the element it was called for.
+        //:
+        //: 2 Calling 'advanceToEndNodeRawBare' in states 'ST_EOF', 'ST_CLOSE'
+        //:   or 'ST_ERROR' is a no-op and it returns an error.
+        //:
+        //: 3 Calling 'advanceToEndNodeRawBare' on an empty element is a no-op
+        //:   and returns success.
+        //:
+        //: 4 Node names crossing buffer boundaries are found properly.
         //
-        // 2 Calling 'advanceToEndNodeRawBare' in states 'ST_EOF', 'ST_CLOSE'
-        //   or 'ST_ERROR' is a no-op and it returns an error.
-        //
-        // 3 Calling 'advanceToEndNodeRawBare' on an empty element is a no-op
-        //   and returns success.
+        // Plan:
+        //: 1 Create input XML strings and call 'advanceToEndNodeRawBare' in
+        //:   several states of them:
+        //:   1 Verify skipping the deepest element
+        //:   2 Verify skipping mid elements
+        //:   3 Verify skipping outer element
+        //:   4 Verify skipping in EOF and CLOSE state (error)
+        //:   5 Verify skipping in ERROR state (error)
+        //:   6 Verify skipping an empty element '<Node0/>'
+        //:   7 Verify skipping in larger XML, larger than the read buffer
+        //:   8 Verify skipping in ill-formed large XML (error)
+        //:   9 Verify skipping in partial large XML (error)
+        //:  10 Verify skipping nested elements with the same name
         //
         // Testing:
-        //   'advanceToEndNodeRawBare'
+        //   advanceToEndNodeRawBare()
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nADVANCE TO END NODE RAW BARE TEST"
@@ -1143,31 +1228,42 @@ int main(int argc, char *argv[])
             reader.close();
         }
 
-        if (veryVerbose) bsl::cout << "\nTests unended large xml (*8K+)."
-                                      "\n- - - - - - - - - - - - - - - -"
+        if (veryVerbose) bsl::cout << "\nTest elements with the same name."
+                                      "\n- - - - - - - - - - - - - - - - -"
                                    << bsl::endl;
         {
-            bsl::string xmlStr =
+            static const char xmlStr[] =
               "<?xml version='1.0' encoding='UTF-8'?>\n"
               "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
               "    elementFormDefault='qualified'\n"
               "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
               "    bdem:package='bascfg'>\n"
-              "<Node0>\n"
-              "    <Element1>";
+              "    <Node0>"
+              "        <Node0>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
 
-            xmlStr += bsl::string(8 * 1024, 'b');
-
-            int rc = reader.open(xmlStr.data(), xmlStr.size());
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
             ASSERT(-1 < rc);
             ASSERT(reader.isOpen());
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
-            advanceN(reader, 2);  // XML declaration --> <xs:schema>
+            advanceN(reader, 3);  // XML declaration --> <Node0>
 
-            // Skip to end node
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0);
 
-            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == -2);
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP2_ASSERT(rc, reader.errorInfo(),
+                         (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
 
             reader.close();
         }
@@ -1178,25 +1274,41 @@ int main(int argc, char *argv[])
         // ADVANCE TO END NODE RAW TEST
         //
         // Concerns:
-        // 1 'advanceToEndNodeRaw' function skips all (text, CDATA, comment,
-        //   whitespace, start element, end element for skipped elements) node
-        //   types (without XML validation) until it finds the end element for
-        //   the element it was called for.
+        //: 1 'advanceToEndNodeRaw' function skips all (text, CDATA, comment,
+        //:   whitespace, start element, end element for skipped elements) node
+        //:   types (without XML validation) until it finds the end element for
+        //:   the element it was called for.
+        //:
+        //: 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
+        //:   'ST_ERROR' is a no-op and it returns an error.
+        //:
+        //: 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
+        //:   returns success.
+        //:
+        //: 4 Attempt to skip unclosed comments returns an error and leaves the
+        //:   parser in an error state.
+        //:
+        //: 5 Attempt to skip unclosed CDATA section returns an error and
+        //:   leaves the parser in an error state.
+        //:
+        //: 6 Node names crosses buffer boundaries are found properly.
         //
-        // 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
-        //   'ST_ERROR' is a no-op and it returns an error.
-        //
-        // 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
-        //   returns success.
-        //
-        // 4 Attempt to skip unclosed comments returns an error and leaves the
-        //   parser in an error state.
-        //
-        // 5 Attempt to skip unclosed CDATA section returns an error and leaves
-        //   the parser in an error state.
+        // Plan:
+        //: 1 Create input XML strings and call 'advanceToEndNodeRawBare' in
+        //:   several states of them:
+        //:   1 Verify skipping the deepest element
+        //:   2 Verify skipping mid elements
+        //:   3 Verify skipping outer element
+        //:   4 Verify skipping in EOF and CLOSE state (error)
+        //:   5 Verify skipping in ERROR state (error)
+        //:   6 Verify skipping an empty element '<Node0/>'
+        //:   7 Verify skipping in larger XML, larger than the read buffer
+        //:   8 Verify skipping in ill-formed large XML (error)
+        //:   9 Verify skipping in partial large XML (error)
+        //:  10 Verify skipping nested elements with the same name
         //
         // Testing:
-        //   'advanceToEndNodeRaw'
+        //   advanceToEndNodeRaw()
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nADVANCE TO END NODE RAW TEST"
@@ -1770,6 +1882,46 @@ int main(int argc, char *argv[])
 
             reader.close();
         }
+
+        if (veryVerbose) bsl::cout << "\nTest elements with the same name."
+                                      "\n- - - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP2_ASSERT(rc, reader.errorInfo(),
+                         (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
       } break;
 
       case 12: {
@@ -1777,19 +1929,37 @@ int main(int argc, char *argv[])
         // ADVANCE TO END NODE TEST
         //
         // Concerns:
-        // 1 'advanceToEndNode' function skips all (text, CDATA, comment,
-        //   whitespace, start element, end element for skipped elements) node
-        //   types until it finds the end element for the element it was called
-        //   for.
+        //: 1 'advanceToEndNode' function skips all (text, CDATA, comment,
+        //:   whitespace, start element, end element for skipped elements) node
+        //:   types until it finds the end element for the element it was
+        //:   called for.
+        //:
+        //: 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
+        //:   'ST_ERROR' is a no-op and it returns an error.
+        //:
+        //: 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
+        //:   returns success.
+        //:
+        //: 4 Node names crosses buffer boundaries are found properly.
+        //:
+        //: 5 Function returns error for bad XML.
         //
-        // 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
-        //   'ST_ERROR' is a no-op and it returns an error.
-        //
-        // 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
-        //   returns success.
+        // Plan:
+        //: 1 Create input XML strings and call 'advanceToEndNodeRawBare' in
+        //:   several states of them:
+        //:   1 Verify skipping the deepest element
+        //:   2 Verify skipping mid elements
+        //:   3 Verify skipping outer element
+        //:   4 Verify skipping in EOF and CLOSE state (error)
+        //:   5 Verify skipping in ERROR state (error)
+        //:   6 Verify skipping an empty element '<Node0/>'
+        //:   7 Verify skipping in larger XML, larger than the read buffer
+        //:   8 Verify skipping in ill-formed large XML (error)
+        //:   9 Verify skipping in partial large XML (error)
+        //:  10 Verify skipping nested elements with the same name
         //
         // Testing:
-        //   'advanceToEndNode'
+        //   advanceToEndNode()
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nADVANCE TO END NODE TEST"
@@ -2022,6 +2192,44 @@ int main(int argc, char *argv[])
 
             reader.close();
         }
+
+        if (veryVerbose) bsl::cout << "\nTest elements with the same name."
+                                      "\n- - - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
       } break;
 
       case 11: {
@@ -2031,6 +2239,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
+        //   isEmptyElement()
+        //   numAttributes()
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
@@ -2219,6 +2429,8 @@ int main(int argc, char *argv[])
         //   We have to compare table positions with the positions reported
         //   by the reader during parsing.
         //
+        // Testing:
+        //   nodeEndPosition()
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << "\nNODE POSITIONS TEST"
                                << "\n==================="
@@ -2684,7 +2896,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextNode' with bad inputs
+        // TESTING ADVANCETONEXTNODE WITH BAD INPUT
         //
         // Plan:
         //  Create and open a 'balxml::MiniReader' with strings containing
@@ -2695,8 +2907,8 @@ int main(int argc, char *argv[])
         //  int advanceToNextNode();
         //  balxml::ErrorInfo& errorInfo();
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << bsl::endl << "Testing 'bad inputs'"
-                               << bsl::endl << "====================\n"
+        if (verbose) bsl::cout << "\nTESTING ADVANCETONEXTNODE WITH BAD INPUT"
+                               << "\n========================================"
                                << bsl::endl;
 
         if (verbose) bsl::cout << "Testing 'advanceToNextNode'"   << bsl::endl
@@ -3310,7 +3522,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         //--------------------------------------------------------------------
-        // BOOTSTRAP TEST
+        // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
         //   1. The 'balxml::MiniReader's' constructors work properly:
@@ -3337,7 +3549,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "Testing Primary Manipulators" << bsl::endl
+                      << "TESTING PRIMARY MANIPULATORS" << bsl::endl
                       << "============================" << bsl::endl;
 
         if (verbose) bsl::cout << "\nTesting 'balxml::MiniReader(*bA)' ctor"
@@ -3434,8 +3646,7 @@ int main(int argc, char *argv[])
         //   incrementally to discover basic errors in isolation.
         //
         // Testing:
-        //   This test case exercises basic functionality of the
-        //   'balxml::MiniReader' component.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nBREATHING TEST"
@@ -3548,6 +3759,8 @@ int main(int argc, char *argv[])
         // xml schema file.  The program will read the xml schema file and
         // print it out.
         //
+        // Testing:
+        //   getColumnNumber()
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nINTERACTIVE TEST"

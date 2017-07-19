@@ -869,7 +869,7 @@ int MiniReader::advanceToEndNode()
         return 0;                                                     // RETURN
     }
 
-    size_t            level = d_activeNodesCount + 1;
+    size_t            level = 0;
     const bsl::string name = currentNode().d_qualifiedName;
 
     while (1) {
@@ -879,7 +879,7 @@ int MiniReader::advanceToEndNode()
         }
         if (currentNode().d_type == e_NODE_TYPE_END_ELEMENT
          && currentNode().d_qualifiedName == name) {
-            if (level == d_activeNodesCount) {
+            if (0 == level) {
                 return 0;                                             // RETURN
             }
             --level;
@@ -896,7 +896,7 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
 {
     BSLS_ASSERT(!name.empty());
 
-    char strSet[] = { '<', '/', name[0] };
+    char strSet[] = { '\n', '<', '/', name[0] };
 
     while (1) {
         StringType type = e_STRINGTYPE_NONE;
@@ -911,8 +911,15 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
             continue;                                               // CONTINUE
         }
 
-        switch (getChar()) {
+        switch (peekChar()) {
+          case '\n': {
+              ++d_scanPtr;
+              d_linePtr = d_scanPtr;
+              ++d_lineNum;
+          } break;
+
           case '<': {
+            ++d_scanPtr;
             if ('!' == peekChar()) {
                 ++d_scanPtr;
                 while ((d_endPtr - d_scanPtr) < 2) {
@@ -944,14 +951,17 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                     return e_STRINGTYPE_CDATA;                        // RETURN
                 }
             }
+            currentNode().d_startPos = getCurrentPosition() - 1;
           } break;
 
           case '/': {
+            ++d_scanPtr;
             type = e_STRINGTYPE_END_ELEMENT;
+            d_markPtr = d_scanPtr - 1;
           }                                                     // FALL THROUGH
 
           default: {
-            while ((d_endPtr - d_scanPtr) < (int)name.length()) {
+            while ((d_endPtr - d_scanPtr) < static_cast<int>(name.length())) {
                 if (readInput() == 0) {
                     d_scanPtr = d_endPtr;
                     return e_STRINGTYPE_NONE;                         // RETURN
@@ -963,6 +973,9 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                 }
                 return type;                                          // RETURN
             }
+            else if (type != e_STRINGTYPE_END_ELEMENT) {
+                ++d_scanPtr;
+            }
           }
         }
     }
@@ -973,7 +986,7 @@ MiniReader::searchElementName(const bsl::string& name)
 {
     BSLS_ASSERT(!name.empty());
 
-    char strSet[] = { '/', name[0] };
+    char strSet[] = { '\n', '/', name[0] };
 
     while (1) {
         StringType type = e_STRINGTYPE_NONE;
@@ -988,13 +1001,21 @@ MiniReader::searchElementName(const bsl::string& name)
             continue;                                               // CONTINUE
         }
 
-        switch (getChar()) {
+        switch (peekChar()) {
+          case '\n': {
+              ++d_scanPtr;
+              d_linePtr = d_scanPtr;
+              ++d_lineNum;
+          } break;
+
           case '/': {
+            ++d_scanPtr;
             type = e_STRINGTYPE_END_ELEMENT;
+            d_markPtr = d_scanPtr - 1;
           }                                                     // FALL THROUGH
 
           default: {
-            while ((d_endPtr - d_scanPtr) < (int)name.length()) {
+            while ((d_endPtr - d_scanPtr) < static_cast<int>(name.length())) {
                 if (readInput() == 0) {
                     d_scanPtr = d_endPtr;
                     return e_STRINGTYPE_NONE;                         // RETURN
@@ -1005,6 +1026,9 @@ MiniReader::searchElementName(const bsl::string& name)
                     type = e_STRINGTYPE_START_ELEMENT;
                 }
                 return type;                                          // RETURN
+            }
+            else if (type != e_STRINGTYPE_END_ELEMENT) {
+                ++d_scanPtr;
             }
           }
         }
@@ -1049,11 +1073,12 @@ int MiniReader::advanceToEndNodeRaw()
           case e_STRINGTYPE_END_ELEMENT: {
             --level;
             if (0 == level) {
+
                 scanEndElementRaw();
 
                 // Leaving the END node decreases 'd_activeNodesCount' so we
                 // need to increase it and add a name.
-                //
+
                 pushElementName();
 
                 return 0;  // we are done                             // RETURN
@@ -1327,18 +1352,6 @@ MiniReader::skipIfMatch(const char *str)
 }
 
 void
-MiniReader::pushElementName()
-{
-    if (d_activeNodes.size() == d_activeNodesCount) {
-        d_activeNodes.resize(d_activeNodesCount + 2);
-    }
-    Element& elem = d_activeNodes[d_activeNodesCount];
-    elem.first = currentNode().d_qualifiedName;
-    elem.second = static_cast<int>(currentNode().d_namespaceCount);
-    ++d_activeNodesCount;
-}
-
-void
 MiniReader::preAdvance()
 {
     switch (currentNode().d_type) {
@@ -1371,6 +1384,18 @@ MiniReader::preAdvance()
     }
     currentNode().reset();
     d_errorInfo.reset();
+}
+
+void
+MiniReader::pushElementName()
+{
+    if (d_activeNodes.size() == d_activeNodesCount) {
+        d_activeNodes.resize(d_activeNodesCount + 2);
+    }
+    Element& elem = d_activeNodes[d_activeNodesCount];
+    elem.first = currentNode().d_qualifiedName;
+    elem.second = static_cast<int>(currentNode().d_namespaceCount);
+    ++d_activeNodesCount;
 }
 
 int
@@ -1461,7 +1486,7 @@ MiniReader::scanOpenTag()
     // At this moment the current position is set to the character following
     // '<'.
     Node& node = currentNode();
-    node.d_startPos = getCurrentPosition()-1;
+    node.d_startPos = getCurrentPosition() - 1;
 
     int ch = peekChar();
 
@@ -1695,7 +1720,7 @@ MiniReader::scanEndElement()
         return updateElementInfo();                                   // RETURN
     }
 
-    return setParseError("Opening and closing tag mismatch'",
+    return setParseError("Opening and closing tag mismatch",
                          node.d_qualifiedName,
                          0);
 }

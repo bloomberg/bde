@@ -466,20 +466,25 @@ class MiniReader :  public Reader {
     int   checkPrefixes();
 
     void pushElementName();
+        // Push the 'currentNode()'s data onto the 'd_activeNodes' stack.
 
     int   scanNode();
         // Scan the node at the current position.
+    int   updateAttributes();
+    int   updateElementInfo();
+
+    int   addAttribute();
+
+    int   scanAttributes();
+    int   scanEndElementRaw();
+        // Scan an end element without updating the element info.
+
+    int   scanEndElement();
+    int   scanExclaimConstruct();
     int   scanOpenTag();
     int   scanProcessingInstruction();
-    int   scanExclaimConstruct();
-    int   scanText();
     int   scanStartElement();
-    int   scanEndElementRaw();
-    int   scanEndElement();
-    int   scanAttributes();
-    int   addAttribute();
-    int   updateElementInfo();
-    int   updateAttributes();
+    int   scanText();
 
     StringType searchCommentCDataOrElementName(const bsl::string& name);
         // Scan the input for a comment, a CDATA section, the specified element
@@ -659,9 +664,9 @@ class MiniReader :  public Reader {
 
     virtual int advanceToEndNode();
         // Skip all the sub elements of the current node and position the
-        // reader on its corresponding end node. While skipping ensure that the
-        // elements being skipped are well-formed and do not contain any
-        // parsing errors. Return 0 on successful skip, and a negative number
+        // reader on its corresponding end node.  While skipping ensure that
+        // the elements being skipped are well-formed and do not contain any
+        // parsing errors.  Return 0 on successful skip, and a negative number
         // otherwise (error).  The behavior is undefined unless
         // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
         // each call to 'advanceToEndNode' invalidates strings and data
