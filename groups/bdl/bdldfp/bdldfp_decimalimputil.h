@@ -978,8 +978,8 @@ class DecimalImpUtil {
 
     static
     ValueType32 min32() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number 'ValueType32'
-        // can represent (IEEE-754: +1e-95).
+        // Return the smallest positive normalized number 'ValueType32' can
+        // represent (IEEE-754: +1e-95).
 
     static
     ValueType32 max32() BSLS_NOTHROW_SPEC;
@@ -988,8 +988,8 @@ class DecimalImpUtil {
 
     static
     ValueType32 epsilon32() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the 'ValueType32' type.  (IEEE-754: +1e-6)
+        // Return the difference between the least representable value of type
+        // 'ValueType32' greater than 1 and 1 (IEEE-754: +1e-6).
 
     static
     ValueType32 roundError32() BSLS_NOTHROW_SPEC;
@@ -999,8 +999,8 @@ class DecimalImpUtil {
 
     static
     ValueType32 denormMin32() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'ValueType32' type.  (IEEE-754: +0.000001e-95)
+        // Return the smallest positive denormalized value for the
+        // 'ValueType32' type (IEEE-754: +0.000001e-95).
 
     static
     ValueType32 infinity32() BSLS_NOTHROW_SPEC;
@@ -1019,8 +1019,8 @@ class DecimalImpUtil {
 
     static
     ValueType64 min64() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number 'ValueType64'
-        // can represent (IEEE-754: +1e-383).
+        // Return the smallest positive normalized number 'ValueType64' can
+        // represent (IEEE-754: +1e-383).
 
     static
     ValueType64 max64() BSLS_NOTHROW_SPEC;
@@ -1029,8 +1029,8 @@ class DecimalImpUtil {
 
     static
     ValueType64 epsilon64() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the 'ValueType64' type.  (IEEE-754: +1e-15)
+        // Return the difference between the least representable value of type
+        // 'ValueType64' greater than 1 and 1 (IEEE-754: +1e-15).
 
     static
     ValueType64 roundError64() BSLS_NOTHROW_SPEC;
@@ -1040,8 +1040,8 @@ class DecimalImpUtil {
 
     static
     ValueType64 denormMin64() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'ValueType64' type.  (IEEE-754: +0.000000000000001e-383)
+        // Return the smallest positive denormalized value for the
+        // 'ValueType64' type (IEEE-754: +0.000000000000001e-383).
 
     static
     ValueType64 infinity64() BSLS_NOTHROW_SPEC;
@@ -1060,8 +1060,8 @@ class DecimalImpUtil {
 
     static
     ValueType128 min128() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number 'ValueType128'
-        // can represent (IEEE-754: +1e-6143).
+        // Return the smallest positive normalized number 'ValueType128' can
+        // represent (IEEE-754: +1e-6143).
 
     static
     ValueType128 max128() BSLS_NOTHROW_SPEC;
@@ -1070,8 +1070,8 @@ class DecimalImpUtil {
 
     static
     ValueType128 epsilon128() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the 'ValueType128' type.  (IEEE-754: +1e-33)
+        // Return the difference between the least representable value of type
+        // 'ValueType128' greater than 1 and 1 (IEEE-754: +1e-33).
 
     static
     ValueType128 roundError128() BSLS_NOTHROW_SPEC;
@@ -1081,9 +1081,9 @@ class DecimalImpUtil {
 
     static
     ValueType128 denormMin128() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'ValueType128' type.  (IEEE-754:
-        // +0.000000000000000000000000000000001e-6143)
+        // Return the smallest positive denormalized value for the
+        // 'ValueType128' type (IEEE-754:
+        // +0.000000000000000000000000000000001e-6143).
 
     static
     ValueType128 infinity128() BSLS_NOTHROW_SPEC;
