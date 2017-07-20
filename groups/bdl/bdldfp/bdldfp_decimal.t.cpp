@@ -250,6 +250,14 @@ struct NulBuf : bsl::streambuf {
     }
 };
 
+long long int clipValue(long long int value,
+                        long long int min,
+                        long long int max)
+    // Clip the specified 'value' to fit segment between the specified 'min'
+    // and the specified 'max'.
+{
+    return (static_cast<unsigned long long int>(value)%(max - min + 1)) + min;
+}
 
 bdldfp::Decimal32 randomDecimal32()
     // Return randomly generated Decimal32 object having finite value on
@@ -261,23 +269,21 @@ bdldfp::Decimal32 randomDecimal32()
     int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                 reinterpret_cast<unsigned char*>(&significand),
                                 sizeof(int));
-    if (rc) {
-        return bsl::numeric_limits<bdldfp::Decimal32>::infinity();    // RETURN
-    }
+    ASSERTV(rc, 0 == rc);
 
-    while (significand < -9999999 || significand > 9999999) {
-        significand /= 10000;
+    if (significand < -9999999 || significand > 9999999) {
+         significand = static_cast<int>(clipValue( significand,
+                                                  -9999999,
+                                                   9999999));
     }
 
     rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                    reinterpret_cast<unsigned char*>(&exponent),
                                    sizeof(int));
-    if (rc) {
-        return bsl::numeric_limits<bdldfp::Decimal32>::infinity();    // RETURN
-    }
+    ASSERTV(rc, 0 == rc);
 
-    while (exponent < -101 || exponent > 90) {
-        exponent /= 100;
+    if (exponent < -101 || exponent > 90) {
+        exponent = static_cast<int>(clipValue(exponent, -101, 90));
     }
 
     return BDEC::DecimalImpUtil::makeDecimalRaw32(significand, exponent);
@@ -293,24 +299,22 @@ bdldfp::Decimal64 randomDecimal64()
     int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                 reinterpret_cast<unsigned char*>(&significand),
                                 sizeof(long long int));
-    if (rc) {
-        return bsl::numeric_limits<bdldfp::Decimal64>::infinity();    // RETURN
-    }
+    ASSERTV(rc, 0 == rc);
 
-    while (significand < -9999999999999999LL ||
-           significand >  9999999999999999LL) {
-        significand /= 10000000;
+    if (significand < -9999999999999999LL ||
+        significand >  9999999999999999LL) {
+        significand = clipValue( significand,
+                                -9999999999999999LL,
+                                 9999999999999999LL);
     }
 
     rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                    reinterpret_cast<unsigned char*>(&exponent),
                                    sizeof(int));
-    if (rc) {
-        return bsl::numeric_limits<bdldfp::Decimal64>::infinity();    // RETURN
-    }
+    ASSERTV(rc, 0 == rc);
 
-    while (exponent < -398 || exponent > 369) {
-        exponent /= 100;
+    if (exponent < -398 || exponent > 369) {
+        exponent = static_cast<int>(clipValue(exponent, -398, 369));
     }
 
     return BDEC::DecimalImpUtil::makeDecimalRaw64(significand, exponent);
@@ -326,19 +330,15 @@ bdldfp::Decimal128 randomDecimal128()
     int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                 reinterpret_cast<unsigned char*>(&significand),
                                 sizeof(long long int));
-    if (rc) {
-        return bsl::numeric_limits<bdldfp::Decimal128>::infinity();   // RETURN
-    }
+    ASSERTV(rc, 0 == rc);
 
     rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                    reinterpret_cast<unsigned char*>(&exponent),
                                    sizeof(int));
-    if (rc) {
-        return bsl::numeric_limits<bdldfp::Decimal128>::infinity();   // RETURN
-    }
+    ASSERTV(rc, 0 == rc);
 
-    while (exponent < -6176 || exponent > 6111) {
-        exponent /= 100;
+    if (exponent < -6176 || exponent > 6111) {
+        exponent = static_cast<int>(clipValue(exponent, -6176, 6111));
     }
 
     return BDEC::DecimalImpUtil::makeDecimalRaw128(significand, exponent);
@@ -1423,7 +1423,7 @@ void TestDriver::testCase4()
 
         {  L_, NAN_Q,      0,     'i', true,          "NAN" },
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int             LINE       = DATA[ti].d_line;
