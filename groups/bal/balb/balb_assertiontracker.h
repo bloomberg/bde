@@ -421,6 +421,10 @@ class AssertionTracker {
     void setConfigurationCallback(ConfigurationCallback cb);
         // Set the configuration callback function, invoked when an assertion
         // is reported to 'assertionDetected', to the specified 'cb'.
+        // Configuration values supplied by the callback replace those
+        // configured on this object using this object's other manipulators.
+        // The default configured callback retains this object's configuration
+        // with no changes.
 
     void setMaxAssertions(int value);
         // Set the maximum number of assertions that this object will handle to
@@ -464,8 +468,8 @@ class AssertionTracker {
 
     void setReportingSeverity(bsls::LogSeverity::Enum value);
         // Set the severity level at which assertions will be reported to the
-        // specified 'value'.  See 'bsls_logseverity.h' for details.  When
-        // this object reports assertions using
+        // specified 'value'.  See 'bsls_logseverity' for details.  When this
+        // object reports assertions using
         // 'bsls::Log::platformDefaultMessageHandler', the severity level is
         // passed to that function.  The severity level is also encoded as a
         // string into the formatted message prepared by 'reportAssertion'.
@@ -500,9 +504,9 @@ class AssertionTracker {
     ReportingFrequency reportingFrequency() const;
         // Return the frequency with which assertions are reported.  The
         // possible values are
-        //: e_onNewLocation (0)   - report first time for each location
-        //: e_onNewStackTrace (1) - report first time for each stack trace
-        //: e_onEachAssertion (2) - report every assertion occurrence
+        //: o e_onNewLocation (0)   - report first time for each location
+        //: o e_onNewStackTrace (1) - report first time for each stack trace
+        //: o e_onEachAssertion (2) - report every assertion occurrence
 
     bsls::LogSeverity::Enum reportingSeverity() const;
         // Return the severity with which assertions are reported.  See

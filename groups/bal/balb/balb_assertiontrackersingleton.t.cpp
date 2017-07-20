@@ -33,7 +33,7 @@ using namespace bdlf::PlaceHolders;
 // ACCESSORS
 // ----------------------------------------------------------------------------
 // [ 1] void failTracker(const char *, const char *, int);
-// [ 1] TRACKER *singleton(bslma::Allocator * = 0);
+// [ 1] TRACKER *createAndInstallSingleton(bslma::Allocator * = 0);
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
@@ -196,8 +196,8 @@ int main(int argc, char *argv[])
 // already been installed, a null pointer will be returned, and we assert that
 // this does not happen.
 //..
-    AssertionCounter *ac_p =
-        balb::AssertionTrackerSingleton<AssertionCounter>::singleton();
+    AssertionCounter *ac_p = balb::AssertionTrackerSingleton<AssertionCounter>
+        ::createAndInstallSingleton();
     ASSERT(ac_p);
 //..
 // Finally, we will trigger some assertions and verify that we are counting
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void failTracker(const char *, const char *, int);
-        //   TRACKER *singleton(bslma::Allocator * = 0);
+        //   TRACKER *createAndInstallSingleton(bslma::Allocator * = 0);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
                     "==============\n";
         {
             bsl::ostringstream      os;
-            balb::AssertionTracker *at_p = Obj::singleton();
+            balb::AssertionTracker *at_p = Obj::createAndInstallSingleton();
 
             ASSERT(at_p);
             at_p->setReportingCallback(

@@ -81,8 +81,8 @@
 // already been installed, a null pointer will be returned, and we assert that
 // this does not happen.
 //..
-//  AssertionCounter *ac_p =
-//      balb::AssertionTrackerSingleton<AssertionCounter>::singleton();
+//  AssertionCounter *ac_p = balb::AssertionTrackerSingleton<AssertionCounter>
+//      ::createAndInstallSingleton();
 //  assert(ac_p);
 //..
 // Finally, we will trigger some assertions and verify that we are counting
@@ -121,6 +121,10 @@
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 namespace balb {
 
@@ -140,7 +144,7 @@ typedef void (*AssertionTrackerSingleton_BregCallback)(int *, int *, int *);
     // this declaration.)
 }
 
-template <class TRACKER>
+template <class TRACKER = AssertionTracker>
 class AssertionTrackerSingleton {
     // This class template implements the management of a 'TRACKER' singleton
     // object that is used to monitor and report assertion failures.  Note that
@@ -150,7 +154,8 @@ class AssertionTrackerSingleton {
     // monitor prevents programs from dying on triggered assertions while data
     // about them is being gathered.
     //
-    // The requirements on the 'TRACKER" class are
+    // For most purposes, 'TRACKER' should be 'balb::AssertionTracker'.  The
+    // requirements on the 'TRACKER" class are
     //: 1 The 'TRACKER' type must have a member type named
     //:   'ConfigurationCallback'.
     //:
@@ -159,9 +164,13 @@ class AssertionTrackerSingleton {
     //:   of type 'TRACKER::ConfigurationCallback', and the third of type
     //:   'bslma::Allocator*'.
     //:
-    //: 2 A 'TRACKER' object has an 'assertionDetected' function taking three
+    //: 3 A 'TRACKER' object has an 'assertionDetected' function taking three
     //:   arguments, the first two of type 'const char *' and the third of type
     //:   'int'.
+  private:
+    // PRIVATE CLASS DATA
+    static bsls::AtomicPointer<TRACKER> s_singleton_p;  // 'TRACKER' singleton
+
   public:
     // PUBLIC TYPES
     typedef AssertionTrackerSingleton_BregCallback BregCallback;
@@ -177,43 +186,64 @@ class AssertionTrackerSingleton {
         // the specified 'callback' to the five integer parameters used by
         // 'balb::AssertionTracker'.
 
+    static TRACKER *createAndInstallSingleton(
+                    ConfigurationCallback  configure = ConfigurationCallback(),
+                    bslma::Allocator      *basicAllocator = 0);
+        // Install 'failTracker' as the assertion-handler function for
+        // 'bsls::Assert', create the 'TRACKER' singleton object that will be
+        // used to track assertion failures, and return a pointer to the
+        // singleton object.  If 'failTracker' could not be installed, do not
+        // create the singleton object and return a null pointer instead.
+        // Optionally specify a 'basicAllocator' used to supply memory.  The
+        // previously installed assertion-handler handler, the optionally
+        // specified 'configure' callback, and 'basicAallocator' are supplied
+        // to the constructor of the singleton.
+
+    static TRACKER *
+    createAndInstallSingleton(BregCallback      callback,
+                              bslma::Allocator *basicAllocator = 0);
+        // Install 'failTracker' as the assertion-handler function for
+        // 'bsls::Assert', create the 'TRACKER' singleton object that will be
+        // used to track assertion failures, and return a pointer to the
+        // singleton object.  If 'failTracker' could not be installed, do not
+        // create the singleton object and return a null pointer instead.  The
+        // created singleton will have a configuration callback that adapts the
+        // specified 'callback' to the form required by
+        // 'balb::AssertionTracker'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  The previously installed failure handler,
+        // the adapted 'callback', and 'basicAallocator' are supplied to the
+        // constructor of the singleton.
+
     static void failTracker(const char *text, const char *file, int line);
         // Forward the specified 'text', 'file', and 'line' corresponding to a
         // failed assertion to the singleton object managed by this class via
         // function-call operator.  The behavior is undefined unless the
-        // lifetime of the pointers 'text' and 'file' exceeds that of the
-        // singleton.  (In normal usage those pointers will be string literals,
-        // trivially satisfying this.)  This function is intended to be
-        // installed as the assertion-handler function for 'bsls::Assert'.
-        // Note that unlike proper handlers, this handler returns to its caller
-        // and may trigger warnings on such behavior within 'bsls::Assert'.
+        // singleton has been created and installed (via one of the
+        // 'createAndInstallSingleton' methods) and unless the lifetime of the
+        // pointers 'text' and 'file' exceeds that of the singleton.  (In
+        // normal usage those pointers will be string literals, trivially
+        // satisfying this.)  This function is intended to be installed as the
+        // assertion-handler function for 'bsls::Assert'.  Note that unlike
+        // proper handlers, this handler returns to its caller and may trigger
+        // warnings on such behavior within 'bsls::Assert'.
 
-    static TRACKER *
-    singleton(ConfigurationCallback  configure      = ConfigurationCallback(),
-              bslma::Allocator      *basicAllocator = 0);
+    static TRACKER *singleton();
         // Return a pointer to the 'TRACKER' singleton object that will be used
-        // to track assertion failures.  When the singleton is created,
-        // 'failTracker' will be installed as the assertion-handler function
-        // for 'bsls::Assert'.  If 'failTracker' could not be installed, return
-        // a null pointer instead.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  The currently installed failure handler, the
-        // optionally specified 'configure' callback, and 'basicAallocator' are
-        // supplied to the constructor of the singleton.
-
-    static TRACKER *singleton(BregCallback      callback,
-                              bslma::Allocator *basicAllocator = 0);
-        // Return a pointer to the 'TRACKER' singleton object that will be used
-        // to track assertion failures.  The created singleton will have a
-        // configuration callback that adapts the specified 'callback' to the
-        // form required by 'balb::AssertionTracker'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  The currently installed
-        // failure handler, the adapted 'callback', and 'basicAallocator' are
-        // supplied to the constructor of the singleton.
+        // to track assertion failures if the singleton object has been
+        // created, and a null pointer otherwise.
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
                         // -------------------------------
                         // class AssertionTrackerSingleton
                         // -------------------------------
+
+// CLASS DATA
+template <class TRACKER>
+bsls::AtomicPointer<TRACKER> AssertionTrackerSingleton<TRACKER>::s_singleton_p;
 
 // CLASS METHODS
 template <class TRACKER>
@@ -237,6 +267,37 @@ void AssertionTrackerSingleton<TRACKER>::bregCallbackAdapter(
 }
 
 template <class TRACKER>
+TRACKER *AssertionTrackerSingleton<TRACKER>::createAndInstallSingleton(
+                                         ConfigurationCallback  configure,
+                                         bslma::Allocator      *basicAllocator)
+{
+    BSLMT_ONCE_DO
+    {
+        bsls::Assert::Handler fallbackHandler = bsls::Assert::failureHandler();
+        bsls::Assert::setFailureHandler(&failTracker);
+        if (bsls::Assert::failureHandler() == &failTracker) {
+            static TRACKER theSingleton(
+                                   fallbackHandler, configure, basicAllocator);
+            s_singleton_p = &theSingleton;
+        }
+    }
+
+    return s_singleton_p;
+}
+
+template <class TRACKER>
+TRACKER *AssertionTrackerSingleton<TRACKER>::createAndInstallSingleton(
+                                              BregCallback      callback,
+                                              bslma::Allocator *basicAllocator)
+{
+    using namespace bdlf::PlaceHolders;
+    return createAndInstallSingleton(
+        bdlf::BindUtil::bind(
+            bregCallbackAdapter, callback, _1, _2, _3, _4, _5),
+        basicAllocator);
+}
+
+template <class TRACKER>
 void AssertionTrackerSingleton<TRACKER>::failTracker(const char *text,
                                                      const char *file,
                                                      int         line)
@@ -245,35 +306,9 @@ void AssertionTrackerSingleton<TRACKER>::failTracker(const char *text,
 }
 
 template <class TRACKER>
-TRACKER *AssertionTrackerSingleton<TRACKER>::singleton(
-                                         ConfigurationCallback  configure,
-                                         bslma::Allocator      *basicAllocator)
+TRACKER *AssertionTrackerSingleton<TRACKER>::singleton()
 {
-    static TRACKER *theSingleton_p;
-
-    BSLMT_ONCE_DO
-    {
-        bsls::Assert::Handler fallbackHandler = bsls::Assert::failureHandler();
-        bsls::Assert::setFailureHandler(&failTracker);
-        if (bsls::Assert::failureHandler() == &failTracker) {
-            static TRACKER theSingleton(
-                                   fallbackHandler, configure, basicAllocator);
-            theSingleton_p = &theSingleton;
-        }
-    }
-
-    return theSingleton_p;
-}
-
-template <class TRACKER>
-TRACKER *
-AssertionTrackerSingleton<TRACKER>::singleton(BregCallback      callback,
-                                              bslma::Allocator *basicAllocator)
-{
-    using namespace bdlf::PlaceHolders;
-    return singleton(bdlf::BindUtil::bind(
-                         bregCallbackAdapter, callback, _1, _2, _3, _4, _5),
-                     basicAllocator);
+    return s_singleton_p;
 }
 
 }  // close package namespace
