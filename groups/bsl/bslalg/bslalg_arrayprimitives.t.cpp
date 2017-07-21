@@ -968,6 +968,15 @@ struct AmbiguousConvertibleType {
         ++numCopyCtorCalls;
     }
 
+    // MANIPULATORS
+    AmbiguousConvertibleType& operator=(const AmbiguousConvertibleType& rhs)
+    {
+        ++numAssignmentCalls;
+        d_f = rhs.d_f;
+        return *this;
+    }
+
+    // ACCESSORS
     operator FuncPtrType() const
     {
         return d_f;
@@ -1017,12 +1026,21 @@ struct FnPtrConvertibleType {
         ++numCopyCtorCalls;
     }
 
+    // MANIPULATORS
+    FnPtrConvertibleType& operator=(const FnPtrConvertibleType& rhs)
+    {
+        ++numAssignmentCalls;
+        d_f = rhs.d_f;
+        return *this;
+    }
+
     FnPtrConvertibleType& operator=(FuncPtrType rhs)
     {
         d_f = rhs;
         return *this;
     }
 
+    // ACCESSORS
     operator FuncPtrType() const
     {
         return d_f;
@@ -1936,14 +1954,20 @@ template <class TYPE>
 void testEmplaceDefaultValue(bool bitwiseMoveableFlag,
                              bool bitwiseCopyableFlag,
                              bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_9DV' elements of
-    // the 'DATA_9DV' array, that inserting a new entry at the 'd_dst' index
-    // while shifting the entries between 'd_dst' until the 'd_end' indices in
-    // a buffer built according to the 'd_spec' specifications results in a
-    // buffer built according to the 'd_expected' specifications.  The
-    // 'd_lineNum' member is used to report errors.  New entries are
-    // constructed with the supplied allocator 'Z' if allocator aware, and with
-    // their default constructor otherwise.
+    // Verify that, for (the template parameter) 'TYPE' having the bitwise
+    // moveable trait if (and only if) the specified 'bitwiseMoveableFlag' is
+    // 'true', and having the bitwise copyable trait if (and only if) the
+    // specified 'bitwiseCopyableFlag' is 'true', for each of the elements of
+    // the 'DATA_9DV' array, given an array of 'TYPE' configured by the values
+    // denoted in the 'd_spec' string, emplacing a new entry with the default
+    // values for 'TYPE' at the 'd_dst' index while shifting the entries
+    // between 'd_dst' until the 'd_end' indices in results in a buffer built
+    // according to the 'd_expected' specifications.  The 'd_lineNum' member is
+    // used to report errors.  New entries are constructed with the global
+    // allocator 'Z' if allocator aware, and with their default constructor
+    // otherwise.  Optionally specify an 'exceptionSafetyFlag' to test for the
+    // strong exception safety guarantee when performing 'emplace' for
+    // allocator aware 'TYPE's.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2036,12 +2060,20 @@ template <class TYPE>
 void testEmplaceValue(bool bitwiseMoveableFlag,
                       bool bitwiseCopyableFlag,
                       bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_9V' elements of
-    // the 'DATA_9V' array, that inserting the a new entry at the 'd_dst' index
-    // while shifting the entries between 'd_dst' until the 'd_end' indices in
-    // a buffer built according to the 'd_spec' specifications results in a
-    // buffer built according to the 'd_expected' specifications.  The
-    // 'd_lineNum' member is used to report errors.
+    // Verify that, for (the template parameter) 'TYPE' having the bitwise
+    // moveable trait if (and only if) the specified 'bitwiseMoveableFlag' is
+    // 'true', and having the bitwise copyable trait if (and only if) the
+    // specified 'bitwiseCopyableFlag' is 'true', for each of the elements of
+    // the 'DATA_9V' array, given a buffer holding 'TYPE' objects configured by
+    // the values denoted in the 'd_spec' string, emplacing a new entry with
+    // the value associated with the identifier 'V' for 'TYPE' at the 'd_dst'
+    // index while shifting the entries between 'd_dst' until the 'd_end'
+    // indices results in a buffer built according to the 'd_expected'
+    // specifications.  The 'd_lineNum' member is used to report errors.  New
+    // entries are constructed with the global allocator 'Z' if allocator
+    // aware, and with their default constructor otherwise.  Optionally specify
+    // an 'exceptionSafetyFlag' to test for the strong exception safety
+    // guarantee when performing 'emplace' for allocator aware 'TYPE's.
 {
     const int MAX_SIZE = 16;
     static union {
