@@ -3924,16 +3924,18 @@ int ChannelPool::stopAndRemoveAllChannels()
     // this function returns.
 
     const int numManagers = static_cast<int>(d_managers.size());
-    for (int i = 0; i < numManagers; ++i) {
-        if (d_managers[i]->disable()) {
-           while(--i >= 0) {
-               bslmt::ThreadAttributes attr;
-               attr.setStackSize(d_config.threadStackSize());
+    if (isRunning()) {
+        for (int i = 0; i < numManagers; ++i) {
+            if (d_managers[i]->disable()) {
+                while(--i >= 0) {
+                    bslmt::ThreadAttributes attr;
+                    attr.setStackSize(d_config.threadStackSize());
 
-               int rc = d_managers[i]->enable(attr);
-               (void)rc; BSLS_ASSERT(0 == rc);
-           }
-           return -1;                                                 // RETURN
+                    int rc = d_managers[i]->enable(attr);
+                    (void)rc; BSLS_ASSERT(0 == rc);
+                }
+                return -1;                                            // RETURN
+            }
         }
     }
     d_startFlag = 0;
@@ -4054,6 +4056,10 @@ int ChannelPool::start()
 int ChannelPool::stop()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
+
+    if (!isRunning()) {
+        return 0;                                                     // RETURN
+    }
 
     int numManagers = static_cast<int>(d_managers.size());
     for (int i = 0; i < numManagers; ++i) {
