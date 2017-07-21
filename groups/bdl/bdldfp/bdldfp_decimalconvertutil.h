@@ -438,6 +438,8 @@ struct DecimalConvertUtil {
     static double decimal32ToDouble (Decimal32  decimal);
     static double decimal64ToDouble (Decimal64  decimal);
     static double decimal128ToDouble(Decimal128 decimal);
+        // [!DEPRECATED!] Use 'deciamalToDouble' instead.
+
     static double decimalToDouble   (Decimal32  decimal);
     static double decimalToDouble   (Decimal64  decimal);
     static double decimalToDouble   (Decimal128 decimal);
@@ -483,6 +485,8 @@ struct DecimalConvertUtil {
     static float decimal32ToFloat (Decimal32  decimal);
     static float decimal64ToFloat (Decimal64  decimal);
     static float decimal128ToFloat(Decimal128 decimal);
+        // [!DEPRECATED!] Use 'deciamalToFloat' instead.
+
     static float decimalToFloat   (Decimal32  decimal);
     static float decimalToFloat   (Decimal64  decimal);
     static float decimalToFloat   (Decimal128 decimal);

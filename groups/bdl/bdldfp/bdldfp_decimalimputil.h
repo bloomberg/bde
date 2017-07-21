@@ -724,6 +724,7 @@ class DecimalImpUtil {
                         // Inter-type Conversion functions
 
     static ValueType32  convertToDecimal32 (const ValueType64&  input);
+    static ValueType32  convertToDecimal32 (const ValueType128& input);
     static ValueType64  convertToDecimal64 (const ValueType32&  input);
     static ValueType64  convertToDecimal64 (const ValueType128& input);
     static ValueType128 convertToDecimal128(const ValueType32&  input);
@@ -1472,6 +1473,13 @@ DecimalImpUtil::notEqual(DecimalImpUtil::ValueType128 lhs,
 inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::convertToDecimal32(const DecimalImpUtil::ValueType64& input)
+{
+    return Imp::convertToDecimal32(input);
+}
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::convertToDecimal32(const DecimalImpUtil::ValueType128& input)
 {
     return Imp::convertToDecimal32(input);
 }

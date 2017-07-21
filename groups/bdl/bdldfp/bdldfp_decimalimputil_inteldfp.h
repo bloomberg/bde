@@ -456,6 +456,7 @@ struct DecimalImpUtil_IntelDfp {
                         // Inter-type Conversion functions
 
     static ValueType32  convertToDecimal32 (const ValueType64&  input);
+    static ValueType32  convertToDecimal32 (const ValueType128& input);
     static ValueType64  convertToDecimal64 (const ValueType32&  input);
     static ValueType64  convertToDecimal64 (const ValueType128& input);
     static ValueType128 convertToDecimal128(const ValueType32&  input);
@@ -1167,6 +1168,17 @@ DecimalImpUtil_IntelDfp::convertToDecimal32(
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags;
     retval.d_raw = __bid64_to_bid32(input.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::convertToDecimal32(
+                            const DecimalImpUtil_IntelDfp::ValueType128& input)
+{
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_to_bid32(input.d_raw, &flags);
     return retval;
 }
 

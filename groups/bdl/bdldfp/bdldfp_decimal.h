@@ -652,7 +652,8 @@ class Decimal_Type32 {
     Decimal_Type32(DecimalImpUtil::ValueType32 value);              // IMPLICIT
         // Create a 'Decimal32_Type' object having the specified 'value'.
 
-    explicit Decimal_Type32(Decimal_Type64 other);
+    explicit Decimal_Type32(Decimal_Type64  other);
+    explicit Decimal_Type32(Decimal_Type128 other);
         // Create a 'Decimal32_Type' object having the value closest to the
         // value of the specified 'other' following the conversion rules
         // defined by IEEE-754:
@@ -681,9 +682,6 @@ class Decimal_Type32 {
         //:   the value of 'other' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'other'.
-        //
-        // TODO: We may wish for a constructor from Decimal128.  The rounding
-        // is not supported by IBM software.
 
     explicit Decimal_Type32(float       other);
     explicit Decimal_Type32(double      other);
@@ -784,15 +782,15 @@ class Decimal_Type32 {
     // Decimal_Type32& operator--();
 
     Decimal_Type32& operator+=(Decimal32  rhs);
-    // Decimal_Type32& operator+=(Decimal64  rhs);
-    // Decimal_Type32& operator+=(Decimal128 rhs);
+    Decimal_Type32& operator+=(Decimal64  rhs);
+    Decimal_Type32& operator+=(Decimal128 rhs);
 
-    // Decimal_Type32& operator+=(int                rhs);
-    // Decimal_Type32& operator+=(unsigned int       rhs);
-    // Decimal_Type32& operator+=(long               rhs);
-    // Decimal_Type32& operator+=(unsigned long      rhs);
-    // Decimal_Type32& operator+=(long long          rhs);
-    // Decimal_Type32& operator+=(unsigned long long rhs);
+    Decimal_Type32& operator+=(int                rhs);
+    Decimal_Type32& operator+=(unsigned int       rhs);
+    Decimal_Type32& operator+=(long               rhs);
+    Decimal_Type32& operator+=(unsigned long      rhs);
+    Decimal_Type32& operator+=(long long          rhs);
+    Decimal_Type32& operator+=(unsigned long long rhs);
 
     // Decimal_Type32& operator-=(Decimal32  rhs);
     // Decimal_Type32& operator-=(Decimal64  rhs);
@@ -4390,6 +4388,12 @@ Decimal_Type32::Decimal_Type32(Decimal_Type64 other)
 }
 
 inline
+Decimal_Type32::Decimal_Type32(Decimal_Type128 other)
+: d_value(DecimalImpUtil::convertToDecimal32(*other.data()))
+{
+}
+
+inline
 Decimal_Type32::Decimal_Type32(float other)
 : d_value(DecimalImpUtil::binaryToDecimal32(other))
 {
@@ -4452,6 +4456,46 @@ inline Decimal_Type32& Decimal_Type32::operator+=(Decimal32 rhs)
 {
     this->d_value = DecimalImpUtil::add(this->d_value, rhs.d_value);
     return *this;
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(Decimal64 rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(Decimal128 rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(int rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(unsigned int rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(long rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(unsigned long rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(long long rhs)
+{
+    return *this += Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator+=(unsigned long long rhs)
+{
+    return *this += Decimal32(rhs);
 }
 
 inline
