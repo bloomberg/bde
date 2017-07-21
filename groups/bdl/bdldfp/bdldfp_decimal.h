@@ -779,7 +779,7 @@ class Decimal_Type32 {
         // change the value of this object at all (if the value is large) or it
         // may seem to just set it to 1.0 (if the original value is small).
 
-    // Decimal_Type32& operator--();
+    Decimal_Type32& operator--();
 
     Decimal_Type32& operator+=(Decimal32  rhs);
     Decimal_Type32& operator+=(Decimal64  rhs);
@@ -851,6 +851,13 @@ Decimal32 operator-(Decimal32 value);
 
 Decimal32 operator++(Decimal32& value, int);
     // Apply the prefix ++ operator to the specified 'value' and return its
+    // original value.  Note that this is a floating-point value so this
+    // operations may not change the value of this object at all (if the value
+    // is large) or it may seem to just set it to 1.0 (if the original value is
+    // small).
+
+Decimal32 operator--(Decimal32& value, int);
+    // Apply the prefix -- operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
     // operations may not change the value of this object at all (if the value
     // is large) or it may seem to just set it to 1.0 (if the original value is
@@ -4450,6 +4457,11 @@ inline Decimal_Type32& Decimal_Type32::operator++()
     return *this += Decimal32(1);
 }
 
+inline Decimal_Type32& Decimal_Type32::operator--()
+{
+    return *this -= Decimal32(1);
+}
+
                                   // Addition
 
 inline Decimal_Type32& Decimal_Type32::operator+=(Decimal32 rhs)
@@ -4503,6 +4515,7 @@ inline Decimal_Type32& Decimal_Type32::operator+=(unsigned long long rhs)
 inline Decimal_Type32& Decimal_Type32::operator-=(Decimal32 rhs)
 {
     this->d_value = DecimalImpUtil::subtract(this->d_value, rhs.d_value);
+    return *this;
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(Decimal64 rhs)
@@ -5289,6 +5302,14 @@ bdldfp::Decimal32 bdldfp::operator++(bdldfp::Decimal32& value, int)
 {
     bdldfp::Decimal32 result(value);
     ++value;
+    return result;
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator--(bdldfp::Decimal32& value, int)
+{
+    bdldfp::Decimal32 result(value);
+    --value;
     return result;
 }
 
