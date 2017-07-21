@@ -313,6 +313,10 @@ class MemOutStreamBuf : public bsl::streambuf {
         // Return the address of the non-modifiable character buffer managed by
         // this stream buffer.
 
+    bsl::size_t capacity() const;
+        // Return the current capacity of the buffer managed by this stream
+        // buffer.
+
     bsl::size_t length() const;
         // Return the number of valid characters in this stream buffer.
 };

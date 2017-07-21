@@ -151,6 +151,8 @@ using namespace bdlf::PlaceHolders;
 // [10] findObserver(const shared_ptr<OBSERVER>*, const StringRef&);
 // [ *] const Obs *observer() const;
 // [10] registerObserver(const shared_ptr<Observer>&, const StringRef&);
+// [10] void visitObservers(OBSERVER_VISITOR visitor);
+// [10] void visitObservers(OBSERVER_VISITOR visitor) const;
 // [13] int setDefaultThresholdLevels(int, int, int, int);
 // [13] int resetDefaultThresholdLevels();
 // [13] void setCategoryThresholdsToCurrentDefaults(Cat *cat);
@@ -173,18 +175,18 @@ using namespace bdlf::PlaceHolders;
 //
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // 'ball::LoggerManagerCategoryIter' public interface:
-// [41] LoggerManagerCategoryIter(const LoggerManager& lm);
-// [41] ~LoggerManagerCategoryIter();
-// [41] void operator++();
-// [41] operator const void *() const;
-// [41] const Cat& operator()() const;
+// [42] LoggerManagerCategoryIter(const LoggerManager& lm);
+// [42] ~LoggerManagerCategoryIter();
+// [42] void operator++();
+// [42] operator const void *() const;
+// [42] const Cat& operator()() const;
 //
 // 'ball::LoggerManagerCategoryManip' public interface:
-// [42] LoggerManagerCategoryManip(LoggerManager *lm);
-// [42] ~LoggerManagerCategoryManip();
-// [42] void advance();
-// [42] Cat& operator()();
-// [42] operator const void *() const;
+// [43] LoggerManagerCategoryManip(LoggerManager *lm);
+// [43] ~LoggerManagerCategoryManip();
+// [43] void advance();
+// [43] Cat& operator()();
+// [43] operator const void *() const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -203,10 +205,11 @@ using namespace bdlf::PlaceHolders;
 // [33] initSingleton(LoggerManager *, true);
 // [34] initSingleton(LoggerManager *, false);
 // [36] SINGLETON REINITIALIZATION
-// [37] USAGE EXAMPLE #1
-// [38] USAGE EXAMPLE #2
-// [39] USAGE EXAMPLE #3
-// [40] USAGE EXAMPLE #4
+// [38] USAGE EXAMPLE #1
+// [39] USAGE EXAMPLE #2
+// [40] USAGE EXAMPLE #3
+// [41] USAGE EXAMPLE #4
+// [37] CONCERN: RECORD POOL MEMORY CONSUMPTION
 // [19] CONCERN: PERFORMANCE IMPLICATIONS
 // [12] CONCERN: USER FIELDS POPULATOR CALLBACK
 // [11] CONCERN: INTERNAL BROADCAST OBSERVER
@@ -1145,7 +1148,7 @@ extern "C" void *initSingletonThread(void *args)
     return 0;
 }
 
-extern "C" void *shutDownSingletonThread(void *args)
+extern "C" void *shutDownSingletonThread(void *)
 {
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         ball::LoggerManager::shutDownSingleton();
@@ -1555,6 +1558,39 @@ extern "C" {
 
 }  // close namespace BALL_LOGGERMANAGER_TEST_DEFAULTTHRESHOLDLEVELSCALLBACK
 
+namespace TEST_CASE_OBSERVER_VISITOR {
+
+class TestObserverVisitor {
+    // This class implements a test observer visitor.  This visitor will verify
+    // that all observers in the registry of the logger manager supplied at
+    // construction were visited.
+  private:
+    // DATA
+    const ball::LoggerManager *d_loggerManager_p;
+
+  public:
+    // CREATORS
+    TestObserverVisitor(const ball::LoggerManager *loggerManager)
+    : d_loggerManager_p(loggerManager)
+    {
+    }
+
+    // ACCESSORS
+    void operator()(const bsl::shared_ptr<ball::Observer>& observer,
+                    const bslstl::StringRef&               observerName) const
+    {
+        ASSERT(observer == d_loggerManager_p->findObserver(observerName));
+    }
+
+    void operator()(bsl::shared_ptr<ball::Observer>&,
+                    const bslstl::StringRef&) const
+    {
+        ASSERT(!"This overload must not be ever called.");
+    }
+};
+
+}  // close namespace TEST_CASE_OBSERVER_VISITOR
+
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -1672,7 +1708,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 42: {
+      case 43: {
         // --------------------------------------------------------------------
         // TESTING 'ball::LoggerManagerCategoryManip'
         //
@@ -1760,7 +1796,7 @@ int main(int argc, char *argv[])
         ASSERT(NUM_NAMES + 1 == count);  // + 1 for the *Default* *Category*
 
       } break;
-      case 41: {
+      case 42: {
         // --------------------------------------------------------------------
         // TESTING 'ball::LoggerManagerCategoryIter'
         //
@@ -1838,7 +1874,7 @@ int main(int argc, char *argv[])
 
       } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      case 40: {
+      case 41: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 4
         //
@@ -1870,7 +1906,7 @@ int main(int argc, char *argv[])
         factorial(15);
 
       } break;
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3
         //
@@ -1918,7 +1954,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 38: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //
@@ -1941,7 +1977,7 @@ int main(int argc, char *argv[])
         BALL_LOGGERMANAGER_USAGE_EXAMPLE_2::main();
 
       } break;
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //
@@ -1963,6 +1999,97 @@ int main(int argc, char *argv[])
 
         BALL_LOGGERMANAGER_USAGE_EXAMPLE_1::main();
 
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING RECORD POOL MEMORY CONSUMPTION
+        //
+        // Concerns:
+        //: 1 When a log record containing a log message above certain size
+        //:   is returned to the log record pool, the memory consumed by the
+        //:   message is released..
+        //
+        // Plan:
+        //: 1 Generate a sequence of log record of various sizes and verify
+        //:   that the log record is being reset prior return to the record
+        //:   object pool.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: RECORD POOL MEMORY CONSUMPTION
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING RECORD POOL MEMORY CONSUMPTION"
+                          << "\n======================================"
+                          << endl;
+
+        bslma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator ga("global",  veryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard guard(&da);
+        bslma::Default::setGlobalAllocator(&ga);
+
+        ball::LoggerManagerConfiguration mLMC;
+
+        // We will be recording a number of [huge] TRACE messages, and then
+        // triggering their publication by an INFO message.
+        ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
+                                                      ball::Severity::e_TRACE,
+                                                      0,
+                                                      0,
+                                                      ball::Severity::e_INFO));
+
+        ball::LoggerManagerScopedGuard lmGuard(mLMC);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+        ball::Logger& logger = ball::LoggerManager::singleton().getLogger();
+
+        ball::Category *category = manager.setCategory("Test",
+                                                       0,
+                                                       ball::Severity::e_INFO,
+                                                       0,
+                                                       0);
+
+        // The log record is published and returned to the record pool.
+        logger.logMessage(*category, ball::Severity::e_INFO, "F", 1, "M");
+
+        bsls::Types::Int64 B = ga.numBytesInUse();
+
+        if (veryVerbose) { P(ga.numBytesInUse()) }
+
+        // Logging another log record with a small message. Such a small
+        // message will NOT result into additional memory allocation.
+        char smallMessage[] = { "This is a small log message" };
+
+        logger.logMessage(*category,
+                          ball::Severity::e_INFO,
+                          "F",
+                          2,
+                          smallMessage);
+
+        if (veryVerbose) { P_(B) P(ga.numBytesInUse()) }
+
+        ASSERTV(B, ga.numBytesInUse(), B == ga.numBytesInUse());
+
+        // Same, but with a big message. Such a big message will result into
+        // additional memory allocation.
+        char bigMessage[1024];
+        bsl::memset(bigMessage, 'X', sizeof (bigMessage) - 1);
+        bigMessage[1023] = 0;
+
+        // When a log record with big message is returned to the pool, the
+        // record is cleaned up deallocating memory consumed by the message.
+        logger.logMessage(*category,
+                          ball::Severity::e_INFO,
+                          "F",
+                          3,
+                          bigMessage);
+
+        // We must see that after logging a log record with big message memory
+        // usage has dropped ( the message memory was de-allocated when the
+        // log record is returned to the record pool).
+        if (veryVerbose) { P_(B) P(ga.numBytesInUse()) }
+
+        ASSERTV(B, ga.numBytesInUse(), B > ga.numBytesInUse());
       } break;
       case 36: {
         // --------------------------------------------------------------------
@@ -5073,6 +5200,8 @@ int main(int argc, char *argv[])
         //   registerObserver(const shared_ptr<Observer>&, const StringRef&);
         //   deregisterObserver(const StringRef&);
         //   deregisterAllObservers();
+        //   void visitObservers(OBSERVER_VISITOR visitor);
+        //   void visitObservers(OBSERVER_VISITOR visitor) const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -5084,6 +5213,8 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard dag(&da);
         bslma::Default::setGlobalAllocator(&ga);
+
+        using namespace TEST_CASE_OBSERVER_VISITOR;
 
         {
             ball::LoggerManagerConfiguration mXC;
@@ -5110,6 +5241,9 @@ int main(int argc, char *argv[])
                 ASSERT(observerPtr.get() == observer1.get());
                 ASSERT(0 == X.findObserver(&observerPtrConst, "observer1"));
                 ASSERT(observerPtrConst.get() == observer1.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             // Add another observer.
@@ -5134,6 +5268,9 @@ int main(int argc, char *argv[])
                 ASSERT(observerPtr.get() == observer2.get());
                 ASSERT(0 == X.findObserver(&observerPtrConst, "observer2"));
                 ASSERT(observerPtrConst.get() == observer2.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             // Add another observer.  Adding to the existing name (no effect).
@@ -5158,6 +5295,9 @@ int main(int argc, char *argv[])
                 ASSERT(observerPtr.get() == observer2.get());
                 ASSERT(0 == X.findObserver(&observerPtrConst, "observer2"));
                 ASSERT(observerPtrConst.get() == observer2.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             // Adding under "default" name. Testing that "default" does not
@@ -5187,6 +5327,9 @@ int main(int argc, char *argv[])
                 ASSERT(observerPtr.get() == observer3.get());
                 ASSERT(0 == X.findObserver(&observerPtrConst, "default"));
                 ASSERT(observerPtrConst.get() == observer3.get());
+
+                mX.visitObservers(TestObserverVisitor(&mX));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             // Deregistering observers.
@@ -5214,6 +5357,9 @@ int main(int argc, char *argv[])
                 ASSERT(observerPtr.get() == observer3.get());
                 ASSERT(0 == X.findObserver(&observerPtrConst, "default"));
                 ASSERT(observerPtrConst.get() == observer3.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             ASSERT(0 == mX.deregisterObserver("default"));
@@ -5241,6 +5387,9 @@ int main(int argc, char *argv[])
                 ASSERT(0 == observerPtr.get());
                 ASSERT(0 != X.findObserver(&observerPtrConst, "default"));
                 ASSERT(0 == observerPtrConst.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             ASSERT(0 == mX.deregisterObserver("observer1"));
@@ -5268,6 +5417,9 @@ int main(int argc, char *argv[])
                 ASSERT(0 == observerPtr.get());
                 ASSERT(0 != X.findObserver(&observerPtrConst, "default"));
                 ASSERT(0 == observerPtrConst.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             ASSERT(0 == mX.deregisterObserver("observer2"));
@@ -5295,6 +5447,9 @@ int main(int argc, char *argv[])
                 ASSERT(0 == observerPtr.get());
                 ASSERT(0 != X.findObserver(&observerPtrConst, "default"));
                 ASSERT(0 == observerPtrConst.get());
+
+                mX.visitObservers(TestObserverVisitor(&X));
+                X.visitObservers(TestObserverVisitor(&X));
             }
 
             // Re-populate and deregister all observers.

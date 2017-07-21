@@ -26,40 +26,6 @@ BroadcastObserver::~BroadcastObserver()
 }
 
 // MANIPULATORS
-void BroadcastObserver::publish(const bsl::shared_ptr<const Record>& record,
-                                const Context&                       context)
-{
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
-
-    ObserverRegistry::const_iterator it  = d_observers.begin();
-    ObserverRegistry::const_iterator end = d_observers.end();
-
-    for (; it != end; ++it) {
-        (it->second)->publish(record, context);
-    }
-}
-
-void BroadcastObserver::releaseRecords()
-{
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
-
-    ObserverRegistry::const_iterator it  = d_observers.begin();
-    ObserverRegistry::const_iterator end = d_observers.end();
-
-    for (; it != end; ++it) {
-        (it->second)->releaseRecords();
-    }
-}
-
-int BroadcastObserver::registerObserver(
-                                 const bsl::shared_ptr<Observer>& observer,
-                                 const bslstl::StringRef&         observerName)
-{
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
-
-    return !d_observers.emplace(observerName, observer).second;
-}
-
 int BroadcastObserver::deregisterObserver(
                                          const bslstl::StringRef& observerName)
 {
@@ -107,6 +73,40 @@ bsl::shared_ptr<Observer> BroadcastObserver::findObserver(
     }
 
     return it->second;
+}
+
+void BroadcastObserver::publish(const bsl::shared_ptr<const Record>& record,
+                                const Context&                       context)
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
+
+    ObserverRegistry::const_iterator it  = d_observers.begin();
+    ObserverRegistry::const_iterator end = d_observers.end();
+
+    for (; it != end; ++it) {
+        (it->second)->publish(record, context);
+    }
+}
+
+int BroadcastObserver::registerObserver(
+                                 const bsl::shared_ptr<Observer>& observer,
+                                 const bslstl::StringRef&         observerName)
+{
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
+
+    return !d_observers.emplace(observerName, observer).second;
+}
+
+void BroadcastObserver::releaseRecords()
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
+
+    ObserverRegistry::const_iterator it  = d_observers.begin();
+    ObserverRegistry::const_iterator end = d_observers.end();
+
+    for (; it != end; ++it) {
+        (it->second)->releaseRecords();
+    }
 }
 
 // ACCESSORS

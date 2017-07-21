@@ -200,6 +200,11 @@ class Record {
         // Assign to this log record the value of the specified 'rhs' log
         // record and return the reference to this modifiable record.
 
+    void clear();
+        // Clear this log record by removing the custom fields and clearing the
+        // fixed field's message buffer.  Note that this method is tailored for
+        // efficient memory use within the 'ball' logging system.
+
     RecordAttributes& fixedFields();
         // Return the modifiable fixed fields of this log record.
 
@@ -314,6 +319,13 @@ Record& Record::operator=(const Record& rhs)
         d_customFields = rhs.d_customFields;
     }
     return *this;
+}
+
+inline
+void Record::clear()
+{
+    customFields().removeAll();
+    fixedFields().clearMessage();
 }
 
 inline

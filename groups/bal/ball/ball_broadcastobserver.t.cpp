@@ -41,20 +41,22 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 2] BroadcastObserver(bslma::Allocator *ba = 0);
 // [ 2] ~BroadcastObserver();
-// [ 6] void publish(const bsl::shared_ptr<const ball::Record>& rec,
-//                   const ball::Context&                       ctxt);
-// [ 6] void releaseRecords();
-// [ 3] int registerObserver(const shared_ptr<Observer>&, const StringRef& n);
-// [ 3] int deregisterObserver(const StringRef& name);
 // [ 3] void deregisterAllObservers();
+// [ 3] int deregisterObserver(const StringRef& name);
 // [ 4] Observer *findObserver(const StringRef& name);
 // [ 4] const Observer *findObserver(const StringRef& name) const;
 // [ 4] findObserver(const shared_ptr<OBSERVER> *, const StringRef&);
 // [ 4] findObserver(const shared_ptr<const OBSERVER> *, const StringRef&);
+// [ 5] void publish(const Record& record, const Context& context);
+// [ 6] void publish(const shared_ptr<const Record>& r, const Context& c);
+// [ 3] int registerObserver(const shared_ptr<Obs>&, const StringRef& n);
+// [ 8] void visitObservers(OBSERVER_VISITOR visitor);
+// [ 8] void visitObservers(OBSERVER_VISITOR visitor) const;
+// [ 6] void releaseRecords();
 // [ 4] int numRegisteredObservers() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // [ 7] CONCERN: REGISTERED OBSERVERS LIFETIME
 
 // ============================================================================
@@ -175,6 +177,19 @@ const int SEQUENCE_LENGTH = 99;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace TEST_CASE_8 {
+
+static int observerCounter = 0;
+
+static void observerCounterFunc(const bsl::shared_ptr<Observer>&,
+                                const bslstl::StringRef&)
+    // Increment invocation counter.
+{
+    ++observerCounter;
+}
+
+}  // close namespace TEST_CASE_8
 
 namespace {
     // The following helper functions are used to test 'publish' method.
@@ -310,7 +325,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -327,8 +342,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
-                                  << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -367,9 +382,110 @@ int main(int argc, char *argv[])
 
         ASSERT(myObserverPtr == anotherObserverPtr);
       } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'visitObservers' METHOD
+        //
+        // Concerns:
+        //: 1 All registered observers are returned by 'registeredObservers'.
+        //
+        // Plan:
+        //: 1 Create a broadcast observer, and register a number of observers.
+        //:
+        //: 2 Verify that all registered observers are returned by
+        //:   'registeredObservers' accessor.  (C-1)
+        //
+        // Testing:
+        //   void visitObservers(OBSERVER_VISITOR visitor);
+        //   void visitObservers(OBSERVER_VISITOR visitor) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'visitObservers' METHOD"
+                          << "\n===============================" << endl;
+
+        using namespace TEST_CASE_8;
+
+        Obj        mX;
+        const Obj& X = mX;
+
+        bsl::shared_ptr<Observer> O1(new TestObserver(&cout));
+
+        // Testing no registered observers case.
+        {
+            observerCounter = 0;
+
+            mX.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 0 == observerCounter);
+
+            observerCounter = 0;
+
+            X.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 0 == observerCounter);
+        }
+
+        ASSERTV(0 == mX.registerObserver(O1, "O1"));
+
+        {
+            observerCounter = 0;
+
+            mX.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 1 == observerCounter);
+
+            observerCounter = 0;
+
+            X.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 1 == observerCounter);
+        }
+
+        bsl::shared_ptr<Observer> O2(new TestObserver(&cout));
+        ASSERTV(0 == mX.registerObserver(O2, "O2"));
+
+        {
+            observerCounter = 0;
+
+            mX.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 2 == observerCounter);
+        }
+
+        ASSERTV(0 == mX.deregisterObserver("O1"));
+
+        {
+            observerCounter = 0;
+
+            mX.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 1 == observerCounter);
+        }
+
+        ASSERTV(0 == mX.registerObserver(O2, "O2a"));
+
+        {
+            observerCounter = 0;
+
+            mX.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 2 == observerCounter);
+        }
+
+        mX.deregisterAllObservers();
+
+        {
+            observerCounter = 0;
+
+            mX.visitObservers(observerCounterFunc);
+
+            ASSERTV(observerCounter, 0 == observerCounter);
+        }
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
-        // CONCERN: REGISTERED OBSERVERS LIFETIME
+        // TESTING REGISTERED OBSERVERS LIFETIME
         //
         // Concerns:
         //: 1 Verify that registered observers are destroyed only when the last
@@ -383,11 +499,13 @@ int main(int argc, char *argv[])
         //: 3 Verify that the registered observer is not destroyed.
         //:
         //: 4 Deregister observer and verify that it was destroyed.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: REGISTERED OBSERVERS LIFETIME
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "CONCERN: REGISTERED OBSERVERS LIFETIME" << endl
-                          << "======================================" << endl;
+        if (verbose) cout << "\nTESTING REGISTERED OBSERVERS LIFETIME"
+                          << "\n=====================================" << endl;
 
         // Registered observer lifetime is shorter.
         {
@@ -445,8 +563,7 @@ int main(int argc, char *argv[])
         //:   verify that the method was delegated to all registered observers.
         //
         // Testing:
-        //   void publish(const bsl::shared_ptr<const ball::Record>& rec,
-        //                const ball::Context&                       ctxt);
+        //   void publish(const shared_ptr<const Record>& r, const Context& c);
         //   void releaseRecords();
         // --------------------------------------------------------------------
 
@@ -1136,7 +1253,7 @@ int main(int argc, char *argv[])
         //:   they fulfill their contractual obligations.
         //
         // Testing:
-        //   int registerObserver(const StringRef& n, bsl::shared_ptr<Obs>& o);
+        //   int registerObserver(const shared_ptr<Obs>&, const StringRef& n);
         //   int deregisterObserver(const StringRef& name);
         //   void deregisterAllObservers();
         // --------------------------------------------------------------------

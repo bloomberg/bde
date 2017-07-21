@@ -29,6 +29,7 @@ BSLS_IDENT("$Id: $")
 //                            |             deregisterAllObservers
 //                            |             findObserver
 //                            |             numRegisteredObservers
+//                            |             visitObservers
 //                            V
 //                     ,--------------.
 //                    ( ball::Observer )
@@ -171,6 +172,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readlockguard.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compiler_features.h>
+#endif
+
 #ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
 #endif
@@ -182,6 +187,7 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
 #endif
+
 
 namespace BloombergLP {
 namespace ball {
@@ -201,12 +207,14 @@ class BroadcastObserver : public Observer {
     // The 'publish' method of this class forwards the log records that it
     // receives to the 'publish' method of each registered observer.
 
-    // PRIVATE TYPES
+  public:
+    // TYPES
     typedef bsl::unordered_map<bsl::string,
                                bsl::shared_ptr<Observer> > ObserverRegistry;
-        // This 'typedef' is an alias for the type of registry maintained by
-        // this observer.
+        // This 'typedef' is an alias for the type of the registry maintained
+        // by this observer.
 
+  private:
     // DATA
     ObserverRegistry                 d_observers;  // observer registry
 
@@ -231,33 +239,8 @@ class BroadcastObserver : public Observer {
         // if any.
 
     // MANIPULATORS
-    using Observer::publish;  // Avoid hiding base class method.
-
-    virtual void publish(const bsl::shared_ptr<const Record>& record,
-                         const Context&                       context);
-        // Process the specified log 'record' having the specified publishing
-        // 'context' by forwarding 'record' and 'context' to each of the
-        // observers registered with this broadcast observer.
-
-    virtual void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was supplied
-        // to the 'publish' method, and is held by this observer.  This
-        // implementation processes 'releaseRecords' by calling
-        // 'releaseRecords' on each of the registered observers.  Note that
-        // this operation should be called if resources underlying the
-        // previously provided shared pointers must be released.
-
-    int registerObserver(const bsl::shared_ptr<Observer>& observer,
-                         const bslstl::StringRef&         observerName);
-        // Add the specified 'observer' with the specified 'observerName' to
-        // the registry of this broadcast observer.  Return 0 if 'observer' was
-        // successfully registered, and a non-zero value (with no effect)
-        // otherwise.  Henceforth, this observer will forward each record it
-        // receives through its 'publish' method, including the record's
-        // context, to the 'publish' method of 'observer', until 'observer' is
-        // deregistered.  The behavior is undefined if a cyclic reference is
-        // created among registered observers.  Note that this method will fail
-        // if an observer having 'observerName' is already registered.
+    void deregisterAllObservers();
+        // Remove all observers from the registry of this broadcast observer.
 
     int deregisterObserver(const bslstl::StringRef& observerName);
         // Remove the observer having the specified 'observerName' from the
@@ -266,9 +249,6 @@ class BroadcastObserver : public Observer {
         // value (with no effect) otherwise.  Henceforth, the observer that had
         // 'observerName' will no longer receive log records from this
         // observer.
-
-    void deregisterAllObservers();
-        // Remove all observers from the registry of this broadcast observer.
 
     bsl::shared_ptr<Observer> findObserver(
                                         const bslstl::StringRef& observerName);
@@ -300,6 +280,46 @@ class BroadcastObserver : public Observer {
         bslstl::SharedPtrUtil::dynamicCast(result, findObserver(observerName));
         return *result ? 0 : 1;
     }
+
+    using Observer::publish;  // Avoid hiding base class method.
+
+    virtual void publish(const bsl::shared_ptr<const Record>& record,
+                         const Context&                       context);
+        // Process the specified log 'record' having the specified publishing
+        // 'context' by forwarding 'record' and 'context' to each of the
+        // observers registered with this broadcast observer.
+
+    int registerObserver(const bsl::shared_ptr<Observer>& observer,
+                         const bslstl::StringRef&         observerName);
+        // Add the specified 'observer' with the specified 'observerName' to
+        // the registry of this broadcast observer.  Return 0 if 'observer' was
+        // successfully registered, and a non-zero value (with no effect)
+        // otherwise.  Henceforth, this observer will forward each record it
+        // receives through its 'publish' method, including the record's
+        // context, to the 'publish' method of 'observer', until 'observer' is
+        // deregistered.  The behavior is undefined if a cyclic reference is
+        // created among registered observers.  Note that this method will fail
+        // if an observer having 'observerName' is already registered.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a 'Record' object that was supplied
+        // to the 'publish' method, and is held by this observer.  This
+        // implementation processes 'releaseRecords' by calling
+        // 'releaseRecords' on each of the registered observers.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared pointers must be released.
+
+    template <class VISITOR>
+    void visitObservers(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor);
+        // Invoke the specified 'visitor' functor of (template parameter)
+        // 'VISITOR' type on each element in the registry of this broadcast
+        // observer, supplying that functor modifiable access to each observer.
+        // 'visitor' must be a functor that can be called as if it had the
+        // following signature:
+        //..
+        //  void operator()(const bsl::shared_ptr<Observer>& observer,
+        //                  const bslstl::StringRef&         observerName);
+        //..
 
     // ACCESSORS
     bsl::shared_ptr<const Observer> findObserver(
@@ -336,6 +356,19 @@ class BroadcastObserver : public Observer {
     int numRegisteredObservers() const;
         // Return the number of observers registered with this broadcast
         // observer.
+
+    template <class VISITOR>
+    void visitObservers(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
+                                                                         const;
+        // Invoke the specified 'visitor' functor of (template parameter)
+        // 'VISITOR' type on each element in the registry of this broadcast
+        // observer, supplying that functor modifiable access to each observer.
+        // 'visitor' must be a functor that can be called as if it had the
+        // following signature:
+        //..
+        //  void operator()(const bsl::shared_ptr<Observer>& observer,
+        //                  const bslstl::StringRef&         observerName);
+        //..
 };
 
 // ============================================================================
@@ -353,6 +386,21 @@ BroadcastObserver::BroadcastObserver(bslma::Allocator *basicAllocator)
 {
 }
 
+// MANIPULATORS
+template <class VISITOR>
+inline
+void BroadcastObserver::visitObservers(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
+
+    for (ObserverRegistry::const_iterator it = d_observers.cbegin();
+         it != d_observers.cend();
+         ++it) {
+        visitor(it->second, it->first);
+    }
+}
+
 // ACCESSORS
 inline
 int BroadcastObserver::numRegisteredObservers() const
@@ -360,6 +408,20 @@ int BroadcastObserver::numRegisteredObservers() const
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
     return static_cast<int>(d_observers.size());
+}
+
+template <class VISITOR>
+inline
+void BroadcastObserver::visitObservers(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
+
+    for (ObserverRegistry::const_iterator it = d_observers.cbegin();
+         it != d_observers.cend();
+         ++it) {
+        visitor(it->second, it->first);
+    }
 }
 
 }  // close package namespace

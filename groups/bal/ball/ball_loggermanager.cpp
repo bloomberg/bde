@@ -41,7 +41,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
-#include <bsl_memory.h>
 #include <bsl_new.h>            // placement 'new' syntax
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -440,8 +439,11 @@ void Logger::publish(Transmission::Cause cause)
 Record *Logger::getRecord(const char *file, int line)
 {
     Record *record = d_recordPool.getObject();
-    record->customFields().removeAll();
-    record->fixedFields().clearMessage();
+
+    // Note that the records obtained from the record pool are guaranteed to
+    // have all custom fields removed and the message stream cleared.  So only
+    // the filename and line number fields are initialized here.
+
     record->fixedFields().setFileName(file);
     record->fixedFields().setLineNumber(line);
     return record;

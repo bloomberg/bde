@@ -197,6 +197,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -250,6 +254,13 @@ class RecordAttributes {
 
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 Uint64;
+
+    // PRIVATE CONSTANTS
+    enum {
+        k_RESET_MESSAGE_STREAM_CAPACITY = 256  // maximum capacity above which
+                                               // the message stream is reset
+                                               // (and not rewound)
+    };
 
     // DATA
     bdlt::Datetime   d_timestamp;    // creation date and time
@@ -310,8 +321,8 @@ class RecordAttributes {
         // 'rhs' record attributes object.
 
     void clearMessage();
-        // Set the message attribute of this record attributes object to empty
-        // string.
+        // Set the message attribute of this record attributes object to the
+        // empty string.
 
     bdlsb::MemOutStreamBuf& messageStreamBuf();
         // Return a reference to the modifiable stream buffer associated with
@@ -431,7 +442,18 @@ bsl::ostream& operator<<(bsl::ostream& stream, const RecordAttributes& object);
 inline
 void RecordAttributes::clearMessage()
 {
-    d_messageStreamBuf.pubseekpos(0);
+    // Note that the stream buffer holding the message attribute has initial
+    // capacity of 256 bytes (by implementation).  Reset those stream buffers
+    // that are bigger than the default and "rewind" those that are smaller or
+    // equal.
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+            k_RESET_MESSAGE_STREAM_CAPACITY < d_messageStreamBuf.capacity())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        d_messageStreamBuf.reset();
+    }
+    else {
+        d_messageStreamBuf.pubseekpos(0);
+    }
 }
 
 inline

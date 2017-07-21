@@ -919,6 +919,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwritermutex.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compiler_features.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -967,8 +971,11 @@ class Logger {
 
   private:
     // DATA
-    bdlcc::ObjectPool<Record>
-                          d_recordPool;         // pool of records
+    bdlcc::ObjectPool<Record,
+                      bdlcc::ObjectPoolFunctors::DefaultCreator,
+                      bdlcc::ObjectPoolFunctors::Clear<Record> >
+                          d_recordPool;         // pool of records with a
+                                                // custom RESETTER
 
     const bsl::shared_ptr<Observer>
                           d_observer;           // holds observer
@@ -1197,6 +1204,10 @@ class LoggerManager {
         // loggers allocated by the logger manager that have not yet been
         // deallocated).
 
+    typedef BroadcastObserver::ObserverRegistry ObserverRegistry;
+        // This 'typedef' is an alias for the type of the internal broadcast
+        // observer registry.
+
   private:
     // NOT IMPLEMENTED
     LoggerManager(const LoggerManager&);
@@ -1217,7 +1228,7 @@ class LoggerManager {
 
     // DATA
     const bsl::shared_ptr<BroadcastObserver>
-                           d_observer;           // internal broadcasting
+                           d_observer;           // internal broadcast
                                                  // observer
 
     CategoryNameFilterCallback
@@ -1762,6 +1773,19 @@ class LoggerManager {
         //  void operator()(Category *);
         //..
 
+    template <class OBSERVER_VISITOR>
+    void visitObservers(
+                  BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor);
+        // Invoke the specified 'visitor' functor of (template parameter)
+        // 'OBSERVER_VISITOR' type on each element in the registry of this
+        // logger manager, supplying that functor modifiable access to each
+        // observer.  'visitor' must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(const bsl::shared_ptr<Observer>& observer,
+        //                  const bslstl::StringRef&         observerName);
+        //..
+
     // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the address of the modifiable allocator held by this logger
@@ -1862,6 +1886,19 @@ class LoggerManager {
         // had the following signature:
         //..
         //  void operator()(const Category *);
+        //..
+
+    template <class OBSERVER_VISITOR>
+    void visitObservers(
+            BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor) const;
+        // Invoke the specified 'visitor' functor of (template parameter)
+        // 'OBSERVER_VISITOR' type on each element in the registry of this
+        // logger manager, supplying that functor modifiable access to each
+        // observer.  'visitor' must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(const bsl::shared_ptr<Observer>& observer,
+        //                  const bslstl::StringRef&         observerName);
         //..
 };
 
@@ -2191,6 +2228,15 @@ void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor)
     d_categoryManager.visitCategories(visitor);
 }
 
+template <class OBSERVER_VISITOR>
+inline
+void LoggerManager::visitObservers(
+                   BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor)
+{
+    d_observer->visitObservers(
+                     BSLS_COMPILERFEATURES_FORWARD(OBSERVER_VISITOR, visitor));
+}
+
 // ACCESSORS
 inline
 bslma::Allocator *LoggerManager::allocator() const
@@ -2267,6 +2313,15 @@ inline
 void LoggerManager::visitCategories(const CATEGORY_VISITOR& visitor) const
 {
     d_categoryManager.visitCategories(visitor);
+}
+
+template <class OBSERVER_VISITOR>
+inline
+void LoggerManager::visitObservers(
+             BSLS_COMPILERFEATURES_FORWARD_REF(OBSERVER_VISITOR) visitor) const
+{
+    d_observer->visitObservers(
+                     BSLS_COMPILERFEATURES_FORWARD(OBSERVER_VISITOR, visitor));
 }
 
                         // ------------------------------
