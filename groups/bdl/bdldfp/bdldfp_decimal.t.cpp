@@ -1089,8 +1089,7 @@ void TestDriver::testCase6()
 
             bdldfp::DecimalStorage::Type64 bidVal =
                 bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
-            bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(
-                bidVal.d_raw);
+            bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(bidVal);
 
             bsl::cout << LOD << bsl::endl;
             ASSERTV(i, X, LOD == 8);
@@ -3582,6 +3581,17 @@ void TestDriver::testCase1()
         ASSERT(d1 == BDLDFP_DECIMAL_DF(-8.327457e-24));
     }
 
+    if (veryVerbose) bsl::cout << "Operator++" << bsl::endl;
+    {
+        BDEC::Decimal32 d1(BDLDFP_DECIMAL_DF(-5.0));
+        BDEC::Decimal32 d2 = d1++;
+        ASSERT(BDLDFP_DECIMAL_DF(-5.0) == d2);
+        LOOP_ASSERT(d1, BDLDFP_DECIMAL_DF(-4.0) == d1);
+        BDEC::Decimal32 d3 = ++d2;
+        LOOP_ASSERT(d2, BDLDFP_DECIMAL_DF(-4.0) == d2);
+        LOOP_ASSERT(d3, BDLDFP_DECIMAL_DF(-4.0) == d3);
+    }
+
     if (veryVerbose) bsl::cout << "Unary-" << bsl::endl;
     {
         BDEC::Decimal32 d1(BDLDFP_DECIMAL_DF(-5.0));
@@ -3617,6 +3627,48 @@ void TestDriver::testCase1()
         ASSERT(-BDLDFP_DECIMAL_DF(0.0) == BDEC::Decimal32(0)) // and 0
     }
 
+    if (veryVerbose) bsl::cout << "+=" << bsl::endl;
+    {
+        BDEC::Decimal32 d(BDLDFP_DECIMAL_DF(-5.0));
+
+        // if (veryVeryVerbose) bsl::cout << "+=(int)" << bsl::endl;
+        // d += 1;
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-4.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(unsigned int)" << bsl::endl;
+        // d += 2u;
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-2.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(long int)" << bsl::endl;
+        // d += -1l;
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-3.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(unsigned long int)"
+        //                                << bsl::endl;
+        // d += 5ul;
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(2.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(long long int)" << bsl::endl;
+        // d += -2ll;
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(0.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(unsigned long long int)"
+        //                                << bsl::endl;
+        // d += 42ull;
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(42.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "+=(Decimal32)" << bsl::endl;
+        d += BDLDFP_DECIMAL_DF(-22.0);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-27.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(Decimal64)" << bsl::endl;
+        // d += BDLDFP_DECIMAL_DD(3.0);
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(23.0) == d);
+
+        // if (veryVeryVerbose) bsl::cout << "+=(Decimal128)" << bsl::endl;
+        // d += BDLDFP_DECIMAL_DL(9.0);
+        // LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(32.0) == d);
+    }
 
     if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
 

@@ -775,6 +775,58 @@ class Decimal_Type32 {
         // that, after an assignment, a decimal will not compare equal to the
         // original; however it will behave as the original.
 
+    Decimal_Type32& operator++();
+        // Add 1.0 to the value of this object and return a reference to it.
+        // Note that this is a floating-point value so this operations may not
+        // change the value of this object at all (if the value is large) or it
+        // may seem to just set it to 1.0 (if the original value is small).
+
+    // Decimal_Type32& operator--();
+
+    Decimal_Type32& operator+=(Decimal32  rhs);
+    // Decimal_Type32& operator+=(Decimal64  rhs);
+    // Decimal_Type32& operator+=(Decimal128 rhs);
+
+    // Decimal_Type32& operator+=(int                rhs);
+    // Decimal_Type32& operator+=(unsigned int       rhs);
+    // Decimal_Type32& operator+=(long               rhs);
+    // Decimal_Type32& operator+=(unsigned long      rhs);
+    // Decimal_Type32& operator+=(long long          rhs);
+    // Decimal_Type32& operator+=(unsigned long long rhs);
+
+    // Decimal_Type32& operator-=(Decimal32  rhs);
+    // Decimal_Type32& operator-=(Decimal64  rhs);
+    // Decimal_Type32& operator-=(Decimal128 rhs);
+
+    // Decimal_Type32& operator-=(int                rhs);
+    // Decimal_Type32& operator-=(unsigned int       rhs);
+    // Decimal_Type32& operator-=(long               rhs);
+    // Decimal_Type32& operator-=(unsigned long      rhs);
+    // Decimal_Type32& operator-=(long long          rhs);
+    // Decimal_Type32& operator-=(unsigned long long rhs);
+
+    // Decimal_Type32& operator*=(Decimal32  rhs);
+    // Decimal_Type32& operator*=(Decimal64  rhs);
+    // Decimal_Type32& operator*=(Decimal128 rhs);
+
+    // Decimal_Type32& operator*=(int                rhs);
+    // Decimal_Type32& operator*=(unsigned int       rhs);
+    // Decimal_Type32& operator*=(long               rhs);
+    // Decimal_Type32& operator*=(unsigned long      rhs);
+    // Decimal_Type32& operator*=(long long          rhs);
+    // Decimal_Type32& operator*=(unsigned long long rhs);
+
+    // Decimal_Type32& operator/=(Decimal32  rhs);
+    // Decimal_Type32& operator/=(Decimal64  rhs);
+    // Decimal_Type32& operator/=(Decimal128 rhs);
+
+    // Decimal_Type32& operator/=(int                rhs);
+    // Decimal_Type32& operator/=(unsigned int       rhs);
+    // Decimal_Type32& operator/=(long               rhs);
+    // Decimal_Type32& operator/=(unsigned long      rhs);
+    // Decimal_Type32& operator/=(long long          rhs);
+    // Decimal_Type32& operator/=(unsigned long long rhs);
+
     DecimalImpUtil::ValueType32 *data();
         // Return a pointer providing modifiable access to the underlying
         // implementation.
@@ -798,6 +850,13 @@ Decimal32 operator-(Decimal32 value);
     // 'value' as described by IEEE-754, essentially reversing the sign bit.
     // Note that floating-point numbers have signed zero, so this operation is
     // not the same as '0 - value'.
+
+Decimal32 operator++(Decimal32& value, int);
+    // Apply the prefix ++ operator to the specified 'value' and return its
+    // original value.  Note that this is a floating-point value so this
+    // operations may not change the value of this object at all (if the value
+    // is large) or it may seem to just set it to 1.0 (if the original value is
+    // small).
 
 bool operator==(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
@@ -4378,7 +4437,22 @@ Decimal_Type32::Decimal_Type32(unsigned long long other)
 {
 }
 
+// MANIPULATORS
 
+                     // Incrementation and Decrementation
+
+inline Decimal_Type32& Decimal_Type32::operator++()
+{
+    return *this += Decimal32(1);
+}
+
+                                  // Addition
+
+inline Decimal_Type32& Decimal_Type32::operator+=(Decimal32 rhs)
+{
+    this->d_value = DecimalImpUtil::add(this->d_value, rhs.d_value);
+    return *this;
+}
 
 inline
 DecimalImpUtil::ValueType32 *Decimal_Type32::data()
@@ -5117,6 +5191,14 @@ inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 value)
 {
     return Decimal32(DecimalImpUtil::negate(value.value()));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator++(bdldfp::Decimal32& value, int)
+{
+    bdldfp::Decimal32 result(value);
+    ++value;
+    return result;
 }
 
 inline
