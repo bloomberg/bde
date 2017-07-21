@@ -2183,7 +2183,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     const VALUE&               X = mX;
     VALUE                     *address = buffer.address();
 
-    for (size_t ti = 0; ti <= 127; ++ti) {
+    for (int ti = 0; ti <= 127; ++ti) {
         Converter::createInplace(address,
                                  static_cast<char>(ti),
                                  &objectAllocator);
