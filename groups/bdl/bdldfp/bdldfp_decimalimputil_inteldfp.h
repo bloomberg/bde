@@ -204,6 +204,7 @@ struct DecimalImpUtil_IntelDfp {
 
                         // Subtraction functions
 
+    static ValueType32  subtract(ValueType32  lhs,  ValueType32  rhs);
     static ValueType64  subtract(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 subtract(ValueType128 lhs,  ValueType128 rhs);
         // Subtract the value of the specified 'rhs' from the value of the
@@ -882,6 +883,17 @@ DecimalImpUtil_IntelDfp::add(DecimalImpUtil_IntelDfp::ValueType128 lhs,
 }
 
                         // Subtraction Functions
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType32 rhs)
+{
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_sub(lhs.d_raw, rhs.d_raw, &flags);
+    return retval;
+}
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64

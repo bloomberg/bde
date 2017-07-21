@@ -3635,29 +3635,29 @@ void TestDriver::testCase1()
 
         if (veryVeryVerbose) bsl::cout << "+=(int)" << bsl::endl;
         d += 1;
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-4.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-4.0) == d);
 
         if (veryVeryVerbose) bsl::cout << "+=(unsigned int)" << bsl::endl;
         d += 2u;
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-2.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-2.0) == d);
 
         if (veryVeryVerbose) bsl::cout << "+=(long int)" << bsl::endl;
         d += -1l;
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-3.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-3.0) == d);
 
         if (veryVeryVerbose) bsl::cout << "+=(unsigned long int)"
                                        << bsl::endl;
         d += 5ul;
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(2.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(2.0) == d);
 
         if (veryVeryVerbose) bsl::cout << "+=(long long int)" << bsl::endl;
         d += -49ll;
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-47.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-47.0) == d);
 
         if (veryVeryVerbose) bsl::cout << "+=(unsigned long long int)"
                                        << bsl::endl;
         d += 42ull;
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-5.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-5.0) == d);
 
         if (veryVeryVerbose) bsl::cout << "+=(Decimal32)" << bsl::endl;
         d += BDLDFP_DECIMAL_DF(-22.0);
@@ -3669,7 +3669,50 @@ void TestDriver::testCase1()
 
         if (veryVeryVerbose) bsl::cout << "+=(Decimal128)" << bsl::endl;
         d += BDLDFP_DECIMAL_DL(9.0);
-        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-15.0) == d);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-15.0) == d);
+    }
+
+    if (veryVerbose) bsl::cout << "-=" << bsl::endl;
+    {
+        BDEC::Decimal32 d(BDLDFP_DECIMAL_DF(-5.0));
+
+        if (veryVeryVerbose) bsl::cout << "-=(int)" << bsl::endl;
+        d -= 1;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(-6.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(unsigned int)" << bsl::endl;
+        d -= 2u;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(-8.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(long int)" << bsl::endl;
+        d -= -10l;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(2.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(unsigned long int)"
+                                       << bsl::endl;
+        d -= 10ul;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(-8.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(long long int)" << bsl::endl;
+        d -= -8ll;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(0.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(unsigned long long int)"
+                                << bsl::endl;
+        d -= 42ull;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(-42.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(Decimal32)" << bsl::endl;
+        d -= BDLDFP_DECIMAL_DF(-22.0);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-20.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(Decimal64)" << bsl::endl;
+        d -= BDLDFP_DECIMAL_DD(3.0);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-23.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "-=(Decimal128)" << bsl::endl;
+        d -= BDLDFP_DECIMAL_DL(9.0);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-32.0) == d);
     }
 
     if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;

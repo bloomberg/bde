@@ -792,16 +792,16 @@ class Decimal_Type32 {
     Decimal_Type32& operator+=(long long          rhs);
     Decimal_Type32& operator+=(unsigned long long rhs);
 
-    // Decimal_Type32& operator-=(Decimal32  rhs);
-    // Decimal_Type32& operator-=(Decimal64  rhs);
-    // Decimal_Type32& operator-=(Decimal128 rhs);
+    Decimal_Type32& operator-=(Decimal32  rhs);
+    Decimal_Type32& operator-=(Decimal64  rhs);
+    Decimal_Type32& operator-=(Decimal128 rhs);
 
-    // Decimal_Type32& operator-=(int                rhs);
-    // Decimal_Type32& operator-=(unsigned int       rhs);
-    // Decimal_Type32& operator-=(long               rhs);
-    // Decimal_Type32& operator-=(unsigned long      rhs);
-    // Decimal_Type32& operator-=(long long          rhs);
-    // Decimal_Type32& operator-=(unsigned long long rhs);
+    Decimal_Type32& operator-=(int                rhs);
+    Decimal_Type32& operator-=(unsigned int       rhs);
+    Decimal_Type32& operator-=(long               rhs);
+    Decimal_Type32& operator-=(unsigned long      rhs);
+    Decimal_Type32& operator-=(long long          rhs);
+    Decimal_Type32& operator-=(unsigned long long rhs);
 
     // Decimal_Type32& operator*=(Decimal32  rhs);
     // Decimal_Type32& operator*=(Decimal64  rhs);
@@ -4496,6 +4496,53 @@ inline Decimal_Type32& Decimal_Type32::operator+=(long long rhs)
 inline Decimal_Type32& Decimal_Type32::operator+=(unsigned long long rhs)
 {
     return *this += Decimal32(rhs);
+}
+
+                                // Subtraction
+
+inline Decimal_Type32& Decimal_Type32::operator-=(Decimal32 rhs)
+{
+    this->d_value = DecimalImpUtil::subtract(this->d_value, rhs.d_value);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(Decimal64 rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(Decimal128 rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(int rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(unsigned int rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(long rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(unsigned long rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(long long rhs)
+{
+    return *this -= Decimal32(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator-=(unsigned long long rhs)
+{
+    return *this -= Decimal32(rhs);
 }
 
 inline

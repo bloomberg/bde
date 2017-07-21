@@ -472,6 +472,7 @@ class DecimalImpUtil {
 
                         // Subtraction functions
 
+    static ValueType32  subtract(ValueType32  lhs, ValueType32  rhs);
     static ValueType64  subtract(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 subtract(ValueType128 lhs, ValueType128 rhs);
         // Subtract the value of the specified 'rhs' from the value of the
@@ -1234,6 +1235,14 @@ DecimalImpUtil::add(DecimalImpUtil::ValueType128 lhs,
 }
 
                         // Subtraction Functions
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::subtract(DecimalImpUtil::ValueType32 lhs,
+                         DecimalImpUtil::ValueType32 rhs)
+{
+    return Imp::subtract(lhs, rhs);
+}
 
 inline
 DecimalImpUtil::ValueType64
