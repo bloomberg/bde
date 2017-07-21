@@ -445,6 +445,7 @@ class DecimalImpUtil {
 
                         // Addition functions
 
+    static ValueType32  add(ValueType32  lhs, ValueType32  rhs);
     static ValueType64  add(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 add(ValueType128 lhs, ValueType128 rhs);
         // Add the value of the specified 'rhs' to the value of the specified
@@ -1207,6 +1208,14 @@ DecimalImpUtil::uint64ToDecimal128(unsigned long long int value)
                         // Arithmetic
 
                         // Addition Functions
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::add(DecimalImpUtil::ValueType32 lhs,
+                    DecimalImpUtil::ValueType32 rhs)
+{
+    return Imp::add(lhs, rhs);
+}
 
 inline
 DecimalImpUtil::ValueType64

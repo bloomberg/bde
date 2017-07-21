@@ -56,6 +56,7 @@ using bsl::atoi;
 // [14] uint32ToDecimal128(unsigned           int)
 // [14]  int64ToDecimal128(         long long int)
 // [14] uint64ToDecimal128(unsigned long long int)
+// [ 5] add(ValueType32,  ValueType32)
 // [ 5] add(ValueType64,  ValueType64)
 // [ 5] add(ValueType128, ValueType128)
 // [ 6] subtract(ValueType64,  ValueType64)
@@ -528,6 +529,16 @@ bsl::string makeParseString(INTEGER mantissa, int exponent)
     bsl::ostringstream oss;
     oss << mantissa << "e" << exponent;
     return oss.str();
+}
+
+bool nanEqual(Util::ValueType32 lhs, Util::ValueType32 rhs)
+    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
+    // the case of 'NaN'.  Two 'ValueType32' objects are considered equal if
+    // either 'Util::equal' returns true, or both 'lhs' and 'rhs' are not equal
+    // to themselves (implying them both to be 'NaN').
+{
+    return  Util::equal(lhs, rhs)
+        || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
 }
 
 bool nanEqual(Util::ValueType64 lhs, Util::ValueType64 rhs)
@@ -5814,6 +5825,39 @@ void TestDriver::testCase8()
         //:            ------+----+------+----+---+
         //:              NaN | NaN|  NaN | NaN|NaN|
 
+        Util::ValueType32   ninf32 = Util::parse32("-Inf");
+        Util::ValueType32   pinf32 = Util::parse32("+Inf");
+        Util::ValueType32    nan32 = Util::parse32( "NaN");
+        ASSERT( Util::equal(pinf32, pinf32));
+        ASSERT( Util::equal(ninf32, ninf32));
+        ASSERT( Util::notEqual(pinf32, ninf32));
+        ASSERT(!Util::equal(nan32, nan32));
+        ASSERT( Util::notEqual(nan32, nan32));
+        Util::ValueType32 normal32 = Util::makeDecimalRaw32(42,1);
+
+        ASSERT(nanEqual(ninf32, Util::add(  ninf32,   ninf32)));
+        ASSERT(nanEqual(ninf32, Util::add(  ninf32, normal32)));
+        ASSERT(nanEqual( nan32, Util::add(  ninf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(  ninf32,    nan32)));
+
+        ASSERT(nanEqual(ninf32, Util::add(normal32,   ninf32)));
+        ASSERT(nanEqual(        Util::add(normal32, normal32),
+                        Util::makeDecimalRaw32(84,1)));
+        ASSERT(nanEqual(pinf32, Util::add(normal32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(normal32,    nan32)));
+
+        ASSERT(nanEqual( nan32, Util::add(  pinf32,   ninf32)));
+        ASSERT(nanEqual(pinf32, Util::add(  pinf32, normal32)));
+        ASSERT(nanEqual(pinf32, Util::add(  pinf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(  pinf32,    nan32)));
+
+        ASSERT(nanEqual( nan32, Util::add(   nan32,   ninf32)));
+        ASSERT(nanEqual( nan32, Util::add(   nan32, normal32)));
+        ASSERT(nanEqual( nan32, Util::add(   nan32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(   nan32,    nan32)));
+
+
+
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
         Util::ValueType64    nan64 = Util::parse64( "NaN");
@@ -6187,6 +6231,27 @@ void TestDriver::testCase6()
                               << " == "
                               << resMantissa << "e" << resExponent << endl;
 
+        Util::ValueType32 negativeZero32 = Util::parse32("-0");
+
+           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
+           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
+        result32 = Util::add(lhs32, rhs32);
+
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(result32, Util::makeDecimalRaw32(resMantissa,
+                                                            resExponent)));
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(lhs32, Util::add(lhs32, negativeZero32)));
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(lhs32, Util::add(negativeZero32, lhs32)));
+
+
         Util::ValueType64 negativeZero64 = Util::parse64("-0");
 
            lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
@@ -6337,6 +6402,7 @@ void TestDriver::testCase5()
     //:    (C-4,6)
     //
     // Testing:
+    //   add(ValueType32,  ValueType32)
     //   add(ValueType64,  ValueType64)
     //   add(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
@@ -6344,6 +6410,10 @@ void TestDriver::testCase5()
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'add'" << endl
                       << "=========================" << endl;
+
+    Util::ValueType32     lhs32;
+    Util::ValueType32     rhs32;
+    Util::ValueType32  result32;
 
     Util::ValueType64     lhs64;
     Util::ValueType64     rhs64;
@@ -6383,7 +6453,9 @@ void TestDriver::testCase5()
                   int resExponent = testCases[ i ].resExponent;
 
         if (veryVerbose) cout << endl
-                              << "Test 'add(ValueType64,"
+                              << "Test 'add(ValueType32,"
+                              << " ValueType32)'," << endl
+                              << "'add(ValueType64,"
                               << " ValueType64)'" << endl
                               << "and 'add(ValueType128,"
                               << " ValueType128)' on" << endl
