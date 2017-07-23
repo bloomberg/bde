@@ -2319,7 +2319,7 @@ int ChannelPool::busyMetrics() const
 }
 
 inline
-bool btemt_ChannelPool::isRunning() const
+bool ChannelPool::isRunning() const
 {
     return static_cast<bool>(d_startFlag);
 }
