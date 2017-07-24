@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // SipHash is *not* a cryptographically secure hash.  In the paper linked
 // above, the creators of this hash function describe it as "Cryptographically
 // Strong", but explicitly avoid calling it cryptographically secure.  In order
-// to be cryptographically secure, and algorithm must, among other things,
+// to be cryptographically secure, an algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
 // be difficult to find two different messages m1 and m2 such that
 // 'hash(m1) == hash(m2)'.  Because of the limited sized output (only 2^64
