@@ -775,11 +775,15 @@ class Decimal_Type32 {
 
     Decimal_Type32& operator++();
         // Add 1.0 to the value of this object and return a reference to it.
-        // Note that this is a floating-point value so this operations may not
+        // Note that this is a floating-point value so this operation may not
         // change the value of this object at all (if the value is large) or it
-        // may seem to just set it to 1.0 (if the original value is small).
+        // may just set it to 1.0 (if the original value is small).
 
     Decimal_Type32& operator--();
+        // Add -1.0 to the value of this object and return a reference to it.
+        // Note that this is a floating-point value so this operation may not
+        // change the value of this object at all (if the value is large) or it
+        // may just set it to -1.0 (if the original value is small).
 
     Decimal_Type32& operator+=(Decimal32  rhs);
     Decimal_Type32& operator+=(Decimal64  rhs);
@@ -852,15 +856,14 @@ Decimal32 operator-(Decimal32 value);
 Decimal32 operator++(Decimal32& value, int);
     // Apply the prefix ++ operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
-    // operations may not change the value of this object at all (if the value
-    // is large) or it may seem to just set it to 1.0 (if the original value is
-    // small).
+    // operation may not change the value of this object at all (if the value
+    // is large) or it may just set it to 1.0 (if the original value is small).
 
 Decimal32 operator--(Decimal32& value, int);
     // Apply the prefix -- operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
-    // operations may not change the value of this object at all (if the value
-    // is large) or it may seem to just set it to 1.0 (if the original value is
+    // operation may not change the value of this object at all (if the value
+    // is large) or it may just set it to -1.0 (if the original value is
     // small).
 
 bool operator==(Decimal32 lhs, Decimal32 rhs);
@@ -1225,15 +1228,15 @@ class Decimal_Type64 {
 
     Decimal_Type64& operator++();
         // Add 1.0 to the value of this object and return a reference to it.
-        // Note that this is a floating-point value so this operations may not
+        // Note that this is a floating-point value so this operation may not
         // change the value of this object at all (if the value is large) or it
-        // may seem to just set it to 1.0 (if the original value is small).
+        // may just set it to 1.0 (if the original value is small).
 
     Decimal_Type64& operator--();
         // Add -1.0 to the value of this object and return a reference to it.
-        // Note that this is a floating-point value so this operations may not
+        // Note that this is a floating-point value so this operation may not
         // change the value of this object at all (if the value is large) or it
-        // may seem to just set it to -1.0 (if the original value is small).
+        // may just set it to -1.0 (if the original value is small).
 
     Decimal_Type64& operator+=(Decimal32  rhs);
     Decimal_Type64& operator+=(Decimal64  rhs);
@@ -1603,14 +1606,13 @@ Decimal64 operator++(Decimal64& value, int);
     // Apply the prefix ++ operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
     // operations may not change the value of this object at all (if the value
-    // is large) or it may seem to just set it to 1.0 (if the original value is
-    // small).
+    // is large) or it may just set it to 1.0 (if the original value is small).
 
 Decimal64 operator--(Decimal64& value, int);
     // Apply the prefix -- operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
     // operations may not change the value of this object at all (if the value
-    // is large) or it may seem to just set it to 1.0 (if the original value is
+    // is large) or it may just set it to -1.0 (if the original value is
     // small).
 
 Decimal64 operator+(Decimal64 lhs, Decimal64 rhs);
@@ -2385,15 +2387,15 @@ class Decimal_Type128 {
 
     Decimal_Type128& operator++();
         // Add 1.0 to the value of this object and return a reference to it.
-        // Note that this is a floating-point value so this operations may not
+        // Note that this is a floating-point value so this operation may not
         // change the value of this object at all (if the value is large) or it
-        // may seem to just set it to 1.0 (if the original value is small).
+        // may just set it to 1.0 (if the original value is small).
 
     Decimal_Type128& operator--();
         // Add -1.0 to the value of this object and return a reference to it.
-        // Note that this is a floating-point value so this operations may not
+        // Note that this is a floating-point value so this operation may not
         // change the value of this object at all (if the value is large) or it
-        // may seem to just set it to -1.0 (if the original value is small).
+        // may just set it to -1.0 (if the original value is small).
 
     Decimal_Type128& operator+=(Decimal32  rhs);
     Decimal_Type128& operator+=(Decimal64  rhs);
@@ -2699,14 +2701,13 @@ Decimal128 operator++(Decimal128& value, int);
     // Apply the prefix ++ operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
     // operations may not change the value of this object at all (if the value
-    // is large) or it may seem to just set it to 1.0 (if the original value is
-    // small).
+    // is large) or it may just set it to 1.0 (if the original value is small).
 
 Decimal128 operator--(Decimal128& value, int);
     // Apply the prefix -- operator to the specified 'value' and return its
     // original value.  Note that this is a floating-point value so this
     // operations may not change the value of this object at all (if the value
-    // is large) or it may seem to just set it to 1.0 (if the original value is
+    // is large) or it may just set it to -1.0 (if the original value is
     // small).
 
 Decimal128 operator+(Decimal128 lhs, Decimal128 rhs);
@@ -4376,6 +4377,7 @@ namespace bdldfp {
                             // class Decimal_Type32
                             // --------------------
 
+// CREATORS
 inline
 Decimal_Type32::Decimal_Type32()
 {
@@ -4472,42 +4474,42 @@ inline Decimal_Type32& Decimal_Type32::operator+=(Decimal32 rhs)
 
 inline Decimal_Type32& Decimal_Type32::operator+=(Decimal64 rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this = Decimal32(Decimal64(*this) + rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(Decimal128 rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this = Decimal32(Decimal128(*this) + rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(int rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this += Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(unsigned int rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this += Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(long rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this += Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(unsigned long rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this += Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(long long rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this += Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator+=(unsigned long long rhs)
 {
-    return *this += Decimal32(rhs);
+    return *this += Decimal64(rhs);
 }
 
                                 // Subtraction
@@ -4520,42 +4522,42 @@ inline Decimal_Type32& Decimal_Type32::operator-=(Decimal32 rhs)
 
 inline Decimal_Type32& Decimal_Type32::operator-=(Decimal64 rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this = Decimal32(Decimal64(*this) - rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(Decimal128 rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this = Decimal32(Decimal128(*this) - rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(int rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this -= Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(unsigned int rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this -= Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(long rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this -= Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(unsigned long rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this -= Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(long long rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this -= Decimal64(rhs);
 }
 
 inline Decimal_Type32& Decimal_Type32::operator-=(unsigned long long rhs)
 {
-    return *this -= Decimal32(rhs);
+    return *this -= Decimal64(rhs);
 }
 
 inline
