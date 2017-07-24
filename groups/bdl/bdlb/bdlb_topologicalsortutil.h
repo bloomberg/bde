@@ -564,6 +564,10 @@ class TopologicalSortUtil_Helper {
 
     bool                 d_hasCycle;     // flag denoting whether cycles are
                                          // present
+  private:
+    // NOT IMPLEMENTED
+      TopologicalSortUtil_Helper(const TopologicalSortUtil_Helper&);
+      TopologicalSortUtil_Helper& operator=(const TopologicalSortUtil_Helper&);
 
   public:
     // TRAITS
