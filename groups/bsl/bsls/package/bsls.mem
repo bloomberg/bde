@@ -27,6 +27,7 @@ bsls_atomicoperations_x64_win_msvc
 bsls_atomicoperations_x86_all_gcc
 bsls_atomicoperations_x86_win_msvc
 bsls_blockgrowth
+bsls_bsldeprecationinformation
 bsls_bslexceptionutil
 bsls_bsllock
 bsls_bslonce
@@ -37,6 +38,7 @@ bsls_byteorderutil
 bsls_byteorderutil_impl
 bsls_compilerfeatures
 bsls_cpp11
+bsls_deprecate
 bsls_exceptionutil
 bsls_ident
 bsls_int64
