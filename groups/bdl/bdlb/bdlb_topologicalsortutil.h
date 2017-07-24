@@ -418,6 +418,18 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
@@ -523,10 +535,21 @@ class TopologicalSortUtil_Helper {
         int                   d_predecessorCount;
         bsl::vector<NodeType> d_successors;        // successors list
 
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(NodeInfo, bslma::UsesBslmaAllocator);
+
         // CREATORS
-        NodeInfo();
+        explicit NodeInfo(bslma::Allocator *allocator = 0);
             // Create a 'NodeInfo' which holds the predecessor and successor
-            // information of an input element.
+            // information of an input element.  Optionally, specify an
+            // 'allocator' for needed memory.  If 'allocator' is 0, use the
+            // globally supply default allocator instead.
+
+        NodeInfo(const NodeInfo& original, bslma::Allocator *allocator = 0);
+            // Create a 'NodeInfo' object having the same value as the
+            // specified 'original' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
     };
 
     typedef bsl::unordered_map<NodeType, NodeInfo> SetInfo;
@@ -543,12 +566,19 @@ class TopologicalSortUtil_Helper {
                                          // present
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(
+                        TopologicalSortUtil_Helper, bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit TopologicalSortUtil_Helper(INPUT_ITER        relationsBegin,
-                                        INPUT_ITER        relationsEnd);
+                                        INPUT_ITER        relationsEnd,
+                                        bslma::Allocator *allocator = 0);
         // Create a helper class that holds the different data structures
         // required to sort in topological order the directed acyclic graph
         // described by the specified 'relationsBegin' and 'relationsEnd'.
+        // Optionally, specify an 'allocator' for needed memory.  If
+        // 'allocator' is 0, use the globally supply default allocator instead.
 
     // MANIPULATORS
     template <class RESULT_ITER>
@@ -687,11 +717,22 @@ to(const EdgeType& edge)
 // CREATORS
 template <class INPUT_ITER>
 inline
-TopologicalSortUtil_Helper<INPUT_ITER>::NodeInfo::NodeInfo()
+TopologicalSortUtil_Helper<INPUT_ITER>::NodeInfo::NodeInfo(
+                                                   bslma::Allocator *allocator)
 : d_predecessorCount(0)
+, d_successors(allocator)
 {
 }
 
+template <class INPUT_ITER>
+inline
+TopologicalSortUtil_Helper<INPUT_ITER>::NodeInfo::NodeInfo(
+                                                   const NodeInfo&   original,
+                                                   bslma::Allocator *allocator)
+: d_predecessorCount(original.d_predecessorCount)
+, d_successors(original.d_successors, allocator)
+{
+}
                       // --------------------------------
                       // class TopologicalSortUtil_Helper
                       // --------------------------------
@@ -700,8 +741,11 @@ TopologicalSortUtil_Helper<INPUT_ITER>::NodeInfo::NodeInfo()
 template <class INPUT_ITER>
 TopologicalSortUtil_Helper<INPUT_ITER>::TopologicalSortUtil_Helper(
                                               INPUT_ITER        relationsBegin,
-                                              INPUT_ITER        relationsEnd)
-: d_hasCycle(false)
+                                              INPUT_ITER        relationsEnd,
+                                              bslma::Allocator *allocator)
+: d_setInfo(allocator)
+, d_orderedNodes(allocator)
+, d_hasCycle(false)
 {
     // Iterate through the partial ordered set and create the input from the
     // pairs
@@ -742,7 +786,7 @@ bool TopologicalSortUtil_Helper<INPUT_ITER>::processNext(RESULT_ITER result)
         // predecessor count of each successor.  Further if this count becomes
         // zero add it 'd_orderedNodes'.
 
-        const NodeInfo&                           processedNodeInfo =
+        const NodeInfo&                                 processedNodeInfo =
                                                          processedNode->second;
         typename bsl::vector<NodeType>::const_iterator  sListIter =
                                       (processedNodeInfo.d_successors).begin();
