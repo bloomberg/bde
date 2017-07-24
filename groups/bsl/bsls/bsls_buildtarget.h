@@ -14,7 +14,9 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_NO_EXC: flag identifying exception-disabled builds
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
-//  BDE_OMIT_DEPRECATED: flag for omitting deprecated code from BDE source
+//  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
+//
+//@SEE_ALSO: bsls_deprecate
 //
 //@DESCRIPTION: The purpose of this component is to cause a link-time error
 // when trying to link an executable with incompatible libraries.  This
@@ -33,8 +35,12 @@ BSLS_IDENT("$Id: $")
 // programs built on BDE:
 //
 //: 'BDE_OMIT_DEPRECATED':
-//:     This macro, if defined, indicates that all deprecated code is excluded
-//:     from a build of the library.
+//:     This macro, if defined, indicates that all code deprecated before BDE
+//:     3.2 will be either omitted from a build of the library (if the code has
+//:     not been updated to use 'bsls_deprecate'), or identified to the
+//:     compiler as deprecated (if the code has been updated to use
+//:     'bsls_deprecate').  New uses of this macro are not supported; use
+//:     'bsls_deprecate' instead.
 //
 //
 ///Usage

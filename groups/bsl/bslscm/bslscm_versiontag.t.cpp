@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
             {  L_,   10,   20,  102000 }
         };
 
-        static const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int LINE  = DATA[i].d_line;
