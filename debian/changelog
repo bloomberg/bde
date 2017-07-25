@@ -1,3 +1,14 @@
+bsl-internal (3.1.8.0) unstable; urgency=low
+
+  * e5aea8a34 Merge pull request #1224 from mgiroux/review/bump-versions-to-3.0.19-and-3.0.8
+  * f6a934ff3 bump versions (bsl->3.0.19, bdl->3.0.8)
+  * e1fc0aa29 Merge pull request #1222 from hversche/pr/1221-rebased-releases/3.1.x
+  * 1d1d62a30 Merge pull request #1217 from hversche/pr/1049-rebased-releases/3.1.x
+  * ad2c2e389 bsls_deprecate: versioned ABI-compatible deprecation.
+  * 969d7cb66 Merge pull request #1209 from mgiroux/pr/1207-rebased-releases/3.1.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 25 Jul 2017 13:07:25 -0400
+
 bsl-internal (3.1.5.2) unstable; urgency=low
 
   * cbacdb622 fix 3.1.5.x version numbers
