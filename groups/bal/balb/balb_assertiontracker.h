@@ -337,7 +337,8 @@ class AssertionTracker {
         // the assertion handler if a callback itself triggers an assertion
 
     mutable bslmt::Mutex    d_mutex;
-        // lock used to serialize concurrent access
+        // lock used to serialize concurrent access to the callback members
+        // and to the accumulated assertion data
 
     ConfigurationCallback   d_configurationCallback;
         // callback invoked to reconfigure reporting parameters
@@ -468,7 +469,7 @@ class AssertionTracker {
 
     void setReportingSeverity(bsls::LogSeverity::Enum value);
         // Set the severity level at which assertions will be reported to the
-        // specified 'value'.  See 'bsls_logseverity' for details.  When this
+        // specified 'value'.  See {'bsls_logseverity'} for details.  When this
         // object reports assertions using
         // 'bsls::Log::platformDefaultMessageHandler', the severity level is
         // passed to that function.  The severity level is also encoded as a
@@ -510,7 +511,7 @@ class AssertionTracker {
 
     bsls::LogSeverity::Enum reportingSeverity() const;
         // Return the severity with which assertions are reported.  See
-        // 'bsls_logseverity.h' for details.
+        // {'bsls_logseverity'} for details.
 };
 
 }  // close package namespace
