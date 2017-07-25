@@ -30,10 +30,10 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // This test driver emphasizes a black-box approach, which is necessarily quite
-// voluminous relative to what would be required given white-box knowledge.
-// We use the standard table-based test case implementation techniques coupled
-// with category partitioning to exercise these utility functions.  We also
-// use loop-based, statistical methods to ensure inversion property where
+// voluminous relative to what would be required given white-box knowledge.  We
+// use the standard table-based test case implementation techniques coupled
+// with category partitioning to exercise these utility functions.  We also use
+// loop-based, statistical methods to ensure inversion property where
 // appropriate.
 //-----------------------------------------------------------------------------
 // [ 1] Dt& epoch();
@@ -397,26 +397,41 @@ int main(int argc, char *argv[])
                 //lin year mon day hou min sec msec   s      msec
                 //--- ---- --- --- --- --- --- ----   -      ----
 
-                    // *** out-of-range input values fail ***      Note:
-                //lin year mon day hou min sec msec   s      msec   ld =
-                //--- ---- --- --- --- --- --- ----   -      ----   Leap Day
-                { L_,    1,  1,  1,  0,  0,  0,   0,  FAILURE, 0 },
+                    // *** out-of-range input values fail ***
+                //lin year mon day hou min sec msec   s      msec
+                //--- ---- --- --- --- --- --- ----   -      ----
+                { L_,    1,  1,  1,  0,  0,  0,   0,  FAILURE,
+                                               -62135769600000LL },
 
-                { L_, 1869, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1879, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1883, 10, 20, 12, 49, 20, 123,  FAILURE, 0 },
-                { L_, 1889, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1899, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1909, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1919, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1925,  5, 28,  5,  9, 40, 321,  FAILURE, 0 },
-                { L_, 1929, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1939, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1944,  7,  8, 13, 18, 33, 951,  FAILURE, 0 },
-                { L_, 1949, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
-                { L_, 1959, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
+                { L_, 1869, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -3155673600001LL },
+                { L_, 1879, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -2840140800001LL },
+                { L_, 1883, 10, 20, 12, 49, 20, 123,  FAILURE,
+                                                -2720171439877LL },
+                { L_, 1889, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -2524521600001LL },
+                { L_, 1899, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -2208988800001LL },
+                { L_, 1909, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -1893456000001LL },
+                { L_, 1919, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -1577923200001LL },
+                { L_, 1925,  5, 28,  5,  9, 40, 321,  FAILURE,
+                                                -1407351019679LL },
+                { L_, 1929, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                -1262304000001LL },
+                { L_, 1939, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                 -946771200001LL },
+                { L_, 1944,  7,  8, 13, 18, 33, 951,  FAILURE,
+                                                 -804163286049LL },
+                { L_, 1949, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                 -631152000001LL },
+                { L_, 1959, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                 -315619200001LL },
 
-                { L_, 1969, 12, 31, 23, 59, 59, 999,  FAILURE, 0 },
+                { L_, 1969, 12, 31, 23, 59, 59, 999,  FAILURE,
+                                                            -1LL },
                 { L_, 1970,  1,  1,  0,  0,  0,   0,  0,       0 }, //  0
 
                 { L_, 1980,  1,  1,  0,  0,  0,   0,  0,
@@ -519,7 +534,9 @@ int main(int argc, char *argv[])
                     // *** Time = 24:00:00:000 converts to 00:00:00 ***
                 //lin year mon day hou min sec msec   s      msec
                 //--- ---- --- --- --- --- --- ----   -      ----
-                { L_,    1,  1,  1, 24,  0,  0,   0,  FAILURE, 0 },
+                { L_,    1,  1,  1, 24,  0,  0,   0,  FAILURE,
+                                               -62135769600000LL },
+                { L_, 1970,  1,  1, 24,  0,  0,   0,  0,       0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -584,23 +601,19 @@ int main(int argc, char *argv[])
                     bdlt::DatetimeInterval resultDup(0, 0, 0, 0, CONTROL);
                     if (veryVerbose) { cout << "Before: "; P(resultDup); }
 
-                    if (0 == STATUS) {
-                        resultDup = Util::convertToDatetimeInterval(INPUT);
-                    }
+                    resultDup = Util::convertToDatetimeInterval(INPUT);
 
                     if (veryVerbose) { cout << "After: "; P(resultDup); }
 
                     if (STATUS != 0) {
-                            // *** Bad status implies no change to result.  ***
+                        // *** Bad status implies no change to result.  ***
                         ASSERTV(LINE, vi, CONTROL, result,
                                      ORIGINAL == result);
-                        ASSERTV(LINE, vi, CONTROL, result,
-                                     ORIGINAL == resultDup);
                     }
                     else {
                         ASSERTV(LINE, vi, OUTPUT, result, OUTPUT == result);
-                        ASSERTV(LINE, vi, OUTPUT, result, OUTPUT == resultDup);
                     }
+                    ASSERTV(LINE, vi, OUTPUT, resultDup, OUTPUT == resultDup);
 
                        // *** REUSE THIS LOOP TO PARTIALLY TEST
                        //                       convertFromDatetimeInterval ***
@@ -645,20 +658,8 @@ int main(int argc, char *argv[])
                     bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                    if (veryVerbose) {
-                        cout << "Negative test - expect "
-                             << (0 == STATUS ? "success " : "failure ");
-                        P(INPUT)
-                    }
-
-                    if (0 == STATUS) {
-                        ASSERT_SAFE_PASS(
-                                       Util::convertToDatetimeInterval(INPUT));
-                    }
-                    else {
-                        ASSERT_SAFE_FAIL(
-                                       Util::convertToDatetimeInterval(INPUT));
-                    }
+                    ASSERT_SAFE_FAIL(Util::convertToDatetimeInterval(0,
+                                                                     INPUT));
                 }
             } // end for ti
         }
@@ -1027,28 +1028,45 @@ int main(int argc, char *argv[])
         //lin year mon day hou min sec msec usec   s      sec  nsec
         //--- ---- --- --- --- --- --- ---- ----   -      ---  ----
 
-                // *** out-of-range input values fail ***          Note:
-        //lin year mon day hou min sec msec usec   s      sec  nsec ld =
-        //--- ---- --- --- --- --- --- ---- ----   -      ---  ---- Leap Day
-        { L_,    1,  1,  1,  0,  0,  0,   0,   0,  FAILURE, 0,    0 },
+                // *** out-of-range input values fail ***
+        //lin year mon day hou min sec msec usec   s      sec  nsec
+        //--- ---- --- --- --- --- --- ---- ----   -      ---  ----
+        { L_,    1,  1,  1,  0,  0,  0,   0,   0,  FAILURE,
+                                           -62135769600,          0 },
 
-        { L_, 1869, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1879, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1883, 10, 20, 12, 49, 20, 123,   0,  FAILURE, 0,    0 },
-        { L_, 1889, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1899, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1909, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1919, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1925,  5, 28,  5,  9, 40, 321,   0,  FAILURE, 0,    0 },
-        { L_, 1925,  5, 28,  5,  9, 40, 321, 345,  FAILURE, 0,    0 },
-        { L_, 1929, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1939, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1944,  7,  8, 13, 18, 33, 951,   0,  FAILURE, 0,    0 },
-        { L_, 1949, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
-        { L_, 1959, 12, 31, 23, 59, 59, 999, 123,  FAILURE, 0,    0 },
-        { L_, 1959, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
+        { L_, 1869, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -3155673600,   -1000000 },
+        { L_, 1879, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -2840140800,   -1000000 },
+        { L_, 1883, 10, 20, 12, 49, 20, 123,   0,  FAILURE,
+                                            -2720171439,  -877000000 },
+        { L_, 1889, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -2524521600,   -1000000 },
+        { L_, 1899, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -2208988800,   -1000000 },
+        { L_, 1909, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -1893456000,   -1000000 },
+        { L_, 1919, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -1577923200,   -1000000 },
+        { L_, 1925,  5, 28,  5,  9, 40, 321,   0,  FAILURE,
+                                            -1407351019, -679000000 },
+        { L_, 1925,  5, 28,  5,  9, 40, 321, 345,  FAILURE,
+                                            -1407351019, -678655000 },
+        { L_, 1929, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                            -1262304000,   -1000000 },
+        { L_, 1939, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                             -946771200,   -1000000 },
+        { L_, 1944,  7,  8, 13, 18, 33, 951,   0,  FAILURE,
+                                             -804163286,  -49000000 },
+        { L_, 1949, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                             -631152000,   -1000000 },
+        { L_, 1959, 12, 31, 23, 59, 59, 999, 123,  FAILURE,
+                                             -315619200,    -877000 },
+        { L_, 1959, 12, 31, 23, 59, 59, 999,   0,  FAILURE,
+                                             -315619200,   -1000000 },
 
-        { L_, 1969, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,    0 },
+        { L_, 1969, 12, 31, 23, 59, 59, 999,   0,  FAILURE, 0,
+                                                           -1000000 },
         { L_, 1970,  1,  1,  0,  0,  0,   0,   0,  0,       0,    0 }, //  0
 
         { L_, 1980,  1,  1,  0,  0,  0,   0,   0,  0,  315532800, 0 }, //  2
@@ -1167,7 +1185,9 @@ int main(int argc, char *argv[])
             // *** Time = 24:00:00:000 converts to 00:00:00 ***
         //lin year mon day hou min sec msec usec  s       sec  nsec
         //--- ---- --- --- --- --- --- ---- ----  -       ---  ----
-        { L_,    1,  1,  1, 24,  0,  0,   0,   0, FAILURE, 0,    0 },
+        { L_,    1,  1,  1, 24,  0,  0,   0,   0, FAILURE,
+                                                 -62135769600,    0 },
+        { L_, 1970,  1,  1, 24,  0,  0,   0,   0, 0,        0,    0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -1231,23 +1251,19 @@ int main(int argc, char *argv[])
                     bsls::TimeInterval resultDup(CONTROL, 0);
                     if (veryVerbose) { cout << "Before: "; P(resultDup) }
 
-                    if (0 == STATUS) {
-                        resultDup = Util::convertToTimeInterval(INPUT);
-                    }
+                    resultDup = Util::convertToTimeInterval(INPUT);
 
                     if (veryVerbose) { cout << "After: "; P(resultDup) }
 
                     if (STATUS != 0) {
-                            // *** Bad status implies no change to result.  ***
+                        // *** Bad status implies no change to result.  ***
                         ASSERTV(LINE, vi, CONTROL, result,
                                      ORIGINAL == result);
-                        ASSERTV(LINE, vi, CONTROL, result,
-                                     ORIGINAL == resultDup);
                     }
                     else {
                         ASSERTV(LINE, vi, OUTPUT, result, OUTPUT == result);
-                        ASSERTV(LINE, vi, OUTPUT, result, OUTPUT == resultDup);
                     }
+                    ASSERTV(LINE, vi, OUTPUT, resultDup, OUTPUT == resultDup);
 
                         // *** REUSE THIS LOOP TO PARTIALLY TEST
                         //                          convertFromTimeInterval ***
@@ -1290,18 +1306,7 @@ int main(int argc, char *argv[])
                     bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                    if (veryVerbose) {
-                        cout << "Negative test - expect "
-                             << (0 == STATUS ? "success " : "failure ");
-                        P(INPUT)
-                    }
-
-                    if (0 == STATUS) {
-                        ASSERT_SAFE_PASS(Util::convertToTimeInterval(INPUT));
-                    }
-                    else {
-                        ASSERT_SAFE_FAIL(Util::convertToTimeInterval(INPUT));
-                    }
+                    ASSERT_SAFE_FAIL(Util::convertToTimeInterval(0, INPUT));
                 }
             } // end for ti
         }
@@ -1707,7 +1712,7 @@ int main(int argc, char *argv[])
         //lin year mon day hou min sec msec usec   s      result
         //--- ---- --- --- --- --- --- ---- ----   -      ------
 
-                // *** out-of-range input values fail ***          Note:
+                // *** out-of-range input values fail *** Note:
         //lin year mon day hou min sec msec usec   s      result    ld =
         //--- ---- --- --- --- --- --- ---- ----   -      ------    Leap Day
         { L_,    1,  1,  1,  0,  0,  0,   0,   0,  FAILURE,    0 },
@@ -2494,8 +2499,8 @@ int main(int argc, char *argv[])
                     tmp2.setMillisecond(0);
                     tmp2.setMicrosecond(0);
 
-                    // *** There is no equivalent representation for
-                    // 24:00:00 as a time_t
+                    // *** There is no equivalent representation for 24:00:00
+                    // as a time_t
                     tmp2.setHour(tmp2.hour() % 24);
 
                     const bdlt::Datetime INPUT2(tmp2);
@@ -2865,7 +2870,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
