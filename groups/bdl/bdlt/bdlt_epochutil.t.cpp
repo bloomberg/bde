@@ -54,7 +54,8 @@ using namespace bsl;
 // [ 5] DtI convertToDatetimeInterval(const Dt& dt);
 // [ 5] int convertToDatetimeInterval(DtI *result, const Dt& dt);
 //-----------------------------------------------------------------------------
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
+// [ 6] DRQS 100907184
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -197,7 +198,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -285,6 +286,46 @@ int main(int argc, char *argv[])
                                                        inputDatetime));
     ASSERT(inputDatetimeInterval == outputDatetimeInterval);
 //..
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // DRQS 100907184
+        //   Test the adjustments for DRQS 100907184.
+        //
+        // Concerns:
+        //: 1 The defining of behavior for negative intervals and datetimes
+        //:   prior to the epoch results in correct behavior for the provided
+        //:   examples.
+        //
+        // Plan:
+        //: 1 Directly verify the examples from the DRQS.
+        //
+        // Testing:
+        //   DRQS 100907184
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "DRQS 100907184" << endl
+                          << "==============" << endl;
+
+        {
+            bdlt::Datetime     dt1(1963,  5, 18, 11,  9,  1,   1,   1);
+            bsls::TimeInterval ti  =
+                                   bdlt::EpochUtil::convertToTimeInterval(dt1);
+            bdlt::Datetime     dt2 =
+                                  bdlt::EpochUtil::convertFromTimeInterval(ti);
+
+            ASSERT(dt1 == dt2);
+        }
+
+        {
+            bdlt::Datetime     dt1(1969, 12, 31, 23, 59, 59, 999, 999);
+            bsls::TimeInterval ti  =
+                                   bdlt::EpochUtil::convertToTimeInterval(dt1);
+            bdlt::Datetime     dt2 =
+                                  bdlt::EpochUtil::convertFromTimeInterval(ti);
+
+            ASSERT(dt1 == dt2);
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------

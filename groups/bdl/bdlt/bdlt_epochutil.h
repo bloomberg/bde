@@ -329,7 +329,7 @@ struct EpochUtil {
         // If 'datetime - epoch() >= DatetimeInterval()', load into the
         // specified 'result' the relative time converted to a
         // 'bsls::TimeInterval', computed as the difference between the
-        // specified absolute 'datetime' and the epoch and return 0.
+        // specified absolute 'datetime' and the epoch, and return 0.
         // Otherwise, return a non-zero value (with no effect on 'result').
 
     static int convertToDatetimeInterval(DatetimeInterval *result,
@@ -339,8 +339,8 @@ struct EpochUtil {
         // If 'datetime - epoch() >= DatetimeInterval()', load into the
         // specified 'result' the relative time converted to a
         // 'DatetimeInterval', computed as the difference between the specified
-        // absolute 'datetime' and the epoch and return 0.  Otherwise, return a
-        // non-zero value (with no effect on 'result').
+        // absolute 'datetime' and the epoch, and return 0.  Otherwise, return
+        // a non-zero value (with no effect on 'result').
 };
 
 // ============================================================================
