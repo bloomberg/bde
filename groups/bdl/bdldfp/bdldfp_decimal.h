@@ -807,16 +807,16 @@ class Decimal_Type32 {
     Decimal_Type32& operator-=(long long          rhs);
     Decimal_Type32& operator-=(unsigned long long rhs);
 
-    // Decimal_Type32& operator*=(Decimal32  rhs);
-    // Decimal_Type32& operator*=(Decimal64  rhs);
-    // Decimal_Type32& operator*=(Decimal128 rhs);
+    Decimal_Type32& operator*=(Decimal32  rhs);
+    Decimal_Type32& operator*=(Decimal64  rhs);
+    Decimal_Type32& operator*=(Decimal128 rhs);
 
-    // Decimal_Type32& operator*=(int                rhs);
-    // Decimal_Type32& operator*=(unsigned int       rhs);
-    // Decimal_Type32& operator*=(long               rhs);
-    // Decimal_Type32& operator*=(unsigned long      rhs);
-    // Decimal_Type32& operator*=(long long          rhs);
-    // Decimal_Type32& operator*=(unsigned long long rhs);
+    Decimal_Type32& operator*=(int                rhs);
+    Decimal_Type32& operator*=(unsigned int       rhs);
+    Decimal_Type32& operator*=(long               rhs);
+    Decimal_Type32& operator*=(unsigned long      rhs);
+    Decimal_Type32& operator*=(long long          rhs);
+    Decimal_Type32& operator*=(unsigned long long rhs);
 
     // Decimal_Type32& operator/=(Decimal32  rhs);
     // Decimal_Type32& operator/=(Decimal64  rhs);
@@ -865,6 +865,249 @@ Decimal32 operator--(Decimal32& value, int);
     // operation may not change the value of this object at all (if the value
     // is large) or it may just set it to -1.0 (if the original value is
     // small).
+
+Decimal32 operator+(Decimal32 lhs, Decimal32 rhs);
+    // Add the value of the specified 'rhs' to the value of the specified 'lhs'
+    // as described by IEEE-754 and return the result.
+    //
+    //: o If either of 'lhs' or 'rhs' is NaN, then raise the "invalid"
+    //:   floating-point exception and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, raise
+    //:   the "invalid" floating-point exception and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and 'rhs' are infinities of the same sign then
+    //:   return infinity of that sign.
+    //:
+    //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
+    //:
+    //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
+    //:   larger than 'std::numeric_limits<Decimal32>::max()' then raise the
+    //:   "overflow" floating-point exception and return infinity with the same
+    //:   sign as that result.
+    //:
+    //: o Otherwise return the sum of the number represented by 'lhs' and the
+    //:   number represented by 'rhs'.
+
+Decimal32 operator+(Decimal32 lhs, int                rhs);
+Decimal32 operator+(Decimal32 lhs, unsigned int       rhs);
+Decimal32 operator+(Decimal32 lhs, long               rhs);
+Decimal32 operator+(Decimal32 lhs, unsigned long      rhs);
+Decimal32 operator+(Decimal32 lhs, long long          rhs);
+Decimal32 operator+(Decimal32 lhs, unsigned long long rhs);
+    // Add the specified 'rhs' to the value of the specified 'lhs' as described
+    // by IEEE-754 and return the result.
+    //
+    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity, then return that infinity.
+    //:
+    //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
+    //:   larger than 'std::numeric_limits<Decimal32>::max()' then raise the
+    //:   "overflow" floating-point exception and return infinity with the same
+    //:   sign as that result.
+    //:
+    //: o Otherwise return the sum of 'rhs' and the number represented by
+    //:   'lhs'.
+
+Decimal32 operator+(int                lhs, Decimal32 rhs);
+Decimal32 operator+(unsigned int       lhs, Decimal32 rhs);
+Decimal32 operator+(long               lhs, Decimal32 rhs);
+Decimal32 operator+(unsigned long      lhs, Decimal32 rhs);
+Decimal32 operator+(long long          lhs, Decimal32 rhs);
+Decimal32 operator+(unsigned long long lhs, Decimal32 rhs);
+    // Add the specified 'lhs' to the value of the specified 'rhs' as described
+    // by IEEE-754 and return the result.
+    //
+    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is infinity, then return that infinity.
+    //:
+    //: o Otherwise if the sum of the value of 'rhs' and 'lhs' has an absolute
+    //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
+    //:   then raise the "overflow" floating-point exception and return
+    //:   infinity with the same sign as that result.
+    //:
+    //: o Otherwise return the sum of 'lhs' and the number represented by
+    //:   'rhs'.
+
+Decimal32 operator-(Decimal32 lhs, Decimal32 rhs);
+    // Subtract the value of the specified 'rhs' from the value of the
+    // specified 'lhs' as described by IEEE-754 and return the result.
+    //
+    //: o If either 'lhs' or 'rhs' is NaN, then raise the "invalid"
+    //:   floating-point exception and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and the 'rhs' have infinity values of the same
+    //:   sign, then raise the "invalid" floating-point exception and return a
+    //:   NaN.
+    //:
+    //: o Otherwise if 'lhs' and the 'rhs' have infinity values of differing
+    //:   signs, then return 'lhs'.
+    //:
+    //: o Otherwise if 'rhs' has a zero value (positive or negative), then
+    //:   return 'lhs'.
+    //:
+    //: o Otherwise if subtracting the value of the 'rhs' object from the value
+    //:   of 'lhs' results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise return the result of subtracting the value of 'rhs' from
+    //:   the value of 'lhs'.
+
+Decimal32 operator-(Decimal32 lhs, int                rhs);
+Decimal32 operator-(Decimal32 lhs, unsigned int       rhs);
+Decimal32 operator-(Decimal32 lhs, long               rhs);
+Decimal32 operator-(Decimal32 lhs, unsigned long      rhs);
+Decimal32 operator-(Decimal32 lhs, long long          rhs);
+Decimal32 operator-(Decimal32 lhs, unsigned long long rhs);
+    // Subtract the specified 'rhs' from the value of the specified 'lhs' as
+    // described by IEEE-754 and return a reference to this object.
+    //
+    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //:
+    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
+    //:   absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise return the result of subtracting 'rhs' from the value of
+    //:   'lhs'.
+
+Decimal32 operator-(int                lhs, Decimal32 rhs);
+Decimal32 operator-(unsigned int       lhs, Decimal32 rhs);
+Decimal32 operator-(long               lhs, Decimal32 rhs);
+Decimal32 operator-(unsigned long      lhs, Decimal32 rhs);
+Decimal32 operator-(long long          lhs, Decimal32 rhs);
+Decimal32 operator-(unsigned long long lhs, Decimal32 rhs);
+    // Subtract the specified 'rhs' from the value of the specified 'lhs' as
+    // described by IEEE-754 and return a reference to this object.
+    //
+    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception return
+    //:   a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //:
+    //: o Otherwise if 'rhs' is zero (positive or negative), then return 'lhs'.
+    //:
+    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
+    //:   absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise return the result of subtracting the value of 'rhs'
+    // from the number 'lhs'.
+
+Decimal32 operator*(Decimal32 lhs, Decimal32 rhs);
+    // Multiply the value of the specified 'lhs' object by the value of the
+    // specified 'rhs' as described by IEEE-754 and return the result.
+    //
+    //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //:
+    //: o Otherwise if one of the operands is infinity (positive or negative)
+    //:   and the other is zero (positive or negative), then raise the
+    //:   "invalid" floating-point exception raised and return a NaN.
+    //:
+    //: o Otherwise if both 'lhs' and 'rhs' are infinity (positive or
+    //:   negative), return infinity.  The sign of the returned value will be
+    //:   positive if 'lhs' and 'rhs' have the same sign, and negative
+    //:   otherwise.
+    //:
+    //: o Otherwise, if either 'lhs' or 'rhs' is zero, return zero.  The sign
+    //:   of the returned value will be positive if 'lhs' and 'rhs' have the
+    //:   same sign, and negative otherwise.
+    //:
+    //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+    //:   that is larger than 'std::numeric_limits<Decimal32>::max()' then
+    //:   raise the "overflow" floating-point exception and return infinity
+    //:   with the same sign as that result.
+    //:
+    //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+    //:   that is smaller than 'std::numeric_limits<Decimal32>::min()' then
+    //:   raise the "underflow" floating-point exception and return zero with
+    //:   the same sign as that result.
+    //:
+    //: o Otherwise return the product of the value of 'rhs' and the number
+    //:   represented by 'rhs'.
+
+Decimal32 operator*(Decimal32 lhs, int                rhs);
+Decimal32 operator*(Decimal32 lhs, unsigned int       rhs);
+Decimal32 operator*(Decimal32 lhs, long               rhs);
+Decimal32 operator*(Decimal32 lhs, unsigned long      rhs);
+Decimal32 operator*(Decimal32 lhs, long long          rhs);
+Decimal32 operator*(Decimal32 lhs, unsigned long long rhs);
+    // Multiply the specified 'rhs' by the value of the specified 'lhs' as
+    // described by IEEE-754, and return the result.
+    //
+    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
+    //:   zero, then raise the "invalid" floating-point exception and return a
+    //:   NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity (positive or negative), then return
+    //:   'lhs'.
+    //:
+    //: o Otherwise if 'rhs' is zero, then return zero with the sign of 'lhs'.
+    //:
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
+    //:   absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
+    //:   absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
+    //:   floating-point exception and return zero with the same sign as that
+    //:   result.
+    //:
+    //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
+
+Decimal32 operator*(int                lhs, Decimal32 rhs);
+Decimal32 operator*(unsigned int       lhs, Decimal32 rhs);
+Decimal32 operator*(long               lhs, Decimal32 rhs);
+Decimal32 operator*(unsigned long      lhs, Decimal32 rhs);
+Decimal32 operator*(long long          lhs, Decimal32 rhs);
+Decimal32 operator*(unsigned long long lhs, Decimal32 rhs);
+    // Multiply the specified 'lhs' by the value of the specified 'rhs' as
+    // described by IEEE-754, and return the result.
+    //
+    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
+    //:   zero, then raise the "invalid" floating-point exception and return a
+    //:   NaN.
+    //:
+    //: o Otherwise if 'rhs' is infinity (positive or negative), then return
+    //:   'rhs'.
+    //:
+    //: o Otherwise if 'lhs' is zero, then return zero with the sign of 'rhs'.
+    //:
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
+    //:   absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
+    //:   absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
+    //:   floating-point exception and return zero with the same sign as that
+    //:   result.
+    //:
+    //: o Otherwise return the product of the value of 'rhs' and value 'lhs'.
 
 bool operator==(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
@@ -4560,6 +4803,54 @@ inline Decimal_Type32& Decimal_Type32::operator-=(unsigned long long rhs)
     return *this -= Decimal64(rhs);
 }
 
+                               // Multiplication
+
+inline Decimal_Type32& Decimal_Type32::operator*=(Decimal32 rhs)
+{
+    this->d_value = DecimalImpUtil::multiply(this->d_value, rhs.d_value);
+    return *this;
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(Decimal64 rhs)
+{
+    return *this = Decimal32(Decimal64(*this) * rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(Decimal128 rhs)
+{
+    return *this = Decimal32(Decimal128(*this) * rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(int rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(unsigned int rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(unsigned long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(long long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator*=(unsigned long long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
 inline
 DecimalImpUtil::ValueType32 *Decimal_Type32::data()
 {
@@ -5313,6 +5604,285 @@ bdldfp::Decimal32 bdldfp::operator--(bdldfp::Decimal32& value, int)
     bdldfp::Decimal32 result(value);
     --value;
     return result;
+}
+
+                                  // Addition
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::add(*lhs.data(), *rhs.data());
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    int               rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    unsigned int      rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    long              rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    unsigned long     rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    long long         rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32  lhs,
+                                    unsigned long long rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(int               lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(unsigned int      lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(long              lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(unsigned long     lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(long long         lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(unsigned long long lhs,
+                                    bdldfp::Decimal32  rhs)
+{
+    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+}
+
+
+                                // Subtraction
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::subtract(*lhs.data(), *rhs.data());
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    int               rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    unsigned int      rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    long              rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    unsigned long     rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    long long         rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32  lhs,
+                                    unsigned long long rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(int               lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(unsigned int      lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(long              lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(unsigned long     lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(long long         lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(unsigned long long lhs,
+                                    bdldfp::Decimal32  rhs)
+{
+    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+}
+
+                               // Multiplication
+
+inline bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                           bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::multiply(*lhs.data(), *rhs.data());
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                    int               rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                    unsigned int      rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                    long              rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                    unsigned long     rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                    long long         rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32  lhs,
+                                    unsigned long long rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(int               lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(unsigned int      lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(long              lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(unsigned long     lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(long long         lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator*(unsigned long long lhs,
+                                    bdldfp::Decimal32  rhs)
+{
+    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
 }
 
 inline

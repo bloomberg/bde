@@ -3726,12 +3726,230 @@ void TestDriver::testCase1()
         LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-32.0) == d);
     }
 
+    if (veryVerbose) bsl::cout << "*=" << bsl::endl;
+    {
+        BDEC::Decimal32 d(BDLDFP_DECIMAL_DF(-5.0));
+
+        if (veryVeryVerbose) bsl::cout << "*=(int)" << bsl::endl;
+        d *= -2;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(10.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(unsigned int)" << bsl::endl;
+        d *= 2000u;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(20000.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(long int)" << bsl::endl;
+        d *= -10l;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-200000.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(unsigned long int)"
+                                       << bsl::endl;
+        d *= 3ul;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(-600000.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(long long int)" << bsl::endl;
+        d *= -1ll;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(600000.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(unsigned long long int)"
+                                       << bsl::endl;
+        d *= 5ull;
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(3000000.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(Decimal32)" << bsl::endl;
+        d *= BDLDFP_DECIMAL_DF(1e-5);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DF(30.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(Decimal64)" << bsl::endl;
+        d *= BDLDFP_DECIMAL_DD(-3.0);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-90.0) == d);
+
+        if (veryVeryVerbose) bsl::cout << "*=(Decimal128)" << bsl::endl;
+        d *= BDLDFP_DECIMAL_DL(2.4e-101);
+        LOOP_ASSERT(d, BDLDFP_DECIMAL_DD(-2.16e-99) == d);
+    }
+
+    if (veryVerbose) bsl::cout << "operator+" << bsl::endl;
+    {
+        BDEC::Decimal32 d(BDLDFP_DECIMAL_DF(-5.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + int" << bsl::endl;
+        LOOP_ASSERT(d + 1, d + 1 == BDLDFP_DECIMAL_DF(-4.0));
+        LOOP_ASSERT(1 + d, 1 + d == BDLDFP_DECIMAL_DF(-4.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + unsigned int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d + 10u, d + 10u == BDLDFP_DECIMAL_DF(5.0));
+        LOOP_ASSERT(10u + d, 10u + d == BDLDFP_DECIMAL_DF(5.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + long int" << bsl::endl;
+        LOOP_ASSERT(d + 1l, d + 1l == BDLDFP_DECIMAL_DF(-4.0));
+        LOOP_ASSERT(1l + d, 1l + d == BDLDFP_DECIMAL_DF(-4.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + unsigned long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d + 10ul, d + 10ul == BDLDFP_DECIMAL_DF(5.0));
+        LOOP_ASSERT(10ul + d, 10ul + d == BDLDFP_DECIMAL_DF(5.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + long long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d + 1ll, d + 1ll == BDLDFP_DECIMAL_DF(-4.0));
+        LOOP_ASSERT(1ll + d, 1ll + d == BDLDFP_DECIMAL_DF(-4.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + unsigned long long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d + 10ull, d + 10ull == BDLDFP_DECIMAL_DF(5.0));
+        LOOP_ASSERT(10ull + d, 10ull + d == BDLDFP_DECIMAL_DF(5.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec + dec32" << bsl::endl;
+        LOOP_ASSERT(d + BDLDFP_DECIMAL_DF(-3.0),
+                    d + BDLDFP_DECIMAL_DF(-3.0) ==
+                    BDLDFP_DECIMAL_DF(-8.0));
+    }
+
+    if (veryVerbose) bsl::cout << "operator-" << bsl::endl;
+    {
+        BDEC::Decimal32 d(BDLDFP_DECIMAL_DF(-5.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - int" << bsl::endl;
+        LOOP_ASSERT(d - 1, d - 1 == BDLDFP_DECIMAL_DF(-6.0));
+        LOOP_ASSERT(1 - d, 1 - d == BDLDFP_DECIMAL_DF( 6.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - unsigned int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d - 10u, d - 10u == BDLDFP_DECIMAL_DF(-15.0));
+        LOOP_ASSERT(10u - d, 10u - d == BDLDFP_DECIMAL_DF( 15.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - long int" << bsl::endl;
+        LOOP_ASSERT(d - 1l, d - 1l == BDLDFP_DECIMAL_DF(-6.0));
+        LOOP_ASSERT(1l - d, 1l - d == BDLDFP_DECIMAL_DF( 6.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - unsigned long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d - 10ul, d - 10ul == BDLDFP_DECIMAL_DF(-15.0));
+        LOOP_ASSERT(10ul - d, 10ul - d == BDLDFP_DECIMAL_DF( 15.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - long long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d - 1ll, d - 1ll == BDLDFP_DECIMAL_DF(-6.0));
+        LOOP_ASSERT(1ll - d, 1ll - d == BDLDFP_DECIMAL_DF( 6.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - unsigned long long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d - 10ull, d - 10ull == BDLDFP_DECIMAL_DF(-15.0));
+        LOOP_ASSERT(10ull - d, 10ull - d == BDLDFP_DECIMAL_DF( 15.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec - dec32" << bsl::endl;
+        LOOP_ASSERT(d - BDLDFP_DECIMAL_DF(-3.0),
+                    d - BDLDFP_DECIMAL_DF(-3.0) ==
+                    BDLDFP_DECIMAL_DF(-2.0));
+    }
+
+    if (veryVerbose) bsl::cout << "operator*" << bsl::endl;
+    {
+        BDEC::Decimal32 d(BDLDFP_DECIMAL_DF(-5.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * int" << bsl::endl;
+        LOOP_ASSERT(d * -2, d * -2 == BDLDFP_DECIMAL_DF(10.0));
+        LOOP_ASSERT(-2 * d, -2 * d == BDLDFP_DECIMAL_DF(10.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * unsigned int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d * 10u, d * 10u == BDLDFP_DECIMAL_DF(-50.0));
+        LOOP_ASSERT(10u * d, 10u * d == BDLDFP_DECIMAL_DF(-50.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * long int" << bsl::endl;
+        LOOP_ASSERT(d * -2l, d * -2l == BDLDFP_DECIMAL_DF(10.0));
+        LOOP_ASSERT(-2l * d, -2l * d == BDLDFP_DECIMAL_DF(10.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * unsigned long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d * 10ul, d * 10ul == BDLDFP_DECIMAL_DF(-50.0));
+        LOOP_ASSERT(10ul * d, 10ul * d == BDLDFP_DECIMAL_DF(-50.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * long long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d * -2ll, d * -2ll == BDLDFP_DECIMAL_DF(10.0));
+        LOOP_ASSERT(-2ll * d, -2ll * d == BDLDFP_DECIMAL_DF(10.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * unsigned long long int"
+                                       << bsl::endl;
+        LOOP_ASSERT(d * 10ull, d * 10ull == BDLDFP_DECIMAL_DF(-50.0));
+        LOOP_ASSERT(10ull * d, 10ull * d == BDLDFP_DECIMAL_DF(-50.0));
+
+        if (veryVeryVerbose) bsl::cout << "dec * dec32" << bsl::endl;
+        LOOP_ASSERT(d * BDLDFP_DECIMAL_DF(-3.0),
+                    d * BDLDFP_DECIMAL_DF(-3.0) ==
+                    BDLDFP_DECIMAL_DF(15.0));
+    }
+
     if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
 
     BDEC::Decimal32        d32  = BDEC::Decimal32();
     const BDEC::Decimal32  c32  = BDEC::Decimal32();
 
     if (veryVerbose) bsl::cout << "Check return types" << bsl::endl;
+
+    checkType<BDEC::Decimal32&>(++d32);
+    checkType<BDEC::Decimal32>(d32++);
+    checkType<BDEC::Decimal32&>(--d32);
+    checkType<BDEC::Decimal32>(d32--);
+    checkType<BDEC::Decimal32&>(d32 += static_cast<char>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<unsigned char>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<signed char>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<short>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<unsigned short>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<int>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<unsigned int>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<long>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<unsigned long>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<long long>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<unsigned long long>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<BDEC::Decimal32>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<BDEC::Decimal64>(1));
+    checkType<BDEC::Decimal32&>(d32 += static_cast<BDEC::Decimal128>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<char>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<unsigned char>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<signed char>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<short>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<unsigned short>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<int>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<unsigned int>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<long>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<unsigned long>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<long long>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<unsigned long long>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<BDEC::Decimal32>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<BDEC::Decimal64>(1));
+    checkType<BDEC::Decimal32&>(d32 -= static_cast<BDEC::Decimal128>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<char>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<unsigned char>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<signed char>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<short>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<unsigned short>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<int>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<unsigned int>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<long>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<unsigned long>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<long long>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<unsigned long long>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<BDEC::Decimal32>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<BDEC::Decimal64>(1));
+    checkType<BDEC::Decimal32&>(d32 *= static_cast<BDEC::Decimal128>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<char>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<unsigned char>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<signed char>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<short>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<unsigned short>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<int>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<unsigned int>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<long>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<unsigned long>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<long long>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<unsigned long long>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<BDEC::Decimal32>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<BDEC::Decimal64>(1));
+    // checkType<BDEC::Decimal64&>(d64 /= static_cast<BDEC::Decimal128>(1));
 
     checkType<bool>(d32 == d32);
     checkType<bool>(d32 != d32);
@@ -3742,6 +3960,11 @@ void TestDriver::testCase1()
 
     checkType<BDEC::Decimal32>(+d32);
     checkType<BDEC::Decimal32>(-d32);
+
+    checkType<BDEC::Decimal32>(d32 + d32);
+    checkType<BDEC::Decimal32>(d32 - d32);
+    checkType<BDEC::Decimal32>(d32 * d32);
+    // checkType<BDEC::Decimal32>(d32 / d32);
 
     {
         bsl::istringstream  in(pa);

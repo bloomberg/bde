@@ -502,6 +502,7 @@ class DecimalImpUtil {
 
                         // Multiplication functions
 
+    static ValueType32  multiply(ValueType32  lhs, ValueType32  rhs);
     static ValueType64  multiply(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 multiply(ValueType128 lhs, ValueType128 rhs);
         // Multiply the value of the specified 'lhs' object by the value of the
@@ -1261,6 +1262,14 @@ DecimalImpUtil::subtract(DecimalImpUtil::ValueType128 lhs,
 }
 
                         // Multiplication Functions
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::multiply(DecimalImpUtil::ValueType32 lhs,
+                         DecimalImpUtil::ValueType32 rhs)
+{
+    return Imp::multiply(lhs, rhs);
+}
 
 inline
 DecimalImpUtil::ValueType64

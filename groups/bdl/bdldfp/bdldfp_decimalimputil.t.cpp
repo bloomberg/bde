@@ -62,6 +62,7 @@ using bsl::atoi;
 // [ 6] subtract(ValueType32,  ValueType32)
 // [ 6] subtract(ValueType64,  ValueType64)
 // [ 6] subtract(ValueType128, ValueType128)
+// [ 7] multiply(ValueType32,  ValueType32)
 // [ 7] multiply(ValueType64,  ValueType64)
 // [ 7] multiply(ValueType128, ValueType128)
 // [ 8] divide(ValueType64,  ValueType64)
@@ -5846,6 +5847,23 @@ void TestDriver::testCase8()
                               << " == "
                               << resMantissa << "e" << resExponent << endl;
 
+        Util::ValueType32 identity32 = Util::parse32("1");
+
+           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
+           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
+        result32 = Util::multiply(lhs32, rhs32);
+
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(result32, Util::makeDecimalRaw32(resMantissa,
+                                                            resExponent)));
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(lhs32, Util::multiply(lhs32, identity32)));
+
+
         Util::ValueType64 identity64 = Util::parse64("1");
 
            lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
@@ -6042,6 +6060,7 @@ void TestDriver::testCase7()
     //:    orders. (C-4,6)
     //
     // Testing:
+    //   multiply(ValueType32,  ValueType32)
     //   multiply(ValueType64,  ValueType64)
     //   multiply(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
@@ -6049,6 +6068,10 @@ void TestDriver::testCase7()
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'multiply'" << endl
                       << "==============================" << endl;
+
+    Util::ValueType32     lhs32;
+    Util::ValueType32     rhs32;
+    Util::ValueType32  result32;
 
     Util::ValueType64     lhs64;
     Util::ValueType64     rhs64;
@@ -6089,7 +6112,9 @@ void TestDriver::testCase7()
                   int resExponent = testCases[ i ].resExponent;
 
         if (veryVerbose) cout << endl
-                              << "Test 'multiply(ValueType64,"
+                              << "Test 'multiply(ValueType32,"
+                              << " ValueType32)'," << endl
+                              << "'multiply(ValueType64,"
                               << " ValueType64)'" << endl
                               << "and 'multiply(ValueType128,"
                               << " ValueType128)' on" << endl
@@ -6405,6 +6430,33 @@ void TestDriver::testCase6()
         //:             +Inf |+Inf| +Inf | NaN|NaN|
         //:            ------+----+------+----+---+
         //:              NaN | NaN|  NaN | NaN|NaN|
+
+        Util::ValueType32   ninf32 = Util::parse32("-Inf");
+        Util::ValueType32   pinf32 = Util::parse32("+Inf");
+        Util::ValueType32    nan32 = Util::parse32( "NaN");
+        Util::ValueType32 normal32 = Util::makeDecimalRaw32(42,1);
+
+        ASSERT(nanEqual(pinf32, Util::multiply(  ninf32,   ninf32)));
+        ASSERT(nanEqual(ninf32, Util::multiply(  ninf32, normal32)));
+        ASSERT(nanEqual(ninf32, Util::multiply(  ninf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  ninf32,    nan32)));
+
+        ASSERT(nanEqual(ninf32, Util::multiply(normal32,   ninf32)));
+        ASSERT(nanEqual(        Util::multiply(normal32, normal32),
+                        Util::makeDecimalRaw32(42*42,2)));
+        ASSERT(nanEqual(pinf32, Util::multiply(normal32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(normal32,    nan32)));
+
+        ASSERT(nanEqual(ninf32, Util::multiply(  pinf32,   ninf32)));
+        ASSERT(nanEqual(pinf32, Util::multiply(  pinf32, normal32)));
+        ASSERT(nanEqual(pinf32, Util::multiply(  pinf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  pinf32,    nan32)));
+
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   ninf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32, normal32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,    nan32)));
+
 
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");

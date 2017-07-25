@@ -234,6 +234,7 @@ struct DecimalImpUtil_IntelDfp {
 
                         // Multiplication functions
 
+    static ValueType32  multiply(ValueType32  lhs,  ValueType32  rhs);
     static ValueType64  multiply(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 multiply(ValueType128 lhs,  ValueType128 rhs);
         // Multiply the value of the specified 'lhs' object by the value of the
@@ -918,6 +919,17 @@ DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType128 lhs,
 }
 
                         // Multiplication Functions
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType32 rhs)
+{
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_mul(lhs.d_raw, rhs.d_raw, &flags);
+    return retval;
+}
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
