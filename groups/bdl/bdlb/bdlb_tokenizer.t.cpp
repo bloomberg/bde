@@ -5,13 +5,13 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>                  // 'bsl::atoi'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
-
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -581,7 +581,7 @@ int main(int argc, char **argv)
         // Testing:
         //   STANDARD INPUT ITERATOR INTERFACE
         // --------------------------------------------------------------------
-        if (verbose) 
+        if (verbose)
             cout << endl
                  << "TESTING STANDARD INPUT OPERATOR INTEFACE" << endl
                  << "========================================" << endl;
@@ -593,7 +593,7 @@ int main(int argc, char **argv)
         ASSERT((bsl::is_same<IterTraits::value_type,
                 bslstl::StringRef>::value));
         ASSERT((bsl::is_same<IterTraits::pointer,
-        		bdlb::Tokenizer_Proxy>::value));
+                bdlb::Tokenizer_Proxy>::value));
         ASSERT((bsl::is_same<IterTraits::reference,
                 const bslstl::StringRef>::value));
         ASSERT((bsl::is_same<IterTraits::iterator_category,
@@ -646,8 +646,7 @@ int main(int argc, char **argv)
         //:   traits.
         //
         // Plan:
-        //: 1 Verify that the code compiles.
-        //:   (C-1)
+        //: 1 Verify that the code compiles.  (C-1)
         //
         // Testing:
         //   DRQS 101217017
