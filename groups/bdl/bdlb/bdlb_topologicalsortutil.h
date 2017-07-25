@@ -48,12 +48,12 @@ BSLS_IDENT("$Id: $")
 // of 'bsl::pair's, and the outputs are 'bsl::vector's.  The templated variant
 // is highly customizable (templated) on both the input and the outputs.  The
 // input may be any input iterator range that has a 'bsl::pair' 'value_type' or
-// a 'value_type' with a 'TopologicalSortUtilEdgeTraits' specialization.  The
-// 'value_type' is determined using 'bsl::iterator::traits'.  The two outputs
-// are both defined as templated output iterators and they may have different
-// types.  So (for example) the iterator based 'sort' may be used with Null
-// 'OUTPUT_ITER' to answer the question "does this graph have cycles?" while
-// not wasting memory in storing the sort results.
+// a 'value_type' with a 'bdlb::TopologicalSortUtilEdgeTraits' specialization.
+// The 'value_type' is determined using 'bsl::iterator::traits'.  The two
+// outputs are both defined as templated output iterators and they may have
+// different types.  So (for example) the iterator based 'sort' may be used
+// with Null 'OUTPUT_ITER' to answer the question "does this graph have
+// cycles?" while not wasting memory in storing the sort results.
 //
 ///Self-referencing Nodes
 ///----------------------
@@ -418,7 +418,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
@@ -547,9 +547,9 @@ class TopologicalSortUtil_Helper {
 
         NodeInfo(const NodeInfo& original, bslma::Allocator *allocator = 0);
             // Create a 'NodeInfo' object having the same value as the
-            // specified 'original' object.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
+            // specified 'original' object.  Optionally specify an 'allocator'
+            // used to supply memory.  If 'allocator' is 0, the currently
+            // installed default allocator is used.
     };
 
     typedef bsl::unordered_map<NodeType, NodeInfo> SetInfo;
@@ -670,9 +670,9 @@ struct TopologicalSortUtil {
 
     template <class NODE_TYPE>
     static bool sort(
-         bsl::vector<NODE_TYPE>                                *result,
-         bsl::vector<NODE_TYPE>                                *unorderedList,
-         const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations);
+           bsl::vector<NODE_TYPE>                               *result,
+           bsl::vector<NODE_TYPE>                               *unorderedList,
+           const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations);
         // Sort the elements of 'NODE_TYPE' in topological order determined by
         // the specified 'relations' and load the resulting linear ordered set
         // to the specified 'result'.  If the sort is unsuccessful, load the
@@ -887,9 +887,9 @@ bool TopologicalSortUtil::sort(INPUT_ITER        relationsBegin,
 
 template <class NODE_TYPE>
 bool TopologicalSortUtil::sort(
-         bsl::vector<NODE_TYPE>                                *result,
-         bsl::vector<NODE_TYPE>                                *unorderedList,
-         const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations)
+           bsl::vector<NODE_TYPE>                               *result,
+           bsl::vector<NODE_TYPE>                               *unorderedList,
+           const bsl::vector<bsl::pair<NODE_TYPE, NODE_TYPE> >&  relations)
 {
     typedef bsl::vector<NODE_TYPE> vector_type;
 

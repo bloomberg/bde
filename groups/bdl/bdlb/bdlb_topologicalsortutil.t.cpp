@@ -46,11 +46,13 @@ using namespace bdlb;
 //
 // [5] sort(result, unorderedList, relations)
 //
-// [6] sort(relationsBegin, relationsEnd, result, unordered)
-// [6] TopologicalSortUtilEdgeTraits
+// [6] sort(result, unorderedList, relations)
+//
+// [7] sort(relationsBegin, relationsEnd, result, unordered)
+// [7] TopologicalSortUtilEdgeTraits
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [7] USAGE EXAMPLE
+// [8] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -139,9 +141,8 @@ namespace bdlb {
 
 template <>
 struct TopologicalSortUtilEdgeTraits<CustomEdge> {
-    // This 'struct' 'TopologicalSortUtilEdgeTraits<CustomEdge>'
-    // customizes 'TopologicalSortUtil::sort' to "understand" the
-    // 'CustomEdge' type.
+    // This 'struct' 'TopologicalSortUtilEdgeTraits<CustomEdge>' customizes
+    // 'TopologicalSortUtil::sort' to "understand" the 'CustomEdge' type.
 
     // TYPES
     typedef CustomEdge EdgeType;
@@ -239,7 +240,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -520,7 +521,7 @@ int main(int argc, char *argv[])
     results5.pop_front();
 //..
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // CUSTOM EDGE CLASS TEST
         //   This case tests the usage of custom edge class instead of
@@ -581,7 +582,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(unordered[2], unordered[2] == 1);
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // CYCLE IS DETECTED TEST
         //   This case test that a cycle in the graphs is detected.
@@ -632,7 +633,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(unordered[2], unordered[2] == 1);
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // SELF REFERENCE IS CYCLE TEST
         //   This case proves that a self referencing node is reported as a
@@ -676,6 +677,64 @@ int main(int argc, char *argv[])
         ASSERT(unordered.size() == 1);
 
         LOOP_ASSERT(unordered[0], unordered[0] == 1);
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // DUPLICATED INPUT ELEMENTS TEST
+        //   This case tests sorting of a graph that has duplicated edges in
+        //   the input.
+        //
+        // Concerns:
+        //: 1 The graph is successfully topologically sorted.
+        //:
+        //: 2 No nodes are missing from the result.
+        //:
+        //: 3 No nodes are duplicated in the result.
+        //
+        // Plan:
+        //: 1 Create a set of edges that comprise the graphs, duplicate some of
+        //:   the edges.
+        //:
+        //: 2 Call the simple (non-iterator) version of the 'sort' function.
+        //:
+        //: 3 Verify that 'sort' returned 'true', the resulting 'unordered'
+        //:   'vector' is empty, and 'results' contains the nodes a proper
+        //:   order.  Note that for brevity and simplicity of the testing code
+        //:   we verify the *exact* order of the elements.  As noted in the
+        //:   component documentation there may be other valid orders.
+        //
+        // Testing:
+        //   sort(result, unorderedList, relations)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "DUPLICATED INPUT ELEMENTS TEST" << endl
+                          << "==============================" << endl;
+
+        bsl::vector<bsl::pair<int, int> > relations;
+
+        relations.push_back(bsl::make_pair(1, 2));
+        relations.push_back(bsl::make_pair(1, 2)); // duplicated
+        relations.push_back(bsl::make_pair(2, 3));
+        relations.push_back(bsl::make_pair(4, 5));
+        relations.push_back(bsl::make_pair(4, 5)); // duplicated
+
+        bsl::vector<int> results;
+        bsl::vector<int> unordered;
+        bool             sorted = TopologicalSortUtil::sort(&results,
+                                                            &unordered,
+                                                            relations);
+        ASSERT(true == sorted);
+        ASSERT(unordered.empty());
+
+        ASSERT(results.size() == 5);
+
+        LOOP_ASSERT(results[0], results[0] == 4);
+        LOOP_ASSERT(results[1], results[1] == 1);
+        LOOP_ASSERT(results[2], results[2] == 5);
+        LOOP_ASSERT(results[3], results[3] == 2);
+        LOOP_ASSERT(results[4], results[4] == 3);
 
       } break;
       case 3: {
