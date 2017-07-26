@@ -466,6 +466,10 @@ struct hash : ::BloombergLP::bslh::Hash<> {
     // explicitly specialized for the type, or, preferably, 'hashAppend' must
     // be implemented for the type.  For more details on 'hashAppend' and
     // 'bslh::Hash' see the component 'bslh_hash'.
+
+    std::size_t operator()(const TYPE &value) const {
+        return ::BloombergLP::bslh::Hash<>::operator()(value);
+    }
 };
 
 // ============================================================================
