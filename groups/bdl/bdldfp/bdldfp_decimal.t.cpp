@@ -256,7 +256,8 @@ long long int clipValue(long long int value,
     // Clip the specified 'value' to fit segment between the specified 'min'
     // and the specified 'max'.
 {
-    return (static_cast<unsigned long long int>(value)%(max - min + 1)) + min;
+    return static_cast<long long int>(
+           (static_cast<unsigned long long int>(value)%(max - min + 1)) + min);
 }
 
 bdldfp::Decimal32 randomDecimal32()
@@ -271,20 +272,16 @@ bdldfp::Decimal32 randomDecimal32()
                                 sizeof(int));
     ASSERTV(rc, 0 == rc);
 
-    if (significand < -9999999 || significand > 9999999) {
-         significand = static_cast<int>(clipValue( significand,
-                                                  -9999999,
-                                                   9999999));
-    }
+    significand = static_cast<int>(clipValue( significand,
+                                             -9999999,
+                                              9999999));
 
     rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                    reinterpret_cast<unsigned char*>(&exponent),
                                    sizeof(int));
     ASSERTV(rc, 0 == rc);
 
-    if (exponent < -101 || exponent > 90) {
-        exponent = static_cast<int>(clipValue(exponent, -101, 90));
-    }
+    exponent = static_cast<int>(clipValue(exponent, -101, 90));
 
     return BDEC::DecimalImpUtil::makeDecimalRaw32(significand, exponent);
 }
@@ -301,21 +298,16 @@ bdldfp::Decimal64 randomDecimal64()
                                 sizeof(long long int));
     ASSERTV(rc, 0 == rc);
 
-    if (significand < -9999999999999999LL ||
-        significand >  9999999999999999LL) {
-        significand = clipValue( significand,
-                                -9999999999999999LL,
-                                 9999999999999999LL);
-    }
+    significand = clipValue( significand,
+                            -9999999999999999LL,
+                             9999999999999999LL);
 
     rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
                                    reinterpret_cast<unsigned char*>(&exponent),
                                    sizeof(int));
     ASSERTV(rc, 0 == rc);
 
-    if (exponent < -398 || exponent > 369) {
-        exponent = static_cast<int>(clipValue(exponent, -398, 369));
-    }
+    exponent = static_cast<int>(clipValue(exponent, -398, 369));
 
     return BDEC::DecimalImpUtil::makeDecimalRaw64(significand, exponent);
 }
@@ -337,9 +329,7 @@ bdldfp::Decimal128 randomDecimal128()
                                    sizeof(int));
     ASSERTV(rc, 0 == rc);
 
-    if (exponent < -6176 || exponent > 6111) {
-        exponent = static_cast<int>(clipValue(exponent, -6176, 6111));
-    }
+    exponent = static_cast<int>(clipValue(exponent, -6176, 6111));
 
     return BDEC::DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
