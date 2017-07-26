@@ -467,9 +467,11 @@ struct hash : ::BloombergLP::bslh::Hash<> {
     // be implemented for the type.  For more details on 'hashAppend' and
     // 'bslh::Hash' see the component 'bslh_hash'.
 
-    std::size_t operator()(const TYPE &value) const {
-        return ::BloombergLP::bslh::Hash<>::operator()(value);
-    }
+    // PUBLIC ACCESSORS
+    std::size_t operator()(const TYPE &value) const;
+        // Compute and return the hash of the specified 'value'.  This
+        // implementation forwards to the call operator of the base class, but
+        // with the parameter guaranteed to be of type 'TYPE'.
 };
 
 // ============================================================================
@@ -875,6 +877,13 @@ struct hash<unsigned long long> {
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+template <class TYPE>
+inline
+std::size_t hash<TYPE>::operator()(const TYPE& value) const
+{
+    return ::BloombergLP::bslh::Hash<>::operator()(value);
+}
 
 inline
 std::size_t hash<bool>::operator()(bool x) const

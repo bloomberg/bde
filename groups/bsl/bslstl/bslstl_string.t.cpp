@@ -2717,6 +2717,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         s.push_back( TYPE('b') );
         s.push_back( TYPE('c') );
         ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(s.data()));
+        ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(s.data()));
+        TYPE abc[] = { TYPE('a'), TYPE('b'), TYPE('c'), TYPE(0) };
+        ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(abc));
     }
 }
 
