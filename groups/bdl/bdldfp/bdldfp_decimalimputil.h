@@ -539,6 +539,7 @@ class DecimalImpUtil {
 
                         // Division functions
 
+    static ValueType32  divide(ValueType32  lhs, ValueType32  rhs);
     static ValueType64  divide(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 divide(ValueType128 lhs, ValueType128 rhs);
         // Divide the value of the specified 'lhs' by the value of the
@@ -1288,6 +1289,16 @@ DecimalImpUtil::multiply(DecimalImpUtil::ValueType128 lhs,
 }
 
                         // Division Functions
+
+                        // Division Functions
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::divide(DecimalImpUtil::ValueType32 lhs,
+                       DecimalImpUtil::ValueType32 rhs)
+{
+    return Imp::divide(lhs, rhs);
+}
 
 inline
 DecimalImpUtil::ValueType64

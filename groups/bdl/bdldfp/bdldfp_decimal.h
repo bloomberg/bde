@@ -788,6 +788,49 @@ class Decimal_Type32 {
     Decimal_Type32& operator+=(Decimal32  rhs);
     Decimal_Type32& operator+=(Decimal64  rhs);
     Decimal_Type32& operator+=(Decimal128 rhs);
+        // Add the value of the specified 'rhs' object to the value of this as
+        // described by IEEE-754, store the result in this object, and return a
+        // reference to this object.
+        //
+        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
+        //:   floating-point exception and set this object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinite values of
+        //:   differing signs, then raise the "invalid" floating-point
+        //:   exception and set this object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinite values of the
+        //:   same sign, then do not change this object.
+        //:
+        //: o Otherwise if 'rhs' has a zero value (positive or negative), do
+        //:   not change this object.
+        //:
+        //: o Otherwise if the sum of this object and 'rhs' has an absolute
+        //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
+        //:   then raise the "overflow" floating-point exception and set this
+        //:   object to infinity value with the same sign as that result.
+        //:
+        //: o Otherwise set this object to the sum of the number represented by
+        //:   'rhs' and the number represented by this object.
+        //
+        // Note that this is a floating-point value so this operations may not
+        // change the value of this object at all (if the value is large) or it
+        // may seem to update it to the value of the 'other' (if the original
+        // value is small).
+        //
+        // Also note that when 'rhs' is a 'Decimal64', this operation is
+        // always performed with 64 bits precision to prevent loss of
+        // precision of the 'rhs' operand (prior to the operation).  The
+        // result is then rounded back to 32 bits and stored to this object.
+        // See IEEE-754 2008, 5.1, first paragraph, second sentence for
+        // specification.
+        //
+        // Also note that when 'rhs' is a 'Decimal128', this operation is
+        // always performed with 128 bits precision to prevent loss of
+        // precision of the 'rhs' operand (prior to the operation).  The
+        // result is then rounded back to 32 bits and stored to this object.
+        // See IEEE-754 2008, 5.1, first paragraph, second sentence for
+        // specification.
 
     Decimal_Type32& operator+=(int                rhs);
     Decimal_Type32& operator+=(unsigned int       rhs);
@@ -795,10 +838,82 @@ class Decimal_Type32 {
     Decimal_Type32& operator+=(unsigned long      rhs);
     Decimal_Type32& operator+=(long long          rhs);
     Decimal_Type32& operator+=(unsigned long long rhs);
+        // Add the specified 'rhs' to the value of this object as described by
+        // IEEE-754, store the result in this object, and return a reference to
+        // this object.
+        //
+        //: o If this object is NaN, then raise the "invalid" floating-point
+        //:   exception and do not change this object.
+        //:
+        //: o Otherwise if this object is infinity, then do not change it.
+        //:
+        //: o Otherwise if the sum of this object and 'rhs' has an absolute
+        //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
+        //:   then raise the "overflow" floating-point exception and set this
+        //:   object to infinity with the same sign as that result.
+        //:
+        //: o Otherwise set this object to sum of adding 'rhs' and the number
+        //:   represented by this object.
+        //
+        // Note that this is a floating-point value so this operations may not
+        // change the value of this object at all (if the value is large) or it
+        // may seem to update it to the value of the 'other' (if the original
+        // value is small).
+        //
+        // Also note that this operation is always performed with 64 bits
+        // precision to prevent loss of precision of the 'rhs' operand (prior
+        // to the operation).  The result is then rounded back to 32 bits and
+        // stored to this object.  See IEEE-754 2008, 5.1, first paragraph,
+        // second sentence for specification.
+
 
     Decimal_Type32& operator-=(Decimal32  rhs);
     Decimal_Type32& operator-=(Decimal64  rhs);
     Decimal_Type32& operator-=(Decimal128 rhs);
+        // Subtract the value of the specified 'rhs' from the value of this
+        // object as described by IEEE-754, store the result in this object,
+        // and return a reference to this object.
+        //
+        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
+        //:   floating-point exception and set this object to a NaN.
+        //:
+        //: o Otherwise if this object and the 'rhs' have infinite values of
+        //:   the same sign, raise the "invalid" floating-point exception and
+        //:   set this object to a NaN.
+        //:
+        //: o Otherwise if this object and the 'rhs' have infinite values of
+        //:   differing signs, then do not change this object.
+        //:
+        //: o Otherwise if the 'rhs' has a zero value (positive or negative),
+        //:   do not change this object.
+        //:
+        //: o Otherwise if subtracting the value of the 'rhs' object from this
+        //:   results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and set this object to infinity with the
+        //:   same sign as that result.
+        //:
+        //: o Otherwise set this object to the result of subtracting the value
+        //:   of 'rhs' from the value of this object.
+        //
+        // Note that this is a floating-point value so this operations may not
+        // change the value of this object at all (if the value is large) or it
+        // may seem to update it to the value of the 'other' (if the original
+        // value is small).
+        //
+        // Also note that when 'rhs' is a 'Decimal64', this operation is
+        // always performed with 64 bits precision to prevent loss of
+        // precision of the 'rhs' operand (prior to the operation).  The
+        // result is then rounded back to 32 bits and stored to this object.
+        // See IEEE-754 2008, 5.1, first paragraph, second sentence for
+        // specification.
+        //
+        // Also note that when 'rhs' is a 'Decimal128', this operation is
+        // always performed with 128 bits precision to prevent loss of
+        // precision of the 'rhs' operand (prior to the operation).  The
+        // result is then rounded back to 32 bits and stored to this object.
+        // See IEEE-754 2008, 5.1, first paragraph, second sentence for
+        // specification.
 
     Decimal_Type32& operator-=(int                rhs);
     Decimal_Type32& operator-=(unsigned int       rhs);
@@ -806,10 +921,85 @@ class Decimal_Type32 {
     Decimal_Type32& operator-=(unsigned long      rhs);
     Decimal_Type32& operator-=(long long          rhs);
     Decimal_Type32& operator-=(unsigned long long rhs);
+        // Subtract the specified 'rhs' from the value of this object as
+        // described by IEEE-754, store the result in this object, and return a
+        // reference to this object.
+        //
+        //: o If this object is NaN, raise the "invalid" floating-point
+        //:   exception and do not change this object.
+        //:
+        //: o Otherwise if this object is infinity, then do not change it.
+        //:
+        //: o Otherwise if subtracting 'rhs' from this object's value results
+        //:   in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and set this object to infinity with the
+        //:   same sign as that result.
+        //:
+        //: o Otherwise set this object to the result of subtracting 'rhs' from
+        //:   the value of this object.
+        //
+        // Note that this is a floating-point value so this operations may not
+        // change the value of this object at all (if the value is large) or it
+        // may seem to update it to the value of the 'other' (if the original
+        // value is small).
+        //
+        // Also note that this operation is always performed with 64 bits
+        // precision to prevent loss of precision of the 'rhs' operand (prior
+        // to the operation).  The result is then rounded back to 32 bits and
+        // stored to this object.  See IEEE-754 2008, 5.1, first paragraph,
+        // second sentence for specification.
 
     Decimal_Type32& operator*=(Decimal32  rhs);
     Decimal_Type32& operator*=(Decimal64  rhs);
     Decimal_Type32& operator*=(Decimal128 rhs);
+        // Multiply the value of the specified 'rhs' object by the value of
+        // this as described by IEEE-754, store the result in this object, and
+        // return a reference to this object.
+        //
+        //: o If either this object or 'rhs' is NaN, raise the "invalid"
+        //:   floating-point exception and set this object to NaN.
+        //:
+        //: o Otherwise, if one of this object and 'rhs' is zero (positive or
+        //:   negative) and the other is infinity (positive or negative), raise
+        //:   the "invalid" floating-point exception and set this object to a
+        //:   NaN.
+        //:
+        //: o Otherwise, if either this object or 'rhs' is positive or negative
+        //:   infinity, set this object to infinity.  The sign of this object
+        //:   will be positive if this object and 'rhs' had the same sign, and
+        //:   negative otherwise.
+        //:
+        //: o Otherwise, if either this object or 'rhs' is zero, set this
+        //:   object to zero.  The sign of this object will be positive if this
+        //:   object and 'rhs' had the same sign, and negative otherwise.
+        //:
+        //: o Otherwise if the product of this object and 'rhs' has an absolute
+        //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
+        //:   then raise the "overflow" floating-point exception and set this
+        //:   object to infinity with the same sign of that result.
+        //:
+        //: o Otherwise if the product of this object and 'rhs' has an absolute
+        //:   value that is smaller than
+        //:   'std::numeric_limits<Decimal32>::min()' then raise the
+        //:   "underflow" floating-point exception and set this object to zero
+        //:   value with the same sign as that result.
+        //:
+        //: o Otherwise set this object to the product of the value of 'rhs'
+        //:   and the value of this object.
+        //
+        // Note that when 'rhs' is a 'Decimal64', this operation is always
+        // performed with 64 bits precision to prevent loss of precision of the
+        // 'rhs' operand (prior to the operation).  The result is then rounded
+        // back to 32 bits and stored to this object.  See IEEE-754 2008, 5.1,
+        // first paragraph, second sentence for specification.
+        //
+        // Also note that when 'rhs' is a 'Decimal128', this operation is
+        // always performed with 128 bits precision to prevent loss of
+        // precision of the 'rhs' operand (prior to the operation).  The
+        // result is then rounded back to 32 bits and stored to this object.
+        // See IEEE-754 2008, 5.1, first paragraph, second sentence for
+        // specification.
 
     Decimal_Type32& operator*=(int                rhs);
     Decimal_Type32& operator*=(unsigned int       rhs);
@@ -817,17 +1007,135 @@ class Decimal_Type32 {
     Decimal_Type32& operator*=(unsigned long      rhs);
     Decimal_Type32& operator*=(long long          rhs);
     Decimal_Type32& operator*=(unsigned long long rhs);
+        // Multiply the specified 'rhs' by the value of this object as
+        // described by IEEE-754, store the result in this object, and return a
+        // reference to this object.
+        //
+        //: o If this object is NaN, raise the "invalid" floating-point
+        //:   exception and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is infinity (positive or negative), and
+        //:   'rhs' is zero, then raise the "invalid" floating-point exception
+        //:   and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is infinity (positive or negative), then
+        //:   do not change it.
+        //:
+        //: o Otherwise if 'rhs' is zero, then set this object to zero with the
+        //:   same sign as its value had prior to this operation.
+        //:
+        //: o Otherwise if the product of 'rhs' and the value of this object
+        //:   results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and set this object to infinity with the
+        //:   same sign as that result.
+        //:
+        //: o Otherwise if the product of 'rhs' and the value of this object
+        //:   results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal64>::min()' then raise the
+        //:   "underflow" floating-point exception and set this object to zero
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise set this object to the product of the value of this
+        //:   object and the value 'rhs'.
+        //
+        // Note that this operation is always performed with 64 bits precision
+        // to prevent loss of precision of the 'rhs' operand (prior to the
+        // operation).  The result is then rounded back to 32 bits and stored
+        // to this object.  See IEEE-754 2008, 5.1, first paragraph,
 
-    // Decimal_Type32& operator/=(Decimal32  rhs);
-    // Decimal_Type32& operator/=(Decimal64  rhs);
-    // Decimal_Type32& operator/=(Decimal128 rhs);
+    Decimal_Type32& operator/=(Decimal32  rhs);
+    Decimal_Type32& operator/=(Decimal64  rhs);
+    Decimal_Type32& operator/=(Decimal128 rhs);
+        // Divide the value of this object by the value of the specified 'rhs'
+        // as described by IEEE-754, store the result in this object, and
+        // return a reference to this object.
+        //
+        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
+        //:   floating-point exception and set this object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' are infinity (positive or
+        //:   negative) or zero (positive or negative), then raise the
+        //:   "invalid" floating-point exception and set this object to a NaN.
+        //:
+        //: o Otherwise if 'rhs' has a positive zero value, then raise the
+        //:   "overflow" floating-point exception and set this object to
+        //:   infinity with the same sign as its original value.
+        //:
+        //: o Otherwise if 'rhs' has a negative zero value, then raise the
+        //:   "overflow" floating-point exception and set this object to
+        //:   infinity with the opposite sign as its original value.
+        //:
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and set this object to infinity value
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal32>::min()' then raise the
+        //:   "underflow" floating-point exception and set this object to zero
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise set this object to the result of dividing the value of
+        //:   this object with the value of 'rhs'.
+        //
+        // Note that when 'rhs' is a 'Decimal64', this operation is always
+        // performed with 64 bits precision to prevent loss of precision of the
+        // 'rhs' operand (prior to the operation).  The result is then rounded
+        // back to 32 bits and stored to this object.  See IEEE-754 2008, 5.1,
+        // first paragraph, second sentence for specification.
+        //
+        // Also note that when 'rhs' is a 'Decimal128', this operation is
+        // always performed with 128 bits precision to prevent loss of
+        // precision of the 'rhs' operand (prior to the operation).  The
+        // result is then rounded back to 32 bits and stored to this object.
+        // See IEEE-754 2008, 5.1, first paragraph, second sentence for
+        // specification.
 
-    // Decimal_Type32& operator/=(int                rhs);
-    // Decimal_Type32& operator/=(unsigned int       rhs);
-    // Decimal_Type32& operator/=(long               rhs);
-    // Decimal_Type32& operator/=(unsigned long      rhs);
-    // Decimal_Type32& operator/=(long long          rhs);
-    // Decimal_Type32& operator/=(unsigned long long rhs);
+    Decimal_Type32& operator/=(int                rhs);
+    Decimal_Type32& operator/=(unsigned int       rhs);
+    Decimal_Type32& operator/=(long               rhs);
+    Decimal_Type32& operator/=(unsigned long      rhs);
+    Decimal_Type32& operator/=(long long          rhs);
+    Decimal_Type32& operator/=(unsigned long long rhs);
+        // Divide the value of this object by the specified 'rhs' as described
+        // by IEEE-754, store the result in this object, and return a reference
+        // to this object.
+        //
+        //: o If this object is NaN, raise the "invalid" floating-point
+        //:   exception and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is infinity (positive or negative), and
+        //:   'rhs' is zero, raise the "invalid" floating-point exception and
+        //:   set this object to a NaN.
+        //:
+        //: o Otherwise if this object is infinity, then do not change it.
+        //:
+        //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
+        //:   exception and then set this object to infinity with the same sign
+        //:   it had prior to this operation.
+        //:
+        //: o Otherwise if the quotient of the value of this object and 'rhs'
+        //:   results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and set this object to infinity with the
+        //:   same sign as that result.
+        //:
+        //: o Otherwise if the quotient of the value of this object and 'rhs'
+        //:   results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal32>::min()' then raise the
+        //:   "underflow" floating-point exception and set this object to zero
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise set this object to the result of dividing the number
+        //:   represented by this object by 'rhs'.
+        //
+        // Note that this operation is always performed with 64 bits precision
+        // to prevent loss of precision of the 'rhs' operand (prior to the
+        // operation).  The result is then rounded back to 32 bits and stored
+        // to this object.  See IEEE-754 2008, 5.1, first paragraph,
 
     DecimalImpUtil::ValueType32 *data();
         // Return a pointer providing modifiable access to the underlying
@@ -1108,6 +1416,109 @@ Decimal32 operator*(unsigned long long lhs, Decimal32 rhs);
     //:   result.
     //:
     //: o Otherwise return the product of the value of 'rhs' and value 'lhs'.
+
+Decimal32 operator/(Decimal32 lhs, Decimal32 rhs);
+    // Divide the value of the specified 'lhs' by the value of the specified
+    // 'rhs' as described by IEEE-754, and return the result.
+    //
+    //: o If 'lhs' or 'rhs' is NaN, raise the "invalid" floating-point
+    //:   exception and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and 'rhs' are both infinity (positive or negative)
+    //:   or both zero (positive or negative), raise the "invalid"
+    //:   floating-point exception and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' has a positive zero value, raise the "overflow"
+    //:   floating-point exception and return infinity with the sign of 'lhs'.
+    //:
+    //: o Otherwise if 'rhs' has a negative zero value, raise the "overflow"
+    //:   floating-point exception and return infinity with the opposite sign
+    //:   as 'lhs'.
+    //:
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
+    //:   floating-point exception and return zero with the same sign as that
+    //:   result.
+    //:
+    //: o Otherwise return the result of dividing the value of 'lhs' with the
+    //:   value of 'rhs'.
+
+Decimal32 operator/(Decimal32 lhs, int                rhs);
+Decimal32 operator/(Decimal32 lhs, unsigned int       rhs);
+Decimal32 operator/(Decimal32 lhs, long               rhs);
+Decimal32 operator/(Decimal32 lhs, unsigned long      rhs);
+Decimal32 operator/(Decimal32 lhs, long long          rhs);
+Decimal32 operator/(Decimal32 lhs, unsigned long long rhs);
+    // Divide the value of the specified 'lhs' by the specified 'rhs' as
+    // described by IEEE-754, and return the result.
+    //
+    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
+    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity (positive or negative), then return
+    //:   'lhs'.
+    //:
+    //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
+    //:   exception return zero with the sign of 'lhs'.
+    //:
+    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
+    //:   floating-point exception and return zero with the same sign as that
+    //:   result.
+    //:
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
+    //:   value 'rhs'.
+
+Decimal32 operator/(int                lhs, Decimal32 rhs);
+Decimal32 operator/(unsigned int       lhs, Decimal32 rhs);
+Decimal32 operator/(long               lhs, Decimal32 rhs);
+Decimal32 operator/(unsigned long      lhs, Decimal32 rhs);
+Decimal32 operator/(long long          lhs, Decimal32 rhs);
+Decimal32 operator/(unsigned long long lhs, Decimal32 rhs);
+    // Divide the specified 'lhs' by the value of the specified 'rhs' as
+    // described by IEEE-754, and return the result.
+    //
+    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
+    //:   return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
+    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is zero (positive or negative), raise the
+    //:   "overflow" floating-point exception return zero with the sign of
+    //:   'lhs'.
+    //:
+    //: o Otherwise if the quotient of 'rhs' and the value of 'rhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
+    //:
+    //: o Otherwise if the quotient of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
+    //:   floating-point exception and return zero with the same sign as that
+    //:   result.
+    //:
+    //: o Otherwise return the result of dividing the value 'lhs' by the value
+    //:   of 'rhs'.  Note that this is a floating-point operation, not integer.
 
 bool operator==(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
@@ -4851,6 +5262,55 @@ inline Decimal_Type32& Decimal_Type32::operator*=(unsigned long long rhs)
     return *this *= Decimal64(rhs);
 }
 
+                                  // Division
+
+inline Decimal_Type32& Decimal_Type32::operator/=(Decimal32 rhs)
+{
+    this->d_value = DecimalImpUtil::divide(this->d_value, rhs.d_value);
+    return *this;
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(Decimal64 rhs)
+{
+    return *this = Decimal32(Decimal64(*this) / rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(Decimal128 rhs)
+{
+    return *this = Decimal32(Decimal128(*this) / rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(int rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(unsigned int rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(unsigned long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(long long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type32& Decimal_Type32::operator/=(unsigned long long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+
 inline
 DecimalImpUtil::ValueType32 *Decimal_Type32::data()
 {
@@ -5884,6 +6344,100 @@ bdldfp::Decimal32 bdldfp::operator*(unsigned long long lhs,
 {
     return Decimal32(Decimal64(lhs) * Decimal64(rhs));
 }
+
+                               // Division
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                           bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::divide(*lhs.data(), *rhs.data());
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                    int               rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                    unsigned int      rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                    long              rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                    unsigned long     rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                    long long         rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32  lhs,
+                                    unsigned long long rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(int               lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(unsigned int      lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(long              lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(unsigned long     lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(long long         lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator/(unsigned long long lhs,
+                                    bdldfp::Decimal32  rhs)
+{
+    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+}
+
 
 inline
 bool bdldfp::operator==(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)

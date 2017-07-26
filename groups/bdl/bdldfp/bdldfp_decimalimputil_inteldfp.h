@@ -271,6 +271,7 @@ struct DecimalImpUtil_IntelDfp {
 
                         // Division functions
 
+    static ValueType32  divide(ValueType32  lhs,  ValueType32  rhs);
     static ValueType64  divide(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 divide(ValueType128 lhs,  ValueType128 rhs);
         // Divide the value of the specified 'lhs' by the value of the
@@ -954,6 +955,17 @@ DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType128 lhs,
 }
 
                         // Division Functions
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::divide(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                DecimalImpUtil_IntelDfp::ValueType32 rhs)
+{
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_div(lhs.d_raw, rhs.d_raw, &flags);
+    return retval;
+}
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64

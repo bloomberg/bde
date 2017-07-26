@@ -65,6 +65,7 @@ using bsl::atoi;
 // [ 7] multiply(ValueType32,  ValueType32)
 // [ 7] multiply(ValueType64,  ValueType64)
 // [ 7] multiply(ValueType128, ValueType128)
+// [ 8] divide(ValueType32,  ValueType32)
 // [ 8] divide(ValueType64,  ValueType64)
 // [ 8] divide(ValueType128, ValueType128)
 // [ 9] negate(ValueType32)
@@ -5800,6 +5801,10 @@ void TestDriver::testCase8()
                       << "ARITHMETIC FUNCTION 'divide'" << endl
                       << "============================" << endl;
 
+    Util::ValueType32     lhs32;
+    Util::ValueType32     rhs32;
+    Util::ValueType32  result32;
+
     Util::ValueType64     lhs64;
     Util::ValueType64     rhs64;
     Util::ValueType64  result64;
@@ -5837,12 +5842,14 @@ void TestDriver::testCase8()
                   int resExponent = testCases[ i ].resExponent;
 
         if (veryVerbose) cout << endl
-                              << "Test 'divide(ValueType64,"
-                              << " ValueType64)'" << endl
-                              << "and 'divide(ValueType128,"
+                              << "Test 'divide(ValueType32,"
+                              << "  ValueType32)', " << endl
+                              << "     'divide(ValueType64,"
+                              << "  ValueType64)' and" << endl
+                              << "     'divide(ValueType128,"
                               << " ValueType128)' on" << endl
                               << lhsMantissa << "e" << lhsExponent
-                              << " + "
+                              << " / "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
                               << resMantissa << "e" << resExponent << endl;
@@ -5851,7 +5858,7 @@ void TestDriver::testCase8()
 
            lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
            rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
-        result32 = Util::multiply(lhs32, rhs32);
+           result32 = Util::divide(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
@@ -5861,8 +5868,7 @@ void TestDriver::testCase8()
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
-               Util::equal(lhs32, Util::multiply(lhs32, identity32)));
-
+                     Util::equal(lhs32, Util::divide(lhs32, identity32)));
 
         Util::ValueType64 identity64 = Util::parse64("1");
 
@@ -5915,35 +5921,36 @@ void TestDriver::testCase8()
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
         Util::ValueType32    nan32 = Util::parse32( "NaN");
-        ASSERT( Util::equal(pinf32, pinf32));
-        ASSERT( Util::equal(ninf32, ninf32));
-        ASSERT( Util::notEqual(pinf32, ninf32));
-        ASSERT(!Util::equal(nan32, nan32));
-        ASSERT( Util::notEqual(nan32, nan32));
-        Util::ValueType32 normal32 = Util::makeDecimalRaw32(42,1);
+        Util::ValueType32   zero32 = Util::parse32(   "0");
+        Util::ValueType32 normal32 = Util::makeDecimalRaw32(42, 1);
 
-        ASSERT(nanEqual(ninf32, Util::add(  ninf32,   ninf32)));
-        ASSERT(nanEqual(ninf32, Util::add(  ninf32, normal32)));
-        ASSERT(nanEqual( nan32, Util::add(  ninf32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::add(  ninf32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::divide(  ninf32,   ninf32)));
+        ASSERT(nanEqual(ninf32, Util::divide(  ninf32, normal32)));
+        ASSERT(nanEqual( nan32, Util::divide(  ninf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::divide(  ninf32,    nan32)));
 
-        ASSERT(nanEqual(ninf32, Util::add(normal32,   ninf32)));
-        ASSERT(nanEqual(        Util::add(normal32, normal32),
-                        Util::makeDecimalRaw32(84,1)));
-        ASSERT(nanEqual(pinf32, Util::add(normal32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::add(normal32,    nan32)));
+        ASSERT(nanEqual(zero32, Util::divide(normal32,   ninf32)));
+        ASSERT(nanEqual(        Util::divide(normal32, normal32),
+                        Util::makeDecimalRaw32(1, 0)));
+        ASSERT(nanEqual(zero32, Util::divide(normal32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::divide(normal32,    nan32)));
 
-        ASSERT(nanEqual( nan32, Util::add(  pinf32,   ninf32)));
-        ASSERT(nanEqual(pinf32, Util::add(  pinf32, normal32)));
-        ASSERT(nanEqual(pinf32, Util::add(  pinf32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::add(  pinf32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::divide(  pinf32,   ninf32)));
+        ASSERT(nanEqual(pinf32, Util::divide(  pinf32, normal32)));
+        ASSERT(nanEqual( nan32, Util::divide(  pinf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::divide(  pinf32,    nan32)));
 
-        ASSERT(nanEqual( nan32, Util::add(   nan32,   ninf32)));
-        ASSERT(nanEqual( nan32, Util::add(   nan32, normal32)));
-        ASSERT(nanEqual( nan32, Util::add(   nan32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::add(   nan32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::divide(   nan32,   ninf32)));
+        ASSERT(nanEqual( nan32, Util::divide(   nan32, normal32)));
+        ASSERT(nanEqual( nan32, Util::divide(   nan32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::divide(   nan32,    nan32)));
 
+        // Zero checks:
 
+        ASSERT(nanEqual( nan32, Util::divide(  zero32, zero32)));
+        ASSERT(nanEqual(pinf32, Util::divide(normal32, zero32)));
+        ASSERT(nanEqual(ninf32, Util::divide(Util::makeDecimalRaw32(-1, 0),
+                                zero32)));
 
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
@@ -6363,7 +6370,7 @@ void TestDriver::testCase6()
 
            lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
            rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
-        result32 = Util::add(lhs32, rhs32);
+        result32 = Util::subtract(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
@@ -6624,7 +6631,7 @@ void TestDriver::testCase5()
 
            lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
            rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
-        result32 = Util::subtract(lhs32, rhs32);
+           result32 = Util::add(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
@@ -6642,7 +6649,7 @@ void TestDriver::testCase5()
 
            lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
            rhs64 = Util::makeDecimalRaw64(rhsMantissa, rhsExponent);
-        result64 = Util::add(lhs64, rhs64);
+           result64 = Util::add(lhs64, rhs64);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
