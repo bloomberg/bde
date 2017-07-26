@@ -5739,10 +5739,10 @@ std::size_t hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >::
 operator()(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input) const
 {
     using ::BloombergLP::bslh::hashAppend;
-    BloombergLP::bslh::DefaultHashAlgorithm hashAlg;
+    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
     hashAlg(input.data(), sizeof(CHAR_TYPE) * input.size());
     hashAppend(hashAlg, input.size());
-    return static_cast<size_t>(hashAlg.computeHash());
+    return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5753,10 +5753,10 @@ operator()(const CHAR_TYPE *input) const
     BSLS_ASSERT_SAFE(input);
     using ::BloombergLP::bslh::hashAppend;
     std::size_t length = CHAR_TRAITS::length(input);
-    BloombergLP::bslh::DefaultHashAlgorithm hashAlg;
+    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
     hashAlg(input, sizeof(CHAR_TYPE) * length);
     hashAppend(hashAlg, length);
-    return static_cast<size_t>(hashAlg.computeHash());
+    return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
 }  // close namespace bsl

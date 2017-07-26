@@ -482,6 +482,9 @@ struct Hash {
         // The type of the hash value that will be returned by the
         // function-call operator.
 
+    typedef HASH_ALGORITHM HashAlgorithm;
+        // Make the algorithm type available to clients.
+
     // CREATORS
     //! Hash() = default;
         // Create a 'bslh::Hash' object.
