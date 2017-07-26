@@ -6079,84 +6079,84 @@ inline
 bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
                                     int               rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
                                     unsigned int      rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
                                     long              rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
                                     unsigned long     rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 lhs,
                                     long long         rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32  lhs,
                                     unsigned long long rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(int               lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(unsigned int      lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(long              lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(unsigned long     lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(long long         lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator+(unsigned long long lhs,
                                     bdldfp::Decimal32  rhs)
 {
-    return Decimal32(Decimal64(lhs) + Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) + rhs);
 }
 
 
@@ -6173,70 +6173,70 @@ inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
                                     int               rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
                                     unsigned int      rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
                                     long              rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
                                     unsigned long     rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 lhs,
                                     long long         rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32  lhs,
                                     unsigned long long rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(int               lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(unsigned int      lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(long              lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator-(unsigned long     lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) - Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) - rhs);
 }
 
 inline
@@ -6265,91 +6265,91 @@ inline
 bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
                                     int               rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
                                     unsigned int      rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
                                     long              rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
                                     unsigned long     rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32 lhs,
                                     long long         rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(bdldfp::Decimal32  lhs,
                                     unsigned long long rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(int               lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(unsigned int      lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(long              lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(unsigned long     lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(long long         lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator*(unsigned long long lhs,
                                     bdldfp::Decimal32  rhs)
 {
-    return Decimal32(Decimal64(lhs) * Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) * rhs);
 }
 
                                // Division
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
-                                           bdldfp::Decimal32 rhs)
+                                    bdldfp::Decimal32 rhs)
 {
     return DecimalImpUtil::divide(*lhs.data(), *rhs.data());
 }
@@ -6358,56 +6358,56 @@ inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
                                     int               rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
                                     unsigned int      rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
                                     long              rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
                                     unsigned long     rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32 lhs,
                                     long long         rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(bdldfp::Decimal32  lhs,
                                     unsigned long long rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(int               lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(unsigned int      lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
@@ -6421,21 +6421,21 @@ inline
 bdldfp::Decimal32 bdldfp::operator/(unsigned long     lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(long long         lhs,
                                     bdldfp::Decimal32 rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 inline
 bdldfp::Decimal32 bdldfp::operator/(unsigned long long lhs,
                                     bdldfp::Decimal32  rhs)
 {
-    return Decimal32(Decimal64(lhs) / Decimal64(rhs));
+    return Decimal32(Decimal64(lhs) / rhs);
 }
 
 
