@@ -663,17 +663,13 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    if (STATUS) {  // Conversion failed; nothing to reverse.
-                        continue;
-                    }
-
                     bdlt::Datetime    result2(1, 1, 1, 0, 0, 0, 0);
                                                                  // unreachable
                     bdlt::Datetime result2Dup(1, 1, 1, 0, 0, 0, 0);
                                                                  // unreachable
 
                     if (veryVerbose) { cout << "Before: "; P(result2) }
-                    Util::convertFromDatetimeInterval(&result2, result);
+                    Util::convertFromDatetimeInterval(&result2, resultDup);
                                                                         // TEST
                     if (veryVerbose) { cout << "After: "; P(result2) }
 
@@ -1313,17 +1309,13 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    if (STATUS) {  // Conversion failed; nothing to reverse.
-                        continue;
-                    }
-
                     bdlt::Datetime    result2(1, 1, 1, 0, 0, 0, 0);
                                                                  // unreachable
                     bdlt::Datetime result2Dup(1, 1, 1, 0, 0, 0, 0);
                                                                  // unreachable
 
                     if (veryVerbose) { cout << "Before: "; P(result2) }
-                    Util::convertFromTimeInterval(&result2, result);
+                    Util::convertFromTimeInterval(&result2, resultDup);
                     if (veryVerbose) { cout << "After: "; P(result2) }
 
                     if (veryVerbose) { cout << "Before: "; P(result2Dup) }
