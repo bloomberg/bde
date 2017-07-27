@@ -882,7 +882,10 @@ class SessionPool {
         // system call failures when errors are available.
 
     ~SessionPool();
-        // Destroy this session pool.
+        // Destroy this session pool.  During destruction this object will
+        // attempt to terminate all underlying managed threads by calling
+        // 'stop' and will abort if 'stop' fails.  To ensure that this method
+        // succeeds users should call 'stop' before the object is destroyed.
 
     // MANIPULATORS
                                   // *** pool management section ***
@@ -891,20 +894,24 @@ class SessionPool {
         // on success, and a non-zero value otherwise.
 
     int stop();
-        // Stop the asynchronous operation of the session pool and gracefully
-        // terminate all active connection and listeners; return 0 on success
-        // and a non-zero value otherwise.  If all attempts to terminate the
-        // sessions "gracefully" fail, a negative value is returned and the
-        // sessions are destroyed anyway.
+        // Stop the asynchronous operation of this session pool and gracefully
+        // terminate all active connector and listener sessions; return 0 on
+        // success and a non-zero value otherwise.  If all attempts to stop the
+        // asynchronous operation of this object "gracefully" fail, then the
+        // asynchronous operation of this object is re-started and a negative
+        // value is returned.  Note that a failure to stop this object leaves
+        // all underlying sessions unaffected.
 
     int stopAndRemoveAllSessions();
         // Stop the asynchronous operation of this session pool, gracefully
         // terminate all active connectors and listeners, and remove all those
         // communication sessions from this session pool.  Return 0 on success,
         // and a non-zero value otherwise.  If all attempts to terminate the
-        // sessions "gracefully" fail, a negative value is returned and the
-        // sessions are destroyed anyway.  Note that shutting down a session
-        // will deallocate all system resources associated with that session.
+        // sessions "gracefully" fail, then the asynchronous operation of this
+        // object is re-started and a negative value is returned.  Note that a
+        // failure to stop this object leaves all underlying sessions
+        // unaffected.  Also note that shutting down a session will deallocate
+        // all system resources associated with that session.
 
                                   // *** server-related section ***
 

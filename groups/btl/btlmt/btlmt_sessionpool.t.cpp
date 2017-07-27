@@ -211,7 +211,7 @@ static bslmt::Mutex coutMutex;
 //-----------------------------------------------------------------------------
 static
 btlso::IPv4Address getLocalAddress() {
-    // On Cygwin, binding to btlso::IPv4Address() doesn't seem to work.
+    // On Cygwin/Windows, binding to btlso::IPv4Address() doesn't seem to work.
     // Wants to bind to localhost/127.0.0.1.
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -1015,7 +1015,7 @@ const int NUM_THREADS = 5;
 
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
                                                     clientSockets(NUM_THREADS);
-btlso::InetStreamSocketFactory<btlso::IPv4Address>  factory;
+btlso::InetStreamSocketFactory<btlso::IPv4Address>  socketFactory;
 
 struct ConnectData {
     int                d_index;
@@ -1028,7 +1028,7 @@ extern "C" void *connectFunction(void *args)
     const int                INDEX     = data.d_index;
     const btlso::IPv4Address ADDRESS   = data.d_serverAddress;
 
-    btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+    btlso::StreamSocket<btlso::IPv4Address> *socket = socketFactory.allocate();
     clientSockets[INDEX] = socket;
 
     ASSERT(0 == socket->connect(ADDRESS));
@@ -1052,7 +1052,8 @@ extern "C" void *listenFunction(void *args)
     ListenData data  = *(const ListenData *) args;
     const int  INDEX = data.d_index;
 
-    btlso::StreamSocket<btlso::IPv4Address> *serverSocket = factory.allocate();
+    btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
+                                                      socketFactory.allocate();
     serverSockets[INDEX] = serverSocket;
 
     ASSERT(0 == serverSocket->bind(getLocalAddress()));
