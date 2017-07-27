@@ -4063,8 +4063,8 @@ int ChannelPool::stop()
                 return -1;                                            // RETURN
             }
         }
+        d_startFlag = 0;
     }
-    d_startFlag = 0;
     return 0;
 }
 
