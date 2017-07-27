@@ -2338,12 +2338,6 @@ bool ChannelPool::isRunning() const
 }
 
 inline
-bool ChannelPool::isRunning() const
-{
-    return static_cast<bool>(d_startFlag);
-}
-
-inline
 int ChannelPool::numChannels() const
 {
     return d_channels.length();

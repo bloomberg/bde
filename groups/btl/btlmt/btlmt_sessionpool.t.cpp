@@ -109,7 +109,7 @@ using namespace bdlf::PlaceHolders;
 // [ 4] Testing removal of inefficiencies in read callback
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [19] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -2243,7 +2243,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2265,7 +2265,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
 
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING 'isRunning'
         //
