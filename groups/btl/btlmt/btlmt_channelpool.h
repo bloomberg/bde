@@ -921,7 +921,7 @@ class ChannelPool {
     bsls::AtomicOperations::AtomicTypes::Int
                                         d_capacity;
 
-    int                                 d_startFlag;
+    bsls::AtomicInt                     d_startFlag;
 
     bool                                d_collectTimeMetrics;
                                                // whether to collect time
@@ -1198,8 +1198,10 @@ class ChannelPool {
         // 'BlobBasedReadCallback', and 'PoolStateChangeCallback'.
 
     ~ChannelPool();
-        // Destroy this channel pool.  The behavior is undefined if the channel
-        // pool was not shut down properly.
+        // Destroy this channel pool.  During destruction this object will
+        // attempt to terminate all underlying managed threads by calling
+        // 'stop' and will abort if 'stop' fails.  To ensure that this method
+        // succeeds users should call 'stop' before the object is destroyed.
 
     // MANIPULATORS
                                   // *** Server part ***
@@ -1672,6 +1674,12 @@ class ChannelPool {
         // channel having the specified 'channelId'.  Return 0 on success, and
         // a non-zero value with no effect on 'result' otherwise.
 
+    bool isRunning() const;
+        // Return 'true' if this channel pool is currently running and 'false'
+        // otherwise.  A channel pool object is considered to be running
+        // between a successful call to 'start()' and a subsequent call to
+        // 'stop()' or 'stopAndRemoveAllChannels()'.
+
     int numBytesRead(bsls::Types::Int64 *result, int channelId) const;
         // Load, into the specified 'result', the number of bytes read by the
         // channel identified by the specified 'channelId' and return 0 if the
@@ -1957,6 +1965,12 @@ inline
 int ChannelPool::busyMetrics() const
 {
     return bsls::AtomicOperations::getInt(&d_capacity);
+}
+
+inline
+bool ChannelPool::isRunning() const
+{
+    return static_cast<bool>(d_startFlag);
 }
 
 inline

@@ -15,6 +15,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <btlmt_channelstatus.h>
 #include <btlmt_listenoptions.h>
 
+#include <bdls_processutil.h>
+
 #include <btls_iovecutil.h>
 #include <btlso_endpoint.h>
 #include <btlso_resolveutil.h>
@@ -45,12 +47,14 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_metaint.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
@@ -3584,7 +3588,32 @@ ChannelPool::ChannelPool(btlb::BlobBufferFactory         *blobBufferFactory,
 
 ChannelPool::~ChannelPool()
 {
-    stop();
+    const int rc = stop();
+    if (0 != rc) {
+        // If 'stop' failed then that likely means that there was an error
+        // terminating one of the underlying dispatcher threads.  If a thread
+        // is still active, it could possibly access state associated with this
+        // session pool object after that state has been destroyed, resulting
+        // in inscrutable crashes (see DRQS 80078174 for a possible scenario
+        // where this occurred).  The only condition under which terminating a
+        // thread could fail is if there is a problem with the underlying
+        // control channel.  Whether the failure of the control channel is
+        // possible is unclear especially on *nix-based platforms.  On Windows
+        // machines there have been scenarios where a firewall or antivirus
+        // process identifies the control channel as potentially malicious and
+        // kills the socket.  So such a scenario is more likely there but we
+        // have not had any reported crashes that point to 'stop' failure.  In
+        // any case the best course of action is to log an appropriate message
+        // and abort.
+
+        BSLS_LOG_ERROR("(PID: %d) 'stop' failed in btlmt::ChannelPool's "
+                       " destructor.  Please contact the BDE team Group 101 "
+                       " giving additional details on the crash, rc = %d.\n",
+                       bdls::ProcessUtil::getProcessId(),
+                       rc);
+        bsl::abort();
+    }
+
     if (!d_metricsTimerId.isNull()) {
         d_managers[0]->deregisterTimer(d_metricsTimerId.value());
     }
@@ -3895,16 +3924,18 @@ int ChannelPool::stopAndRemoveAllChannels()
     // this function returns.
 
     const int numManagers = static_cast<int>(d_managers.size());
-    for (int i = 0; i < numManagers; ++i) {
-        if (d_managers[i]->disable()) {
-           while(--i >= 0) {
-               bslmt::ThreadAttributes attr;
-               attr.setStackSize(d_config.threadStackSize());
+    if (isRunning()) {
+        for (int i = 0; i < numManagers; ++i) {
+            if (d_managers[i]->disable()) {
+                while(--i >= 0) {
+                    bslmt::ThreadAttributes attr;
+                    attr.setStackSize(d_config.threadStackSize());
 
-               int rc = d_managers[i]->enable(attr);
-               (void)rc; BSLS_ASSERT(0 == rc);
-           }
-           return -1;                                                 // RETURN
+                    int rc = d_managers[i]->enable(attr);
+                    (void)rc; BSLS_ASSERT(0 == rc);
+                }
+                return -1;                                            // RETURN
+            }
         }
     }
     d_startFlag = 0;
@@ -4025,6 +4056,10 @@ int ChannelPool::start()
 int ChannelPool::stop()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
+
+    if (!isRunning()) {
+        return 0;                                                     // RETURN
+    }
 
     int numManagers = static_cast<int>(d_managers.size());
     for (int i = 0; i < numManagers; ++i) {
