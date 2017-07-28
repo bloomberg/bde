@@ -21,3 +21,4 @@ bdlb_string
 bdlb_stringrefutil
 bdlb_testinputiterator
 bdlb_tokenizer
+bdlb_topologicalsortutil
