@@ -483,7 +483,7 @@ struct Hash {
         // function-call operator.
 
     typedef HASH_ALGORITHM HashAlgorithm;
-        // Make the algorithm type available to clients.
+        // Make the 'HASH_ALGORITHM' template parameter available to clients.
 
     // CREATORS
     //! Hash() = default;
