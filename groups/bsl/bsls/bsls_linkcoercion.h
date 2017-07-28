@@ -68,6 +68,12 @@ namespace BloombergLP {
                                                   refName,          \
                                                   referredSymbol)   \
     static type *refName = &referredSymbol;
+#elif defined(BSLS_PLATFORM_CMP_SUN)
+#define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
+                                                  refName,          \
+                                                  referredSymbol)   \
+    type refName() __attribute__((weak));                           \
+    type refName() { return referredSymbol; }
 #else
 #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
                                                   refName,          \
