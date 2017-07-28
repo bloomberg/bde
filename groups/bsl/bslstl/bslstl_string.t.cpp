@@ -2709,6 +2709,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         small2.push_back( TYPE('0') );
         ASSERT(hasher(small1) == hasher(small2));
     }
+
+    if (verbose) printf("Verify that bsl::hash hashes as strings.\n");
+    {
+        Obj s;
+        s.push_back( TYPE('a') );
+        s.push_back( TYPE('b') );
+        s.push_back( TYPE('c') );
+        ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(s.data()));
+        ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(s.data()));
+        TYPE abc[] = { TYPE('a'), TYPE('b'), TYPE('c'), TYPE(0) };
+        ASSERT(bsl::hash<Obj>()(s) == bsl::hash<Obj>()(abc));
+    }
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
