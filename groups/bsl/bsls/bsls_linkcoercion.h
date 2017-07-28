@@ -72,9 +72,8 @@ namespace BloombergLP {
 #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
                                                   refName,          \
                                                   referredSymbol)   \
-    namespace {                                                     \
-        extern type *const refName = &referredSymbol;               \
-    }
+    type refName() __attribute__((weak));                           \
+    type refName() { return referredSymbol; }
 #endif
 
 }  // close enterprise namespace
