@@ -164,6 +164,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_CMATH
+#include <bsl_cmath.h>
+#endif
+
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
