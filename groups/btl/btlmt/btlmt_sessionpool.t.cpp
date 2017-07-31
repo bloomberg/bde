@@ -98,6 +98,7 @@ using namespace bdlf::PlaceHolders;
 // [  ] const btlmt::ChannelPoolConfiguration& config() const;
 // [18] int busyMetrics() const;
 // [  ] void getChannelHandleStatistics(*handleInfo) const;
+// [18] bool isRunning() const;
 // [ 6] int numSessions() const;
 // [ 4] int portNumber(int handle) const;
 //
@@ -108,7 +109,7 @@ using namespace bdlf::PlaceHolders;
 // [ 4] Testing removal of inefficiencies in read callback
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [20] USAGE EXAMPLE
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -2242,7 +2243,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2263,6 +2264,59 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'isRunning'
+        //
+        // Concerns:
+        //: 1 'isRunning' returns 'false' for a session pool object on which
+        //:   'start' has either never been called or has not been called
+        //:   following a 'stop' call.
+        //:
+        //: 2 'isRunning' returns 'true' for a session pool object on which
+        //:   'start' has been called without a subsequent 'stop' call.
+        //
+        // Plan:
+        //: 1 Create a session pool object. Confirm that 'isRunning' returns
+        //:   'false'.
+        //:
+        //: 2 Call 'start' on that object and confirm that 'isRunning' returns
+        //:   'true'.
+        //:
+        //: 3 Call 'start' and 'stop' alternately and confirm that 'isRunning'
+        //:   returns the correct value.
+        //
+        // Testing:
+        //   bool isRunning() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'isRunning'" << endl
+                          << "===================" << endl;
+
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(3);
+
+        typedef btlmt::SessionPool::SessionPoolStateCallback
+                                                            SessionPoolStateCb;
+
+        SessionPoolStateCb poolCb;
+
+        Obj mX(config, poolCb);  const btlmt::SessionPool& X = mX;
+
+        ASSERT(false == X.isRunning());
+
+        mX.start();
+        ASSERT(true == X.isRunning());
+
+        mX.stop();
+        ASSERT(false == X.isRunning());
+
+        mX.start();
+        ASSERT(true == X.isRunning());
+
+        mX.stopAndRemoveAllSessions();
+        ASSERT(false == X.isRunning());
       } break;
       case 18: {
         // --------------------------------------------------------------------

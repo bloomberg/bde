@@ -902,17 +902,18 @@ class SessionPool {
               void                                     *userData = 0,
               int                                      *platformErrorCode = 0);
         // Asynchronously listen for connection requests based on the
-        // parameters in the specified 'options'.  Once a connection is
-        // successfully accepted, this session pool will allocate and start a
-        // session for the connection using the specified 'factory'.  Load a
-        // handle for the listening connection into the specified
-        // 'handleBuffer'.  Every time a connection is accepted by this pool on
-        // this (newly-established) listening socket, the newly allocated
-        // session is passed to the specified 'callback' along with the
-        // optionally specified 'userData'.  Optionally specify
-        // 'platformErrorCode' that will be loaded with the platform-specific
-        // error code if this method fails.  Return 0 on success, and a
-        // non-zero value otherwise.
+        // parameters in the specified 'options'.  For every accepted
+        // connection allocate and start a session using the specified
+        // 'factory' and load a handle for that connection into the specified
+        // 'handleBuffer'.  On any session state changes (i.e., is
+        // established), the specified 'callback' will be invoked along with a
+        // pointer to newly created session and the optionally-specified
+        // 'userData'.  Optionally, specify 'platformErrorCode' into which a
+        // platform-specific error code will be loaded if a synchronous failure
+        // occurs during the 'listen' operation.  Return 0 on success, and a
+        // non-zero value otherwise.  If 'isRunning' is 'false', this method
+        // will return success, but the session pool will not actively begin
+        // listening for a connection until 'isRunning' becomes 'true'.
 
                                   // *** client-related section ***
     int closeHandle(int handle);
@@ -933,11 +934,14 @@ class SessionPool {
         // specified 'factory' and load a handle for the initiated connection
         // into the specified 'handleBuffer'.  On any session state changes
         // (i.e., is established), the specified 'callback' will be invoked
-        // along with a pointer to newly created 'Session' and the optionally
-        // specified 'userData'.  Optionally specify 'platformErrorCode' that
-        // will be loaded with the platform-specific error code if this method
-        // fails.Return 0 on successful initiation, and a non-zero value
-        // otherwise.
+        // along with a pointer to newly created session and the
+        // optionally-specified 'userData'.  Optionally, specify
+        // 'platformErrorCode' into which a platform-specific error code will
+        // be loaded if a synchronous failure occurs during the 'connect'
+        // operation.  Return 0 on successful initiation, and a non-zero value
+        // otherwise.  If 'isRunning' is 'false', this method will return
+        // success, but the session pool will not actively try connecting to
+        // the peer until 'isRunning' becomes 'true'.
 
     int import(int                                            *handleBuffer,
                const SessionPool::SessionStateCallback&        callback,
@@ -1022,6 +1026,16 @@ class SessionPool {
         // Load into the specified 'handleInfo' array a snapshot of the
         // information per socket handle currently in use by this channel pool.
 
+    bool isRunning() const;
+        // Return 'true' if this session pool is currently running and 'false'
+        // otherwise.  A session pool object is considered to be running
+        // between a successful call to 'start()' and a subsequent call to
+        // 'stop()' or 'stopAndRemoveAllSessions()'.  Note that this function
+        // returns a *snapshot* of current state of this session pool, and
+        // callers that require a started or stopped session pool must
+        // externally synchronize with start and stop operations on this
+        // session pool.
+
     int numSessions() const;
         // Return a *snapshot* of the current number of sessions managed by
         // this session pool.
@@ -1085,6 +1099,12 @@ void SessionPool::getChannelHandleStatistics(
     if (d_channelPool_p) {
         d_channelPool_p->getHandleStatistics(handleInfo);
     }
+}
+
+inline
+bool SessionPool::isRunning() const
+{
+    return d_channelPool_p && d_channelPool_p->isRunning();
 }
 
 inline

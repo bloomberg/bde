@@ -918,8 +918,7 @@ class ChannelPool {
 
     ChannelPoolConfiguration            d_config;
 
-    bsls::AtomicOperations::AtomicTypes::Int
-                                        d_capacity;
+    bsls::AtomicInt                     d_capacity;
 
     bsls::AtomicInt                     d_startFlag;
 
@@ -1218,16 +1217,20 @@ class ChannelPool {
         // Establish a listening socket using the specified 'options' and
         // associate this newly established socket with the specified
         // 'serverId'.  Optionally, specify 'platformErrorCode' into which a
-        // platform-specific error code will be loaded if a synchronous
-        // failure occurs during the 'listen' operation.  Return 0 on success,
-        // a positive value if there is a listening socket associated with
-        // 'serverId' (i.e., 'serverId' is not unique) and a negative value if
-        // an error occurred.  Every time a connection is accepted by this pool
-        // on this (newly established) listening socket, 'serverId' is passed
-        // to the callback provided in the configuration at construction.  Note
-        // that on synchronous failure, the value loaded into the
-        // optionally-specified 'platformErrorCode' is the error code returned
-        // by the underlying OS or '0' if the error was not a system error.
+        // platform-specific error code will be loaded if a synchronous failure
+        // occurs during the 'listen' operation.  Return 0 on success, a
+        // positive value if there is already a listening socket associated
+        // with 'serverId' (i.e., 'serverId' is not unique) and a negative
+        // value if an error occurred.  If 'isRunning' is 'false', this method
+        // will return success, but the channel pool will not actively begin
+        // listening for a connection until 'isRunning' becomes 'true'.  Every
+        // accepted connection will result in the creation of an internal
+        // channel and the invocation of the channel state callback with the
+        // 'e_CHANNEL_UP' event, the newly created channel Id, and 'serverId'
+        // in an internal thread.  Note that on synchronous failure, the value
+        // loaded into the optionally-specified 'platformErrorCode' is the
+        // error code returned by the underlying OS or '0' if the error was not
+        // a system error.
 
                                   // *** Client part ***
 
@@ -1238,19 +1241,20 @@ class ChannelPool {
         // 'connectOptions' and associate the specified 'clientId' with that
         // connection.  Optionally, specify 'platformErrorCode' into which a
         // platform-specific error code will be loaded on a synchronous failure
-        // during the 'connect' operation.  After the connection is
-        // established, an internal channel is created and a channel state
-        // callback is called supplying the 'e_CHANNEL_UP' event, the newly
-        // created channel ID, and the 'clientId' in an internal thread.
-        // Return 0 on successful initiation, a positive value if there is an
-        // active connection attempt with the same 'clientId' (in which case
-        // this connection attempt may be retried after that other connection
-        // either succeeds, fails, or times out), or a negative value if an
-        // error occurred, with the value of -1 indicating that the channel
-        // pool is not running.  Note that on synchronous failure, the value
-        // loaded into the optionally-specified 'platformErrorCode' is the
-        // error code returned by the underlying OS or '0' if the error was not
-        // a system error.
+        // during the 'connect' operation.  Return 0 on successful, a positive
+        // value if there is already an active connection attempt with the same
+        // 'clientId' (in which case this connection attempt may be retried
+        // after that other connection either succeeds, fails, or times out),
+        // or a negative value if an error occurred.  If 'isRunning' is
+        // 'false', this method will return success, but the channel pool will
+        // not actively try connecting to the peer until 'isRunning' becomes
+        // 'true'.  After the connection is established, an internal channel is
+        // created and the channel state callback is called supplying the
+        // 'e_CHANNEL_UP' event, the newly created channel ID, and the
+        // 'clientId' in an internal thread.  Note that on synchronous failure,
+        // the value loaded into the optionally-specified 'platformErrorCode'
+        // is the error code returned by the underlying OS or '0' if the error
+        // was not a system error.
 
                                   // *** Channel management ***
 
@@ -1414,18 +1418,19 @@ class ChannelPool {
     int start();
         // Create internal threads that monitor network events and invoke
         // corresponding callbacks supplied (in the configuration) at
-        // construction.  Return 0 on success, and a non-zero value otherwise.
-        // The behavior is undefined if the internal threads are created (as
-        // reflected by the pool's state), see 'state'.
+        // construction.  Return 0 on success, and a non-zero value if there
+        // was an error starting the threads.
 
     int stop();
-        // Gracefully terminate the worker threads; return 0 on success and a
+        // Gracefully terminate the worker threads and disable all asynchronous
+        // operations of this channel pool.  Return 0 on success and a
         // non-zero value otherwise.  If any attempt to terminate a thread
         // "gracefully" fails, previously terminated threads are restarted and
-        // a negative value is returned.  The behavior is undefined unless the
-        // threads exist (i.e., were created successfully).  Note that this
-        // function has no effect on the state of any channel managed by this
-        // pool.
+        // a negative value is returned.  Note that after a successful return
+        // from this function no data is read from or written to an existing
+        // connection, calls to 'connect' and 'listen' will succeed, but will
+        // not result in actively listening or connecting until this object is
+        // subsequently re-started.
 
                                   // *** Incoming messages ***
 
@@ -1678,7 +1683,11 @@ class ChannelPool {
         // Return 'true' if this channel pool is currently running and 'false'
         // otherwise.  A channel pool object is considered to be running
         // between a successful call to 'start()' and a subsequent call to
-        // 'stop()' or 'stopAndRemoveAllChannels()'.
+        // 'stop()' or 'stopAndRemoveAllChannels()'.  Note that this function
+        // returns a *snapshot* of current state of this channel pool, and
+        // callers that require a started or stopped channel pool must
+        // externally synchronize with start and stop operations on this
+        // channel pool.
 
     int numBytesRead(bsls::Types::Int64 *result, int channelId) const;
         // Load, into the specified 'result', the number of bytes read by the
@@ -1964,7 +1973,7 @@ btlb::BlobBufferFactory *ChannelPool::outboundBlobBufferFactory()
 inline
 int ChannelPool::busyMetrics() const
 {
-    return bsls::AtomicOperations::getInt(&d_capacity);
+    return d_capacity.loadRelaxed();
 }
 
 inline
