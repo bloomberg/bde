@@ -135,10 +135,11 @@ template class bsl::vector<float>;
 template class bsl::vector<double>;
 template class bsl::vector<long double>;
 template class bsl::vector<void *>;
+template class bsl::vector<const void *>;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

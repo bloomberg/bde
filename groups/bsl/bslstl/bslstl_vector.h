@@ -1074,16 +1074,29 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     void constructFromRange(FWD_ITER              first,
                             FWD_ITER              last,
                             std::forward_iterator_tag);
-
     template <class INPUT_ITER>
     void constructFromRange(INPUT_ITER          first,
                             INPUT_ITER          last,
                             std::input_iterator_tag);
+        // Populate a default-constructed vector with the values held in the
+        // specified range '[first, last)'.  The additional
+        // 'std::*iterator__tag' should be a default-constructed tag that
+        // corresponds to that found in 'std::iterator_traits' for the
+        // (template paramter) '*_ITER' type.  This method should be called
+        // only from a constructor.  The behavior is undefined unless
+        // 'first != last'.
 
     template <class INTEGRAL>
-    void constructFromRange(INTEGRAL          first,
-                            INTEGRAL          last,
+    void constructFromRange(INTEGRAL          initialSize,
+                            INTEGRAL          value,
                             BloombergLP::bslmf::Nil);
+        // Populate a default-constructed vector with the specified
+        // 'initialSize' elements, where each such element is a copy of the
+        // specified 'value'.  The 'bslmf::Nil' traits value distinguished this
+        // overload of two identical (presumed integral) types from the pair of
+        // iterator overloads above.  This method should be called only from a
+        // constructor.
+
 
     template <class INPUT_ITER>
     void privateInsertDispatch(
@@ -4466,7 +4479,8 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(INPUT_ITER       first,
 
     typedef typename bsl::Vector_DeduceIteratorCategory<INPUT_ITER>::type Tag;
 
-    if (first != last) { // Range-check avoids allocating on an empty sequence.
+    if (bsl::is_same<Tag, BloombergLP::bslmf::Nil>::value || first != last) {
+        // Range-check avoids allocating on an empty sequence.
         constructFromRange(first, last, Tag());
     }
 }
@@ -6591,12 +6605,13 @@ extern template class bsl::vector<float>;
 extern template class bsl::vector<double>;
 extern template class bsl::vector<long double>;
 extern template class bsl::vector<void *>;
+extern template class bsl::vector<const void *>;
 #endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

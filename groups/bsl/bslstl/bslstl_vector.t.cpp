@@ -133,7 +133,7 @@
 // [ 2] void clear();
 // [15] reference front();
 // [15] reference back();
-// [  ] VALUE_TYPE *data();
+// [15] VALUE_TYPE *data();
 // [27] void emplace_back(Args...);
 // [17] void push_back(const T&);
 // [25] void push_back(T&&);
@@ -154,7 +154,7 @@
 // [ 4] const_reference at(size_type pos) const;
 // [15] const_reference front() const;
 // [15] const_reference back() const;
-// [  ] const VALUE_TYPE *data() const;
+// [15] const VALUE_TYPE *data() const;
 // [ 4] size_type size() const;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
@@ -5591,7 +5591,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

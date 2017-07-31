@@ -137,7 +137,7 @@
 // [ 2] void clear();
 // [15] reference front();
 // [15] reference back();
-// [  ] VALUE_TYPE *data();
+// [15] VALUE_TYPE *data();
 // [27] void emplace_back(Args...);
 // [17] void push_back(const T&);
 // [25] void push_back(T&&);
@@ -158,7 +158,7 @@
 // [ 4] const_reference at(size_type pos) const;
 // [15] const_reference front() const;
 // [15] const_reference back() const;
-// [  ] const VALUE_TYPE *data() const;
+// [15] const VALUE_TYPE *data() const;
 // [ 4] size_type size() const;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
@@ -1578,17 +1578,7 @@ struct TestDriver {
 
     enum AllocCategory { e_BSLMA, e_STDALLOC, e_ADAPTOR, e_STATEFUL };
 
-//#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_WINDOWS)
-#if 0 // defined(BSLS_PLATFORM_OS_WINDOWS)
-    // AIX has a compiler bug where method pointers do not default-construct to
-    // 0.  Windows has the same problem.
-
-    enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE =
-                !bsl::is_same<TYPE,
-                              bsltf::TemplateTestFacility::MethodPtr>::value };
-#else
-    enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE = true };
-#endif
+//    enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE = true };
 
     // TEST APPARATUS
 
@@ -9554,11 +9544,11 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
             ASSERT(X[tj] == Z[tj]);
         }
 
-        if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
+//        if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
             for (size_t tk = OSIZE; tk < NSIZE; ++tk) {
                 ASSERTV(DEFAULT_VALUE, X[tk], DEFAULT_VALUE == X[tk]);
             }
-        }
+//        }
 
         const size_t ADDED   = NSIZE > OSIZE ? NSIZE - OSIZE : 0;
         const size_t REMOVED = NSIZE < OSIZE ? OSIZE - NSIZE : 0;
@@ -9624,12 +9614,12 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
                 ASSERTV(LINE, X[tj] == Z[tj]);
             }
 
-            if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
+//            if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
                 for (size_t tk = OSIZE; tk < NSIZE; ++tk) {
                     ASSERTV(LINE, DEFAULT_VALUE,   X[tk],
                                   DEFAULT_VALUE == X[tk]);
                 }
-            }
+//            }
 
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -10508,11 +10498,11 @@ void TestDriver<TYPE, ALLOC>::testCase12()
                 ASSERTV(LINE, ti, LENGTH == X.size());
                 ASSERTV(LINE, ti, LENGTH == X.capacity());
 
-                if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
+//                if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
                     for (size_t j = 0; j < LENGTH; ++j) {
                         ASSERTV(LINE, ti, j, DEFAULT_VALUE == X[j]);
                     }
-                }
+//                }
             }
         }
 
@@ -11222,14 +11212,697 @@ void TestDriver<TYPE, ALLOC>::testCase12Range(const CONTAINER&)
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
 {
-    const vector<size_t> vna(13, 42);
-    ASSERT(13 == vna.size());
-    ASSERT(42 == vna.front());
+    // Concerns:
+    //: 1 A 'vector' is created with expected number of elements (given by the
+    //:   first argument), each having the expected value (given the the
+    //:   second argument).
+    //: 2 The newly created vector has the expected capacity, equal to the
+    //:   size.
+    //: 3 The requested size might, or might not, be a power of two.
+    //: 4 If the requested size is zero, no memory is allocated.
+    //: 5 All memory is supplied by the expected allocator, and no additional
+    //:   memory is requested from the default allocator.
+    //: 6 No memory leaks if an exception is thrown during construction.
+    //: 7 The requested element value miight, or might not, have the same value
+    //:   a the requested size.
+    //: 8 Where representable, requesting more than 'max_size()' elements will
+    //:   throw a 'std::length_error' exception.
+    //: 9 QoI TBD: For a type that is neither integral nor an iterator, but is
+    //:   convertible to an integral value, we should be able to create a
+    //:   vector having the nunber of element specified by converting to an
+    //:   integer from the first argument of the convertible type.
+    //
+    // Note that for the allocator-aware concerns, 'TYPE' must be an allocator-
+    // aware type that is implicitly convertible from some integral type.
 
-    bslma::TestAllocator at;
-    const vector<size_t> vwa(8, 12, &at);
-    ASSERT( 8 == vwa.size());
-    ASSERT(12 == vwa.front());
+    static const struct {
+        int         d_lineNum;  // source line number
+        signed char d_length;   // expected length, as smallest integral type
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        1 },
+        { L_,        2 },
+        { L_,        3 },
+        { L_,        4 },
+        { L_,        5 },
+        { L_,       15 },
+        { L_,       16 },
+        { L_,       17 },
+        { L_,       27 },  // one extra value away from expected boundaries
+        { L_,       63 },
+        { L_,       64 },
+        { L_,       65 }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    ALLOC                xta(&ta);
+
+
+    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value ||
+                           bsl::uses_allocator<TYPE, ALLOC>::value;
+
+    if (verbose) printf("\nTesting '%s' (TYPE_ALLOC = %d).\n",
+                        NameOf<TYPE>().name(),
+                        TYPE_ALLOC);
+
+    {
+        if (verbose) printf("\tWithout passing in an allocator.\n");
+        {
+            if (verbose) {
+                printf("\t\tCreating empty vector of objects, supplying a "
+                          "value to copy 0 times, indexed by 'signed char'\n");
+            }
+            {
+                Obj mX((signed char)0, (signed char)0);  const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                ASSERTV(X.size(),     0 == X.size());
+                ASSERTV(X.capacity(), 0 == X.capacity());
+
+                Obj mY((signed char)0, (signed char)1);  const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Y); P(Y.capacity());
+                }
+
+                ASSERTV(Y.size(),     0 == Y.size());
+                ASSERTV(Y.capacity(), 0 == Y.capacity());
+
+                Obj mZ((signed char)0, (signed char)127);  const Obj& Z = mZ;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Z); P(Z.capacity());
+                }
+
+                ASSERTV(Z.size(),     0 == Z.size());
+                ASSERTV(Z.capacity(), 0 == Z.capacity());
+            }
+
+            if (verbose) {
+                printf("\t\tCreating empty vector of objects, supplying a "
+                          "value to copy 0 times, indexed by 'signed char'\n");
+            }
+            {
+                Obj mX(0, 0);  const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                ASSERTV(X.size(),     0 == X.size());
+                ASSERTV(X.capacity(), 0 == X.capacity());
+
+                Obj mY(0, 1);  const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Y); P(Y.capacity());
+                }
+
+                ASSERTV(Y.size(),     0 == Y.size());
+                ASSERTV(Y.capacity(), 0 == Y.capacity());
+
+                Obj mZ(0, 127);  const Obj& Z = mZ;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Z); P(Z.capacity());
+                }
+
+                ASSERTV(Z.size(),     0 == Z.size());
+                ASSERTV(Z.capacity(), 0 == Z.capacity());
+            }
+
+            if (verbose) {
+                printf("\t\tCreating empty vector of objects, supplying a "
+                          "value to copy 0 times, indexed by 'signed char'\n");
+            }
+            {
+                Obj mX((size_t)0, (size_t)0);  const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                ASSERTV(X.size(),     0 == X.size());
+                ASSERTV(X.capacity(), 0 == X.capacity());
+
+                Obj mY((size_t)0, (size_t)1);  const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Y); P(Y.capacity());
+                }
+
+                ASSERTV(Y.size(),     0 == Y.size());
+                ASSERTV(Y.capacity(), 0 == Y.capacity());
+
+                Obj mZ((size_t)0, (size_t)127);  const Obj& Z = mZ;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Z); P(Z.capacity());
+                }
+
+                ASSERTV(Z.size(),     0 == Z.size());
+                ASSERTV(Z.capacity(), 0 == Z.capacity());
+            }
+
+
+            for (signed char ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_lineNum;
+                const signed char LENGTH = DATA[ti].d_length;
+
+                const struct {
+                    int         d_lineNum;  // source line number
+                    signed char d_value;    // value for constructor to copy
+                } VALUES[] = {
+                    //line  length
+                    //----  ------
+                    { L_,   0          },
+                    { L_,   (signed char)(LENGTH - 1) },
+                    { L_,   (signed char) LENGTH      },
+                    { L_,   (signed char)(LENGTH + 1) },
+                    { L_,   127        }
+                };
+                enum { NUM_VALUES = sizeof VALUES / sizeof *VALUES };
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'signed char'\n");
+                    }
+
+                    Obj mX(LENGTH, VALUE);  const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+                }
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'int'\n");
+                    }
+
+                    Obj        mX((int)LENGTH, (int)VALUE);
+                    const Obj&  X = mX;
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+                }
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'size_t'\n");
+                    }
+
+                    Obj        mX((size_t)LENGTH, (size_t)VALUE);
+                    const Obj&  X = mX;
+
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+                }
+            }
+        }
+
+        if (verbose)
+            printf("\tWith passing an allocator and checking for "
+                   "allocation exceptions using non-default value.\n");
+        {
+            if (verbose) {
+                printf("\t\tCreating empty vector of objects, supplying a "
+                          "value to copy 0 times, indexed by 'signed char'\n");
+            }
+            {
+                Obj mX((signed char)0, (signed char)0, xta);
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                ASSERTV(X.size(),     0 == X.size());
+                ASSERTV(X.capacity(), 0 == X.capacity());
+
+                Obj mY((signed char)0, (signed char)1, xta);
+                const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Y); P(Y.capacity());
+                }
+
+                ASSERTV(Y.size(),     0 == Y.size());
+                ASSERTV(Y.capacity(), 0 == Y.capacity());
+
+                Obj mZ((signed char)0, (signed char)127, xta);
+                const Obj& Z = mZ;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Z); P(Z.capacity());
+                }
+
+                ASSERTV(Z.size(),     0 == Z.size());
+                ASSERTV(Z.capacity(), 0 == Z.capacity());
+            }
+
+            if (verbose) {
+                printf("\t\tCreating empty vector of objects, supplying a "
+                          "value to copy 0 times, indexed by 'signed char'\n");
+            }
+            {
+                Obj mX(0, 0, xta);  const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                ASSERTV(X.size(),     0 == X.size());
+                ASSERTV(X.capacity(), 0 == X.capacity());
+
+                Obj mY(0, 1, xta);  const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Y); P(Y.capacity());
+                }
+
+                ASSERTV(Y.size(),     0 == Y.size());
+                ASSERTV(Y.capacity(), 0 == Y.capacity());
+
+                Obj mZ(0, 127, xta);  const Obj& Z = mZ;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Z); P(Z.capacity());
+                }
+
+                ASSERTV(Z.size(),     0 == Z.size());
+                ASSERTV(Z.capacity(), 0 == Z.capacity());
+            }
+
+            if (verbose) {
+                printf("\t\tCreating empty vector of objects, supplying a "
+                          "value to copy 0 times, indexed by 'signed char'\n");
+            }
+            {
+                Obj mX((size_t)0, (size_t)0, xta);  const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                ASSERTV(X.size(),     0 == X.size());
+                ASSERTV(X.capacity(), 0 == X.capacity());
+
+                Obj mY((size_t)0, (size_t)1, xta);  const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Y); P(Y.capacity());
+                }
+
+                ASSERTV(Y.size(),     0 == Y.size());
+                ASSERTV(Y.capacity(), 0 == Y.capacity());
+
+                Obj mZ((size_t)0, (size_t)127, xta);  const Obj& Z = mZ;
+
+                if (veryVerbose) {
+                    T_; T_; P_(Z); P(Z.capacity());
+                }
+
+                ASSERTV(Z.size(),     0 == Z.size());
+                ASSERTV(Z.capacity(), 0 == Z.capacity());
+            }
+
+
+            for (signed char ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_lineNum;
+                const signed char LENGTH = DATA[ti].d_length;
+
+                const struct {
+                    int         d_lineNum;  // source line number
+                    signed char d_value;    // value for constructor to copy
+                } VALUES[] = {
+                    //line  length
+                    //----  ------
+                    { L_,   0          },
+                    { L_,   (signed char)(LENGTH - 1) },
+                    { L_,   (signed char) LENGTH      },
+                    { L_,   (signed char)(LENGTH + 1) },
+                    { L_,   127        }
+                };
+                enum { NUM_VALUES = sizeof VALUES / sizeof *VALUES };
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'signed char'\n");
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    Obj mX(LENGTH, VALUE, xta);  const Obj& X = mX;
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+
+                    ASSERTV(LINE2, ti, BB + 1 + LENGTH * TYPE_ALLOC,   AA,
+                                       BB + 1 + LENGTH * TYPE_ALLOC == AA);
+                    ASSERTV(LINE2, ti, B  + 1 + LENGTH * TYPE_ALLOC,   A,
+                                       B  + 1 + LENGTH * TYPE_ALLOC == A );
+                }
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'int'\n");
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    Obj        mX((int)LENGTH, (int)VALUE, xta);
+                    const Obj&  X = mX;
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+
+                    ASSERTV(LINE2, ti, BB + 1 + LENGTH * TYPE_ALLOC,   AA,
+                                       BB + 1 + LENGTH * TYPE_ALLOC == AA);
+                    ASSERTV(LINE2, ti, B  + 1 + LENGTH * TYPE_ALLOC,   A,
+                                       B  + 1 + LENGTH * TYPE_ALLOC == A );
+                }
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'size_t'\n");
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    Obj        mX((size_t)LENGTH, (size_t)VALUE, xta);
+                    const Obj&  X = mX;
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+
+                    ASSERTV(LINE2, ti, BB + 1 + LENGTH * TYPE_ALLOC,   AA,
+                                       BB + 1 + LENGTH * TYPE_ALLOC == AA);
+                    ASSERTV(LINE2, ti, B  + 1 + LENGTH * TYPE_ALLOC,   A,
+                                       B  + 1 + LENGTH * TYPE_ALLOC == A );
+                }
+            }
+        }
+
+#if defined(BDE_BUILD_TARGET_EXC)
+        if (verbose)
+            printf("\tWith passing an allocator and checking for "
+                   "allocation exceptions using non-default value.\n");
+        {
+
+            for (signed char ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_lineNum;
+                const signed char LENGTH = DATA[ti].d_length;
+
+                const struct {
+                    int         d_lineNum;  // source line number
+                    signed char d_value;    // value for constructor to copy
+                } VALUES[] = {
+                    //line  length
+                    //----  ------
+                    { L_,   0          },
+                    { L_,   (signed char)(LENGTH - 1) },
+                    { L_,   (signed char) LENGTH      },
+                    { L_,   (signed char)(LENGTH + 1) },
+                    { L_,   127        }
+                };
+                enum { NUM_VALUES = sizeof VALUES / sizeof *VALUES };
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'signed char'\n");
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+
+                        Obj mX(LENGTH, VALUE, xta);  const Obj& X = mX;
+
+                        if (veryVerbose) {
+                            T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                        ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                           LENGTH == X.capacity());
+
+                        // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                        // no out-of-contract 'operator[]' call in the case that a
+                        // previous 'ASSERT' reports an error.
+                        for (size_t j = 0; j != X.size(); ++j) {
+                            ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                        }
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) { printf("\t\tAFTER : "); P_(AA); P(A); }
+
+                    // Because of exceptions, the number of allocations will be
+                    // 'LENGTH' trials that allocate the array for the vector,
+                    // plus '1 + 2 + ... + LENGTH == LENGTH * (1 + LENGTH) / 2'
+                    // for the vector elements at each successive trial, plus
+                    // one for the final trial that succeeds.
+
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                             TYPE_ALLOC * (LENGTH + LENGTH * (1 + LENGTH) / 2);
+                    ASSERTV(LINE2, ti, BB + 1 + TYPE_ALLOCS,   AA,
+                                       BB + 1 + TYPE_ALLOCS == AA);
+                    ASSERTV(LINE2, ti, B, A, B == A);
+
+                    ASSERTV(LINE2, ti, 0 == ta.numBlocksInUse());
+                }
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'int'\n");
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    Obj        mX((int)LENGTH, (int)VALUE, xta);
+                    const Obj&  X = mX;
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+
+                    ASSERTV(LINE2, ti, BB + 1 + LENGTH * TYPE_ALLOC,   AA,
+                                       BB + 1 + LENGTH * TYPE_ALLOC == AA);
+                    ASSERTV(LINE2, ti, B  + 1 + LENGTH * TYPE_ALLOC,   A,
+                                       B  + 1 + LENGTH * TYPE_ALLOC == A );
+                }
+
+                for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                    const int         LINE2 = VALUES[tj].d_lineNum;
+                    const signed char VALUE = VALUES[tj].d_value;
+
+                    const TYPE DEFAULT(VALUE);
+
+                    if (verbose) {
+                        printf("\t\tCreating ");  P_(LENGTH);
+                        printf("objects of value "); P_(VALUE);
+                        printf("indexed by 'size_t'\n");
+                    }
+
+                    const bsls::Types::Int64 BB = ta.numBlocksTotal();
+                    const bsls::Types::Int64 B  = ta.numBlocksInUse();
+
+                    Obj        mX((size_t)LENGTH, (size_t)VALUE, xta);
+                    const Obj&  X = mX;
+
+                    const bsls::Types::Int64 AA = ta.numBlocksTotal();
+                    const bsls::Types::Int64 A  = ta.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
+                                       LENGTH == X.capacity());
+
+                    // Use 'x.size()' rather than 'LENGTH' to ensure there is
+                    // no out-of-contract 'operator[]' call in the case that a
+                    // previous 'ASSERT' reports an error.
+                    for (size_t j = 0; j != X.size(); ++j) {
+                        ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
+                    }
+
+                    ASSERTV(LINE2, ti, BB + 1 + LENGTH * TYPE_ALLOC,   AA,
+                                       BB + 1 + LENGTH * TYPE_ALLOC == AA);
+                    ASSERTV(LINE2, ti, B  + 1 + LENGTH * TYPE_ALLOC,   A,
+                                       B  + 1 + LENGTH * TYPE_ALLOC == A );
+                }
+            }
+        }
+#endif  // BDE_BUILD_TARGET_EXC
+    }
 }
 
 
@@ -11900,8 +12573,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONSTRUCTORS"
                             "\n====================\n");
 
-        if (verbose) printf("\nTesting Initial-Length Constructor"
-                            "\n==================================\n");
+        if (verbose) printf(
+               "\nTesting Initial-Length Constructor (using default value)"
+               "\n========================================================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
@@ -11909,6 +12583,10 @@ int main(int argc, char *argv[])
                       const char *,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+
+        if (verbose) printf(
+               "\nTesting Initial-Length Constructor (copying given value)"
+               "\n========================================================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase12NoDefault,
@@ -11946,7 +12624,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Initial-Range vs. -Length Ambiguity"
                             "\n===========================================\n");
 
+        TestDriver<char  >::testCase12Ambiguity();
+        TestDriver<int   >::testCase12Ambiguity();
         TestDriver<size_t>::testCase12Ambiguity();
+        TestDriver<double>::testCase12Ambiguity();
+        TestDriver<bsltf::AllocTestType>::testCase12Ambiguity();
+
+        if (verbose) printf("\nTesting with standard-conforming allocators"
+                            "\n===========================================\n");
 
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase12,
