@@ -453,8 +453,8 @@ void TestDriver::testCase7()
                            << "Testing 'hashAppend'" << bsl::endl
                            << "====================" << bsl::endl;
 
-    typedef ::BloombergLP::bslh::Hash<>  Hasher;
-    typedef typename Hasher::result_type HashType;
+    typedef ::BloombergLP::bslh::Hash<> Hasher;
+    typedef Hasher::result_type         HashType;
 
     Hasher hasher;
 
