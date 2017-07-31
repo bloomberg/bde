@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  ASSERT(4   == m3.getCount());
 //  ASSERT(3.0 == m3.getMean());
-//  ASSERT(1e-5 > fabs(3.33333  - m3.getVariance()));
-//  ASSERT(1e-5 > fabs(-1.38086 - m3.getSkew()));
+//  ASSERT(1e-5 > fabs(3.33333 - m3.getVariance()));
+//  ASSERT(1e-5 > fabs(0.0     - m3.getSkew()));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
