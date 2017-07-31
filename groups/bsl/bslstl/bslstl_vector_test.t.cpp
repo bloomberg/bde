@@ -1578,8 +1578,6 @@ struct TestDriver {
 
     enum AllocCategory { e_BSLMA, e_STDALLOC, e_ADAPTOR, e_STATEFUL };
 
-//    enum { k_IS_VALUE_DEFAULT_CONSTRUCTIBLE = true };
-
     // TEST APPARATUS
 
     // CLASS DATA
@@ -9544,11 +9542,9 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
             ASSERT(X[tj] == Z[tj]);
         }
 
-//        if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
-            for (size_t tk = OSIZE; tk < NSIZE; ++tk) {
-                ASSERTV(DEFAULT_VALUE, X[tk], DEFAULT_VALUE == X[tk]);
-            }
-//        }
+        for (size_t tk = OSIZE; tk < NSIZE; ++tk) {
+            ASSERTV(DEFAULT_VALUE, X[tk], DEFAULT_VALUE == X[tk]);
+        }
 
         const size_t ADDED   = NSIZE > OSIZE ? NSIZE - OSIZE : 0;
         const size_t REMOVED = NSIZE < OSIZE ? OSIZE - NSIZE : 0;
@@ -9614,12 +9610,10 @@ void TestDriver<TYPE, ALLOC>::testCase14a()
                 ASSERTV(LINE, X[tj] == Z[tj]);
             }
 
-//            if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
-                for (size_t tk = OSIZE; tk < NSIZE; ++tk) {
-                    ASSERTV(LINE, DEFAULT_VALUE,   X[tk],
-                                  DEFAULT_VALUE == X[tk]);
-                }
-//            }
+            for (size_t tk = OSIZE; tk < NSIZE; ++tk) {
+                ASSERTV(LINE, DEFAULT_VALUE,   X[tk],
+                              DEFAULT_VALUE == X[tk]);
+            }
 
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -10498,11 +10492,9 @@ void TestDriver<TYPE, ALLOC>::testCase12()
                 ASSERTV(LINE, ti, LENGTH == X.size());
                 ASSERTV(LINE, ti, LENGTH == X.capacity());
 
-//                if (k_IS_VALUE_DEFAULT_CONSTRUCTIBLE) {
-                    for (size_t j = 0; j < LENGTH; ++j) {
-                        ASSERTV(LINE, ti, j, DEFAULT_VALUE == X[j]);
-                    }
-//                }
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    ASSERTV(LINE, ti, j, DEFAULT_VALUE == X[j]);
+                }
             }
         }
 
