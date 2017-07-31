@@ -892,11 +892,11 @@ int MiniReader::advanceToEndNode()
 }
 
 MiniReader::StringType
-MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
+MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
 {
     BSLS_ASSERT(!name.empty());
 
-    char strSet[] = { '\n', '<', '/', name[0] };
+    static const char strSet[] = { '\n', '<', '/' };
 
     while (1) {
         StringType type = e_STRINGTYPE_NONE;
@@ -911,22 +911,22 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
             continue;                                               // CONTINUE
         }
 
-        switch (peekChar()) {
-          case '\n': {
+        if (peekChar() == '\n') {
               ++d_scanPtr;
               d_linePtr = d_scanPtr;
               ++d_lineNum;
-          } break;
+              continue;                                             // CONTINUE
+        }
 
-          case '<': {
-            ++d_scanPtr;
+        const char ch = peekChar();
+        ++d_scanPtr;
+
+        if (ch == '<') {
             if ('!' == peekChar()) {
                 ++d_scanPtr;
-                while ((d_endPtr - d_scanPtr) < 2) {
-                    if (readInput() == 0) {
-                        d_scanPtr = d_endPtr;
-                        return e_STRINGTYPE_NONE;                     // RETURN
-                    }
+                if (readAtLeast(2) == 0) {
+                    d_scanPtr = d_endPtr;
+                    return e_STRINGTYPE_NONE;                         // RETURN
                 }
                 if ('-' == d_scanPtr[0]
                  && '-' == d_scanPtr[1]) {
@@ -934,11 +934,9 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                     return e_STRINGTYPE_COMMENT;                      // RETURN
                 }
 
-                while ((d_endPtr - d_scanPtr) < 7) {
-                    if (readInput() == 0) {
-                        d_scanPtr = d_endPtr;
-                        return e_STRINGTYPE_NONE;                     // RETURN
-                    }
+                if (readAtLeast(7) == 0) {
+                    d_scanPtr = d_endPtr;
+                    return e_STRINGTYPE_NONE;                         // RETURN
                 }
                 if ('[' == d_scanPtr[0]
                  && 'C' == d_scanPtr[1]
@@ -952,31 +950,42 @@ MiniReader::searchCommentCDataOrElementName(const bsl::string& name)
                 }
             }
             currentNode().d_startPos = getCurrentPosition() - 1;
-          } break;
+        }
 
-          case '/': {
-            ++d_scanPtr;
+        if (ch == '/') {
             type = e_STRINGTYPE_END_ELEMENT;
             d_markPtr = d_scanPtr - 1;
-          }                                                     // FALL THROUGH
+        }
 
-          default: {
-            while ((d_endPtr - d_scanPtr) < static_cast<int>(name.length())) {
-                if (readInput() == 0) {
+        if (readAtLeast(static_cast<bsl::ptrdiff_t>(name.length())) == 0) {
+            d_scanPtr = d_endPtr;
+            return e_STRINGTYPE_NONE;                                 // RETURN
+        }
+        if (0 == bsl::memcmp(d_scanPtr, name.data(), name.length())) {
+            Node& node = currentNode();
+            node.d_qualifiedName = d_scanPtr;
+            d_scanPtr += name.length();
+            char *nameEnd = d_scanPtr;
+            if (bsl::isspace(static_cast<unsigned char>(*d_scanPtr))) {
+                if (skipSpaces() == 0) {
                     d_scanPtr = d_endPtr;
                     return e_STRINGTYPE_NONE;                         // RETURN
                 }
             }
-            if (0 == bsl::memcmp(d_scanPtr, name.data(), name.length())) {
-                if (e_STRINGTYPE_NONE == type) {
-                    type = e_STRINGTYPE_START_ELEMENT;
-                }
-                return type;                                          // RETURN
+            if (*d_scanPtr != '>') {
+                continue;                                           // CONTINUE
             }
-            else if (type != e_STRINGTYPE_END_ELEMENT) {
-                ++d_scanPtr;
+            ++d_scanPtr;
+            *nameEnd = '\0';
+            if (e_STRINGTYPE_NONE == type) {
+                type = e_STRINGTYPE_START_ELEMENT;
             }
-          }
+            else {
+                node.d_type = e_NODE_TYPE_END_ELEMENT;
+                node.d_endPos = getCurrentPosition();
+                d_state = ST_TAG_END;
+            }
+            return type;                                              // RETURN
         }
     }
 }
@@ -986,7 +995,7 @@ MiniReader::searchElementName(const bsl::string& name)
 {
     BSLS_ASSERT(!name.empty());
 
-    char strSet[] = { '\n', '/', name[0] };
+    static const char strSet[] = { '\n', '<', '/' };
 
     while (1) {
         StringType type = e_STRINGTYPE_NONE;
@@ -1001,36 +1010,54 @@ MiniReader::searchElementName(const bsl::string& name)
             continue;                                               // CONTINUE
         }
 
-        switch (peekChar()) {
-          case '\n': {
-              ++d_scanPtr;
-              d_linePtr = d_scanPtr;
-              ++d_lineNum;
-          } break;
-
-          case '/': {
+        if (peekChar() == '\n') {
             ++d_scanPtr;
+            d_linePtr = d_scanPtr;
+            ++d_lineNum;
+            continue;                                               // CONTINUE
+        }
+
+        const char ch = peekChar();
+        ++d_scanPtr;
+
+        if (ch == '<') {
+            currentNode().d_startPos = getCurrentPosition() - 1;
+        }
+
+        if (ch == '/') {
             type = e_STRINGTYPE_END_ELEMENT;
             d_markPtr = d_scanPtr - 1;
-          }                                                     // FALL THROUGH
+        }
 
-          default: {
-            while ((d_endPtr - d_scanPtr) < static_cast<int>(name.length())) {
-                if (readInput() == 0) {
+        if (readAtLeast(static_cast<bsl::ptrdiff_t>(name.length())) == 0) {
+            d_scanPtr = d_endPtr;
+            return e_STRINGTYPE_NONE;                                 // RETURN
+        }
+        if (0 == bsl::memcmp(d_scanPtr, name.data(), name.length())) {
+            Node& node = currentNode();
+            node.d_qualifiedName = d_scanPtr;
+            d_scanPtr += name.length();
+            char *nameEnd = d_scanPtr;
+            if (bsl::isspace(static_cast<unsigned char>(*d_scanPtr))) {
+                if (skipSpaces() == 0) {
                     d_scanPtr = d_endPtr;
                     return e_STRINGTYPE_NONE;                         // RETURN
                 }
             }
-            if (0 == bsl::memcmp(d_scanPtr, name.data(), name.length())) {
-                if (e_STRINGTYPE_NONE == type) {
-                    type = e_STRINGTYPE_START_ELEMENT;
-                }
-                return type;                                          // RETURN
+            if (*d_scanPtr != '>') {
+                continue;                                           // CONTINUE
             }
-            else if (type != e_STRINGTYPE_END_ELEMENT) {
-                ++d_scanPtr;
+            ++d_scanPtr;
+            *nameEnd = '\0';
+            if (e_STRINGTYPE_NONE == type) {
+                type = e_STRINGTYPE_START_ELEMENT;
             }
-          }
+            else {
+                node.d_type = e_NODE_TYPE_END_ELEMENT;
+                node.d_endPos = getCurrentPosition();
+                d_state = ST_TAG_END;
+            }
+            return type;                                              // RETURN
         }
     }
 }
@@ -1051,10 +1078,11 @@ int MiniReader::advanceToEndNodeRaw()
         return 0;                                                     // RETURN
     }
 
+    const bsl::string name = node.d_qualifiedName;
+
     int level = 1;
     while (1) {
-        StringType stringType =
-                         searchCommentCDataOrElementName(node.d_qualifiedName);
+        StringType stringType = searchCommentCDataOrEndElementName(name);
         switch (stringType) {
           case e_STRINGTYPE_COMMENT: {
             if (scanForString("-->") == 0) { // not found
@@ -1074,7 +1102,7 @@ int MiniReader::advanceToEndNodeRaw()
             --level;
             if (0 == level) {
 
-                scanEndElementRaw();
+                updateElementInfo();
 
                 // Leaving the END node decreases 'd_activeNodesCount' so we
                 // need to increase it and add a name.
@@ -1087,7 +1115,6 @@ int MiniReader::advanceToEndNodeRaw()
 
           case e_STRINGTYPE_START_ELEMENT: {
             ++level;
-            d_scanPtr += strlen(node.d_qualifiedName);
           } break;
 
           case e_STRINGTYPE_NONE:
@@ -1109,18 +1136,21 @@ int MiniReader::advanceToEndNodeRawBare()
 
     BSLS_ASSERT(node.d_type == e_NODE_TYPE_ELEMENT);
 
+    const bsl::string name = node.d_qualifiedName;
+
     if (isEmptyElement()) {  // Empty element so we already skipped the body
         return 0;                                                     // RETURN
     }
 
     int level = 1;
     while (1) {
-        StringType stringType = searchElementName(node.d_qualifiedName);
+        StringType stringType = searchElementName(name);
         switch (stringType) {
           case e_STRINGTYPE_END_ELEMENT: {
             --level;
             if (0 == level) {
-                scanEndElementRaw();
+
+                updateElementInfo();
 
                 // Leaving the END node decreases 'd_activeNodesCount' so we
                 // need to increase it and add a name.
@@ -1133,7 +1163,6 @@ int MiniReader::advanceToEndNodeRawBare()
 
           case e_STRINGTYPE_START_ELEMENT: {
             ++level;
-            d_scanPtr += strlen(node.d_qualifiedName);
           } break;
 
           case e_STRINGTYPE_COMMENT: // to silence warning
@@ -2158,8 +2187,20 @@ MiniReader::readInput()
     }
     return static_cast<int>(numRead);
 }
-}  // close package namespace
 
+int
+MiniReader::readAtLeast(bsl::ptrdiff_t number)
+{
+    while ((d_endPtr - d_scanPtr) < number) {
+        if ((readInput()) == 0) {
+            return 0;                                                 // RETURN
+        }
+    }
+    return 1;
+}
+
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

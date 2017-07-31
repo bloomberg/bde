@@ -896,18 +896,20 @@ int main(int argc, char *argv[])
                                << "\n================================="
                                << bsl::endl;
 
+#define abcd " a='/Element1' b='/Element2' c='/Element3' d='/Node0' "
         static const char xmlStr[] =
           "<?xml version='1.0' encoding='UTF-8'?>\n"
           "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
           "    elementFormDefault='qualified'\n"
           "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
           "    bdem:package='bascfg'>\n"
-          "<Node0>\n"
-          "    <Element1>element1</Element1>\n"
-          "    <Element2>element2</Element2>\n"
-          "    <Element3>element3</Element3>\n"
+          "<Node0" abcd ">\n"
+          "    <Element1" abcd ">element1</Element1>\n"
+          "    <Element2" abcd ">element2</Element2>\n"
+          "    <Element3" abcd ">element3</Element3>\n"
           "</Node0>\n"
           "</xs:schema>";
+#undef abcd
 
         if (veryVerbose) P(xmlStr);
 
@@ -1240,6 +1242,92 @@ int main(int argc, char *argv[])
               "    bdem:package='bascfg'>\n"
               "    <Node0>"
               "        <Node0>"
+              "            <Node0>"
+              "            </Node0>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0);
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP2_ASSERT(rc, reader.errorInfo(),
+                         (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTest elements with longer name."
+                                      "\n- - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "            <Node01>"
+              "            </Node01>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == 0);
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP2_ASSERT(rc, reader.errorInfo(),
+                         (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTest elements with longer name."
+                                      "\n- - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "            <LongNode0>"
+              "            </LongNode0>"
               "        </Node0>"
               "    </Node0>\n"
               "</xs:schema>";
@@ -1315,21 +1403,24 @@ int main(int argc, char *argv[])
                                << "\n============================"
                                << bsl::endl;
 
+#define abcd " a='/Element1' b='/Element2' c='/Element3' d='/Node0' "
         static const char xmlStr[] =
-          "<?xml version='1.0' encoding='UTF-8'?>\n"
-          "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
-          "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
-          "    elementFormDefault='qualified'\n"
-          "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
-          "    bdem:package='bascfg'>\n"
-          "<Node0>\n"
-          "    <Element1>element1<!-- The first element has a comment -->"
-              "</Element1>\n"
-          "    <Element2>element2</Element2>\n"
-          "    <Element3>element3</Element3>\n"
-          "    <![CDATA[&lt;123&#240;&gt;]]>\n"
-          "</Node0>\n"
-          "</xs:schema>";
+            "<?xml version='1.0' encoding='UTF-8'?>\n"
+            "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
+            "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+            "    elementFormDefault='qualified'\n"
+            "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+            "    bdem:package='bascfg'>\n"
+            "<Node0" abcd ">\n"
+            "    <Element1" abcd ">element1"
+            "<!-- The 1st element has a comment -->"
+            "</Element1>\n"
+            "    <Element2" abcd ">element2</Element2>\n"
+            "    <Element3" abcd ">element3</Element3>\n"
+            "    <![CDATA[&lt;123&#240;&gt;]]>\n"
+            "</Node0>\n"
+            "</xs:schema>";
+#undef abcd
 
         if (veryVerbose) P(xmlStr);
 
@@ -1355,7 +1446,8 @@ int main(int argc, char *argv[])
 
             ASSERT(reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Element3"));
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "Element3"));
 
             rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_CDATA);
@@ -1416,12 +1508,14 @@ int main(int argc, char *argv[])
 
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "Node0"));
 
             rc = advancePastWhiteSpace(reader);
             ASSERT( reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
 
             reader.close();
         }
@@ -1883,9 +1977,11 @@ int main(int argc, char *argv[])
             reader.close();
         }
 
-        if (veryVerbose) bsl::cout << "\nTest elements with the same name."
-                                      "\n- - - - - - - - - - - - - - - - -"
-                                   << bsl::endl;
+        if (veryVerbose) {
+            bsl::cout << "\nTest nested elements with the same name."
+                         "\n - - - - - - - - - - - - - - - - - - - -"
+                      << bsl::endl;
+        }
         {
             static const char xmlStr[] =
               "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -1895,6 +1991,8 @@ int main(int argc, char *argv[])
               "    bdem:package='bascfg'>\n"
               "    <Node0>"
               "        <Node0>"
+              "            <Node0>"
+              "            </Node0>"
               "        </Node0>"
               "    </Node0>\n"
               "</xs:schema>";
@@ -1905,12 +2003,109 @@ int main(int argc, char *argv[])
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
             advanceN(reader, 3);  // XML declaration --> <Node0>
+            //advanceN(reader, 3);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
-            ASSERT(reader.nodeType() ==
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
-            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP2_ASSERT(rc, reader.errorInfo(),
+                         (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) {
+            bsl::cout << "\nTest nested elements with longer name."
+                         "\n - - - - - - - - - - - - - - - - - - -"
+                      << bsl::endl;
+        }
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "            <Node01>"
+              "            </Node01>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+            //advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
+
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP2_ASSERT(rc, reader.errorInfo(),
+                         (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) {
+            bsl::cout << "\nTest nested elements with longer name."
+                         "\n - - - - - - - - - - - - - - - - - - -"
+                      << bsl::endl;
+        }
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "            <LongNode0>"
+              "            </LongNode0>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+            //advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
+
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "Node0"));
 
             LOOP2_ASSERT(rc, reader.errorInfo(),
                          (rc = advancePastWhiteSpace(reader)) == 0);
@@ -1965,6 +2160,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nADVANCE TO END NODE TEST"
                                << "\n========================" << bsl::endl;
 
+#define abcd " a='/Element1' b='/Element2' c='/Element3' d='/Node0' "
         static const char xmlStr[] =
           "<?xml version='1.0' encoding='UTF-8'?>\n"
           "<!-- RCSId_bascfg_xsd = \"$Id: $\" -->\n"
@@ -1972,14 +2168,15 @@ int main(int argc, char *argv[])
           "    elementFormDefault='qualified'\n"
           "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
           "    bdem:package='bascfg'>\n"
-          "<Node0>\n"
-          "    <Element1>element1<!-- The first element has a comment -->"
-              "</Element1>\n"
-          "    <Element2>element2</Element2>\n"
-          "    <Element3>element3</Element3>\n"
+          "<Node0" abcd ">\n"
+          "    <Element1" abcd ">element1<!-- The 1st elem has a comment -->"
+          "</Element1>\n"
+          "    <Element2" abcd ">element2</Element2>\n"
+          "    <Element3" abcd ">element3</Element3>\n"
           "    <![CDATA[&lt;123&#240;&gt;]]>\n"
           "</Node0>\n"
           "</xs:schema>";
+#undef abcd
 
         if (veryVerbose) P(xmlStr);
 
@@ -2205,6 +2402,88 @@ int main(int argc, char *argv[])
               "    bdem:package='bascfg'>\n"
               "    <Node0>"
               "        <Node0>"
+              "            <Node0>"
+              "            </Node0>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTest elements with longer name."
+                                      "\n- - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "            <Node01>"
+              "            </Node01>"
+              "        </Node0>"
+              "    </Node0>\n"
+              "</xs:schema>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 3);  // XML declaration --> <Node0>
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == 0);     // SKIP
+
+            ASSERT(reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "Node0"));
+
+            LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) == 0);
+
+            ASSERT( reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) bsl::cout << "\nTest elements with longer name."
+                                      "\n- - - - - - - - - - - - - - - -"
+                                   << bsl::endl;
+        {
+            static const char xmlStr[] =
+              "<?xml version='1.0' encoding='UTF-8'?>\n"
+              "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+              "    elementFormDefault='qualified'\n"
+              "    xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+              "    bdem:package='bascfg'>\n"
+              "    <Node0>"
+              "        <Node0>"
+              "            <LongNode0>"
+              "            </LongNode0>"
               "        </Node0>"
               "    </Node0>\n"
               "</xs:schema>";

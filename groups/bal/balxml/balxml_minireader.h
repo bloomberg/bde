@@ -486,7 +486,7 @@ class MiniReader :  public Reader {
     int   scanStartElement();
     int   scanText();
 
-    StringType searchCommentCDataOrElementName(const bsl::string& name);
+    StringType searchCommentCDataOrEndElementName(const bsl::string& name);
         // Scan the input for a comment, a CDATA section, the specified element
         // 'name', or the end tag corresponding to 'name'.  Stop at the first
         // instance of either one of those string and update the internal read
@@ -511,6 +511,11 @@ class MiniReader :  public Reader {
     int   peekChar();
         // Return the character at the current position, and zero if the end of
         // stream was reached.
+
+    int   readAtLeast(bsl::ptrdiff_t number);
+        // Call 'readInput' until there are at least the specified 'number' of
+        // characters in the buffer.  Return zero if 'number' characters cannot
+        // be read, and return a positive value otherwise.
 
     int   getChar();
         // Return the character at the current position and then advance the
@@ -673,11 +678,10 @@ class MiniReader :  public Reader {
         // structures returned when 'Reader' accessors were called for the
         // "prior node".  E.g., the pointer returned from 'nodeName' for this
         // node won't be valid once 'advanceToEndNode' is called.  Note that
-        // the reader will not advance by a subsequent call to
-        // 'advanceToEndNodeRaw', 'advanceToEndNodeRawBare', or
-        // 'advanceToEndNode' since the reader is on an end node.  You should
-        // call 'advanceToNextNode' to skip the current end element and find
-        // the start of the next element.
+        // this method leaves the reader pointing to an end node, so calling
+        // one of the 'advanceToEndNode' immediately after will not advance the
+        // reader further (first call 'advanceToNextNode' before calling the
+        // 'advanceToEndNode' function again).
 
     virtual int advanceToEndNodeRaw();
         // Skip all the sub elements of the current node and position the
@@ -691,11 +695,10 @@ class MiniReader :  public Reader {
         // structures returned when 'Reader' accessors were called for the
         // "prior node".  E.g., the pointer returned from 'nodeName' for this
         // node will not be valid once 'advanceToEndNodeRaw' is called.  Note
-        // that the reader will not advance by a subsequent call to
-        // 'advanceToEndNodeRaw', 'advanceToEndNodeRawBare', or
-        // 'advanceToEndNode' since the reader is on an end node.  You should
-        // call 'advanceToNextNode' to skip the current end element and find
-        // the start of the next element.
+        // that this method leaves the reader pointing to an end node, so
+        // calling one of the 'advanceToEndNodeRaw' immediately after will not
+        // advance the reader further (first call 'advanceToNextNode' before
+        // calling the 'advanceToEndNodeRaw' function again).
 
     virtual int advanceToEndNodeRawBare();
         // Skip all the sub elements of the current node and position the
@@ -712,11 +715,11 @@ class MiniReader :  public Reader {
         // invalidates strings and data structures returned when 'Reader'
         // accessors were called for the "prior node".  E.g., the pointer
         // returned from 'nodeName' for this node will not be valid once
-        // 'advanceToEndNodeRawBare' is called.  Note that the reader will not
-        // advance by a subsequent call to 'advanceToEndNodeRaw',
-        // 'advanceToEndNodeRawBare', or 'advanceToEndNode' since the reader is
-        // on an end node.  You should call 'advanceToNextNode' to skip the
-        // current end element and find the start of the next element.
+        // 'advanceToEndNodeRawBare' is called.  Note that this method leaves
+        // the reader pointing to an end node, so calling one of the
+        // 'advanceToEndNodeRawBare' immediately after will not advance the
+        // reader further (first call 'advanceToNextNode' before calling the
+        // 'advanceToEndNodeRawBare' function again).
 
     virtual int advanceToNextNode();
         // Move to the next node in the data steam created by 'open' thus
