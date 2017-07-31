@@ -171,10 +171,10 @@ int main(int argc, char *argv[])
 //..
 // Finally, we assert that the mean, variance, and skew are what we expect:
 //..
-    ASSERT(4 == m3.getCount());
+    ASSERT(4   == m3.getCount());
     ASSERT(3.0 == m3.getMean());
-    ASSERT(fabs(3.33333 - m3.getVariance()) < 1e-5);
-    ASSERT(fabs(0.0     - m3.getSkew())     < 1e-5);
+    ASSERT(1e-5 > fabs(3.33333  - m3.getVariance()));
+    ASSERT(1e-5 > fabs(-1.38086 - m3.getSkew()));
 //..
       } break;
       case 3: {

@@ -6,6 +6,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlstat {
+//@IMPLEMENTATION NOTES:
+//
+// Note that all functions are inlined, and each value added does not take
+// more than one division.
 }  // close package namespace
 }  // close enterprise namespace
 

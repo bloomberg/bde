@@ -7,20 +7,19 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Functions to calculate online least squares line fit (Y = A+B*X).
+//@PURPOSE: Online algorithm for computing the least squares regression line.
 //
 //@CLASSES:
-//  bdlstat::LineFit: calculate online least squares line fit
-//
-//@SEE ALSO:
+//  bdlstat::LineFit: online calculation of least squares regression line
 //
 //@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
 //
 //@DESCRIPTION: This component provides a mechanism, 'bdlstat::LineFit', that
-// provides online calculation of least squares line fit.  Online algorithms
-// process the data in one pass, while keeping good accuracy.  The online
-// algorithm used is developed in the implementation notes, and is similar to
-// Wilford for variance.  The formulae for line fit are taken from:
+// provides online calculation of the least squares line fit.  Online
+// algorithms process the data in one pass, while maintaining accuracy.  The
+// online algorithm used is developed in the implementation notes.  It is
+// similar to Welford's online algorithm for computing variance.  The formulae
+// for line fit are taken from:
 // https://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
 //
 // Note that the behavior is undefined if there are less than 2 data points, or
@@ -34,7 +33,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Calculating line fit, variance, and mean
 ///- - - - - - - - - - - - - - - -
 // This example shows how to accumulate a set of values, and calculate the
-// line fit parameters, variance and mean.
+// line fit parameters, variance, and mean.
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
@@ -52,13 +51,13 @@ BSLS_IDENT("$Id: $")
 // expect:
 //..
 //  double alpha, beta;
-//  ASSERT(4 == lineFit.getCount());
-//  ASSERT(3.0 == lineFit.getXMean());
-//  ASSERT(fabs(2.875    - lineFit.getYMean()) < 1e-3);
-//  ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
-//  ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
-//  ASSERT(fabs(0.175 - alpha)     < 1e-3);
-//  ASSERT(fabs(0.9   - beta )     < 1e-3);
+//  ASSERT(4    == lineFit.getCount());
+//  ASSERT(3.0  == lineFit.getXMean());
+//  ASSERT(1e-3 >  fabs(2.875    - lineFit.getYMean()));
+//  ASSERT(1e-3 >  fabs(3.33333  - lineFit.getVariance()));
+//  ASSERT(0    == lineFit.getLineFit(&alpha, &beta));
+//  ASSERT(1e-3 >  fabs(0.175 - alpha));
+//  ASSERT(1e-3 >  fabs(0.9   - beta ));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -91,11 +90,10 @@ const double k_DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
                             // =============
 
 class LineFit {
-    // This class provides efficient and accurate online algorithms for
-    // calculating linear square line fit.  The class also calculates mean for
-    // the X's and Y's, and variance for the X's, all byproducts of calculating
-    // the line fit.  The online algorithm is detailed in the implementation
-    // notes.
+    // This class provides efficient an online algorithm for calculating linear
+    // square line fit.  The class also calculates the mean for the X's and
+    // Y's, and variance for the X's, all byproducts of calculating the line
+    // fit.  The online algorithm is detailed in the implementation notes.
   private:
     // DATA
     int    d_count; // Number of data points.
@@ -112,19 +110,20 @@ class LineFit {
 
     // MANIPULATORS
     void add(double xValue, double yValue);
-        // Add the specified 'XValue', 'yValue' point to the data set.
+        // Add the specified 'xValue', 'yValue' point to the data set.
 
     // ACCESSORS
     int getCount() const;
         // Returns the number of elements in the data set.
 
     int getLineFit(double *alpha, double *beta) const;
-        // Calculate line fit coefficient T=A+B*X, and populate them specified
-        // 'alpha' and 'beta'.  Return 0 for success, and -1 otherwise.
-        // Calculation fails if '2 > count' or all X's are identical.
+        // Calculate line fit coefficients T=A+B*X, and populate the specified
+        // 'alpha' (intercept) and 'beta' (slope).  Return 0 on success, and -1
+        // otherwise.  Calculation fails if '2 > count' or all X's are
+        // identical.
 
     double getVariance() const;
-        // Return variance of the data set X's.  The result is 'Nan' unless
+        // Return the variance of the data set X's.  The result is 'Nan' unless
         // '2 <= count'.
 
     double getVarianceRaw() const;

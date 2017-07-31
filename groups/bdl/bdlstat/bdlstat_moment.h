@@ -12,23 +12,21 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlstat::Moment: calculate online mean, variance, skew, and kurtosis
 //
-//@SEE ALSO:
-//
 //@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
 //
 //@DESCRIPTION: This component provides a mechanism, 'bdlstat::Moment', that
-// provides online calculation of basic stats - mean, variance, skew, and
-// kurtosis.  Online algorithms process the data in one pass, while keeping
-// good accuracy.  The online algorithms used are Wilford for variance, and the
-// stable skew and kurtosis take from:
+// provides online calculation of basic statistics: mean, variance, skew, and
+// kurtosis while maintaining accuracy.  Online algorithms process the data in
+// one pass, while keeping good accuracy.  The online algorithms used are
+// Welford for variance, and the stable skew and kurtosis algoritms taken from:
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
 //
 // The implementation uses template specialization so the user can choose the
-// stats necessary, and not calculate or allocate memory for these that are
-// not.  All functions are inlined, and each value added does not take more
-// than one division.
+// statistics necessary, and not calculate or allocate memory for those
+// statistics that are not needed.
 //
-// The template parameter is:
+// The template parameter is a value from the provided enum and having the
+// following interpretation:
 //..
 //  M1 - mean
 //  M2 - variance+mean
@@ -43,7 +41,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Calculating skew, variance, and mean
 ///- - - - - - - - - - - - - - - -
 // This example shows how to accumulate a set of values, and calculate the
-// skew, variance and kurtosis.
+// skew, variance, and kurtosis.
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
@@ -58,10 +56,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we assert that the mean, variance, and skew are what we expect:
 //..
-//  ASSERT(4 == m3.getCount());
+//  ASSERT(4   == m3.getCount());
 //  ASSERT(3.0 == m3.getMean());
-//  ASSERT(fabs(3.33333  - m3.getVariance()) < 1e-5);
-//  ASSERT(fabs(-1.38086 - m3.getSkew())     < 1e-5);
+//  ASSERT(1e-5 > fabs(3.33333  - m3.getVariance()));
+//  ASSERT(1e-5 > fabs(-1.38086 - m3.getSkew()));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -169,10 +167,10 @@ struct Moment_Data<M4> {
 template <MomentLevel ML>
 class Moment {
     // This class provides efficient and accurate online algorithms for
-    // calculating mean, variance, skew and kurtosis.  The class provides
+    // calculating mean, variance, skew, and kurtosis.  The class provides
     // template specializations, so that no unnecessary data members will be
     // kept or unnecessary calculations done.  The online algorithms used are
-    // Wilford for variance, and the stable M3 and M4 is taken from:
+    // Welford for variance, and the stable M3 and M4 are taken from:
     // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
     //
     // The formula for sample skewness is taken from:

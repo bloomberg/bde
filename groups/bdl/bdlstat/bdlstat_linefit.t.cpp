@@ -171,13 +171,13 @@ int main(int argc, char *argv[])
 // expect:
 //..
   double alpha = 0.0, beta = 0.0;
-  ASSERT(4 == lineFit.getCount());
-  ASSERT(3.0 == lineFit.getXMean());
-  ASSERT(fabs(2.875    - lineFit.getYMean()) < 1e-3);
-  ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
-  ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
-  ASSERT(fabs(0.175 - alpha)     < 1e-3);
-  ASSERT(fabs(0.9   - beta )     < 1e-3);
+  ASSERT(4    == lineFit.getCount());
+  ASSERT(3.0  == lineFit.getXMean());
+  ASSERT(1e-3 >  fabs(2.875    - lineFit.getYMean()));
+  ASSERT(1e-3 >  fabs(3.33333  - lineFit.getVariance()));
+  ASSERT(0    == lineFit.getLineFit(&alpha, &beta));
+  ASSERT(1e-3 >  fabs(0.175 - alpha));
+  ASSERT(1e-3 >  fabs(0.9   - beta ));
 //..
       } break;
       case 3: {
