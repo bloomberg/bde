@@ -4277,10 +4277,10 @@ void TestDriver::testCase1()
             d32 *= rhs;
             LOOP_ASSERT(d32, EXPECTED == d32);
         }
-        if (veryVeryVerbose) bsl::cout << "*=(unsigned long)" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "*=(long long)" << bsl::endl;
         {
             BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(       9.0e+0));
-            long            rhs(                       10000003l     );
+            long long       rhs(                       10000003ll     );
             BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(90000030.0e+0));
             d32 *= rhs;
             LOOP_ASSERT(d32, EXPECTED == d32);
@@ -4899,7 +4899,7 @@ void TestDriver::testCase1()
             bsl::cout << "dec / unsigned long long" << bsl::endl;
         {
             BDEC::Decimal32    lhs(BDLDFP_DECIMAL_DF(10000000.0e+0      ));
-            unsigned long long rhs(                  10000001ll          );
+            unsigned long long rhs(                  10000001ull         );
             BDEC::Decimal32    EXPECTED(  BDLDFP_DECIMAL_DF(0.9999999e+0));
             LOOP_ASSERT(lhs / rhs, EXPECTED == lhs / rhs);
         }
