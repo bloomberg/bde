@@ -12,6 +12,9 @@ bdlma_concurrentmultipoolallocator
 bdlma_concurrentpool
 bdlma_concurrentpoolallocator
 bdlma_countingallocator
+bdlma_defaultdeleter
+bdlma_deleter
+bdlma_factory
 bdlma_guardingallocator
 bdlma_heapbypassallocator
 bdlma_infrequentdeleteblocklist
