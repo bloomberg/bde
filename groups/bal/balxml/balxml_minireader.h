@@ -489,7 +489,7 @@ class MiniReader :  public Reader {
     StringType searchCommentCDataOrEndElementName(const bsl::string& name);
         // Scan the input for a comment, a CDATA section, the specified element
         // 'name', or the end tag corresponding to 'name'.  Stop at the first
-        // instance of either one of those string and update the internal read
+        // instance of either one of those strings and update the internal read
         // pointer (d_scanPtr) to point to the next character after the string
         // read.  Return the string type found.
 

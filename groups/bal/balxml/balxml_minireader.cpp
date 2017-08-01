@@ -896,7 +896,7 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
 {
     BSLS_ASSERT(!name.empty());
 
-    static const char strSet[] = { '\n', '<', '/' };
+    static const char strSet[] = "\n<";
 
     while (1) {
         StringType type = e_STRINGTYPE_NONE;
@@ -911,15 +911,11 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
             continue;                                               // CONTINUE
         }
 
-        if (peekChar() == '\n') {
-              ++d_scanPtr;
-              d_linePtr = d_scanPtr;
-              ++d_lineNum;
-              continue;                                             // CONTINUE
+        checkForNewLine();
+        const char ch = getChar();
+        if (ch == '\n') {
+            continue;                                               // CONTINUE
         }
-
-        const char ch = peekChar();
-        ++d_scanPtr;
 
         if (ch == '<') {
             if ('!' == peekChar()) {
@@ -950,12 +946,13 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
                 }
             }
             currentNode().d_startPos = getCurrentPosition() - 1;
+            if (peekChar() == '/') {
+                ++d_scanPtr;
+                type = e_STRINGTYPE_END_ELEMENT;
+                d_markPtr = d_scanPtr - 1;
+            }
         }
 
-        if (ch == '/') {
-            type = e_STRINGTYPE_END_ELEMENT;
-            d_markPtr = d_scanPtr - 1;
-        }
 
         if (readAtLeast(static_cast<bsl::ptrdiff_t>(name.length())) == 0) {
             d_scanPtr = d_endPtr;
@@ -969,6 +966,7 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
             if (bsl::isspace(static_cast<unsigned char>(*d_scanPtr))) {
                 if (skipSpaces() == 0) {
                     d_scanPtr = d_endPtr;
+                    *nameEnd = '\0';
                     return e_STRINGTYPE_NONE;                         // RETURN
                 }
             }
@@ -995,7 +993,7 @@ MiniReader::searchElementName(const bsl::string& name)
 {
     BSLS_ASSERT(!name.empty());
 
-    static const char strSet[] = { '\n', '<', '/' };
+    static const char strSet[] = { "\n<" };
 
     while (1) {
         StringType type = e_STRINGTYPE_NONE;
@@ -1010,24 +1008,20 @@ MiniReader::searchElementName(const bsl::string& name)
             continue;                                               // CONTINUE
         }
 
-        if (peekChar() == '\n') {
-            ++d_scanPtr;
-            d_linePtr = d_scanPtr;
-            ++d_lineNum;
+        checkForNewLine();
+        const char ch = getChar();
+        if (ch == '\n') {
             continue;                                               // CONTINUE
         }
-
-        const char ch = peekChar();
-        ++d_scanPtr;
-
         if (ch == '<') {
             currentNode().d_startPos = getCurrentPosition() - 1;
+            if (peekChar() == '/') {
+                ++d_scanPtr;
+                type = e_STRINGTYPE_END_ELEMENT;
+                d_markPtr = d_scanPtr - 1;
+            }
         }
 
-        if (ch == '/') {
-            type = e_STRINGTYPE_END_ELEMENT;
-            d_markPtr = d_scanPtr - 1;
-        }
 
         if (readAtLeast(static_cast<bsl::ptrdiff_t>(name.length())) == 0) {
             d_scanPtr = d_endPtr;
@@ -1118,9 +1112,9 @@ int MiniReader::advanceToEndNodeRaw()
           } break;
 
           case e_STRINGTYPE_NONE:
+            currentNode().reset();
           return -2;                                                  // RETURN
         }
-        ++d_scanPtr;
     }
 }
 
@@ -1168,6 +1162,7 @@ int MiniReader::advanceToEndNodeRawBare()
           case e_STRINGTYPE_COMMENT: // to silence warning
           case e_STRINGTYPE_CDATA:   // to silence warning
           case e_STRINGTYPE_NONE:
+            currentNode().reset();
           return -2;                                                  // RETURN
         }
         ++d_scanPtr;

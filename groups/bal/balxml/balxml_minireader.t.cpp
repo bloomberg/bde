@@ -658,7 +658,7 @@ void readDepth(Obj& reader, int currentDepth, int depth) {
     // because 'currentDepth' does not account for the depth add by the header
     // information.
 
-    int rc = advancePastWhiteSpace(reader); (void)rc;
+    int rc = advancePastWhiteSpace(reader);
     (void)rc;
 
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -718,7 +718,7 @@ void readNodes(Obj& reader,
         return;                                                       // RETURN
     }
 
-    int rc = advancePastWhiteSpace(reader); (void)rc;
+    int rc = advancePastWhiteSpace(reader);
     (void)rc;
 
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
