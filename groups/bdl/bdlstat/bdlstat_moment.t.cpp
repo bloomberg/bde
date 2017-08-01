@@ -46,7 +46,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-// STANDARD BDE ASSERT TEST FUNCTION
+//                      STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -107,13 +107,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define DAY(X) bdlt::DayOfWeek::e_##X       // Shorten qualified name
 
 // ============================================================================
-// GLOBAL TYPEDEFS FOR TESTING
+//                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlstat::Moment<bdlstat::M1> ObjM;
-typedef bdlstat::Moment<bdlstat::M2> ObjV;
-typedef bdlstat::Moment<bdlstat::M3> ObjS;
-typedef bdlstat::Moment<bdlstat::M4> ObjK;
+typedef bdlstat::Moment<bdlstat::MomentLevel::e_M1> ObjM;
+typedef bdlstat::Moment<bdlstat::MomentLevel::e_M2> ObjV;
+typedef bdlstat::Moment<bdlstat::MomentLevel::e_M3> ObjS;
+typedef bdlstat::Moment<bdlstat::MomentLevel::e_M4> ObjK;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -160,8 +160,9 @@ int main(int argc, char *argv[])
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-    double                       input[] = {1.0, 2.0, 4.0, 5.0};
-    bdlstat::Moment<bdlstat::M3> m3;
+    double input[] = {1.0, 2.0, 4.0, 5.0};
+
+    bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
@@ -208,20 +209,20 @@ int main(int argc, char *argv[])
                           << "==================" << endl;
 
         {
-            bdlstat::Moment<bdlstat::M1> m1;
+            bdlstat::Moment<bdlstat::MomentLevel::e_M1> m1;
             ASSERT(0 == m1.getCount());
             ASSERT(bdlb::Float::isNan(m1.getMean()));
         }
 
         {
-            bdlstat::Moment<bdlstat::M2> m2;
+            bdlstat::Moment<bdlstat::MomentLevel::e_M2> m2;
             m2.add(1.0);
             ASSERT(1 == m2.getCount());
             ASSERT(bdlb::Float::isNan(m2.getVariance()));
         }
 
         {
-            bdlstat::Moment<bdlstat::M3> m3;
+            bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
             m3.add(1.0);
             m3.add(2.0);
             ASSERT(2 == m3.getCount());
@@ -229,7 +230,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlstat::Moment<bdlstat::M4> m4;
+            bdlstat::Moment<bdlstat::MomentLevel::e_M4> m4;
             m4.add(1.0);
             m4.add(2.0);
             m4.add(4.0);
@@ -252,15 +253,18 @@ int main(int argc, char *argv[])
         //: 2 Different specializations produce the same set of values.
         //
         // Plan:
-        //: 1 Using the table method, create 'bdlstat::Moment<M4>', use
-        //:   'bdlstat::Moment<M4>::add' to load data, and check the
-        //:   values of mean, variance, skew, and kurtosis.  (C-1)
+        //: 1 Using the table method, create
+        //    'bdlstat::Moment<MomentLevel::e_M4>', use
+        //:   'bdlstat::Moment<MomentLevel::e_M4>::add' to load data, and check
+        //:   the values of mean, variance, skew, and kurtosis.  (C-1)
         //:
         //: 2 Verify that we get the same values from the 'raw' methods.  (C-1)
         //:
-        //: 3 Load the same set of data into 'bdlstat::Moment<M3>',
-        //:   'bdlstat::Moment<M2>', 'bdlstat::Moment<M1>', and verify that we
-        //:   get the same values.  (C-2)
+        //: 3 Load the same set of data into
+        //:   'bdlstat::Moment<MomentLevel::e_M3>',
+        //:   'bdlstat::Moment<MomentLevel::e_M2>',
+        //:   'bdlstat::Moment<MomentLevel::e_M1>', and verify that we get the
+        //:   same values.  (C-2)
         //
         // Testing:
         //   Moment()
@@ -574,8 +578,9 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        double                       input[] = {1.0, 2.0, 4.0, 5.0};
-        bdlstat::Moment<bdlstat::M1> m1;
+        double input[] = {1.0, 2.0, 4.0, 5.0};
+
+        bdlstat::Moment<bdlstat::MomentLevel::e_M1> m1;
         for(int i = 0; i < 4; ++i) {
             m1.add(input[i]);
             if (veryVerbose) {
@@ -587,7 +592,7 @@ int main(int argc, char *argv[])
         // The below does not compile, as it should
         //ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
 
-        bdlstat::Moment<bdlstat::M2> m2;
+        bdlstat::Moment<bdlstat::MomentLevel::e_M2> m2;
         for(int i = 0; i < 4; ++i) {
             m2.add(input[i]);
             if (veryVerbose) {
@@ -598,7 +603,7 @@ int main(int argc, char *argv[])
         ASSERT(3.0 == m2.getMean());
         ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
 
-        bdlstat::Moment<bdlstat::M3> m3;
+        bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
         for(int i = 0; i < 4; ++i) {
             m3.add(input[i]);
             if (veryVerbose) {
@@ -612,7 +617,7 @@ int main(int argc, char *argv[])
         // The below does not compile, as it should
         //ASSERT(fabs(644.185  - m3.getKurtosis()) < 1e-3);
 
-        bdlstat::Moment<bdlstat::M4> m4;
+        bdlstat::Moment<bdlstat::MomentLevel::e_M4> m4;
         for(int i = 0; i < 4; ++i) {
             m4.add(input[i]);
             if (veryVerbose) {

@@ -7,6 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+// BDE_VERIFY pragma: -LL01 // Link is just too long
 //@PURPOSE: Functions to calculate online mean, variance, skew, and kurtosis.
 //
 //@CLASSES:
@@ -18,7 +19,8 @@ BSLS_IDENT("$Id: $")
 // provides online calculation of basic statistics: mean, variance, skew, and
 // kurtosis while maintaining accuracy.  Online algorithms process the data in
 // one pass, while keeping good accuracy.  The online algorithms used are
-// Welford for variance, and the stable skew and kurtosis algoritms taken from:
+// Welford for variance, and the stable skew and kurtosis algorithms taken
+// from:
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Higher-order_statistics
 //
 // The implementation uses template specialization so the user can choose the
@@ -46,7 +48,8 @@ BSLS_IDENT("$Id: $")
 // First, we create example input and instantiate the appropriate mechanism:
 //..
 //  double input[] = {1.0, 2.0, 4.0, 5.0};
-//  bdlstat::Moment<bdlstat::M3> m3;
+//
+//  bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
@@ -61,6 +64,7 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(1e-5 > fabs(3.33333 - m3.getVariance()));
 //  ASSERT(1e-5 > fabs(0.0     - m3.getSkew()));
 //..
+// BDE_VERIFY pragma: +LL01
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -83,24 +87,29 @@ namespace bdlstat {
 const double k_DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
     // Nan value to signify an illegal value returned.
 // BDE_VERIFY pragma: +AQa01
-
-// BDE_VERIFY pragma: -UC01
-enum         MomentLevel {M1, M2, M3, M4};
-    // Level of data desired: M1- mean; M2 - variance+mean; M3 - skew+variance+
-    // mean; M4 - kurtosis+skew+variance+mean.
 // BDE_VERIFY pragma: +TR17
 // BDE_VERIFY pragma: +CP01
-// BDE_VERIFY pragma: +UC01
+
+struct MomentLevel {
+    enum Enum {
+        // Enumeration of moment level of data desired.
+
+        e_M1, // mean
+        e_M2, // variance+mean
+        e_M3, // skew+variance+mean
+        e_M4  // kurtosis+skew+variance+mean
+    };
+};
 
                       // ==========================
                       // private struct Moment_Data
                       // ==========================
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 struct Moment_Data;
 
 template<>
-struct Moment_Data<M1> {
+struct Moment_Data<MomentLevel::e_M1> {
     // Data members for Mean only.
 
     // PUBLIC DATA
@@ -113,7 +122,7 @@ struct Moment_Data<M1> {
 };
 
 template<>
-struct Moment_Data<M2> {
+struct Moment_Data<MomentLevel::e_M2> {
     // Data members for Variance and below.
 
     // PUBLIC DATA
@@ -128,7 +137,7 @@ struct Moment_Data<M2> {
 };
 
 template<>
-struct Moment_Data<M3> {
+struct Moment_Data<MomentLevel::e_M3> {
     // Data members for Skew and below
 
     // PUBLIC DATA
@@ -144,7 +153,7 @@ struct Moment_Data<M3> {
 };
 
 template<>
-struct Moment_Data<M4> {
+struct Moment_Data<MomentLevel::e_M4> {
     // Data members for Kurtosis and below
 
     // PUBLIC DATA
@@ -164,8 +173,9 @@ struct Moment_Data<M4> {
                             // class Moment
                             // ============
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 class Moment {
+    // BDE_VERIFY pragma: -LL01 // Link is just too long
     // This class provides efficient and accurate online algorithms for
     // calculating mean, variance, skew, and kurtosis.  The class provides
     // template specializations, so that no unnecessary data members will be
@@ -178,6 +188,7 @@ class Moment {
     //
     // The formula for sample excess kurtosis is taken from:
     // http://www.macroption.com/kurtosis-formula/
+    // BDE_VERIFY pragma: +LL01
   private:
     // DATA
     struct Moment_Data<ML> d_data;
@@ -233,13 +244,13 @@ class Moment {
                         // ---------------------------
 
 // CREATORS
-Moment_Data<M1>::Moment_Data()
+Moment_Data<MomentLevel::e_M1>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
 {
 }
 
-Moment_Data<M2>::Moment_Data()
+Moment_Data<MomentLevel::e_M2>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
 , d_mean(0.0)
@@ -247,7 +258,7 @@ Moment_Data<M2>::Moment_Data()
 {
 }
 
-Moment_Data<M3>::Moment_Data()
+Moment_Data<MomentLevel::e_M3>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
 , d_mean(0.0)
@@ -256,7 +267,7 @@ Moment_Data<M3>::Moment_Data()
 {
 }
 
-Moment_Data<M4>::Moment_Data()
+Moment_Data<MomentLevel::e_M4>::Moment_Data()
 : d_count(0)
 , d_sum(0.0)
 , d_mean(0.0)
@@ -273,7 +284,7 @@ Moment_Data<M4>::Moment_Data()
 // MANIPULATORS
 template<>
 inline
-void Moment<M1>::add(double value)
+void Moment<MomentLevel::e_M1>::add(double value)
 {
     ++d_data.d_count;
     d_data.d_sum += value;
@@ -281,7 +292,7 @@ void Moment<M1>::add(double value)
 
 template<>
 inline
-void Moment<M2>::add(double value)
+void Moment<MomentLevel::e_M2>::add(double value)
 {
     // Modified Welford algorithm for variance
     const double delta = value - d_data.d_mean;
@@ -294,7 +305,7 @@ void Moment<M2>::add(double value)
 
 template<>
 inline
-void Moment<M3>::add(double value)
+void Moment<MomentLevel::e_M3>::add(double value)
 {
     // Modified Welford algorithm for variance, and similar algorithm for skew.
     const double delta = value - d_data.d_mean;
@@ -311,7 +322,7 @@ void Moment<M3>::add(double value)
 
 template<>
 inline
-void Moment<M4>::add(double value)
+void Moment<MomentLevel::e_M4>::add(double value)
 {
     // Modified Welford algorithm for variance, and similar algorithms for skew
     // and kurtosis.
@@ -332,7 +343,7 @@ void Moment<M4>::add(double value)
 }
 
 // ACCESSORS
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline
 int Moment<ML>::getCount() const
 {
@@ -342,7 +353,7 @@ int Moment<ML>::getCount() const
 // BDE_VERIFY pragma: -FABC01 // getKurtosisRaw needed before getKurtosis
 template<>
 inline
-double Moment<M4>::getKurtosisRaw() const
+double Moment<MomentLevel::e_M4>::getKurtosisRaw() const
 {
     const double n = static_cast<double>(d_data.d_count);
     const double n1   = (n - 1.0);
@@ -354,7 +365,7 @@ double Moment<M4>::getKurtosisRaw() const
 
 template<>
 inline
-double Moment<M4>::getKurtosis() const
+double Moment<MomentLevel::e_M4>::getKurtosis() const
 {
     if (4 > d_data.d_count || 0.0 == d_data.d_M2) {
         return k_DBL_NAN;                                             // RETURN
@@ -362,7 +373,7 @@ double Moment<M4>::getKurtosis() const
     return getKurtosisRaw();
 }
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::getMean() const
 {
@@ -372,14 +383,14 @@ double Moment<ML>::getMean() const
     return getMeanRaw();
 }
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::getMeanRaw() const
 {
     return d_data.d_sum / static_cast<double>(d_data.d_count);
 }
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline double Moment<ML>::getSkew() const
 {
     if (3 > d_data.d_count || 0.0 == d_data.d_M2) {
@@ -388,7 +399,7 @@ inline double Moment<ML>::getSkew() const
     return getSkewRaw();
 }
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::getSkewRaw() const
 {
@@ -397,7 +408,7 @@ double Moment<ML>::getSkewRaw() const
                                                   / bsl::pow(d_data.d_M2, 1.5);
 }
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::getVariance() const
 {
@@ -407,7 +418,7 @@ double Moment<ML>::getVariance() const
     return getVarianceRaw();
 }
 
-template <MomentLevel ML>
+template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::getVarianceRaw() const
 {
