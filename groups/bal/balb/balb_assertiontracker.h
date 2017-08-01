@@ -338,7 +338,8 @@ class AssertionTracker {
 
     mutable bslmt::Mutex    d_mutex;
         // lock used to serialize concurrent access to the callback members
-        // and to the accumulated assertion data
+        // 'd_configurationCallback' and 'd_reportingCallback' and to the
+        // accumulated assertion data 'd_trackingData' and 'd_assertionCount'
 
     ConfigurationCallback   d_configurationCallback;
         // callback invoked to reconfigure reporting parameters
