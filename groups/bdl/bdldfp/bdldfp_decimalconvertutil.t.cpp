@@ -102,12 +102,14 @@ using namespace bsl;
 // [ 2] size_type decimal64ToMultiWidthEncoding(uc*, Decimal64);
 // [ 2] size_type decimal64ToMultiWidthEncodingRaw(uc*, Decimal64);
 // [ 3] Decimal64 decimal64FromMultiWidthEncodingRaw(cuc*, size_type);
+// [ 3] int decimal64FromMultiWidthEncodingIfValid(Decimal64*, cuc*, size_t);
 // [ 3] Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
 // [ 4] uc* decimal64ToVariableWidthEncoding(uc*, Decimal64);
 // [ 4] cuc* decimal64FromVariableWidthEncoding(Decimal64*, cuc*);
+// [ 7] bool isValidMultiWidthsize(uc);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 // [-1] CONVERSION TEST
 // [-2] ROUND TRIP CONVERSION TEST
 // ----------------------------------------------------------------------------
@@ -561,7 +563,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -654,6 +656,72 @@ int main(int argc, char* argv[])
             ASSERT(number == restored);
         }
         //..
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // IS VALID MULTI-WIDTH SIZE TEST
+        //
+        // Concerns:
+        //: 1 That 'isValidMultiWidthSize' returns 'true' for all valid
+        //:   encoding sizes in the *multi-width encoding* format.
+        //
+        // Plan:
+        //: 1 Using table-driven technique, specify a set of size values in a
+        //:   range from 0 till 9 and expected function result values.  Ensure
+        //:   that 'isValidMultiWidthSize' returns 'true' for all valid
+        //:   encoding sizes in the *multi-width encoding* format, and 'false'
+        //:   otherwise.  (C-1)
+        //:
+        //: 2 Using a loop-based approach, make sure that
+        //:   'isValidMultiWidthSize' returns 'false'  for all size values in
+        //:   the range from 10 till 255.  (C-1)
+        //
+        // Testing:
+        //   bool isValidMultiWidthSize(unsigned char size);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nIS VALID MULTI-WIDTH SIZE"
+                             "\n=========================\n";
+
+        static const struct {
+            int            d_line;
+            unsigned char  d_size;
+            bool           d_expected;
+        } DATA[] = {
+           //-----------------------
+           // Line | Size | Expected
+           //-----------------------
+            { L_,       0,   false },
+            { L_,       1,    true },
+            { L_,       2,    true },
+            { L_,       3,    true },
+            { L_,       4,    true },
+            { L_,       5,    true },
+            { L_,       6,   false },
+            { L_,       7,   false },
+            { L_,       8,    true },
+            { L_,       9,   false },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti != NUM_DATA; ++ti) {
+            const int           LINE =     DATA[ti].d_line;
+            const unsigned char SIZE =     DATA[ti].d_size;
+            const bool          EXPECTED = DATA[ti].d_expected;
+
+            const bool RESULT = Util::isValidMultiWidthSize(SIZE);
+
+            LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
+        }
+
+        for (int ti = 10; ti <= UCHAR_MAX; ++ti) {
+            const unsigned char SIZE = static_cast<unsigned char>(ti);
+            const bool          EXPECTED = false;
+            const bool          RESULT = Util::isValidMultiWidthSize(SIZE);
+
+            LOOP3_ASSERT(L_, RESULT, EXPECTED, RESULT == EXPECTED);
+        }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -7072,29 +7140,41 @@ int main(int argc, char* argv[])
         // MULTI-WIDTH DECODE
         //
         // Concerns:
-        //: 1 'decimal64FromMultiWidthEncoding' and
+        //: 1 'decimal64FromMultiWidthEncoding',
+        //:   'decimal64FromMultiWidthEncodingIfValid' and
         //:   'decimal64FromMultiWidthEncodingRaw' correctly decode values in
         //:   the supported formats.
         //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //: 2 That 'decimal64FromMultiWidthEncodingIfValid' returns non-zero
+        //:   value if the specified buffer size is not a valid size of a
+        //:   decimal value encoded in the *multi-width encoding* format.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of decimal
         //:   values, and their encoded values. Ensure that the set contains
         //:   boundary values in all supported widths of the decoder. Use
-        //:   'decimal64FromMultiWidthEncoding' and
+        //:   'decimal64FromMultiWidthEncoding',
+        //:   'decimal64FromMultiWidthEncodingIfValid' and
         //:   'decimal64FromMultiWidthEncodingRaw' to decode the encoded
         //:   values. Verify that the decoded decimal values matches the
-        //:   original values. (C-1)
+        //:   original values.  (C-1)
         //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //: 2 Verify that 'decimal64FromMultiWidthEncodingIfValid' returns
+        //:   non-zero value if the specified buffer size is not a valid size
+        //:   of a decimal value encoded in the *multi-width encoding* format.
+        //:   (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        //:   (C-3)
         //
         // Testing:
         //   Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
         //   Decimal64 decimal64FromMultiWidthEncodingRaw(cuc*, size_type);
+        //   int decimal64FromMultiWidthEncodingIfValid(d64*, cuc*, size_t);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7222,6 +7302,28 @@ int main(int argc, char* argv[])
                 }
             }
 
+            // Test 'decimal64FromMultiWidthEncodingIfValid'.
+            {
+                Decimal64 actualDecodedValue;
+                int RESULT = Util::decimal64FromMultiWidthEncodingIfValid(
+                               &actualDecodedValue,
+                               const_cast<const unsigned char*>(encodedBuffer),
+                               encodedSize);
+                ASSERTV(0 == RESULT);
+                if (veryVerbose) {
+                    P(actualDecodedValue);
+                }
+
+                if (DecimalUtil::isNan(DECODED_VALUE)) {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DecimalUtil::isNan(actualDecodedValue));
+                }
+                else {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DECODED_VALUE == actualDecodedValue);
+                }
+            }
+
             // Test 'decimal64FromMultiWidthEncodingRaw'.
             if (!useFullEncodingFlag) {
                 Decimal64 actualDecodedValue =
@@ -7293,6 +7395,48 @@ int main(int argc, char* argv[])
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 8));
             ASSERT_SAFE_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 9));
+
+            Decimal64 decimal;
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 0));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 1));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 2));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 3));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 4));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 5));
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 6));
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 7));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 8));
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 9));
         }
       } break;
       case 2: {
