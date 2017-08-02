@@ -53,6 +53,9 @@ using namespace bdlf::PlaceHolders;
 // [ 2] int maxStackTracesPerLocation() const;
 // [ 2] ReportingFrequency reportingFrequency() const;
 // [ 2] bsls::LogSeverity::Enum reportingSeverity() const;
+// [ 2] void preserveConfiguration(int *, int *, int *, int *, int *);
+// [ 2] ConfigurationCallback configurationCallback();
+// [ 2] void setConfigurationCallback(ConfigurationCallback);
 // [ 3] void reportAssertion(...);
 // [ 3] void reportAllRecordedStackTraces() const;
 // ----------------------------------------------------------------------------
@@ -175,6 +178,15 @@ void assertingReporter(Obj                        *t,
     // with the specified 'a', 'f', and 'l'.
 {
     t->assertionDetected(a, f, l);
+}
+
+static bool localConfigurationCalled;
+
+void localConfiguration(int *, int *, int *, int *, int *)
+    // A configuration function that does nothing, and says that it has been
+    // called
+{
+    localConfigurationCalled = true;
 }
 
 ///Usage
@@ -431,6 +443,9 @@ int main(int argc, char *argv[])
         //   int maxStackTracesPerLocation() const;
         //   ReportingFrequency reportingFrequency() const;
         //   bsls::LogSeverity::Enum reportingSeverity() const;
+        //   void preserveConfiguration(int *, int *, int *, int *, int *);
+        //   ConfigurationCallback configurationCallback();
+        //   void setConfigurationCallback(ConfigurationCallback);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nINVOCATION TEST"
@@ -487,8 +502,18 @@ int main(int argc, char *argv[])
                          << "EXPECTED DEFAULT " << EXP_D << "\n";
                 }
 
-                Obj Z(defaultHandler, Obj::preserveConfiguration, &ta);
+                Obj Z(defaultHandler, localConfiguration, &ta);
                 ASSERT(&ta == Z.allocator());
+                localConfigurationCalled = false;
+                int a = 1, b = 1, c = 1, d = 1, e = 1;
+                Z.configurationCallback()(&a, &b, &c, &d, &e);
+                ASSERT(localConfigurationCalled);
+                ASSERT(a == 1 && b == 1 && c == 1 && d == 1 && e == 1);
+                Z.setConfigurationCallback(Obj::preserveConfiguration);
+                localConfigurationCalled = false;
+                Z.configurationCallback()(&a, &b, &c, &d, &e);
+                ASSERT(!localConfigurationCalled);
+                ASSERT(a == 1 && b == 1 && c == 1 && d == 1 && e == 1);
                 Z.setReportingCallback(reporter);
                 handledAssertionCount = 0;
                 defaultAssertionCount = 0;

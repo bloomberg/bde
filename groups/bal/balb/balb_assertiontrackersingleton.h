@@ -142,7 +142,7 @@
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
+#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
 
@@ -214,7 +214,11 @@ class AssertionTrackerSingleton {
 
     // PUBLIC CLASS METHODS
     static void bregCallbackAdapter(BregCallback callback,
-                                    int *, int *, int *, int *, int *);
+                                    int * /* maxAssertions             */,
+                                    int * /* maxLocations              */,
+                                    int * /* maxStackTracesPerLocation */,
+                                    int * /* reportingSeverity         */,
+                                    int * /* reportingFrequency        */);
         // This function is an adapter that maps the BREG values provided by
         // the specified 'callback' to the five integer parameters used by
         // 'balb::AssertionTracker'.
