@@ -184,7 +184,9 @@
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
-// [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [32] CONCERN: Range operations slice from ranges of derived types
+// [33] CONCERN: Range ops work correctly for types convertible to 'iterator'
+// [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
@@ -904,6 +906,18 @@ struct ExceptionProctor {
         d_object_p = 0;
     }
 };
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class OBJECT, class ALLOCATOR>
+struct UsesBslmaAllocator<ExceptionProctor<OBJECT, ALLOCATOR> >
+    : bsl::false_type {
+};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
 
                                // ==============
                                // class ListLike
@@ -1737,7 +1751,7 @@ struct TestDriver {
         // Test vector of function pointers.
 
     static void testCase30();
-        // Test bugfix of range insertion of function ptrs.
+        // Test bugfix of range insertion of function pointers.
 
     static void testCase29();
         // Test functions that take an initializer list.
@@ -3376,7 +3390,7 @@ void TestDriver<TYPE, ALLOC>::testCase34()
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase33()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING HYMAN'S TEST CASE 2
     //
     // Concerns
@@ -3389,7 +3403,8 @@ void TestDriver<TYPE, ALLOC>::testCase33()
     // Plan:
     //
     // Testing:
-    // --------------------------------------------------------------------
+    //   CONCERN: Range ops work correctly for types convertible to 'iterator'
+    // ------------------------------------------------------------------------
     int d[4][4] = {
          0,  1,  2,  3,
          4,  5,  6,  7,
@@ -3429,7 +3444,7 @@ void TestDriver<TYPE, ALLOC>::testCase33()
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase32()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING HYMAN'S TEST CASE 1
     //
     // Concerns
@@ -3439,7 +3454,8 @@ void TestDriver<TYPE, ALLOC>::testCase32()
     // Plan:
     //
     // Testing:
-    // --------------------------------------------------------------------
+    //   CONCERN: Range operations slice from ranges of derived types
+    // ------------------------------------------------------------------------
 
     {
         bsl::vector<B> bB(10);
@@ -3469,21 +3485,21 @@ void TestDriver<TYPE, ALLOC>::testCase31()
 {
     // ------------------------------------------------------------------------
     // TESTING VECTORS OF FUNCTION POINTERS
-    //   In DRQS 34693876, it was observed that function pointers cannot
-    //   be cast into 'void *' pointers. A 'reinterpret_cast' is required
-    //   in this case. This is handled in 'bslalg_arrayprimitives'.
+    //   In DRQS 34693876, it was observed that function pointers cannot be
+    //   cast into 'void *' pointers.  A 'reinterpret_cast' is required in this
+    //   case. This is handled in 'bslalg_arrayprimitives'.
     //
     // Diagnosis:
-    //   Vector is specialized for ptr types, and the specialization
-    //   assumes that any pointer type can be cast or copy c'ted into a
-    //   'void *', but for function ptrs on g++, this is not the case.
-    //   Had to fix bslalg_arrayprimitives to deal with this, this test
-    //   verifies that the fix worked.  DRQS 34693876.
+    //   Vector is specialized for pointer types, and the specialization
+    //   assumes that any pointer type can be cast or copy constructed into a
+    //   'void *', but for function pointers on g++, this is not the case.  Had
+    //   to fix 'bslalg_arrayprimitives' to deal with this, this test verifies
+    //   that the fix worked.  DRQS 34693876.
     //
     // Concerns:
-    //: 1 A vector of function pointers can be constructed from a sequence
-    //:   of function pointers described by iterators that may be pointers
-    //:   or simpler input iterators.
+    //: 1 A vector of function pointers can be constructed from a sequence of
+    //:   function pointers described by iterators that may be pointers or
+    //:   simpler input iterators.
     //: 2 A vector of function pointers can insert a sequence of function
     //:   pointers described by iterators that may be pointers or simpler
     //:   input iterators.
@@ -3588,16 +3604,16 @@ template <class TYPE, class ALLOC>
 void TestDriver<TYPE, ALLOC>::testCase30()
 {
     // ------------------------------------------------------------------------
-    // TESTING FUNCTION PTR RANGE-INSERT BUGFIX
-    //   In DRQS 31711031, it was observed that a c'tor insert range from
-    //   an array of function ptrs broke 'g++'.  Reproduce the bug.
+    // TESTING FUNCTION POINTER RANGE-INSERT BUGFIX
+    //   In DRQS 31711031, it was observed that a range insert constructor from
+    //   an array of function pointers broke 'g++'.  Reproduce the bug.
     //
     // Diagnosis:
-    //   Vector is specialized for ptr types, and the specialization
-    //   assumes that any pointer type can be cast or copy c'ted into a
-    //   'void *', but for function ptrs on g++, this is not the case.
-    //   Had to fix bslalg_arrayprimitives to deal with this, this test
-    //   verifies that the fix worked.  DRQS 31711031.
+    //   Vector is specialized for pointer types, and the specialization
+    //   assumes that any pointer type can be cast or copy constructed into a
+    //   'void *', but for function pointers on g++, this is not the case.  Had
+    //   to fix 'bslalg_arrayprimitives' to deal with this, this test verifies
+    //   that the fix worked.  DRQS 31711031.
     //
     // Concerns:
     //: 1 A vector of function pointers can insert a sequence of function
@@ -11215,13 +11231,13 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
     //: 5 All memory is supplied by the expected allocator, and no additional
     //:   memory is requested from the default allocator.
     //: 6 No memory leaks if an exception is thrown during construction.
-    //: 7 The requested element value miight, or might not, have the same value
+    //: 7 The requested element value might, or might not, have the same value
     //:   a the requested size.
     //: 8 Where representable, requesting more than 'max_size()' elements will
     //:   throw a 'std::length_error' exception.
     //: 9 QoI TBD: For a type that is neither integral nor an iterator, but is
     //:   convertible to an integral value, we should be able to create a
-    //:   vector having the nunber of element specified by converting to an
+    //:   vector having the number of element specified by converting to an
     //:   integer from the first argument of the convertible type.
     //
     // Note that for the allocator-aware concerns, 'TYPE' must be an allocator-
@@ -11776,13 +11792,14 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                             T_; T_; P_(X); P(X.capacity());
                         }
 
-                        ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                        ASSERTV(LINE2, ti, LENGTH,   X.size(),
+                                           LENGTH == X.size());
                         ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
                                            LENGTH == X.capacity());
 
-                        // Use 'x.size()' rather than 'LENGTH' to ensure there is
-                        // no out-of-contract 'operator[]' call in the case that a
-                        // previous 'ASSERT' reports an error.
+                        // Use 'x.size()' rather than 'LENGTH' to ensure there
+                        // is no out-of-contract 'operator[]' call in the case
+                        // that a previous 'ASSERT' reports an error.
                         for (size_t j = 0; j != X.size(); ++j) {
                             ASSERTV(LINE, ti, tj, j, DEFAULT == X[j]);
                         }
@@ -12031,7 +12048,7 @@ int main(int argc, char *argv[])
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION PTR RANGE-INSERT BUGFIX
+        // TESTING FUNCTION POINTER RANGE-INSERT BUGFIX
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING FUNCTION PTR RANGE-INSERT BUGFIX"

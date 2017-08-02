@@ -40,13 +40,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on 'VALUE_TYPE'
 ///----------------------------
-// A 'vector' is a fully Value-Semantic Type (see {'bsldoc_glossary'}) only
-// if the supplied 'VALUE_TYPE' template parameter is fully value-semantic.  It
-// is possible to instantiate a 'vector' with a 'VALUE_TYPE' parameter that
-// does not have a full set of value-semantic operations, but then some methods
-// of the container may not be instantiable.  The following terminology,
-// adopted from the C++11 standard, is used in the function documentation of
-// 'vector' to describe a function's requirements for the 'VALUE_TYPE' template
+// A 'vector' is a fully Value-Semantic Type (see {'bsldoc_glossary'}) only if
+// the supplied 'VALUE_TYPE' template parameter is fully value-semantic.  It is
+// possible to instantiate a 'vector' with a 'VALUE_TYPE' parameter that does
+// not have a full set of value-semantic operations, but then some methods of
+// the container may not be instantiable.  The following terminology, adopted
+// from the C++11 standard, is used in the function documentation of 'vector'
+// to describe a function's requirements for the 'VALUE_TYPE' template
 // parameter.  These terms are also defined in section [17.6.3.1] of the C++11
 // standard.  Note that, in the context of a 'vector' instantiation, the
 // requirements apply specifically to the vector's entry type, 'value_type',
@@ -118,8 +118,8 @@ BSLS_IDENT("$Id: $")
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
-// If the (template parameter) type 'ALLOCATOR' of a 'vector' instantiation'
-// is 'bsl::allocator', then objects of that vector type will conform to the
+// If the (template parameter) type 'ALLOCATOR' of a 'vector' instantiation' is
+// 'bsl::allocator', then objects of that vector type will conform to the
 // standard behavior of a 'bslma'-allocator-enabled type.  Such a vector
 // accepts an optional 'bslma::Allocator' argument at construction.  If the
 // address of a 'bslma::Allocator' object is explicitly supplied at
@@ -731,13 +731,23 @@ struct Vector_Util {
 };
 
 
-                          // =======================
-                          // class Vector_RangeCheck
-                          // =======================
+                          // ===================================
+                          // class Vector_DeduceIteratorCategory
+                          // ===================================
 
 template <class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
                    = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
+    // This 'struct' provides a primitive means to distinguish between iterator
+    // types and fundamental types, in order to dispatch to the correct
+    // implementation of a function template (or constructor template) passed
+    // two arguments of identical type.  By default, it is assumed that any
+    // type that is not a fundamental type, as determined by the type trait
+    // 'bsl::is_fundamental', must be an iterator type.  'std::iterator_traits'
+    // is updated in C++17 to provide a SFINAE-friendly instantion of the
+    // primary-template for types that do not provide all of the nested typedef
+    // names, but we cannot portably rely on such a scheme yet.
+
     // PUBLIC TYPES
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;
@@ -745,6 +755,11 @@ struct Vector_DeduceIteratorCategory {
 
 template <class BSLSTL_ITERATOR>
 struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
+    // This partial specialization of the 'struct' template for fundamental
+    // types provides a nested 'type' that is not an iterator category, so can
+    // be used to control the internal dispatch of function template overloads
+    // taking two arguments of the same type.
+
     // PUBLIC TYPES
     typedef BloombergLP::bslmf::Nil type;
 };
@@ -760,6 +775,10 @@ struct Vector_IsRandomAccessIterator :
 {
 };
 
+
+                          // =======================
+                          // class Vector_RangeCheck
+                          // =======================
 
 struct Vector_RangeCheck {
     // This utility class provides a test-support facility to diagnose when a
@@ -1082,7 +1101,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // specified range '[first, last)'.  The additional
         // 'std::*iterator__tag' should be a default-constructed tag that
         // corresponds to that found in 'std::iterator_traits' for the
-        // (template paramter) '*_ITER' type.  This method should be called
+        // (template parameter) '*_ITER' type.  This method should be called
         // only from a constructor.  The behavior is undefined unless
         // 'first != last'.
 
@@ -1289,7 +1308,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // range starting at the specified 'first' element, and ending
         // immediately before the specified 'last' element.  If an exception is
         // thrown, '*this' is left in a valid but unspecified state.  Throw
-        // 'std::length_error' if 'distance(first,last) > max_size()'. The
+        // 'std::length_error' if 'distance(first,last) > max_size()'.  The
         // (template parameter) type 'INPUT_ITER' shall meet the requirements
         // of an input iterator defined in the C++11 standard [24.2.3]
         // providing access to values of a type convertible to 'value_type',
@@ -1546,8 +1565,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     void push_back(BloombergLP::bslmf::MovableRef<VALUE_TYPE> value);
         // Append to the end of this vector the specified move-insertable
-        // 'value'.  'value' is left in a valid but unspecified state.  If
-        // an exception is thrown (other than by the move constructor of a
+        // 'value'.  'value' is left in a valid but unspecified state.  If an
+        // exception is thrown (other than by the move constructor of a
         // non-copy-insertable 'value_type'), '*this' is unaffected.  Throw
         // 'std::length_error' if 'size() == max_size()'.  This method requires
         // that the (template parameter) type 'VALUE_TYPE' be 'move-insertable'
@@ -2749,7 +2768,7 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // 'initialSize > max_size()'.  This method requires that the (template
         // parameter) type 'VALUE_TYPE' be 'copy-insertable' into this vector
         // (see {Requirements on 'VALUE_TYPE'}).  Note that a
-        // bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
         // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     template <class INPUT_ITER>
@@ -2820,6 +2839,7 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     vector(std::initializer_list<VALUE_TYPE> values,
            const ALLOCATOR&                  basicAllocator = ALLOCATOR());
+                                                                    // IMPLICIT
         // Create a vector and insert (in order) each 'value_type' object in
         // the specified 'values' initializer list.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
@@ -2971,16 +2991,18 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     // terms of 'Vector_Imp<void *>' to reduce the amount of code generated.
     // Note that this specialization rebinds the (template parameter)
     // 'ALLOCATOR' type to an allocator of 'void *' so as to satisfy the
-    // invariant in 'Vector_Imp'.  Also note that members which do not need to
+    // invariant in 'Vector_Imp'.  Also note that members that do not need to
     // be redefined are inherited straightforwardly from the 'Base', although
     // if an overloaded method needs to be redefined, then all its overloads
     // need to be redefined.
 
+    // PRIVATE TYPES
     typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
     typedef Vector_Imp<void *, BaseAlloc>                      Base;
     typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
 
   public:
+    // PUBLIC TYPES
     typedef typename ALLOCATOR::reference         reference;
     typedef typename ALLOCATOR::const_reference   const_reference;
     typedef VALUE_TYPE                          **iterator;
@@ -3394,11 +3416,13 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
     // 'Base', although if an overloaded method needs to be redefined, then all
     // its overloads need to be redefined.
 
+    // PRIVATE TYPES
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
     typedef BloombergLP::bslmf::MovableRefUtil                       MoveUtil;
 
   public:
+    // PUBLIC TYPES
     typedef typename ALLOCATOR::reference         reference;
     typedef typename ALLOCATOR::const_reference   const_reference;
     typedef const VALUE_TYPE                    **iterator;
@@ -3801,6 +3825,78 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 // ============================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
+                          // ------------------------
+                          // class Vector_PushProctor
+                          // ------------------------
+
+template <class VALUE_TYPE, class ALLOCATOR>
+class Vector_PushProctor {
+    // This class template provides a proctor for a newly created object that
+    // is managed by an allocator.  The object will be constructed through a
+    // call to 'allocator_traits<ALLOCATOR>::construct', and it should be
+    // destroyed by a call to 'allocator_traits<ALLOCATOR>::destroy'.  Note
+    // that this proctor takes no responsibility for the allocated memory that
+    // the supplied value is constructed in.
+
+    // DATA
+    VALUE_TYPE *d_target_p;   // managed object
+    ALLOCATOR   d_allocator;  // allocator to be used to destroy managed object
+
+  private:
+    // NOT IMPLEMENTED
+    Vector_PushProctor(const Vector_PushProctor&); // = delete;
+    Vector_PushProctor& operator=(const Vector_PushProctor&); // = delete;
+
+  public:
+    // CREATORS
+    Vector_PushProctor(VALUE_TYPE *target, const ALLOCATOR& allocator);
+        // Create a proctor that conditionally manages the specified 'target'
+        // object (if non-zero) by destroying the managed object with a call to
+        // 'allocator_traits<ALLOCATOR>::destroy' using the specified
+        // 'allocator' upon destruction of this proctor, unless the managed
+        // objects has been released.
+
+    ~Vector_PushProctor();
+        // Destroy this proctor, and destroy the object it manages (if any) by
+        // a call to 'allocator_traits<ALLOCATOR>::destroy' using the allocator
+        // supplied at construction.  If no object is currently being managed,
+        // this method has no effect.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the object currently managed by this
+        // proctor.  If no object is currently being managed, this method has
+        // no effect.
+};
+
+    // CREATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::Vector_PushProctor(
+                                                   VALUE_TYPE       *target,
+                                                   const ALLOCATOR&  allocator)
+: d_target_p(target)
+, d_allocator(allocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::~Vector_PushProctor()
+{
+    if (d_target_p) {
+        bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_target_p);
+    }
+}
+
+    // MANIPULATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::release()
+{
+    d_target_p = 0;
+}
+
                           // --------------------
                           // class Vector_ImpBase
                           // --------------------
@@ -3821,13 +3917,13 @@ template <class VALUE_TYPE>
 inline
 void
 Vector_ImpBase<VALUE_TYPE>::adopt(
-                       BloombergLP::bslmf::MovableRef<Vector_ImpBase> original)
+                           BloombergLP::bslmf::MovableRef<Vector_ImpBase> base)
 {
     BSLS_ASSERT_SAFE(0 == d_dataBegin_p);
     BSLS_ASSERT_SAFE(0 == d_dataEnd_p);
     BSLS_ASSERT_SAFE(0 == d_capacity);
 
-    Vector_ImpBase& lvalue = original;
+    Vector_ImpBase& lvalue = base;
     d_dataBegin_p          = lvalue.d_dataBegin_p;
     d_dataEnd_p            = lvalue.d_dataEnd_p;
     d_capacity             = lvalue.d_capacity;
@@ -4788,29 +4884,6 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 }
 
                             // *** modifiers ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-class Vector_PushProctor {
-    VALUE_TYPE *d_target_p;
-    ALLOCATOR   d_allocator;
-
-  public:
-    Vector_PushProctor(VALUE_TYPE *target, const ALLOCATOR& alloc)
-        : d_target_p(target)
-        , d_allocator(alloc)
-    {
-    }
-
-    ~Vector_PushProctor() {
-        if (d_target_p) {
-            bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_target_p);
-        }
-    }
-
-    void release() {
-        d_target_p = 0;
-    }
-};
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5881,8 +5954,9 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
-Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
-                                      std::initializer_list<VALUE_TYPE> values)
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(
+                                    const_iterator                    position,
+                                    std::initializer_list<VALUE_TYPE> values)
 {
     return insert(position, values.begin(), values.end());
 }

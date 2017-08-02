@@ -180,6 +180,8 @@
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
+// [32] CONCERN: Range operations slice from ranges of derived types
+// [33] CONCERN: Range ops work correctly for types convertible to 'iterator'
 // [35] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
@@ -1050,9 +1052,9 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
 template <class OBJECT, class ALLOCATOR>
 struct ExceptionProctor {
     // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the
-    // a copy of an object of the parameterized type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
+    // in exception-throwing code.  On construction, this class stores the a
+    // copy of an object of the parameterized type 'OBJECT' and the address of
+    // that object.  On destruction, if 'release' was not invoked, it will
     // verify the value of the object is the same as the value of the copy
     // create on construction.  This class requires the copy constructor and
     // 'operator ==' to be tested before use.
@@ -1130,6 +1132,18 @@ struct ExceptionProctor {
         d_object_p = 0;
     }
 };
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class OBJECT, class ALLOCATOR>
+struct UsesBslmaAllocator<ExceptionProctor<OBJECT, ALLOCATOR> >
+    : bsl::false_type {
+};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
 
 //=============================================================================
 //                              AWKWARD TEST TYPES
@@ -1284,32 +1298,6 @@ struct TestDriver {
                                           : "<INVALID>";
     }
 
-    static void
-    stretch(Obj *object, std::size_t size, int identifier = int('Z'));
-        // Using only primary manipulators, extend the length of the specified
-        // 'object' by the specified 'size' by adding copies of the specified
-        // 'value'.  The resulting value is not specified.  The behavior is
-        // undefined unless 0 <= size.
-
-    static void
-    stretchRemoveAll(Obj *object, std::size_t size, int identifier = int('Z'));
-        // Using only primary manipulators, extend the capacity of the
-        // specified 'object' to (at least) the specified 'size' by adding
-        // copies of the optionally specified 'value'; then remove all elements
-        // leaving 'object' empty.  The behavior is undefined unless
-        // '0 <= size'.
-
-    static void storeFirstNElemAddr(typename Obj::const_pointer *pointers,
-                                    const Obj&                   object,
-                                    size_t                       n)
-    {
-        size_t i = 0;
-        for (CIter b = object.cbegin(); b != object.cend() && i < n; ++b)
-        {
-            pointers[i++] = bsls::Util::addressOf(*b);
-        }
-    }
-
     static int checkFirstNElemAddr(typename Obj::const_pointer *pointers,
                                    const Obj&                   object,
                                    size_t                       n)
@@ -1324,6 +1312,32 @@ struct TestDriver {
         }
         return count;
     }
+
+    static void storeFirstNElemAddr(typename Obj::const_pointer *pointers,
+                                    const Obj&                   object,
+                                    size_t                       n)
+    {
+        size_t i = 0;
+        for (CIter b = object.cbegin(); b != object.cend() && i < n; ++b)
+        {
+            pointers[i++] = bsls::Util::addressOf(*b);
+        }
+    }
+
+    static void
+    stretch(Obj *object, std::size_t size, int identifier = int('Z'));
+        // Using only primary manipulators, extend the length of the specified
+        // 'object' by the specified 'size' by adding copies of the specified
+        // 'value'.  The resulting value is not specified.  The behavior is
+        // undefined unless 0 <= size.
+
+    static void
+    stretchRemoveAll(Obj *object, std::size_t size, int identifier = int('Z'));
+        // Using only primary manipulators, extend the capacity of the
+        // specified 'object' to (at least) the specified 'size' by adding
+        // copies of the optionally specified 'value'; then remove all elements
+        // leaving 'object' empty.  The behavior is undefined unless
+        // '0 <= size'.
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type )
@@ -1736,28 +1750,27 @@ void TestDriver<TYPE, ALLOC>::testCase9()
     //       according to which bitwise copy/move trait is applied.
     //
     // Plan:
-    //   Specify a set S of unique object values with substantial and
-    //   varied differences, ordered by increasing length.  For each value
-    //   in S, construct an object x along with a sequence of similarly
-    //   constructed duplicates x1, x2, ..., xN.  Attempt to affect every
-    //   aspect of white-box state by altering each xi in a unique way.
-    //   Let the union of all such objects be the set T.
+    //   Specify a set S of unique object values with substantial and varied
+    //   differences, ordered by increasing length.  For each value in S,
+    //   construct an object x along with a sequence of similarly constructed
+    //   duplicates x1, x2, ..., xN.  Attempt to affect every aspect of
+    //   white-box state by altering each xi in a unique way.  Let the union of
+    //   all such objects be the set T.
     //
-    //   To address concerns 1, 2, and 5, construct tests u = v for all
-    //   (u, v) in T X T.  Using canonical controls UU and VV, assert
-    //   before the assignment that UU == u, VV == v, and v == u if and only if
-    //   VV == UU.  After the assignment, assert that VV == u, VV == v,
-    //   and, for grins, that v == u.  Let v go out of scope and confirm
-    //   that VV == u.  All of these tests are performed within the 'bslma'
-    //   exception testing apparatus.  Since the execution time is lengthy
-    //   with exceptions, every permutation is not performed when
-    //   exceptions are tested.  Every permutation is also tested
-    //   separately without exceptions.
+    //   To address concerns 1, 2, and 5, construct tests u = v for all (u, v)
+    //   in T X T.  Using canonical controls UU and VV, assert before the
+    //   assignment that UU == u, VV == v, and v == u if and only if VV == UU.
+    //   After the assignment, assert that VV == u, VV == v, and, for grins,
+    //   that v == u.  Let v go out of scope and confirm that VV == u.  All of
+    //   these tests are performed within the 'bslma' exception testing
+    //   apparatus.  Since the execution time is lengthy with exceptions, every
+    //   permutation is not performed when exceptions are tested.  Every
+    //   permutation is also tested separately without exceptions.
     //
-    //   As a separate exercise, we address 4 and 5 by constructing tests
-    //   y = y for all y in T.  Using a canonical control X, we will verify
-    //   that X == y before and after the assignment, again within
-    //   the bslma exception testing apparatus.
+    //   As a separate exercise, we address 4 and 5 by constructing tests y = y
+    //   for all y in T.  Using a canonical control X, we will verify that
+    //   X == y before and after the assignment, again within the bslma
+    //   exception testing apparatus.
     //
     //   To address concern 6, all these tests are performed on user
     //   defined types:
@@ -2920,29 +2933,29 @@ void TestDriver<TYPE, ALLOC>::testCase7()
     //
     // Plan:
     //   Specify a set S of object values with substantial and varied
-    //   differences, ordered by increasing length, to be used in the
-    //   following tests.
+    //   differences, ordered by increasing length, to be used in the following
+    //   tests.
     //
-    //   For concerns 1 - 4, for each value in S, initialize objects w and
-    //   x, copy construct y from x and use 'operator==' to verify that
-    //   both x and y subsequently have the same value as w.  Let x go out
-    //   of scope and again verify that w == y.
+    //   For concerns 1 - 4, for each value in S, initialize objects w and x,
+    //   copy construct y from x and use 'operator==' to verify that both x and
+    //   y subsequently have the same value as w.  Let x go out of scope and
+    //   again verify that w == y.
     //
-    //   For concern 5, for each value in S initialize objects w and x,
-    //   and copy construct y from x.  Change the state of y, by using the
+    //   For concern 5, for each value in S initialize objects w and x, and
+    //   copy construct y from x.  Change the state of y, by using the
     //   *primary* *manipulator* 'push_back'.  Using the 'operator!=' verify
-    //   that y differs from x and w, and verify that the capacity of y
-    //   changes correctly.
+    //   that y differs from x and w, and verify that the capacity of y changes
+    //   correctly.
     //
     //   To address concern 6, we will perform tests performed for concern 1:
     //     - While passing a testAllocator as a parameter to the new object
     //       and ascertaining that the new object gets its memory from the
     //       provided testAllocator.  Also perform test for concerns 2 and 5.
-    //    - Where the object is constructed with an object allocator, and
-    //        neither of global and default allocator is used to supply memory.
+    //     - Where the object is constructed with an object allocator, and
+    //       neither of global and default allocator is used to supply memory.
     //
-    //   To address concern 7, perform tests for concern 1 performed
-    //   in the presence of exceptions during memory allocations using a
+    //   To address concern 7, perform tests for concern 1 performed in the
+    //   presence of exceptions during memory allocations using a
     //   'bslma::TestAllocator' and varying its *allocation* *limit*.
     //
     // Testing:
@@ -3249,19 +3262,19 @@ void TestDriver<TYPE, ALLOC>::testCase6()
     // Concerns:
     //   1) Objects constructed with the same values are returned as equal.
     //   2) Objects constructed such that they have same (logical) value but
-    //      different internal representation (due to the lack or presence
-    //      of an allocator, and/or different capacities) are always returned
-    //      as equal.
+    //      different internal representation (due to the lack or presence of
+    //      an allocator, and/or different capacities) are always returned as
+    //      equal.
     //   3) Unequal objects are always returned as unequal.
     //   4) Correctly selects the 'bitwiseEqualityComparable' traits.
     //
     // Plan:
     //   For concerns 1 and 3, Specify a set A of unique allocators including
     //   no allocator.  Specify a set S of unique object values having various
-    //   minor or subtle differences, ordered by non-decreasing length.
-    //   Verify the correctness of 'operator==' and 'operator!=' (returning
-    //   either true or false) using all elements (u, ua, v, va) of the
-    //   cross product S X A X S X A.
+    //   minor or subtle differences, ordered by non-decreasing length.  Verify
+    //   the correctness of 'operator==' and 'operator!=' (returning either
+    //   true or false) using all elements (u, ua, v, va) of the cross product
+    //   S X A X S X A.
     //
     //   For concern 2 create two objects using all elements in S one at a
     //   time.  For the second object change its internal representation by
@@ -4927,17 +4940,17 @@ void TestDriver<TYPE, ALLOC>::testCase1()
     //   leave scope, enabling the destructor to assert internal object
     //   invariants.  Display object values frequently in verbose mode:
     //
-    // 1) Create an object x1 (default ctor).       { x1: }
-    // 2) Create a second object x2 (copy from x1). { x1: x2: }
-    // 3) Append an element value A to x1).         { x1:A x2: }
-    // 4) Append the same element value A to x2).   { x1:A x2:A }
-    // 5) Append another element value B to x2).    { x1:A x2:AB }
-    // 6) Remove all elements from x1.              { x1: x2:AB }
-    // 7) Create a third object x3 (default ctor).  { x1: x2:AB x3: }
-    // 8) Create a forth object x4 (copy of x2).    { x1: x2:AB x3: x4:AB }
-    // 9) Assign x2 = x1 (non-empty becomes empty). { x1: x2: x3: x4:AB }
-    // 10) Assign x3 = x4 (empty becomes non-empty).{ x1: x2: x3:AB x4:AB }
-    // 11) Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
+    // 1) Create an object x1 (default ctor).         { x1: }
+    // 2) Create a second object x2 (copy from x1).   { x1: x2: }
+    // 3) Append an element value A to x1).           { x1:A x2: }
+    // 4) Append the same element value A to x2).     { x1:A x2:A }
+    // 5) Append another element value B to x2).      { x1:A x2:AB }
+    // 6) Remove all elements from x1.                { x1: x2:AB }
+    // 7) Create a third object x3 (default ctor).    { x1: x2:AB x3: }
+    // 8) Create a forth object x4 (copy of x2).      { x1: x2:AB x3: x4:AB }
+    // 9) Assign x2 = x1 (non-empty becomes empty).   { x1: x2: x3: x4:AB }
+    // 10) Assign x3 = x4 (empty becomes non-empty).  { x1: x2: x3:AB x4:AB }
+    // 11) Assign x4 = x4 (aliasing).                 { x1: x2: x3:AB x4:AB }
     //
     // Testing:
     //   This "test" *exercises* basic functionality.

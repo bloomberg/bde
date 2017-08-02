@@ -38,7 +38,7 @@ struct Vector_Base {
     // This 'struct' must have the same layout as 'bsl::Vector_ImpBase'
     // (defined in the .h file).
 
-    // DATA
+    // PUBLIC DATA
     void        *d_dataBegin_p;
     void        *d_dataEnd_p;
     std::size_t  d_capacity;

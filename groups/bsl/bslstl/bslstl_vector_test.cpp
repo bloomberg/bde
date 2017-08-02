@@ -6,7 +6,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_forwarditerator.h>     // for testing only
 #include <bslstl_iterator.h>            // for testing only
-#include <bslstl_vector.h>              // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.
