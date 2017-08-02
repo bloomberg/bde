@@ -59,10 +59,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we assert that the mean, variance, and skew are what we expect:
 //..
-//  ASSERT(4   == m3.getCount());
-//  ASSERT(3.0 == m3.getMean());
-//  ASSERT(1e-5 > fabs(3.33333 - m3.getVariance()));
-//  ASSERT(1e-5 > fabs(0.0     - m3.getSkew()));
+//  ASSERT(4   == m3.count());
+//  ASSERT(3.0 == m3.mean());
+//  ASSERT(1e-5 > fabs(3.33333 - m3.variance()));
+//  ASSERT(1e-5 > fabs(0.0     - m3.skew()));
 //..
 // BDE_VERIFY pragma: +LL01
 

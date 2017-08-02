@@ -183,22 +183,24 @@ int main(int argc, char *argv[])
         // TESTING EDGE CASES
         //
         // Concerns:
-        //: 1 'getMean' returns 'Nan' when no data is fed.
+        //: 1 'meanIfValid' returns '-1' when no data is fed.
         //:
-        //: 2 'getVariance' returns 'Nan' with less than 2 data values.
+        //: 2 'varianceIfValid' returns '-1' with less than 2 data values.
         //:
-        //: 3 'getSkew' returns 'Nan' with less than 3 data values.
+        //: 3 'skewIfValid' returns '-1' with less than 3 data values.
         //:
-        //: 4 'getKurtosis' returns 'Nan' with less than 4 data values.
+        //: 4 'kurtosisIfValid' returns '-1' with less than 4 data values.
         //
         // Plan:
-        //: 1 Verify the 'getMean' with no data returns 'Nan'.  (C-1)
+        //: 1 Verify the 'meanIfValid' with no data returns '-1'.  (C-1)
         //:
-        //: 2 Verify the 'getVariance' with 1 data value returns 'Nan'. (C-2)
+        //: 2 Verify the 'varianceIfValid' with 1 data value returns '-1'.
+        //:   (C-2)
         //:
-        //: 3 Verify the 'getSkew' with 2 data values returns 'Nan'. (C-2)
+        //: 3 Verify the 'skewIfValid' with 2 data values returns '-1'.  (C-3)
         //:
-        //: 4 Verify the 'getKurtosis' with 3 data values returns 'Nan'. (C-4)
+        //: 4 Verify the 'kurtosisIfValid' with 3 data values returns '-1'.
+        //:   (C-4)
         //
         // Testing:
         //   EDGE CASES
