@@ -33,8 +33,11 @@ using namespace bdlf::PlaceHolders;
 // ACCESSORS
 // ----------------------------------------------------------------------------
 // [ 1] void failTracker(const char *, const char *, int);
-// [ 1] TRACKER *createAndInstallSingleton(bslma::Allocator * = 0);
-// [ 2] USAGE EXAMPLE
+// [ 1] TRACKER *singleton();
+// [ 1] TRACKER *createAndInstallSingleton();
+// [ 2] TRACKER *createAndInstallSingleton(BregCallback);
+// [ 2] void bregCallbackAdapter(BregCallback, int*,int*,int*,int*,int*);
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -99,6 +102,15 @@ typedef balb::AssertionTrackerSingleton<balb::AssertionTracker> Obj;
 #ifdef BSLS_PLATFORM_CMP_MSVC
 #pragma optimize("gsty", off)
 #endif
+
+void bregSimulator(int *b1, int *b2, int *b3)
+    // Fill the specified 'b1', 'b2', and 'b3' values with simulated 'BREG'
+    // values.
+{
+    *b1 = 1;
+    *b2 = 4;
+    *b3 = 20;
+}
 
 ///Usage
 ///-----
@@ -170,7 +182,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -208,6 +220,78 @@ int main(int argc, char *argv[])
     ASSERT(ac_p->getAssertionCount() == 2);
 //..
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // BREG CALLBACK TEST
+        //   This case tests creating the singleton using the 'breg' version of
+        //   configuration.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to install an assertion
+        //:   handler and process assertions.
+        //
+        // Plan:
+        //: 1 Create a singleton 'AssertionTracker' object, trigger some
+        //:   assertions, and verify that they are noticed by having the
+        //:   assertion handler write them to a string stream and then
+        //:   examining the contents of the stream.
+        //
+        // Testing:
+        //   TRACKER *createAndInstallSingleton(BregCallback);
+        //   void bregCallbackAdapter(BregCallback, int*,int*,int*,int*,int*);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "BREG CALLBACK TEST\n"
+                    "==================\n";
+        {
+            bsl::ostringstream      os;
+            balb::AssertionTracker *at_p =
+                Obj::createAndInstallSingleton(bregSimulator);
+
+            int a = 0, b = 0, c = 0, d = 0, e = 0;
+            Obj::bregCallbackAdapter(bregSimulator, &a, &b, &c, &d, &e);
+            ASSERT(0 == a && 0 == b && 0 != c && 0 != d && 0 == e);
+            a = b = c = d = e = 0;
+            at_p->configurationCallback()(&a, &b, &c, &d, &e);
+            ASSERT(0 == a && 0 == b && 0 != c && 0 != d && 0 == e);
+
+            ASSERT(at_p);
+            at_p->setReportingCallback(
+                bdlf::BindUtil::bind(&balb::AssertionTracker::reportAssertion,
+                                     &os, _1, _2, _3, _4, _5, _6));
+
+            for (int i = 0; i < 10; ++i) {
+                if (veryVeryVerbose) { P_(i) Q("assert 1") }
+                BSLS_ASSERT_ASSERT(0 && "assert 1");
+                for (int j = 0; j < 10; ++j) {
+                    if (veryVeryVerbose) { P_(i) P_(j) Q("assert 2") }
+                    BSLS_ASSERT_ASSERT(0 && "assert 2");
+                }
+            }
+
+            for (int i = 0; i < 2; ++i) {
+                if (veryVeryVerbose) { P_(i) Q("assert 3") }
+                Obj::failTracker("0 && \"assert 3\"", __FILE__, __LINE__);
+            }
+
+            bsl::string s = os.str();
+
+            ASSERTV(s, s.npos != s.find(__FILE__));
+
+            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 1\":"))
+            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 2\":"))
+            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 3\":"))
+
+            os.str("");
+            at_p->reportAllRecordedStackTraces();
+            s = os.str();
+
+            ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"))
+            ASSERTV(s, s.npos != s.find(":100:0 && \"assert 2\":"))
+            ASSERTV(s, s.npos != s.find(":2:0 && \"assert 3\":"))
+        }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -225,7 +309,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void failTracker(const char *, const char *, int);
-        //   TRACKER *createAndInstallSingleton(bslma::Allocator * = 0);
+        //   TRACKER *createAndInstallSingleton();
+        //   TRACKER *singleton();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -236,6 +321,7 @@ int main(int argc, char *argv[])
             balb::AssertionTracker *at_p = Obj::createAndInstallSingleton();
 
             ASSERT(at_p);
+            ASSERT(Obj::singleton() == at_p);
             at_p->setReportingCallback(
                 bdlf::BindUtil::bind(&balb::AssertionTracker::reportAssertion,
                                      &os, _1, _2, _3, _4, _5, _6));

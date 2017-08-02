@@ -30,10 +30,10 @@
 // assertion line or disguise the call stack.)
 //
 // This component serves as a means whereby assertion failures can be noted,
-// tracked, and reported, but does not itself provide the facility for
-// being attached to the global 'bsls::Assert' system (and indeed the usage
-// example below shows how this component may be used independently of that).
-// Rather, this component considers an assertion to have occurred when its
+// tracked, and reported, but does not itself provide the facility for being
+// attached to the global 'bsls::Assert' system (and indeed the usage example
+// below shows how this component may be used independently of that).  Rather,
+// this component considers an assertion to have occurred when its
 // 'assertionDetected' method is invoked.  The separate
 // 'balb::AssertionTrackerSingleton' component mediates between this component
 // and the 'bsls::Assert' system.
@@ -360,11 +360,11 @@ class AssertionTracker {
 
   public:
     // CLASS METHODS
-    static void preserveConfiguration(int *maxAssertions,
-                                      int *maxLocations,
-                                      int *maxStackTracesPerLocation,
-                                      int *reportingSeverity,
-                                      int *reportingFrequency);
+    static void preserveConfiguration(int * /* maxAssertions             */,
+                                      int * /* maxLocations              */,
+                                      int * /* maxStackTracesPerLocation */,
+                                      int * /* reportingSeverity         */,
+                                      int * /* reportingFrequency        */);
         // This function can be installed as a configuration callback.  It
         // leaves the configuration unchanged.  This function is used as the
         // default configuration callback.
