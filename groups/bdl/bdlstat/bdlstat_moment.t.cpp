@@ -30,15 +30,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 2] Moment()
 // [ 2] add(double value)
-// [ 2] getCount()
-// [ 2] getMean()
-// [ 2] getMeanRaw()
-// [ 2] getVariance()
-// [ 2] getVarianceRaw()
-// [ 2] getSkew()
-// [ 2] getSkewRaw()
-// [ 2] getKurtosis()
-// [ 2] getKurtosisRaw()
+// [ 2] count()
+// [ 2] meanIfValid()
+// [ 2] mean()
+// [ 2] varianceIfValid()
+// [ 2] variance()
+// [ 2] skewIfValid()
+// [ 2] skew()
+// [ 2] kurtosisIfValid()
+// [ 2] kurtosis()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] EDGE CASES
@@ -172,10 +172,10 @@ int main(int argc, char *argv[])
 //..
 // Finally, we assert that the mean, variance, and skew are what we expect:
 //..
-    ASSERT(4   == m3.getCount());
-    ASSERT(3.0 == m3.getMean());
-    ASSERT(1e-5 > fabs(3.33333 - m3.getVariance()));
-    ASSERT(1e-5 > fabs(0.0     - m3.getSkew()));
+    ASSERT(4   == m3.count());
+    ASSERT(3.0 == m3.mean());
+    ASSERT(1e-5 > fabs(3.33333 - m3.variance()));
+    ASSERT(1e-5 > fabs(0.0     - m3.skew()));
 //..
       } break;
       case 3: {
@@ -208,25 +208,34 @@ int main(int argc, char *argv[])
                           << "TESTING EDGE CASES" << endl
                           << "==================" << endl;
 
+        bsls::AssertFailureHandlerGuard hG(
+                                         bsls::AssertTest::failTestDriver);
+
         {
             bdlstat::Moment<bdlstat::MomentLevel::e_M1> m1;
-            ASSERT(0 == m1.getCount());
-            ASSERT(bdlb::Float::isNan(m1.getMean()));
+            ASSERT(0 == m1.count());
+            double result;
+            ASSERT(-1 == m1.meanIfValid(&result));
+            ASSERT_SAFE_FAIL(m1.mean());
         }
 
         {
             bdlstat::Moment<bdlstat::MomentLevel::e_M2> m2;
             m2.add(1.0);
-            ASSERT(1 == m2.getCount());
-            ASSERT(bdlb::Float::isNan(m2.getVariance()));
+            ASSERT(1 == m2.count());
+            double result;
+            ASSERT(-1 == m2.varianceIfValid(&result));
+            ASSERT_SAFE_FAIL(m2.variance());
         }
 
         {
             bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
             m3.add(1.0);
             m3.add(2.0);
-            ASSERT(2 == m3.getCount());
-            ASSERT(bdlb::Float::isNan(m3.getSkew()));
+            ASSERT(2 == m3.count());
+            double result;
+            ASSERT(-1 == m3.skewIfValid(&result));
+            ASSERT_SAFE_FAIL(m3.skew());
         }
 
         {
@@ -234,8 +243,10 @@ int main(int argc, char *argv[])
             m4.add(1.0);
             m4.add(2.0);
             m4.add(4.0);
-            ASSERT(3 == m4.getCount());
-            ASSERT(bdlb::Float::isNan(m4.getKurtosis()));
+            ASSERT(3 == m4.count());
+            double result;
+            ASSERT(-1 == m4.kurtosisIfValid(&result));
+            ASSERT_SAFE_FAIL(m4.kurtosis());
         }
       } break;
       case 2: {
@@ -269,15 +280,15 @@ int main(int argc, char *argv[])
         // Testing:
         //   Moment()
         //   add(double value)
-        //   getCount()
-        //   getMean()
-        //   getMeanRaw()
-        //   getVariance()
-        //   getVarianceRaw()
-        //   getSkew()
-        //   getSkewRaw()
-        //   getKurtosis()
-        //   getKurtosisRaw()
+        //   count()
+        //   meanIfValid()
+        //   mean()
+        //   varianceIfValid()
+        //   variance()
+        //   skewIfValid()
+        //   skew()
+        //   kurtosisIfValid()
+        //   kurtosis()
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -334,21 +345,28 @@ int main(int argc, char *argv[])
                 const double expectedVariance = INPUT[di].d_variance;
                 const double expectedSkew     = INPUT[di].d_skew;
                 const double expectedKurtosis = INPUT[di].d_kurtosis;
-                const int    count       = m4.getCount();
-                const double mean        = m4.getMean();
-                const double meanRaw     = m4.getMeanRaw();
-                const double variance    = m4.getVariance();
-                const double varianceRaw = m4.getVarianceRaw();
-                const double skew        = m4.getSkew();
-                const double skewRaw     = m4.getSkewRaw();
-                const double kurtosis    = m4.getKurtosis();
-                const double kurtosisRaw = m4.getKurtosisRaw();
+                const int    count       = m4.count();
+                double       mean = 0.0;
+                const int    meanRet     = m4.meanIfValid(&mean);
+                const double meanRaw     = m4.mean();
+                double       variance = 0.0;
+                const int    varianceRet = m4.varianceIfValid(&variance);
+                const double varianceRaw = m4.variance();
+                double       skew = 0.0;
+                const int    skewRet     = m4.skewIfValid(&skew);
+                const double skewRaw     = m4.skew();
+                double       kurtosis = 0.0;
+                const int    kurtosisRet = m4.kurtosisIfValid(&kurtosis);
+                const double kurtosisRaw = m4.kurtosis();
 
                 if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
-                    T_ P_(skew) P_(skewRaw) P(expectedSkew);
-                    T_ P_(kurtosis) P_(kurtosisRaw) P(expectedKurtosis);
+                    T_ P_(LINE) P_(mean) P_(meanRet) P_(meanRaw)
+                                                     P(expectedMean);
+                    T_ P_(variance) P_(varianceRet) P_(varianceRaw)
+                                                    P(expectedVariance);
+                    T_ P_(skew) P_(skewRet) P_(skewRaw) P(expectedSkew);
+                    T_ P_(kurtosis) P_(kurtosisRet) P_(kurtosisRaw)
+                                                    P(expectedKurtosis);
                 }
 
                 LOOP3_ASSERT(di,
@@ -395,6 +413,18 @@ int main(int argc, char *argv[])
                              expectedKurtosis,
                              fabs((expectedKurtosis - kurtosisRaw) /
                                   (expectedKurtosis + 1e-10)) < 1e-4);
+                LOOP2_ASSERT(di,
+                             meanRet,
+                             0 == meanRet);
+                LOOP2_ASSERT(di,
+                             varianceRet,
+                             0 == varianceRet);
+                LOOP2_ASSERT(di,
+                             skewRet,
+                             0 == skewRet);
+                LOOP2_ASSERT(di,
+                             kurtosisRet,
+                             0 == kurtosisRet);
             }
         }
 
@@ -414,18 +444,23 @@ int main(int argc, char *argv[])
                 const double expectedMean     = INPUT[di].d_mean;
                 const double expectedVariance = INPUT[di].d_variance;
                 const double expectedSkew     = INPUT[di].d_skew;
-                const int    count       = m3.getCount();
-                const double mean        = m3.getMean();
-                const double meanRaw     = m3.getMeanRaw();
-                const double variance    = m3.getVariance();
-                const double varianceRaw = m3.getVarianceRaw();
-                const double skew        = m3.getSkew();
-                const double skewRaw     = m3.getSkewRaw();
+                const int    count       = m3.count();
+                double       mean = 0.0;
+                const int    meanRet     = m3.meanIfValid(&mean);
+                const double meanRaw     = m3.mean();
+                double       variance = 0.0;
+                const int    varianceRet = m3.varianceIfValid(&variance);
+                const double varianceRaw = m3.variance();
+                double       skew = 0.0;
+                const int    skewRet     = m3.skewIfValid(&skew);
+                const double skewRaw     = m3.skew();
 
                 if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
-                    T_ P_(skew) P_(skewRaw) P(expectedSkew);
+                    T_ P_(LINE) P_(mean) P_(meanRet) P_(meanRaw)
+                                                     P(expectedMean);
+                    T_ P_(variance) P_(varianceRet) P_(varianceRaw)
+                                                    P(expectedVariance);
+                    T_ P_(skew) P_(skewRet) P_(skewRaw) P(expectedSkew);
                 }
 
                 LOOP3_ASSERT(di,
@@ -462,6 +497,15 @@ int main(int argc, char *argv[])
                              expectedSkew,
                              fabs((expectedSkew - skewRaw) /
                                   (expectedSkew + 1e-10)) < 1e-4);
+                LOOP2_ASSERT(di,
+                             meanRet,
+                             0 == meanRet);
+                LOOP2_ASSERT(di,
+                             varianceRet,
+                             0 == varianceRet);
+                LOOP2_ASSERT(di,
+                             skewRet,
+                             0 == skewRet);
             }
         }
 
@@ -480,15 +524,19 @@ int main(int argc, char *argv[])
                 }
                 const double expectedMean     = INPUT[di].d_mean;
                 const double expectedVariance = INPUT[di].d_variance;
-                const int    count       = m2.getCount();
-                const double mean        = m2.getMean();
-                const double meanRaw     = m2.getMeanRaw();
-                const double variance    = m2.getVariance();
-                const double varianceRaw = m2.getVarianceRaw();
+                const int    count       = m2.count();
+                double       mean = 0.0;
+                const int    meanRet     = m2.meanIfValid(&mean);
+                const double meanRaw     = m2.mean();
+                double       variance = 0.0;
+                const int    varianceRet = m2.varianceIfValid(&variance);
+                const double varianceRaw = m2.variance();
 
                 if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
+                    T_ P_(LINE) P_(mean) P_(meanRet) P_(meanRaw)
+                                                     P(expectedMean);
+                    T_ P_(variance) P_(varianceRet) P_(varianceRaw)
+                                                    P(expectedVariance);
                 }
 
                 LOOP3_ASSERT(di,
@@ -515,6 +563,12 @@ int main(int argc, char *argv[])
                              expectedVariance,
                              fabs((expectedVariance - varianceRaw) /
                                   (expectedVariance + 1e-10)) < 1e-4);
+                LOOP2_ASSERT(di,
+                             meanRet,
+                             0 == meanRet);
+                LOOP2_ASSERT(di,
+                             varianceRet,
+                             0 == varianceRet);
             }
         }
 
@@ -532,12 +586,14 @@ int main(int argc, char *argv[])
                     }
                 }
                 const double expectedMean     = INPUT[di].d_mean;
-                const int    count       = m1.getCount();
-                const double mean        = m1.getMean();
-                const double meanRaw     = m1.getMeanRaw();
+                const int    count       = m1.count();
+                double       mean = 0.0;
+                const int    meanRet     = m1.meanIfValid(&mean);
+                const double meanRaw     = m1.mean();
 
                 if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
+                    T_ P_(LINE) P_(mean) P_(meanRet) P_(meanRaw)
+                                                     P(expectedMean);
                 }
 
                 LOOP3_ASSERT(di,
@@ -554,6 +610,9 @@ int main(int argc, char *argv[])
                              expectedMean,
                              fabs((expectedMean - meanRaw) /
                                   (expectedMean + 1e-10)) < 1e-4);
+                LOOP2_ASSERT(di,
+                             meanRet,
+                             0 == meanRet);
             }
         }
 
@@ -587,10 +646,10 @@ int main(int argc, char *argv[])
                 P_(i) P(input[i]);
             }
         }
-        ASSERT(4 == m1.getCount());
-        ASSERT(3.0 == m1.getMean());
+        ASSERT(4   == m1.count());
+        ASSERT(3.0 == m1.mean());
         // The below does not compile, as it should
-        //ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
+        //ASSERT(fabs(3.33333 - m2.variance()) < 1e-5);
 
         bdlstat::Moment<bdlstat::MomentLevel::e_M2> m2;
         for(int i = 0; i < 4; ++i) {
@@ -599,9 +658,9 @@ int main(int argc, char *argv[])
                 P_(i) P(input[i]);
             }
         }
-        ASSERT(4 == m2.getCount());
-        ASSERT(3.0 == m2.getMean());
-        ASSERT(fabs(3.33333  - m2.getVariance()) < 1e-5);
+        ASSERT(4           == m2.count());
+        ASSERT(3.0         == m2.mean());
+        ASSERT(fabs(3.33333 - m2.variance()) < 1e-5);
 
         bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
         for(int i = 0; i < 4; ++i) {
@@ -610,12 +669,12 @@ int main(int argc, char *argv[])
                 P_(i) P(input[i]);
             }
         }
-        ASSERT(4 == m3.getCount());
-        ASSERT(3.0 == m3.getMean());
-        ASSERT(fabs(3.33333 - m3.getVariance()) < 1e-5);
-        ASSERT(fabs(0.0     - m3.getSkew())     < 1e-5);
+        ASSERT(4           == m3.count());
+        ASSERT(3.0         == m3.mean());
+        ASSERT(fabs(3.33333 - m3.variance()) < 1e-5);
+        ASSERT(fabs(0.0     - m3.skew())     < 1e-5);
         // The below does not compile, as it should
-        //ASSERT(fabs(644.185  - m3.getKurtosis()) < 1e-3);
+        //ASSERT(fabs(644.185 - m3.kurtosis()) < 1e-3);
 
         bdlstat::Moment<bdlstat::MomentLevel::e_M4> m4;
         for(int i = 0; i < 4; ++i) {
@@ -624,11 +683,11 @@ int main(int argc, char *argv[])
                 P_(i) P(input[i]);
             }
         }
-        ASSERT(4 == m4.getCount());
-        ASSERT(3.0 == m4.getMean());
-        ASSERT(fabs(3.33333 - m4.getVariance()) < 1e-5);
-        ASSERT(fabs(0.0     - m4.getSkew())     < 1e-5);
-        ASSERT(fabs(-3.3    - m4.getKurtosis()) < 1e-3);
+        ASSERT(4           == m4.count());
+        ASSERT(3.0         == m4.mean());
+        ASSERT(fabs(3.33333 - m4.variance()) < 1e-5);
+        ASSERT(fabs(0.0     - m4.skew())     < 1e-5);
+        ASSERT(fabs(-3.3    - m4.kurtosis()) < 1e-3);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

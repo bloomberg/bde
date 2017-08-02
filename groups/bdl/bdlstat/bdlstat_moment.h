@@ -74,21 +74,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cmath.h>
 #endif
 
-#ifndef INCLUDED_LIMITS
-#include <limits>           // 'std::numeric_limits'
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP {
 namespace bdlstat {
-
-// BDE_VERIFY pragma: -TR17 // Avoid users having to specify template params
-// BDE_VERIFY pragma: -CP01 // Avoid users having to specify template params
-// BDE_VERIFY pragma: -AQa01 // Really, constexpr
-const double k_DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
-    // Nan value to signify an illegal value returned.
-// BDE_VERIFY pragma: +AQa01
-// BDE_VERIFY pragma: +TR17
-// BDE_VERIFY pragma: +CP01
 
 struct MomentLevel {
     enum Enum {
@@ -199,38 +190,38 @@ class Moment {
         // Add the specified 'value' to the data set.
 
     // ACCESSORS
-    int getCount() const;
+    int count() const;
         // Returns the number of elements in the data set.
 
-    double getKurtosis() const;
-        // Return kurtosis of the data set.  The result is 'Nan' unless
-        // '4 <= count' and the variance is not zero.
+    int kurtosisIfValid(double *result) const;
+        // Load into the specified 'result, the kurtosis of the data set.
+        // Return 0 for success, or -1 if '4 > count' or the variance is zero.
 
-    double getKurtosisRaw() const;
+    double kurtosis() const;
         // Return kurtosis of the data set.  The behavior is undefined unless
-        // '4 <= count'.
+        // '4 <= count' and variance is not zero.
 
-    double getMean() const;
-        // Return mean of the data set.  The result is 'Nan' unless
-        // '1 <= count'.
+    int meanIfValid(double *result) const;
+        // Load into the specified 'result, the mean of the data set.  Return
+        // 0 for success, or -1 if '1 > count'.
 
-    double getMeanRaw() const;
+    double mean() const;
         // Return mean of the data set.  The behavior is undefined unless
         // '1 <= count'.
 
-    double getSkew() const;
-        // Return kurtosis of the data set.  The result is 'Nan' unless
-        // '3 <= count' and the variance is not zero..
+    int skewIfValid(double *result) const;
+        // Load into the specified 'result, the skew of the data set.  Return
+        // 0 for success, or -1 if '3 > count' or the variance is zero.
 
-    double getSkewRaw() const;
+    double skew() const;
         // Return same excess kurtosis of the data set.  The behavior is
         // undefined unless '3 <= count'.
 
-    double getVariance() const;
-        // Return variance of the data set.  The result is 'Nan' unless
-        // '2 <= count'.
+    int varianceIfValid(double *result) const;
+        // Load into the specified 'result, the variance of the data set.
+        // Return 0 for success, or -1 if '2 > count'.
 
-    double getVarianceRaw() const;
+    double variance() const;
         // Return variance of the data set.  The behavior is undefined unless
         // '2 <= count'.
 };
@@ -345,64 +336,68 @@ void Moment<MomentLevel::e_M4>::add(double value)
 // ACCESSORS
 template <MomentLevel::Enum ML>
 inline
-int Moment<ML>::getCount() const
+int Moment<ML>::count() const
 {
     return d_data.d_count;
 }
 
-// BDE_VERIFY pragma: -FABC01 // getKurtosisRaw needed before getKurtosis
 template<>
 inline
-double Moment<MomentLevel::e_M4>::getKurtosisRaw() const
+double Moment<MomentLevel::e_M4>::kurtosis() const
 {
+    BSLS_ASSERT_SAFE(4 <= d_data.d_count && 0.0 != d_data.d_M2);
     const double n = static_cast<double>(d_data.d_count);
     const double n1   = (n - 1.0);
     const double n2n3 = (n - 2.0) * (n - 3.0);
     return n * (n + 1.0) * n1 / n2n3 * d_data.d_M4 / d_data.d_M2 / d_data.d_M2
            - 3.0 * n1 * n1 / n2n3;
 }
-// BDE_VERIFY pragma: +FABC01
 
 template<>
 inline
-double Moment<MomentLevel::e_M4>::getKurtosis() const
+int Moment<MomentLevel::e_M4>::kurtosisIfValid(double *result) const
 {
     if (4 > d_data.d_count || 0.0 == d_data.d_M2) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getKurtosisRaw();
+    *result = kurtosis();
+    return 0;
 }
 
 template <MomentLevel::Enum ML>
 inline
-double Moment<ML>::getMean() const
+int Moment<ML>::meanIfValid(double *result) const
 {
     if (1 > d_data.d_count) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getMeanRaw();
+    *result = mean();
+    return 0;
 }
 
 template <MomentLevel::Enum ML>
 inline
-double Moment<ML>::getMeanRaw() const
+double Moment<ML>::mean() const
 {
+    BSLS_ASSERT_SAFE(1 <= d_data.d_count);
     return d_data.d_sum / static_cast<double>(d_data.d_count);
 }
 
 template <MomentLevel::Enum ML>
-inline double Moment<ML>::getSkew() const
+inline int Moment<ML>::skewIfValid(double *result) const
 {
     if (3 > d_data.d_count || 0.0 == d_data.d_M2) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getSkewRaw();
+    *result = skew();
+    return 0;
 }
 
 template <MomentLevel::Enum ML>
 inline
-double Moment<ML>::getSkewRaw() const
+double Moment<ML>::skew() const
 {
+    BSLS_ASSERT_SAFE(3 <= d_data.d_count && 0.0 != d_data.d_M2);
     const double n = static_cast<double>(d_data.d_count);
     return bsl::sqrt(n - 1.0) * n / (n- 2.0) * d_data.d_M3
                                                   / bsl::pow(d_data.d_M2, 1.5);
@@ -410,18 +405,20 @@ double Moment<ML>::getSkewRaw() const
 
 template <MomentLevel::Enum ML>
 inline
-double Moment<ML>::getVariance() const
+int Moment<ML>::varianceIfValid(double *result) const
 {
     if (2 > d_data.d_count) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getVarianceRaw();
+    *result = variance();
+    return 0;
 }
 
 template <MomentLevel::Enum ML>
 inline
-double Moment<ML>::getVarianceRaw() const
+double Moment<ML>::variance() const
 {
+    BSLS_ASSERT_SAFE(2 <= d_data.d_count);
     return d_data.d_M2 / (d_data.d_count - 1);
 }
 
