@@ -780,7 +780,7 @@ struct DecimalConvertUtil {
         // network encoding, which is supported by the
         // 'decimal64FromMultiWidthEncoding' function.
 
-    static bool isValidMultiWidthSize(unsigned char  size);
+    static bool isValidMultiWidthSize(bsls::Types::size_type  size);
         // Return 'true' if the specified 'size' is a valid encoding size in
         // the *multi-width encoding* format, and 'false' otherwise.  Note that
         // valid encoding sizes are 1, 2, 3, 4, 5 and 8 bytes.
@@ -802,9 +802,9 @@ struct DecimalConvertUtil {
         // specified 'buffer' having the specified 'size' and store the result
         // into the specified 'decimal' parameter.  Return 0 on success, and
         // non-zero value otherwise.  The behavior is undefined unless 'buffer'
-        // has at least 'size' bytes.  Note that this function returns non-zero
-        // value with no effect on the 'decimal', if the 'size' is not valid
-        // encoding size in the *multi-width encoding* format.
+        // has at least 'size' bytes.  Note that this function returns a
+        // non-zero value and leaves 'decimal' unchanged if 'size' is not a
+        // valid encoding size of the *multi-width encoding* format.
 
     static unsigned char *decimal64ToVariableWidthEncoding(
                                                    unsigned char     *buffer,
@@ -1011,7 +1011,7 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
 }
 
 inline
-bool DecimalConvertUtil::isValidMultiWidthSize(unsigned char  size)
+bool DecimalConvertUtil::isValidMultiWidthSize(bsls::Types::size_type  size)
 {
     return (size > 0 && size <= 5) || size == 8;
 }
@@ -1047,7 +1047,7 @@ int DecimalConvertUtil::decimal64FromMultiWidthEncodingIfValid(
 {
     int ret(0);
 
-    if (isValidMultiWidthSize(static_cast<unsigned char>(size))) {
+    if (isValidMultiWidthSize(size)) {
         *decimal = decimal64FromMultiWidthEncoding(buffer, size);
     }
     else {
