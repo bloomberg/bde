@@ -236,6 +236,7 @@ const DefaultTimeDataRow DEFAULT_TIME_DATA[] =
     { L_,      10,   20,   30,    40,    50,   "10:20:30.040050" },
     { L_,      19,   43,   27,   805,   107,   "19:43:27.805107" },
     { L_,      23,   59,   59,   999,   999,   "23:59:59.999999" },
+    { L_,      24,    0,    0,     0,     0,   "00:00:00.000000" }
 };
 const int NUM_DEFAULT_TIME_DATA =
         static_cast<int>(sizeof DEFAULT_TIME_DATA / sizeof *DEFAULT_TIME_DATA);
@@ -411,6 +412,7 @@ const BadTimeDataRow BAD_TIME_DATA[] =
     { L_,   "x1"                     },
     { L_,   "T:"                     },
     { L_,   "+:"                     },
+    { L_,   "24"                     },
 
     { L_,   "222"                    },  // length = 3
     { L_,   "000"                    },
@@ -423,6 +425,7 @@ const BadTimeDataRow BAD_TIME_DATA[] =
     { L_,   "12:60"                  },  // length = 5
     { L_,   "2:001"                  },
     { L_,   "23,01"                  },
+    { L_,   "24:00"                  },
     { L_,   "24:01"                  },
     { L_,   "25:00"                  },
     { L_,   "99:00"                  },
@@ -958,8 +961,7 @@ if (veryVerbose)
                     const int KLINE  = ZONE_DATA[tk].d_line;
                     const int OFFSET = ZONE_DATA[tk].d_offset;
 
-                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC)  == bdlt::Time()
-                        && OFFSET != 0) {
+                    if (24 == HOUR) {
                         continue;  // skip invalid compositions
                     }
 
@@ -1121,8 +1123,7 @@ if (veryVerbose)
                     const int KLINE  = EXT_ZONE_DATA[tk].d_line;
                     const int OFFSET = EXT_ZONE_DATA[tk].d_offset;
 
-                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC)  == bdlt::Time()
-                        && OFFSET != 0) {
+                    if (24 == HOUR) {
                         continue;  // skip invalid compositions
                     }
 
@@ -1781,8 +1782,7 @@ if (veryVerbose)
                 const int JLINE  = ZONE_DATA[tj].d_line;
                 const int OFFSET = ZONE_DATA[tj].d_offset;
 
-                if (   bdlt::Time(HOUR, MIN, SEC, MSEC) == bdlt::Time()
-                    && OFFSET != 0) {
+                if (24 == HOUR) {
                     continue;  // skip invalid compositions
                 }
 
@@ -1903,8 +1903,7 @@ if (veryVerbose)
                 const int JLINE  = EXT_ZONE_DATA[tj].d_line;
                 const int OFFSET = EXT_ZONE_DATA[tj].d_offset;
 
-                if (   bdlt::Time(HOUR, MIN, SEC, MSEC) == bdlt::Time()
-                    && OFFSET != 0) {
+                if (24 == HOUR) {
                     continue;  // skip invalid compositions
                 }
 
