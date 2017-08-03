@@ -921,7 +921,7 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, object.hour(),   2, ':');
+    p += generateInt(p, 24 > object.hour() ? object.hour() : 0, 2, ':');
     p += generateInt(p, object.minute(), 2, ':');
 
     int precision = configuration.fractionalSecondPrecision();
@@ -961,7 +961,7 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer + dateLen + 1;
 
-    p += generateInt(p, object.hour(),   2, ':');
+    p += generateInt(p, 24 > object.hour() ? object.hour() : 0, 2, ':');
     p += generateInt(p, object.minute(), 2, ':');
 
     int precision = configuration.fractionalSecondPrecision();
@@ -1011,7 +1011,7 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, time.hour()  , 2, ':');
+    p += generateInt(p, 24 > time.hour() ? time.hour() : 0, 2, ':');
     p += generateInt(p, time.minute(), 2, ':');
     p += generateInt(p, time.second(), 2);
 
