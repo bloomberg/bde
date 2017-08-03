@@ -666,15 +666,11 @@ int main(int argc, char* argv[])
         //:   encoding sizes in the *multi-width encoding* format.
         //
         // Plan:
-        //: 1 Using table-driven technique, specify a set of size values in a
-        //:   range from 0 till 9 and expected function result values.  Ensure
-        //:   that 'isValidMultiWidthSize' returns 'true' for all valid
-        //:   encoding sizes in the *multi-width encoding* format, and 'false'
-        //:   otherwise.  (C-1)
-        //:
-        //: 2 Using a loop-based approach, make sure that
-        //:   'isValidMultiWidthSize' returns 'false'  for all size values in
-        //:   the range from 10 till 255.  (C-1)
+        //: 1 Using table-driven technique, specify a set of valid encoding
+        //:   size values and expected function result values.  Also specify a
+        //:   set of arbitrary invalid size encoding values and expected
+        //:   function result values.  Ensure that 'isValidMultiWidthSize'
+        //:   returns expected result for each item in the table.  (C-1)
         //
         // Testing:
         //   bool isValidMultiWidthSize(unsigned char size);
@@ -683,43 +679,50 @@ int main(int argc, char* argv[])
                              "\n=========================\n";
 
         static const struct {
-            int            d_line;
-            unsigned char  d_size;
-            bool           d_expected;
+            int                     d_line;
+            bsls::Types::size_type  d_size;
+            bool                    d_expected;
         } DATA[] = {
-           //-----------------------
-           // Line | Size | Expected
-           //-----------------------
-            { L_,       0,   false },
-            { L_,       1,    true },
-            { L_,       2,    true },
-            { L_,       3,    true },
-            { L_,       4,    true },
-            { L_,       5,    true },
-            { L_,       6,   false },
-            { L_,       7,   false },
-            { L_,       8,    true },
-            { L_,       9,   false },
+           //----------------------------------------
+           // Line |          Size         | Expected
+           //----------------------------------------
+            { L_,                     0,      false },
+            { L_,                     1,       true },
+            { L_,                     2,       true },
+            { L_,                     3,       true },
+            { L_,                     4,       true },
+            { L_,                     5,       true },
+            { L_,                     6,      false },
+            { L_,                     7,      false },
+            { L_,                     8,       true },
+            { L_,                     9,      false },
+            { L_,                  0xFF,      false },
+            { L_,                 0x100,      false },
+            { L_,                0xFFFF,      false },
+            { L_,               0x10000,      false },
+            { L_,              0xFFFFFF,      false },
+            { L_,             0x1000000,      false },
+            { L_,            0xFFFFFFFFull,   false },
+            { L_,           0x100000000ull,   false },
+            { L_,          0xFFFFFFFFFFull,   false },
+            { L_,         0x10000000000ull,   false },
+            { L_,        0xFFFFFFFFFFFFull,   false },
+            { L_,       0x1000000000000ull,   false },
+            { L_,      0xFFFFFFFFFFFFFFull,   false },
+            { L_,     0x100000000000000ull,   false },
+            { L_,    0xFFFFFFFFFFFFFFFFull,   false },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti != NUM_DATA; ++ti) {
-            const int           LINE =     DATA[ti].d_line;
-            const unsigned char SIZE =     DATA[ti].d_size;
-            const bool          EXPECTED = DATA[ti].d_expected;
+            const int                    LINE =     DATA[ti].d_line;
+            const bsls::Types::size_type SIZE =     DATA[ti].d_size;
+            const bool                   EXPECTED = DATA[ti].d_expected;
 
             const bool RESULT = Util::isValidMultiWidthSize(SIZE);
 
             LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
-        }
-
-        for (int ti = 10; ti <= UCHAR_MAX; ++ti) {
-            const unsigned char SIZE = static_cast<unsigned char>(ti);
-            const bool          EXPECTED = false;
-            const bool          RESULT = Util::isValidMultiWidthSize(SIZE);
-
-            LOOP3_ASSERT(L_, RESULT, EXPECTED, RESULT == EXPECTED);
         }
 
       } break;
