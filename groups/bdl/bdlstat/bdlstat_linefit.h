@@ -8,18 +8,18 @@
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
-//@PURPOSE: Online algorithm for computing the least squares regression line.
+//@PURPOSE: Online algorithm for computing the least squares line fit.
 //
 //@CLASSES:
-//  bdlstat::LineFit: online calculation of least squares regression line
+//  bdlstat::LineFit: online calculation of least squares line fit
 //
 //@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
 //
 //@DESCRIPTION: This component provides a mechanism, 'bdlstat::LineFit', that
 // provides online calculation of the least squares line fit.  Online
 // algorithms process the data in one pass, while maintaining accuracy.  The
-// online algorithm used is developed in the implementation notes.  It is
-// similar to Welford online algorithm for computing variance.  The formulae
+// online algorithm used is developed in the implementation notes (it is
+// similar to Welford online algorithm for computing variance).  The formulae
 // for line fit are taken from:
 // https://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
 //
@@ -109,34 +109,34 @@ class LineFit {
         // Returns the number of elements in the data set.
 
     int getLineFit(double *alpha, double *beta) const;
-        // Calculate line fit coefficients T=A+B*X, and populate the specified
-        // 'alpha' (intercept) and 'beta' (slope).  Return 0 on success, and -1
-        // otherwise.  Calculation fails if '2 > count' or all X's are
-        // identical.
-
-    int varianceIfValid(double *result) const;
-        // Load into the specified 'result, the variance of the data set X's.
-        // Return 0 for success, or -1 if '2 > count'.
+        // Calculate line fit coefficients Y=A+B*X, and populate the specified
+        // 'alpha' (intercept) and 'beta' (slope).  Return 0 on success, and
+        // non-zero otherwise.  The computations is unsuccessful if '2 > count'
+        // or all X's are identical.
 
     double variance() const;
         // Return variance of the data set X's.  The behavior is undefined
         // unless '2 <= count'.
 
-    int xMeanIfValid(double *result) const;
-        // Load into the specified 'result, the mean of the data set X's.
-        // Return 0 for success, or -1 if '1 > count'.
+    int varianceIfValid(double *result) const;
+        // Load into the specified 'result, the variance of the data set X's.
+        // Return 0 for success, or -1 if '2 > count'.
 
     double xMean() const;
-        // Return mean of the data set Y's.  The behavior is undefined unless
+        // Return mean of the data set X's.  The behavior is undefined unless
         // '1 <= count'.
 
-    int yMeanIfValid(double *result) const;
+    int xMeanIfValid(double *result) const;
         // Load into the specified 'result, the mean of the data set X's.
         // Return 0 for success, or -1 if '1 > count'.
 
     double yMean() const;
         // Return mean of the data set Y's.  The behavior is undefined unless
         // '1 <= count'.
+
+    int yMeanIfValid(double *result) const;
+        // Load into the specified 'result, the mean of the data set Y's.
+        // Return 0 for success, or -1 if '1 > count'.
 };
 
 // ============================================================================
@@ -193,6 +193,13 @@ int LineFit::getLineFit(double *alpha, double *beta) const
 }
 
 inline
+double LineFit::variance() const
+{
+    BSLS_ASSERT_SAFE(2 <= d_data.d_count);
+    return d_M2 / (d_count - 1);
+}
+
+inline
 int LineFit::varianceIfValid(double *result) const
 {
     if (2 > d_count) {
@@ -203,10 +210,10 @@ int LineFit::varianceIfValid(double *result) const
 }
 
 inline
-double LineFit::variance() const
+double LineFit::xMean() const
 {
-    BSLS_ASSERT_SAFE(2 <= d_data.d_count);
-    return d_M2 / (d_count - 1);
+    BSLS_ASSERT_SAFE(1 <= d_data.d_count);
+    return d_xSum / static_cast<double>(d_count);
 }
 
 inline
@@ -220,10 +227,10 @@ int LineFit::xMeanIfValid(double *result) const
 }
 
 inline
-double LineFit::xMean() const
+double LineFit::yMean() const
 {
     BSLS_ASSERT_SAFE(1 <= d_data.d_count);
-    return d_xSum / static_cast<double>(d_count);
+    return d_ySum / static_cast<double>(d_count);
 }
 
 inline
@@ -234,13 +241,6 @@ int LineFit::yMeanIfValid(double *result) const
     }
     *result = yMean();
     return 0;
-}
-
-inline
-double LineFit::yMean() const
-{
-    BSLS_ASSERT_SAFE(1 <= d_data.d_count);
-    return d_ySum / static_cast<double>(d_count);
 }
 
 }  // close package namespace

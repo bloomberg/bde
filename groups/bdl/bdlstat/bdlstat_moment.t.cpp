@@ -253,11 +253,12 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS AND BASIC ACCESSORS
+        // PRIMARY MANIPULATORS, BASIC ACCESSORS, AND ACCESSORS
         //   This test will verify that the primary manipulators are working as
         //   expected.  As basic accessors should be tested exactly the same
         //   way, these two tests have been united.  So we test that the basic
-        //   accessors are working as expected also.
+        //   accessors are working as expected also.  The other accessors are
+        //   added here as well.
         //
         // Concerns:
         //: 1 All accessors return the expected values after 'bdlstat::Moment'
@@ -295,8 +296,9 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
-                 << "========================================" << endl;
+                 << "PRIMARY MANIPULATORS, BASIC ACCESSORS, AND ACCESSORS\n"
+                 << "===================================================="
+                 << endl;
 
         static const struct {
             int    d_line;
@@ -705,7 +707,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

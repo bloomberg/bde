@@ -82,6 +82,7 @@ namespace BloombergLP {
 namespace bdlstat {
 
 struct MomentLevel {
+    // TYPES
     enum Enum {
         // Enumeration of moment level of data desired.
 
@@ -193,37 +194,37 @@ class Moment {
     int count() const;
         // Returns the number of elements in the data set.
 
-    int kurtosisIfValid(double *result) const;
-        // Load into the specified 'result, the kurtosis of the data set.
-        // Return 0 for success, or -1 if '4 > count' or the variance is zero.
-
     double kurtosis() const;
         // Return kurtosis of the data set.  The behavior is undefined unless
         // '4 <= count' and variance is not zero.
 
-    int meanIfValid(double *result) const;
-        // Load into the specified 'result, the mean of the data set.  Return
-        // 0 for success, or -1 if '1 > count'.
+    int kurtosisIfValid(double *result) const;
+        // Load into the specified 'result, the kurtosis of the data set.
+        // Return 0 for success, or -1 if '4 > count' or the variance is zero.
 
     double mean() const;
         // Return mean of the data set.  The behavior is undefined unless
         // '1 <= count'.
 
+    int meanIfValid(double *result) const;
+        // Load into the specified 'result, the mean of the data set.  Return
+        // 0 for success, or -1 if '1 > count'.
+
+    double skew() const;
+        // Return skew of the data set.  The behavior is undefined unless
+        // '3 <= count' or the variance is zero.
+
     int skewIfValid(double *result) const;
         // Load into the specified 'result, the skew of the data set.  Return
         // 0 for success, or -1 if '3 > count' or the variance is zero.
 
-    double skew() const;
-        // Return same excess kurtosis of the data set.  The behavior is
-        // undefined unless '3 <= count'.
+    double variance() const;
+        // Return variance of the data set.  The behavior is undefined unless
+        // '2 <= count'.
 
     int varianceIfValid(double *result) const;
         // Load into the specified 'result, the variance of the data set.
         // Return 0 for success, or -1 if '2 > count'.
-
-    double variance() const;
-        // Return variance of the data set.  The behavior is undefined unless
-        // '2 <= count'.
 };
 
 // ============================================================================
@@ -285,7 +286,7 @@ template<>
 inline
 void Moment<MomentLevel::e_M2>::add(double value)
 {
-    // Modified Welford algorithm for variance
+    // Modified Welford algorithm for variance.
     const double delta = value - d_data.d_mean;
     d_data.d_sum += value;
     ++d_data.d_count;
@@ -346,7 +347,7 @@ inline
 double Moment<MomentLevel::e_M4>::kurtosis() const
 {
     BSLS_ASSERT_SAFE(4 <= d_data.d_count && 0.0 != d_data.d_M2);
-    const double n = static_cast<double>(d_data.d_count);
+    const double n    = static_cast<double>(d_data.d_count);
     const double n1   = (n - 1.0);
     const double n2n3 = (n - 2.0) * (n - 3.0);
     return n * (n + 1.0) * n1 / n2n3 * d_data.d_M4 / d_data.d_M2 / d_data.d_M2
@@ -366,17 +367,6 @@ int Moment<MomentLevel::e_M4>::kurtosisIfValid(double *result) const
 
 template <MomentLevel::Enum ML>
 inline
-int Moment<ML>::meanIfValid(double *result) const
-{
-    if (1 > d_data.d_count) {
-        return -1;                                                    // RETURN
-    }
-    *result = mean();
-    return 0;
-}
-
-template <MomentLevel::Enum ML>
-inline
 double Moment<ML>::mean() const
 {
     BSLS_ASSERT_SAFE(1 <= d_data.d_count);
@@ -384,12 +374,13 @@ double Moment<ML>::mean() const
 }
 
 template <MomentLevel::Enum ML>
-inline int Moment<ML>::skewIfValid(double *result) const
+inline
+int Moment<ML>::meanIfValid(double *result) const
 {
-    if (3 > d_data.d_count || 0.0 == d_data.d_M2) {
+    if (1 > d_data.d_count) {
         return -1;                                                    // RETURN
     }
-    *result = skew();
+    *result = mean();
     return 0;
 }
 
@@ -404,13 +395,12 @@ double Moment<ML>::skew() const
 }
 
 template <MomentLevel::Enum ML>
-inline
-int Moment<ML>::varianceIfValid(double *result) const
+inline int Moment<ML>::skewIfValid(double *result) const
 {
-    if (2 > d_data.d_count) {
+    if (3 > d_data.d_count || 0.0 == d_data.d_M2) {
         return -1;                                                    // RETURN
     }
-    *result = variance();
+    *result = skew();
     return 0;
 }
 
@@ -420,6 +410,17 @@ double Moment<ML>::variance() const
 {
     BSLS_ASSERT_SAFE(2 <= d_data.d_count);
     return d_data.d_M2 / (d_data.d_count - 1);
+}
+
+template <MomentLevel::Enum ML>
+inline
+int Moment<ML>::varianceIfValid(double *result) const
+{
+    if (2 > d_data.d_count) {
+        return -1;                                                    // RETURN
+    }
+    *result = variance();
+    return 0;
 }
 
 }  // close package namespace
