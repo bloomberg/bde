@@ -23,7 +23,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test consists of an object accumulating data points 
+// The component under test consists of an object accumulating data points
 // (X,Y pairs) and supporting calculation of a least squares line fit, as well
 // as mean and variance.  The general plan is that the methods are tested
 // against a set of tabulated test vectors, and negative tests for
@@ -31,13 +31,13 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 2] LineFit()
 // [ 2] add(double xValue, yValue)
-// [ 2] int getCount()
-// [ 2] double getXMean()
-// [ 2] double getXMeanRaw()
-// [ 2] double getYMean()
-// [ 2] double getYMeanRaw()
-// [ 2] double getVariance()
-// [ 2] double getVarianceRaw()
+// [ 2] int count()
+// [ 2] int xMeanIfValid(double *)
+// [ 2] double xMean()
+// [ 2] int yMeanIfValid(double *)
+// [ 2] double yMean()
+// [ 2] int varianceIfValid(double *)
+// [ 2] double variance()
 // [ 2] int getLineFit(double *alpha, double *beta)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-  double inputX[] = {1.0, 2.0, 4.0, 5.0};
-  double inputY[] = {1.0, 2.0, 4.0, 4.5};
+  double           inputX[] = {1.0, 2.0, 4.0, 5.0};
+  double           inputY[] = {1.0, 2.0, 4.0, 4.5};
   bdlstat::LineFit lineFit;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
@@ -167,14 +167,14 @@ int main(int argc, char *argv[])
       lineFit.add(inputX[i], inputY[i]);
   }
 //..
-// Finally, we assert that the alpha, beta, variance, and mean are what we 
+// Finally, we assert that the alpha, beta, variance, and mean are what we
 // expect:
 //..
   double alpha = 0.0, beta = 0.0;
-  ASSERT(4    == lineFit.getCount());
-  ASSERT(3.0  == lineFit.getXMean());
-  ASSERT(1e-3 >  fabs(2.875    - lineFit.getYMean()));
-  ASSERT(1e-3 >  fabs(3.33333  - lineFit.getVariance()));
+  ASSERT(4    == lineFit.count());
+  ASSERT(3.0  == lineFit.xMean());
+  ASSERT(1e-3 >  fabs(2.875   - lineFit.yMean()));
+  ASSERT(1e-3 >  fabs(3.33333 - lineFit.variance()));
   ASSERT(0    == lineFit.getLineFit(&alpha, &beta));
   ASSERT(1e-3 >  fabs(0.175 - alpha));
   ASSERT(1e-3 >  fabs(0.9   - beta ));
@@ -185,22 +185,21 @@ int main(int argc, char *argv[])
         // TESTING EDGE CASES
         //
         // Concerns:
-        //: 1 'getMean' returns 'Nan' when no data is fed.
+        //: 1 'xMeanIfValid' returns '-1' when no data is fed.
         //:
-        //: 2 'getVariance' returns 'Nan' with less than 2 data values.
+        //: 2 'yMeanIfValid' returns '-1' when no data is fed.
         //:
-        //: 3 'getSkew' returns 'Nan' with less than 3 data values.
+        //: 3 'varianceIfValid' returns '-1' with less than 2 data values.
         //:
-        //: 4 'getKurtosis' returns 'Nan' with less than 4 data values.
         //
         // Plan:
-        //: 1 Verify the 'getMean' with no data returns 'Nan'.  (C-1)
+        //: 1 Verify the 'xMeanIfValid' with no data returns '-1'.  (C-1)
         //:
-        //: 2 Verify the 'getVariance' with 1 data value returns 'Nan'. (C-2)
+        //: 2 Verify the 'yMeanIfValid' with no data returns '-1'.  (C-1)
         //:
-        //: 3 Verify the 'getSkew' with 2 data values returns 'Nan'. (C-2)
+        //: 3 Verify the 'varianceIfValid' with 1 data value returns '-1'.
+        //:   (C-3)
         //:
-        //: 4 Verify the 'getKurtosis' with 3 data values returns 'Nan'. (C-4)
         //
         // Testing:
         //   EDGE CASES
@@ -210,35 +209,27 @@ int main(int argc, char *argv[])
                           << "TESTING EDGE CASES" << endl
                           << "==================" << endl;
 
-/*        {
-            bdlstat::Moment<bdlstat::M1> m1;
-            ASSERT(0 == m1.getCount());
-            ASSERT(bdlb::Float::isNan(m1.getMean()));
+        bsls::AssertFailureHandlerGuard hG(
+                                         bsls::AssertTest::failTestDriver);
+
+        {
+            bdlstat::LineFit lf;
+            ASSERT(0 == lf.count());
+            double result;
+            ASSERT(-1 == lf.xMeanIfValid(&result));
+            ASSERT_SAFE_FAIL(lf.xMean());
+            ASSERT(-1 == lf.yMeanIfValid(&result));
+            ASSERT_SAFE_FAIL(lf.yMean());
         }
 
         {
-            bdlstat::Moment<bdlstat::M2> m2;
-            m2.add(1.0);
-            ASSERT(1 == m2.getCount());
-            ASSERT(bdlb::Float::isNan(m2.getVariance()));
+            bdlstat::LineFit lf;
+            lf.add(1.0, 2.0);
+            ASSERT(1 == lf.count());
+            double result;
+            ASSERT(-1 == lf.varianceIfValid(&result));
+            ASSERT_SAFE_FAIL(lf.variance());
         }
-
-        {
-            bdlstat::Moment<bdlstat::M3> m3;
-            m3.add(1.0);
-            m3.add(2.0);
-            ASSERT(2 == m3.getCount());
-            ASSERT(bdlb::Float::isNan(m3.getSkew()));
-        }
-
-        {
-            bdlstat::Moment<bdlstat::M4> m4;
-            m4.add(1.0);
-            m4.add(2.0);
-            m4.add(4.0);
-            ASSERT(3 == m4.getCount());
-            ASSERT(bdlb::Float::isNan(m4.getKurtosis()));
-        }*/
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -249,34 +240,28 @@ int main(int argc, char *argv[])
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlstat::Moment'
+        //: 1 All accessors return the expected values after 'bdlstat::LineFit'
         //:   loaded with a series of values.
         //:
-        //: 2 Different specializations produce the same set of values.
-        //
         // Plan:
-        //: 1 Using the table method, create 'bdlstat::Moment<M4>', use
-        //:   'bdlstat::Moment<M4>::add' to load data, and check the
-        //:   values of mean, variance, skew, and kurtosis.  (C-1)
+        //: 1 Using the table method, create 'bdlstat::LineFit', use
+        //:   'bdlstat::LineFit::add' to load data, and check the values of
+        //:   xMean, yMean, and variance.  (C-1)
         //:
-        //: 2 Verify that we get the same values from the 'raw' methods.  (C-1)
-        //:
-        //: 3 Load the same set of data into 'bdlstat::Moment<M3>',
-        //:   'bdlstat::Moment<M2>', 'bdlstat::Moment<M1>', and verify that we
-        //:   get the same values.  (C-2)
+        //: 2 Verify that we get the same values from the 'IsValid' methods.
+        //:   (C-1)
         //
         // Testing:
-        //   Moment()
-        //   add(double value)
-        //   getCount()
-        //   getMean()
-        //   getMeanRaw()
-        //   getVariance()
-        //   getVarianceRaw()
-        //   getSkew()
-        //   getSkewRaw()
-        //   getKurtosis()
-        //   getKurtosisRaw()
+        //   LineFit()
+        //   add(double xValue, yValue)
+        //   int count()
+        //   int xMeanIfValid(double *)
+        //   double xMean()
+        //   int yMeanIfValid(double *)
+        //   double yMean()
+        //   int varianceIfValid(double *)
+        //   double variance()
+        //   int getLineFit(double *alpha, double *beta)
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -284,70 +269,88 @@ int main(int argc, char *argv[])
                  << "PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
                  << "========================================" << endl;
 
-        /*static const struct {
+        static const struct {
             int    d_line;
-            double d_values[7];
-            double d_mean;
+            double d_xValues[7];
+            double d_yValues[7];
+            double d_xMean;
+            double d_yMean;
             double d_variance;
-            double d_skew;
-            double d_kurtosis;
+            double d_alpha;
+            double d_beta;
         } INPUT[] = {
-            //LN  val1   val2   val3   val4   val5   val6   val7
+            //LN  xVal1  xVal2  xVal3  xVal4  xVal5  xVal6  xVal7
             //--  -----  -----  -----  -----  -----  -----  -----
-            //mean      variance  skew      kurtosis
-            //--------  --------  --------  --------
+            //    yVal1  yVal2  yVal3  yVal4  yVal5  yVal6  yVal7
+            //    -----  -----  -----  -----  -----  -----  -----
+            //xMean     yMean     variance  alpha    beta
+            //--------  --------  --------  -------- --------
             { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 25.0 , 30.0,
-              13.4286  ,137.952, 0.30677  , -1.86809                        },
+                  1.2  , 2.3   , 4.0  , 12.0 , 20.9 , 25.5 , 29.0,
+              13.4286  ,13.5571, 137.952, 0.303555, 0.986969                },
             { L_,30.0  , 25.0  , 20.0 , 12.0 , 4.0  , 2.0  , 1.0,
-              13.4286  ,137.952, 0.30677  , -1.86809                        },
+                 31.0  , 25.5  , 20.3 , 12.4 , 4.0  , 2.1  , 1.3,
+              13.4286  ,13.8   , 137.952, 0.0650328, 1.02282                },
             { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1.0  , 2.0  , 3.0,
-              1429.43  ,2.616E6, 0.674989 , -1.14935                        },
+                  2.1e3, 4e3   , 6.1e3, 8e3  , 1.2  , 2.1  , 3.0,
+              1429.43  ,2886.61, 2.616E6, 16.6248, 2.00779                  },
             { L_, 1.0  , 2.0   , 3.0  , 4e3  , 1e3  , 2e3  , 3e3,
-              1429.43  ,2.616E6, 0.674989 , -1.14935                        },
+                 -1.1  ,-2.0   ,-3.2  ,-4.1e3,-1e3  ,-2.2e3,-3e3,
+              1429.43  ,-1472.33, 2.616E6, -9.13903, -1.02362               },
             { L_,-123.0,-55.0  , 4.0  , 0.0  , 100.0, 24.0 , 24.0,
-              -3.71429 ,4870.9 ,-0.46229  , 1.01756                         },
+                 -123.0,-55.0  , 4.0  , 0.0  , 100.0, 24.0 , 24.0,
+              -3.71429 ,-3.71429, 4870.9, 0.0, 1.0                          },
             { L_, 1.0  ,  2.0  , 3.0  , 4.0  , 5.0  ,  6.0 , 7.0 ,
-                   4.0 ,4.6667  ,0.0       , -1.2                            },
+                  1.1  ,  2.0  , 3.2  , 4.4  , 5.0  ,  6.5 , 7.1 ,
+                   4.0 ,4.18571, 4.6667, 0.071428, 1.02857                  },
             { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1e-3 , 2e-3 , 3e-3,
-             1428.57  ,2.619E6, 0.67409   , -1.15101                        },
+                  3.2e3, 6e3   , 9.1e3, 12e3 , 3e-3 , 6e-3 , 9e-3,
+             1428.57  ,4328.57 , 2.619E6, 36.3636, 3.00455                  },
             { L_, 1e-3 , 2e-3  , 3e-3 , 4e3  , 1e3  , 2e3  , 3e3 ,
-             1428.57  ,2.619E6, 0.67409   , -1.15101                        },
+                  1e-3 , 2e-3  , 3e-3 , 4.2e3, 1e3  , 2.2e3, 3.1e3,
+             1428.57  ,1500.0  , 2.619E6, -8.18182e-05, 1.05                },
         };
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
 
-        if (verbose) cout << "Testing M4\n";
         {
             for (size_t di = 0; di < NUM_DATA; ++di) {
-                ObjK m4;
+                Obj lf;
 
-                const int     LINE   = INPUT[di].d_line;
-                const double *VALUES = INPUT[di].d_values;
+                const int     LINE    = INPUT[di].d_line;
+                const double *XVALUES = INPUT[di].d_xValues;
+                const double *YVALUES = INPUT[di].d_yValues;
                 for(int i = 0; i < 7; ++i) {
-                    m4.add(VALUES[i]);
+                    lf.add(XVALUES[i], YVALUES[i]);
                     if (veryVerbose) {
-                        P_(LINE) P_(i) P(VALUES[i]);
+                        P_(LINE) P_(i) P_(XVALUES[i]) P(YVALUES[i]);
                     }
                 }
-                const double expectedMean     = INPUT[di].d_mean;
+                const double expectedXMean    = INPUT[di].d_xMean;
+                const double expectedYMean    = INPUT[di].d_yMean;
                 const double expectedVariance = INPUT[di].d_variance;
-                const double expectedSkew     = INPUT[di].d_skew;
-                const double expectedKurtosis = INPUT[di].d_kurtosis;
-                const int    count       = m4.getCount();
-                const double mean        = m4.getMean();
-                const double meanRaw     = m4.getMeanRaw();
-                const double variance    = m4.getVariance();
-                const double varianceRaw = m4.getVarianceRaw();
-                const double skew        = m4.getSkew();
-                const double skewRaw     = m4.getSkewRaw();
-                const double kurtosis    = m4.getKurtosis();
-                const double kurtosisRaw = m4.getKurtosisRaw();
+                const double expectedAlpha    = INPUT[di].d_alpha;
+                const double expectedBeta     = INPUT[di].d_beta;
+                const int    count       = lf.count();
+                double       xMean = 0.0;
+                const int    xMeanRet    = lf.xMeanIfValid(&xMean);
+                const double xMeanRaw    = lf.xMean();
+                double       yMean = 0.0;
+                const int    yMeanRet    = lf.yMeanIfValid(&yMean);
+                const double yMeanRaw    = lf.yMean();
+                double       variance = 0.0;
+                const int    varianceRet = lf.varianceIfValid(&variance);
+                const double varianceRaw = lf.variance();
+                double       alpha = 0.0, beta = 0.0;
+                const int    lineFitRet  = lf.getLineFit(&alpha, &beta);
 
                 if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
-                    T_ P_(skew) P_(skewRaw) P(expectedSkew);
-                    T_ P_(kurtosis) P_(kurtosisRaw) P(expectedKurtosis);
+                    T_ P_(LINE) P_(xMean) P_(xMeanRet) P_(xMeanRaw)
+                                                       P(expectedXMean);
+                    T_ P_(LINE) P_(yMean) P_(yMeanRet) P_(yMeanRaw)
+                                                       P(expectedYMean);
+                    T_ P_(variance) P_(varianceRet) P_(varianceRaw)
+                                                    P(expectedVariance);
                 }
 
                 LOOP3_ASSERT(di,
@@ -355,15 +358,25 @@ int main(int argc, char *argv[])
                              7,
                              7 == count);
                 LOOP3_ASSERT(di,
-                             mean,
-                             expectedMean,
-                             fabs((expectedMean - mean) /
-                                  (expectedMean + 1e-10)) < 1e-4);
+                             xMean,
+                             expectedXMean,
+                             fabs((expectedXMean - xMean) /
+                                  (expectedXMean + 1e-10)) < 1e-4);
                 LOOP3_ASSERT(di,
-                             meanRaw,
-                             expectedMean,
-                             fabs((expectedMean - meanRaw) /
-                                  (expectedMean + 1e-10)) < 1e-4);
+                             xMeanRaw,
+                             expectedXMean,
+                             fabs((expectedXMean - xMeanRaw) /
+                                  (expectedXMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             yMean,
+                             expectedYMean,
+                             fabs((expectedYMean - yMean) /
+                                  (expectedYMean + 1e-10)) < 1e-4);
+                LOOP3_ASSERT(di,
+                             yMeanRaw,
+                             expectedYMean,
+                             fabs((expectedYMean - yMeanRaw) /
+                                  (expectedYMean + 1e-10)) < 1e-4);
                 LOOP3_ASSERT(di,
                              variance,
                              expectedVariance,
@@ -375,187 +388,30 @@ int main(int argc, char *argv[])
                              fabs((expectedVariance - varianceRaw) /
                                   (expectedVariance + 1e-10)) < 1e-4);
                 LOOP3_ASSERT(di,
-                             skew,
-                             expectedSkew,
-                             fabs((expectedSkew - skew) /
-                                  (expectedSkew + 1e-10)) < 1e-4);
+                             alpha,
+                             expectedAlpha,
+                             fabs((expectedAlpha - alpha) /
+                                  (expectedAlpha + 1e-10)) < 1e-4);
                 LOOP3_ASSERT(di,
-                             skewRaw,
-                             expectedSkew,
-                             fabs((expectedSkew - skewRaw) /
-                                  (expectedSkew + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             kurtosis,
-                             expectedKurtosis,
-                             fabs((expectedKurtosis - kurtosis) /
-                                  (expectedKurtosis + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             kurtosisRaw,
-                             expectedKurtosis,
-                             fabs((expectedKurtosis - kurtosisRaw) /
-                                  (expectedKurtosis + 1e-10)) < 1e-4);
+                             beta,
+                             expectedBeta,
+                             fabs((expectedBeta - beta) /
+                                  (expectedBeta + 1e-10)) < 1e-4);
+                LOOP2_ASSERT(di,
+                             xMeanRet,
+                             0 == xMeanRet);
+                LOOP2_ASSERT(di,
+                             yMeanRet,
+                             0 == yMeanRet);
+                LOOP2_ASSERT(di,
+                             varianceRet,
+                             0 == varianceRet);
+                LOOP2_ASSERT(di,
+                             lineFitRet,
+                             0 == lineFitRet);
             }
         }
 
-        if (verbose) cout << "Testing M3\n";
-        {
-            for (size_t di = 0; di < NUM_DATA; ++di) {
-                ObjS m3;
-
-                const int     LINE   = INPUT[di].d_line;
-                const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
-                    m3.add(VALUES[i]);
-                    if (veryVerbose) {
-                        P_(LINE) P_(i) P(VALUES[i]);
-                    }
-                }
-                const double expectedMean     = INPUT[di].d_mean;
-                const double expectedVariance = INPUT[di].d_variance;
-                const double expectedSkew     = INPUT[di].d_skew;
-                const int    count       = m3.getCount();
-                const double mean        = m3.getMean();
-                const double meanRaw     = m3.getMeanRaw();
-                const double variance    = m3.getVariance();
-                const double varianceRaw = m3.getVarianceRaw();
-                const double skew        = m3.getSkew();
-                const double skewRaw     = m3.getSkewRaw();
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
-                    T_ P_(skew) P_(skewRaw) P(expectedSkew);
-                }
-
-                LOOP3_ASSERT(di,
-                             count,
-                             7,
-                             7 == count);
-                LOOP3_ASSERT(di,
-                             mean,
-                             expectedMean,
-                             fabs((expectedMean - mean) /
-                                  (expectedMean + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             meanRaw,
-                             expectedMean,
-                             fabs((expectedMean - meanRaw) /
-                                  (expectedMean + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             variance,
-                             expectedVariance,
-                             fabs((expectedVariance - variance) /
-                                  (expectedVariance + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             varianceRaw,
-                             expectedVariance,
-                             fabs((expectedVariance - varianceRaw) /
-                                  (expectedVariance + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             skew,
-                             expectedSkew,
-                             fabs((expectedSkew - skew) /
-                                  (expectedSkew + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             skewRaw,
-                             expectedSkew,
-                             fabs((expectedSkew - skewRaw) /
-                                  (expectedSkew + 1e-10)) < 1e-4);
-            }
-        }
-
-        if (verbose) cout << "Testing M2\n";
-        {
-            for (size_t di = 0; di < NUM_DATA; ++di) {
-                ObjV m2;
-
-                const int     LINE   = INPUT[di].d_line;
-                const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
-                    m2.add(VALUES[i]);
-                    if (veryVerbose) {
-                        P_(LINE) P_(i) P(VALUES[i]);
-                    }
-                }
-                const double expectedMean     = INPUT[di].d_mean;
-                const double expectedVariance = INPUT[di].d_variance;
-                const int    count       = m2.getCount();
-                const double mean        = m2.getMean();
-                const double meanRaw     = m2.getMeanRaw();
-                const double variance    = m2.getVariance();
-                const double varianceRaw = m2.getVarianceRaw();
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                    T_ P_(variance) P_(varianceRaw) P(expectedVariance);
-                }
-
-                LOOP3_ASSERT(di,
-                             count,
-                             7,
-                             7 == count);
-                LOOP3_ASSERT(di,
-                             mean,
-                             expectedMean,
-                             fabs((expectedMean - mean) /
-                                  (expectedMean + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             meanRaw,
-                             expectedMean,
-                             fabs((expectedMean - meanRaw) /
-                                  (expectedMean + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             variance,
-                             expectedVariance,
-                             fabs((expectedVariance - variance) /
-                                  (expectedVariance + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             varianceRaw,
-                             expectedVariance,
-                             fabs((expectedVariance - varianceRaw) /
-                                  (expectedVariance + 1e-10)) < 1e-4);
-            }
-        }
-
-        if (verbose) cout << "Testing M1\n";
-        {
-            for (size_t di = 0; di < NUM_DATA; ++di) {
-                ObjM m1;
-
-                const int     LINE   = INPUT[di].d_line;
-                const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
-                    m1.add(VALUES[i]);
-                    if (veryVerbose) {
-                        P_(LINE) P_(i) P(VALUES[i]);
-                    }
-                }
-                const double expectedMean     = INPUT[di].d_mean;
-                const int    count       = m1.getCount();
-                const double mean        = m1.getMean();
-                const double meanRaw     = m1.getMeanRaw();
-
-                if (veryVerbose) {
-                    T_ P_(LINE) P_(mean) P_(meanRaw) P(expectedMean);
-                }
-
-                LOOP3_ASSERT(di,
-                             count,
-                             7,
-                             7 == count);
-                LOOP3_ASSERT(di,
-                             mean,
-                             expectedMean,
-                             fabs((expectedMean - mean) /
-                                  (expectedMean + 1e-10)) < 1e-4);
-                LOOP3_ASSERT(di,
-                             meanRaw,
-                             expectedMean,
-                             fabs((expectedMean - meanRaw) /
-                                  (expectedMean + 1e-10)) < 1e-4);
-            }
-        }
-*/
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -577,21 +433,24 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        double inputX[] = {1.0, 2.0, 4.0, 5.0};
-        double inputY[] = {1.0, 2.0, 4.0, 4.5};
+        double           inputX[] = {1.0, 2.0, 4.0, 5.0};
+        double           inputY[] = {1.0, 2.0, 4.0, 4.5};
         bdlstat::LineFit lineFit;
 
         for(int i = 0; i < 4; ++i) {
             lineFit.add(inputX[i], inputY[i]);
+            if (veryVerbose) {
+                P_(i) P_(inputX[i]) P(inputY[i]);
+            }
         }
 
         double alpha = 0.0, beta = 0.0;
-        ASSERT(4 == lineFit.getCount());
-        //cout << "YMean=" << lineFit.getYMean() << "\n";
-        ASSERT(3.0 == lineFit.getXMean());
-        ASSERT(fabs(2.875 - lineFit.getYMean()) < 1e-3);
-        //cout << "Var=" << lineFit.getVariance() << "\n";
-        ASSERT(fabs(3.33333  - lineFit.getVariance()) < 1e-3);
+        ASSERT(4 == lineFit.count());
+        //cout << "YMean=" << lineFit.yMean() << "\n";
+        ASSERT(3.0 == lineFit.xMean());
+        ASSERT(fabs(2.875 - lineFit.yMean()) < 1e-3);
+        //cout << "Var=" << lineFit.variance() << "\n";
+        ASSERT(fabs(3.33333  - lineFit.variance()) < 1e-3);
         ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
         //cout << "Alpha=" << alpha << ",Beta=" << beta << "\n";
         ASSERT(fabs(0.175 - alpha)     < 1e-3);

@@ -7,6 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
+// BDE_VERIFY pragma: -LL01 // Link is just too long
 //@PURPOSE: Online algorithm for computing the least squares regression line.
 //
 //@CLASSES:
@@ -18,12 +19,13 @@ BSLS_IDENT("$Id: $")
 // provides online calculation of the least squares line fit.  Online
 // algorithms process the data in one pass, while maintaining accuracy.  The
 // online algorithm used is developed in the implementation notes.  It is
-// similar to Welford's online algorithm for computing variance.  The formulae
+// similar to Welford online algorithm for computing variance.  The formulae
 // for line fit are taken from:
 // https://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
 //
 // Note that the behavior is undefined if there are less than 2 data points, or
 // if all the X's (dependent variable) are the same.
+// BDE_VERIFY pragma: +LL01
 //..
 //
 ///Usage
@@ -51,10 +53,10 @@ BSLS_IDENT("$Id: $")
 // expect:
 //..
 //  double alpha, beta;
-//  ASSERT(4    == lineFit.getCount());
-//  ASSERT(3.0  == lineFit.getXMean());
-//  ASSERT(1e-3 >  fabs(2.875    - lineFit.getYMean()));
-//  ASSERT(1e-3 >  fabs(3.33333  - lineFit.getVariance()));
+//  ASSERT(4    == lineFit.count());
+//  ASSERT(3.0  == lineFit.xMean());
+//  ASSERT(1e-3 >  fabs(2.875    - lineFit.yMean()));
+//  ASSERT(1e-3 >  fabs(3.33333  - lineFit.variance()));
 //  ASSERT(0    == lineFit.getLineFit(&alpha, &beta));
 //  ASSERT(1e-3 >  fabs(0.175 - alpha));
 //  ASSERT(1e-3 >  fabs(0.9   - beta ));
@@ -68,22 +70,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cmath.h>
 #endif
 
-#ifndef INCLUDED_LIMITS
-#include <limits>           // 'std::numeric_limits'
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 namespace BloombergLP {
 namespace bdlstat {
-
-// BDE_VERIFY pragma: -TR17 // Avoid users having to specify template params
-// BDE_VERIFY pragma: -CP01 // Avoid users having to specify template params
-// BDE_VERIFY pragma: -AQa01 // Really, constexpr
-const double k_DBL_NAN  = std::numeric_limits<double>::quiet_NaN();
-    // Nan value to signify an illegal value returned.
-// BDE_VERIFY pragma: +TR17
-// BDE_VERIFY pragma: +CP01
-// BDE_VERIFY pragma: +AQa01
-
 
                             // =============
                             // class LineFit
@@ -113,7 +105,7 @@ class LineFit {
         // Add the specified 'xValue', 'yValue' point to the data set.
 
     // ACCESSORS
-    int getCount() const;
+    int count() const;
         // Returns the number of elements in the data set.
 
     int getLineFit(double *alpha, double *beta) const;
@@ -122,27 +114,27 @@ class LineFit {
         // otherwise.  Calculation fails if '2 > count' or all X's are
         // identical.
 
-    double getVariance() const;
-        // Return the variance of the data set X's.  The result is 'Nan' unless
-        // '2 <= count'.
+    int varianceIfValid(double *result) const;
+        // Load into the specified 'result, the variance of the data set X's.
+        // Return 0 for success, or -1 if '2 > count'.
 
-    double getVarianceRaw() const;
+    double variance() const;
         // Return variance of the data set X's.  The behavior is undefined
         // unless '2 <= count'.
 
-    double getXMean() const;
-        // Return mean of the data set X's.  The result is 'Nan' unless
+    int xMeanIfValid(double *result) const;
+        // Load into the specified 'result, the mean of the data set X's.
+        // Return 0 for success, or -1 if '1 > count'.
+
+    double xMean() const;
+        // Return mean of the data set Y's.  The behavior is undefined unless
         // '1 <= count'.
 
-    double getXMeanRaw() const;
-        // Return mean of the data set X's.  The behavior is undefined unless
-        // '1 <= count'.
+    int yMeanIfValid(double *result) const;
+        // Load into the specified 'result, the mean of the data set X's.
+        // Return 0 for success, or -1 if '1 > count'.
 
-    double getYMean() const;
-        // Return mean of the data set Y's.  The result is 'Nan' unless
-        // '1 <= count'.
-
-    double getYMeanRaw() const;
+    double yMean() const;
         // Return mean of the data set Y's.  The behavior is undefined unless
         // '1 <= count'.
 };
@@ -182,7 +174,7 @@ void LineFit::add(double xValue, double yValue)
 
 // ACCESSORS
 inline
-int LineFit::getCount() const
+int LineFit::count() const
 {
     return d_count;
 }
@@ -201,47 +193,53 @@ int LineFit::getLineFit(double *alpha, double *beta) const
 }
 
 inline
-double LineFit::getVariance() const
+int LineFit::varianceIfValid(double *result) const
 {
     if (2 > d_count) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getVarianceRaw();
+    *result = variance();
+    return 0;
 }
 
 inline
-double LineFit::getVarianceRaw() const
+double LineFit::variance() const
 {
+    BSLS_ASSERT_SAFE(2 <= d_data.d_count);
     return d_M2 / (d_count - 1);
 }
 
 inline
-double LineFit::getXMean() const
+int LineFit::xMeanIfValid(double *result) const
 {
     if (1 > d_count) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getXMeanRaw();
+    *result = xMean();
+    return 0;
 }
 
 inline
-double LineFit::getXMeanRaw() const
+double LineFit::xMean() const
 {
+    BSLS_ASSERT_SAFE(1 <= d_data.d_count);
     return d_xSum / static_cast<double>(d_count);
 }
 
 inline
-double LineFit::getYMean() const
+int LineFit::yMeanIfValid(double *result) const
 {
     if (1 > d_count) {
-        return k_DBL_NAN;                                             // RETURN
+        return -1;                                                    // RETURN
     }
-    return getYMeanRaw();
+    *result = yMean();
+    return 0;
 }
 
 inline
-double LineFit::getYMeanRaw() const
+double LineFit::yMean() const
 {
+    BSLS_ASSERT_SAFE(1 <= d_data.d_count);
     return d_ySum / static_cast<double>(d_count);
 }
 
