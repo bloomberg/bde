@@ -8,10 +8,10 @@
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
-//@PURPOSE: Online calculation of mean, variance, skew, and kurtosis.
+//@PURPOSE: Online algorithm for mean, variance, skew, and kurtosis.
 //
 //@CLASSES:
-//  bdlstat::Moment: calculate online mean, variance, skew, and kurtosis
+//  bdlstat::Moment: online calculation of mean, variance, skew, and kurtosis
 //
 //@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
 //
