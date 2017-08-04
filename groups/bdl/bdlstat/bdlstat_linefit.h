@@ -99,7 +99,7 @@ class LineFit {
     // CONSTANTS
     enum {
         e_SUCCESS         = 0,
-		e_INADEQUATE_DATA = -1
+        e_INADEQUATE_DATA = -1
     };
 
     // CREATORS
@@ -114,14 +114,14 @@ class LineFit {
     int count() const;
         // Returns the number of elements in the data set.
 
-    int getLineFit(double *alpha, double *beta) const;
-        // Calculate line fit coefficients Y=A+B*X, and populate the specified
-        // 'alpha' (intercept) and 'beta' (slope).  Return 0 on success, and
-        // non-zero otherwise.  The computations is unsuccessful if '2 > count'
-        // or all X's are identical.
+    int fit(double *alpha, double *beta) const;
+        // Calculate line fit coefficients 'Y=Alpha+Beta*X', and populate the
+        // specified 'alpha' (intercept) and 'beta' (slope).  Return 0 on
+        // success, and non-zero otherwise.  The computations is unsuccessful
+        // if '2 > count' or all X's are identical.
 
     double variance() const;
-        // Return variance of the data set X's.  The behavior is undefined
+        // Return the variance of the data set X's.  The behavior is undefined
         // unless '2 <= count'.
 
     int varianceIfValid(double *result) const;
@@ -130,8 +130,8 @@ class LineFit {
         // 'e_INADEQUATE_DATA' is returned if '2 > count'.
 
     double xMean() const;
-        // Return mean of the data set X's.  The behavior is undefined unless
-        // '1 <= count'.
+        // Return the mean of the data set X's.  The behavior is undefined
+        // unless '1 <= count'.
 
     int xMeanIfValid(double *result) const;
         // Load into the specified 'result', the mean of the data set X's.
@@ -139,8 +139,8 @@ class LineFit {
         // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 
     double yMean() const;
-        // Return mean of the data set Y's.  The behavior is undefined unless
-        // '1 <= count'.
+        // Return the mean of the data set Y's.  The behavior is undefined
+        // unless '1 <= count'.
 
     int yMeanIfValid(double *result) const;
         // Load into the specified 'result', the mean of the data set Y's.
@@ -189,7 +189,7 @@ int LineFit::count() const
 }
 
 inline
-int LineFit::getLineFit(double *alpha, double *beta) const
+int LineFit::fit(double *alpha, double *beta) const
 {
     if (2 > d_count || 0.0 == d_M2) {
         return e_INADEQUATE_DATA;                                     // RETURN

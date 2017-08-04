@@ -189,7 +189,7 @@ class Moment {
     // CONSTANTS
     enum {
         e_SUCCESS         = 0,
-		e_INADEQUATE_DATA = -1
+        e_INADEQUATE_DATA = -1
     };
 
     // MANIPULATORS
@@ -226,7 +226,8 @@ class Moment {
     int skewIfValid(double *result) const;
         // Load into the specified 'result, the skew of the data set.  Return
         // 0 on success, and a non-zero value otherwise.  Specifically,
-        // 'e_INADEQUATE_DATA' is returned if '3 > count' or the variance is zero.
+        // 'e_INADEQUATE_DATA' is returned if '3 > count' or the variance is
+        // zero.
 
     double variance() const;
         // Return variance of the data set.  The behavior is undefined unless

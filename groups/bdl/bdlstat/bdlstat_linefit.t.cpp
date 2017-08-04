@@ -38,7 +38,7 @@ using namespace bsl;
 // [ 2] double yMean()
 // [ 2] int varianceIfValid(double *)
 // [ 2] double variance()
-// [ 2] int getLineFit(double *alpha, double *beta)
+// [ 2] int fit(double *alpha, double *beta)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] EDGE CASES
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
   ASSERT(3.0  == lineFit.xMean());
   ASSERT(1e-3 >  fabs(2.875   - lineFit.yMean()));
   ASSERT(1e-3 >  fabs(3.33333 - lineFit.variance()));
-  ASSERT(0    == lineFit.getLineFit(&alpha, &beta));
+  ASSERT(0    == lineFit.fit(&alpha, &beta));
   ASSERT(1e-3 >  fabs(0.175 - alpha));
   ASSERT(1e-3 >  fabs(0.9   - beta ));
 //..
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
         //   double yMean()
         //   int varianceIfValid(double *)
         //   double variance()
-        //   int getLineFit(double *alpha, double *beta)
+        //   int fit(double *alpha, double *beta)
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
                 const int    varianceRet = lf.varianceIfValid(&variance);
                 const double varianceRaw = lf.variance();
                 double       alpha = 0.0, beta = 0.0;
-                const int    lineFitRet  = lf.getLineFit(&alpha, &beta);
+                const int    lineFitRet  = lf.fit(&alpha, &beta);
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(xMean) P_(xMeanRet) P_(xMeanRaw)
@@ -446,13 +446,10 @@ int main(int argc, char *argv[])
 
         double alpha = 0.0, beta = 0.0;
         ASSERT(4 == lineFit.count());
-        //cout << "YMean=" << lineFit.yMean() << "\n";
         ASSERT(3.0 == lineFit.xMean());
         ASSERT(fabs(2.875 - lineFit.yMean()) < 1e-3);
-        //cout << "Var=" << lineFit.variance() << "\n";
         ASSERT(fabs(3.33333  - lineFit.variance()) < 1e-3);
-        ASSERT(0 == lineFit.getLineFit(&alpha, &beta));
-        //cout << "Alpha=" << alpha << ",Beta=" << beta << "\n";
+        ASSERT(0 == lineFit.fit(&alpha, &beta));
         ASSERT(fabs(0.175 - alpha)     < 1e-3);
         ASSERT(fabs(0.9 - beta )     < 1e-3);
       } break;
