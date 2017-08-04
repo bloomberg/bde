@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-    double input[] = {1.0, 2.0, 4.0, 5.0};
+    double input[] = { 1.0, 2.0, 4.0, 5.0 };
 
     bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
 //..
@@ -641,7 +641,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        double input[] = {1.0, 2.0, 4.0, 5.0};
+        double input[] = { 1.0, 2.0, 4.0, 5.0 };
 
         bdlstat::Moment<bdlstat::MomentLevel::e_M1> m1;
         for(int i = 0; i < 4; ++i) {

@@ -18,19 +18,27 @@ namespace bdlstat {
 // the center or mass:
 //..
 // Xm = mean(X), Ym = mean(Y) ==> A = Ym - B*Xm
+//..
 // The formula for B is:
+//..
 // B = SUM((Xi-Xm)*(Yi-Ym)) / SUM((Xi-Xm)^2)
-// The denominator SUM((Xi-Xm)^2) is the 2nd moment, calculated for variance.
+//..
+// The denominator SUM((Xi-Xm)^2) is the 2nd moment times the count, which is
+// used in the variance calculation.
 //
 // The numerator:
-// SUM((Xi-Xm)*(Yi-Ym)) =
-// = SUM(Xi*Yi + Xm*Ym - Yi*Xm - Xi*Ym) =
-// SUM(Xi*Yi) + N*Xm*Ym - Xm*SUM(Yi) - Ym*SUM(Yi) =
-// SUM(Xi*Yi) + N*Xm*Ym - N*Xm*Ym - N*Ym*Xm =
-// SUM(Xi*Yi) - N*Xm*Ym
+//..
+// SUM((Xi-Xm)*(Yi-Ym))
+// = SUM(Xi*Yi + Xm*Ym - Yi*Xm - Xi*Ym)
+// = SUM(Xi*Yi) + N*Xm*Ym - Xm*SUM(Yi) - Ym*SUM(Yi)
+// = SUM(Xi*Yi) + N*Xm*Ym - N*Xm*Ym - N*Ym*Xm
+// = SUM(Xi*Yi) - N*Xm*Ym
+//..
 //
 // Alternative derivation does not avoid multiplication of X and Y:
+//
 // Let's look for the difference between n-1 and n for the numerator:
+//..
 // SUM((Xi-Xm)*(Yi-Ym)), designated as DS = SUMn - SUMn1
 //..
 // Let's mark Xm as mean(X) with n values, Xm1 as mean(X) with n-1 value1, Ym
@@ -42,10 +50,10 @@ namespace bdlstat {
 //..
 // Sn is trivial: (Xn - Xm) * (Yn = Ym)
 // The difference in the first n-1 members:
-// SUM((Xi-Xm)*(Yi-Ym)) - SUM((Xi-Xm1)*((Yi-Ym1)) =
-// SUM(Xi*Yi + Xm*Ym - Xi*Ym - Yi*Xm - Xi*Yi - Xm1*Ym1 + Xi*Ym1 + Yi * Ym1) =
-// SUM(Xm*Ym - Xm1*Ym1) - SUM(Xi*(Ym - Ym1)) - SUM(Yi*(Xm - Xm1)) =
-// n*(Xm*Ym - Xm1*Ym1) - (Ym - Ym1)*SUM(Xi) - (Xm - Xm1)*SUM(Yi)
+// SUM((Xi-Xm)*(Yi-Ym)) - SUM((Xi-Xm1)*((Yi-Ym1))
+// = SUM(Xi*Yi + Xm*Ym - Xi*Ym - Yi*Xm - Xi*Yi - Xm1*Ym1 + Xi*Ym1 + Yi * Ym1)
+// = SUM(Xm*Ym - Xm1*Ym1) - SUM(Xi*(Ym - Ym1)) - SUM(Yi*(Xm - Xm1))
+// = n*(Xm*Ym - Xm1*Ym1) - (Ym - Ym1)*SUM(Xi) - (Xm - Xm1)*SUM(Yi)
 // BDE_VERIFY pragma: +LL01
 //..
 //

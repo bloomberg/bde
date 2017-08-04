@@ -8,10 +8,10 @@
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
-//@PURPOSE: Online algorithm for computing the least squares line fit.
+//@PURPOSE: Online algorithm for computing the least squares regression line.
 //
 //@CLASSES:
-//  bdlstat::LineFit: online calculation of least squares line fit
+//  bdlstat::LineFit: online calculation of least squares regression line
 //
 //@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
 //
@@ -19,8 +19,8 @@ BSLS_IDENT("$Id: $")
 // provides online calculation of the least squares line fit.  Online
 // algorithms process the data in one pass, while maintaining accuracy.  The
 // online algorithm used is developed in the implementation notes (it is
-// similar to Welford online algorithm for computing variance).  The formulae
-// for line fit are taken from:
+// similar to the Welford online algorithm for computing variance).  The
+// formulae for line fit are taken from:
 // https://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
 //
 // Note that the behavior is undefined if there are less than 2 data points, or
@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-//  double inputX[] = {1.0, 2.0, 4.0, 5.0};
-//  double inputY[] = {1.0, 2.0, 4.0, 4.5};
+//  double inputX[] = { 1.0, 2.0, 4.0, 5.0 };
+//  double inputY[] = { 1.0, 2.0, 4.0, 4.5 };
 //  bdlstat::LineFit lineFit;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
@@ -82,10 +82,10 @@ namespace bdlstat {
                             // =============
 
 class LineFit {
-    // This class provides efficient an online algorithm for calculating linear
+    // This class provides an efficient online algorithm for calculating linear
     // square line fit.  The class also calculates the mean for the X's and
-    // Y's, and variance for the X's, all byproducts of calculating the line
-    // fit.  The online algorithm is detailed in the implementation notes.
+    // Y's, and variance for the X's. These are byproducts of calculating the
+    // line fit.  The online algorithm is detailed in the implementation notes.
   private:
     // DATA
     int    d_count; // Number of data points.
@@ -102,7 +102,7 @@ class LineFit {
 
     // MANIPULATORS
     void add(double xValue, double yValue);
-        // Add the specified 'xValue', 'yValue' point to the data set.
+        // Add the specified '(xValue, yValue)' point to the data set.
 
     // ACCESSORS
     int count() const;
@@ -119,7 +119,7 @@ class LineFit {
         // unless '2 <= count'.
 
     int varianceIfValid(double *result) const;
-        // Load into the specified 'result, the variance of the data set X's.
+        // Load into the specified 'result', the variance of the data set X's.
         // Return 0 for success, or -1 if '2 > count'.
 
     double xMean() const;
@@ -127,7 +127,7 @@ class LineFit {
         // '1 <= count'.
 
     int xMeanIfValid(double *result) const;
-        // Load into the specified 'result, the mean of the data set X's.
+        // Load into the specified 'result', the mean of the data set X's.
         // Return 0 for success, or -1 if '1 > count'.
 
     double yMean() const;
@@ -135,7 +135,7 @@ class LineFit {
         // '1 <= count'.
 
     int yMeanIfValid(double *result) const;
-        // Load into the specified 'result, the mean of the data set Y's.
+        // Load into the specified 'result', the mean of the data set Y's.
         // Return 0 for success, or -1 if '1 > count'.
 };
 
@@ -196,6 +196,7 @@ inline
 double LineFit::variance() const
 {
     BSLS_ASSERT_SAFE(2 <= d_data.d_count);
+
     return d_M2 / (d_count - 1);
 }
 
@@ -213,6 +214,7 @@ inline
 double LineFit::xMean() const
 {
     BSLS_ASSERT_SAFE(1 <= d_data.d_count);
+
     return d_xSum / static_cast<double>(d_count);
 }
 
@@ -230,6 +232,7 @@ inline
 double LineFit::yMean() const
 {
     BSLS_ASSERT_SAFE(1 <= d_data.d_count);
+
     return d_ySum / static_cast<double>(d_count);
 }
 

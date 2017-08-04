@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-//  double input[] = {1.0, 2.0, 4.0, 5.0};
+//  double input[] = { 1.0, 2.0, 4.0, 5.0 };
 //
 //  bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
 //..
@@ -199,7 +199,7 @@ class Moment {
         // '4 <= count' and variance is not zero.
 
     int kurtosisIfValid(double *result) const;
-        // Load into the specified 'result, the kurtosis of the data set.
+        // Load into the specified 'result', the kurtosis of the data set.
         // Return 0 for success, or -1 if '4 > count' or the variance is zero.
 
     double mean() const;
@@ -207,7 +207,7 @@ class Moment {
         // '1 <= count'.
 
     int meanIfValid(double *result) const;
-        // Load into the specified 'result, the mean of the data set.  Return
+        // Load into the specified 'result', the mean of the data set.  Return
         // 0 for success, or -1 if '1 > count'.
 
     double skew() const;
@@ -223,7 +223,7 @@ class Moment {
         // '2 <= count'.
 
     int varianceIfValid(double *result) const;
-        // Load into the specified 'result, the variance of the data set.
+        // Load into the specified 'result', the variance of the data set.
         // Return 0 for success, or -1 if '2 > count'.
 };
 
@@ -347,6 +347,7 @@ inline
 double Moment<MomentLevel::e_M4>::kurtosis() const
 {
     BSLS_ASSERT_SAFE(4 <= d_data.d_count && 0.0 != d_data.d_M2);
+
     const double n    = static_cast<double>(d_data.d_count);
     const double n1   = (n - 1.0);
     const double n2n3 = (n - 2.0) * (n - 3.0);
@@ -370,6 +371,7 @@ inline
 double Moment<ML>::mean() const
 {
     BSLS_ASSERT_SAFE(1 <= d_data.d_count);
+
     return d_data.d_sum / static_cast<double>(d_data.d_count);
 }
 
@@ -389,6 +391,7 @@ inline
 double Moment<ML>::skew() const
 {
     BSLS_ASSERT_SAFE(3 <= d_data.d_count && 0.0 != d_data.d_M2);
+
     const double n = static_cast<double>(d_data.d_count);
     return bsl::sqrt(n - 1.0) * n / (n- 2.0) * d_data.d_M3
                                                   / bsl::pow(d_data.d_M2, 1.5);
@@ -409,6 +412,7 @@ inline
 double Moment<ML>::variance() const
 {
     BSLS_ASSERT_SAFE(2 <= d_data.d_count);
+
     return d_data.d_M2 / (d_data.d_count - 1);
 }
 

@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-  double           inputX[] = {1.0, 2.0, 4.0, 5.0};
-  double           inputY[] = {1.0, 2.0, 4.0, 4.5};
+  double           inputX[] = { 1.0, 2.0, 4.0, 5.0 };
+  double           inputY[] = { 1.0, 2.0, 4.0, 4.5 };
   bdlstat::LineFit lineFit;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
@@ -433,8 +433,8 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        double           inputX[] = {1.0, 2.0, 4.0, 5.0};
-        double           inputY[] = {1.0, 2.0, 4.0, 4.5};
+        double           inputX[] = { 1.0, 2.0, 4.0, 5.0 };
+        double           inputY[] = { 1.0, 2.0, 4.0, 4.5 };
         bdlstat::LineFit lineFit;
 
         for(int i = 0; i < 4; ++i) {
