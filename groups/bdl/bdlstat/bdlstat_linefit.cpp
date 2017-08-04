@@ -23,8 +23,8 @@ namespace bdlstat {
 //..
 // B = SUM((Xi-Xm)*(Yi-Ym)) / SUM((Xi-Xm)^2)
 //..
-// The denominator SUM((Xi-Xm)^2) is the 2nd moment times the count, which is
-// used in the variance calculation.
+// The denominator SUM((Xi-Xm)^2) is the 2nd moment multiplied by the count,
+// which is used in the variance calculation.
 //
 // The numerator:
 //..
@@ -37,7 +37,8 @@ namespace bdlstat {
 //
 // Alternative derivation does not avoid multiplication of X and Y:
 //
-// Let's look for the difference between n-1 and n for the numerator:
+// Let's look for the difference between n-1 and n for the numerator (as would
+// be expected for sample moments):
 //..
 // SUM((Xi-Xm)*(Yi-Ym)), designated as DS = SUMn - SUMn1
 //..
@@ -49,7 +50,9 @@ namespace bdlstat {
 // due to change of Xm1 to Xm, Ym1 to Ym.
 //..
 // Sn is trivial: (Xn - Xm) * (Yn = Ym)
+//..
 // The difference in the first n-1 members:
+//..
 // SUM((Xi-Xm)*(Yi-Ym)) - SUM((Xi-Xm1)*((Yi-Ym1))
 // = SUM(Xi*Yi + Xm*Ym - Xi*Ym - Yi*Xm - Xi*Yi - Xm1*Ym1 + Xi*Ym1 + Yi * Ym1)
 // = SUM(Xm*Ym - Xm1*Ym1) - SUM(Xi*(Ym - Ym1)) - SUM(Yi*(Xm - Xm1))

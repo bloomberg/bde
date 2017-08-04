@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(3.0  == lineFit.xMean());
 //  ASSERT(1e-3 >  fabs(2.875    - lineFit.yMean()));
 //  ASSERT(1e-3 >  fabs(3.33333  - lineFit.variance()));
-//  ASSERT(0    == lineFit.getLineFit(&alpha, &beta));
+//  ASSERT(0    == lineFit.fitIfValid(&alpha, &beta));
 //  ASSERT(1e-3 >  fabs(0.175 - alpha));
 //  ASSERT(1e-3 >  fabs(0.9   - beta ));
 //..
@@ -114,9 +114,14 @@ class LineFit {
     int count() const;
         // Returns the number of elements in the data set.
 
-    int fit(double *alpha, double *beta) const;
-        // Calculate line fit coefficients 'Y=Alpha+Beta*X', and populate the
-        // specified 'alpha' (intercept) and 'beta' (slope).  Return 0 on
+    void fit(double *alpha, double *beta) const;
+        // Calculate line fit coefficients 'Y = Alpha + Beta * X', and populate
+        // the specified 'alpha' (intercept) and 'beta' (slope).  The behavior
+        // is undefined if '2 > count' or all X's are identical.
+
+    int fitIfValid(double *alpha, double *beta) const;
+        // Calculate line fit coefficients 'Y = Alpha + Beta * X', and populate
+        // the specified 'alpha' (intercept) and 'beta' (slope).  Return 0 on
         // success, and non-zero otherwise.  The computations is unsuccessful
         // if '2 > count' or all X's are identical.
 
@@ -189,7 +194,18 @@ int LineFit::count() const
 }
 
 inline
-int LineFit::fit(double *alpha, double *beta) const
+void LineFit::fit(double *alpha, double *beta) const
+{
+    BSLS_ASSERT_SAFE(2 <= d_data.d_count && 0.0 != d_M2);
+
+    const double n = static_cast<double>(d_count);
+    double tmpBeta = (d_xySum - d_xSum * d_ySum / n) / d_M2;
+    *beta = tmpBeta;
+    *alpha = (d_ySum - d_xSum * tmpBeta) / n;
+}
+
+inline
+int LineFit::fitIfValid(double *alpha, double *beta) const
 {
     if (2 > d_count || 0.0 == d_M2) {
         return e_INADEQUATE_DATA;                                     // RETURN

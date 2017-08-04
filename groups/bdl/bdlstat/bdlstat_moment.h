@@ -8,7 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
-//@PURPOSE: Functions to calculate online mean, variance, skew, and kurtosis.
+//@PURPOSE: Online algorithm for computing mean, variance, skew, and kurtosis.
 //
 //@CLASSES:
 //  bdlstat::Moment: calculate online mean, variance, skew, and kurtosis
@@ -201,8 +201,8 @@ class Moment {
         // Returns the number of elements in the data set.
 
     double kurtosis() const;
-        // Return kurtosis of the data set.  The behavior is undefined unless
-        // '4 <= count' and variance is not zero.
+        // Return the kurtosis of the data set.  The behavior is undefined
+        // unless '4 <= count' and the variance is not zero.
 
     int kurtosisIfValid(double *result) const;
         // Load into the specified 'result', the kurtosis of the data set.
@@ -211,7 +211,7 @@ class Moment {
         // zero.
 
     double mean() const;
-        // Return mean of the data set.  The behavior is undefined unless
+        // Return the mean of the data set.  The behavior is undefined unless
         // '1 <= count'.
 
     int meanIfValid(double *result) const;
@@ -224,14 +224,14 @@ class Moment {
         // '3 <= count' or the variance is zero.
 
     int skewIfValid(double *result) const;
-        // Load into the specified 'result, the skew of the data set.  Return
+        // Load into the specified 'result', the skew of the data set.  Return
         // 0 on success, and a non-zero value otherwise.  Specifically,
         // 'e_INADEQUATE_DATA' is returned if '3 > count' or the variance is
         // zero.
 
     double variance() const;
-        // Return variance of the data set.  The behavior is undefined unless
-        // '2 <= count'.
+        // Return the variance of the data set.  The behavior is undefined
+        // unless '2 <= count'.
 
     int varianceIfValid(double *result) const;
         // Load into the specified 'result', the variance of the data set.
