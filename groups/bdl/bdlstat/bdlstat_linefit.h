@@ -96,6 +96,12 @@ class LineFit {
     double d_xySum; // Sum of Xi*Yi
 
   public:
+    // CONSTANTS
+    enum {
+        e_SUCCESS         = 0,
+		e_INADEQUATE_DATA = -1
+    };
+
     // CREATORS
     LineFit();
         // Create an empty 'LineFit' object.
@@ -120,7 +126,8 @@ class LineFit {
 
     int varianceIfValid(double *result) const;
         // Load into the specified 'result', the variance of the data set X's.
-        // Return 0 for success, or -1 if '2 > count'.
+        // Return 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '2 > count'.
 
     double xMean() const;
         // Return mean of the data set X's.  The behavior is undefined unless
@@ -128,7 +135,8 @@ class LineFit {
 
     int xMeanIfValid(double *result) const;
         // Load into the specified 'result', the mean of the data set X's.
-        // Return 0 for success, or -1 if '1 > count'.
+        // Return 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 
     double yMean() const;
         // Return mean of the data set Y's.  The behavior is undefined unless
@@ -136,7 +144,8 @@ class LineFit {
 
     int yMeanIfValid(double *result) const;
         // Load into the specified 'result', the mean of the data set Y's.
-        // Return 0 for success, or -1 if '1 > count'.
+        // Return 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 };
 
 // ============================================================================
@@ -183,7 +192,7 @@ inline
 int LineFit::getLineFit(double *alpha, double *beta) const
 {
     if (2 > d_count || 0.0 == d_M2) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     const double n = static_cast<double>(d_count);
     double tmpBeta = (d_xySum - d_xSum * d_ySum / n) / d_M2;
@@ -204,7 +213,7 @@ inline
 int LineFit::varianceIfValid(double *result) const
 {
     if (2 > d_count) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = variance();
     return 0;
@@ -222,7 +231,7 @@ inline
 int LineFit::xMeanIfValid(double *result) const
 {
     if (1 > d_count) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = xMean();
     return 0;
@@ -240,7 +249,7 @@ inline
 int LineFit::yMeanIfValid(double *result) const
 {
     if (1 > d_count) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = yMean();
     return 0;

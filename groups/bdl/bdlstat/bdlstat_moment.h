@@ -186,6 +186,12 @@ class Moment {
     struct Moment_Data<ML> d_data;
 
   public:
+    // CONSTANTS
+    enum {
+        e_SUCCESS         = 0,
+		e_INADEQUATE_DATA = -1
+    };
+
     // MANIPULATORS
     void add(double value);
         // Add the specified 'value' to the data set.
@@ -200,7 +206,9 @@ class Moment {
 
     int kurtosisIfValid(double *result) const;
         // Load into the specified 'result', the kurtosis of the data set.
-        // Return 0 for success, or -1 if '4 > count' or the variance is zero.
+        // Return 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '4 > count' or the variance is
+        // zero.
 
     double mean() const;
         // Return mean of the data set.  The behavior is undefined unless
@@ -208,7 +216,8 @@ class Moment {
 
     int meanIfValid(double *result) const;
         // Load into the specified 'result', the mean of the data set.  Return
-        // 0 for success, or -1 if '1 > count'.
+        // 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '1 > count'.
 
     double skew() const;
         // Return skew of the data set.  The behavior is undefined unless
@@ -216,7 +225,8 @@ class Moment {
 
     int skewIfValid(double *result) const;
         // Load into the specified 'result, the skew of the data set.  Return
-        // 0 for success, or -1 if '3 > count' or the variance is zero.
+        // 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '3 > count' or the variance is zero.
 
     double variance() const;
         // Return variance of the data set.  The behavior is undefined unless
@@ -224,7 +234,8 @@ class Moment {
 
     int varianceIfValid(double *result) const;
         // Load into the specified 'result', the variance of the data set.
-        // Return 0 for success, or -1 if '2 > count'.
+        // Return 0 on success, and a non-zero value otherwise.  Specifically,
+        // 'e_INADEQUATE_DATA' is returned if '2 > count'.
 };
 
 // ============================================================================
@@ -360,7 +371,7 @@ inline
 int Moment<MomentLevel::e_M4>::kurtosisIfValid(double *result) const
 {
     if (4 > d_data.d_count || 0.0 == d_data.d_M2) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = kurtosis();
     return 0;
@@ -380,7 +391,7 @@ inline
 int Moment<ML>::meanIfValid(double *result) const
 {
     if (1 > d_data.d_count) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = mean();
     return 0;
@@ -401,7 +412,7 @@ template <MomentLevel::Enum ML>
 inline int Moment<ML>::skewIfValid(double *result) const
 {
     if (3 > d_data.d_count || 0.0 == d_data.d_M2) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = skew();
     return 0;
@@ -421,7 +432,7 @@ inline
 int Moment<ML>::varianceIfValid(double *result) const
 {
     if (2 > d_data.d_count) {
-        return -1;                                                    // RETURN
+        return e_INADEQUATE_DATA;                                     // RETURN
     }
     *result = variance();
     return 0;
