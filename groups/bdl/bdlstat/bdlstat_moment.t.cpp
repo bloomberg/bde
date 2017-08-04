@@ -31,14 +31,14 @@ using namespace bsl;
 // [ 2] Moment()
 // [ 2] add(double value)
 // [ 2] count()
-// [ 2] meanIfValid()
-// [ 2] mean()
-// [ 2] varianceIfValid()
-// [ 2] variance()
-// [ 2] skewIfValid()
-// [ 2] skew()
-// [ 2] kurtosisIfValid()
 // [ 2] kurtosis()
+// [ 2] kurtosisIfValid()
+// [ 2] mean()
+// [ 2] meanIfValid()
+// [ 2] skew()
+// [ 2] skewIfValid()
+// [ 2] variance()
+// [ 2] varianceIfValid()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] EDGE CASES
@@ -303,6 +303,7 @@ int main(int argc, char *argv[])
         static const struct {
             int    d_line;
             double d_values[7];
+            int    d_count;
             double d_mean;
             double d_variance;
             double d_skew;
@@ -310,24 +311,44 @@ int main(int argc, char *argv[])
         } INPUT[] = {
             //LN  val1   val2   val3   val4   val5   val6   val7
             //--  -----  -----  -----  -----  -----  -----  -----
-            //mean      variance  skew      kurtosis
-            //--------  --------  --------  --------
+            //Cnt mean      variance  skew      kurtosis
+            //--- --------  --------  --------  --------
+            { L_, 1.0  , 2.0   , 0.0  ,  0.0 ,  0.0 , 0.0  ,  0.0,
+              2 ,1.5      ,0.5    , 0.0      , 0.0                          },
+            { L_, 1e3  , 2e3   , 0.0  , 0.0  ,  0.0 , 0.0  , 0.0 ,
+              2 ,1500     ,5E5     , 0.0     , 0.0                          },
+            { L_, 1.0  , 2.0   , 4.0  ,  0.0 ,  0.0 , 0.0  ,  0.0,
+              3 ,2.33333  ,2.33333, 0.93522  , 0.0                          },
+            { L_, 1e3  , 2e3   , 3e3  , 0.0  ,  0.0 , 0.0  , 0.0 ,
+              3 ,2000     ,1E6     , 0.0     , 0.0                          },
+            { L_, 1.0  , 2.0   , 4.0  , 12.0 ,  0.0 , 0.0  ,  0.0,
+              4 ,4.75     ,24.9167, 1.64622  , 2.70427                      },
+            { L_, 1e3  , 2e3   , 3e3  , 4e3  ,  0.0 , 0.0  , 0.0 ,
+              4 ,2500     ,1.6667E6, 0.0     , -1.2                         },
+            { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 0.0  ,  0.0,
+              5 ,7.8      ,65.2   , 1.04907  , -0.371627                    },
+            { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1e-3 , 0.0  , 0.0 ,
+              5 ,2000     ,2.5E6  , 6.3245E-7, -1.2                         },
+            { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 25.0 ,  0.0,
+              6 ,10.6667  ,101.467, 0.560491 , -1.75255                     },
+            { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1e-3 , 2e-3 , 0.0 ,
+              6 ,1666.7   ,2.6667E6, 0.382734  , -1.48125                   },
             { L_, 1.0  , 2.0   , 4.0  , 12.0 , 20.0 , 25.0 , 30.0,
-              13.4286  ,137.952, 0.30677  , -1.86809                        },
+              7 ,13.4286  ,137.952, 0.30677  , -1.86809                     },
             { L_,30.0  , 25.0  , 20.0 , 12.0 , 4.0  , 2.0  , 1.0,
-              13.4286  ,137.952, 0.30677  , -1.86809                        },
+              7 ,13.4286  ,137.952, 0.30677  , -1.86809                     },
             { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1.0  , 2.0  , 3.0,
-              1429.43  ,2.616E6, 0.674989 , -1.14935                        },
+              7 ,1429.43  ,2.616E6, 0.674989 , -1.14935                     },
             { L_, 1.0  , 2.0   , 3.0  , 4e3  , 1e3  , 2e3  , 3e3,
-              1429.43  ,2.616E6, 0.674989 , -1.14935                        },
+              7 ,1429.43  ,2.616E6, 0.674989 , -1.14935                     },
             { L_,-123.0,-55.0  , 4.0  , 0.0  , 100.0, 24.0 , 24.0,
-              -3.71429 ,4870.9 ,-0.46229  , 1.01756                         },
+              7 ,-3.71429 ,4870.9 ,-0.46229  , 1.01756                      },
             { L_, 1.0  ,  2.0  , 3.0  , 4.0  , 5.0  ,  6.0 , 7.0 ,
-                   4.0 ,4.6667  ,0.0       , -1.2                            },
+              7 ,  4.0 ,4.6667  ,0.0       , -1.2                           },
             { L_, 1e3  , 2e3   , 3e3  , 4e3  , 1e-3 , 2e-3 , 3e-3,
-             1428.57  ,2.619E6, 0.67409   , -1.15101                        },
+              7 ,1428.57  ,2.619E6, 0.67409   , -1.15101                    },
             { L_, 1e-3 , 2e-3  , 3e-3 , 4e3  , 1e3  , 2e3  , 3e3 ,
-             1428.57  ,2.619E6, 0.67409   , -1.15101                        },
+              7 ,1428.57  ,2.619E6, 0.67409   , -1.15101                    },
         };
 
         const size_t NUM_DATA = sizeof INPUT / sizeof *INPUT;
@@ -339,12 +360,15 @@ int main(int argc, char *argv[])
 
                 const int     LINE   = INPUT[di].d_line;
                 const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
+                const int     COUNT  = INPUT[di].d_count;
+                if (COUNT < 4) continue;
+                for(int i = 0; i < COUNT; ++i) {
                     m4.add(VALUES[i]);
                     if (veryVerbose) {
                         P_(LINE) P_(i) P(VALUES[i]);
                     }
                 }
+                const int    expectedCount    = INPUT[di].d_count;
                 const double expectedMean     = INPUT[di].d_mean;
                 const double expectedVariance = INPUT[di].d_variance;
                 const double expectedSkew     = INPUT[di].d_skew;
@@ -375,8 +399,8 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(di,
                              count,
-                             7,
-                             7 == count);
+                             expectedCount,
+                             expectedCount == count);
                 LOOP3_ASSERT(di,
                              mean,
                              expectedMean,
@@ -439,12 +463,15 @@ int main(int argc, char *argv[])
 
                 const int     LINE   = INPUT[di].d_line;
                 const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
+                const int     COUNT  = INPUT[di].d_count;
+                if (COUNT < 3) continue;
+                for(int i = 0; i < COUNT; ++i) {
                     m3.add(VALUES[i]);
                     if (veryVerbose) {
                         P_(LINE) P_(i) P(VALUES[i]);
                     }
                 }
+                const int    expectedCount    = INPUT[di].d_count;
                 const double expectedMean     = INPUT[di].d_mean;
                 const double expectedVariance = INPUT[di].d_variance;
                 const double expectedSkew     = INPUT[di].d_skew;
@@ -469,8 +496,8 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(di,
                              count,
-                             7,
-                             7 == count);
+                             expectedCount,
+                             expectedCount == count);
                 LOOP3_ASSERT(di,
                              mean,
                              expectedMean,
@@ -520,12 +547,14 @@ int main(int argc, char *argv[])
 
                 const int     LINE   = INPUT[di].d_line;
                 const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
+                const int     COUNT  = INPUT[di].d_count;
+                for(int i = 0; i < COUNT; ++i) {
                     m2.add(VALUES[i]);
                     if (veryVerbose) {
                         P_(LINE) P_(i) P(VALUES[i]);
                     }
                 }
+                const int    expectedCount    = INPUT[di].d_count;
                 const double expectedMean     = INPUT[di].d_mean;
                 const double expectedVariance = INPUT[di].d_variance;
                 const int    count       = m2.count();
@@ -545,8 +574,8 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(di,
                              count,
-                             7,
-                             7 == count);
+                             expectedCount,
+                             expectedCount == count);
                 LOOP3_ASSERT(di,
                              mean,
                              expectedMean,
@@ -583,12 +612,14 @@ int main(int argc, char *argv[])
 
                 const int     LINE   = INPUT[di].d_line;
                 const double *VALUES = INPUT[di].d_values;
-                for(int i = 0; i < 7; ++i) {
+                const int     COUNT  = INPUT[di].d_count;
+                for(int i = 0; i < COUNT; ++i) {
                     m1.add(VALUES[i]);
                     if (veryVerbose) {
                         P_(LINE) P_(i) P(VALUES[i]);
                     }
                 }
+                const int    expectedCount    = INPUT[di].d_count;
                 const double expectedMean     = INPUT[di].d_mean;
                 const int    count       = m1.count();
                 double       mean = 0.0;
@@ -602,8 +633,8 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(di,
                              count,
-                             7,
-                             7 == count);
+                             expectedCount,
+                             expectedCount == count);
                 LOOP3_ASSERT(di,
                              mean,
                              expectedMean,
@@ -677,7 +708,8 @@ int main(int argc, char *argv[])
         ASSERT(3.0         == m3.mean());
         ASSERT(fabs(3.33333 - m3.variance()) < 1e-5);
         ASSERT(fabs(0.0     - m3.skew())     < 1e-5);
-        // The below does not compile, as it should
+        // The below would not compile since the object was created using
+        // 'e_M3':
         //ASSERT(fabs(644.185 - m3.kurtosis()) < 1e-3);
 
         bdlstat::Moment<bdlstat::MomentLevel::e_M4> m4;
