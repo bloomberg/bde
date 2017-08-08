@@ -333,15 +333,14 @@ class MiniReader :  public Reader {
         k_MAX_BUFSIZE     = 1024 * 128,  // MAX - 128 KB
         k_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
         k_DEFAULT_DEPTH   = 20           // Average expected deep
-    };                                        // to minimize allocations
+    };                                   // to minimize allocations
 
     typedef ElementAttribute Attribute;
     typedef bsl::vector<Attribute> AttributeVector;
 
     struct Node;
     friend struct Node;
-    struct Node
-    {
+    struct Node {
         enum {
             k_NODE_NO_FLAGS = 0x0000,
             k_NODE_EMPTY    = 0x0001
@@ -373,8 +372,7 @@ class MiniReader :  public Reader {
 
     typedef bsl::vector<Element> ElementVector;
 
-    enum State
-    {
+    enum State {
         ST_INITIAL,   // Initial state after successful open
         ST_TAG_BEGIN, // Current position - next symbol after '<'
         ST_TAG_END,   // Current position - next symbol after '>'
@@ -383,10 +381,20 @@ class MiniReader :  public Reader {
         ST_CLOSED     // close method has been called
     };
 
-    enum Flags
-    {
+    enum Flags {
         FLG_READ_EOF    = 0x0001,  // End of input data
         FLG_ROOT_CLOSED = 0x0002   // Root closed
+    };
+
+    enum StringType {
+        // The return value of 'searchCommentCDataOrElementName', says what
+        // node the function has found.
+
+        e_STRINGTYPE_NONE,
+        e_STRINGTYPE_COMMENT,
+        e_STRINGTYPE_CDATA,
+        e_STRINGTYPE_START_ELEMENT,
+        e_STRINGTYPE_END_ELEMENT
     };
 
   private:
@@ -457,18 +465,41 @@ class MiniReader :  public Reader {
     const bsl::string& findNamespace(const bsl::string &prefix) const;
     int   checkPrefixes();
 
+    void pushElementName();
+        // Push the 'currentNode()'s data onto the 'd_activeNodes' stack.
+
     int   scanNode();
         // Scan the node at the current position.
+    int   updateAttributes();
+    int   updateElementInfo();
+
+    int   addAttribute();
+
+    int   scanAttributes();
+    int   scanEndElementRaw();
+        // Scan an end element without updating the element info.
+
+    int   scanEndElement();
+    int   scanExclaimConstruct();
     int   scanOpenTag();
     int   scanProcessingInstruction();
-    int   scanExclaimConstruct();
-    int   scanText();
     int   scanStartElement();
-    int   scanEndElement();
-    int   scanAttributes();
-    int   addAttribute();
-    int   updateElementInfo();
-    int   updateAttributes();
+    int   scanText();
+
+    StringType searchCommentCDataOrEndElementName(const bsl::string& name);
+        // Scan the input for a comment, a CDATA section, the specified element
+        // 'name', or the end tag corresponding to 'name'.  Stop at the first
+        // instance of either one of those strings and update the internal read
+        // pointer (d_scanPtr) to point to the next character after the string
+        // read.  Return the string type found.
+
+    StringType searchElementName(const bsl::string& name);
+        // Scan the input for the specified element 'name', or the end tag
+        // corresponding to 'name'.  Stop at the first instance and update the
+        // internal read pointer (d_scanPtr) to point to the next character
+        // after the string read.  Return the string type found.  Notice that
+        // this method (unlike 'searchCommentCDataOrElementName') does not
+        // return 'e_STRINGTYPE_COMMENT' or 'e_STRINGTYPE_CDATA'.
 
     // LOW LEVEL PARSING PRIMITIVES
     const char *rebasePointer(const char *ptr, const char *newBase);
@@ -480,6 +511,11 @@ class MiniReader :  public Reader {
     int   peekChar();
         // Return the character at the current position, and zero if the end of
         // stream was reached.
+
+    int   readAtLeast(bsl::ptrdiff_t number);
+        // Call 'readInput' until there are at least the specified 'number' of
+        // characters in the buffer.  Return zero if 'number' characters cannot
+        // be read, and return a positive value otherwise.
 
     int   getChar();
         // Return the character at the current position and then advance the
@@ -543,7 +579,6 @@ class MiniReader :  public Reader {
         // 'bufSize' is a hint, which may be modified or ignored if it is not
         // within a "sane" range.
 
-    // CLASS METHODS
     //------------------------------------------------
     // INTERFACE Reader
     //------------------------------------------------
@@ -632,13 +667,67 @@ class MiniReader :  public Reader {
         // returned from 'nodeName' for this node will not be valid once
         // 'close' is called.
 
+    virtual int advanceToEndNode();
+        // Skip all the sub elements of the current node and position the
+        // reader on its corresponding end node.  While skipping ensure that
+        // the elements being skipped are well-formed and do not contain any
+        // parsing errors.  Return 0 on successful skip, and a negative number
+        // otherwise (error).  The behavior is undefined unless
+        // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
+        // each call to 'advanceToEndNode' invalidates strings and data
+        // structures returned when 'Reader' accessors were called for the
+        // "prior node".  E.g., the pointer returned from 'nodeName' for this
+        // node won't be valid once 'advanceToEndNode' is called.  Note that
+        // this method leaves the reader pointing to an end node, so calling
+        // one of the 'advanceToEndNode' immediately after will not advance the
+        // reader further (first call 'advanceToNextNode' before calling the
+        // 'advanceToEndNode' function again).
+
+    virtual int advanceToEndNodeRaw();
+        // Skip all the sub elements of the current node and position the
+        // reader on its corresponding end node, and (unlike
+        // 'advanceToNextNode') perform no checks to ensure that the elements
+        // being skipped are well-formed and that they do not contain any
+        // parsing errors.  Return 0 on successful skip, and a negative number
+        // otherwise (error).  The behavior is undefined unless
+        // 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.  Note that
+        // each call to 'advanceToEndNodeRaw' invalidates strings and data
+        // structures returned when 'Reader' accessors were called for the
+        // "prior node".  E.g., the pointer returned from 'nodeName' for this
+        // node will not be valid once 'advanceToEndNodeRaw' is called.  Note
+        // that this method leaves the reader pointing to an end node, so
+        // calling one of the 'advanceToEndNodeRaw' immediately after will not
+        // advance the reader further (first call 'advanceToNextNode' before
+        // calling the 'advanceToEndNodeRaw' function again).
+
+    virtual int advanceToEndNodeRawBare();
+        // Skip all the sub elements of the current node and position the
+        // reader on its corresponding end node, and (unlike
+        // 'advanceToNextNode') perform no checks to ensure that the elements
+        // being skipped are well-formed and that they do not contain any
+        // parsing errors.  Unlike 'advanceToEndNodeRaw' this method does not
+        // expect (allow) comments or CDATA nodes in the input XML, in other
+        // words it is expecting "bare" XML.  Return 0 on successful skip, and
+        // a negative number otherwise (error).  The behavior is undefined
+        // unless 'baexml_Reader::BAEXML_NODE_TYPE_ELEMENT == node.type()'.
+        // The behavior is also undefined if the input XML contains comment or
+        // CDATA nodes.  Note that each call to 'advanceToEndNodeRawBare'
+        // invalidates strings and data structures returned when 'Reader'
+        // accessors were called for the "prior node".  E.g., the pointer
+        // returned from 'nodeName' for this node will not be valid once
+        // 'advanceToEndNodeRawBare' is called.  Note that this method leaves
+        // the reader pointing to an end node, so calling one of the
+        // 'advanceToEndNodeRawBare' immediately after will not advance the
+        // reader further (first call 'advanceToNextNode' before calling the
+        // 'advanceToEndNodeRawBare' function again).
+
     virtual int advanceToNextNode();
         // Move to the next node in the data steam created by 'open' thus
         // allowing the node's properties to be queried via the 'Reader'
         // accessors.  Return 0 on successful read, 1 if there are no more
         // nodes to read, and a negative number otherwise.  Note that each call
         // to 'advanceToNextNode' invalidates strings and data structures
-        // returned when 'Reader' accessors where call for the "prior node".
+        // returned when 'Reader' accessors were called for the "prior node".
         // E.g., the pointer returned from 'nodeName' for this node will not be
         // valid once 'advanceToNextNode' is called.  Note that the reader will
         // not be on a valid node until the first call to 'advanceToNextNode'
@@ -843,7 +932,7 @@ inline
 int MiniReader::peekChar()
 {
     if (d_scanPtr >= d_endPtr) {
-        if (readInput() == 0){
+        if (readInput() == 0) {
             return 0;                                                 // RETURN
         }
     }
@@ -855,7 +944,7 @@ inline
 int MiniReader::getChar()
 {
     if (d_scanPtr >= d_endPtr) {
-        if (readInput() == 0){
+        if (readInput() == 0) {
             return 0;                                                 // RETURN
         }
     }
@@ -905,13 +994,13 @@ int MiniReader::getCurrentPosition() const
 inline
 int MiniReader::nodeStartPosition() const
 {
-    return  currentNode().d_startPos;
+    return currentNode().d_startPos;
 }
 
 inline
 int MiniReader::nodeEndPosition() const
 {
-    return  currentNode().d_endPos;
+    return currentNode().d_endPos;
 }
 
 }  // close package namespace
