@@ -422,6 +422,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 #endif
 
     CONTEXT winContext;
+    memset(&winContext, 0, sizeof(winContext));
 
 #if   defined(BSLS_PLATFORM_OS_WINXP)
     // RtlCaptureContext is not implemented before XP or Server 2003
